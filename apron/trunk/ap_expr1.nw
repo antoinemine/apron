@@ -1,0 +1,147 @@
+% -*- mode: Noweb; noweb-code-mode: c-mode -*-
+
+%**********************************************************************
+\chapter{Sémantique concrète niveau 1 et fichier [[ap_expr1.h]]}
+%**********************************************************************
+
+<<*>>=
+/* ************************************************************************* */
+/* ap_expr1.h: datatypes for dimensions, expressions and constraints */
+/* ************************************************************************* */
+
+/* GENERATED FROM ap_expr1.nw: DOT NOT MODIFY ! */
+
+
+#ifndef _AP_EXPR1_H_
+#define _AP_EXPR1_H_
+
+#include "ap_linexpr1.h"
+#include "ap_lincons1.h"
+#include "ap_generator1.h"
+
+#endif
+@
+
+%**********************************************************************
+\section{Types de donnée}
+%**********************************************************************
+
+%----------------------------------------------------------------------
+\point{Principe.} Il est de rajouter un environment au structures de donnée
+de niveau 0. exemple:
+<<bidon>>=
+typedef struct ap_linexpr1_t {
+  ap_linexpr0_t* linexpr0;
+  environment_t* env;
+} ap_linexpr1_t;
+typedef struct ap_lincons1_t {
+  ap_lincons0_t lincons0;
+  environment_t* env;
+} ap_lincons1_t;
+@ 
+
+Cela rend très rapide la conversion du niveau 1 au niveau 0: on
+sélectionne le champ [[linexpr0]] ou [[lincons0]].
+
+En revanche, si on veut obtenir l'expression de niveau 1 associée
+à la contrainte, il faut écrire:
+<<bidon>>=
+ap_linexpr1_t ap_linexpr1_of_lincons1(ap_lincons1_t* cons1){
+  ap_linexpr1_t expr1;
+  expr1.linexpr0 = cons1->lincons0.linexpr0;
+  expr1.env = cons1->env;
+  return expr1;
+}
+@ 
+
+%----------------------------------------------------------------------
+\point{Cas particulier des tableaux.} L'inconvénient de la
+solution esquissée ci-dessus est accru pour les tableaux:
+
+<<bidon>>=
+typedef struct ap_ap_lincons1_array_t {
+  ap_ap_lincons0_array_t ap_lincons0_array;
+  environment_t* env;
+} ap_ap_lincons1_array_t;
+@
+
+Retourner la contrainte de niveau 1 correspondant à l'index [[index]] d'un
+tableau se définit alors par
+<<bidon>>=
+ap_lincons1_t ap_ap_lincons1_array_get(const ap_ap_lincons1_array_t* array, 
+                                    size_t index){
+  ap_lincons1_t cons;
+  cons.lincons0 = array->ap_lincons0_array.p[index];
+  cons.env = array->env;
+  return cons;
+}
+@ 
+L'affectation de l'index [[index]] donne:
+<<bidon>>=
+bool ap_ap_lincons1_array_set(ap_ap_lincons1_array_t* array, 
+                        size_t index, const ap_lincons1_t* cons)
+{
+  if (index>=array->ap_lincons0_array.size || cons->env != array->env)
+    return true;
+  array->ap_lincons0_array.p[index] = cons->lincons0;
+  environment_deref(array->env);
+  return false;
+}
+@ 
+
+Il y a cependant un avantage: les structures sont construites
+une fois, mais utilisées plusieurs fois lors d'une analyse (si on
+procède de manière classique en construisant à l'avance le système
+d'équations).
+
+%----------------------------------------------------------------------
+\point{Principe alternatif.} 
+La solution alternative consisterait à écrire
+<<bidon>>=
+typedef struct ap_linexpr1_t {
+  ap_linexpr0_t* linexpr0;
+  environment_t* env;
+} ap_linexpr1_t;
+typedef struct ap_lincons1_t {
+  ap_linexpr1_t linexpr1;
+  ap_constyp_t constyp;
+} ap_lincons1_t;
+@ 
+Pour convertir du niveau 1 au niveau 0:
+<<bidon>>=
+ap_lincons0_t ap_lincons0_of_lincons1(ap_lincons1_t* cons1){
+  ap_lincons0_t cons0;
+  cons0.linexpr0 = cons1->linexpr1.linexpr0;
+  cons0.constyp = cons1->constyp;
+  return cons0;
+} 
+environment_of_lincons1(ap_lincons1_t* cons1){
+  return cons1->linexpr1.env;
+}
+@ 
+Pour extraire l'expression de niveau 1 contenue dans une
+contrainte de niveau 1, immédiat.  A ce stade, le seul argument
+valable pour préférer la solution précédente est le fait qu'en
+principe on construit moins souvent qu'on n'utilise.
+
+Pour les tableaux, ça se corse plus:
+<<bidon>>=
+typedef struct ap_ap_lincons1_array_t {
+  ap_lincons1_t* array;
+  size_t size;
+};
+@ 
+Pour convertir du niveau 1 au niveau 0, cela nécessite une
+allocation mémoire, et tous les ennuis pour désallouer après
+utilisation.
+<<bidon>>=
+ap_ap_lincons0_array_t ap_ap_lincons0_array_of_ap_lincons1_array(lincons_array1_t* array1){
+  ap_ap_lincons0_array_t array0 = ap_ap_lincons0_array_make(array1->size);
+  /* Remplir, vérifier que les environnnemnts sont égaux, etc */
+}  
+@ 
+
+Retourner la contrainte de niveau 1 correspondant à l'index i
+d'un tableau est immédiat. L'affectation de l'index i est immédiat
+aussi, mais on ne vérifie pas que les environnements sont les
+mêmes.

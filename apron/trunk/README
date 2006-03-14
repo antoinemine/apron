@@ -1,0 +1,43 @@
+
+Source for APRON commoninterface files.
+
+  To compile and/or to generate the doc, you need:
+  * the NOWEB ltterate programming tools
+  * the GMP library, for multiprecision arithmetic
+
+Most useful make targets:
+
+  all: clib ps
+    everything
+  apron.ps:
+    the documentation
+  clib: 
+    C library (libapron.a libapron_debug.a)
+  csrc: 
+    C source (some are generated from Noweb)
+
+  clean:
+  distclean:
+
+Header files associated to C files and considered as modules:
+  ap_scalar.h     : scalars (numbers)     
+  ap_interval.h   : intervals on scalars 
+  ap_coeff.h      : coefficients (either scalars or intervals)
+  ap_dimension.h  : dimensions and related operations
+  ap_linexpr0.h   : (interval) linear expressions, level 0
+  ap_lincons0.h   : (interval) linear constraints, level 0
+  ap_generator0.h : generators, level 0
+  ap_manager.h    : managers
+  ap_abstract0.h: : abstract values, level 0
+  ap_var.h        : variables 
+  ap_environment.h: environment binding variables to dimensions
+  ap_linexpr1.h   : (interval) linear expressions, level 1
+  ap_lincons1.h   : interval) linear constraints, level 1
+  ap_generator1.h : generators, level 1
+  ap_abstract1.h  : abstract values, level 1
+Additional header files:
+  ap_config.h  : miscellaneous stuff (booleans, ...)
+  ap_expr0.h   : expressions, constraints, .. at level 0
+  ap_expr1.h   : expressions, constraints, .. at level 1
+  ap_global0.h : all stuff relevant for level 0
+  ap_global1.h : all stuff relevant for level 1

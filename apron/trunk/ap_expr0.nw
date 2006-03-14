@@ -1,0 +1,255 @@
+% -*- mode: Noweb; noweb-code-mode: c-mode -*-
+
+%**********************************************************************
+\chapter{Sémantique concrète au niveau 0 et fichier [[ap_expr0.h]]}
+%**********************************************************************
+
+<<*>>=
+/* ************************************************************************* */
+/* ap_expr0.h: linear expressions, constraints and generators */
+/* ************************************************************************* */
+
+/* GENERATED FROM expr0.nw: DOT NOT MODIFY ! */
+
+#ifndef _AP_EXPR0_H_
+#define _AP_EXPR0_H_
+
+#include "ap_linexpr0.h"
+#include "ap_lincons0.h"
+#include "ap_generator0.h"
+
+#endif
+@ 
+
+Voici un résumé graphique des différents types,
+avec leur taille en octets sur une machine 32 bits: \smallskip
+
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{linterm\_t}} & 12 \\ \cline{1-1}
+  \texttt{dim\_t} & 4 \\ \cline{1-1}
+  \texttt{coeff\_t} & 8 \\ \cline{1-1}
+\end{tabular}
+\hspace{2em}
+\begin{tabular}{|c|c|r}
+  \multicolumn{2}{c}{\texttt{linexpr0\_t}} & 20 \\ \cline{1-2}
+  \multicolumn{2}{|c|}{\texttt{coeff\_t}} & 8 \\ \cline{1-2}
+  \multicolumn{2}{|c|}{\texttt{linexpr\_discr\_t}} & 4 \\ \cline{1-2}
+  \multicolumn{2}{|c|}{\texttt{size\_t}} & 4 \\ \cline{1-2}
+  \texttt{coeff\_t*} & \texttt{linterm\_t*} & 4 \\ \cline{1-2}
+\end{tabular}
+\medskip
+
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{lincons0\_t}} & 8 \\ \cline{1-1}
+  \texttt{linexpr0\_t*} & 4 \\ \cline{1-1}
+  \texttt{constyp\_t} & 4 \\ \cline{1-1}
+\end{tabular}
+\hspace{2em}
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{lincons0\_array\_t}} & 8 \\ \cline{1-1}
+  \texttt{lincons0\_t*} & 4 \\ \cline{1-1}
+  \texttt{size\_t} & 4 \\ \cline{1-1}
+\end{tabular}
+\medskip
+
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{generator0\_t}} & 8 \\ \cline{1-1}
+  \texttt{linexpr0\_t*} & 4 \\ \cline{1-1}
+  \texttt{constyp\_t} & 4 \\ \cline{1-1}
+\end{tabular}
+\hspace{2em}
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{generator0\_array\_t}} & 8 \\ \cline{1-1}
+  \texttt{generator0\_t*} & 4 \\ \cline{1-1}
+  \texttt{size\_t} & 4 \\ \cline{1-1}
+\end{tabular}
+\medskip
+
+[[ap_linexpr0_t]] est toujours déclaré comme un pointeur
+([[ap_linexpr0_t* expr]]), et alloué ou libéré par %
+[[ap_linexpr0_t* ap_linexpr0_alloc(...)]] et
+[[ap_linexpr0_free(ap_linexpr0_t*)]]. A noter, on a mis les coefficients
+en-ligne, pour éviter une indirection, ce qui viole la convention
+sur la manipulaiton des coefficients (normalement toujours
+manipulés via des pointeurs). Ce n'est pas un inconvénient, car
+[[ap_linexpr0_t]] est considéré comme un type abstrait, même par
+l'implémenteur d'une librairie.
+
+Les autres types ([[ap_lincons0_t]],[[ap_ap_lincons0_array_t]],
+[[ap_generator0_t]] et [[ap_ap_generator0_array_t]]) sont manipulés via des
+pointeurs, mais déclarés ``en-ligne'' ([[X_t obj;]]), avec des
+fonctions d'initialisation et de nettoyage [[void X_init(X_t*)]]
+et [[void X_clear(X_t*)]].
+
+
+
+%**********************************************************************
+\section{Types de donnée}
+%**********************************************************************
+
+%======================================================================
+\subsection{Dimensions}
+\label{sec:dim}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Synthèse des décisions prises.}
+\begin{enumerate}
+\item Au niveau 0, la concrétisation d'une valeur abstraite est un
+  sous-ensemble $X \subseteq \mathbb{N}^p\times \mathbb{R}^q$.
+\item Les dimensions sont numérotées de $0$ à $p+q-1$ et sont donc
+  typées. Une dimension $i$ est entière si $0\leq i<p$, réelle
+  sinon.
+\item La dimension $(p,q)$ de l'espace $\mathbb{N}^p\times
+  \mathbb{R}^q$ dans lequel un sous-ensemble abstrait est plongé
+  est accessible par un opérateur.
+\item Des arguments sont compatibles au niveau 0 s'ils ont tous la
+  même dimension.
+\item Les opérations peuvent ignorer le caractère entier d'une
+  dimension, s'il en résulte une surapproximation (exemple: ce que
+  fait \textsc{NewPolka}).
+\item La gestion de la liaison entre dimension et zone de mémoire
+  abstraite (e.g. identificateurs dans les cas simples, adresses
+  mémoires, ensemble d'adresses mémoire) est déléguée au niveau 1.
+\end{enumerate}
+
+Pour les changements de dimensions, une première interface consistait à 
+\begin{itemize}
+\item ajouter des dimensions à la fin puis permuter,
+\item ou permuter puis enlever les dimensions à la fin.
+\end{itemize}
+À la réunion du 9 février 2006 lui a été préférée l'interface suivante:
+\begin{itemize}
+\item insertion de dimensions n'importe où;
+\item retrait de dimensions n'importe où;
+\item permutations sans ajout ou retrait.
+\end{itemize}
+
+%======================================================================
+\subsection{Expressions linéaires et extensions}
+\label{sec:linexpr0}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Duplication type utilisateur/type interne.}  L'interface
+définit un type utilisateur d'expression, qui ne correspond en
+général pas au type interne utilisé par une librairie
+sous-jacente.  Deux solutions sont possibles, que l'on illustre
+sur une fonction d'affectation du type [[abstract_t*
+abstract_assign_linexpr0(abstract_t* a, dim_t dim, ap_linexpr0_t
+expr)]].
+\begin{enumerate}
+\item La fonction [[abstract_assign_linexpr0]] prend en entrée le
+  type public des expressions [[ap_linexpr0_t]] et effectue la
+  conversion vers le type interne à la volée;
+\item Il existe dans l'interface un type interne (opaque)
+  explicite, avec les fonctions de conversions nécessaires (ou les
+  constructeurs nécessaires), et [[abstract_assign_linexpr0]] prend
+  en entrée le type interne.
+\end{enumerate}
+Le choix 1 est plus pratique d'un point de vue utilisateur, mais
+les conversions peuvent être coûteuses, d'autant qu'elles incluent
+également des conversions de représentations des coefficients. Le choix 2 est plus économique, mais alourdit l'interface et son utilisaton.
+
+Questions liées:
+\begin{enumerate}
+\item On a considéré le cas du passage d'objet à une fonction
+  interne, mais il y a aussi le cas du retour à considérer. \bj{A
+  mon avis, autant que ce soit homogène: si on passe des types
+  internes, autant retourner des types internes, même si souvent
+  (mais pas toujours) la valeur retournée va être examinée par
+  l'appelant, ce qui nécessite une conversion vers le type
+  utilisateur.}
+\item Si on fournit la sérialisation des expressions,
+faut-il la fournir à la fois pour le type utilisateur et le type
+interne ?
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\point{Type utilisateur pour les expressions linéaires (d'intervalle).}
+
+Les représentations denses et creuses ont toutes deux leur
+intérêt.  On propose donc un type union avec un champ
+discriminant.  Les expressions linéaires sont en fait des
+expressions linéaires d'intervalle, au sens de Miné, c'est-à-dire que les
+coefficients peuvent être des intervalles.
+\bj{Pour l'instant, on ne type pas les dimensions dans les
+expressions.}
+
+
+%----------------------------------------------------------------------
+\point{Type utilisateur séparé pour les expressions linéaires
+d'intervalle}
+
+Ces expressions permettent d'abstraire des expressions
+non-linéaires, et aussi de prendre en compte la sémantique
+spécifique des flottants.
+
+La transformation d'expressions non-linéaires en expressions
+linéaires d'intervalle, puis en expressions quasi-linéaires
+(algorithme(s) proposés dans la thèse d'Antoine Miné) est
+indépendante du treillis abstraits utilisés, mais dans le cas des
+octogones, Antoine Miné préfère se brancher directement sur les
+expressions linéaires d'intervalle.  Donc toutes les expressions
+linéaires sont des expressions linéaires d'intervalle, mais on
+offre une fonction générale de conversion d'une expression
+linéaire d'intervalle en expression quasi-linéaire utilisable par
+toute librairie sous-jacente.
+
+Avoir des types séparés pour les expressions quasi-linéaires et
+linéaires d'intervalle alourdit sans doute trop l'interface
+(duplication des types contraintes, tableaux de contraintes,
+duplication des fonctions, etc...). Mais du coup c'est à la
+librairie sous-jacente (à l'aide de fonctions fournies par
+l'interface) de se coltiner le décorticage des fonctions linéaires
+d'intervalles.
+
+%----------------------------------------------------------------------
+\point{Manipulation d'expressions.}  Doit-on fournir des
+opérations de manipulation d'expressions ? \bj{Oui}
+
+%======================================================================
+\subsection{Contraintes linéaires}
+\label{sec:lincons}
+%======================================================================
+
+%======================================================================
+\subsection{Générateurs}
+\label{sec:generator}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{} Obtenir les générateurs d'une valeur abstraite est utile
+pour certaines applications (génération de code). Par ailleurs, la
+connaissance des rayons permet de savoir quelles sont les
+directions infinies dans une valeur abstraite. On utilise le type
+des expressions linéaires d'intervalle, mais avec l'hypothèse
+qu'elles se réduisent à des expressions linéaires scalaires.
+
+
+%======================================================================
+\subsection{Expressions et contraintes non linéaires}
+\label{sec:nonlinear}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{} Le cas des contraintes non linéaires n'a pas été encore
+abordé. Une solution viable semble être d'abstraite, au niveau 1
+de l'interface, les expressions non-linéaires par des expressions
+linéaires d'intervalle. Il n'est pas sûr que l'on puisse faire
+beaucoup mieux en laissant chaque domaine abstrait se débrouiller
+avec les expressions non linéaires (\ie, le code de conversion
+vers les expressions linéaires d'intervalle risque d'être
+dupliqué).
+
+%======================================================================
+\subsection{Congruences}
+\label{sec:congruence}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{} On ne dispose d'aucune implémentation des congruences, et
+donc d'aucun exemple sous la main. Le type [[ap_generator0_t]] permet en
+principe de représenter des informations de congruence sur les
+entiers.
+

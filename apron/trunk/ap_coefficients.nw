@@ -1,0 +1,148 @@
+% -*- mode: Noweb; noweb-code-mode: c-mode -*-
+
+%**********************************************************************
+\chapter{Représentation des coefficients, fichiers [[ap_scalar.h]], [[ap_interval.h]] et [[ap_coeff.h]]}
+\label{chap:coeff}
+%**********************************************************************
+
+Voici un résumé graphique des différents types,
+avec leur taille en octets sur une machine 32 bits. \smallskip
+
+\begin{tabular}{|c|c|r}
+  \multicolumn{2}{c}{\texttt{scalar\_t}} & 12 \\ \cline{1-2}
+  \multicolumn{2}{|c|}{\texttt{scalar\_discr}} & 4 \\ \cline{1-2}
+  \texttt{double} & \texttt{mpq\_t*} & 8 \\ \cline{1-2}
+\end{tabular}
+\hspace{2em}
+\begin{tabular}{|c|r}
+  \multicolumn{1}{c}{\texttt{interval\_t}} & 8 \\ \cline{1-1}
+  \texttt{scalar\_t*} & 4 \\ \cline{1-1}
+  \texttt{scalar\_t*} & 4 \\ \cline{1-1}
+\end{tabular}
+\hspace{2em}
+\begin{tabular}{|c|c|r}
+  \multicolumn{2}{c}{\texttt{coeff\_t}} & 8 \\ \cline{1-2}
+  \multicolumn{2}{|c|}{\texttt{coeff\_discr}} & 4 \\ \cline{1-2}
+  \texttt{scalar\_t*} & \texttt{interval\_t*} & 4 \\ \cline{1-2}
+\end{tabular}
+\medskip
+
+Tous ces types de données sont manipulés via des pointeurs, avec
+des fonctions d'initialisation et de nettoyage [[X_t* X_alloc()]]
+et [[void X_free(X_t*)]].
+
+%----------------------------------------------------------------------
+\point{Représentation des nombres dans les librairies
+sous-jacentes et types abstraits.} Elle est entièrement libre.
+\begin{itemize}
+\item Les entiers peuvent être représenté par des [[int]], [[long int]],
+  [[long long int]], ou des entiers multi-précisions (d'une
+  librairie quelconque).
+\item les réels peuvent être représentés par des rationnels sur
+  les entiers précédents, ou par des flottants ([[float]],
+  [[double]] ou flottants multi-précisions), ou même des
+  intervalles de flottants (!? pas sûr, attends confirmation de
+  l'ENS; sans doute nécessaire pour les conversions).
+\end{itemize}
+
+%----------------------------------------------------------------------
+\point{Scalaires et leurs représentations dans les types
+utilisateurs.} Il est important de distinguer le domaine concret
+des scalaires et leur représentation dans les expressions,
+contraintes, générateurs, \ldots.
+
+Les dimensions étant soit entières, soit réelles, on peut
+considérer qu'il en est de même pour les scalaires. En concret,
+les entiers étant un sous-ensemble des réels, on peut se limiter
+aux réels. Mais cette propriété d'inclusion n'est pas vérifiée au
+niveau de la représentation (voir exemple précédent).
+Typiquement, un entier multi-précision n'est pas toujours
+représentable de manière exacte par un [[float]].
+
+
+
+
+
+%======================================================================
+\section{Représentation des nombres}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Proposition de BJ}
+
+<<bidon>>=
+typedef enum ap_scalar_discr_t {
+  AP_SCALAR_DOUBLE, /* flottant avec double */
+  AP_SCALAR_MPQ,   /* rationnel avec multiprécision de GMP */
+} ap_scalar_discr_t;
+
+typedef struct ap_scalar_t {
+  ap_scalar_discr_t discr;
+  union {
+    double dbl;
+    mpq_ptr mpq; /* +infty coded by 1/0, -infty coded by -1/0 */
+  } val;
+} ap_scalar_t;
+
+/* follows all the necessary operations on numbers of type ap_scalar_t */
+@ 
+
+Commentaires:
+\begin{itemize}
+\item Les rationnels multi-précisions incluent le cas des
+  rationnels sur des entiers à précision fixe ([[int]],
+  [[long int]], etc).
+\item [[double]] inclut [[float]]. Toutefois, pour plus de
+  généralité, on pourrait même prendre des flottants
+  multi-précisions. Antoine Miné autorise [[mpfr]] dans ses
+  octogones, mais cette version est-elle réellement utilisée ?
+\item On autorise ici que chaque scalaire apparaissant dans une
+  expression puisse avoir un type différent (rationnel ou
+  flottant). On pourrait être moins flexible en imposant dans
+  chaque expression un type unique pour les scalaires (le champ
+  de type [[ap_scalar_discr_t]] serait alors associé à
+  l'expression). Avantage: lors de l'addition de deux expressions
+  ``2x+3y+4z'' et ``x+y'', pas besoin de vérifier à tout bout de
+  champ la compatibilité des arguments.
+\end{itemize}
+
+\medskip
+\textbf{\large\bj{Je pense qu'il s'agit d'un point important pour la prochaine réunion. Antoine a plus d'expérience que moi avec sa librairie d'octogones, et l'ENS en général pour l'utilisation des flottants/intervalles de flottants}}
+
+%======================================================================
+\section{Intervalles}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Intervalles non bornés} (pour les expressions linéaires
+d'intervalles, pour les extracteurs de propriétés)
+
+<<bidon>>=
+typedef struct ap_interval_t {
+  ap_scalar_t* inf;
+  ap_scalar_t* sup;
+} ap_interval_t;
+@
+
+%======================================================================
+\section{Coefficients}
+%======================================================================
+
+Utilisées dans les expressions linéaires et linéaires d'intervalle.
+
+<<bidon>>=
+typedef enum ap_coeff_discr_t {
+  AP_COEFF_SCALAR,
+  AP_COEFF_INTERVAL
+} ap_coeff_discr_t;
+  /* Discriminant for coefficients */
+
+typedef struct ap_coeff_t {
+  ap_coeff_discr_t discr; /* discriminant for coefficient */
+  union {
+    ap_scalar_t* scalar;         /* cst (normal linear expression) */
+    ap_interval_t* interval;   /* interval (quasi-linear expression) */
+  } val;
+} ap_coeff_t;
+@
+

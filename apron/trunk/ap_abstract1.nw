@@ -1,0 +1,570 @@
+% -*- mode: Noweb; noweb-code-mode: c-mode -*-
+
+
+%**********************************************************************
+\chapter{Interface du domaine abstrait, niveau 1: fichier [[ap_abstract1.h]]}
+\label{chap:abstract1}
+%**********************************************************************
+
+L'interface de niveau 1 à une librairie sous-jacente est
+entièrement générique: elle se contente de traduire les opérations
+sur des objets de niveau 1 en objets de niveau 0.
+
+<<*>>=
+/* ************************************************************************* */
+/* ap_abstract1.h: generic operations on abstract values at level 1 */
+/* ************************************************************************* */
+
+/* GENERATED FROM ap_abstract1.nw: DOT NOT MODIFY ! */
+
+#ifndef _AP_ABSTRACT1_H_
+#define _AP_ABSTRACT1_H_
+
+#include "ap_manager.h"
+#include "ap_abstract0.h"
+#include "ap_expr1.h"
+@
+
+%======================================================================
+\section{Type de donnée et généralités}
+\label{sec:abstract1:management}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Valeur abstraite de niveau 1.}
+
+On procède comme dans le module [[expr1]]: on rajoute un
+environnement, qui permet d'effectuer la liaison entre noms et
+dimensions.
+
+<<*>>=
+typedef struct ap_abstract1_t {
+  ap_abstract0_t* abstract0;
+  ap_environment_t* env;
+} ap_abstract1_t;
+  /* data structure invariant:
+     ap_abstract0_integer_dimension(man,abstract0)== env->intdim &&
+     ap_abstract0_real_dimension(man,abstract0)== env->realdim */
+
+typedef struct box1_t {
+  ap_interval_t** p;
+  ap_environment_t* env;
+} box1_t;
+void box1_fprint(FILE* stream, const box1_t* box);
+void box1_clear(box1_t* box);
+@
+
+%----------------------------------------------------------------------
+\point{Principes suivis.}
+
+Les principales fonctionnalités du niveau 1 sont:
+\begin{itemize}
+\item D'effectuer la conversion des noms vers les dimensions,
+\item De redimensionner les valeurs abstraites et les expressions,
+  contraintes, \ldots définies avec des environnements différents,
+  de telle sorte qu'elles soient définies sur un environnement
+  commun (le plus petit environnement commun, s'il existe; dans le
+  cas contraire, une exception [[INVALID_ARGUMENT]] est lancée).
+\end{itemize}
+
+La politique de redimensionnement choisie est la suivante:
+\begin{itemize}
+\item Pour les fonctions prenant en argument une valeur abstraite
+  et une expression (ou contrainte, ou générateur, ou tableau de
+  \ldots), on suppose que l'environnement de l'expression est un
+  sous-environnement de la valeur abstraite (sinon exception). Si
+  c'est un sous-environnement strict, on redimensionne l'expression.
+
+  \textbf{Motivation:} d'une part la simplicité, d'autre part le peu d'utilité pratique (c'est BJ qui parle).
+  Exemples avec une politique plus laxiste (sur des polyèdres définis sur $x$ et $y$):
+  \begin{enumerate}
+  \item $\textsf{ap\_abstract1\_meet\_lincons1}(\{ 1\leq x \leq y\leq 3 \}, z\geq y)$
+    donnerait une nouvele valeur abstraite avec $z$ non contraint.
+  \item $\textsf{ap\_abstract1\_assign\_linexpr}(\{ 1\leq x \leq y\leq 3 \}, y, x+z)$
+    donnerait une nouvele valeur abstraite avec $y$ et $z$ non contraints.
+  \end{enumerate}
+  Il faut remarquer qu'on peut traiter ces cas à la main, en
+  redimensionant explicitement les polyèdres.
+
+\item Pour les fonctions prenant en argument plusieurs valeurs abstraites,
+  on applique la politique générale: on redimensionne au plus petit environnement commun, et on effectue l'opération.
+
+  \textbf{Motivations:} utile pour composer des relations, retour
+  de procédure en analyse interprocédurale contextuelle.
+
+\end{itemize}
+
+Du point de vue de l'efficacité, le redimmensionnement a un
+certain coût (calculs sur les environnements, allocation et
+déallocation d'objets temporaires).  C'est de la responsabilité de
+l'utilisateur soit d'être précis sur les environnements et de ne
+pas en changer tout le temps (efficacité), soit d'être moins
+attentif au prix d'un certain coût.
+
+%======================================================================
+\section{Gestion mémoire, Représentations, Entrées/Sorties}
+\label{sec:abstract1:management}
+%======================================================================
+
+<<*>>=
+
+/* ********************************************************************** */
+/* I. General management */
+/* ********************************************************************** */
+@
+
+%----------------------------------------------------------------------
+\point{Gestion mémoire}
+
+<<*>>=
+
+/* ============================================================ */
+/* I.1 Memory */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_copy(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Return a copy of an abstract value, on
+     which destructive update does not affect the initial value. */
+
+void ap_abstract1_clear(ap_manager_t* man, ap_abstract1_t* a);
+  /* Free all the memory used by the abstract value */
+
+size_t ap_abstract1_size(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Return the abstract size of an abstract value (see ap_manager_t) */
+
+@
+
+%----------------------------------------------------------------------
+\point{Control of internal representation}
+
+<<*>>=
+
+/* ============================================================ */
+/* I.2 Control of internal representation */
+/* ============================================================ */
+
+void ap_abstract1_minimize(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Minimize the size of the representation of a.
+     This may result in a later recomputation of internal information.
+  */
+
+void ap_abstract1_canonicalize(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Put the abstract value in canonical form. (not yet clear definition) */
+
+void ap_abstract1_approximate(ap_manager_t* man, ap_abstract1_t* a, int algorithm);
+  /* Perform some transformation on the abstract value, guided by the
+     field algorithm.
+
+     The transformation may lose information.  The argument "algorithm"
+     overrides the field algorithm of the structure of type foption_t
+     associated to ap_abstract1_approximate (commodity feature). */
+
+tbool_t ap_abstract1_is_minimal(ap_manager_t* man, const ap_abstract1_t* a);
+tbool_t ap_abstract1_is_canonical(ap_manager_t* man, const ap_abstract1_t* a);
+@
+
+Les propriétés de la forme canonique ne sont pas encore bien
+claires (\cf \sref{sec:normal}). On aimerait que par exemple la
+sérialisation en binaire d'un objet canonique soit aussi
+canonique.
+
+%----------------------------------------------------------------------
+\point{Impression.}
+
+<<*>>=
+
+/* ============================================================ */
+/* I.3 Printing */
+/* ============================================================ */
+
+void ap_abstract1_fprint(FILE* stream,
+                    ap_manager_t* man,
+                    const ap_abstract1_t* a);
+  /* Print the abstract value in a pretty way */
+
+void ap_abstract1_fprintdiff(FILE* stream,
+                        ap_manager_t* man,
+                        const ap_abstract1_t* a1, const ap_abstract1_t* a2);
+  /* Print the difference between a1 (old value) and a2 (new value).
+     The meaning of difference is library dependent. */
+
+void ap_abstract1_fdump(FILE* stream, ap_manager_t* man, const ap_abstract1_t* a);
+  /* Dump the internal representation of an abstract value,
+     for debugging purposes. */
+
+@
+
+%----------------------------------------------------------------------
+\point{Précisions sur les fonctions d'impressions.}  Le format des
+fonctions d'impression est propre à chaque librairie: aucune
+syntaxe n'est imposée, ne serait-ce que parce que la
+représentation interne des nombres n'est pas unifiée.
+
+Si l'on désire une syntaxe uniforme, il faut d'abord convertir en
+contraintes/générateurs utilisateur.
+
+\ref{super-treillis}
+
+%----------------------------------------------------------------------
+\point{Sérialisation}
+
+La sérialisation/désérialisation en binaire, comme déjà mentionné,
+ne fonctionne que pour la même librairie, compilée avec les mêmes
+options de représentation interne des nombres.
+
+Question: doit-on sérialiser l'environnement associé ? (BJ: oui)
+
+<<*>>=
+
+/* ============================================================ */
+/* I.4 Serialization */
+/* ============================================================ */
+
+ap_membuf_t ap_abstract1_serialize_raw(ap_manager_t* man, const ap_abstract1_t* a);
+/* Allocate a memory buffer (with malloc), output the abstract value in raw
+   binary format to it and return a pointer on the memory buffer and the size
+   of bytes written.  It is the user responsability to free the memory
+   afterwards (with free). */
+
+ap_abstract1_t ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr);
+/* Return the abstract value read in raw binary format from the input stream
+   and store in size the number of bytes read */
+@
+
+
+%======================================================================
+\section{Constructeurs, accesseurs, tests et extraction de propriétés}
+\label{sec:constructor}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Basic constructors}
+
+<<*>>=
+
+/* ********************************************************************** */
+/* II. Constructor, accessors, tests and property extraction */
+/* ********************************************************************** */
+
+/* ============================================================ */
+/* II.1 Basic constructors */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_bottom(ap_manager_t* man, ap_environment_t* env);
+  /* Create a bottom (empty) value defined on the environment */
+
+ap_abstract1_t ap_abstract1_top(ap_manager_t* man, ap_environment_t* env);
+  /* Create a top (universe) value defined on the environment */
+
+ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
+                             ap_environment_t* env,
+                             ap_var_t* tvar,
+                             ap_interval_t** tinterval,
+                             size_t size);
+  /* Abstract an hypercube defined by the arrays tvar and tinterval,
+     satisfying: forall i, tvar[i] in tinterval[i].
+
+     If no inclusion is specified for a variable in the environement, its value
+     is no constrained in the resulting abstract value.
+  */
+
+ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
+                                       ap_environment_t* env,
+                                       const ap_lincons1_array_t* array);
+  /* Abstract a convex polyhedra defined on the environment
+     by the array of linear constraints
+  */
+@
+
+%----------------------------------------------------------------------
+\point{Accessors}
+
+<<*>>=
+
+/* ============================================================ */
+/* II.2 Accessors */
+/* ============================================================ */
+
+const ap_environment_t* ap_abstract1_environment(ap_manager_t* man, const ap_abstract1_t* a);
+const ap_abstract0_t* ap_abstract1_abstract0(ap_manager_t* man, const ap_abstract1_t* a);
+@
+
+
+%----------------------------------------------------------------------
+\point{Tests}
+
+<<*>>=
+
+/* ============================================================ */
+/* II.3 Tests */
+/* ============================================================ */
+
+/* If any of the following functions returns tbool_top, this means that
+   an exception has occured, or that the exact computation was
+   considered too expensive to be performed (according to the options).
+   The flag exact and best should be cleared in such a case. */
+
+tbool_t ap_abstract1_is_bottom(ap_manager_t* man, const ap_abstract1_t* a);
+tbool_t ap_abstract1_is_top(ap_manager_t* man, const ap_abstract1_t* a);
+
+tbool_t ap_abstract1_is_leq(ap_manager_t* man, const ap_abstract1_t* a1, const ap_abstract1_t* a2);
+  /* inclusion check */
+
+tbool_t ap_abstract1_is_eq(ap_manager_t* man, const ap_abstract1_t* a1, const ap_abstract1_t* a2);
+  /* equality check */
+
+tbool_t ap_abstract1_sat_lincons(ap_manager_t* man, const ap_abstract1_t* a, const ap_lincons1_t* lincons);
+  /* does the abstract value satisfy the linear constraint ? */
+
+tbool_t ap_abstract1_sat_interval(ap_manager_t* man, const ap_abstract1_t* a,
+                              ap_var_t var, const ap_interval_t* interval);
+  /* is the dimension included in the interval in the abstract value ?
+     - Raises an exception if var is unknown in the environment of the abstract value
+  */
+tbool_t ap_abstract1_is_dimension_unconstrained(ap_manager_t* man, const ap_abstract1_t* a,
+                                             ap_var_t var);
+  /* is the variable unconstrained in the abstract value ?
+     - Raises an exception if var is unknown in the environment of the abstract value
+  */
+@
+
+%----------------------------------------------------------------------
+\point{Extraction de propriétés}
+
+<<*>>=
+
+/* ============================================================ */
+/* II.4 Extraction of properties */
+/* ============================================================ */
+
+ap_interval_t* ap_abstract1_bound_linexpr(ap_manager_t* man,
+                                    const ap_abstract1_t* a, const ap_linexpr1_t* expr);
+  /* Returns the interval taken by a linear expression
+     over the abstract value */
+
+ap_interval_t* ap_abstract1_bound_dimension(ap_manager_t* man,
+                                            const ap_abstract1_t* a, ap_var_t var);
+  /* Returns the interval taken by the dimension
+     over the abstract value
+     - Raises an exception if var is unknown in the environment of the abstract value
+  */
+
+ap_lincons1_array_t ap_abstract1_to_lincons_array(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Converts an abstract value to a polyhedra
+     (conjunction of linear constraints).
+     - The environment of the result is a copy of the environment of the abstract value.
+  */
+
+box1_t ap_abstract1_to_box(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Converts an abstract value to an interval/hypercube. */
+
+ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, const ap_abstract1_t* a);
+  /* Converts an abstract value to a system of generators.
+     - The environment of the result is a copy of the environment of the abstract value.
+ */
+@
+
+%======================================================================
+\section{Opérations}
+\label{sec:operationfun}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Bornes supérieures et inférieures}
+
+<<*>>=
+
+/* ********************************************************************** */
+/* III. Operations: functional version */
+/* ********************************************************************** */
+
+/* ============================================================ */
+/* III.1 Meet and Join */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_meet(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, const ap_abstract1_t* a2);
+ap_abstract1_t ap_abstract1_join(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, const ap_abstract1_t* a2);
+  /* Meet and Join of 2 abstract values
+     - The environment of the result is the lce of the arguments
+     - Raises an EXC_INVALID_ARGUMENT exception if the lce does not exists
+  */
+
+ap_abstract1_t ap_abstract1_meet_array(ap_manager_t* man, const ap_abstract1_t* tab, size_t size);
+ap_abstract1_t ap_abstract1_join_array(ap_manager_t* man, const ap_abstract1_t* tab, size_t size);
+  /* Meet and Join of an array of abstract values.
+     - Raises an [[exc_invalid_argument]] exception if [[size==0]]
+       (no way to define the dimensionality of the result in such a case
+     - The environment of the result is the lce of the arguments
+     - Raises an EXC_INVALID_ARGUMENT exception if the lce does not exists
+  */
+
+ap_abstract1_t ap_abstract1_meet_lincons_array(ap_manager_t* man,
+                                         bool destructive,
+                                         ap_abstract1_t* a,
+                                         const ap_lincons1_array_t* array);
+  /* Meet of an abstract value with a set of constraints
+     (generalize ap_abstract1_of_lincons_array) */
+
+ap_abstract1_t ap_abstract1_add_ray_array(ap_manager_t* man,
+                                    bool destructive,
+                                    ap_abstract1_t* a,
+                                    const ap_generator1_array_t* array);
+  /* Generalized time elapse operator */
+@
+
+%----------------------------------------------------------------------
+\point{Affectations et Substitutions.}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.2 Assignement and Substitutions */
+/* ============================================================ */
+
+/* Assignement and Substitution of a single
+   dimension by a interval linear expression */
+ap_abstract1_t ap_abstract1_assign_linexpr(ap_manager_t* man,
+                                     bool destructive, ap_abstract1_t* a,
+                                     ap_var_t var, const ap_linexpr1_t* expr,
+                                     const ap_abstract1_t* dest);
+ap_abstract1_t ap_abstract1_substitute_linexpr(ap_manager_t* man,
+                                         bool destructive, ap_abstract1_t* a,
+                                         ap_var_t var, const ap_linexpr1_t* expr,
+                                         const ap_abstract1_t* dest);
+
+/* Parallel Assignement and Substitution of several dimensions by
+   linear expressons. */
+ap_abstract1_t ap_abstract1_assign_linexpr_array(ap_manager_t* man,
+                                           bool destructive, ap_abstract1_t* a,
+                                           ap_var_t* tvar,
+                                           const ap_linexpr1_t* texpr,
+                                           size_t size,
+                                           const ap_abstract1_t* dest);
+ap_abstract1_t ap_abstract1_substitute_linexpr_array(ap_manager_t* man,
+                                               bool destructive, ap_abstract1_t* a,
+                                               ap_var_t* tvar,
+                                               const ap_linexpr1_t* texpr,
+                                               size_t size,
+                                               const ap_abstract1_t* dest);
+@
+
+%----------------------------------------------------------------------
+\point{Projections et Quantifications existentielles.}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.3 Projections */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
+                                   bool destructive, ap_abstract1_t* a, 
+                                   ap_var_t* tvar, size_t size,
+                                   bool project);
+@
+
+%----------------------------------------------------------------------
+\point{Changement d'environnement}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.4 Change of environnement */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
+                                         bool destructive, ap_abstract1_t* a,
+                                         ap_environment_t* nenv,
+                                         bool project);
+
+ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
+                                           bool destructive, ap_abstract1_t* a);
+  /* Remove from the environment of the abstract value
+     variables that are unconstrained in it. */
+
+ap_abstract1_t ap_abstract1_rename_array(ap_manager_t* man,
+                                   bool destructive, ap_abstract1_t* a,
+                                   ap_var_t* var, ap_var_t* nvar, size_t size);
+  /* Parallel renaming. The new variables should not interfere with the variables that are not renamed. */
+@
+
+%----------------------------------------------------------------------
+\point{Expansion et pliage}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.5 Expansion and folding of dimensions */
+/* ============================================================ */
+
+ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
+                             bool destructive, ap_abstract1_t* a,
+                             ap_var_t var,
+                             ap_var_t* tvar, size_t size);
+  /* Expand the variable var into itself + n additional variables, of
+     same type than var.
+
+     It results in (n+1) unrelated variables having same
+     relations with other variables.
+
+     The additional variables are added to the environment
+     of the argument for making the environment of the result.
+  */
+
+ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
+                           bool destructive, ap_abstract1_t* a,
+                           ap_var_t* tvar, size_t size);
+  /* Fold the dimensions in the array tvar of size n>=1 and put the result
+     in the first variable in the array.
+
+     The other variables of the array are then forgot
+     and removed from the environment. */
+
+/* Imperative versions of the previous functions. */
+void ap_abstract1_expand_with(ap_manager_t* man,
+                                ap_abstract1_t* a,
+                                ap_var_t var,
+                                ap_var_t* tvar,
+                                size_t n);
+void ap_abstract1_fold_with(ap_manager_t* man,
+                              ap_abstract1_t* a,
+                              ap_var_t* tvar,
+                              size_t size);
+@
+
+%----------------------------------------------------------------------
+\point{Élargissement.}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.6 Widening */
+/* ============================================================ */
+
+/* Widening */
+ap_abstract1_t ap_abstract1_widening(ap_manager_t* man,
+                               const ap_abstract1_t* a1, const ap_abstract1_t* a2);
+/* Widening with threshold */
+ap_abstract1_t ap_abstract1_widening_threshold(ap_manager_t* man,
+                               const ap_abstract1_t* a1, const ap_abstract1_t* a2,
+                               const ap_lincons1_array_t* array);
+
+@
+
+%----------------------------------------------------------------------
+\point{Clôture topologique.}
+
+<<*>>=
+
+/* ============================================================ */
+/* III.7 Closure operation */
+/* ============================================================ */
+
+/* Returns the topological closure of a possibly opened abstract value */
+
+ap_abstract1_t ap_abstract1_closure(ap_manager_t* man, bool destructive,  ap_abstract1_t* a);
+@
+
+<<*>>=
+#endif
+@
