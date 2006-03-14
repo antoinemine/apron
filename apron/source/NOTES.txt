@@ -1,0 +1,13 @@
+
+
+- Est-ce que ça a un sens de mélanger aritmhétique exacte et
+  non-exacte ? (dans expr_t, interval_t, etc...)
+
+- Dans assign et substitute, ne devrait-on pas mettre l'argument d'arrivée ?
+
+  * nécessaire a substitute en intervalles et octogones, par ex
+  * utile pour les templates
+
+- Doit-on dupliquer arguments simples et tableaux au niveau 0 ?
+
+- expand et fold

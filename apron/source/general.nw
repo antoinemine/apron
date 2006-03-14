@@ -1,0 +1,482 @@
+% -*- mode: LaTeX -*-
+
+%**********************************************************************
+\chapter{Choix généraux}
+\label{chap:general}
+%**********************************************************************
+
+%======================================================================
+\section{Sémantique d'une valeur abstraite}
+\label{sec:semantique}
+%======================================================================
+
+\point{Concrétisation d'une valeur abstraite.} Une valeur
+abstraite fournie par l'interface a pour concrétisation un
+sous-ensemble $X\subseteq \mathbb{N}^p \times \mathbb{R}^q$.  Les
+variables sont donc typées, soit entières soit réelles.
+
+\point{}. Les problèmes de précision et donc d'arithmétique
+modulaire pour les entiers 8, 16, 32 et 64 bits sont laissés à
+un niveau strictement supérieur à 1, voir dans l'analyseur
+lui-même au niveau de la sémantique concrète.
+
+%======================================================================
+\section{Niveaux d'interface}
+\label{sec:niveaux}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Motivations.}
+L'objectif n'est pas d'avoir une liste d'opérateurs minimales,
+mais une liste d'opérateurs comportant les combinaisons
+d'opérateurs de base pouvant être simplifiées ou fréquemment
+utilisées par un analyseur.
+
+Il s'agit d'assurer à la fois la performance des implantations et
+le confort de l'utilisateur, tout en évitant la duplication de
+code entre les différents librairies.
+
+On propose donc de ne traiter au niveau 0 que les problèmes de
+performance (avantage algorithmique fort) et de reporter au
+niveau 1 les problèmes de confort, sachant que les problèmes de
+performance ne sont pas génériques, mais dépendent des domaines
+abstraits.
+
+%----------------------------------------------------------------------
+\point{Principe.}
+Il a été décidé d'établir différents niveaux d'interface.
+\begin{itemize}
+\item Le niveau 0 est en prise directe avec la librairie
+  sous-jacente (octogones, polyèdres) et suit les principes
+  suivants:
+  \begin{itemize}
+  \item On y place toutes les fonctions dont l'implémentation est
+    spécifique au domaine abstrait et qui ne peuvent donc pas être
+    partagées entre les librairies et .
+  \item L'interface est minimale: on en exclut les fonctions qui
+    peuvent s'implémenter.à partir d'autres fonctions de niveau 0,
+    \textbf{à moins qu'il n'y ait un avantage algorithmique fort}
+    pour le laisser au niveau 0.
+  \end{itemize}
+
+\item On réserve aux niveaux supérieurs les fonctions
+  factorisables pour tous les domaines abstraits envisagés. Deux
+  exemples envisagés:
+
+  \begin{enumerate}
+  \item L'appel automatique des opérations de redimensionnement et
+    de permutations nécessaires pour calculer l'intersection
+    $P1(x,y)$ avec $P2(y,z)$: ceci ne dépend pas du domaine
+    abstrait considéré; au pire, dans le cas de représentation
+    interne creuses, il n'y a rien à faire.
+  \item L'abstraction d'expressions non-linéaires par des
+    expressions linéaires d'intervalle.
+  \end{enumerate}
+\end{itemize}
+On peut utiliser deux bibliothèques de niveau 0 pour les combiner de
+manière heuristique et obtenir une nouvelle bibliothèque de niveau 0.
+
+\aparte{Ci-dessous, points s'y rapportant:}
+\begin{small}
+\myfi{Peut-on mettre au niveau 0 des fonctions spécifiques au domaine
+  abstrait, par exemple une pré-analyse?}
+
+\myfi{Les produits cartésions pourraient être traités au niveau 1.}
+\end{small}
+
+%======================================================================
+\section{Langage de programmation}
+\label{sec:langage}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Interface C} On définira au moins une version C de
+l'interface, qui servira de référence.
+
+Le langage C a été choisi comme s'interfaçant aisément avec la
+plupart des langages (C++, Java, OCaml, Prolog, \ldots). C++ est
+moins adapté de ce point de vue. Par ailleurs, la plupart des
+librairies existantes sont en C (NewPolka, C3 (!?), octagones).
+
+%----------------------------------------------------------------------
+\point{Interface OCaml} L'IRISA et l'ENS sont intéressé par la
+définition d'une version OCaml.
+
+\aparte{Dans la suite, on ne discute que de l'interface C.}
+
+
+%======================================================================
+\section{Formes normales des valeurs abstraites}
+\label{sec:normal}
+%======================================================================
+
+La notion de forme(s) normale(s) a fait
+l'objet de vives discussions. Il s'agit de contrôler
+(abstraitement) la représentation interne des valeurs
+abstraites. Les besoins suivants ont été dégagés:
+
+\point{Représentation minimale en terme d'occupation mémoire.}
+Cette notion existe dans les octogones (contraintes redondantes
+supprimées). Dans \textsc{NewPolka} cette notion n'est pas
+réellement fixée; quelques possibilités:
+\begin{enumerate}
+\item Ensemble de contraintes non redondantes;
+\item Ensemble de contraintes \emph{ou} de générateurs
+  non-redondants, selon laquelle occupe le moins d'espace en
+  mémoire; c'est la solution correspondant à la définition;
+\item double représentation + matrice de saturation: c'est la
+  seule notion de forme ``normale'' actuellement implantée dans
+  \textsc{NewPolka}.
+\end{enumerate} 
+
+Dans les deux cas (octogones ou \textsc{NewPolka}), la forme
+minimale peut ne pas être adaptée aux calculs. Ainsi pour les
+octogones, la première chose à faire avant la plupart des
+opérations est de calculer la clôture de la forme minimale. Il en
+serait de même (dans une moindre mesure) pour la solution 2 dans
+\textsc{NewPolka}.
+
+\point{Représentation canonique.} Il s'agit ici d'avoir une forme
+normale telle que deux valeurs sémantiquement égales ont
+exactement la même représentation. 
+
+La forme minimale précédente ne fournit pas forcément une
+représentation canonique. Par exemple, pour les polyèdres, il faut
+en outre normaliser la représentation de l'espace des égalités (ou
+des droites) et trier les contraintes (ou générateurs).
+
+Problèmes se posent:
+\begin{itemize}
+\item Que faire lorsque les entiers ne sont que partiellement
+  pris en compte ?
+\item Plus généralement, que faire lorsqu'on ne sait pas (ou on ne
+  veut pas, pour des raisons de coût) la calculer ?
+\end{itemize}
+
+\point{Notion de réduction/approximation.}  Dans certains cas, on
+veut contrôler assez finement la représentation interne, car elle
+a un impact sur la précision. Il s'agirait ici soit de simplifier
+la représentation, au prix éventuel d'une perte d'information (ex:
+on enlève des contraintes trop tarabiscotées, ou avec des
+coefficients de magnitude trop importante), soit d'affiner la
+représentation (ex de François pour la prise en compte des
+entiers, réduction dans le cas d'un domaine abstrait produit
+réduit de deux domaines abstraits) pour améliorer la précision
+d'opérations futures.
+
+Une telle fonction sera fournie, paramétrée par un numéro
+d'algorithme. En outre, chaque opération sera paramétrée par la
+réduction/approximation à effectuer en entrée et en sortie de
+l'opération. Exemple(s):
+\begin{itemize}
+\item Dans \textsc{New Polka} existent des versions strictes et
+paresseuses des opérations. La version stricte travaille toujours
+sur des (doubles) représentations minimisées, tandis que les
+versions paresseuses ne recourt à Chernikova que si
+indispensable. Le paramétrage de chaque opération permettra de
+maintenir ce type de réglale, sans polluer l'API par
+d'innombrables versions de la même opération sémantique.
+\end{itemize}
+
+
+%======================================================================
+\section{Fonctionnalités et architecture générale de l'interface}
+\label{sec:archi}
+%======================================================================
+
+%----------------------------------------------------------------------
+\point{Compatibilité avec les threads.}  L'interface permettra
+d'écrire des implantations compatibles avec les threads.
+
+%----------------------------------------------------------------------
+\point{Gestionnaire.} 
+Un contexte d'appel, objet de type [[manager_t*]], sera explicitement passé à
+chaque fonction afin d'assurer les point suivants.
+\begin{description}
+\item [La transmission de données globales] spécifiques à chaque
+  librairie (mémoire de travail, options non fournies via
+  l'interface commune, \ldots), ce qui assure en particulier la
+  compatibilité avec les threads.
+\item [La transmission des options] (leviers de réglages des
+  algorithmes,etc \ldots). En effet, pour certains opérateurs ou
+  même pour chaque opérateur abstrait, il est possible de
+  sélectionner une implémentation particulière, l'implémentation
+  par défaut, l'implémentation donnant le résultat le plus précis
+  ou l'implémentation donnant un résultat le plus rapidement
+  possible. La perte de généricité correspondante semble moins
+  gênante que l'absence de cette flexibilité, au moins pour
+  certains opérateurs particulièrement sensibles. Les trois
+  implémentations de base peuvent être identiques: l'association
+  numéro vers algorithme peut être surjective.
+\item [la gestion des exceptions] (récupération des exceptions); les
+  débordements en capacité (entiers), en temps et en espace sont
+  détectés, ou tout au moins, les mécanismes nécessaires à la
+  récupération des incidents sont définis. Le retour d'un résultat
+  mathématiquement exact peut être identifié à la demande de
+  l'utilisateur (projection entière, union vs enveloppe convexe,
+  test de satisfiabilité en entier,...).
+\end{description}
+ 
+Le contexte n'est pas intégré aux objets du domaine abstrait pour
+éviter d'avoir à faire une vérification de compatibilité des
+contextes.
+
+C n'offrant pas de mécanisme d'exceptions (sauf via le compliqué
+[[setjmp]]), et celui-ci étant spécifiques à chaque langage (C++,
+OCaml, Java), les informations d'exception sont retournées
+uniquement via la structure [[manager_t]].
+
+Le contenu du contexte d'appel n'est pas visible directement:
+c'est un objet opaque, fermé, avec des méthodes. Des primitives de
+construction et d'observation seront définies et fournies.  \bj{Ce
+choix présente aussi l'avantage de faciliter l'interfaçage avec un
+langage comme \textsc{OCaml}.}
+
+%----------------------------------------------------------------------
+\point{Implantations partielles.}  Les implantations partielles
+sont acceptées, mais elles doivent offrir toutes les signatures
+prévues pour permettre l'édition de lien et l'échec éventuellement
+en cas d'appel à une fonction non implantée.
+
+Lancement d'une exception [[not_implemented]] lorsqu'une fonction
+n'est pas implantée, et retour d'une valeur non spécifiée, le cas
+échéant (pointeur nul pour l'interface fonctionnelle ?)
+
+%----------------------------------------------------------------------
+\point{Gestion mémoire.} Les fonctions doivent être clairement
+documentées sur la façon dont elles gèrent la mémoire. On
+n'implante pas de mécanisme automatique de ramasse-miettes
+(compteur de référence ou autre) pour l'interface C.
+
+L'interface OCaml en revanche utilisera les mécanismes du runtime
+OCaml (idem pour Prolog ou autre).
+
+%----------------------------------------------------------------------
+\point{Signatures fonctionnelles et impératives.}  
+Les signatures fonctionnelles et impératives (ou destructives) sont toutes les deux
+supportées.
+
+Questions résolues:
+\begin{enumerate}
+\item La représentation interne peut être changée sans préavis si
+  la sémantique est conservée.
+\item En mode destructif, la première valeur abstraite de la
+  fonction est détruite par la fonction, l'utilisateur n'a plus à
+  la gérer et ne doit pas l'utiliser. Seul le résultat (et les
+  autres arguments) peuvent l'être.
+\item Le mode destructif permet d'implémenter un mode effet de bord comme
+  suit: [[a = meet(man,destructive=true,a,b);]]: on peut
+  considérer que l'on fait un effet de brord sur [[a]].
+\item Pour les chaînes de caractères, on suit les conventions de C
+  [[string.h]].
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\point{Opérations n-aires.}  Les opérations n-aires (ex: borne
+supérieure) sont supportées en utilisant des tableaux d'arguments.
+Elles ne sont offertes qu'en version fonctionnelle.
+
+
+
+La possibilité de passer plus de deux arguments n'est pas un
+simple confort. Elle a aussi un impact sur la fonctionalité dans
+le cas où on souhaite faire une union et où on a donc besoin de
+savoir si l'enveloppe convexe lui est égale. Idem pour les suites
+de projections. Enfin, elle a un impact sur la performance.
+
+Le système [[varargs]] ne sera supporté que si un des participants
+en a le beosin (aucun pour l'instant). \bj{La version
+[[vararg]] est implantable en utilisant la version tableau, donc
+cela relève plutôt du niveau 1.}
+
+La définition d'une structure de liste propre à cette interface
+est exclue.
+
+%----------------------------------------------------------------------
+\point{Types des objets et mode de passage des paramètres.} 
+Quelques rappels sur les idiomes C:
+\begin{enumerate}
+\item choix entre passage par valeur et par référence (pointeur):
+<<bidon>>=
+void toto(object_t o);  /* appel par valeur sur le type object_t */
+void toto(object_t* o); /* appel par référence sur le type object_t */
+@ 
+
+Avantage de l'appel par référence: plus rapide si
+[[sizeof(object_t)]] est sensiblement plus grand que la taille
+d'un scalaire (4 ou 8 octets). Inconvénient: casse-bonbon pour le
+programmeur de devoir écrire [[toto(&x)]] au lieu de [[toto(x)]].
+
+\item choix similaire pour la valeur retournée:
+<<bidon>>=
+object_t toto();  /* retour par valeur */
+object_t* toto(); /* valeur de retour allouée par toto et à libérer par 
+                     l'appelant si nécessaire */ 
+@
+Là, le retour par référence nécessite une allocation, donc plutôt
+moins bien point de vue efficacité !
+
+\item type abstrait en C = type pointeur.
+\end{enumerate}
+La dernière remarque justifie la signature suivante dans
+l'interface (\cf \sref{sec:operationfun}), \emph{si l'on choisit
+un passage par valeur}:
+<<bidon>>=
+abstract_t* abstract_meet(manager_t* man, abstract_t* a1, abstract_t* a2);
+@ 
+\noindent
+En effet tous les types impliqués sont considérés comme abstraits.
+Ici donc, on a un passage par valeur sur des types pointeurs,
+\emph{et non un passage par référence sur les types [[manager_t]]
+et [[abstract_t]]}. C'est d'une certaine manière une question
+d'interprétation, bien sûr, mais en pratique si tous les objets
+sont déclarés, construits, manipulés avec un type [[object_t*]],
+il n'y a jamais de déréférencement à faire et le programmeur n'a
+aucune question à se poser (c'est ce qui se passe dans la
+librairie de BDDs \textsc{Cudd}).
+
+Maintenant, si le type [[lincons_t]] des contraintes linéaires
+utilisé dans [[abstract0.h]] est abstrait (généré à partir d'un
+type utilisateur, \cf discussion dans \sref{sec:linexpr}), 
+les signatures suivantes sont ``imposées'' (si passage par valeur):
+<<bidon>>=
+abstract_t* abstract_meet_lincons(manager_t* man, 
+                                  abstract_t* a, lincons_t* c);
+abstract_t* abstract_meet_lincons_array(manager_t* man, 
+                                        abstract_t* a, 
+                                        lincons_t** tlincons, int size);
+@ 
+\noindent
+Une contrainte linéaire étant de type [[lincons_t*]], les tableaux
+de contraintes linéaires sont de type [[lincons_t**]].
+
+Mais si le type [[lincons_t]] utilisés dans ces fonctions est
+utilisateur (public), on pourrait \emph{aussi} utiliser (toujours
+si passage par valeur)
+<<bidon>>=
+abstract_t* abstract_meet_lincons(manager_t* man, 
+                                  abstract_t* a, lincons_t c);
+abstract_t* abstract_meet_lincons_array(manager_t* man, 
+                                        abstract_t* a, 
+                                        lincons_t* tlincons, int size);
+@ 
+
+Dans l'interface proposée, les conventions suivies sont:
+\begin{itemize}
+\item Appel et retour par valeur.
+\item Les types des objets ([[abstract_t*, linexpr_t*, ray_t*]]) 
+  sont en général des types pointeurs, sauf pour:
+  \begin{itemize}
+  \item Les nombres ([[coeff_t]]);
+  \item Les intervalles ([[interval_t]]),
+  \item Les contraintes ([[lincons_t]])
+  \end{itemize}
+  Ces trois derniers types sont considérés comme des types
+  utilisateurs \cf\sref{chap:coeff}, et leur taille (en terme de
+  [[sizeof()]]) reste petite (mais ces structures peuvent bien sûr
+  contenir des pointeurs vers des zones de taille importante, \eg
+  nombres multi-précision).
+\item On utilisera les types [[size_t]] (défini dans [[stddef.h]])
+  et [[dim_t]] (défini par [[unsigned int]]) pour typer les
+  tailles (de tableaux, par exemple) et les dimensions
+  (demande/suggestion de l'ENS)
+\end{itemize}
+
+
+%----------------------------------------------------------------------
+\point{Retour d'arguments multiples.}  Quelle politique lorsque
+plusieurs arguments doivent être retournés ? Par exemple, si une
+fonction retourne un tableau d'objets de taille non connue à
+l'avance, il faut retourner un pointeur sur un tableau plus la
+taille du tableau.
+ 
+Essaye-t-on d'unifier l'interface ? En C, lorsque [[toto(x)]] 
+doit retourner deux arguments [[a]] et [[b]], on a 3 solutions;
+<<bidon>>=
+toto(x,&a,&b); /* paramètres résultats, pasq très joli; */
+
+a=toto(x,&b);  /* une valeur retournée, l'autre en paramètre résultat;
+                  guère plus joli, et très moche si a et b ont une 
+                  signification "symmétriques"
+                */
+
+struct titi { a_t a; b_t b; };
+titi=toto(x); /* creation d'un nouveau type, parfois 
+                juste pour une seule fonction */Ah, ces \verb|*%$£&#| de C, C++, Java !
+@ 
+
+Au cours de la réunion de fin juin 2005, on a opté pour la dernière solution.
+
+Pour l'interface OCaml, qu'on essayera de générer un peu
+automatiquement à partir de l'interface C, à noter que
+\textsc{CamlIDL} sait assez bien traiter les paramètres résultats,
+en les transformant en valeurs retournées dans un n-uplet.
+
+
+%----------------------------------------------------------------------
+\point{Représentation interne des nombres.}
+Le type numérique utilisé en interne dans une librairie sous-jacente
+est défini à la compilation, e.g. via une
+option \verb/-D/, et/ou à l'édition de lien (comme dans PIPS,
+type {\em Value, et dans Polka, type {\em pkint}}). 
+ 
+Un type numérique utilisateur est fourni par l'interface, \cf
+\sref{chap:coeff}.
+
+
+%----------------------------------------------------------------------
+\point{Nommage des fonctions.}  On utilisera des préfixes pour
+distinguer les différentes bibliothèques en C? Par exemple, OCT
+pour octagone, PPL pour Parma, HQ proposé par Duong.  Préfixes
+envisagés: POLKA, C3, PIPS, POLYLIB.
+
+Doit-on ensuite utiliser des macros pour rendre génériques ? Ou
+utiliser une technique objet (cf ci-dessous).
+
+\bj{Technique objet: on peut inclure dans la structure
+  [[manager_t]] des pointeurs sur les fonctions offertes par
+  l'interface, et définir des fonctions génériques qui utilisent
+  [[manager_t]] pour appeler la fonction effective. C'est ce qui
+  me semble le plus souple, car en changeant de manager on change
+  appelée.}
+
+<<bidon>>=
+abstract_t* meet(manager_t* man, abstract_t* a1, abstract_t* a2)
+{
+  return manager->abstract_meet(manager,a1,a2);
+}
+@
+
+
+
+%----------------------------------------------------------------------
+\point{Sérialisation/désérialisation.}  La
+sérialisation/désérialisation des objets (valeurs abstraites,
+contraintes, \ldots) sera fournie par l'interface.
+
+Si la sérialisation se fait sur les types utilisateurs
+(contraintes notamment), alors possibilité d'échanger entre
+plusieurs librairies. Si elle se fait sur un type abstrait, ce
+n'est plus le cas (sans compter le problème de la représentation
+des coefficients dans les types internes, dépendant d'options de
+compilation de la même librairie).
+
+%----------------------------------------------------------------------
+\point{Conversions et super-treillis.} 
+Afin de faciliter les conversions entre valeurs abstraites de
+domaines différents, on peut considérer un super-treillis et
+n'implanter que les conversions d'un domaine abstrait vers ce
+super-treillis.
+
+En l'absence d'informations de congruence, les polyèdres convexes
+suffisent pour tous les treillis abstraits envisagés (intervalles,
+égalités, octogones, templtate constraints, octaèdres, polyèdres
+convexes). Toutefois, si on veut ajouter les égalités polynomiales
+de degré borné ([Seidl]), ce n'est plus vrai.
+
+Si on rajoute les congruences, il faut plus. Presburger est un peu
+candidat, mais quid des réels ?
+
+Au sujet d'un super-treillis, remarque anonyme: une syntaxe peut
+suffire.
+

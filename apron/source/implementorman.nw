@@ -1,0 +1,202 @@
+% -*- mode: LaTeX -*-
+
+%**********************************************************************
+\chapter{Implementor manual}
+\label{chap:implementorman}
+%**********************************************************************
+
+%======================================================================
+\section{How to make an existing library conformant ?}
+%======================================================================
+
+We briefly describe here how to connect an existing library to the
+common interface.
+
+First, the library has to expose an interface which
+conforms to the level 0 of the interface (module [[abstract0]]).
+All the functions described in this module should be defined. If a
+function is not really implemented, at least it shoulld contain
+the code raising the exception [[EXC_NOT_IMPLEMENTED]].  The
+implementor may use any functions of the modules [[coeff]],
+[[expr0]] and [[manager]] to help the job of converting datatypes
+of the interface to internal datatypes used inside the library.
+
+Second and last, the library should expose an initialization
+function that allocates and initializes properly an object of type
+[[manager_t]]. For this purpose, the module [[manager]] offers the
+utility functions [[manager_alloc]]. As an example, we give the
+definition of the function allocating a manager as implemented in
+the \textsc{NewPolka}.
+
+\begin{enumerate}
+\item Header of the function:
+<<init1>>=
+manager_t* pk_manager_alloc(
+  bool strict /* specific parameter: do we allow strict constaints ? */
+)
+{
+@
+\item Allocation et initialisation des données globales
+  spécifiques à \textsc{NewPolka}:
+<<init1>>=
+  pk_internal_t* pk = pk_internal_alloc(strict); /* allocation */
+  pk_set_approximate_max_coeff_size(pk, 1); 
+    /* initialization of specific functions
+       (not offered in the common interface) */
+@
+\item Allocation of the manager itself:
+<<init1>>=
+  manager_t* man = manager_alloc("polka","2.0",
+                                 pk, (void (*)(void*))pk_internal_free);
+@
+We provide resp. name, version, internal specific manager, and the
+function to free it.
+
+The function [[manager_alloc]] sets the options of the
+commoninterface to their default value (see documentation).
+\item Initialization of the ``virtual'' table: we need to connect
+  the generic functions of the interface (eg, [[abstract_meet]],
+  \ldots) to the actual functions of the library.  
+<<init1>>=
+  funptr = man->funptr;
+  
+  funptr[fun_minimize] = &poly_minimize;
+  funptr[fun_canonicalize] = &poly_canonicalize;
+  funptr[fun_approximate] = &poly_approximate;
+  funptr[fun_is_minimal] = &poly_is_minimal;
+  funptr[fun_is_canonical] = &poly_is_canonical;
+  funptr[fun_fprint] = &poly_fprint;
+  funptr[fun_fprintdiff] = &poly_fprintdiff;
+  funptr[fun_fdump] = &poly_fdump;
+  ...
+@
+\item Last, we return the allocated manager:
+<<init1>>=
+  return man;
+}
+@
+\end{enumerate}
+That's all for the implementor side.
+
+%======================================================================
+\section{User side: how to use the common interface}
+%======================================================================
+
+From the user point of view, the benefit of using the common
+interface is to restrict the place where the user is aware of the
+real library in use is located in the
+allocation and initialization of the manager.
+
+<<use1>>=
+/* Allocating a manager using Polka functions */
+manager_t* man = pk_manager_alloc(true);
+/* Setting options offered by the common interface, 
+   but with meaning possibly specific to the library */
+manager_set_abort_if_exception(man,EXC_OVERFLOW,true);
+{
+  funopt_t funopt;
+  funopt_init(&funopt);
+  funopt.algorithm = 1; /* default value is 0 */
+  manager_set_funopt(man,fun_widening,&funopt); /* Setting options for widening */
+}
+{
+  funopt_t funopt = manager_get_funopt(man,fun_widening);
+  funopt.timeout = 30;
+  manager_set_funopt(man,fun_widening,&funopt);
+}
+/* Obtaining the internal part of the manager and setting specific options */
+pk_internal_t* pk = manager_get_internal(man);
+pk_set_max_coeff_size(pk,size);
+@ 
+
+The standard operations can then be used and will have the
+semantics defined in the interface. Notice however that some
+generic functions are not formally generic: [[abstract_fprint]],
+[[abstract_fdump]], [[abstract_approximate]].
+
+At any point, options may be modified in the same way as during
+the initialization.
+
+\point{Typing issue.}
+
+The use of several libraries at the same time via the common
+interface and the managers associated to each library raises the
+problem of typing. Look at the following code:
+
+<<type error>>=
+manager_t* manpk = pk_manager_alloc(true); /* manager for Polka */
+manager_t* manoct = oct_manager_alloc();    /* manager for octagon */
+
+abstract0_t* abs1 = abstract_top(manpk,3,3);
+abstract0_t* abs2 = abstract_top(manoct,3,3);
+tbool_t tb = abstract0_is_eq(manoct,abs1,abs2);
+  /* Problem: the effective function called (octagon_is_eq) expects
+     abs1 to be an octagon, and not a polyhedron ! */
+
+abstract0_t* abs3 = abstract_top(manoct,3,3);
+abstract0_meet_with(manpk,abs2,abs3);
+  /* Problem: the effective function called (pk_meet_with) expects
+     abs2 and abs3 to be polyhedra, but they are octagons */
+@ 
+
+There is actually no typing, as [[abstract0_t*]], [[abstract1_t]]
+and [[manager_t]] are abstract types shared by the different
+libraries. Notice that the use of \textsc{C++} and inheritance would not solve
+directly the problem, if functions of the interface are methods of
+the manager; one would have:
+
+<<type error2>>=
+manager_t* manpk = pk_manager_alloc(true); 
+  /* manager for Polka, effective type pk_manager_t* */
+manager_t* manoct = oct_manager_alloc();   
+  /* manager for octagon, effective type oct_manager_t* */
+
+abstract0_t* abs1 = manpk->abstract_top(3,3);
+  /* effective type: poly_t */
+abstract0_t* abs2 = manoct->abstract_top(3,3);
+  /* effective type: oct_t */
+tbool_t tb = manoct->abstract0_is_eq(abs1,abs2);
+  /* No static typing possible: 
+     manpk->abstract0_is_eq and manoct->abstract0_is_eq should have the same
+     signature (otherwise one cannot interchange manpk and manoct in the code),
+     which means that abs1 and abs2 are supposed to be of type abstract0_t* */
+*/
+@
+
+\point{Choices made wrt typing.}
+
+The C interface does not perform any typing check. If one would
+wish it, a simple solution would be the one adopted for the
+\textsc{OCaml} interface (see below).
+
+The OCaml interface does perform a \emph{dynamic} typing check. An
+abstract value of type [[Abstract0.t]] contain both a C pointer to
+an object of type [[abstract0_t]] and a C pointer to an object of
+type [[manager_t]].
+
+\begin{enumerate}
+\item This was anyway needed to finalize
+[[Abstract0.t]] object, because one need to access to the
+effective finalization function, which is done here by calling
+[[(man->funptr[fun_free])(man,abs)]]. 
+\item A benefit is that one do not need to always pass explicitly the
+manager as an argument to the functions. We just have
+<<<example>>=
+(* Module Abstract0 *)
+type t
+
+val top: Manager.t -> t
+  (* Here we need to specify the manager *)
+val meet: t -> t -> t
+  (* Here we just have to check the compatibility of the managers
+     contained in the arguments *)
+@ 
+
+\item The compatibility of the manager adopted is the following
+one: [[man1->funptr==man2->funptr]]: the virtual table should be
+the same.  Checking that [[man1==man2]] would be too strong,
+because one may use two managers created by the same library, to
+avoid interference in multithreaded programming.
+
+\end{enumerate}
+ 
