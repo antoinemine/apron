@@ -155,8 +155,8 @@ cdep: $(H_FILES)
 #---------------------------------------
 
 %.h: %.nw
-#	notangle -L'#line %L "$(SRCDIR)/%F"%N' $^ >$@
-	notangle $^ >$@
+	notangle -L'#line %L "$(SRCDIR)/%F"%N' $^ >$@
+#	notangle $^ >$@
 %.tex: %.nw
 	noweave -n $^ >$@
 

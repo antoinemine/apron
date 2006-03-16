@@ -12,11 +12,61 @@
 #include "ap_expr1.h"
 #include "ap_abstract1.h"
 
+/* Normal constructor */
 static inline ap_abstract1_t ap_abstract1_cons(ap_abstract0_t* a0, ap_environment_t* env)
 {
   ap_abstract1_t res;
   res.abstract0 = a0;
   res.env = ap_environment_copy(env);
+  return res;
+}
+
+/* Special constructor:
+   Build a new abstract value level 1 from the old one and a new value level 0,
+   depending on destructive. The environment is supposed unchanged. 
+*/
+static
+ap_abstract1_t ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value)
+{
+  ap_abstract1_t res;
+  if (destructive){
+    if (value==a->abstract0)
+      res = *a;
+    else {
+      res.abstract0 = value;
+      res.env = a->env;
+    }
+  }
+  else {
+    res = ap_abstract1_cons(value,a->env);
+  }
+  return res;
+}
+/* Special constructor 2:
+
+   Build a new abstract value level 1 from the old one, a new
+   value level 0 and a new environment, depending on
+   destructive. The environment is supposed unchanged.
+*/
+static
+ap_abstract1_t ap_abstract1_consres2(bool destructive, ap_abstract1_t* a, 
+				     ap_abstract0_t* value, 
+				     ap_environment_t* env)
+{
+  ap_abstract1_t res;
+  if (destructive){
+    if (value==a->abstract0 && env==a->env)
+      res = *a;
+    else {
+      res.abstract0 = value;
+      res.env = env;
+      ap_environment_free(a->env);
+    }
+  }
+  else {
+      res.abstract0 = value;
+      res.env = env;
+  }
   return res;
 }
 
@@ -323,16 +373,17 @@ ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
 /* Abstract a convex polyhedra defined by the array of linear constraints
    of size size */
 ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
-				       ap_environment_t* env,
-				       const ap_lincons1_array_t* array)
+					     ap_environment_t* env,
+					     const ap_lincons1_array_t* array)
 {
+  ap_abstract0_t* value;
   ap_abstract1_t a;
   ap_lincons0_array_t array0;
   ap_dimchange_t* dimchange;
 
   if (env==NULL)
     env = array->env;
-
+  
   if (ap_environment_is_eq(env,array->env)){
     dimchange = NULL;
     array0 = array->lincons0_array;
@@ -341,16 +392,17 @@ ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
     dimchange = ap_environment_dimchange(array->env,env);
     if (dimchange==NULL){
       ap_manager_raise_exception(man,
-			      AP_EXC_INVALID_ARGUMENT,
-			      AP_FUNID_OF_LINCONS_ARRAY,
-			      "environment of input constraints is not a subset of the requested environment");
+				 AP_EXC_INVALID_ARGUMENT,
+				 AP_FUNID_OF_LINCONS_ARRAY,
+				 "environment of input constraints is not a subset of the requested environment");
       return ap_abstract1_top(man,env);
     }
     array0 = ap_lincons0_array_add_dimensions(&array->lincons0_array,dimchange);
   }
-  a = ap_abstract1_cons(ap_abstract0_of_lincons_array(man,env->intdim,env->realdim,
-						&array0),
-		      env);
+  value = ap_abstract0_of_lincons_array(man,
+					env->intdim,env->realdim,
+					&array0);
+  a = ap_abstract1_cons(value,env);
   if (dimchange){
     ap_dimchange_free(dimchange);
     ap_lincons0_array_clear(&array0);
@@ -556,25 +608,6 @@ ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, const a
 /* ============================================================ */
 /* III.1 Meet and Join */
 /* ============================================================ */
-
-static
-ap_abstract1_t ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value)
-{
-  ap_abstract1_t res;
-  if (destructive){
-    if (value==a->abstract0)
-      res = *a;
-    else {
-      res.abstract0 = value;
-      res.env = a->env;
-    }
-  }
-  else {
-    res = ap_abstract1_cons(value,a->env);
-  }
-  return res;
-}
-
 
 ap_abstract1_t ap_abstract1_meetjoin(ap_funid_t funid, ap_manager_t* man, bool destructive, ap_abstract1_t* a1, const ap_abstract1_t* a2)
 {
@@ -860,9 +893,9 @@ ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
 /* ============================================================ */
 
 ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
-				  bool destructive, ap_abstract1_t* a,
-				  ap_environment_t* nenv,
-				  bool project)
+					       bool destructive, ap_abstract1_t* a,
+					       ap_environment_t* nenv,
+					       bool project)
 {
   ap_environment_t* env;
   ap_abstract1_t res;
@@ -897,14 +930,59 @@ ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
   }
   if (dimchange1)
     free(dimchange1);
-  res = ap_abstract1_consres(destructive, a, value);
+  res = ap_abstract1_consres2(destructive, a, 
+			      value, ap_environment_copy(nenv));
   return res;
 }
 
-ap_abstract1_t ap_abstract1_rename(ap_manager_t* man,
-			     bool destructive,
-			     ap_abstract1_t* a,
-			     ap_var_t* tvar1, ap_var_t* tvar2, size_t size)
+ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
+						 bool destructive,
+						 ap_abstract1_t* a)
+{
+  ap_abstract1_t res;
+  ap_environment_t* env;
+  ap_var_t* tvar;
+  ap_dimension_t dim;
+  size_t i,size,intdim,realdim;
+  ap_var_t var;
+
+  dim = ap_abstract0_dimension(man,a->abstract0);
+  size = dim.intdim+dim.realdim;
+  tvar = malloc(size*sizeof(ap_var_t));
+  intdim=0;
+  realdim=0;
+  for (i=0; i<size;i++){
+    tbool_t tb = ap_abstract0_is_dimension_unconstrained(man,a->abstract0,i);
+    if (tb==tbool_true){
+      var = ap_environment_var_of_dim(a->env,i);
+      if (i<dim.intdim){
+	tvar[intdim] = var;
+	intdim++;
+      } else {
+	tvar[intdim+realdim] = var;
+	realdim++;
+      }
+    }
+  }
+  if (intdim+realdim==0){ /* No change */
+    res = destructive ? *a : ap_abstract1_copy(man,a);
+  } else {
+    env = ap_environment_remove(a->env,&(tvar[0]),intdim,&(tvar[intdim]),realdim);
+    if (env==NULL){
+      fprintf(stderr,"ap_abstract1.c: ap_abstract1_minimize_environment: internal error\n");
+      abort();
+    }
+    res = ap_abstract1_change_environment(man,destructive,a,env,false);
+    ap_environment_free(env);
+  }
+  free(tvar);
+  return res;
+}
+
+ap_abstract1_t ap_abstract1_rename_array(ap_manager_t* man,
+					 bool destructive,
+					 ap_abstract1_t* a,
+					 ap_var_t* tvar1, ap_var_t* tvar2, size_t size)
 {
   ap_abstract1_t res;
   ap_dimperm_t perm;
@@ -913,14 +991,16 @@ ap_abstract1_t ap_abstract1_rename(ap_manager_t* man,
 
   env = ap_environment_rename(a->env,tvar1,tvar2,size,&perm);
   if (env==NULL){
-    ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_RENAME,
-			    "renaming specification invalid");
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       AP_FUNID_RENAME_ARRAY,
+			       "renaming specification invalid");
     res = ap_abstract1_top(man,a->env);
     if (destructive) ap_abstract1_clear(man,a);
   }
   else {
     value = ap_abstract0_permute_dimensions(man,destructive,a->abstract0,&perm);
-    res = ap_abstract1_consres(destructive, a, value);
+    res = ap_abstract1_consres2(destructive, a, value, env);
     ap_dimperm_clear(&perm);
   }
   return res;
@@ -931,11 +1011,11 @@ ap_abstract1_t ap_abstract1_rename(ap_manager_t* man,
 /* ============================================================ */
 
 ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
-			     bool destructive,
-			     ap_abstract1_t* a,
-			     ap_var_t var,
-			     ap_var_t* tvar,
-			     size_t size)
+				   bool destructive,
+				   ap_abstract1_t* a,
+				   ap_var_t var,
+				   ap_var_t* tvar,
+				   size_t size)
 {
   ap_dim_t dim;
   ap_dimperm_t perm;
@@ -967,15 +1047,15 @@ ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
     ap_environment_add_perm(a->env, NULL,0, tvar, size, &perm);
   if (nenv==NULL){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,
-			    AP_FUNID_EXPAND,
-			    "some new variables resulting from the expansion already exist in current environment");
+			       AP_FUNID_EXPAND,
+			       "some new variables resulting from the expansion already exist in current environment");
     goto ap_abstract1_expand_exit;
   }
 
   /* Apply permutation and return */
   value = ap_abstract0_permute_dimensions(man,true,value,&perm);
   ap_dimperm_clear(&perm);
-  res = ap_abstract1_consres(destructive, a, value);
+  res = ap_abstract1_consres2(destructive, a, value,nenv);
   return res;
 }
 
@@ -992,7 +1072,7 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
 
   if (size==0){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_FOLD,
-			    "array of variables to fold of size 0");
+			       "array of variables to fold of size 0");
   ap_abstract1_fold_exit:
     res = ap_abstract1_top(man,a->env);
     if (destructive) ap_abstract1_clear(man,a);
@@ -1015,8 +1095,8 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
     ap_environment_remove(a->env, NULL,0, &tvar[1], size-1);
   if (nenv==NULL){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_FOLD,
-			    "some variables to fold are unkown in the environment");
-     goto ap_abstract1_fold_exit;
+			       "some variables to fold are unkown in the environment");
+    goto ap_abstract1_fold_exit;
   }
   /* Translate variables to dimensions */
   tdim = malloc(size*sizeof(ap_dim_t));
@@ -1032,7 +1112,7 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
   /* Perform the operation */
   value = ap_abstract0_fold(man,destructive,a->abstract0,tdim,size);
   free(tdim);
-  res = ap_abstract1_consres(destructive, a, value);
+  res = ap_abstract1_consres2(destructive, a, value, nenv);
   return res;
 }
 
@@ -1071,13 +1151,13 @@ ap_abstract1_t ap_abstract1_widening_threshold(ap_manager_t* man,
     dimchange = ap_environment_dimchange(array->env,a1->env);
     if (dimchange==NULL){
       ap_manager_raise_exception(man,
-			      AP_EXC_INVALID_ARGUMENT,
-			      AP_FUNID_MEET_LINCONS_ARRAY,
-			      "\
+				 AP_EXC_INVALID_ARGUMENT,
+				 AP_FUNID_MEET_LINCONS_ARRAY,
+				 "\
 environment of array of constraints is not a subset \
 of the environment of the abstract value\
 "
-			      );
+				 );
       res = ap_abstract1_top(man,a1->env);
       return res;
     }

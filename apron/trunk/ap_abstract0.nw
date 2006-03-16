@@ -13,7 +13,7 @@
 /* GENERATED FROM abstract0.nw: DOT NOT MODIFY ! */
 
 
-#ifndef _AO_ABSTRACT0_H_
+#ifndef _AP_ABSTRACT0_H_
 #define _AP_ABSTRACT0_H_
 
 #include "ap_manager.h"
