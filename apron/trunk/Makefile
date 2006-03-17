@@ -1,12 +1,5 @@
-#---------------------------------------
-# Configuration
-#---------------------------------------
 
-# Where to find GMP ($GMP_PREFIX)/include, ($GMP_PREFIX)/lib
-GMP_PREFIX = $(GMP_INSTALL)
-
-# Installation directory prefix
-APRON_INSTALL = $(HOME)/pkg/apron/$(ARCH)
+include ../Makefile.config
 
 #---------------------------------------
 # Directories
@@ -21,10 +14,6 @@ INCDIR = $(PREFIX)/include
 LIBDIR = $(PREFIX)/lib
 BINDIR = $(PREFIX)/bin
 #
-# Where to find necessary files
-# GMP include and lib directories
-# GMP_INSTALL =
-
 
 #---------------------------------------
 # C part
