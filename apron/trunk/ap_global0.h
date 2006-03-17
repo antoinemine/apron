@@ -14,6 +14,6 @@
 #include "ap_lincons0.h"
 #include "ap_generator0.h"
 #include "ap_manager.h"
-#include "abstract0.h"
+#include "ap_abstract0.h"
 
 #endif

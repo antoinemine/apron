@@ -12,6 +12,6 @@
 #include "ap_linexpr1.h"
 #include "ap_lincons1.h"
 #include "ap_generator1.h"
-#include "abstract1.h"
+#include "ap_abstract1.h"
 
 #endif
