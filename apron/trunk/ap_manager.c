@@ -236,7 +236,7 @@ void ap_manager_raise_exception(ap_manager_t* man,
   if (exn!=AP_EXC_NONE){
     pabort = man->option.abort_if_exception[exn];
     if (pabort){
-      fprintf(stderr,"Abort because of following exception:\nexception %s in function %s:\n%s\n",
+      fprintf(stderr,"Apron: Abort because of following exception:\nexception %s in function %s:\n%s\n",
 	      ap_name_of_exception[exn], ap_name_of_funid[funid],
 	      msg);
       abort();
