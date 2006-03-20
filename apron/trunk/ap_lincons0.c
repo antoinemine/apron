@@ -30,16 +30,49 @@ ap_lincons0_t ap_lincons0_make_unsat()
 
 bool ap_lincons0_is_unsat(const ap_lincons0_t* cons)
 {
+  size_t i,nbcoeffs;
+  ap_dim_t dim;
+  ap_coeff_t* coeff;
+  int sgn;
   ap_linexpr0_t* expr = cons->linexpr0;
-  if (expr->size==0){
+  
+  nbcoeffs = 0;
+  ap_linexpr0_ForeachLinterm(expr,i,dim,coeff){
+    if (!ap_coeff_zero(coeff)){
+      nbcoeffs++;
+      if (nbcoeffs>0) break;
+    }
+  }
+  if (nbcoeffs==0){
     switch (expr->cst.discr){
     case AP_COEFF_SCALAR:
-      return ap_scalar_sgn(expr->cst.val.scalar)<0;
+      sgn = ap_scalar_sgn(expr->cst.val.scalar);
+      switch(cons->constyp){
+      case AP_CONS_EQ:
+	return (sgn!=0);
+      case AP_CONS_SUPEQ:
+	return (sgn<0);
+      case AP_CONS_SUP:
+	return (sgn<=0);
+      default:
+	abort();
+      }
     case AP_COEFF_INTERVAL:
-      return ap_scalar_sgn(expr->cst.val.interval->inf)<0 ||
-	ap_interval_is_bottom(expr->cst.val.interval);
+      switch(cons->constyp){
+	sgn = ap_scalar_sgn(expr->cst.val.interval->sup);
+      case AP_CONS_EQ:
+	return 
+	  sgn < 0 ||
+	  ap_scalar_sgn(expr->cst.val.interval->inf)>0;
+      case AP_CONS_SUPEQ:
+	return sgn<0;
+      case AP_CONS_SUP:
+	return (sgn<=0);
+      default:
+	abort();
+      }	
     default:
-      return false;
+      abort();
     }
   }
   else
