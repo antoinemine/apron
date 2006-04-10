@@ -152,7 +152,7 @@ void ap_dimperm_compose(ap_dimperm_t* perm, const ap_dimperm_t* perm1, const ap_
   /* Compose the 2 permutations perm1 and perm2 (in this order) 
      and store the result the already allocated perm.
      The sizes of permutations are supposed to be equal.
-     At exit, we have perm[i] = perm2[perm1[i]]
+     At exit, we have perm.dim[i] = perm2.dim[perm1.dim[i]]
   */
 void ap_dimperm_invert(ap_dimperm_t* nperm, const ap_dimperm_t* perm);
   /* Invert the permutation perm and store it in the already allocated nperm. 

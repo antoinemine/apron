@@ -87,7 +87,7 @@ void ap_abstract0_approximate(ap_manager_t* man, ap_abstract0_t* a, int algorith
      field algorithm.
 
      The transformation may lose information.  The argument "algorithm"
-     overrides the field algorithm of the structure of type foption_t
+     overrides the field algorithm of the structure of type ap_funopt_t
      associated to ap_abstract0_approximate (commodity feature). */
 
 
@@ -173,7 +173,7 @@ ap_membuf_t ap_abstract0_serialize_raw(ap_manager_t* man, const ap_abstract0_t* 
    afterwards (with free). */
 
 
-ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* ptr);
+ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size);
 /* Return the abstract value read in raw binary format from the input stream
    and store in size the number of bytes read */
 @
@@ -368,7 +368,7 @@ ap_generator0_array_t ap_abstract0_to_generator_array(ap_manager_t* man, const a
 La plupart des opérations sont offertes en 2 versions:
 fonctionnelle ou destructrice.  On utilise un booléen por
 distinguer les 2 sémantiques. La sémantique destructrice est la
-suivante: après l'appel, la prmeière valeur abstraite de la
+suivante: après l'appel, la première valeur abstraite de la
 fonction est détruite, et ne doit plus être manipulée ni
 référencée. Il est possible que la valeur retournée par la
 fonction soit la même que l'argument, mais il faut la manipuler

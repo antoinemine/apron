@@ -169,30 +169,30 @@ bool ap_linexpr0_set_format(ap_linexpr0_t* expr, char* fmt, ...);
 */
 
 typedef enum ap_coefftag_t {
-  AP_COEFF,
-  AP_COEFF_S,
-  AP_COEFF_S_MPQ,
-  AP_COEFF_S_INT,
-  AP_COEFF_S_FRAC,
-  AP_COEFF_S_DOUBLE,
-  AP_COEFF_I,
-  AP_COEFF_I_SCALAR,
-  AP_COEFF_I_MPQ,
-  AP_COEFF_I_INT,
-  AP_COEFF_I_FRAC,
-  AP_COEFF_I_DOUBLE,
-  AP_CST,
-  AP_CST_S,
-  AP_CST_S_MPQ,
-  AP_CST_S_INT,
-  AP_CST_S_FRAC,
-  AP_CST_S_DOUBLE,
-  AP_CST_I,
-  AP_CST_I_SCALAR,
-  AP_CST_I_MPQ,
-  AP_CST_I_INT,
-  AP_CST_I_FRAC,
-  AP_CST_I_DOUBLE,
+  AP_COEFF,          /* waiting for a coeff_t* object and a dimension */
+  AP_COEFF_S,        /* waiting for a scalar_t* object and a dimension */
+  AP_COEFF_S_MPQ,    /* waiting for a mpq_t object and a dimension */
+  AP_COEFF_S_INT,    /* waiting for a int object and a dimension */
+  AP_COEFF_S_FRAC,   /* waiting for 2 int objects and a dimension */
+  AP_COEFF_S_DOUBLE, /* waiting for a double object and a dimension */
+  AP_COEFF_I,        /* waiting for a interval_t* object and a dimension */
+  AP_COEFF_I_SCALAR, /* waiting for 2 scalar_t* objects and a dimension */
+  AP_COEFF_I_MPQ,    /* waiting for 2 mpq_t objects and a dimension */
+  AP_COEFF_I_INT,    /* waiting for 2 int objects and a dimension */
+  AP_COEFF_I_FRAC,   /* waiting for 4 int objects and a dimension */
+  AP_COEFF_I_DOUBLE, /* waiting for 2 double objects and a dimension */
+  AP_CST,            /* waiting for a coeff_t* object */
+  AP_CST_S,          /* waiting for a scalar_t* object */
+  AP_CST_S_MPQ,      /* waiting for a mpq_t object */
+  AP_CST_S_INT,      /* waiting for a int object */
+  AP_CST_S_FRAC,     /* waiting for 2 int objects */
+  AP_CST_S_DOUBLE,   /* waiting for a double object */
+  AP_CST_I,          /* waiting for a interval_t* object */
+  AP_CST_I_SCALAR,   /* waiting for 2 scalar_t* objects */
+  AP_CST_I_MPQ,      /* waiting for 2 mpq_t objects */
+  AP_CST_I_INT,      /* waiting for 2 int objects */
+  AP_CST_I_FRAC,     /* waiting for 4 int objects */
+  AP_CST_I_DOUBLE,   /* waiting for 2 double objects */
   AP_END
 } ap_coefftag_t;
  
