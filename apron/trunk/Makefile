@@ -80,15 +80,15 @@ csrc: $(H_FILES)
 # Misc rules
 #---------------------------------------
 
-tar: $(NOWEB_FILES) $(H_FILES) $(C_FILES) apron.tex Makefile README
+tar: $(NOWEB_FILES) $(H_FILES) $(C_FILES) apron.texi apronrationale.tex Makefile README
 	(cd ..; tar zcvf $(HOME)/apron.tgz $(^:%=apron/%))
 
-dist: $(NOWEB_FILES) apron.tex Makefile README $(TEX_FILES) $(H_FILES) $(C_FILES) apron.dvi
+dist: $(NOWEB_FILES) apron.texi apronrationale.tex Makefile README $(TEX_FILES) $(H_FILES) $(C_FILES) apronrationale.dvi
 	(cd ..; tar zcvf $(HOME)/apron.tgz $(^:%=apron/%))
 
 clean:
 	/bin/rm -f $(NOWEB_FILES:%.nw=%.h) $(TEX_FILES)
-	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps
+	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps apron.cps apron.fns apron.info apron.kys apron.pgs apron.tps apron.vrs
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmxa *.cma
 
 install: $(H_FILES) libapron.a libapron_debug.a
@@ -106,15 +106,15 @@ distclean:
 # Latex rules
 #---------------------------------------
 
-.PHONY : dvi apron.dvi 
+.PHONY : dvi apronrationale.dvi 
 
-ps: apron.dvi
-	$(DVIPS) apron -o
+ps: apronrationale.dvi
+	$(DVIPS) apronrationale -o
 
-dvi: apron.tex $(TEX_FILES)
-	$(LATEX) apron.tex
+dvi: apronrationale.tex $(TEX_FILES)
+	$(LATEX) apronrationale.tex
 
-apron.dvi: apron.tex $(TEX_FILES)
+apronrationale.dvi: apronrationale.tex $(TEX_FILES)
 	$(LATEX) $^
 
 #---------------------------------------

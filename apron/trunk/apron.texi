@@ -12,6 +12,7 @@
 @tex
 \global\parskip=0.5ex
 \global\baselineskip=3ex
+\global\mag=1200
 @end tex
 
 @direntry
@@ -47,6 +48,7 @@ numerical variables.
 @end titlepage
 
 @top APRON
+
 @contents
 
 @menu

@@ -637,7 +637,7 @@ ap_membuf_t ap_abstract0_serialize_raw(ap_manager_t* man, const ap_abstract0_t* 
     return res;
   }
 }
-ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* p)
+ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* p, size_t* size)
 {
   void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DESERIALIZE_RAW];
   return ap_abstract0_cons(man,ptr(man,p));
