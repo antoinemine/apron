@@ -7,7 +7,7 @@ include ../Makefile.config
 
 SRCDIR = $(shell pwd)
 #
-PREFIX = $(APRON_INSTALL)
+PREFIX = $(APRON_PREFIX)
 #
 # C include and lib directories
 INCDIR = $(PREFIX)/include
@@ -20,7 +20,7 @@ BINDIR = $(PREFIX)/bin
 #---------------------------------------
 CC = gcc
 ICFLAGS = \
--I$(GMP_INSTALL)/include \
+-I$(GMP_PREFIX)/include \
 -Wall -Winline -Wimplicit-function-declaration -std=c99
 
 CFLAGS = $(ICFLAGS) -O3 -DNDEBUG
@@ -92,15 +92,15 @@ clean:
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmxa *.cma
 
 install: $(H_FILES) libapron.a libapron_debug.a
-	mkdir -p $(APRON_INSTALL)/include
-	cp $(H_FILES) $(APRON_INSTALL)/include
-	mkdir -p $(APRON_INSTALL)/lib
-	cp libapron.a libapron_debug.a $(APRON_INSTALL)/lib
+	mkdir -p $(APRON_PREFIX)/include
+	cp $(H_FILES) $(APRON_PREFIX)/include
+	mkdir -p $(APRON_PREFIX)/lib
+	cp libapron.a libapron_debug.a $(APRON_PREFIX)/lib
 
 distclean:
-	/bin/rm -f $(H_FILES:%=$(APRON_INSTALL)/include/%)
-	/bin/rm -f $(APRON_INSTALL)/lib/libapron.a
-	/bin/rm -f $(APRON_INSTALL)/lib/libapron_debug.a
+	/bin/rm -f $(H_FILES:%=$(APRON_PREFIX)/include/%)
+	/bin/rm -f $(APRON_PREFIX)/lib/libapron.a
+	/bin/rm -f $(APRON_PREFIX)/lib/libapron_debug.a
 
 #---------------------------------------
 # Latex rules
