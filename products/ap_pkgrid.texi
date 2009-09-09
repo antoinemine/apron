@@ -1,0 +1,56 @@
+@c This file is part of the APRON Library, released under LGPL
+@c license. Please read the COPYING file packaged in the distribution
+
+@c to be included from apron.texi
+
+The @sc{pkgrid} library is aimed to be used through the APRON
+interface. It implements the reduced product of NewPolka convex
+polyhedra and the PPL linear congruences abstract domains and
+implementations. It exploits for this the features offered by the
+module @file{ap_reducedproduct} contained in the @file{apron} core
+library.
+
+@menu
+* Use of pkgrid::             
+* Allocating pkgrid managers::  
+@end menu
+
+@c ===================================================================
+@node Use of pkgrid, Allocating pkgrid managers,, pkgrid
+@subsection Use of pkgrid
+@c ===================================================================
+
+To use @sc{pkgrid} in C, add
+@example
+#include "ap_pkgrid.h"
+@end example
+in your source file(s) and add @samp{-I$(APRON_PREFIX)/include} in the
+command line in your Makefile.
+
+You should also link your object files with the @sc{pkgrid}
+library to produce an executable, by adding something like
+@samp{-L$(APRON_PREFIX)/lib -lap_pkgrid} in the command line in
+your Makefile, followed by the flags and libraries needed for the
+NewPolka library (@pxref{Use of NewPolka}) and the PPL library
+(@pxref{Use of APRON PPL}). Be cautious: because of the use of the
+PPL library, you @samp{g++} (C++ compiler) instead of @samp{gcc}
+(C compiler) for the linking.
+
+Also, the library is available in debug mode
+(@samp{libap_pkgrid_debug.a}, @samp{libap_pkgrid_debug.so}).
+
+@c ===================================================================
+@node Allocating pkgrid managers ,  , Use of pkgrid, pkgrid
+@subsection Allocating pkgrid managers
+@c ===================================================================
+
+@deftypefun ap_manager_t* ap_pkgrid_manager_alloc (ap_manager_t* @var{manpk}, ap_manager_t* @var{manpplgrid})
+Allocate a APRON manager linked to the pkgrid library, using the
+(loose or strict) polka manager @var{manpk} and the PPL grid manager
+@var{manpplgrid}. If one of the argulment manager is not of the right
+type, returns @code{NULL}.
+@end deftypefun
+
+Available standard options are the one offered by the generic
+reduced product module @file{ap_reducedproduct} contained in the
+@file{apron} core library (@pxref{Functions for implementors}).

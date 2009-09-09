@@ -1,0 +1,2552 @@
+
+scalars
+=======
+
+construct 2:              2
+construct 2L:             2
+construct 2.:             2
+construct frac(1,5):      1/5
+construct infty(-1):      -oo
+construct mpq_class(1,5): 1/5
+copy   12:        12
+assign 2:         2
+assign 2.:        2
+assign frac(1,5): 1/5
+copy   12:        12
+before swap 12 5: 12 5
+after swap  5 12: 5 12
+chain assign 2:   2 2
+chain assign 2.:  2 2
+get_double 15.: 15
+array 12 0 12: 12 0 12
+neg -12 -12: -12 -12
+inv -1/12 -1/12: -1/12 -1/12
+print: -1/12
+hash: 1537228672809129301
+
+intervals
+=========
+
+construct 0:                     [0,0]
+construct scalar(12):            [12,15]
+construct [12,15]:               [12,15]
+construct [12L,15L]:             [12,15]
+construct [5.,18.]:              [5,18]
+construct [frac(1,2),frac(5,4)]: [1/2,5/4]
+construct [mpq(15,3),15]:        [15/3,15]
+construct top:                   [-oo,+oo]
+construct bottom:                [1,-1]
+copy [-5,5]:                [-5,5]
+assign top:                 [-oo,+oo]
+assign bottom:              [1,-1]
+copy [-5,5]:                [-5,5]
+set [scalar(5),scalar(19)]: [5,19]
+set [12,18]:                [12,18]
+set [12.,18.]:              [12,18]
+set [frac(1,2),frac(3,4)]:  [1/2,3/4]
+set [mpq(8),mpq(10)]:        [8,10]
+set top:                    [-oo,+oo]
+set bottom:                 [1,-1]
+set interval(-5,5):         [-5,5]
+after swap top [-5,5]:      [-oo,+oo] [-5,5]
+chain assign [1,2]:         [1,2] [1,2]
+chain assign top:           [-oo,+oo] [-oo,+oo]
+get_inf: [-1,2]:  [-1,2]
+get_sup [-1,1/2]: [-1,1/2]
+array [12,13] 0 [12,13]: [12,13] [0,0] [12,13]
+neg [-2,-1] [-2,-1]: [-2,-1] [-2,-1]
+print: [-2,-1]
+hash: -4
+
+interval arrays
+===============
+
+construct a:    4 { [0,0] [1,2] [1,2] [-oo,+oo] }
+copy a:         4 { [0,0] [1,2] [1,2] [-oo,+oo] }
+empty:          3 { [0,0] [0,0] [0,0] }
+copy a:         4 { [0,0] [1,2] [1,2] [-oo,+oo] }
+from vector v:  3 { [1,2] [0,0] [0,0] }
+from vector v:  3 { [1,2] [0,0] [0,0] }
+chain assign a: 4 { [0,0] [1,2] [1,2] [-oo,+oo] }
+to vector v:    3 { [1,2] [0,0] [0,0] }
+print v: { [1,2] [0,0] [0,0] }
+
+coeff
+=====
+
+construct 0:                     0
+construct 2:                     2
+construct scalar(frac(2,3)):     2/3
+construct 2:                     2
+construct 2L:                    2
+construct 2.5:                   2.5
+construct frac(2,3):             2/3
+construct mpq(2,3):              2/3
+construct interval(1,2):         [1,2]
+construct [scalar(1),scalar(2)]: [1,2]
+construct [1,2]:                 [1,2]
+construct [1L,2L]:               [1,2]
+construct [1.1,2.2]:             [1.1,2.2]
+construct [frac(1,2),frac(3,4)]: [1/2,3/4]
+construct [mpq(1,2),mpq(3,4)]:   [1/2,3/4]
+construct top:                   [-oo,+oo]
+construct bottom:                [1,-1]
+assign coeff(2):           2
+assign scalar(2):          2
+assign 2:                  2
+assign 2L:                 2
+assign 2.5:                2.5
+assign frac(1,2):          1/2
+assign mpq(1,2):           1/2
+assign interval(1,2):      [1,2]
+assign top:                [-oo,+oo]
+assign bottom:             [1,-1]
+set coeff(2):              2
+set scalar(2):             2
+set 2:                     2
+set 2L:                    2
+set 2.:                    2
+set frac(1,2):             1/2
+set mpq(1,2):              1/2
+set interval(1,2):         [1,2]
+set [scalar(1),scalar(2)]: [1,2]
+set [1,2]:                 [1,2]
+set [1L,2L]:               [1,2]
+set [1.1,2.2]:             [1.1,2.2]
+set [frac(1,2),frac(3,4)]: [1/2,3/4]
+set [mpq(1,2),mpq(3,4)]:   [1/2,3/4]
+set top:                   [-oo,+oo]
+set bottom:                [1,-1]
+before swap 2 3: 2 3
+after swap  3 2: 3 2
+chain assign frac(1,2):      1/2 1/2
+chain assign [1.,2.]:        [1,2] [1,2]
+get_scalar 3: 3
+get_interval [0,2]: [0,2]
+before reduce [1,1]: [1,1]
+after reduce 1:      1
+neg [-5,-3] [-5,-3]: [-5,-3] [-5,-3]
+hash: -11
+print: [-5,-3]
+
+dimchange
+=========
+
+from array 1 2 3: dimchange: intdim=1, realdim=2
+x1 x2 x3 
+from array 3 2 1: dimchange: intdim=1, realdim=2
+x3 x2 x1 
+1 2 3 2
+copy 3 2 1: dimchange: intdim=1, realdim=2
+x3 x2 x1 
+copy 12 2 1: dimchange: intdim=1, realdim=2
+x12 x2 x1 
+from vector 4 5 6: dimchange: intdim=1, realdim=2
+x4 x5 x6 
+from vector 4 5 6: dimchange: intdim=1, realdim=2
+x4 x5 x6 
+invert: dimchange: intdim=1, realdim=2
+x4 x6 x8 
+invert: dimchange: intdim=1, realdim=2
+x4 x6 x8 
+invert: dimchange: intdim=1, realdim=2
+x4 x6 x8 
+print: dimchange: intdim=1, realdim=2
+            4  6  8 
+print w/ names: dimchange: intdim=1, realdim=2
+x4 x6 x8 
+
+
+dimperm
+=======
+
+identity:         dimperm: size=3
+x0 -> x0
+x1 -> x1
+x2 -> x2
+
+from array 1 0 2: dimperm: size=3
+x0 -> x1
+x1 -> x0
+x2 -> x2
+identity:         dimperm: size=3
+x0 -> x0
+x1 -> x1
+x2 -> x2
+from array 1 2 0: dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+3 1 2
+copy 1 2 0: dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+copy 12 2 0: dimperm: size=3
+x0 -> x12
+x1 -> x2
+x2 -> x0
+from vector 2 0 1: dimperm: size=3
+x0 -> x2
+x1 -> x0
+x2 -> x1
+from vector 2 0 1: dimperm: size=3
+x0 -> x2
+x1 -> x0
+x2 -> x1
+from vector 2 0 1: dimperm: size=3
+x0 -> x2
+x1 -> x0
+x2 -> x1
+invert 1 2 0:     dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+invert 1 2 0:     dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+invert 1 2 0:     dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+compose 2 0 1:     dimperm: size=3
+x0 -> x2
+x1 -> x0
+x2 -> x1
+compose 2 0 1:     dimperm: size=3
+x0 -> x2
+x1 -> x0
+x2 -> x1
+invert 1 2 0:      dimperm: size=3
+x0 -> x1
+x1 -> x2
+x2 -> x0
+print: dimperm: size=3
+ 0 ->  1
+ 1 ->  2
+ 2 ->  0
+print w/ names: dimperm: size=3
+x -> y
+y -> z
+z -> x
+
+
+dense linexpr0
+==============
+
+construct:                                   5, 0
+get_ 1/4x0 - 2x3 + [1,2]:                    5, 1/4x0 - 2x3 + [1,2]
+copy 1/4x0 + [-oo,+oo]x2 - 2x3 + [1,2]:      5, 1/4x0 + [-oo,+oo]x2 - 2x3 + [1,2]
+copy 1/4x0 - 2x3 + [1,2]:                    5, 1/4x0 - 2x3 + [1,2]
+[1]: 0
+from array 1x0 + 2x1 + [0,1]x2 + 2:          3, x0 + 2x1 + [0,1]x2 + 2
+chained copy 1/4x0 - 2x3 + [1,2]:            5, 1/4x0 - 2x3 + [1,2]
+[]   1/4x0 + [0,1]x2 - 2x3 + [1,2]:          5, 1/4x0 + [0,1]x2 - 2x3 + [1,2]
+copy 1/4x0 - 2x3 + [1,2]:                    5, 1/4x0 - 2x3 + [1,2]
+after swap:                                  5, 1/4x0 - 2x3 + [1,2]
+after swap:                                  5, 1/4x0 + [0,1]x2 - 2x3 + [1,2]
+const iterator: 1/4 0 [0,1] -2 0
+iterate neg -1/4x0 + [-1,0]x2 + 2x3 + [1,2]: 5, - 1/4x0 + [-1,0]x2 + 2x3 + [1,2]
+resize 1/4x0 + [1,2]:                        3, 1/4x0 + [1,2]
+[]     [3,3]x0 + [1,2]:                      3, [3,3]x0 + [1,2]
+minimize 3x0 + [1,2]:                        3, 3x0 + [1,2]
+add dims: 3x1 + [1,2]:                       3x1 + [1,2]
+add_dims: 3x1 + [1,2]:                       3x1 + [1,2]
+permute: [3,4]x0 + 3x1 + [1,2]:              [3,4]x0 + 3x1 + [1,2]
+permute: 3x0 + [3,4]x1 + [1,2]:              3x0 + [3,4]x1 + [1,2]
+hash: 793
+print: 3x0 + [3,4]x1 + [1,2]
+print w/ names: 3x + [3,4]y + [1,2]
+
+sparse linexpr0
+===============
+
+construct:                                   5, 0
+get_ 1/4x0 - 2x3 + [1,2]:                    5, 1/4x0 - 2x3 + [1,2]
+copy 1/4x0 + [-oo,+oo]x2 - 2x3 + [1,2]:      5, 1/4x0 + [-oo,+oo]x2 - 2x3 + [1,2]
+copy 1/4x0 - 2x3 + [1,2]:             :      5, 1/4x0 - 2x3 + [1,2]
+[1] 0
+from array 1x0 + 2x1 + [0,1]x2 + 2:          3, x0 + 2x1 + [0,1]x2 + 2
+chained copy 1/4x0 - 2x3 + [1,2]:            5, 1/4x0 - 2x3 + [1,2]
+copy 1/4x0 + [0,1]x2 - 2x3 + [1,2]:          5, 1/4x0 + [0,1]x2 - 2x3 + [1,2]
+copy 1/4x0 - 2x3 + [1,2]:                    5, 1/4x0 - 2x3 + [1,2]
+after swap:                                  5, 1/4x0 - 2x3 + [1,2]
+after swap:                                  5, 1/4x0 + [0,1]x2 - 2x3 + [1,2]
+const iterator: 1/4 0 [0,1] -2
+iterate neg -1/4x0 + [-1,0]x2 + 2x3 + [1,2]: 5, - 1/4x0 + [-1,0]x2 + 2x3 + [1,2]
+get_ [] 1/4x0 - 2x3 + 1/2x4 + [0,1]x5 + [1,2]: 5, 1/4x0 - 2x3 + 1/2x4 + [0,1]x5 + [1,2]
+get_ [] 1/4x0 + 6x1 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]: 7, 1/4x0 + 6x1 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+before minimize:   7, [3,3]x0 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+after minimize:    6, 3x0 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+add dims 3x1 - 2x5 + 1/2x6 + [0,1]x7 + 5x8 + 5x9 + [1,2]: 3x1 - 2x5 + 1/2x6 + [0,1]x7 + 5x8 + 5x9 + [1,2]
+add_dims 3x1 - 2x5 + 1/2x6 + [0,1]x7 + 5x8 + 5x9 + [1,2]: 3x1 - 2x5 + 1/2x6 + [0,1]x7 + 5x8 + 5x9 + [1,2]
+permute -2x0 + 3x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]: - 2x0 + 3x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+permute 3x0 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]:  3x0 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+hash: 2547
+print: 3x0 - 2x3 + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+print w/ names: 3x - 2t + 1/2x4 + [0,1]x5 + 5x6 + 5x7 + [1,2]
+
+lincons0
+========
+
+construct:                               0 >= 0
+construct 1x0 + 2x1 + 3x2 + 4 = 0:       x0 + 2x1 + 3x2 + 4 = 0
+construct 1x0 + 2x1 + 3x2 + 4 >= 0:      x0 + 2x1 + 3x2 + 4 >= 0
+construct 1x0 + 2x1 + 3x2 + 4 > 0:       x0 + 2x1 + 3x2 + 4 > 0
+construct 1x0 + 2x1 + 3x2 + 4 != 0:      x0 + 2x1 + 3x2 + 4 != 0
+construct 1x0 + 2x1 + 3x2 + 4 = 0 mod 5: x0 + 2x1 + 3x2 + 4 = 0 mod 5
+copy 1x0 + 2x1 + 3x2 + 4 = 0:            x0 + 2x1 + 3x2 + 4 = 0
+dimchange 1x1 + 2x2 + 3x4 + 4 = 0:       x1 + 2x2 + 3x4 + 4 = 0
+dimperm 2x0 + 1x1 + 3x2 + 4 = 0:         2x0 + x1 + 3x2 + 4 = 0
+unsat:                                   - 1 >= 0
+copy 4x0 + 3x1 + 2x2 + 1x3 + 5 >= 0:     4x0 + 3x1 + 2x2 + x3 + 5 >= 0
+unsat:                                   - 1 >= 0
+chained copy 1x0 + 2x1 + 3x2 + 4 = 0:    x0 + 2x1 + 3x2 + 4 = 0
+dimchange 1x1 + 2x2 + 3x4 + 4 = 0:       x1 + 2x2 + 3x4 + 4 = 0
+dimperm 2x0 + 1x1 + 3x2 + 4 = 0:         2x0 + x1 + 3x2 + 4 = 0
+resize 2x0 + 1x1 + 4 = 0:                2x0 + x1 + 4 = 0
+get_constyp 2x0 + 1x1 + 4 > 0:           2x0 + x1 + 4 > 0
+set_modulo 2x0 + 1x1 + 4 = 0 mod 3:      2x0 + x1 + 4 = 0 mod 3
+set_linexpr 1x0 + 2x1 + 3x2 + 4 = 0 mod 3:               x0 + 2x1 + 3x2 + 4 = 0 mod 3
+get_linexpr 4x0 + 3x1 + 2x2 + 1x3 + 5 = 0 mod 3:         4x0 + 3x1 + 2x2 + x3 + 5 = 0 mod 3
+get_linexpr 4x0 + 3x1 + 2x2 + 1x3 + [1,2] = 0 mod 3:     4x0 + 3x1 + 2x2 + x3 + [1,2] = 0 mod 3
+get_linexpr [0,1]x0 + 3x1 + 2x2 + 1x3 + [1,2] = 0 mod 3: [0,1]x0 + 3x1 + 2x2 + x3 + [1,2] = 0 mod 3
+print: [0,1]x0 + 3x1 + 2x2 + x3 + [1,2] = 0 mod 3
+print w/ names: [0,1]x + 3y + 2z + t + [1,2] = 0 mod 3
+
+lincons0 array
+==============
+
+{ 
+construct:    { x0 + 2x1 + 3x2 + 4 = 0; 5x0 + 3x1 + 99 = 0; }
+copy:         { x0 + 2x1 + 3x2 + 4 = 0; 5x0 + 3x1 + 99 = 0; }
+permutation: { 2x0 + x1 + 3x2 + 4 = 0; 3x0 + 5x1 + 99 = 0; }
+dim change:   { x1 + 2x2 + 3x4 + 4 = 0; 5x1 + 3x2 + 99 = 0; }
+from array:  { x0 + 2x1 + 3x2 + 5 = 0; 5x0 + 3x1 + 4 = 0; 5x0 + 3x1 + 3 = 0 mod 5; }
+from vector:  { 0 >= 0; 5x0 + 3x1 + 99 = 0; }
+from array:   { x0 + 2x1 + 3x2 + 5 = 0; 5x0 + 3x1 + 4 = 0; }
+from vector:  { 0 >= 0; 5x0 + 3x1 + 99 = 0; }
+copy:         { 2x0 + x1 + 3x2 + 4 = 0; 3x0 + 5x1 + 99 = 0; }
+dim change:   { 2x1 + x2 + 3x4 + 4 = 0; 3x1 + 5x2 + 99 = 0; }
+permutation:  { x0 + 2x1 + 3x2 + 4 = 0; 5x0 + 3x1 + 99 = 0; }
+size:     2
+[]:           { 5x0 + 3x1 + [1,88] >= 0; 5x0 + 3x1 + 99 = 0; }
+get:          { 5x0 + 3x1 + [1,88] >= 0; [0,1]x0 + 3x1 + [1,88] >= 0; }
+contents: { [0,1]x0 + 3x1 + [1,88] >= 0; [0,1]x0 + 3x1 + [1,88] >= 0; }
+to vector:    2: [0,1]x0 + 3x1 + [1,88] >= 0; [0,1]x0 + 3x1 + [1,88] >= 0
+print w/ names: { [0,1]x + 3y + [1,88] >= 0; [0,1]x + 3y + [1,88] >= 0; }
+
+generator0
+==========
+
+construct:                              RAY: 0
+construct vert 1x0 + 2x1 + 3x2 + 4:     VERTEX: x0 + 2x1 + 3x2 + 4
+construct ray 1x0 + 2x1 + 3x2 + 4:      RAY: x0 + 2x1 + 3x2 + 4
+construct line 1x0 + 2x1 + 3x2 + 4:     LINE: x0 + 2x1 + 3x2 + 4
+construct modray 1x0 + 2x1 + 3x2 + 4:   RAYMOD: x0 + 2x1 + 3x2 + 4
+construct modline 1x0 + 2x1 + 3x2 + 4:  LINEMOD: x0 + 2x1 + 3x2 + 4
+copy vert 1x0 + 2x1 + 3x2 + 4:          VERTEX: x0 + 2x1 + 3x2 + 4
+dimchange vert 1x1 + 2x2 + 3x4 + 4:     VERTEX: x1 + 2x2 + 3x4 + 4
+dimperm vert 2x0 + 1x1 + 3x2 + 4:       VERTEX: 2x0 + x1 + 3x2 + 4
+copy ray 4x0 + 3x1 + 2x2 + 1x3 + 5:     RAY: 4x0 + 3x1 + 2x2 + x3 + 5
+chained copy line 1x0 + 2x1 + 3x2 + 4:  LINE: x0 + 2x1 + 3x2 + 4
+dimchange line 1x1 + 2x2 + 3x4 + 4:     LINE: x1 + 2x2 + 3x4 + 4
+dimperm line 2x0 + 1x1 + 3x2 + 4:       LINE: 2x0 + x1 + 3x2 + 4
+resize line 2x0 + 1x1 + 4:              LINE: 2x0 + x1 + 4
+get_gentyp modline 2x0 + 1x1 + 4:      LINEMOD: 2x0 + x1 + 4
+set_linexpr modline 1x0 + 2x1 + 3x2 + 4:  LINEMOD: x0 + 2x1 + 3x2 + 4
+get_linexpr modline 4x0 + 3x1 + 2x2 + 1x3 + 5:   LINEMOD: 4x0 + 3x1 + 2x2 + x3 + 5
+get_linexpr modline 4x0 + 3x1 + 2x2 + 1x3 + 2:   LINEMOD: 4x0 + 3x1 + 2x2 + x3 + 2
+get_linexpr modline 18x0 + 3x1 + 2x2 + 1x3 + 2:  LINEMOD: 18x0 + 3x1 + 2x2 + x3 + 2
+print: LINEMOD: 18x0 + 3x1 + 2x2 + x3 + 2
+print w/ names: LINEMOD: 18x + 3y + 2z + t + 2
+
+generator0 array
+================
+
+{ 
+construct:    { VERTEX: x0 + 2x1 + 3x2 + 4; VERTEX: 5x0 + 3x1 + 99; }
+copy:         { VERTEX: x0 + 2x1 + 3x2 + 4; VERTEX: 5x0 + 3x1 + 99; }
+permutation: { VERTEX: 2x0 + x1 + 3x2 + 4; VERTEX: 3x0 + 5x1 + 99; }
+dim change:   { VERTEX: x1 + 2x2 + 3x4 + 4; VERTEX: 5x1 + 3x2 + 99; }
+from array:  { VERTEX: x0 + 2x1 + 3x2 + 5; VERTEX: 5x0 + 3x1 + 4; RAY: 5x0 + 3x1 + 3; }
+from vector:  { RAY: 0; VERTEX: 5x0 + 3x1 + 99; }
+from array:   { VERTEX: x0 + 2x1 + 3x2 + 5; VERTEX: 5x0 + 3x1 + 4; }
+from vector:  { RAY: 0; VERTEX: 5x0 + 3x1 + 99; }
+copy:         { VERTEX: 2x0 + x1 + 3x2 + 4; VERTEX: 3x0 + 5x1 + 99; }
+dim change:   { VERTEX: 2x1 + x2 + 3x4 + 4; VERTEX: 3x1 + 5x2 + 99; }
+permutation:  { VERTEX: x0 + 2x1 + 3x2 + 4; VERTEX: 5x0 + 3x1 + 99; }
+size:     2
+[]:           { LINE: 5x0 + 3x1 + 88; VERTEX: 5x0 + 3x1 + 99; }
+get:          { LINE: 5x0 + 3x1 + 88; RAY: 99x0 + 3x1 + 88; }
+contents: { RAY: 99x0 + 3x1 + 88; RAY: 99x0 + 3x1 + 88; }
+to vector:    2: RAY: 99x0 + 3x1 + 88; RAY: 99x0 + 3x1 + 88
+print w/ names: { RAY: 99x + 3y + 88; RAY: 99x + 3y + 88; }
+
+texpr0
+======
+
+construct 2:              2
+construct 2L:             2
+construct 2.2:            2.2
+construct mpq(1,2):       1/2
+construct coeff(2):       2
+construct scalar(2):      2
+construct 1/2:            1/2
+construct interval(1,2):  [1,2]
+construct [2.2,3.3]:      [2.2,3.3]
+construct [1/2,3/4]:      [1/2,3/4]
+construct top:            [-oo,+oo]
+construct x2:             x2
+construct +x2:            x2
+construct -x2:            -(x2)
+construct x2+2:           x2 + 2
+construct x2-2:           x2 - 2
+construct x2*2:           x2 * 2
+construct x2/2:           x2 / 2
+construct x2%2:           x2 % 2
+construct sqrt(x2):       sqrt(x2)
+construct float -x2:      -(x2)
+construct float x2+2:     x2 +_f,n 2
+construct float x2-2:     x2 -_f,n 2
+construct float x2*2:     x2 *_f,n 2
+construct float x2/2:     x2 /_f,n 2
+construct float x2%2:     x2 % 2
+construct float sqrt(x2): sqrt_f,n(x2)
+construct float cast(x2): cast_f,n(x2)
+construct floor(x2):      cast_i,-oo(x2)
+construct ceil(x2):       cast_i,+oo(x2)
+construct trunc(x2):      cast_i,0(x2)
+construct linexpr:        4 + 1 * x0 + 2 * x1 + 3 * x2
+copy x=2+3*x0:            2 + 3 * x0
+construct (x+x)/(x*x):    (2 + 3 * x0 + (2 + 3 * x0)) / ((2 + 3 * x0) * (2 + 3 * x0))
+construct x0 + 2:              x0 + 2
+construct x0 + 2L:             x0 + 2
+construct x0 + 2.2:            x0 + 2.2
+construct x0 + mpq(1,2):       x0 + 1/2
+construct x0 + coeff(2):       x0 + 2
+construct x0 + scalar(2):      x0 + 2
+construct x0 + 1/2:            x0 + 1/2
+construct x0 + interval(1,2):  x0 + [1,2]
+construct x0 + [2,3]:          x0 + [2,3]
+construct x0 + [2L,3L]:        x0 + [2,3]
+construct x0 + [2.2,3.3]:      x0 + [2.2,3.3]
+construct x0 + [1/2,3/4]:      x0 + [1/2,3/4]
+construct x0 + top:            x0 + [-oo,+oo]
+construct x0 + x2:             x0 + x2
+construct x0 + linexpr:        x0 + (4 + 1 * x0 + 2 * x1 + 3 * x2)
+assign 2:              2
+assign 2L:             2
+assign 2.2:            2.2
+assign mpq(1,2):       1/2
+assign coeff(2):       2
+assign scalar(2):      2
+assign interval(1,2):  [1,2]
+assign top:            [-oo,+oo]
+assign x2:             x2
+assign linexpr:        4 + 1 * x0 + 2 * x1 + 3 * x2
+assign x:              2 + 3 * x0
+assign x+1:            2 + 3 * x0 + 1
+assign x*x:            (2 + 3 * x0) * (2 + 3 * x0)
+chained assign sqrt(x0+1): sqrt(x0 + 1); sqrt(x0 + 1)
+add dim x1/x2:         x1 / x2
+del dim ]-oo;+oo[/x0:  [-oo,+oo] / x0
+dim perm x1/x0:        x1 / x0
+add dim x1/x2:         x1 / x2
+del dim x0/x1:         x0 / x1
+dim perm x1/x0:        x1 / x0
+dim mix x0/x1+x0/]-oo;+oo[:  x0 / x1 + x0 / [-oo,+oo]
+get_coeff [1,2]: [1,2]
+get_dim 3: x3
+get_op rtype rdir argA argB: 2 -_d,0 x1
+get: sqrt_f,n(x1 + 5)
+set: cast_d,0(2 + x3)
+x0 + x5 + x2
+iterator -> texpr0 x0+x5:           x0 + x5
+iterator assign x2:                 x2
+construct from iterators x0+x5-x2:  x0 + x5 - x2
+subst: sqrt(x0 + 1 + 2 * x1 * x1)
+subst: sqrt(x0 + 2 * (sqrt(x0) + 1) * (sqrt(x0) + 1))
+hash: 9928367581043
+print: sqrt(x0 + 2 * x1 * x1)
+print w/ names: sqrt(x + 2 * y * y)
+
+tcons0
+======
+
+construct x0 + 1 = 0:                x0 + 1 = 0
+construct floor(x0+2) >= 0:          cast_i,-oo(x0 + 2) >= 0
+construct x0*x1 > 0:                 x0 * x1 > 0
+construct [-1,1]*x0 != 0:            [-1,1] * x0 != 0
+construct x0/x1 = 0 mod 5:           x0 / x1 = 0 mod 5
+from lincons 1x0+2x1+3x2+4 = 0:      4 + 1 * x0 + 2 * x1 + 3 * x2 = 0
+construct x0 >= x2+1:                x0 - (x2 + 1) >= 0
+construct x0 <= x2+1:                x2 + 1 - x0 >= 0
+construct x0 >  x2+1:                x0 - (x2 + 1) > 0
+construct x0 <  x2+1:                x2 + 1 - x0 > 0
+construct x0 == x2+1:                x0 - (x2 + 1) = 0
+construct x0 != x2+1:                x0 - (x2 + 1) != 0
+construct x0 == 0:                   x0 = 0
+construct 0 != x2+1:                 x2 + 1 != 0
+copy x0 * x2 = 0:                    x0 * x2 = 0
+dimchange x1 * x4 = 0:               x1 * x4 = 0
+dimperm x1 * x2 = 0:                 x1 * x2 = 0
+unsat:                               -1 >= 0
+unsat:                               -1 >= 0
+from lincons 1x0+2x1+3x2+4 = 0:      4 + 1 * x0 + 2 * x1 + 3 * x2 = 0
+chained copy x0 * x2 +2 = 0:         x0 * x2 + 2 = 0
+dimchange x1 * x4 + 2 = 0:           x1 * x4 + 2 = 0
+dimchange ]-oo;+oo[ * x1 + 2 = 0:    [-oo,+oo] * x1 + 2 = 0
+dimperm x1 * x2 + 2 = 0:              x1 * x2 + 2 = 0
+get_constyp x1 * x2 + 2 > 0:         x1 * x2 + 2 > 0
+set_modulo x1 * x2 + 2 = 0 mod 3:    x1 * x2 + 2 = 0 mod 3
+set_texpr sqrt(x0+1) = 0 mod 3:      sqrt(x0 + 1) = 0 mod 3
+get_texpr x0/x1+5 = 0 mod 3:         x0 / x1 + 5 = 0 mod 3
+get_texpr [0,1]/x1+5 = 0 mod 3:      [0,1] / x1 + 5 = 0 mod 3
+print: [0,1] / x1 + 5 = 0 mod 3
+print w/ names: [0,1] / y + 5 = 0 mod 3
+
+tcons0 array
+============
+
+{ 
+construct:    { sqrt(x0 + 15 * x2) >= 0; [2,5] = 0; }
+copy:         { sqrt(x0 + 15 * x2) >= 0; [2,5] = 0; }
+permutation:  { sqrt(x1 + 15 * x2) >= 0; [2,5] = 0; }
+add dim:      { sqrt(x1 + 15 * x4) >= 0; [2,5] = 0; }
+rem dim:      { sqrt([-oo,+oo] + 15 * [-oo,+oo]) >= 0; [2,5] = 0; }
+from array:   { x0 * x1 * x2 >= 0; x0 % x1 = 0; [1,2] * x0 = 0 mod 5; }
+from vector:  { 0 = 0; 1 - x5 = 0; }
+from array:   { x0 * x1 * x2 >= 0; x0 % x1 = 0; }
+from vector:  { 0 = 0; 1 - x5 = 0; }
+copy:         { sqrt(x0 + 15 * x2) >= 0; [2,5] = 0; }
+add dim:      { sqrt(x1 + 15 * x4) >= 0; [2,5] = 0; }
+del dim:      { sqrt([-oo,+oo] + 15 * [-oo,+oo]) >= 0; [2,5] = 0; }
+permutation:  { sqrt(x1 + 15 * x2) >= 0; [2,5] = 0; }
+size:     2
+[]:           { x1 * 5 + x2 >= 0; [2,5] = 0; }
+get:          { x1 * 5 + x2 >= 0; x0 * x2 >= 0; }
+contents: { x0 * x2 >= 0; x0 * x2 >= 0; }
+to vector:    2: x0 * x2 >= 0; x0 * x2 >= 0
+from lincons0_array: { 4 + 1 * x0 + 2 * x1 + 3 * x2 = 0; 99 + [0,1] * x0 + 3 * x1 = 0; }
+from lincons0_array: { 4 + 1 * x0 + 2 * x1 + 3 * x2 = 0; 99 + [0,1] * x0 + 3 * x1 = 0; }
+print: array of constraints of size 2
+ 0: x0 * x2 >= 0
+ 1: x0 * x2 >= 0
+
+print w/ names: { x * z >= 0; x * z >= 0; }
+
+var
+===
+
+print: v1
+from char*: v1
+from string: v2
+copy constructor: v2
+copy assignment: v2
+char* assignment: aa
+string assignment: aa
+to char*: aa
+to string: aa
+
+environment
+===========
+
+empty:       
+
+from vector: 
+0: h (int)
+1: j (int)
+2: e (real)
+3: g (real)
+
+from array:  
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+
+copy assignment: 
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+
+copy constructor: 
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+
+add array:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+
+del vector:
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+
+add vector:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+
+del array:
+0: h (int)
+1: j (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+
+add vector w/ dimperm:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+dimperm: size=8
+x0 -> x0
+x1 -> x4
+x2 -> x1
+x3 -> x3
+x4 -> x2
+x5 -> x5
+x6 -> x7
+x7 -> x6
+
+add vector w/ dimperm:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+dimperm: size=8
+x0 -> x1
+x1 -> x2
+x2 -> x3
+x3 -> x4
+x4 -> x0
+x5 -> x5
+x6 -> x6
+x7 -> x7
+
+rename vector:
+0: a (int)
+1: i1 (int)
+2: i3 (int)
+3: f1 (real)
+4: f3 (real)
+5: z (real)
+
+rename array:
+0: a (int)
+1: i1 (int)
+2: i3 (int)
+3: f1 (real)
+4: f3 (real)
+5: z (real)
+
+rename vector w/ dimperm:
+0: a (int)
+1: i1 (int)
+2: i3 (int)
+3: f1 (real)
+4: f3 (real)
+5: z (real)
+dimperm: size=6
+x0 -> x1
+x1 -> x0
+x2 -> x2
+x3 -> x3
+x4 -> x5
+x5 -> x4
+
+rename array w/ dimperm:
+0: a (int)
+1: i1 (int)
+2: i3 (int)
+3: f1 (real)
+4: f3 (real)
+5: z (real)
+dimperm: size=6
+x0 -> x1
+x1 -> x0
+x2 -> x2
+x3 -> x3
+x4 -> x5
+x5 -> x4
+
+lub:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+
+lub w/ dimchange:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+dimchange: intdim=2, realdim=1
+x0 x3 x6 
+dimchange: intdim=3, realdim=2
+x1 x1 x1 x3 x3 
+
+n-ary vector lce:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+
+n-ary vector lce w/ dimchange:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+dimchange: intdim=2, realdim=1
+x0 x3 x6 
+dimchange: intdim=3, realdim=2
+x1 x1 x1 x3 x3 
+
+n-ary array lce:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+
+n-ary array lce w/ dimchange:
+0: h (int)
+1: i1 (int)
+2: i2 (int)
+3: i3 (int)
+4: j (int)
+5: f1 (real)
+6: f2 (real)
+7: f3 (real)
+8: x (real)
+dimchange: intdim=2, realdim=1
+x0 x3 x6 
+dimchange: intdim=3, realdim=2
+x1 x1 x1 x3 x3 
+
+iterator: i1 i2 i3 f1 f3 
+
+dimchange to super:
+dimchange: intdim=0, realdim=1
+x4 
+
+print:
+environment: dim = (2,2), count = 1
+ 0: h
+ 1: j
+ 2: e
+ 3: g
+
+
+linexpr1
+========
+
+from exp: i1 + 2i3 + 3f1 + 4
+from exp: i1 + 2i2 + 3i3 + 4
+empty:    0
+
+copy constructor:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f3 (real)
+x0 + 2x1 + 3x2 + 4
+i1 + 2i3 + 3f1 + 4
+
+copy to super:
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+x0 + 2x2 + 3x3 + 4
+i1 + 2i3 + 3f1 + 4
+assignment: i1 + 2i3 + 3f1 + 4
+to supper: 
+i1 + 2i3 + 3f1 + 4
+to supper: i1 + 2i3 + 3f1 + 4
+
+linepxr0:  x0 + 2x1 + 3x2 + 4x3 + 4
+linepxr1:  i1 + 2i2 + 3i3 + 4f1 + 4
+size:      4
+discr:     1
+cst:       4
+[i2]:      2
+set i3 & cst: i1 + 2i2 - 3i3 + 4f1 + 99
+const iterator: 1 2 [0,1] 4
+0: i1 = 1
+1: i2 = 2
+2: i3 = [0,1]
+3: f1 = 4
+after negation:  - 1i1 - 2i2 + [-1,0]i3 - 4f1 + [0,1]
+before minimize: - 1i1 - 2i2 - 4f1 + [2,2]
+after minimize:  - 1i1 - 2i2 - 4f1 + [2,2]
+i1 + 2i3 + 3f1 + 4
+
+lincons1
+========
+
+construct empty:         0 >= 0
+construct from lincons0: i1 + 2i3 + 3f1 + 4 = 0
+construct from linexpr1: i1 + 2i3 + 3f1 + 4 >= 0
+construct from linexpr1: i1 + 2i3 + 3f1 + 4 = 0 mod 5
+construct unsat:         - 1 >= 0
+construct copy:          i1 + 2i3 + 3f1 + 4 != 0
+construct extend:        i1 + 2i3 + 3f1 + 4 != 0
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+assign copy:             i1 + 2i3 + 3f1 + 4 = 0 mod 99
+assign unsat:            - 1 >= 0
+i1 + 2i3 + 3f1 + 4set modulo:              i1 + 2i3 + 3f1 + 4 = 0 mod 69
+get modulo:              69
+set modulo:              i1 + 2i3 + 3f1 + 4 = 0 mod 70
+get linexpr :            i1 + 2i3 + 3f1 + 4
+set linexpr :            2i1 + 3i3 + 4f1 + 45 = 0 mod 70
+extend environment:      i1 + 2i3 + 3f1 + 4 = 0 mod 99
+get lincons0:            x0 + 2x2 + 3x3 + 4 = 0 mod 99
+set lincons0:            i1 + 2i2 + 3i3 + 4 = 0
+size:                    3
+get constyp:             0
+set constyp:             i1 + 2i2 + 3i3 + 4 >= 0
+get cst:                 4
+set cst:                 i1 + 2i2 + 3i3 + 101 >= 0
+get [f3]:                0
+set [f2]:                [-2,3]
+print: i1 + 2i2 + 3i3 + [-2,3]f2 + 101 >= 0
+
+lincons1 array
+==============
+
+{ 
+construct from lincons0_array:
+{ i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+construct copy:
+{ i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+construct extend:
+{ i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+construct from array:
+{ i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; }
+construct from vector:
+{ 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+assign copy:
+{ 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+assign from array:
+{ i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; }
+assign from vector:
+{ 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; 5i1 + 3i3 + 99 = 0; }
+size: 3
+resize:
+{ 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; }
+size: 2
+extend:
+{ 5i1 + 3i3 + 99 = 0; i1 + 2i3 + 3f1 + 4 = 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+get lincons0 array:
+{ 5x0 + 3x2 + 99 = 0; x0 + 2x2 + 3x3 + 4 = 0; }
+set lincons0 array:
+{ i1 + 2i2 + 3i3 + 4 = 0; 5i1 + 3i2 + 99 = 0; }
+get: i1 + 2i2 + 3i3 + 4 = 0
+set: 
+{ 5i1 + 3i2 + 181 >= 0; 5i1 + 3i2 + 99 = 0; }
+to vector: 3
+5i1 + 3i2 + 181 >= 0
+5i1 + 3i2 + 99 = 0
+5i1 + 3i2 + 99 = 0
+print: array of constraints of size 3
+ 0: 5i1 + 3i2 + 181 >= 0
+ 1: 5i1 + 3i2 + 99 = 0
+ 2: 5i1 + 3i2 + 99 = 0
+
+
+generator1
+==========
+
+construct empty:           RAY: 0
+construct from generator0: LINE: i1 + 2i3 + 3f1 + 4
+construct from linexpr1:   RAY: i1 + 2i3 + 3f1 + 4
+construct copy:            VERTEX: i1 + 2i3 + 3f1 + 4
+construct extend:          VERTEX: i1 + 2i3 + 3f1 + 4
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+assign copy:             LINEMOD: i1 + 2i3 + 3f1 + 4
+get linexpr :            i1 + 2i3 + 3f1 + 4
+set linexpr :            LINEMOD: 2i1 + 3i3 + 4f1 + 45
+extend environment:      VERTEX: i1 + 2i3 + 3f1 + 4
+get generator0:          VERTEX: x0 + 2x2 + 3x3 + 4
+set generator0:          RAYMOD: 2i1 + 3i3 + 4f1 + 45
+size:                    3
+get gentyp:              4
+set gentyp:              RAY: 2i1 + 3i3 + 4f1 + 45
+get cst:                 45
+set cst:                 RAY: 2i1 + 3i3 + 4f1 + 101
+get [i3]:                3
+set [f3]:                RAY: 2i1 + 3i3 + 4f1 + 18f3 + 101
+print: RAY:     2i1 + 3i3 + 4f1 + 18f3 + 101
+
+generator1 array
+================
+
+{ 
+construct from generator0_array:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+construct copy:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+construct extend:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+construct from array:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; }
+construct from vector:
+{ RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+assign copy:
+{ RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+assign from array:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; }
+size: 3
+resize:
+{ VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+size: 2
+assign from vector:
+{ RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+extend:
+{ RAY: 5i1 + 3i3 + 67; VERTEX: i1 + 2i3 + 3f1 + 98; RAY: 5i1 + 3i3 + 67; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+get generator0 array:
+{ RAY: 5x0 + 3x2 + 67; VERTEX: x0 + 2x2 + 3x3 + 98; RAY: 5x0 + 3x2 + 67; }
+set generator0 array:
+{ VERTEX: i1 + 2i2 + 3i3 + 98; RAY: 5i1 + 3i2 + 67; }
+get: VERTEX: i1 + 2i2 + 3i3 + 98
+set: 
+{ LINE: 5i1 + 3i2 + 181; RAY: 5i1 + 3i2 + 67; }
+to vector: 3
+LINE: 5i1 + 3i2 + 181
+RAY: 5i1 + 3i2 + 67
+RAY: 5i1 + 3i2 + 67
+print:
+array of generator of size 3
+ 0: LINE:    5i1 + 3i2 + 181
+ 1: RAY:     5i1 + 3i2 + 67
+ 2: RAY:     5i1 + 3i2 + 67
+
+
+texpr1
+======
+
+construct 2:              2
+construct [-1,1]          [-1,1]
+construct 5/4             5/4
+construct 2.5             2.5
+construct dim(1)          i3
+construct i3              i3
+construct dim(1)*5        i3 * 5
+construct f3*5            f3 * 5
+construct sqrt(i1/f3)     sqrt(i1 / f3)
+construct 2               2
+construct [-1,1]          [-1,1]
+construct 5/4             5/4
+construct [-8;9]          [-8,9]
+construct 2.5             2.5
+construct [-81.5;2.3]     [-81.5,2.4]
+construct i3              i3
+construct f3*5            f3 * 5
+construct sqrt(i1/f3)     sqrt(i1 / f3)
+construct dim(1)/dim(2)+5 i3 / f1 + 5
+construct dim(1)/dim(2)   i3 / f1
+left i3/f1                i3 / f1
+right 5                   5
+construct 8 * 5           8 * 5
+construct linexpr0        4 + 1 * i1 + 2 * i3 + 3 * f1
+construct linexpr1        4 + 1 * i1 + 2 * i3 + 3 * f1
+construct linexpr1 * i1   (4 + 1 * i1 + 2 * i3 + 3 * f1) * i1
+construct extend          i3 / f1 + 5
+construct subst           i3 / (f3 * 5) + 5
+construct copy            i3 / f1 + 5
+assign floor(i1*0.001)    cast_i,-oo(i1 * 0.001)
+assign copy t1            i3 / f1 + 5
+assign t1*t1              (i3 / f1 + 5) * (i3 / f1 + 5)
+assign t1.left            i3 / f1
+assign l1                 4 + 1 * i1 + 2 * i3 + 3 * f1
+assign l1 w/env change    4 + 1 * i1 + 2 * i2 + 3 * i3
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+assign i3 w/env change    i3
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f3 (real)
+get texpr0                x1
+set texpr0 dim(1)/dim(2)  i3 / f1
+get left.texpr0           x1
+set left.texpr0 dim(0)*5  i1 * 5 / f1
+get right                 f1
+set right sqrt(5+f3)      i1 * 5 / sqrt(5 + f3)
+discr op rtype rdir       2 3 0 0
+get var f3                f3
+get coeff 5               5
+set i1 -_f,-oo 6          i1 -_f,-oo 6
+substitute                sqrt(5 - f3) * sqrt(5 - f3) + sqrt(5 - f3)
+print i3 + 5
+print i3 + 5
+
+tcons1
+======
+
+construct i1 + 1 = 0:                i1 + 1 = 0
+construct floor(i1+2) >= 0:          cast_i,-oo(i1 + 2) >= 0
+construct i1*f1 > 0:                 i1 * f1 > 0
+construct [-1,1]*i1 != 0:            [-1,1] * i1 != 0
+construct i1/f1 = 0 mod 5:           i1 / f1 = 0 mod 5
+from lincons 1i1+2i3+3f1+4 = 0:      4 + 1 * i1 + 2 * i3 + 3 * f1 = 0
+construct i1 >= f1+1:                i1 - (f1 + 1) >= 0
+construct i1 <= f1+1:                f1 + 1 - i1 >= 0
+construct i1 >  f1+1:                i1 - (f1 + 1) > 0
+construct i1 <  f1+1:                f1 + 1 - i1 > 0
+construct i1 == f1+1:                i1 - (f1 + 1) = 0
+construct i1 != f1+1:                i1 - (f1 + 1) != 0
+construct i1 == 0:                   i1 = 0
+construct 0 != f1+1:                 f1 + 1 != 0
+copy i1 * f1 = 0:                    i1 * f1 = 0
+extend env                           i1 * f1 = 0
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+unsat:                               -1 >= 0
+unsat:                               -1 >= 0
+from lincons 1i1+2i3+3f1+4 = 0:      4 + 1 * i1 + 2 * i3 + 3 * f1 = 0
+chained copy i1 * f1 +2 = 0:         i1 * f1 + 2 = 0
+extend env                           i1 * f1 + 2 = 0
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+get_constyp i1 * f1 + 2 > 0:         i1 * f1 + 2 > 0
+set_modulo i1 * f1 + 2 = 0 mod 3:    i1 * f1 + 2 = 0 mod 3
+set_texpr sqrt(i1+1) = 0 mod 3:      sqrt(i1 + 1) = 0 mod 3
+get_texpr i1/f1+5 = 0 mod 3:         i1 / f1 + 5 = 0 mod 3
+get_texpr [0,1]/i1+5 = 0 mod 3:      [0,1] / f1 + 5 = 0 mod 3
+get tcons0                           [0,1] / x2 + 5 = 0 mod 3
+set tcons0 i3>=5                     i3 - 5 >= 0
+print: i3 - 5 >= 0
+
+tcons1 array
+============
+
+{ 
+construct:    { sqrt(i1 + 15 * f1) >= 0; [2,5] = 0; }
+get(1):       [2,5] = 0
+copy:         { sqrt(i1 + 15 * f1) >= 0; [2,5] = 0; }
+env extend:   { sqrt(i1 + 15 * f1) >= 0; [2,5] = 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+from array:   { i1 * i3 * f1 >= 0; i1 - (f1 + 1) >= 0; [1,2] * i1 = 0 mod 5; }
+from vector:  { 0 = 0; 1 - f3 = 0; }
+from array:   { i1 * i3 * f1 >= 0; i1 - (f1 + 1) >= 0; }
+from vector:  { 0 = 0; 1 - f3 = 0; }
+copy:         { sqrt(i1 + 15 * f1) >= 0; [2,5] = 0; }
+extend environment { sqrt(i1 + 15 * f1) >= 0; [2,5] = 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+size:     2
+set:           { i2 * 5 + i3 >= 0; [2,5] = 0; }
+to vector:    2: i2 * 5 + i3 >= 0; [2,5] = 0
+get environment  0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+get tcons0_array { x1 * 5 + x2 >= 0; [2,5] = 0; }
+set tcons_array  { i1 - i2 >= 0; [2,5] = 0; }
+print: array of constraints of size 2
+ 0: i1 - i2 >= 0
+ 1: [2,5] = 0
+
+
+Box
+===
+
+library: box
+version: 1.0 with NUM_MPQ
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+construct box:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+construct lincons:  top
+construct tcons:    top
+construct copy:     top
+construct copy:     top
+assign top:         top
+assign bottom:      bottom
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 + 1/2 >= 0; - 1f2 + 3/2 >= 0; f3 - 1/2 >= 0; - 1f3 + 8/5 >= 0; }
+assign lincons:     top
+assign tcons:       top
+assign copy:        top
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 + 1/2 >= 0; - 1f2 + 3/2 >= 0; f3 - 1/2 >= 0; - 1f3 + 8/5 >= 0; }
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign lincons:     top
+assign tcons        top
+assign copy:        top
+unchanged:          top
+minimize:           top
+canonicalize:       top
+approximate:        top
+closure:            top
+print:
+interval of dim (2,3):
+      i1 in [-oo,+oo]
+      i3 in [-oo,+oo]
+      f1 in [-oo,+oo]
+      f2 in [-oo,+oo]
+      f3 in [-oo,+oo]
+
+printdiff:
+diff of 2 intervals of dim (2,2)      i1 in [-oo,+oo] => -[-1, 1]+
+      i3 in [=,=]
+      f1 in [-oo,+oo] => [=, 18]+
+      f2 in [-oo,+oo] => -[1/2, 8/5]+
+      f3 in [-oo,+oo] => -[-1/2, 3/2]+
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+interval of dim (2,3):
+dim   0 in [-oo,+oo]
+dim   1 in [-oo,+oo]
+dim   2 in [-oo,+oo]
+dim   3 in [-oo,+oo]
+dim   4 in [-oo,+oo]
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               10
+get abstract0:      top
+set abstract0:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 + 1/2 >= 0; - 1f2 + 3/2 >= 0; f3 - 1/2 >= 0; - 1f3 + 8/5 >= 0; }
+sat lincons:        top
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [-oo,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { LINE: i1; LINE: i3; LINE: f1; LINE: f2; LINE: f3; VERTEX: 0; }
+to lincons:         { }
+to tcons:           { }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+meet array:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+meet lincons:       top
+meet tcons:         top
+join:               top
+join array:         top
+add rays:           { f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+unify:              { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; f1 + 1/2 >= 0; - 1f1 + 3/2 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 - 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexpr:         { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexpr inter:   { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexprs:        { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexprs inter:  { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texpr inter:     { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texprs:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; f2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texprs inter:    { i1 + 1 >= 0; - 1i1 + 1 >= 0; f2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexpr:          { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexpr inter:    { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexprs:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; i3 + 39 >= 0; - 1f1 + 577/10 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexprs inter:   { i1 + 1 >= 0; - 1i1 + 1 >= 0; i3 + 39 >= 0; - 1f1 + 577/10 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texpr inter:      { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texprs:           { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texprs inter:     { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forget:             { - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forget 0:           { i1 = 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets:            { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets 0:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; f1 = 0; f2 = 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets:            { i1 + 1 >= 0; - 1i1 + 1 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets 0:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; f1 = 0; f2 = 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+change env:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i1 + 1 >= 0; - 1i1 + 1 >= 0; i2 = 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { truc + 1 >= 0; - 1truc + 1 >= 0; f0 - 1/2 >= 0; - 1f0 + 8/5 >= 0; - 1f1 + 18 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+expand:             { f0 + 1 >= 0; - 1f0 + 1 >= 0; i1 + 1 >= 0; - 1i1 + 1 >= 0; truc + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+fold:               { truc + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; f2 - 1/2 >= 0; - 1f2 + 8/5 >= 0; f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+widening:           top
+widening thr:       top
+
+Polka (loose)
+=============
+
+library: polka, loose mode
+version: 3.0 with NUMINT_MPZ
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign top:         top
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign tcons        { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+print:
+polyhedron of dim (2,3)
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 >= 0
+
+printdiff:
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : 
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+polyhedron of dim (2,3)
+Constraints: 4 7
+0 3 5 4 3 0 1 
+1 -20 -1 -1 0 0 0 
+1 1 0 0 0 0 0 
+1 1 1 2 3 4 0 
+Frames: 5 7
+0 0 -3 3 -1 0 6 
+0 0 6 -6 -2 3 0 
+1 0 -3 3 1 0 0 
+1 0 1 -2 1 0 0 
+1 3 57 -117 58 0 0 
+satC: 5 1
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,0000 0000,0000 0000,0000 0000,0000 
+0001,0000 0000,0000 0000,0000 0000,0000 
+0100,0000 0000,0000 0000,0000 0000,0000 
+0010,0000 0000,0000 0000,0000 0000,0000 
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               45
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 >= 0; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { LINE: - 3i1 + 3i3 - 1f1 + 6f3; LINE: 6i1 - 6i3 - 2f1 + 3f2; RAY: - 3i1 + 3i3 + f1; RAY: i1 - 2i3 + f1; VERTEX: 19i1 - 39i3 + 58/3f1; }
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 >= 0; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+join:               top
+join array:         top
+add rays:           { - 8i1 + 2f2 + 7 >= 0; - 8f1 + 6f2 + 141 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 - 1 >= 0; 2f2 - 1 >= 0; 2f1 + 1 >= 0; i1 + 1 >= 0; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexprs:        { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; }
+assign linexprs inter:  { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign texpr inter:     { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+assign texprs:          { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 + 1 >= 0; }
+assign texprs inter:    { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexprs:         { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; }
+subst linexprs inter:   { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+subst texpr inter:      { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+subst texprs:           { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+subst texprs inter:     { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; }
+forget:             { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+forget 0:           { i1 = 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; truc + 1 >= 0; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; f0 + 1 >= 0; }
+fold:               { - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; }
+widening:           top
+widening thr:       top
+
+Polka (strict)
+==============
+
+library: polka, strict mode
+version: 3.0 with NUMINT_MPZ
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign top:         top
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign tcons        { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+print:
+polyhedron of dim (2,3)
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 > 0
+
+printdiff:
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : 
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+polyhedron of dim (2,3)
+Constraints: 5 8
+0 3 0 5 4 3 0 1 
+1 -20 0 -1 -1 0 0 0 
+1 0 1 0 0 0 0 0 
+1 1 -1 0 0 0 0 0 
+1 1 -1 1 2 3 4 0 
+Frames: 6 8
+0 0 0 -3 3 -1 0 6 
+0 0 0 6 -6 -2 3 0 
+1 0 0 -3 3 1 0 0 
+1 0 0 1 -2 1 0 0 
+1 2 2 37 -77 39 0 0 
+1 3 0 57 -117 58 0 0 
+satC: 6 1
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,1000 0000,0000 0000,0000 0000,0000 
+0100,0000 0000,0000 0000,0000 0000,0000 
+0010,0000 0000,0000 0000,0000 0000,0000 
+0001,0000 0000,0000 0000,0000 0000,0000 
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               55
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 > 0; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { LINE: - 3i1 + 3i3 - 1f1 + 6f3; LINE: 6i1 - 6i3 - 2f1 + 3f2; RAY: - 3i1 + 3i3 + f1; RAY: i1 - 2i3 + f1; VERTEX: 19i1 - 39i3 + 58/3f1; }
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 > 0; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+join:               top
+join array:         top
+add rays:           { - 8i1 + 2f2 + 7 >= 0; - 8f1 + 6f2 + 141 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 - 1 >= 0; 2f2 - 1 >= 0; 2f1 + 1 >= 0; i1 + 1 >= 0; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexprs:        { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; }
+assign linexprs inter:  { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign texpr inter:     { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+assign texprs:          { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 + 1 >= 0; }
+assign texprs inter:    { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexprs:         { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; }
+subst linexprs inter:   { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+subst texpr inter:      { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+subst texprs:           { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+subst texprs inter:     { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; }
+forget:             { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+forget 0:           { i1 = 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; truc + 1 >= 0; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; f0 + 1 >= 0; }
+fold:               { - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; }
+widening:           top
+widening thr:       top
+
+Octagon
+=======
+
+library: oct
+version: 1.0 with NUM_MPQ
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+construct box:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+construct lincons:  { - 1i1 - 1i3 - 20 >= 0; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; }
+construct copy:     { - 1i1 - 1i3 - 20 >= 0; }
+construct copy:     { - 1i1 - 1i3 - 20 >= 0; }
+assign top:         top
+assign bottom:      bottom
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 3/2 >= 0; i1 + f2 + 3/2 >= 0; - 1f1 + f2 + 37/2 >= 0; f2 + 1/2 >= 0; - 1i1 - 1f2 + 5/2 >= 0; i1 - 1f2 + 5/2 >= 0; - 1f1 - 1f2 + 39/2 >= 0; - 1f2 + 3/2 >= 0; - 1i1 + f3 + 1/2 >= 0; i1 + f3 + 1/2 >= 0; - 1f1 + f3 + 35/2 >= 0; - 1f2 + f3 + 1 >= 0; f2 + f3 >= 0; f3 - 1/2 >= 0; - 1i1 - 1f3 + 13/5 >= 0; i1 - 1f3 + 13/5 >= 0; - 1f1 - 1f3 + 98/5 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 21/10 >= 0; - 1f3 + 8/5 >= 0; }
+assign lincons:     { - 1i1 - 1i3 - 20 >= 0; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; }
+assign copy:        { - 1i1 - 1i3 - 20 >= 0; }
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 3/2 >= 0; i1 + f2 + 3/2 >= 0; - 1f1 + f2 + 37/2 >= 0; f2 + 1/2 >= 0; - 1i1 - 1f2 + 5/2 >= 0; i1 - 1f2 + 5/2 >= 0; - 1f1 - 1f2 + 39/2 >= 0; - 1f2 + 3/2 >= 0; - 1i1 + f3 + 1/2 >= 0; i1 + f3 + 1/2 >= 0; - 1f1 + f3 + 35/2 >= 0; - 1f2 + f3 + 1 >= 0; f2 + f3 >= 0; f3 - 1/2 >= 0; - 1i1 - 1f3 + 13/5 >= 0; i1 - 1f3 + 13/5 >= 0; - 1f1 - 1f3 + 98/5 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 21/10 >= 0; - 1f3 + 8/5 >= 0; }
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign box:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign lincons:     { - 1i1 - 1i3 - 20 >= 0; }
+assign tcons        { i1 - 1i3 - 1 >= 0; }
+assign copy:        { - 1i1 - 1i3 - 20 >= 0; }
+unchanged:          { - 1i1 - 1i3 - 20 >= 0; }
+minimize:           
+canonicalize:       
+approximate:        
+closure:            { - 1i1 - 1i3 - 20 >= 0; }
+print:
+octagon of dim (2,3)
+-i1 - i3 - 20 >= 0
+
+printdiff:
+i1 + +oo >= 0 / i1 + 1 >= 0
+-i1 + +oo >= 0 / -i1 + 1 >= 0
+-i1 - i3 - 20 >= 0 / -i1 - i3 + +oo >= 0
+-i1 - f1 + +oo >= 0 / -i1 - f1 + 19 >= 0
+i1 - f1 + +oo >= 0 / i1 - f1 + 19 >= 0
+-f1 + +oo >= 0 / -f1 + 18 >= 0
+-i1 + f2 + +oo >= 0 / -i1 + f2 + 1/2 >= 0
+i1 + f2 + +oo >= 0 / i1 + f2 + 1/2 >= 0
+-f1 + f2 + +oo >= 0 / -f1 + f2 + 35/2 >= 0
+f2 + +oo >= 0 / f2 - 1/2 >= 0
+-i1 - f2 + +oo >= 0 / -i1 - f2 + 13/5 >= 0
+i1 - f2 + +oo >= 0 / i1 - f2 + 13/5 >= 0
+-f1 - f2 + +oo >= 0 / -f1 - f2 + 98/5 >= 0
+-f2 + +oo >= 0 / -f2 + 8/5 >= 0
+-i1 + f3 + +oo >= 0 / -i1 + f3 + 3/2 >= 0
+i1 + f3 + +oo >= 0 / i1 + f3 + 3/2 >= 0
+-f1 + f3 + +oo >= 0 / -f1 + f3 + 37/2 >= 0
+-f2 + f3 + +oo >= 0 / -f2 + f3 + 21/10 >= 0
+f2 + f3 + +oo >= 0 / f2 + f3 >= 0
+f3 + +oo >= 0 / f3 + 1/2 >= 0
+-i1 - f3 + +oo >= 0 / -i1 - f3 + 5/2 >= 0
+i1 - f3 + +oo >= 0 / i1 - f3 + 5/2 >= 0
+-f1 - f3 + +oo >= 0 / -f1 - f3 + 39/2 >= 0
+-f2 - f3 + +oo >= 0 / -f2 - f3 + 31/10 >= 0
+f2 - f3 + +oo >= 0 / f2 - f3 + 1 >= 0
+-f3 + +oo >= 0 / -f3 + 3/2 >= 0
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+octagon of dim (2,3)
+matrix:
+0 +oo
++oo 0
++oo +oo 0 +oo
+-20 +oo +oo 0
++oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo 0
++oo +oo +oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo +oo +oo 0
++oo +oo +oo +oo +oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo +oo +oo +oo +oo 0
+closed matrix:
+0 +oo
++oo 0
++oo +oo 0 +oo
+-20 +oo +oo 0
++oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo 0
++oo +oo +oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo +oo +oo 0
++oo +oo +oo +oo +oo +oo +oo +oo 0 +oo
++oo +oo +oo +oo +oo +oo +oo +oo +oo 0
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               60
+get abstract0:      { - 1x0 - 1x1 - 20 >= 0; }
+set abstract0:      { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 3/2 >= 0; i1 + f2 + 3/2 >= 0; - 1f1 + f2 + 37/2 >= 0; f2 + 1/2 >= 0; - 1i1 - 1f2 + 5/2 >= 0; i1 - 1f2 + 5/2 >= 0; - 1f1 - 1f2 + 39/2 >= 0; - 1f2 + 3/2 >= 0; - 1i1 + f3 + 1/2 >= 0; i1 + f3 + 1/2 >= 0; - 1f1 + f3 + 35/2 >= 0; - 1f2 + f3 + 1 >= 0; f2 + f3 >= 0; f3 - 1/2 >= 0; - 1i1 - 1f3 + 13/5 >= 0; i1 - 1f3 + 13/5 >= 0; - 1f1 - 1f3 + 98/5 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 21/10 >= 0; - 1f3 + 8/5 >= 0; }
+sat lincons:        true
+sat tcons:          top
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { VERTEX: 0; LINE: i1; LINE: i3; LINE: f1; LINE: f2; LINE: f3; }
+to lincons:         { - 1i1 - 1i3 - 20 >= 0; }
+to tcons:           { -20 + -1 * i1 + -1 * i3 >= 0; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 18 >= 0; - 1i3 - 19 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1i3 - 1f1 - 1 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1i3 + f2 - 39/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1i3 - 1f2 - 87/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 - 37/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 - 35/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+meet array:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 18 >= 0; - 1i3 - 19 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1i3 - 1f1 - 1 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1i3 + f2 - 39/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1i3 - 1f2 - 87/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 - 37/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 - 35/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+meet lincons:       { - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 - 21/2 >= 0; }
+meet tcons:         { - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 - 21/2 >= 0; }
+join:               top
+join array:         top
+add rays:           { f3 + 1/2 >= 0; - 1f3 + 3/2 >= 0; }
+unify:              { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 + 19 >= 0; i1 - 1i3 + 19 >= 0; - 1i3 + 18 >= 0; - 1i1 + f1 + 3/2 >= 0; i1 + f1 + 3/2 >= 0; - 1i3 + f1 + 37/2 >= 0; f1 + 1/2 >= 0; - 1i1 - 1f1 + 5/2 >= 0; i1 - 1f1 + 5/2 >= 0; - 1i3 - 1f1 + 39/2 >= 0; - 1f1 + 3/2 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1i3 + f2 + 35/2 >= 0; - 1f1 + f2 + 1 >= 0; f1 + f2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1i3 - 1f2 + 98/5 >= 0; - 1f1 - 1f2 + 31/10 >= 0; f1 - 1f2 + 21/10 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 1/2 >= 0; i1 + f3 + 1/2 >= 0; - 1i3 + f3 + 35/2 >= 0; - 1f1 + f3 + 1 >= 0; f1 + f3 >= 0; - 1f2 + f3 + 11/10 >= 0; f2 + f3 - 1 >= 0; f3 - 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 + 39/2 >= 0; - 1f1 - 1f3 + 3 >= 0; f1 - 1f3 + 2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexpr:         { - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexpr inter:   { i1 - 1i3 - 1 >= 0; - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexprs:        { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign linexprs inter:  { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 + 1 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign texpr inter:     { i1 - 1i3 - 1 >= 0; - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+assign texprs:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f2 + 1 >= 0; i1 + f2 + 1 >= 0; f2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+assign texprs inter:    { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 + 1 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 >= 0; - 1i1 + f2 + 1 >= 0; i1 + f2 + 1 >= 0; - 1i3 + f2 >= 0; f2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1i3 - 1f2 + 8/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 + 1/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 + 3/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexpr:          { - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexpr inter:    { i1 - 1i3 - 1 >= 0; - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexprs:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst linexprs inter:   { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 + 1 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+subst texpr inter:      { i1 - 1i3 - 1 >= 0; - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+subst texprs:           { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f3 + 3/2 >= 0; }
+subst texprs inter:     { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1i3 + 1 >= 0; i1 - 1i3 - 1 >= 0; - 1i3 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i3 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i3 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+forget:             { - 1f1 + 18 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+forget 0:           { i1 >= 0; - 1i1 >= 0; - 1i1 - 1f1 + 18 >= 0; i1 - 1f1 + 18 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 - 1/2 >= 0; i1 + f2 - 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 8/5 >= 0; i1 - 1f2 + 8/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 1/2 >= 0; i1 + f3 + 1/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 3/2 >= 0; i1 - 1f3 + 3/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+forgets:            { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets 0:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f1 + 1 >= 0; i1 + f1 + 1 >= 0; f1 >= 0; - 1i1 - 1f1 + 1 >= 0; i1 - 1f1 + 1 >= 0; - 1f1 >= 0; - 1i1 + f2 + 1 >= 0; i1 + f2 + 1 >= 0; - 1f1 + f2 >= 0; f1 + f2 >= 0; f2 >= 0; - 1i1 - 1f2 + 1 >= 0; i1 - 1f2 + 1 >= 0; - 1f1 - 1f2 >= 0; f1 - 1f2 >= 0; - 1f2 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 1/2 >= 0; f1 + f3 + 1/2 >= 0; - 1f2 + f3 + 1/2 >= 0; f2 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 3/2 >= 0; f1 - 1f3 + 3/2 >= 0; - 1f2 - 1f3 + 3/2 >= 0; f2 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets:            { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f3 + 3/2 >= 0; }
+forgets 0:          { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + f1 + 1 >= 0; i1 + f1 + 1 >= 0; f1 >= 0; - 1i1 - 1f1 + 1 >= 0; i1 - 1f1 + 1 >= 0; - 1f1 >= 0; - 1i1 + f2 + 1 >= 0; i1 + f2 + 1 >= 0; - 1f1 + f2 >= 0; f1 + f2 >= 0; f2 >= 0; - 1i1 - 1f2 + 1 >= 0; i1 - 1f2 + 1 >= 0; - 1f1 - 1f2 >= 0; f1 - 1f2 >= 0; - 1f2 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 1/2 >= 0; f1 + f3 + 1/2 >= 0; - 1f2 + f3 + 1/2 >= 0; f2 + f3 + 1/2 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 3/2 >= 0; f1 - 1f3 + 3/2 >= 0; - 1f2 - 1f3 + 3/2 >= 0; f2 - 1f3 + 3/2 >= 0; - 1f3 + 3/2 >= 0; }
+change env:         { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 + i2 + 1 >= 0; i1 + i2 + 1 >= 0; i2 >= 0; - 1i1 - 1i2 + 1 >= 0; i1 - 1i2 + 1 >= 0; - 1i2 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1i2 - 1f1 + 18 >= 0; i2 - 1f1 + 18 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1i2 + f2 - 1/2 >= 0; i2 + f2 - 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1i2 - 1f2 + 8/5 >= 0; i2 - 1f2 + 8/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1i2 + f3 + 1/2 >= 0; i2 + f3 + 1/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1i2 - 1f3 + 3/2 >= 0; i2 - 1f3 + 3/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { i1 + 1 >= 0; - 1i1 + 1 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { truc + 1 >= 0; - 1truc + 1 >= 0; - 1truc + f0 + 1/2 >= 0; truc + f0 + 1/2 >= 0; f0 - 1/2 >= 0; - 1truc - 1f0 + 13/5 >= 0; truc - 1f0 + 13/5 >= 0; - 1f0 + 8/5 >= 0; - 1truc - 1f1 + 19 >= 0; truc - 1f1 + 19 >= 0; - 1f0 - 1f1 + 98/5 >= 0; f0 - 1f1 + 35/2 >= 0; - 1f1 + 18 >= 0; - 1truc + f3 + 3/2 >= 0; truc + f3 + 3/2 >= 0; - 1f0 + f3 + 21/10 >= 0; f0 + f3 >= 0; - 1f1 + f3 + 37/2 >= 0; f3 + 1/2 >= 0; - 1truc - 1f3 + 5/2 >= 0; truc - 1f3 + 5/2 >= 0; - 1f0 - 1f3 + 31/10 >= 0; f0 - 1f3 + 1 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f3 + 3/2 >= 0; }
+expand:             { f0 + 1 >= 0; - 1f0 + 1 >= 0; - 1f0 + i1 + 2 >= 0; f0 + i1 + 2 >= 0; i1 + 1 >= 0; - 1f0 - 1i1 + 2 >= 0; f0 - 1i1 + 2 >= 0; - 1i1 + 1 >= 0; - 1f0 + truc + 2 >= 0; f0 + truc + 2 >= 0; - 1i1 + truc + 2 >= 0; i1 + truc + 2 >= 0; truc + 1 >= 0; - 1f0 - 1truc + 2 >= 0; f0 - 1truc + 2 >= 0; - 1i1 - 1truc + 2 >= 0; i1 - 1truc + 2 >= 0; - 1truc + 1 >= 0; - 1f0 - 1f1 + 19 >= 0; f0 - 1f1 + 19 >= 0; - 1i1 - 1f1 + 19 >= 0; i1 - 1f1 + 19 >= 0; - 1truc - 1f1 + 19 >= 0; truc - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1f0 + f2 + 1/2 >= 0; f0 + f2 + 1/2 >= 0; - 1i1 + f2 + 1/2 >= 0; i1 + f2 + 1/2 >= 0; - 1truc + f2 + 1/2 >= 0; truc + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1f0 - 1f2 + 13/5 >= 0; f0 - 1f2 + 13/5 >= 0; - 1i1 - 1f2 + 13/5 >= 0; i1 - 1f2 + 13/5 >= 0; - 1truc - 1f2 + 13/5 >= 0; truc - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1f0 + f3 + 3/2 >= 0; f0 + f3 + 3/2 >= 0; - 1i1 + f3 + 3/2 >= 0; i1 + f3 + 3/2 >= 0; - 1truc + f3 + 3/2 >= 0; truc + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1f0 - 1f3 + 5/2 >= 0; f0 - 1f3 + 5/2 >= 0; - 1i1 - 1f3 + 5/2 >= 0; i1 - 1f3 + 5/2 >= 0; - 1truc - 1f3 + 5/2 >= 0; truc - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+fold:               { truc + 1 >= 0; - 1truc + 1 >= 0; - 1truc - 1f1 + 19 >= 0; truc - 1f1 + 19 >= 0; - 1f1 + 18 >= 0; - 1truc + f2 + 1/2 >= 0; truc + f2 + 1/2 >= 0; - 1f1 + f2 + 35/2 >= 0; f2 - 1/2 >= 0; - 1truc - 1f2 + 13/5 >= 0; truc - 1f2 + 13/5 >= 0; - 1f1 - 1f2 + 98/5 >= 0; - 1f2 + 8/5 >= 0; - 1truc + f3 + 3/2 >= 0; truc + f3 + 3/2 >= 0; - 1f1 + f3 + 37/2 >= 0; - 1f2 + f3 + 21/10 >= 0; f2 + f3 >= 0; f3 + 1/2 >= 0; - 1truc - 1f3 + 5/2 >= 0; truc - 1f3 + 5/2 >= 0; - 1f1 - 1f3 + 39/2 >= 0; - 1f2 - 1f3 + 31/10 >= 0; f2 - 1f3 + 1 >= 0; - 1f3 + 3/2 >= 0; }
+widening:           top
+widening thr:       top
+
+PPL (polyhedra, loose)
+======================
+
+library: PPL::Polyhedron, loose mode
+version: 0.9
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign top:         top
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; i1 + 1 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; i1 + 1 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+assign tcons        { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+print:
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 >= 0
+
+printdiff:
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : not implemented
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+constraints: array of constraints of size 3
+ 0: 5x0 + 4x1 + 3x2 + x4 + 3 = 0
+ 1: -x0 - x1 - 20 >= 0
+ 2: x0 + 2x1 + 3x2 + 4x3 + 1 >= 0
+generators: array of generator of size 5
+ 0: LINE:    4x0 - 4x1 + x3 - 4x4
+ 1: LINE:    4x2 - 3x3 - 12x4
+ 2: RAY:     x3
+ 3: RAY:     -4x0 + x3 + 20x4
+ 4: VERTEX:  -20x0 + 19/4x3 + 97x4
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               3184
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 >= 0; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; i1 + 1 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { LINE: 4i1 - 4i3 + f2 - 4f3; LINE: 4f1 - 3f2 - 12f3; RAY: f2; RAY: - 4i1 + f2 + 20f3; VERTEX: - 20i1 + 19/4f2 + 97f3; }
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 >= 0; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i1 - 1i3 - 1 >= 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; i1 - 1i3 - 1 >= 0; }
+join:               top
+join array:         top
+add rays:           { 2f3 + 1 >= 0; - 2f3 + 3 >= 0; - 8f1 + 6f2 + 141 >= 0; - 8i1 + 2f2 + 7 >= 0; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; i1 + 1 >= 0; - 5f2 + 8 >= 0; 2f1 + 1 >= 0; - 2f3 + 3 >= 0; 2f2 - 1 >= 0; 2f3 - 1 >= 0; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + i3 + 21 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + i3 + 21 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+assign linexprs:        { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign linexprs inter:  { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; }
+assign texpr inter:     { - 1f1 + 18 >= 0; i1 - 1i3 - 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; }
+assign texprs:          { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 5f2 + 8 >= 0; f2 >= 0; }
+assign texprs inter:    { i1 - 1i3 - 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 5f2 + 8 >= 0; f2 >= 0; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + i3 + 21 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + i3 + 21 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; }
+subst linexprs:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+subst linexprs inter:   { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; }
+subst texpr inter:      { - 1f1 + 18 >= 0; i1 - 1i3 - 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; }
+subst texprs:           { i1 + 1 >= 0; 2f3 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+subst texprs inter:     { i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+forget:             { 2f2 - 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; }
+forget 0:           { i1 = 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; - 1f1 + 18 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; 2f3 + 1 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; 2f3 + 1 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; - 1i1 + 1 >= 0; i1 + 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; truc + 1 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; f0 + 1 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; }
+fold:               { - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; - 1truc + 1 >= 0; truc + 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+widening:           top
+widening thr:       top
+
+PPL (polyhedra, strict)
+=======================
+
+library: PPL::Polyhedron, strict mode
+version: 0.9
+
+level 1
+
+construct top:      top
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign top:         top
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign top:         top
+assign top:         top
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+assign tcons        { i1 - 1i3 - 1 >= 0; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; }
+print:
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 > 0
+
+printdiff:
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : not implemented
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+constraints: array of constraints of size 3
+ 0: 5x0 + 4x1 + 3x2 + x4 + 3 = 0
+ 1: -x0 - x1 - 20 >= 0
+ 2: x0 + 2x1 + 3x2 + 4x3 + 1 > 0
+generators: (inexact) array of generator of size 6
+ 0: LINE:    4x2 - 3x3 - 12x4
+ 1: LINE:    4x0 - 4x1 + x3 - 4x4
+ 2: VERTEX:  -20x0 + 19/4x3 + 97x4
+ 3: VERTEX:  -20x0 + 5x3 + 97x4
+ 4: RAY:     -4x0 + x3 + 20x4
+ 5: RAY:     x3
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               4344
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 > 0; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { LINE: 4f1 - 3f2 - 12f3; LINE: 4i1 - 4i3 + f2 - 4f3; VERTEX: - 20i1 + 19/4f2 + 97f3; VERTEX: - 20i1 + 5f2 + 97f3; RAY: - 4i1 + f2 + 20f3; RAY: f2; }
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 > 0; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i1 - 1i3 - 1 >= 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; i1 - 1i3 - 1 >= 0; }
+join:               top
+join array:         top
+add rays:           { 2f3 + 1 >= 0; - 2f3 + 3 >= 0; - 8f1 + 6f2 + 141 >= 0; - 8i1 + 2f2 + 7 >= 0; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; i1 + 1 >= 0; - 5f2 + 8 >= 0; 2f1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 - 1 >= 0; 2f2 - 1 >= 0; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+assign linexprs:        { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign linexprs inter:  { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+assign texpr:           { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+assign texpr inter:     { - 1f1 + 18 >= 0; i1 - 1i3 - 1 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+assign texprs:          { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 >= 0; - 5f2 + 8 >= 0; }
+assign texprs inter:    { i1 - 1i3 - 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 >= 0; - 5f2 + 8 >= 0; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; }
+subst linexprs:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+subst linexprs inter:   { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+subst texpr:            { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+subst texpr inter:      { - 1f1 + 18 >= 0; i1 - 1i3 - 1 >= 0; - 2f3 + 3 >= 0; - 5f2 + 8 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+subst texprs:           { - 2f3 + 3 >= 0; - 1i1 + 1 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; }
+subst texprs inter:     { i1 - 1i3 - 1 >= 0; - 2f3 + 3 >= 0; - 1i1 + 1 >= 0; i1 + 1 >= 0; 2f3 + 1 >= 0; }
+forget:             { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; }
+forget 0:           { i1 = 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; - 1f1 + 18 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+forgets:            { - 1i1 + 1 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+forgets 0:          { f2 = 0; f1 = 0; 2f3 + 1 >= 0; i1 + 1 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1f1 + 18 >= 0; - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; i1 + 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+0: i1 (int)
+1: f1 (real)
+2: f2 (real)
+3: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; truc + 1 >= 0; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; f0 + 1 >= 0; }
+fold:               { - 1f1 + 18 >= 0; - 1truc + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; truc + 1 >= 0; 2f2 - 1 >= 0; 2f3 + 1 >= 0; }
+widening:           top
+widening thr:       top
+
+PPL (grids)
+===========
+
+library: PPL::Grid
+version: 0.9
+
+level 1
+
+construct top:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct bottom:   bottom
+construct box:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct box:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct tcons:    { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign box:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons:       { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons        { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+print:
+array of constraints of size 4
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: i3 - 11f1 + 3f2 + 2 = 0 mod 5
+ 2: 5i3 = 0 mod 5
+ 3: 5i1 = 0 mod 5
+
+printdiff:
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : not implemented
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+constraints: array of constraints of size 4
+ 0: 5x0 + 4x1 + 3x2 + x4 + 3 = 0
+ 1: x1 - 11x2 + 3x3 + 2 = 0 mod 5
+ 2: 5x1 = 0 mod 5
+ 3: 5x0 = 0 mod 5
+generators: array of generator of size 5
+ 0: VERTEX:  -2/3x3 - 3x4
+ 1: LINEMOD: x0 - 5x4
+ 2: LINEMOD: x1 - 1/3x3 - 4x4
+ 3: LINE:    3x2 + 11x3 - 9x4
+ 4: LINEMOD: 5/3x3
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               3784
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; x1 - 11x2 + 3x3 + 2 = 0 mod 5; 5x1 = 0 mod 5; 5x0 = 0 mod 5; }
+set abstract0:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+sat lincons:        top
+sat tcons:          false
+sat interval:       false
+unconstrainned:     true
+bound linexpr:      [-oo,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator:       { VERTEX: - 2/3f2 - 3f3; LINEMOD: i1 - 5f3; LINEMOD: i3 - 1/3f2 - 4f3; LINE: 3f1 + 11f2 - 9f3; LINEMOD: 5/3f2; }
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; 2 + 0 * i1 + 1 * i3 + -11 * f1 + 3 * f2 + 0 * f3 = 0 mod 5; 0 + 0 * i1 + 5 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; 0 + 5 * i1 + 0 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+meet array:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+join:               { i3 = 0 mod 1; i1 = 0 mod 1; }
+join array:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+add rays:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+unify:              { i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr inter:   { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs:        { i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs inter:  { i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr inter:     { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs:          { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs inter:    { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr:          { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr inter:    { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs inter:   { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr:            { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr inter:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs inter:     { i3 = 0 mod 1; i1 = 0 mod 1; }
+forget:             { i3 = 0 mod 1; i1 = 0 mod 1; }
+forget 0:           { i3 = 0 mod 1; i1 = 0; }
+forgets:            { i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets:            { i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+change env:         { i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i3 = 0 mod 1; i2 = 0; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+rename:             { i3 = 0 mod 1; truc = 0 mod 1; }
+expand:             { truc = 0 mod 1; i3 = 0 mod 1; i1 = 0 mod 1; f0 = 0 mod 1; }
+fold:               { i3 = 0 mod 1; truc = 0 mod 1; }
+widening:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+widening thr:       { i3 = 0 mod 1; i1 = 0 mod 1; }
+
+Product Polka (loose) * PPL grids
+=================================
+
+library: Reduced product of polka, loose mode, PPL::Grid
+version: 3.0 with NUMINT_MPZ, 0.9
+
+level 1
+
+construct top:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons        { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+print:
+reduced product of library Reduced product of polka, loose mode, PPL::Grid
+polyhedron of dim (2,3)
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 >= 0
+array of constraints of size 4
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: i3 - 11f1 + 3f2 + 2 = 0 mod 5
+ 2: 5i3 = 0 mod 5
+ 3: 5i1 = 0 mod 5
+
+printdiff:
+reduced product of library Reduced product of polka, loose mode, PPL::Grid
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : PPL::Grid: 
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+reduced product of library Reduced product of polka, loose mode, PPL::Grid
+polyhedron of dim (2,3)
+Constraints: 4 7
+0 3 5 4 3 0 1 
+1 -20 -1 -1 0 0 0 
+1 1 0 0 0 0 0 
+1 1 1 2 3 4 0 
+Frames: 5 7
+0 0 -3 3 -1 0 6 
+0 0 6 -6 -2 3 0 
+1 0 -3 3 1 0 0 
+1 0 1 -2 1 0 0 
+1 3 57 -117 58 0 0 
+satC: 5 1
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,0000 0000,0000 0000,0000 0000,0000 
+0001,0000 0000,0000 0000,0000 0000,0000 
+0100,0000 0000,0000 0000,0000 0000,0000 
+0010,0000 0000,0000 0000,0000 0000,0000 
+constraints: array of constraints of size 4
+ 0: 5x0 + 4x1 + 3x2 + x4 + 3 = 0
+ 1: x1 - 11x2 + 3x3 + 2 = 0 mod 5
+ 2: 5x1 = 0 mod 5
+ 3: 5x0 = 0 mod 5
+generators: array of generator of size 5
+ 0: VERTEX:  -2/3x3 - 3x4
+ 1: LINEMOD: x0 - 5x4
+ 2: LINEMOD: x1 - 1/3x3 - 4x4
+ 3: LINE:    3x2 + 11x3 - 9x4
+ 4: LINEMOD: 5/3x3
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               3829
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 >= 0; 5x0 + 4x1 + 3x2 + x4 + 3 = 0; x1 - 11x2 + 3x3 + 2 = 0 mod 5; 5x1 = 0 mod 5; 5x0 = 0 mod 5; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator: not implemented
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 >= 0; 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; 2 + 0 * i1 + 1 * i3 + -11 * f1 + 3 * f2 + 0 * f3 = 0 mod 5; 0 + 0 * i1 + 5 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; 0 + 5 * i1 + 0 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+join:               { i3 = 0 mod 1; i1 = 0 mod 1; }
+join array:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+add rays:           { - 8i1 + 2f2 + 7 >= 0; - 8f1 + 6f2 + 141 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 - 1 >= 0; 2f2 - 1 >= 0; 2f1 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs:        { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs inter:  { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr:           { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr inter:     { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs:          { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs inter:    { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs:         { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs inter:   { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr:            { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr inter:      { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs:           { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs inter:     { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forget:             { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forget 0:           { i1 = 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; truc + 1 >= 0; i3 = 0 mod 1; truc = 0 mod 1; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; f0 + 1 >= 0; truc = 0 mod 1; i3 = 0 mod 1; i1 = 0 mod 1; f0 = 0 mod 1; }
+fold:               { - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i3 = 0 mod 1; truc = 0 mod 1; }
+widening:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+widening thr:       { i3 = 0 mod 1; i1 = 0 mod 1; }
+
+Product Polka (strict) * PPL grids
+==================================
+
+library: Reduced product of polka, strict mode, PPL::Grid
+version: 3.0 with NUMINT_MPZ, 0.9
+
+level 1
+
+construct top:      { i3 = 0 mod 1; i1 = 0 mod 1; }
+construct bottom:   bottom
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct box:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct lincons:  { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct tcons:    { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+construct copy:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons:       { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign top:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+assign bottom:      bottom
+assign bottom:      bottom
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign box:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign lincons:     { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+assign tcons        { i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign copy:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+unchanged:          { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+minimize:           { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+canonicalize:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+approximate:        { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+closure:            { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 >= 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+print:
+reduced product of library Reduced product of polka, strict mode, PPL::Grid
+polyhedron of dim (2,3)
+array of constraints of size 3
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: -i1 - i3 - 20 >= 0
+ 2: i1 + 2i3 + 3f1 + 4f2 + 1 > 0
+array of constraints of size 4
+ 0: 5i1 + 4i3 + 3f1 + f3 + 3 = 0
+ 1: i3 - 11f1 + 3f2 + 2 = 0 mod 5
+ 2: 5i3 = 0 mod 5
+ 3: 5i1 = 0 mod 5
+
+printdiff:
+reduced product of library Reduced product of polka, strict mode, PPL::Grid
+not implemented apron::printdiff(manager&, const abstract1&, const abstract1&, FILE*) : PPL::Grid: 
+dump:
+abstract value of level 1:
+environment: dim = (2,3), count = 19
+ 0: i1
+ 1: i3
+ 2: f1
+ 3: f2
+ 4: f3
+reduced product of library Reduced product of polka, strict mode, PPL::Grid
+polyhedron of dim (2,3)
+Constraints: 5 8
+0 3 0 5 4 3 0 1 
+1 -20 0 -1 -1 0 0 0 
+1 0 1 0 0 0 0 0 
+1 1 -1 0 0 0 0 0 
+1 1 -1 1 2 3 4 0 
+Frames: 6 8
+0 0 0 -3 3 -1 0 6 
+0 0 0 6 -6 -2 3 0 
+1 0 0 -3 3 1 0 0 
+1 0 0 1 -2 1 0 0 
+1 2 2 37 -77 39 0 0 
+1 3 0 57 -117 58 0 0 
+satC: 6 1
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,0000 0000,0000 0000,0000 0000,0000 
+0000,1000 0000,0000 0000,0000 0000,0000 
+0100,0000 0000,0000 0000,0000 0000,0000 
+0010,0000 0000,0000 0000,0000 0000,0000 
+0001,0000 0000,0000 0000,0000 0000,0000 
+constraints: array of constraints of size 4
+ 0: 5x0 + 4x1 + 3x2 + x4 + 3 = 0
+ 1: x1 - 11x2 + 3x3 + 2 = 0 mod 5
+ 2: 5x1 = 0 mod 5
+ 3: 5x0 = 0 mod 5
+generators: array of generator of size 5
+ 0: VERTEX:  -2/3x3 - 3x4
+ 1: LINEMOD: x0 - 5x4
+ 2: LINEMOD: x1 - 1/3x3 - 4x4
+ 3: LINE:    3x2 + 11x3 - 9x4
+ 4: LINEMOD: 5/3x3
+
+serialization not implemented: apron::abstract1::serialize_raw(manager&) : 
+environment:
+0: i1 (int)
+1: i3 (int)
+2: f1 (real)
+3: f2 (real)
+4: f3 (real)
+size:               3839
+get abstract0:      { 5x0 + 4x1 + 3x2 + x4 + 3 = 0; - 1x0 - 1x1 - 20 >= 0; x0 + 2x1 + 3x2 + 4x3 + 1 > 0; 5x0 + 4x1 + 3x2 + x4 + 3 = 0; x1 - 11x2 + 3x3 + 2 = 0 mod 5; 5x1 = 0 mod 5; 5x0 = 0 mod 5; }
+set abstract0:      { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 2f2 + 3 >= 0; - 5f3 + 8 >= 0; 2f3 - 1 >= 0; 2f2 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+sat lincons:        true
+sat tcons:          false
+sat interval:       true
+unconstrainned:     false
+bound linexpr:      [0,+oo]
+bound texpr:        [-oo,+oo]
+bound variable:     [-oo,+oo]
+to generator: not implemented
+to lincons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+to tcons:           { 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; -20 + -1 * i1 + -1 * i3 + 0 * f1 + 0 * f2 + 0 * f3 >= 0; 1 + 1 * i1 + 2 * i3 + 3 * f1 + 4 * f2 + 0 * f3 > 0; 3 + 5 * i1 + 4 * i3 + 3 * f1 + 0 * f2 + 1 * f3 = 0; 2 + 0 * i1 + 1 * i3 + -11 * f1 + 3 * f2 + 0 * f3 = 0 mod 5; 0 + 0 * i1 + 5 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; 0 + 5 * i1 + 0 * i3 + 0 * f1 + 0 * f2 + 0 * f3 = 0 mod 5; }
+to box:             { [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] [-oo,+oo] }
+meet:               bottom
+meet array:         bottom
+meet lincons:       { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+meet tcons:         { 5i1 + 4i3 + 3f1 + f3 + 3 = 0; - 1i1 - 1i3 - 20 >= 0; i1 - 1i3 - 1 >= 0; i1 + 2i3 + 3f1 + 4f2 + 1 > 0; 5i1 + 4i3 + 3f1 + f3 + 3 = 0; i3 - 11f1 + 3f2 + 2 = 0 mod 5; 5i3 = 0 mod 5; 5i1 = 0 mod 5; }
+join:               { i3 = 0 mod 1; i1 = 0 mod 1; }
+join array:         { i3 = 0 mod 1; i1 = 0 mod 1; }
+add rays:           { - 8i1 + 2f2 + 7 >= 0; - 8f1 + 6f2 + 141 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+unify:              { - 1i1 + 1 >= 0; - 1i3 + 18 >= 0; - 2f1 + 3 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 - 1 >= 0; 2f2 - 1 >= 0; 2f1 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr:         { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexpr inter:   { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs:        { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign linexprs inter:  { i1 + i3 + f1 + 20 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; 5i1 + 4i3 - 1f2 + f3 + 44 >= 0; i1 + i3 + f1 + 20 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr:           { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texpr inter:     { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs:          { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+assign texprs inter:    { - 1i1 + 1 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; f2 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr:          { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexpr inter:    { - 1i1 - 1i3 - 19 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + i3 + 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs:         { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst linexprs inter:   { - 25i1 - 20i3 - 15f1 - 5f3 + 58 >= 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i1 + i3 + 38 >= 0; 10i1 + 8i3 + 6f1 + 2f3 - 21 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr:            { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texpr inter:      { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 - 1i3 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs:           { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+subst texprs inter:     { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 - 1i3 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forget:             { - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forget 0:           { i1 = 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i3 = 0 mod 1; i1 = 0; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets:            { - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+forgets 0:          { f2 = 0; f1 = 0; - 1i1 + 1 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; i1 + 1 >= 0; f2 = 0; f1 = 0; i3 = 0 mod 1; i1 = 0 mod 1; }
+change env:         { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+change env 0:       { i2 = 0; - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+minimize env:       { - 1i1 + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; i1 + 1 >= 0; i3 = 0 mod 1; i2 = 0 mod 1; i1 = 0 mod 1; }
+0: i1 (int)
+1: i2 (int)
+2: i3 (int)
+3: f1 (real)
+4: f2 (real)
+5: f3 (real)
+rename:             { - 1truc + 1 >= 0; - 5f0 + 8 >= 0; - 1f1 + 18 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f0 - 1 >= 0; truc + 1 >= 0; i3 = 0 mod 1; truc = 0 mod 1; }
+expand:             { - 1f0 + 1 >= 0; - 1i1 + 1 >= 0; - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i1 + 1 >= 0; f0 + 1 >= 0; truc = 0 mod 1; i3 = 0 mod 1; i1 = 0 mod 1; f0 = 0 mod 1; }
+fold:               { - 1truc + 1 >= 0; - 1f1 + 18 >= 0; - 5f2 + 8 >= 0; - 2f3 + 3 >= 0; 2f3 + 1 >= 0; 2f2 - 1 >= 0; truc + 1 >= 0; i3 = 0 mod 1; truc = 0 mod 1; }
+widening:           { i3 = 0 mod 1; i1 = 0 mod 1; }
+widening thr:       { i3 = 0 mod 1; i1 = 0 mod 1; }

@@ -1,0 +1,3 @@
+s/struct ap_texpr_op_t/ap_texpr_op_t/g
+s/struct ap_texpr_rtype_t/ap_texpr_rtype_t/g
+s/struct ap_texpr_rdir_t/ap_texpr_rdir_t/g

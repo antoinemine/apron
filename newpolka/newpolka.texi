@@ -1,0 +1,432 @@
+@c This file is part of the APRON Library, released under LGPL
+@c license. Please read the COPYING file packaged in the distribution
+
+@c to be included from apron.texi
+
+The @sc{NewPolka} convex polyhedra and linear equalities library is
+aimed to be used through the APRON interface. However some specific
+points should be precised.  First, @sc{NewPolka} can use several
+underlying representations for numbers, which lead to several library
+variants. Second, some specific functions are needed, typically to
+allocate managers, and to specify special options.
+
+@menu
+* Use of NewPolka::
+* Allocating NewPolka managers and setting specific options::
+* NewPolka standard options::
+@end menu
+
+@c ===================================================================
+@node Use of NewPolka, Allocating NewPolka managers and setting specific options,,NewPolka
+@subsection Use of NewPolka
+@c ===================================================================
+
+To use @sc{NewPolka} in C, add
+@example
+#include "pk.h"
+#include "pkeq.h"
+  /* if you want linear equalities */
+@end example
+in your source file(s) and add @samp{-I$(APRON_PREFIX)/include} in the
+command line in your Makefile.
+
+You should also link your object files with the @sc{NewPolka} library
+to produce an executable, by adding something like
+@samp{-L$(APRON_PREFIX)/lib -lpolkag} in the command line in your
+Makefile (followed by the standard @samp{-lapron -litvmpq -litvdbl
+-L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp}).
+
+There are actually several variants of the library:
+@table @file
+@item libpolkai.a
+The underlying representation for integers is @code{long int}. This
+may easily cause overflows, especially with many dimensions or
+variables. Overflows are not detected but usually result in infinite
+looping.
+The underlying representation for integers is @code{long long
+int}. This may (less) easily cause overflows.
+@item libpolkag.a
+The underlying representation for integers is @code{mpz_t}, the
+multi-precision integers from the GNU GMP library. Overflows are not
+possible any more, but huge numbers may appear.
+@end table
+
+All scalars of type @code{double} are converted to scalars of type
+@code{mpq_t} inside NewPolka, as NewPolka works internally with exact
+rational arithmetics. So when possible it is better for the user (in
+term of efficiency) to convert already @code{double} scalars to
+@code{mpq_t} scalars.
+
+There is a way to prevent overflow and/or huge numbers, which is to
+position the options @code{max_coeff_size} and
+@code{approximate_max_coeff_size}, see
+@ref{Allocating NewPolka managers and setting specific options}.
+
+Also, all library are available in debug mode
+(@samp{libpolkai_debug.a}, ....
+
+@c ===================================================================
+@node Allocating NewPolka managers and setting specific options, NewPolka standard options, Use of NewPolka, NewPolka
+@subsection Allocating NewPolka managers and setting specific options
+@c ===================================================================
+
+@deftp datatype pk_internal_t
+NewPolka type for internal managers (specific to NewPolka, and
+specific to each execution thread in multithreaded programs).
+@end deftp
+
+@subheading Allocating managers
+
+@deftypefun ap_manager_t* pk_manager_alloc (bool @var{strict})
+Allocate an APRON manager for convex polyhedra, linked to the NewPolka
+library.
+
+The @var{strict} option, when true, enables strict constraints in polyhedra
+(like @code{x>0}). Managers in strict mode or in loose mode
+(strict constraints disabled) are not compatible, and so are
+corresponding abstract values.
+@end deftypefun
+
+@deftypefun ap_manager_t* pkeq_manager_alloc ()
+Allocate an APRON manager for linear equalities, linked to the NewPolka
+library.
+
+Most options which makes sense for convex polyhedra are meaningless
+for linear equalities. It is better to set the standard options
+associated to functions so that abstract values are in canonical form
+(@pxref{NewPolka standard options}). This is the default anyway.
+@end deftypefun
+
+@subheading Setting options
+
+Options specific to @sc{NewPolka} are set directly on the internal
+manager. It can be extracted with the @code{pk_manager_get_internal}
+function.
+
+@deftypefun pk_internal_t* pk_manager_get_internal (ap_manager_t* @var{man})
+Return the internal submanager. If @var{man} has not been created by
+@code{pk_manager_alloc} or @code{pkeq_manager_alloc}, return @code{NULL}.
+@end deftypefun
+
+@deftypefun void pk_set_max_coeff_size (pk_internal_t* @var{pk}, size_t @var{size})
+If @var{size} is not 0, try to raise an @code{AP_EXC_OVERFLOW}
+exception as soon as the size of an integer exceed @var{size}.
+
+Very incomplete implementation. Currently, used only in
+@file{libpolkag} variant, where the size is the number of limbs as
+returned by the function @code{mpz_size} of the GMP library. This
+allows to detect huge numbers.
+@end deftypefun
+
+@deftypefun void pk_set_approximate_max_coeff_size (pk_internal_t* @var{pk}, size_t @var{size})
+This is the parameter to the @code{poly_approximate}/@code{ap_abstractX_approximate} functions.
+@end deftypefun
+
+@deftypefun size_t pk_get_max_coeff_size (pk_internal_t* @var{pk})
+@deftypefunx size_t pk_get_approximate_max_coeff_size (pk_internal_t* @var{pk})
+Reading the previous parameters.
+@end deftypefun
+
+@c ===================================================================
+@node NewPolka standard options,  , Allocating NewPolka managers and setting specific options, NewPolka
+@subsection NewPolka standard options
+@c ===================================================================
+
+This section describes the NewPolka options which are selected using
+the standard mechanism offered by APRON (@pxref{Manager options}).
+
+@subsubheading Modes
+Most functions of NewPolka has two modes. In the lazy mode the
+canonicalization (computation of the dual representation and
+minimisation of both representations) of the argument polyhedra is
+performed only when the needed representation is not available. The
+resulting polyhedra is in general not in the canonical
+representation. In the strict mode, argument polyhedra are
+canonicalized (if they are not yet in canonical form) and the result
+is (in general) in canonical form.
+
+The strict mode exploits the incremental propery of the Chernikova
+algorithm and maintain in parallel the constraints and the generators
+representations. The lazy mode delays computations as much as
+possible.
+
+Be cautious, in the following table, canonical means minimized
+constraints and generators representation, but nothing more. In
+particular, the function @code{canonicalize} performs further
+normalization by normalizing strict constraints (when they exist) and
+ordering constraints and generators.
+
+
+@multitable @columnfractions .2 .06 .74
+
+@item Function              @tab algo      @tab Comments
+
+@item copy                      @tab
+@tab Identical representation
+
+@item
+@item free
+
+@item
+@item size                      @tab
+@tab Return the number of coefficients. @*
+Their size (when using multi-precision integers) is not taken into
+account.
+
+@item
+@item minimize                  @tab
+@tab Require canonicalization.
+
+@noindent Keep only the smallest representation among the constraints and the
+generators representation.
+
+@item
+@item canonicalize              @tab
+@tab
+
+@item
+@item approximate               @tab
+@tab Require constraints. @*
+algo here refers to the explicit parameter of the
+function. A negative number indicates a possibly smaller result, a
+positive one a possibly greater one. The effects of the function may
+be different for 2 identical polyhedra defined by different systems of
+(non minimal) constraints.@*
+Equalities are never modified.
+
+@item
+@item                           @tab -1
+@tab Normalize integer minimal constraints. This results in a smaller
+polyhedra.
+
+@item                           @tab 1
+@tab Remove constraints with coefficients of size (in bits) greater than
+the approximate_max_coeff_size parameter.
+
+@item                           @tab 2
+@tab Idem, but preserve interval constraints.
+
+@item                           @tab 3
+@tab Idem, but preserve octagonal constraints (+/- xi +/- xj >= cst).
+
+@item                           @tab 10
+@tab Simplify constraints such that the coefficients size (in bits) are
+less or equal than the approximate_max_coeff_size parameter. The
+constant coefficients are recomputed by linear programming and are not
+involved in the reduction process.
+
+@item                           @tab --
+@tab Do nothing
+
+@item
+@item fprint                    @tab
+@tab Require canonicalization.
+
+@item
+@item fprintdiff                @tab
+@tab not implemented
+
+@item
+@item fdump                     @tab
+@tab Print raw representations of any of the constraints, generators and
+saturation matrices that are available.
+
+@item
+@item serialize_raw, deserialize_raw @tab
+@tab not implemented
+
+@item
+@item bottom,top                @tab      @tab Return canonical form.
+
+@item
+@item of_box                    @tab      @tab Return constraints.
+
+@item
+@item of_lincons_array          @tab      @tab Return constraints.
+@item                           @tab >=0  @tab Take into account interval-linear constraints, after having minimized the quasi-linear constraints
+@item                           @tab <0  @tab Ignore interval-linear constraints
+@item
+@item dimension                 @tab      @tab
+
+@item
+@item is_bottom                 @tab <0   @tab If generators not available, return @code{tbool_top}
+@item                           @tab >=0  @tab If generators not available, canonicalize and return @code{tbool_false} or @code{tbool_true}.
+
+@item
+@item is_top                    @tab <0   @tab If not in canonical form, return @code{tbool_top}
+@item                           @tab >=0  @tab Require canonical form.
+
+@item
+@item is_leq                    @tab <=0  @tab Require generators of first argument and constraints of second argument.
+@item                           @tab >0   @tab Require canonical form for both arguments.
+
+@item
+@item is_eq                     @tab      @tab Require canonical form for both arguments.
+
+@item
+@item is_dimension_unconstrained @tab     @tab Require canonical form
+
+@item
+@item sat_interval, sat_lincons, bound_dimension, bound_linexpr
+@tab <=0  @tab Require generators.
+@item
+@tab >0   @tab Require canonical form.
+
+@item
+@item to_box                    @tab <0   @tab Require generators.
+@item                           @tab >=0  @tab Require canonical form.
+
+@item
+@item to_lincons_array,
+to_generator_array              @tab      @tab Require canonical form.
+
+@item
+@item meet, meet_array, meet_lincons_array
+@tab <0
+@tab Require constraints. @*
+Return non-minimized constraints.
+@item
+@tab >=0
+@tab Require canonical form. @*
+Return canonical form.
+
+@item
+@item join, join_array, add_ray_array
+@tab <0
+@tab Require generators. @*
+Return non-minimized generators.
+@item
+@tab >=0
+@tab Require canonical form. @*
+Return canonical form.
+
+@item
+@item assign_linexpr
+@tab @tab 1. If the optional argument is NULL,
+@item
+@tab <=0
+@tab If the expr. is deterministic and invertible, require any representation and return the transformed one. If in canonical form, return canonical form. @*
+If the expr. is deterministic and non-invertible, require generators and return generators @*
+If the expr. is non-deterministic, require constraints and return generators.
+@item
+@tab >0
+@tab Require canonical form, return canonical form. @*
+If the expr. is deterministic,(and even more, invertible), the
+operation is more efficient.
+@item
+@item @tab @tab 2. If the optional argument is not NULL,
+first the assignement is performed, and then the
+meet function is applied with its corresponding option.
+
+@item
+@item substitute_linexpr
+@tab @tab 1. If the optional argument is NULL,
+@item
+@tab <=0
+@tab If the expr. is deterministic and invertible, require any representation and return the transformed one. If in canonical form, return canonical form. @*
+If the expr. is deterministic and non-invertible, require constraints and return constraints @*
+If the expr. is non-deterministic, require constraints and return generators.
+@item
+@tab >0
+@tab Require canonical form, return canonical form. @*
+If the expr. is deterministic (and even more, invertible), the
+operation is more efficient.
+@item
+@item @tab @tab 2. If the optional argument is not NULL,
+first the substitution is performed, and then the
+meet function is applied with its corresponding option.
+
+@item
+@item assign_linexpr_array
+@tab @tab 1. If the optional argument is NULL,
+@item
+@tab <=0
+
+@tab If the expr. are deterministic, require generators and return generators @*
+Otherwise, require canonical form and return generators.
+
+@item
+@tab >0
+@tab Require canonical form, return canonical form.
+@item
+@item @tab @tab 2. If the optional argument is not NULL,
+first the assignement is performed, and then the
+meet function is applied with its corresponding option.
+
+@item
+@item substitute_linexpr_array
+@tab @tab 1. If the optional argument is NULL,
+@item
+@tab <=0
+
+@tab If the expr. are deterministic, require constraints and return constraints @*
+Otherwise, require canonical form and return generators.
+
+@item
+@tab >0
+@tab Require canonical form, return canonical form.
+@item
+@item @tab @tab 2. If the optional argument is not NULL,
+first the substitution is performed, and then the
+meet function is applied with its corresponding option.
+
+@item
+@item forget_array
+@tab <=0 
+@tab Require generators and return generators.
+@item
+@tab >0 
+@tab Require canonical form and return canonical form.
+
+@item
+@item add_dimensions, permute_dimensions
+@tab <=0 
+@tab Require any representation and return the updated one. @*
+If in canonical form, return canonical form.
+@item
+@tab >0 
+@tab Require canonical form, return canonical form.
+
+@item
+@item remove_dimensions
+@tab <=0 
+@tab Require generators, return generators.
+@item
+@tab >0 
+@tab Require canonical form, return canonical form.
+
+@item
+@item expand
+@tab <0 
+@tab Require constraints, return constraints.
+@item
+@tab >=0 
+@tab Require canonical form, return canonical form.
+
+@item
+@item fold
+@tab <0 
+@tab Require generators, return generators.
+@item
+@tab >=0 
+@tab Require canonical form, return canonical form.
+
+@item
+@item widening
+@tab 
+@tab Require canonical form.
+
+@item
+@item closure
+@tab @tab 1. If pk_manager_alloc() has been given a false Boolean (no strict constraints), same as copy.
+@item
+@item
+@tab @tab 2. Otherwise,
+@item 
+@tab <0
+@tab Require constraints, return constraints.
+@item
+@tab >=0 
+@tab Require canonical form, return constraints.
+
+@end multitable

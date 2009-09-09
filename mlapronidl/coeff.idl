@@ -1,0 +1,138 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_coeff.h\"\n\
+#include \"apron_caml.h\"\n\
+\n\
+#define Scalar AP_COEFF_SCALAR\n\
+#define Interval AP_COEFF_INTERVAL\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+
+/* For ap_coeff_t, 
+
+- the conversion from ML to C may use allocation, but it is automatically freed 
+  by Camlidl mechanisms
+- the conversion from C to ML duplicate the C allocated memory.
+  Hence, the C type should be explicitly deallocated
+  (if allocated from the underlying C function)
+*/
+
+struct ap_coeff_t {
+  int discr; /* discriminant for coefficient */
+  [switch_is(discr)] union {
+    case Scalar: [ref]ap_scalar_t* scalar;
+      /* cst (normal linear expression) */
+    case Interval: [ref]struct ap_interval_t* interval;
+      /* interval (quasi-linear expression) */
+  } val;
+};
+quote(MLMLI,"(** APRON Coefficients (either scalars or intervals) *)")
+
+quote(MLI,"\n\
+val s_of_mpq : Mpq.t -> t\n\
+val s_of_mpqf : Mpqf.t -> t\n\
+val s_of_int : int -> t\n\
+val s_of_frac : int -> int -> t\n\
+  (** Create a scalar coefficient of type [Mpqf.t] from resp.\n\
+    - A multi-precision rational [Mpq.t] \n\
+    - A multi-precision rational [Mpqf.t] \n\
+    - an integer \n\
+    - a fraction [x/y]\n\
+  *)\n\
+\n\
+val s_of_float : float -> t\n\
+  (** Create an interval coefficient of type [Float] with the given value *)\n\
+val s_of_mpfr : Mpfr.t -> t\n\
+  (** Create an interval coefficient of type [Mpfr] with the given value *)\n\
+val i_of_scalar : Scalar.t -> Scalar.t -> t\n\
+  (** Build an interval from a lower and an upper bound *)\n\
+val i_of_mpq : Mpq.t -> Mpq.t -> t\n\
+val i_of_mpqf : Mpqf.t -> Mpqf.t -> t\n\
+val i_of_int : int -> int -> t\n\
+val i_of_frac : int -> int -> int -> int -> t\n\
+val i_of_float : float -> float -> t\n\
+val i_of_mpfr : Mpfr.t -> Mpfr.t -> t\n\
+  (** Create an interval coefficient from resp. two\n\
+    - multi-precision rationals [Mpq.t] \n\
+    - multi-precision rationals [Mpqf.t] \n\
+    - integers \n\
+    - fractions [x/y] and [z/w]\n\
+    - machine floats\n\
+    - Mpfr floats\n\
+  *)\n\
+\n\
+val is_scalar : t -> bool\n\
+val is_interval : t -> bool\n\
+val cmp : t -> t -> int\n\
+  (** Non Total Comparison:\n\
+     - If the 2 coefficients are both scalars, corresp. to Scalar.cmp\n\
+     - If the 2 coefficients are both intervals, corresp. to Interval.cmp\n\
+     - otherwise, -3 if the first is a scalar, 3 otherwise\n\
+  *)\n\
+val equal : t -> t -> bool\n\
+  (** Equality test *)\n\
+val is_zero : t -> bool\n\
+  (** Is the coefficient equal to scalar 0 or interval [0,0] ? *)\n\
+val equal_int : t -> int -> bool\n\
+  (** Is the coefficient equal to scalar b or interval [b,b] ? *)\n\
+val neg : t -> t\n\
+  (** Negation *)\n\
+val reduce : t -> t\n\
+  (** Convert interval to scalar if possible *)\n\
+val print : Format.formatter -> t -> unit\n\
+  (** Printing *)\n\
+")
+
+quote(ML,"\n\
+let s_of_mpq x = Scalar (Scalar.of_mpq x)\n\
+let s_of_mpqf x = Scalar (Scalar.of_mpqf x)\n\
+let s_of_int x = Scalar (Scalar.of_int x)\n\
+let s_of_frac x y = Scalar (Scalar.of_frac x y)\n\
+let s_of_float x = Scalar (Scalar.of_float x)\n\
+let s_of_mpfr x = Scalar (Scalar.of_mpfr x)\n\
+\n\
+let i_of_scalar inf sup = Interval (Interval.of_scalar inf sup)\n\
+let i_of_mpq x y = Interval (Interval.of_mpq x y)\n\
+let i_of_mpqf x y = Interval (Interval.of_mpqf x y)\n\
+let i_of_int x y = Interval (Interval.of_int x y)\n\
+let i_of_frac x y z w = Interval (Interval.of_frac x y z w)\n\
+let i_of_float x y = Interval (Interval.of_float x y)\n\
+let i_of_mpfr x y = Interval (Interval.of_mpfr x y)\n\
+\n\
+let is_scalar c = match c with Scalar _ -> true | _ -> false\n\
+let is_interval c = match c with Interval _ -> true | _ -> false\n\
+let cmp c1 c2 = match (c1,c2) with\n\
+| (Scalar s1, Scalar s2) -> Scalar.cmp s1 s2\n\
+| (Interval i1, Interval i2) -> Interval.cmp i1 i2\n\
+| (Scalar _, _) -> (-3)\n\
+| _ -> 3\n\
+let equal c1 c2 = match (c1,c2) with\n\
+| (Scalar s1, Scalar s2) -> Scalar.equal s1 s2\n\
+| (Interval i1, Interval i2) -> Interval.equal i1 i2\n\
+| _ -> false\n\
+let is_zero c = match c with\n\
+| Scalar s -> (Scalar.sgn s)=0\n\
+| Interval i -> Interval.is_zero i\n\
+let equal_int c b = match c with\n\
+| Scalar s -> Scalar.equal_int s b\n\
+| Interval i -> Interval.equal_int i b\n\
+let neg c = match c with\n\
+| Scalar s -> Scalar (Scalar.neg s)\n\
+| Interval i -> Interval (Interval.neg i)\n\
+let reduce c = match c with\n\
+| Scalar _ -> c\n\
+| Interval i ->\n\
+    if Scalar.equal i.Interval.inf i.Interval.sup\n\
+    then Scalar i.Interval.inf\n\
+    else c\n\
+let print fmt c = match c with\n\
+| Scalar s -> Scalar.print fmt s\n\
+| Interval i -> Interval.print fmt i\n\
+")
