@@ -29,8 +29,8 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../newpolka \
--I../mlgmpidl \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -41,7 +41,7 @@ ICFLAGS = \
 
 ICXXFLAGS = \
 -I../newpolka \
--I../mlgmpidl \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -52,7 +52,7 @@ ICXXFLAGS = \
 
 
 # Caml
-OCAMLINC = -I ../mlgmpidl -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -165,12 +165,12 @@ endif
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a
 #	$(OCAMLMKTOP) $(OCAMLINC) $(OCAMLFLAGS) -o $@ -cc $(CXX) -custom \
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
-#	-ccopt "-L. -L../apron  -L../itv -L../mlgmpidl -L../mlapronidl"
+#	-ccopt "-L. -L../apron  -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
 #pplrun: ppl.cma libap_ppl_caml.a
 #	$(OCAMLC) $(OCAMLINC) $(OCAMLFLAGS) -o $@ -make-runtime -cc $(CXX) \
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
-#	-ccopt "-L.  -L../apron -L../itv -L../mlgmpidl -L../mlapronidl"
+#	-ccopt "-L.  -L../apron -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
 libap_ppl_caml.a: ap_ppl_caml.o
 	$(AR) rcs $@ $^

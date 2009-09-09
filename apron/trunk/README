@@ -3,6 +3,10 @@
 
 # Please read the COPYING file packaged in the distribution
 
+NOTE: If you do not already have MLGMPIDL, you can use the apron-dist
+directory in SVN repository.
+
+
 The developpers are using INTEL/linux machines. Look at README.windows and
 README.mac for additional specific informations.
 
@@ -18,6 +22,7 @@ PREREQUISITES
       - GMPXX (GMP compiled with configuration option --enable-cxx)
 
 - OCaml API (optional)
+  * MLGMPIDL (http://www.inrialpes.fr/pop-art/people/bjeannet/mlxxxidl-forge/mlgmpidl, SVN: svn://scm.gforge.inria.fr/svn/mlxxxidl/mlgmpidl/)
   * OCaml 3.09 or up (http://www.caml.org)
   * CamlIDL 1.05 (http://caml.inria.fr/camlidl)
   * GNU sed 4.1 or up, GNU m4 (not necessary if you download an archive, but
@@ -32,8 +37,8 @@ CONFIGURATION and COMPILATION
 
 1. Copy Makefile.config.model into Makefile.config and edit the
    _PREFIX paths to suit your installation (you might want to set
-   APRON_PREFIX, CAMLIDL_PREFIX and CAML_PREFIX to /usr/local
-   instead of the default /usr).
+   APRON_PREFIX, MLGMPIDL_PREFIX, CAMLIDL_PREFIX and CAML_PREFIX
+   to some of your directory instead of the default /tmp).
 
 2. If you download via subversion repository, and you want the
    OCaml API: 'make rebuild'

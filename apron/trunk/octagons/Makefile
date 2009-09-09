@@ -31,8 +31,8 @@ SHARED = gcc -shared
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../newpolka \
--I../mlgmpidl \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -41,7 +41,7 @@ ICFLAGS = \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I ../mlgmpidl -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -264,10 +264,10 @@ mlMPFR:liboctMPFR_caml.so liboctMPFR_caml_debug.so dlloctMPFR_caml.so dlloctMPFR
 endif
 
 #octtop%: oct.cma liboct_caml.a liboct%.a
-#	$(OCAMLMKTOP) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -custom bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L../mlgmpidl -L../mlapronidl -L../apron -L../itv -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(CAMLIDL_PREFIX)/lib/ocaml" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
+#	$(OCAMLMKTOP) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -custom bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl -L../apron -L../itv -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(CAMLIDL_PREFIX)/lib/ocaml" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
 
 #octrun%: oct.cma liboct_caml.a
-#	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L../mlgmpidl -L../mlapronidl -L../apron -L../itv -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(CAMLIDL_PREFIX)/lib/ocaml" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
+#	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl -L../apron -L../itv -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(CAMLIDL_PREFIX)/lib/ocaml" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
 
 oct.cma: octMPQ.cma
 	ln -s -f $^ $@
