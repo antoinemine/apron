@@ -72,7 +72,6 @@ ifneq ($(HAS_PPL),)
 	(cd products; make install)
 endif
 ifneq ($(HAS_OCAML),)
-	(cd mlgmpidl; make install)
 	(cd mlapronidl; make install)
 	$(INSTALLd) $(APRON_PREFIX)/bin
 	$(INSTALL) aprontop $(APRON_PREFIX)/bin
@@ -88,7 +87,6 @@ clean:
 	(cd num; make clean)
 	(cd itv; make clean)
 	(cd apron; make clean)
-	(cd mlgmpidl; make clean)
 	(cd mlapronidl; make clean)
 	(cd box; make clean)
 	(cd newpolka; make clean)
@@ -101,7 +99,6 @@ clean:
 	rm -fr online tmp apron*run aprontop apronppltop
 
 mostlyclean: clean
-	(cd mlgmpidl; make mostlyclean)
 	(cd mlapronidl; make mostlyclean)
 	(cd box; make mostlyclean)
 	(cd octagons; make mostlyclean)
@@ -110,11 +107,12 @@ mostlyclean: clean
 	(cd products; make mostlyclean)
 	(cd apronxx; make mostlyclean)
 
+uninstall :distclean
+
 distclean:
 	(cd num; make distclean)
 	(cd itv; make distclean)
 	(cd apron; make distclean)
-	(cd mlgmpidl; make distclean)
 	(cd mlapronidl; make distclean)
 	(cd box; make distclean)
 	(cd newpolka; make distclean)
@@ -138,7 +136,7 @@ endif
 
 PKGNAME  = apron-0.9.10
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box newpolka ppl products mlgmpidl mlapronidl examples test apronxx
+PKGDIRS  = apron num itv octagons box newpolka ppl products mlapronidl examples test apronxx
 
 dist:
 	$(MAKE) all
@@ -158,18 +156,12 @@ online: doc index.html
 	mv index.html poster.gif flyer.pdf online
 	mv apron/html online/apron
 	mv mlapronidl/html online/mlapronidl
-	mv mlgmpidl/html online/mlgmpidl
 	cp apron/apron.pdf online
 	cp mlapronidl/mlapronidl.pdf online
-	cp mlgmpidl/mlgmpidl.pdf online
 	cp examples/example1.c online
 	cp examples/mlexample?.ml online
 	cp Changes online
 
-pkg_mlgmpidl:
-	(cd mlgmpidl; $(MAKE) dist)
-	(cd $(PKGNAME); tar xzf $(HOME)/mlgmpidl.tgz)
-	rm -rf $*.tgz
 pkg_%:
 	(cd $*; $(MAKE) dist)
 	(cd $(PKGNAME); tar xzf ../$*.tgz)
