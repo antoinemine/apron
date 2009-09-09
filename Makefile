@@ -1,7 +1,5 @@
 include Makefile.config
 
-MLREQUESTED = mlgmpidl/Makefile.config
-
 LCFLAGS = \
 -Lapron -Litv -Lbox -Loctagons -Lnewpolka \
 -L$(PPL_PREFIX)/lib -Lppl \
@@ -15,11 +13,6 @@ all: ml
 endif
 ifneq ($(HAS_CPP),)
 all: cxx
-endif
-
-ifneq ($(HAS_OCAML),)
-mlgmpidl/Makefile.config: Makefile.config Makefile
-	$(SED) -e '1 aHAS_MPFR=1\n' Makefile.config >$@
 endif
 
 c:
@@ -37,8 +30,7 @@ endif
 cxx:
 	(cd apronxx; make)
 
-ml: $(MLREQUESTED)
-	(cd mlgmpidl; make all)
+ml:
 	(cd mlapronidl; make all)
 	(cd newpolka; make ml)
 	(cd box; make ml)
@@ -50,17 +42,16 @@ endif
 
 .PHONY: aprontop apronppltop
 
-aprontop: $(MLREQUESTED)
+aprontop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma
 
-apronppltop: $(MLREQUESTED)
+apronppltop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma
 
-rebuild: $(MLREQUESTED)
+rebuild:
 ifneq ($(HAS_OCAML),)
-	(cd mlgmpidl; make rebuild)
 	(cd mlapronidl; make rebuild)
 	(cd newpolka; make rebuild)
 	(cd box; make rebuild)
@@ -137,7 +128,6 @@ distclean:
 doc:
 	(cd apron; make html apron.pdf)
 ifneq ($(HAS_OCAML),)
-	(cd mlgmpidl; make html mlgmpidl.pdf)
 	(cd mlapronidl; make html mlapronidl.pdf)
 endif
 ifneq ($(HAS_CPP),)
