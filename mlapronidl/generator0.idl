@@ -1,0 +1,75 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(MLI,"(** APRON Generators of level 0 *)")
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_generator0.h\"\n\
+#include \"apron_caml.h\"\n\
+\n\
+#define LINE AP_GEN_LINE \n\
+#define RAY AP_GEN_RAY \n\
+#define VERTEX AP_GEN_VERTEX \n\
+#define LINEMOD AP_GEN_LINEMOD \n\
+#define RAYMOD AP_GEN_RAYMOD \n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+import "linexpr0.idl";
+
+enum gentyp {
+  LINE,
+  RAY,
+  VERTEX,
+  LINEMOD,
+  RAYMOD
+};
+struct ap_generator0_t {
+  [mlname(mutable_linexpr0)] ap_linexpr0_ptr linexpr0; /* constant coefficient ignored */
+  [mlname(mutable_typ)] enum gentyp gentyp;
+};
+struct ap_generator0_array_t {
+  [size_is(size)] struct ap_generator0_t* p;
+  int size;
+};
+
+quote(MLI,"\n\
+(** Making a generator. The constant coefficient of the linear expression is\n\
+  ignored. Modifying later the linear expression modifies correspondingly the\n\
+  generator and conversely. *)\n\
+val make : Linexpr0.t -> typ -> t\n\
+\n\
+(** Copy a generator (deep copy) *)\n\
+val copy : t -> t\n\
+\n\
+(** Convert a generator type to a string ([LIN],[RAY], or [VTX]) *)\n\
+val string_of_typ : typ -> string\n\
+\n\
+(** Print a generator *)\n\
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+")
+quote(ML,"\n\
+let string_of_typ = function\n\
+| LINE -> \"LIN\"\n\
+| RAY -> \"RAY\"\n\
+| VERTEX -> \"VTX\"\n\
+| LINEMOD -> \"LINMOD\"\n\
+| RAYMOD -> \"RAYMOD\"\n\
+\n\
+let print assoc fmt gen = \n\
+  Format.fprintf fmt \"%s:\" (string_of_typ gen.gentyp);\n\
+  Linexpr0.print assoc fmt gen.linexpr0;\n\
+  ()\n\
+let make expr typ = {\n\
+linexpr0 = expr; typ = typ;\n\
+}\n\
+let copy gen = {\n\
+linexpr0 = Linexpr0.copy gen.linexpr0; typ = gen.typ;\n\
+}\n\
+")

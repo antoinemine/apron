@@ -1,0 +1,65 @@
+
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+This package is a convex polyhedra library that conforms to the APRON
+interface. It requires APRON package.
+
+It includes both the C interface and the OCaml interface to APRON.
+
+Examples of use via the interface can be found in test0.c, test1.c, and
+test.ml.
+
+REQUIREMENTS
+============
+For the C interface:
+
+GMP library (tested with version 4.0 and up)
+ITV and NUM libraries
+APRON library
+
+For the OCaml interface, in addition:
+M4 preprocessor (standard on any UNIX system)
+OCaml 3.0 or up (tested with 3.09)
+Camlidl (tested with 1.05)
+MLGMPIDL package
+MLAPRONIDL package
+
+INSTALLATION
+============
+
+Set the file Makefile.config to your own setting.
+You might also have to modify the Makefile for executables
+
+1. C Library
+----------
+
+type 'make', and then 'make install' 
+
+The library is named libpolkaRl.a, libpolkaRll.a or libpolkaMPQ.a (and
+libpolkaRl_debug.a, ...).
+
+i, l, g, stands for long int, long long int, and gmp, which
+indicates the underlying representation of integers.
+
+For use via APRON, the include files to consider is pk.h
+
+When linking, requires resp. libitvlr.a (i), libitvllr.a (l), libitvmpq.a (g)
+plus libraries required by APRON.
+
+2. OCaml Library
+----------------
+
+type 'make ml', and then 'make install' 
+
+The C part of the library is named libpolkaXX_caml.a or
+libpolkaXX_caml.so/dllpolkaXX_caml.so (and libpolkaXX_caml_debug.a or ...).
+
+The OCaml part is named polkaXX.cma (polkaXX.cmxa)
+
+3. Miscellaneous
+----------------
+
+'make clean' and 'make distclean' have the usual behaviour.
