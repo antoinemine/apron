@@ -50,7 +50,6 @@ ICXXFLAGS = \
 -I$(PPL_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
-
 # Caml
 OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 
@@ -89,10 +88,10 @@ install:
 	$(INSTALLd) $(INCDIR) $(LIBDIR) $(BINDIR) $(CAMLDIR)
 	$(INSTALL) ap_ppl.h $(INCDIR)
 	$(INSTALL) libap_ppl.a libap_ppl_debug.a $(LIBDIR)
-	for i in libap_ppl_caml*.a ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
+	for i in libap_ppl_caml*.a libap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
-	for i in libap_ppl_caml*.so; do \
+	for i in dllap_ppl*.so; do \
 		if test -f $$i; then cp -f -d $$i $(CAMLDIR); fi; \
 	done	
 	for i in ap_ppl_test pplrun ppltop; do \
@@ -100,11 +99,10 @@ install:
 	done
 
 uninstall:
-	/bin/rm -f $(INCDIR)/*ap_ppl*
-	/bin/rm -f $(LIBDIR)/*ap_ppl* $(LIBDIR)/ppl.a $(LIBDIR)/ppl.idl $(LIBDIR)/ppl.cm*
+	/bin/rm -f $(INCDIR)/ap_ppl*
+	/bin/rm -f $(LIBDIR)/libap_ppl* $(LIBDIR)/dllap_ppl* $(LIBDIR)/ppl.a $(LIBDIR)/ppl.idl $(LIBDIR)/ppl.cm*
 	/bin/rm -f $(BINDIR)/*ap_ppl*
 	/bin/rm -f $(BINDIR)/pplrun $(BINDIR)/ppltop
-	/bin/rm -f $(CAMLDIR)/*ap_ppl*
 
 distclean: uninstall
 
@@ -159,7 +157,7 @@ ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 ml: ppl.cma ppl.cmxa libap_ppl_caml.a libap_ppl_caml_debug.a
 
 ifneq ($(HAS_SHARED),)
-ml: libap_ppl_caml.so libap_ppl_caml_debug.so dllap_ppl_caml.so libap_ppl_caml_debug.so
+ml: libap_ppl_caml.so libap_ppl_caml_debug.so dllap_ppl_caml.so dllap_ppl_caml_debug.so
 endif
 
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a

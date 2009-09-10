@@ -138,7 +138,7 @@ install:
 	for i in octtest?? octtop?? octrun??; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
-	for i in oct.mli oct.cmi oct.cmx oct.cma oct.cmxa oct.a; do \
+	for i in oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
 
