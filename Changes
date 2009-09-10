@@ -2,6 +2,14 @@ Version 0.9.10
 
 - Migration advices (due to some API and compilation process changes)
 
+  * as MLGMPIDL is not included anymore, you may want to consider
+    - either apron-dist-XXX.tgz packages
+    - or svn co http://svn.cri.ensmp.fr/svn/apron/apron-dist/trunk apron-dist
+    that include it.
+	
+  * Makefile.config: 
+    ° new variables HAS_SHARED and OCAMLMKLIB
+
   * C API: 
     ° ap_pkgrid_manager_alloc has a new signature
 
@@ -22,6 +30,17 @@ Version 0.9.10
         bigarray.cma gmp.cma apron.cma boxMPQ.cma mlexample.ml
       ocamlopt -o mlexample.opt
         bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa mlexample.ml
+
+- Distribution/Packaging
+
+  * MLGMPIDL not included anymore.
+    If you want to include it with apron, consider: 
+    - either apron-dist-XXX.tgz packages
+    - or svn co http://svn.cri.ensmp.fr/svn/apron/apron-dist/trunk apron-dist
+
+  * Optional interface to PPL upgraded to 0.10 (but still support only
+    polyhedra and linear congruences). No need with version 0.10 to apply a
+    patch (see ppl/README for more details.
 
 - Compilation and linking process
 
@@ -69,12 +88,6 @@ Version 0.9.10
     Oct.t Apron.Manager.t and 'a Apron.Manager.t).
 
 - Bugs corrected: several
-
-- Distribution/Packaging
-
-  * Optional interface to PPL upgraded to 0.10 (but still support only
-    polyhedra and linear congruences). No need with version 0.10 to apply a
-    patch (see ppl/README for more details.
 
 - Internal API
 
