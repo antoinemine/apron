@@ -18,8 +18,7 @@
 %\usepackage{frames}
 
 \newcommand{\ocaml}{\xlink{OCaml}{http://www.caml.org}\xspace}
-\newcommand{\cudd}{\xlink{CUDD}{http://vlsi.colorado.edu/\~{}fabio/CUDD/cuddIntro.html}\xspace}
-\newcommand{\cuddaux}{\xlink{CUDDAUX}{../cuddaux/index.html}\xspace}
+\newcommand{\mlgmpidl}{\xlink{MLGMPIDL}{http://www.inrialpes.fr/pop-art/people/bjeannet/mlxxxidl-forge/mlgmpidl/}\xspace}
 \newcommand{\camlidl}{\xlink{CamlIDL}{http://caml.inria.fr/camlidl/}\xspace}
 \newcommand{\interproc}{\xlink{Interproc}{http://pop-art.inrialpes.fr/interproc/interprocweb.cgi}\xspace}
 
@@ -59,7 +58,7 @@ associated \xlink{flyer}{flyer.pdf}.
 Currently, APRON provides a C interface and an \ocaml interface.
 There also exists a C++ interface, which is more experimental.
 
-The version 0.9.9 (9th june 2008) contains 3 libraries and 4 abstract domains:
+The version 0.9.10 (10th septembre 2009) contains 3 libraries and 4 abstract domains:
 \begin{itemize}
 \item The BOX intervals library
 \item The OCT octagon library
@@ -85,9 +84,9 @@ PPL library.
 \section{Documentation}
 
 \begin{itemize}
-\item On-line \xlink{C interface}{http://apron.cri.ensmp.fr/library/0.9.9/apron/apron.html} and \xlink{OCaml interface}{http://apron.cri.ensmp.fr/library/0.9.9/mlapronidl/index.html};
-\item \xlink{C pdf}{http://apron.cri.ensmp.fr/library/0.9.9/apron.pdf} or \xlink{OCaml pdf}{http://apron.cri.ensmp.fr/library/0.9.9/mlapronidl.pdf};
-\item \xlink{C example}{http://apron.cri.ensmp.fr/library/0.9.9/example1.c} or \xlink{OCaml example 1}{http://apron.cri.ensmp.fr/library/0.9.9/mlexample1.ml}/\xlink{OCaml example 2}{http://apron.cri.ensmp.fr/library/0.9.9/mlexample2.ml}/\xlink{OCaml example 3}{http://apron.cri.ensmp.fr/library/0.9.9/mlexample3.ml}. For the
+\item On-line \xlink{C interface}{http://apron.cri.ensmp.fr/library/0.9.10/apron/apron.html} and \xlink{OCaml interface}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl/index.html};
+\item \xlink{C pdf}{http://apron.cri.ensmp.fr/library/0.9.10/apron.pdf} or \xlink{OCaml pdf}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl.pdf};
+\item \xlink{C example}{http://apron.cri.ensmp.fr/library/0.9.10/example1.c} or \xlink{OCaml example 1}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample1.ml}/\xlink{OCaml example 2}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample2.ml}/\xlink{OCaml example 3}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample3.ml}. For the
   ML examples, they are almost identical, but the ones with the
   higher numbers use higher-level functions to define affine
   expressions and constraints.
@@ -109,24 +108,38 @@ PPL library.
   system, version 3.09 or up, the \camlidl 1.05 stub code
   generator for the OCaml interface, as well as GNU SED 4.1 or
   up, and GNU m4 (if you download from subversion repository).
+  
+  You also need \mlgmpidl, but it can be included if you opt for
+  the ``distribution'' version of APRON (see below).
 \end{itemize}
 
-\subsection{Current version: 0.9.9}
+\subsection{Current version: 0.9.10}
 
 \begin{itemize}
 \item \xlink{Tar-gzipped
-    sources}{http://apron.cri.ensmp.fr/library/apron-0.9.9.tgz}
+    sources}{http://apron.cri.ensmp.fr/library/apron-0.9.10.tgz}
+\item \xlink{Tar-gzipped sources of both APRON and
+    MLGMPIDL}{http://apron.cri.ensmp.fr/library/apron-dist-0.9.10.tgz}
 \item \xlink{Changes}{http://apron.cri.ensmp.fr/library/Changes}
 \item You can also access to the \xlink{SUBVERSION
     REPOSITORY}{http://svn.cri.ensmp.fr/svn/apron/}, by typing
-  something like \kbd{svn list
-    http://svn.cri.ensmp.fr/svn/apron/trunk}.
+  something like
+  \begin{quote}
+  \kbd{svn list http://svn.cri.ensmp.fr/svn/apron/apron/trunk}.
+  \end{quote}
+  
+  If you want to access the distribution which references both APRON and MLGMPIDL (using subversion external links):
+  \begin{quote}
+    \kbd{svn list http://svn.cri.ensmp.fr/svn/apron/apron-dist/trunk}.
+  \end{quote}
 \end{itemize}
 As the library may still contain subtle bugs, we strongly suggest
 to be up-to-date with the most recent version.
 
 \subsection{Older versions}
 \begin{itemize}
+\item 0.9.9 \xlink{Tar-gzipped
+    sources}{http://apron.cri.ensmp.fr/library/apron-0.9.9.tgz}
 \item 0.9.8 \xlink{Tar-gzipped
     sources}{http://apron.cri.ensmp.fr/library/apron-0.9.8.tgz}
 \item 0.9.7 \xlink{Tar-gzipped
