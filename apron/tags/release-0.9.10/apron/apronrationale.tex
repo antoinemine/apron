@@ -1,0 +1,122 @@
+% This file is part of the APRON Library, released under LGPL license.
+% Please read the COPYING file packaged in the distribution 
+
+\documentclass[a4paper,11pt]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{noweb}
+\noweboptions{shift,smallcode}
+\usepackage{xspace}
+\usepackage{color}
+\usepackage{url}
+\usepackage{fullpage,amsfonts}
+
+%**********************************************************************
+% MACROS
+%**********************************************************************
+
+%======================================================================
+% Couleurs et rédacteurs
+%======================================================================
+
+\newcommand{\red}{\color{red}}
+\newcommand{\green}{\color{green}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\magenta}{\color{magenta}}
+\definecolor{YellowOrange}  {cmyk}{0,0.42,1,0}       % YellowOrange  Approximate PANTONE 130
+
+\iftrue
+\newcommand{\nh}[1]{{\green [nh] #1}}
+\newcommand{\bj}[1]{{\blue [bj] #1}}
+% \newcommand{\myfi}[1]{{\magenta [fi] #1}}
+\newcommand{\myfi}[1]{{\magenta #1}}
+\newcommand{\prc}[1]{{\color{YellowOrange}[p\&rc] #1}}
+\else
+\newcommand{\nh}[1]{{#1}}
+\newcommand{\bj}[1]{{#1}}
+\newcommand{\myfi}[1]{{\red #1}}
+\newcommand{\prc}[1]{{#1}}
+\fi
+
+%======================================================================
+% Paragraphes numérotés globalement
+%======================================================================
+
+\setcounter{tocdepth}{4}
+\newcounter{point}
+\newcommand{\point}[1]{
+  \stepcounter{point}
+  \bigskip\par\noindent\arabic{point}. {\bf #1}
+  \addcontentsline{toc}{subsubsection}{\numberline{\arabic{point}} #1}
+}
+
+\newcommand{\aparte}[1]{\medskip\par\noindent #1 \medskip\par}
+
+%======================================================================
+% References et latin
+%======================================================================
+
+\newcommand{\sref}[1]{\S\ref{#1}}
+\newcommand{\cf}{\textit{c.f.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\eg}{\textit{e.g..}\xspace}
+
+%======================================================================
+% Reglages
+%======================================================================
+
+\setlength{\parskip}{0.6ex}
+\sloppy
+
+%**********************************************************************
+% TITRE
+%**********************************************************************
+
+\title{\noindent\centerline{\fbox{\vbox{
+\begin{center}
+\textbf{{\large Action Concert{\'e}e Incitative}}\\[1pc]
+\textbf{\textit{{\large S{\'E}CURIT{\'E} \& INFORMATIQUE}}}\\[1pc]
+\textbf{{\Large APRON: Analyse de PROgrammes Num{\'e}riques}}\\[1pc]
+\textbf{{\large Compte-rendu de la réunion du 28 juin 2005: Interface commune}}
+\end{center}
+}}}}
+\date{}
+
+%**********************************************************************
+% DOCUMENT
+%**********************************************************************
+
+\begin{document}
+\maketitle
+
+%**********************************************************************
+\section*{Introduction}
+%**********************************************************************
+
+Ce document réorganise et synthétise les compte-rendus des
+réunions du 16 décembre 2004, 1er février 2005, 15 mars 2005 et 28
+juin 2005.
+
+\tableofcontents
+
+\include{ap_general}
+\include{ap_coefficients}
+\include{ap_dimension}
+\include{ap_expr0}
+\include{ap_manager}
+\include{ap_abstract0}
+\include{ap_var}
+\include{ap_environment}
+\include{ap_expr1}
+\include{ap_abstract1}
+\include{ap_implementorman}
+
+\end{document}
+
+rubriques:
+
+debugging/traces/impression
+congruences
+weak update
+conversions

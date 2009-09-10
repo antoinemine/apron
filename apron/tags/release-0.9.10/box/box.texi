@@ -1,0 +1,61 @@
+@c This file is part of the APRON Library, released under LGPL
+@c license. Please read the COPYING file packaged in the distribution
+
+@c to be included from apron.texi
+
+The @sc{Box} interval library is aimed to be used through
+the APRON interface.
+
+@menu
+* Use of Box::             
+* Allocating Box managers::  
+@end menu
+
+@c ===================================================================
+@node Use of Box, Allocating Box managers,, Box
+@subsection Use of Box
+@c ===================================================================
+
+To use @sc{Box} in C, add
+@example
+#include "box.h"
+@end example
+in your source file(s) and add @samp{-I$(BOX_PREFIX)/include} in the
+command line in your Makefile.
+
+You should also link your object files with the @sc{Box} library to
+produce an executable, by adding something like
+@samp{-L$(APRON_PREFIX)/lib -lboxmpq -litvmpq} in the command line in
+your Makefile (followed by the standard @samp{-lapron -litvmpq -litvdbl
+-L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp}).
+
+There are actually several variants of the library:
+@table @file
+@item libboxllr.a
+The underlying representation for numbers is rationals based on
+@code{long long int} integers. This may cause overflows. These are
+currently not detected. It requires also the @file{libitvllr.a}
+library.
+@item libboxdbl.a
+The underlying representations for numbers is @code{double}. Overflows
+are not possible (we use infinite floating numbers), but currently the
+soundness is not ensured for all operations. It requires also the
+@file{libitvdbl.a} library.
+@item libboxmpq.a
+The underlying representations for rationams is @code{mpq_t}, the
+multi-precision rationals from the GNU GMP library. Overflows are not
+possible any more, but huge numbers may appear. It requires also the
+@file{libitvmpq.a} library.
+@end table
+
+Also, all library are available in debug mode
+(@samp{libboxmpq_debug.a}, ...).
+
+@c ===================================================================
+@node Allocating Box managers ,  , Use of Box, Box
+@subsection Allocating Box managers
+@c ===================================================================
+
+@deftypefun ap_manager_t* box_manager_alloc ()
+Allocate a APRON manager linked to the Box library.
+@end deftypefun

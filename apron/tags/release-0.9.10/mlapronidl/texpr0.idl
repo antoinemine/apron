@@ -1,0 +1,401 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(MLI,"(** APRON tree expressions of level 0 *)\n")
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_texpr0.h\"\n\
+#include \"apron_caml.h\"\n\
+\n\
+value camlidl_texpr0_ap_texpr0_to_expr_c2ml(ap_texpr0_t* expr, camlidl_ctx _ctx)\n\
+{\n\
+  value _v_res;\n\
+\n\
+  switch(expr->discr){\n\
+  case AP_TEXPR_CST:\n\
+    {\n\
+      value v0 = Val_unit;\n\
+      Begin_root(v0);\n\
+      v0 = camlidl_c2ml_coeff_struct_ap_coeff_t(&expr->val.cst, _ctx);\n\
+      _v_res = caml_alloc_small(1,0);\n\
+       Field(_v_res,0) = v0;\n\
+      End_roots();\n\
+    }\n\
+    break;\n\
+  case AP_TEXPR_DIM:\n\
+    _v_res = caml_alloc_small(1,1);\n\
+    Field(_v_res,0) = Val_int(expr->val.dim);\n\
+    break;\n\
+  case AP_TEXPR_NODE:\n\
+    {\n\
+      value v0,v1,v2,v3,v4;\n\
+      v0 = v1 = v2 = v3 = v4 = Val_unit;\n\
+      Begin_roots5(v0,v1,v2,v3,v4);\n\
+      ap_texpr0_node_t* node = expr->val.node;\n\
+      v1 = camlidl_texpr0_ap_texpr0_to_expr_c2ml(node->exprA,_ctx);\n\
+      v3 = camlidl_apron_texpr_rtype_t_c2ml(&node->type);\n\
+      v4 = camlidl_apron_texpr_rdir_t_c2ml(&node->dir);\n\
+      if (ap_texpr_is_unop(node->op)){\n\
+	v0 = camlidl_apron_texpr_unop_t_c2ml(&node->op);\n\
+	_v_res = caml_alloc_small(4,2);\n\
+	Field(_v_res,0) = v0;\n\
+	Field(_v_res,1) = v1;\n\
+	Field(_v_res,2) = v3;\n\
+	Field(_v_res,3) = v4;\n\
+      }\n\
+      else {\n\
+	v0 = camlidl_apron_texpr_binop_t_c2ml(&node->op);\n\
+	v2 = camlidl_texpr0_ap_texpr0_to_expr_c2ml(node->exprB,_ctx);\n\
+	_v_res = caml_alloc_small(5,3);\n\
+	Field(_v_res,0) = v0;\n\
+	Field(_v_res,1) = v1;\n\
+	Field(_v_res,2) = v2;\n\
+	Field(_v_res,3) = v3;\n\
+	Field(_v_res,4) = v4;\n\
+      }\n\
+      End_roots();\n\
+    }\n\
+    break;\n\
+  default:\n\
+    abort();\n\
+  }\n\
+  return _v_res;\n\
+}\n\
+value camlidl_texpr0_ap_texpr0_to_expr(value _v_texpr)\n\
+{\n\
+  CAMLparam1(_v_texpr);\n\
+  CAMLlocal1(_v_res);\n\
+  ap_texpr0_t* expr;\n\
+\n\
+  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };\n\
+  camlidl_ctx _ctx = &_ctxs;\n\
+\n\
+  camlidl_apron_texpr0_ptr_ml2c(_v_texpr,&expr);\n\
+  _v_res = camlidl_texpr0_ap_texpr0_to_expr_c2ml(expr,_ctx);\n\
+  camlidl_free(_ctx);\n\
+\n\
+  CAMLreturn(_v_res);\n\
+}\n\
+\n\
+void camlidl_texpr0_ap_texpr0_of_expr_ml2c(value v, ap_texpr0_t** res, camlidl_ctx _ctx)\n\
+{\n\
+  ap_texpr0_t* texpr;\n\
+  ap_texpr0_node_t* node;\n\
+  ap_coeff_t coeff;\n\
+  value v0,v1,v2,v3,v4;\n\
+\n\
+  texpr = malloc(sizeof(ap_texpr0_t));\n \
+\n\
+  assert (Is_block(v));\n\
+  switch (Tag_val(v)){\n\
+  case 0: /* Constant */\n\
+    assert(Wosize_val(v)==1);\n\
+    v0 = Field(v,0);\n\
+    texpr->discr = AP_TEXPR_CST;\n\
+    camlidl_ml2c_coeff_struct_ap_coeff_t(v0,&coeff,_ctx);\n\
+    ap_coeff_init_set(&texpr->val.cst,&coeff);\n\
+    break;\n\
+  case 1: /* Dimension */\n\
+    assert(Wosize_val(v)==1);\n\
+    v0 = Field(v,0);\n\
+    texpr->discr = AP_TEXPR_DIM;\n\
+    texpr->val.dim = Int_val(v0);\n\
+    break;\n\
+  case 2:  /* Unary node */\n\
+    v0 = Field(v,0);\n\
+    v1 = Field(v,1);\n\
+    v2 = Field(v,2);\n\
+    v3 = Field(v,3);\n\
+    \n\
+    node = malloc(sizeof(ap_texpr0_node_t));\n \
+    camlidl_apron_texpr_unop_t_ml2c      (v0,&node->op);\n\
+    camlidl_texpr0_ap_texpr0_of_expr_ml2c(v1,&node->exprA,_ctx);\n \
+    camlidl_apron_texpr_rtype_t_ml2c     (v2,&node->type);\n\
+    camlidl_apron_texpr_rdir_t_ml2c      (v3,&node->dir);\n\
+    node->exprB = NULL;\n\
+    texpr->discr = AP_TEXPR_NODE;\n\
+    texpr->val.node = node;\n\
+    break;\n\
+  case 3: /* Binary node */\n\
+    v0 = Field(v,0);\n\
+    v1 = Field(v,1);\n\
+    v2 = Field(v,2);\n\
+    v3 = Field(v,3);\n\
+    v4 = Field(v,4);\n\
+    node = malloc(sizeof(ap_texpr0_node_t));\n\
+    camlidl_apron_texpr_binop_t_ml2c     (v0,&node->op);\n\
+    camlidl_texpr0_ap_texpr0_of_expr_ml2c(v1,&node->exprA,_ctx);\n \
+    camlidl_texpr0_ap_texpr0_of_expr_ml2c(v2,&node->exprB,_ctx);\n \
+    camlidl_apron_texpr_rtype_t_ml2c     (v3,&node->type);\n\
+    camlidl_apron_texpr_rdir_t_ml2c      (v4,&node->dir);\n\
+    texpr->discr = AP_TEXPR_NODE;\n\
+    texpr->val.node = node;\n\
+    break;\n\
+  default:\n\
+    assert(false);\n\
+  }\n\
+  *res = texpr;\n\
+}\n\
+value camlidl_texpr0_ap_texpr0_of_expr(value _v_expr)\n\
+{\n\
+  CAMLparam1(_v_expr);\n\
+  CAMLlocal1(_v_res);\n\
+  ap_texpr0_t* res;\n\
+\n\
+  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };\n\
+  camlidl_ctx _ctx = &_ctxs;\n\
+\n\
+  camlidl_texpr0_ap_texpr0_of_expr_ml2c(_v_expr,&res,_ctx);\n\
+  _v_res = camlidl_apron_texpr0_ptr_c2ml(&res);\n\
+\n\
+  camlidl_free(_ctx);\n\
+  CAMLreturn(_v_res);\n\
+}\n\
+")
+
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+import "linexpr0.idl";
+
+typedef [abstract,
+	 ml2c(camlidl_apron_texpr0_ptr_ml2c),
+	 c2ml(camlidl_apron_texpr0_ptr_c2ml)]
+struct ap_texpr0_ptr* ap_texpr0_ptr;
+
+typedef [mltype("\n  | Neg\n  | Cast\n  | Sqrt (** *)\n  (** Unary operators *)"),
+	 ml2c(camlidl_apron_texpr_unop_t_ml2c),
+	 c2ml(camlidl_apron_texpr_unop_t_c2ml)]
+struct ap_texpr_op_t ap_texpr_unop_t;
+
+typedef [mltype("\n  | Add\n  | Sub\n  | Mul\n  | Div\n  | Mod (** *)\n  (** Binary operators *)"),
+	 ml2c(camlidl_apron_texpr_binop_t_ml2c),
+	 c2ml(camlidl_apron_texpr_binop_t_c2ml)]
+struct ap_texpr_op_t ap_texpr_binop_t;
+
+typedef [mltype("\n  | Real\n  | Int\n  | Single\n  | Double\n  | Extended\n  | Quad (** *)\n  (** Destination type for rounding *)"),
+	 ml2c(camlidl_apron_texpr_rtype_t_ml2c),
+	 c2ml(camlidl_apron_texpr_rtype_t_c2ml)]
+struct ap_texpr_rtype_t ap_texpr_rtype_t;
+
+typedef [mltype("\n  | Near\n  | Zero\n  | Up\n  | Down\n  | Rnd (** *)\n  (** Rounding direction *)"),
+	 ml2c(camlidl_apron_texpr_rdir_t_ml2c),
+	 c2ml(camlidl_apron_texpr_rdir_t_c2ml)]
+struct ap_texpr_rdir_t ap_texpr_rdir_t;
+
+quote(MLMLI,"\n\
+(** User type for tree expressions *) \n\
+type expr = \n\
+  | Cst of Coeff.t \n\
+  | Dim of Dim.t \n\
+  | Unop of unop * expr * typ * round \n\
+  | Binop of binop * expr * expr * typ * round \n\
+")
+
+quote(MLMLI,"(** {2 Constructors and Destructor} *)")
+
+quote(MLI,"(** General constructor (actually the most efficient *)")
+quote(MLMLI,"external of_expr : expr -> t = \"camlidl_texpr0_ap_texpr0_of_expr\"\n")
+
+quote(MLI,"(** Copy *)")
+ap_texpr0_ptr ap_texpr0_copy(const ap_texpr0_ptr a);
+
+quote(MLI,"(** Conversion *)")
+ap_texpr0_ptr ap_texpr0_of_linexpr(ap_linexpr0_ptr e)
+quote(call,"_res = ap_texpr0_from_linexpr0(e);");
+
+quote(MLI,"(** General destructor *)")
+quote(MLMLI,"external to_expr : t -> expr = \"camlidl_texpr0_ap_texpr0_to_expr\"\n")
+
+quote(MLI,"\n(** {3 Incremental constructors} *)\n")
+ap_texpr0_ptr ap_texpr0_cst([ref]struct ap_coeff_t* coeff);
+ap_texpr0_ptr ap_texpr0_dim(ap_dim_t dim);
+ap_texpr0_ptr ap_texpr0_unop(ap_texpr_unop_t op,
+			     ap_texpr0_ptr expr,
+			     ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
+quote(call,"_res = ap_texpr0_unop(op,ap_texpr0_copy(expr),type,dir);");
+ap_texpr0_ptr ap_texpr0_binop(ap_texpr_binop_t op,
+			      ap_texpr_rtype_t type, ap_texpr_rdir_t dir,
+			      ap_texpr0_ptr exprA, ap_texpr0_ptr exprB)
+quote(call,"_res = ap_texpr0_binop(op,ap_texpr0_copy(exprA),ap_texpr0_copy(exprB),type,dir);");
+
+
+
+/*
+quote(MLMLI,"external dims : t -> Dim.t array = \"camlidl_texpr0_ap_texpr0_dims\"")
+quote(C,"\n\
+value camlidl_texpr0_ap_texpr0_dims(value _v_texpr)\n\
+{\n\
+  CAMLparam1(_v_texpr);\n\
+  CAMLlocal1(_v_res);\n\
+  ap_texpr0_t* expr;\n\
+  ap_dim_t* dims;\n\
+  size_t size,i;\n\
+\n\
+  camlidl_apron_texpr0_ptr_ml2c(_v_texpr,&expr);\n\
+  dims = ap_texpr0_dimlist(expr);\n\
+  size=0;\n\
+  while (dims[size] != AP_DIM_MAX) size++;\n\
+  _v_res = camlidl_alloc(size,0);\n\
+  for (i=0; i<size; i++){\n\
+    Field(_v_res,i) = Val_int(dims[i]);\n\
+  }\n\
+  free(dims);\n\
+  CAMLreturn(_v_res);\n\
+}\n\
+")
+*/
+
+
+quote(MLMLI,"\n(** {2 Tests} *)\n")
+
+boolean ap_texpr0_is_interval_cst(ap_texpr0_ptr a);
+boolean ap_texpr0_is_interval_linear(ap_texpr0_ptr a);
+boolean ap_texpr0_is_interval_polynomial(ap_texpr0_ptr a);
+boolean ap_texpr0_is_interval_polyfrac(ap_texpr0_ptr a);
+boolean ap_texpr0_is_scalar(ap_texpr0_ptr a);
+
+quote(MLMLI,"\n(** {2 Printing} *)\n")
+
+quote(MLI,"\n\
+val string_of_unop  : unop  -> string\n\
+val string_of_binop : binop -> string\n\
+val string_of_typ   : typ   -> string\n\
+val string_of_round : round -> string\n\
+val print_unop  :  Format.formatter -> unop  -> unit\n\
+val print_binop :  Format.formatter -> binop -> unit\n\
+val print_typ   :  Format.formatter -> typ   -> unit\n\
+val print_round :  Format.formatter -> round -> unit\n\
+val print_expr : (Dim.t -> string) -> Format.formatter -> expr -> unit\n\
+  (** Print a tree expression, using a function converting from dimensions to names *)\n\
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+  (** Print an abstract tree expression, using a function converting from dimensions to names *)\n\
+")
+
+quote(ML,"\n\
+let string_of_unop = function\n\
+| Neg -> \"Neg\"\n\
+| Cast -> \"Cast\"\n\
+| Sqrt -> \"Sqrt\"\n\
+let string_of_binop = function\n\
+| Add -> \"Add\"\n\
+| Sub -> \"Sub\"\n\
+| Mul -> \"Mul\"\n\
+| Div -> \"Div\"\n\
+| Mod -> \"Mod\"\n\
+let string_of_typ = function\n\
+| Real -> \"Real\"\n\
+| Int -> \"Int\"\n\
+| Single -> \"Single\"\n\
+| Double -> \"Double\"\n\
+| Extended -> \"Extended\"\n\
+| Quad-> \"Quad\"\n\
+let string_of_round = function\n\
+| Near -> \"Near\"\n\
+| Zero -> \"Zero\"\n\
+| Up -> \"Up\"\n\
+| Down -> \"Down\"\n\
+| Rnd -> \"Rnd\"\n\
+let print_typ fmt x = Format.pp_print_string fmt (string_of_typ x)\n\
+let print_round fmt x = Format.pp_print_string fmt (string_of_round x)\n\
+let print_unop fmt x = Format.pp_print_string fmt (string_of_unop x)\n\
+let print_binop fmt x = Format.pp_print_string fmt (string_of_binop x)\n\
+\n\
+\n\
+let print_string_of_unop = function\n\
+  | Neg -> \"-\"\n\
+  | Cast -> \"cast\"\n\
+  | Sqrt -> \"sqrt\"\n\
+let print_string_of_binop = function\n\
+  | Add -> \"+\"\n\
+  | Sub -> \"-\"\n\
+  | Mul -> \"*\"\n\
+  | Div -> \"/\"\n\
+  | Mod -> \"%\"\n\
+let print_string_of_typ = function\n\
+  | Real -> \"\"\n\
+  | Int -> \"i\"\n\
+  | Single -> \"f\"\n\
+  | Double -> \"d\"\n\
+  | Extended -> \"l\"\n\
+  | Quad-> \"q\"\n\
+let print_string_of_round = function\n\
+  | Near -> \"n\"\n\
+  | Zero -> \"0\"\n\
+  | Up -> \"+oo\"\n\
+  | Down -> \"-oo\"\n\
+  | Rnd -> \"?\"\n\
+let print_sprint_unop op typ round =\n\
+  if op=Neg then\n\
+    Format.sprintf \"%s\" (print_string_of_unop op)\n\
+  else begin\n\
+    if typ=Real then\n\
+      Format.sprintf \"%s \" (print_string_of_unop op)\n\
+    else\n\
+      Format.sprintf \"%s_%s,%s \" (print_string_of_unop op)\n\
+        (print_string_of_typ typ) (print_string_of_round round)\n\
+  end\n\
+let print_sprint_binop op typ round =\n\
+  if typ=Real then\n\
+    Format.sprintf \"%s\" (print_string_of_binop op)\n\
+  else\n\
+    Format.sprintf \"%s_%s,%s\" (print_string_of_binop op)\n\
+	(print_string_of_typ typ) (print_string_of_round round)\n\
+let print_precedence_of_unop = function\n\
+  | Neg -> 3\n\
+  | Cast | Sqrt -> 4\n\
+let print_precedence_of_binop = function\n\
+  | Add | Sub -> 1\n\
+  | Mul | Div | Mod -> 2\n\
+\n\
+\n\
+let rec print_expr (string_of_dim:Dim.t -> string) fmt expr =\n\
+  let precedence_of_expr = function\n\
+    | Cst _\n\
+    | Dim _ -> 5\n\
+    | Unop(op,_,_,_) -> print_precedence_of_unop op\n\
+    | Binop(op,_,_,_,_) -> print_precedence_of_binop op\n\
+  in\n\
+  match expr with\n\
+  | Cst x -> Coeff.print fmt x\n\
+  | Dim x -> Format.pp_print_string fmt (string_of_dim x)\n\
+  | Unop(op,e,typ,round) ->\n\
+      let prec = print_precedence_of_unop op in\n\
+      let prec1 = precedence_of_expr e in\n\
+      let par = prec1<=prec in\n\
+      Format.fprintf fmt \"%s%s%a%s\"\n\
+	(print_sprint_unop op typ round)\n\
+	(if par then \"(\" else \"\")\n\
+	(print_expr string_of_dim) e\n\
+	(if par then \")\" else \"\")\n\
+  | Binop(op,e1,e2,typ,round) ->\n\
+      let prec = print_precedence_of_binop op in\n\
+      let prec1 = precedence_of_expr e1 in\n\
+      let prec2 = precedence_of_expr e2 in\n\
+      let par1 = prec1<prec in\n\
+      let par2 = prec2<=prec in\n\
+      Format.fprintf fmt \"%s%a%s %s %s%a%s\"\n\
+	(if par1 then \"(\" else \"\")\n\
+	(print_expr string_of_dim) e1\n\
+	(if par1 then \")\" else \"\")\n\
+	(print_sprint_binop op typ round)\n\
+	(if par2 then \"(\" else \"\")\n\
+	(print_expr string_of_dim) e2\n\
+	(if par2 then \")\" else \"\")\n\
+\n\
+let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)\n\
+")
+
+quote(MLMLI,"(** {2 Internal usage for level 1} *)")
+
+quote(MLI,"\n\
+val print_sprint_unop : unop -> typ -> round -> string\n\
+val print_sprint_binop : binop -> typ -> round -> string\n\
+val print_precedence_of_unop : unop -> int\n\
+val print_precedence_of_binop : binop -> int\n\
+")
