@@ -10,17 +10,17 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../num -I../itv \
 -I../newpolka \
 -I../ppl \
--I../mlgmpidl \
 -I../mlapronidl \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I ../mlgmpidl -I ../mlapronidl -I ../newpolka -I ../ppl
+OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl -I ../newpolka -I ../ppl
 
 #---------------------------------------
 # Files
@@ -33,7 +33,11 @@ CCINC_TO_INSTALL = ap_pkgrid.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libap_pkgrid.a libap_pkgrid_debug.a \
-polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cmx polkaGrid.cma polkaGrid.cmxa polkaGrid.a libpolkaGrid_caml.a libpolkaGrid_caml_debug.a libpolkaGrid_caml.so libpolkaGrid_caml_debug.so
+libap_pkgrid.so libap_pkgrid_debug.so \
+polkaGrid.mli polkaGrid.ml \
+polkaGrid.cmi polkaGrid.cmx polkaGrid.cma polkaGrid.cmxa polkaGrid.a \
+libpolkaGrid_caml.a libpolkaGrid_caml_debug.a \
+libpolkaGrid_caml.so libpolkaGrid_caml_debug.so
 
 #---------------------------------------
 # Rules
@@ -69,14 +73,14 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-	for i in libpolkaGrid_caml*.so; do \
+	for i in dllpolkaGrid_caml*.so; do \
 		if test -f $$i; then cp -f -d $$i $(PREFIX)/lib; fi; \
 	done
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
 	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
-	for i in libpolkaGrid_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
+	for i in dllpolkaGrid_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
 
 distclean: uninstall

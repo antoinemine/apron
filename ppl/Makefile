@@ -29,8 +29,8 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../newpolka \
--I../mlgmpidl \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -41,7 +41,7 @@ ICFLAGS = \
 
 ICXXFLAGS = \
 -I../newpolka \
--I../mlgmpidl \
+-I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -50,9 +50,8 @@ ICXXFLAGS = \
 -I$(PPL_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
-
 # Caml
-OCAMLINC = -I ../mlgmpidl -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -89,10 +88,10 @@ install:
 	$(INSTALLd) $(INCDIR) $(LIBDIR) $(BINDIR) $(CAMLDIR)
 	$(INSTALL) ap_ppl.h $(INCDIR)
 	$(INSTALL) libap_ppl.a libap_ppl_debug.a $(LIBDIR)
-	for i in libap_ppl_caml*.a ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
+	for i in libap_ppl_caml*.a libap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
-	for i in libap_ppl_caml*.so; do \
+	for i in dllap_ppl*.so; do \
 		if test -f $$i; then cp -f -d $$i $(CAMLDIR); fi; \
 	done	
 	for i in ap_ppl_test pplrun ppltop; do \
@@ -100,11 +99,10 @@ install:
 	done
 
 uninstall:
-	/bin/rm -f $(INCDIR)/*ap_ppl*
-	/bin/rm -f $(LIBDIR)/*ap_ppl* $(LIBDIR)/ppl.a $(LIBDIR)/ppl.idl $(LIBDIR)/ppl.cm*
+	/bin/rm -f $(INCDIR)/ap_ppl*
+	/bin/rm -f $(LIBDIR)/libap_ppl* $(LIBDIR)/dllap_ppl* $(LIBDIR)/ppl.a $(LIBDIR)/ppl.idl $(LIBDIR)/ppl.cm*
 	/bin/rm -f $(BINDIR)/*ap_ppl*
 	/bin/rm -f $(BINDIR)/pplrun $(BINDIR)/ppltop
-	/bin/rm -f $(CAMLDIR)/*ap_ppl*
 
 distclean: uninstall
 
@@ -159,18 +157,18 @@ ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 ml: ppl.cma ppl.cmxa libap_ppl_caml.a libap_ppl_caml_debug.a
 
 ifneq ($(HAS_SHARED),)
-ml: libap_ppl_caml.so libap_ppl_caml_debug.so dllap_ppl_caml.so libap_ppl_caml_debug.so
+ml: libap_ppl_caml.so libap_ppl_caml_debug.so dllap_ppl_caml.so dllap_ppl_caml_debug.so
 endif
 
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a
 #	$(OCAMLMKTOP) $(OCAMLINC) $(OCAMLFLAGS) -o $@ -cc $(CXX) -custom \
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
-#	-ccopt "-L. -L../apron  -L../itv -L../mlgmpidl -L../mlapronidl"
+#	-ccopt "-L. -L../apron  -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
 #pplrun: ppl.cma libap_ppl_caml.a
 #	$(OCAMLC) $(OCAMLINC) $(OCAMLFLAGS) -o $@ -make-runtime -cc $(CXX) \
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
-#	-ccopt "-L.  -L../apron -L../itv -L../mlgmpidl -L../mlapronidl"
+#	-ccopt "-L.  -L../apron -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
 libap_ppl_caml.a: ap_ppl_caml.o
 	$(AR) rcs $@ $^
