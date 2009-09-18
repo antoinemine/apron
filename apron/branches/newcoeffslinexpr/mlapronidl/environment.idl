@@ -1,0 +1,314 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_environment.h\"\n\
+#include \"caml/mlvalues.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "dim.idl";
+import "var.idl";
+
+
+quote(C,"enum typvar {\n\
+  AP_INT,AP_REAL\n\
+};\n\
+")
+
+enum typvar {
+  AP_INT,AP_REAL
+};
+
+typedef [abstract,
+	 c2ml(camlidl_apron_environment_ptr_c2ml),
+	 ml2c(camlidl_apron_environment_ptr_ml2c)]
+struct ap_environment_ptr ap_environment_ptr;
+
+quote(MLMLI,"(** APRON Environments binding dimensions to names *)")
+
+quote(MLI,"\n(** Making an environment from a set of integer and real variables. Raise [Failure] in case of name conflict. *)")
+
+ap_environment_ptr ap_environment_make([size_is(intdim)]ap_var_t* name_of_intdim,
+				 int intdim,
+				 [size_is(realdim)]ap_var_t* name_of_realdim,
+				 int realdim)
+     quote(call,"\n\
+_res = ap_environment_alloc(name_of_intdim,intdim,name_of_realdim,realdim);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.make: duplicated variable names\");\n\
+}\n\
+assert(_res->count >= 1);\n\
+")
+;
+
+quote(MLI,"\n(** Adding to an environment a set of integer and real variables. Raise [Failure] in case of name conflict. *)")
+ap_environment_ptr ap_environment_add(ap_environment_ptr e,
+				      [size_is(intdim)]ap_var_t* name_of_intdim,
+				      int intdim,
+				      [size_is(realdim)]ap_var_t* name_of_realdim,
+				      int realdim)
+     quote(call,"\n\
+_res = ap_environment_add(e,name_of_intdim,intdim,name_of_realdim,realdim);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.add: duplicated variable names\");\n\
+}\n\
+assert(_res->count >= 1);")
+;
+
+quote(MLI,"\n(** Remove from an environment a set of variables. Raise [Failure] in case of non-existing variables. *)")
+ap_environment_ptr ap_environment_remove(ap_environment_ptr e,
+					 [size_is(size)]ap_var_t* tvar,
+					 int size)
+     quote(call,"\n\
+_res = ap_environment_remove(e,tvar,size);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.remove: unknown variable names\");\n\
+}\n\
+assert(_res->count >= 1);")
+;
+
+quote(MLI,"\n(** Renaming in an environment a set of variables. Raise [Failure] in case of interferences with the variables that are not renamed. *)")
+ap_environment_ptr ap_environment_rename(ap_environment_ptr e,
+					 [size_is(size1)]ap_var_t* tvar1,
+					 [size_is(size2)]ap_var_t* tvar2,
+					 int size1,int size2)
+     quote(call,"\n\
+if (size1!=size2){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.rename: arrays of different sizes\");\n\
+}\n\
+else {\n\
+  struct ap_dimperm_t perm;\n\
+  _res = ap_environment_rename(e,tvar1,tvar2,size1,&perm);\n\
+  ap_dimperm_clear(&perm);\n\
+  if (_res==NULL){\n\
+    camlidl_free(_ctx);\n\
+    caml_failwith(\"Environment.rename: unknown variables or interference of new variables with unrenamed variables\");\n\
+  }\n\
+}\n\
+assert(_res->count >= 1);")
+;
+
+quote(MLI,"\n(** Similar to previous function, but returns also \n\
+the permutation on dimensions induced by the renaming. *)")
+ap_environment_ptr
+ap_environment_rename_perm(ap_environment_ptr e,
+			   [size_is(size1)]ap_var_t* tvar1,
+			   [size_is(size2)]ap_var_t* tvar2,
+			   int size1,int size2,
+			   [out] struct ap_dimperm_t perm)
+     quote(call,"\n\
+if (size1!=size2){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.rename: arrays of different sizes\");\n\
+}\n\
+else {\n\
+  _res = ap_environment_rename(e,tvar1,tvar2,size1,&perm);\n\
+  if (_res==NULL){\n\
+    camlidl_free(_ctx);\n\
+    caml_failwith(\"Environment.rename_dimperm: unknown variables or interference of new variables with unrenamed variables\");\n\
+  }\n\
+}\n\
+assert(_res->count >= 1);")
+     quote(dealloc,"ap_dimperm_clear(&perm);")
+;
+
+quote(MLI,"\n
+(** Compute the least common environment of 2 environment, \n\
+that is, the environment composed of all the variables \n\
+of the 2 environments.\n\
+Raise [Failure] if the same variable has different types \n\
+in the 2 environment.\
+*)")
+ap_environment_ptr ap_environment_lce(ap_environment_ptr e1,
+				      ap_environment_ptr e2)
+     quote(call,"\n\
+{\n\
+  ap_dimchange_t *c1;\n\
+  ap_dimchange_t *c2;\n\
+  _res = ap_environment_lce(e1,e2,&c1,&c2);\n\
+  if (c1) ap_dimchange_free(c1);\n\
+  if (c2) ap_dimchange_free(c2);\n\
+}\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.lce: variable with two different types\");\n\
+}\n\
+assert(_res->count >= 1);")
+;
+
+quote(MLI,"\n
+(** Similar to the previous function, but returns also the transformations \n\
+required to convert from [e1] (resp. [e2]) \n\
+to the lce. If [None] is returned, this means \n\
+that [e1] (resp. [e2]) is identic to the lce.*)")
+ap_environment_ptr
+ap_environment_lce_change([in] ap_environment_ptr e1,
+			  [in] ap_environment_ptr e2,
+			  [out,unique] ap_dimchange_t *c1,
+			  [out,unique] ap_dimchange_t *c2)
+     quote(call,"\n\
+{\n\
+  _res = ap_environment_lce(e1,e2,&c1,&c2);\n\
+}\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.lce: variable with two different types\");\n\
+}\n\
+assert(_res->count >= 1);")
+quote(dealloc,"
+  if (c1) ap_dimchange_free(c1);
+  if (c2) ap_dimchange_free(c2);
+")
+;
+quote(MLI,"\n
+(** [dimchange e1 e2] computes the transformation for \n\
+converting from an environment [e1] to a superenvironment \n\
+[e2]. Raises [Failure] if [e2] is not a superenvironment.\
+*)")
+[ref]ap_dimchange_t *ap_environment_dimchange(ap_environment_ptr e1,
+					      ap_environment_ptr e2)
+     quote(call,"\n\
+_res = ap_environment_dimchange(e1,e2);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.dimchange: the second environment is not a superenvironment of the first one\");\n\
+}\n\
+")
+quote(dealloc,"ap_dimchange_free(_res);")
+;
+
+quote(MLI,"\n
+(** [dimchange2 e1 e2] computes the transformation for 
+ converting from an environment [e1] to a (compatible) environment 
+ [e2], by first adding (some) variables of [e2] and then removing 
+(some) variables of [e1]. Raises [Failure] if the two environments 
+are incompatible.
+*)")
+[ref]struct ap_dimchange2_t *ap_environment_dimchange2(ap_environment_ptr e1,
+					        ap_environment_ptr e2)
+     quote(call,"\n\
+_res = ap_environment_dimchange2(e1,e2);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.dimchange2: the two environments are not compatible\");\n\
+}\n\
+")
+quote(dealloc,"ap_dimchange2_free(_res);")
+;
+quote(MLI,"\n(** Test equality if two environments *)")
+boolean ap_environment_equal(ap_environment_ptr env1,
+			     ap_environment_ptr env2)
+  quote(call,"\n\
+_res = ap_environment_is_eq(env1,env2);\n\
+");
+
+quote(MLI,"\n(** Compare two environment. [compare env1 env2] return [-2] if the environements are not compatible (a variable has different types in the 2 environements), [-1] if [env1] is a subset of env2, [0] if equality,  [+1] if env1 is a superset of env2, and [+2] otherwise (the lce exists and is a strict superset of both) *)")
+int ap_environment_compare(ap_environment_ptr env1,
+			   ap_environment_ptr env2);
+
+quote(MLI,"\n(** Hashing function for environments *)")
+int ap_environment_hash(ap_environment_ptr env);
+
+quote(MLI,"\n(** Return the dimension of the environment *)")
+struct ap_dimension_t ap_environment_dimension(ap_environment_ptr e)
+  quote(call,"_res.intdim = e->intdim; _res.realdim = e->realdim;");
+
+quote(MLI,"\n(** Return the size of the environment *)")
+unsigned int ap_environment_size(ap_environment_ptr e)
+  quote(call,"_res = e->intdim + e->realdim;");
+
+quote(MLI,"\n(** Return true if the variable is present in the environment. *)")
+boolean ap_environment_mem_var(ap_environment_ptr e, ap_var_t var)
+  quote(call,"\n\
+  {\n\
+    ap_dim_t dim;\n\
+    dim = ap_environment_dim_of_var(e,var);\n\
+    _res = (dim != AP_DIM_MAX);\n\
+  }");
+
+quote(MLI,"\n(** Return the type of variables in the environment. If the variable does not belong to the environment, raise a [Failure] exception. *)")
+enum typvar ap_environment_typ_of_var(ap_environment_ptr e, ap_var_t var)
+  quote(call,"\n\
+  {\n\
+    ap_dim_t dim;\n\
+    dim = ap_environment_dim_of_var(e,var);\n\
+    if (dim==AP_DIM_MAX)\n\
+      caml_failwith(\"Environment.dim_of_var: unknown variable in the environment\");\n\
+    _res =\n\
+      dim=( dim<e->intdim ? AP_INT : AP_REAL);\n\
+  }");
+
+quote(MLI,"\n(** Return the (lexicographically ordered) sets of integer and real variables in the environment *)")
+void ap_environment_vars(ap_environment_ptr e,
+		      [out,size_is((*e).intdim)]ap_var_t* name_of_intdim,
+		      [out,size_is((*e).realdim)]ap_var_t* name_of_realdim)
+  quote(call,"\n\
+  {\n\
+    size_t i;\n\
+    for(i=0;i<e->intdim;i++) name_of_intdim[i] = ap_var_operations->copy(e->var_of_dim[i]);\n \
+    for(i=0;i<e->realdim;i++) name_of_realdim[i] = ap_var_operations->copy(e->var_of_dim[e->intdim+i]);\n \
+  }");
+
+quote(MLI,"\n(** Return the variable corresponding to the given dimension in the environment. Raise [Failure] is the dimension is out of the range of the environment (greater than or equal to [dim env]) *)")
+ap_var_t ap_environment_var_of_dim(ap_environment_ptr e, ap_dim_t dim)
+     quote(call,"\n\
+if (dim>=e->intdim+e->realdim){\n\
+   caml_failwith(\"Environment.var_of_dim: dim out of range w.r.t. the environment\");\n\
+}\n\
+_res = ap_var_operations->copy(e->var_of_dim[dim]);");
+
+quote(MLI,"\n(** Return the dimension associated to the given variable in the environment. Raise [Failure] if the variable does not belong to the environment. *)")
+ap_dim_t ap_environment_dim_of_var(ap_environment_ptr e, ap_var_t var)
+     quote(call,"\n\
+_res = ap_environment_dim_of_var(e,var);\n\
+if (_res==AP_DIM_MAX){\n\
+   caml_failwith(\"Environment.dim_of_var: unknown variable in the environment\");\n\
+}");
+
+quote(MLMLI,"\n(** Printing *)")
+quote(MLI,"val print :\n\
+  ?first:(unit, Format.formatter, unit) format ->\n\
+  ?sep:(unit, Format.formatter, unit) format ->\n\
+  ?last:(unit, Format.formatter, unit) format ->\n\
+  Format.formatter -> t -> unit\n\
+")
+quote(ML,"\n\
+let print\n\
+  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  (fmt:Format.formatter)\n\
+  (env: t)\n\
+  : unit\n\
+  =\n\
+  let dim = dimension env in\n\
+  if dim.Dim.intd+dim.Dim.reald=0 then begin\n\
+    Format.fprintf fmt first;\n\
+    Format.fprintf fmt last;\n\
+  end\n\
+  else begin\n\
+    Format.fprintf fmt first;\n\
+    let first = ref true in\n\
+    for i=0 to pred dim.Dim.intd do\n\
+      let var = var_of_dim env i in\n\
+      if !first then first := false else Format.fprintf fmt sep;\n\
+      Format.fprintf fmt \"%i> %s:int\"\n\
+	i (Var.to_string var)\n\
+    done;\n\
+    for i=dim.Dim.intd to dim.Dim.intd + (pred dim.Dim.reald) do\n\
+      let var = var_of_dim env i in\n\
+      if !first then first := false else Format.fprintf fmt sep;\n\
+      Format.fprintf fmt \"%i> %s:real\"\n\
+	i (Var.to_string var)\n\
+    done;\n\
+    Format.fprintf fmt last;\n\
+  end\n\
+")

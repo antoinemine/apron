@@ -1,0 +1,96 @@
+\documentclass[twoside,10pt,a4paper]{report}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ae}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{ocamldoc}
+\usepackage{makeidx}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0.9pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{2.8ex}
+\setlength{\footskip}{5ex}
+\renewcommand{\chaptermark}[1]{ %
+  \markboth{\MakeUppercase{\chaptername}\ \thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{4}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+
+\usepackage[ps2pdf]{hyperref}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.5ex}
+
+\makeindex
+
+\title{MLAPRONIDL: OCaml interface for APRON library}
+\author{Bertrand Jeannet}
+
+\begin{document}
+\maketitle
+
+\vspace*{0.9\textheight}
+
+All files distributed in the APRON library, including \textsc{MLApronIDL}
+subpackage, are distributed under LGPL license.
+
+Copyright (C) Bertrand Jeannet and Antoine Mine 2005-2009 for the
+\textsc{MLAPRONIDL} subpackage.
+
+\newpage
+
+\tableofcontents
+
+\input{Introduction.tex}
+
+\part{Coefficients}
+\input{Scalar.tex}
+\input{Interval.tex}
+\input{Coeff.tex}
+
+\part{Managers and Abstract Domains}
+\input{Manager.tex}
+\input{Box.tex}
+\input{Oct.tex}
+\input{Polka.tex}
+\input{Ppl.tex}
+\input{PolkaGrid.tex}
+
+\part{Level 1 of the interface}
+\input{Var.tex}
+\input{Environment.tex}
+\input{Linexpr1.tex}
+\input{Lincons1.tex}
+\input{Generator1.tex}
+\input{Texpr1.tex}
+\input{Tcons1.tex}
+\input{Abstract1.tex}
+\input{Parser.tex}
+
+\part{Level 0 of the interface}
+\input{Dim.tex}
+\input{Linexpr0.tex}
+\input{Lincons0.tex}
+\input{Generator0.tex}
+\input{Texpr0.tex}
+\input{Tcons0.tex}
+\input{Abstract0.tex}
+
+\part{MLGmpIDL modules}
+\input{Mpz.tex}
+\input{Mpq.tex}
+\input{Mpf.tex}
+\input{Mpfr.tex}
+\input{Gmp_random.tex}
+\input{Mpzf.tex}
+\input{Mpqf.tex}
+\input{Mpfrf.tex}
+
+\appendix
+\printindex
+\end{document}

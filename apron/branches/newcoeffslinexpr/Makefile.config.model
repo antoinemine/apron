@@ -1,0 +1,135 @@
+# -*- mode: makefile -*-
+
+######################################################################
+# HAS Flags
+######################################################################
+
+# If defined to non-empty value, generates dynamic libraries.
+# Do not forget to add -fPIC to CFLAGS and CFLAGS_DEBUG
+HAS_SHARED=1
+
+# If defined to non-empty value, compiles the OCaml interface
+HAS_OCAML = 1
+
+# If defined to non-empty value, compiles the C++ interface (beta version)
+
+# HAS_CPP = 1
+
+# If defined to non-empty value, compiles the PPL domain
+# (require included patch to PPL, see ppl/README and ppl/ppl.patch)
+
+# HAS_PPL = 1
+
+# If defined to non-empty value, support for "long double" is enabled
+
+# HAS_LONG_DOUBLE = 1
+
+
+######################################################################
+# Directories
+######################################################################
+
+# Where to install and to find APRON
+# ($(APRON_PREFIX)/include, $(APRON_PREFIX)/lib)
+#
+APRON_PREFIX = /usr
+
+# Where to install and to find MLGMPIDL
+# ($(MLGMPIDL_PREFIX)/lib)
+#
+MLGMPIDL_PREFIX = /usr/local
+
+# Where to find GMP ($(GMP_PREFIX)/include, ($GMP_PREFIX)/lib
+#
+GMP_PREFIX = /usr
+
+# Where to find MPFR ($(MPFR_PREFIX)/include, ($MPFR_PREFIX)/lib
+#
+MPFR_PREFIX = /usr
+
+# Where to find PPL ($(PPL_PREFIX)/include, $(PPL_PREFIX)/lib
+#
+PPL_PREFIX = /usr
+
+# Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
+#
+CAML_PREFIX = /usr
+
+# Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
+#
+CAMLIDL_PREFIX = /usr
+
+######################################################################
+# Tools and Flags
+######################################################################
+
+# C compiler
+CC = gcc
+
+# C compilation flags
+CFLAGS = \
+-Wcast-qual -Wswitch -Werror-implicit-function-declaration \
+-Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
+-Wno-unused \
+-std=c99 -U__STRICT_ANSI__ \
+-fPIC -O3 -DNDEBUG
+
+# C compilation flags in debug (or profile) mode
+CFLAGS_DEBUG = \
+-Wcast-qual -Wswitch -Werror-implicit-function-declaration \
+-Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
+-Wno-unused \
+-std=c99  -U__STRICT_ANSI__ \
+-fPIC -g -O0 -UNDEBUG
+
+# Examples of CFLAGS
+# CFLAGS = -Wswitch -Werror-implicit-function-declaration -Wall -std=c99	\
+#	   -O3 -DNDEBUG \
+#          -march=pentium-m -mtune=pentium-m -pipe -mmmx -msse -msse2 \
+#	   -mfpmath=sse -ftracer -funit-at-a-time -funroll-loops -fmove-all-movables
+
+# C++ compiler
+CXX = g++
+# C++ compilation flags
+CXXFLAGS = \
+-Wcast-qual -Wswitch \
+-Wall -Wextra -Wundef -Wcast-align \
+-Wno-unused \
+-fPIC -O3 -DNDEBUG
+# C++ compilation flags in debug (or profile) mode
+CXXFLAGS_DEBUG = \
+-Wcast-qual -Wswitch \
+-Wall -Wextra -Wundef -Wcast-align \
+-Wno-unused \
+-fPIC -g -O0 -UNDEBUG
+
+AR = ar
+RANLIB = ranlib
+SED = sed # version >=4.1.x required
+M4 = m4
+INSTALL = install
+INSTALLd = install -d
+
+
+OCAMLC = $(CAML_PREFIX)/bin/ocamlc.opt
+OCAMLOPT = $(CAML_PREFIX)/bin/ocamlopt.opt
+
+# ocamlc compilation flags
+OCAMLFLAGS = -g
+# ocamlopt compilation flags
+OCAMLOPTFLAGS = -inline 20
+
+OCAMLDEP = $(CAML_PREFIX)/bin/ocamldep
+OCAMLLEX = $(CAML_PREFIX)/bin/ocamllex.opt
+OCAMLYACC = $(CAML_PREFIX)/bin/ocamlyacc
+OCAMLDOC = $(CAML_PREFIX)/bin/ocamldoc.opt
+OCAMLMKTOP = $(CAML_PREFIX)/bin/ocamlmktop
+OCAMLMKLIB = $(CAML_PREFIX)/bin/ocamlmklib
+
+CAMLIDL = $(CAMLIDL_PREFIX)/bin/camlidl
+
+LATEX=latex
+DVIPDF=dvipdf
+MAKEINDEX=makeindex
+TEXI2DVI=texi2dvi
+TEXI2HTML=texi2html
