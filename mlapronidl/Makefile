@@ -51,7 +51,11 @@ MLLIB_TOINSTALLx = apron.cmx apron.cmxa apron.a
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
-CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
+CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a 
+ifneq ($(HAS_SHARED),)
+CCLIB_TOINSTALL := $(CCLIB_TOINSTALL) \
+libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
+endif
 CCINC_TOINSTALL = apron_caml.h
 
 #---------------------------------------
