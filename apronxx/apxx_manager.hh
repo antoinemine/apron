@@ -262,6 +262,7 @@ public:
 
   //! Returns a pointer to the internal APRON object stored in *this.
   ap_manager_t* get_ap_manager_t();
+  const ap_manager_t* get_ap_manager_t() const;
 
   //@}
 

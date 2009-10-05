@@ -27,12 +27,22 @@ public:
 
   /*! \brief Creates a new manager.
    *
+   * \arg \c manpk should be a manager for (loose or strict) polyhedra
+   * \arg \c manpplgrid should be a manager for PPL grids
+   *
+   * The argument managers are copied into the new manager.
+   */
+  pkgrid_manager(const polka_manager& manpk, const ppl_grid_manager& manpplgrid);  
+
+  /*! \brief Creates a new manager.
+   *
    * \arg \c strict whether to allow strict inequalities as well as non-strict inequalities in polyhedra.
    *
    * Note that abstract values created with strict and non-strict managers 
    * are not compatible.
    */
   pkgrid_manager(bool strict = false);
+
 
   //! Copy operator.
   manager& operator=(const manager&);

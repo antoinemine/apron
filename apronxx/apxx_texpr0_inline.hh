@@ -452,7 +452,7 @@ inline std::vector<ap_dim_t> texpr0::const_iterator::dimlist() const
 {
   ap_dim_t* d = ap_texpr0_dimlist(const_cast<ap_texpr0_t*>(l));
   ap_dim_t i;
-  for (i=0; d[i]!=AP_DIM_MAX; i++);
+  for (i=0; d[i]!=AP_DIM_MAX; i++) ;
   std::vector<ap_dim_t> r = std::vector<ap_dim_t>(i,0);
   for (i=0; d[i]!=AP_DIM_MAX; i++) r[i] = d[i];
   free(d);

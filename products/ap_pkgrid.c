@@ -188,10 +188,8 @@ ap_manager_t* ap_pkgrid_manager_alloc(ap_manager_t* manpk, ap_manager_t* manpplg
 
   strict = (strcmp(manpk->library,"polka, strict mode")==0);
   
-  if ( !(strcmp(manpk->library,"polka, loose mode")==0 ||
-	 strict)
-       ||
-       !strcmp(manpplgrid->library,"PPL::Grid") )
+  if ( (strcmp(manpk->library,"polka, loose mode") && !strict) ||
+       strcmp(manpplgrid->library,"PPL::Grid") )
     return NULL;
 
   tmanagers[0] = manpk;
