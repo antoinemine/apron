@@ -133,9 +133,9 @@ install:
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
 	for i in dlloct*_caml.so; do \
-		cp -f -d $$i $(LIBDIR); \
+		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
-	for i in octtest?? octtop?? octrun??; do \
+	for i in octtest* octtop* octrun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
 	for i in oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct.a; do \
@@ -144,7 +144,8 @@ install:
 
 uninstall:
 	/bin/rm -fr $(INCDIR)/oct.h
-	/bin/rm -f $(BINDIR)/octtest?? $(BINDIR)/octtop?? $(BINDIR)/octrun??
+	/bin/rm -fr $(INCDIR)/oct
+	/bin/rm -f $(BINDIR)/octtest* $(BINDIR)/octtop* $(BINDIR)/octrun*
 	/bin/rm -f $(LIBDIR)/liboct*.* $(LIBDIR)/liboct*_debug.*
 	/bin/rm -f $(LIBDIR)/dlloct*.so $(LIBDIR)/dlloct*_debug.so
 	/bin/rm -f $(LIBDIR)/oct.mli $(LIBDIR)/oct.cm[ix] $(LIBDIR)/oct.idl $(LIBDIR)/oct*.cma $(LIBDIR)/oct*.cmxa $(LIBDIR)/oct*.a

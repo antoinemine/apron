@@ -36,9 +36,12 @@ CCINC_TO_INSTALL = box.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libboxMPQ.a libboxD.a libboxMPFR.a \
-libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a \
+libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
 libboxMPQ.so libboxD.so libboxMPFR.so \
 libboxMPQ_debug.so libboxD_debug.so libboxMPFR_debug.so
+endif
 CAML_TO_INSTALL = \
 box.idl box.ml box.mli box.cmi box.cmx \
 box.cma box.cmxa box.a \
@@ -46,11 +49,14 @@ boxMPQ.cma boxMPQ.cmxa boxMPQ.a \
 boxD.cma boxD.cmxa boxD.a \
 boxMPFR.cma boxMPFR.cmxa boxMPFR.a \
 libboxMPQ_caml.a libboxD_caml.a libboxMPFR_caml.a \
-libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a \
+libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a
+ifneq ($(HAS_SHARED),)
+CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
 libboxMPQ_caml.so libboxD_caml.so libboxMPFR_caml.so \
 libboxMPQ_caml_debug.so libboxD_caml_debug.so libboxMPFR_caml_debug.so \
 dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so \
 dllboxMPQ_caml_debug.so dllboxD_caml_debug.so dllboxMPFR_caml_debug.so
+endif
 
 #---------------------------------------
 # Rules
