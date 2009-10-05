@@ -91,9 +91,10 @@ CCINC = \
 # Rules
 #---------------------------------------
 
-all: libapronxx.a libapronxx_debug.a test
-
-test: apronxx_test
+all: libapronxx.a libapronxx_debug.a apronxx_test
+ifneq ($(HAS_SHARED),)
+all: libapronxx.so libapronxx_debug.so
+endif
 
 clean:
 	/bin/rm -f *.[ao] *.so apronxx_test
@@ -106,11 +107,11 @@ mostlyclean:
 install:
 	$(INSTALLd) $(INCDIR) $(INCDIR)/apronxx $(LIBDIR) $(BINDIR)
 	$(INSTALL) $(CCINC) $(INCDIR)/apronxx
-	$(INSTALL) libapronxx.a libapronxx_debug.a $(LIBDIR)
+	$(INSTALL) libapronxx.* libapronxx_debug.* $(LIBDIR)
 
 uninstall:
 	/bin/rm -rf $(INCDIR)/apronxx
-	/bin/rm -f $(LIBDIR)/linapronxx*.a
+	/bin/rm -f $(LIBDIR)/libapronxx*.*
 
 
 distclean: uninstall
@@ -136,6 +137,12 @@ libapronxx.a: $(subst .cc,.o,$(CXXSOURCES))
 libapronxx_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
+
+libapronxx.so: $(subst .cc,.o,$(CXXSOURCES))
+	$(SHARED) -o $@ $^
+
+libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
+	$(SHARED) -o $@ $^
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
 	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS)

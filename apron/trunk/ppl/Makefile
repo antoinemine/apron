@@ -87,7 +87,9 @@ mostlyclean:
 install:
 	$(INSTALLd) $(INCDIR) $(LIBDIR) $(BINDIR) $(CAMLDIR)
 	$(INSTALL) ap_ppl.h $(INCDIR)
-	$(INSTALL) libap_ppl.a libap_ppl_debug.a $(LIBDIR)
+	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.so libap_ppl_debug.so; do \
+		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
+	done
 	for i in libap_ppl_caml*.a libap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
