@@ -68,7 +68,7 @@ ap_lincons0_array_t ap_ppl_to_lincons_array(const Constraint_System& c)
   Constraint_System::const_iterator i, end = c.end();
   int k;
   /* first, compute system size */
-  for (i=c.begin(),k=0;i!=end;i++,k++);
+  for (i=c.begin(),k=0;i!=end;i++,k++) ;
   a = ap_lincons0_array_make(k);
   /* then, convert constraints */
   for (i=c.begin(),k=0;i!=end;i++,k++)
@@ -113,7 +113,7 @@ ap_lincons0_array_t ap_ppl_to_lincons_array(const Congruence_System& c)
   Congruence_System::const_iterator i, end = c.end();
   int k;
   /* first, compute system size */
-  for (i=c.begin(),k=0;i!=end;i++,k++);
+  for (i=c.begin(),k=0;i!=end;i++,k++) ;
   a = ap_lincons0_array_make(k);
   /* then, convert constraints */
   for (i=c.begin(),k=0;i!=end;i++,k++)
@@ -162,7 +162,7 @@ ap_generator0_array_t ap_ppl_to_generator_array(const Generator_System& c,
   bool exact2;
   exact = true;
   /* first, compute system size */
-  for (i=c.begin(),k=0;i!=end;i++,k++);
+  for (i=c.begin(),k=0;i!=end;i++,k++) ;
   a = ap_generator0_array_make(k);
   /* then, convert generators */
   for (i=c.begin(),k=0;i!=end;i++,k++){
@@ -203,10 +203,10 @@ ap_generator0_array_t ap_ppl_to_generator_array(const Grid_Generator_System& c)
   Grid_Generator_System::const_iterator i, end = c.end();
   int k;
   /* first, compute system size */
-  for (i=c.begin(),k=0;i!=end;i++,k++);
+  for (i=c.begin(),k=0;i!=end;i++,k++) ;
   a = ap_generator0_array_make(k);
   /* then, convert generators */
-  for (i=c.begin(),k=0;i!=end;i++,k++){
+  for (i=c.begin(),k=0;i!=end;i++,k++) {
     a.p[k] = ap_ppl_to_generator(*i);
   }
   return a;
