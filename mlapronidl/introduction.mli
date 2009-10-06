@@ -134,7 +134,7 @@ let main option equations =
     (fun apron -> analyze_and_display equations equations apron)
 ;;]}
 
-but this does not work because the argument [continuation] is
+because the argument [continuation] is
 monomorphic inside the body of [manager_alloc_and_continue] (i.e,
 it is not generalized):
 
