@@ -14,6 +14,7 @@
 \T\usepackage{mycolor}
 \T\usepackage{amsmath}
 \T\usepackage{amssymb}
+\usepackage{url}
 
 %\usepackage{frames}
 
@@ -51,9 +52,15 @@ The APRON library is intended to be a common interface to various
 underlying libraries/abstract domains and to provide additional
 services that can be implemented independently from the underlying
 library/abstract domain, as shown by the poster on the right
-(presented at the \xlink{SAS
-  2007}{http://www2.imm.dtu.dk/sas2007/}). You may also read the
-associated \xlink{flyer}{flyer.pdf}.
+(presented at the SAS 2007 conference.  You may also look at:
+\begin{itemize}
+\item the associated \xlink{flyer}{flyer.pdf};
+\item a \xlink{15 minutes
+    presentation}{expose_jeannet_CAV09.pdf} made at CAV 2009
+  conference in Grenoble \cite{jeannetmine09};
+\item a \xlink{detailed
+  presentation}{expose_mine_CEA_2007.pdf} by Antoine Min\'e.
+\end{itemize}
 
 Currently, APRON provides a C interface and an \ocaml interface.
 There also exists a C++ interface, which is more experimental.
@@ -84,6 +91,7 @@ PPL library.
 \section{Documentation}
 
 \begin{itemize}
+\item \xlink{Detailed presentation}{expose_mine_CEA_2007.pdf};
 \item On-line \xlink{C interface}{http://apron.cri.ensmp.fr/library/0.9.10/apron/apron.html} and \xlink{OCaml interface}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl/index.html};
 \item \xlink{C pdf}{http://apron.cri.ensmp.fr/library/0.9.10/apron.pdf} or \xlink{OCaml pdf}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl.pdf};
 \item \xlink{C example}{http://apron.cri.ensmp.fr/library/0.9.10/example1.c} or \xlink{OCaml example 1}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample1.ml}/\xlink{OCaml example 2}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample2.ml}/\xlink{OCaml example 3}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample3.ml}. For the
@@ -159,5 +167,18 @@ to be up-to-date with the most recent version.
 \item 0.9.0 \xlink{Tar-gzipped
     sources}{http://apron.cri.ensmp.fr/library/apron-0.9.0.tgz}
 \end{itemize}
+
+%\bibliography{mybib}
+%\bibliographystyle{alpha}
+
+\begin{thebibliography}{JM09}
+
+\bibitem[JM09]{jeannetmine09}
+B.~Jeannet and A.~Min\'e.
+\newblock {APRON}: A library of numerical abstract domains for static analysis.
+\newblock In {\em Computer Aided Verification, CAV'2009}, volume 5643 of {\em
+  LNCS}, pages 661--667, 2009.
+
+\end{thebibliography}
 
 \end{document}
