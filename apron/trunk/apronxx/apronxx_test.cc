@@ -11,9 +11,6 @@
    Please read the COPYING file packaged in the distribution.
 */
 
-#undef HAS_PPL
-#define HAS_PPL 1
-
 #include <iostream>
 #include <stdio.h>
 #include "apronxx.hh"
