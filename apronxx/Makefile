@@ -42,6 +42,8 @@ ICXXFLAGS = \
 -I../itv \
 -I../newpolka \
 -I../octagons \
+-I../ppl \
+-I../products \
 -I../box \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
