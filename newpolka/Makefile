@@ -128,7 +128,7 @@ install:
 #		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
 #	done
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then cp -f -d $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 
 uninstall:
