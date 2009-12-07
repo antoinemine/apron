@@ -7,6 +7,7 @@ with default setting:
 
 apronppltop -I $MLGMPIDL_INSTALL/lib -I $APRON_INSTALL/lib
 
+#load "bigarray.cma";;
 #load "gmp.cma";;
 #load "apron.cma";;
 #load "box.cma";;
@@ -48,6 +49,7 @@ let manoct = Oct.manager_alloc ();;
 let manppl = Ppl.manager_alloc_strict();;
 let mangrid = Ppl.manager_alloc_grid ();;
 let maneq = Polka.manager_alloc_equalities ();;
+let manpkgrid = PolkaGrid.manager_alloc manpk mangrid;;
 
 let var_x = Var.of_string "x";;
 let var_y = Var.of_string "y";;
