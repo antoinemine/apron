@@ -74,7 +74,7 @@ install:
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 	for i in dllpolkaGrid_caml*.so; do \
-		if test -f $$i; then cp -f -d $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 
 uninstall:
@@ -134,10 +134,10 @@ dllpolkaGrid_caml_debug.so: libpolkaGrid_caml_debug.so
 #---------------------------------------
 
 polkaGrid.cma: polkaGrid.cmo libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o polkaGrid -oc ap_polkaGrid_caml polkaGrid.cmo -lap_polkaGrid -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmo -lpolkaGrid -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
 
 polkaGrid.cmxa: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o polkaGrid -oc ap_polkaGrid_caml polkaGrid.cmx -lap_polkaGrid -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx -lpolkaGrid -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules
