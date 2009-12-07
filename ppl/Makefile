@@ -94,7 +94,7 @@ install:
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
 	for i in dllap_ppl*.so; do \
-		if test -f $$i; then cp -f -d $$i $(CAMLDIR); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done	
 	for i in ap_ppl_test pplrun ppltop; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \

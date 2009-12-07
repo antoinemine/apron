@@ -113,7 +113,7 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 #		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
 #	done
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then cp -f -d $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 
 uninstall:
@@ -186,7 +186,7 @@ libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 libbox%_caml.so: box_caml.o libbox%.so
 	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  -L. -lbox$* -Wl,-rpath,$(APRON_PREFIX)/lib
 libbox%_caml_debug.so: box_caml_debug.o libbox%_debug.so
-	$(CC) $(CFLAGS8DEBUG) -shared -o $@ box_caml_debug.o -L. -lbox$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ box_caml_debug.o -L. -lbox$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
 
 dllbox%_caml.so: libbox%_caml.so
 	ln -s -f $^ $@
