@@ -22,9 +22,6 @@ SRCDIR = $(shell pwd)
 # Programs
 #---------------------------------------
 
-# Library creation
-SHARED = gcc -shared
-
 #---------------------------------------
 # Flags
 #---------------------------------------
@@ -175,7 +172,7 @@ liboct%_debug.a: $(subst .c,%_debug.o,$(CCSOURCES))
 	$(RANLIB) $@
 
 liboct%.so: $(subst .c,%.o,$(CCSOURCES))
-	$(SHARED) -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^
 
 octtest%: liboct%_debug.a oct_test%.o
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ oct_test$*.o \
@@ -290,9 +287,9 @@ liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
 	$(AR) rcs $@ $<
 	$(RANLIB) $@
 liboct%_caml.so: oct_caml.o liboct%.so
-	$(SHARED) -o $@ oct_caml.o -L. -loct$* -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS) -shared -o $@ oct_caml.o -L. -loct$* -Wl,-rpath,$(APRON_PREFIX)/lib
 liboct%_caml_debug.so: oct_caml_debug.o liboct%_debug.so
-	$(SHARED) -o $@ oct_caml_debug.o -L. -loct$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS) -shared -o $@ oct_caml_debug.o -L. -loct$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
 dlloct%_caml.so: liboct%_caml.so
 	ln -s -f $^ $@
 dlloct%_caml_debug.so: liboct%_caml_debug.so
