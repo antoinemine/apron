@@ -47,7 +47,9 @@ MLINT = $(MLMODULES:%=%.cmi)
 MLOBJ = $(MLMODULES:%=%.cmo)
 MLOBJx = $(MLMODULES:%=%.cmx)
 MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) apron.cmi apron.cma
-MLLIB_TOINSTALLx = apron.cmx apron.cmxa apron.a
+ifneq ($(HAS_OCAMLOPT),)
+MLLIB_TOINSTALL := $(MLLIB_TOINSTALL) apron.cmxa apron.a
+endif
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
@@ -62,7 +64,11 @@ CCINC_TOINSTALL = apron_caml.h
 # Rules
 #---------------------------------------
 
-all: apron.cmi apron.cmx apron.cma apron.cmxa apron.a libapron_caml.a libapron_caml_debug.a
+all: apron.cmi apron.cma libapron_caml.a libapron_caml_debug.a
+
+ifneq ($(HAS_OCAMLOPT),)
+all: apron.cmxa apron.a
+endif
 
 ifneq ($(HAS_SHARED),)
 all: libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
@@ -94,14 +100,13 @@ mostlyclean: clean
 
 distclean:
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(MLLIB_TOINSTALLx:%=$(APRON_PREFIX)/lib/%)
 	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
 
-install: $(MLLIB_TOINSTALL) $(MLLIB_TOINSTALLx) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
+install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 	mkdir -p $(APRON_PREFIX)/lib
 	mkdir -p $(APRON_PREFIX)/include
-	for i in $(MLLIB_TOINSTALL) $(MLLIB_TOINSTALLx) $(CCLIB_TOINSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_PREFIX)/lib; fi; done
+	for i in $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f -d $$i $(APRON_PREFIX)/lib; fi; done
 	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_PREFIX)/include
 
 #---------------------------------------
@@ -109,10 +114,10 @@ install: $(MLLIB_TOINSTALL) $(MLLIB_TOINSTALLx) $(CCLIB_TOINSTALL) $(CCINC_TOINS
 #---------------------------------------
 
 apron.cma: apron.cmo libapron_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo -lapron -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo -lapron -L$(APRON_PREFIX)/lib
 
-apron.cmxa: apron.cmx libapron_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx -lapron -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+apron.cmxa apron.a: apron.cmx libapron_caml.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx -lapron -L$(APRON_PREFIX)/lib
 
 libapron_caml.a: $(CCMODULES:%=%.o)
 	$(AR) rc $@ $^
@@ -122,10 +127,10 @@ libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
 	$(RANLIB) $@
 
 libapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
-	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) -L../apron -lapron -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) -L../apron -lapron
 
 libapron_caml_debug.so: $(CCMODULES:%=%_debug.o) ../apron/libapron_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) -L../apron -lapron -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) -L../apron -lapron
 
 dllapron_caml.so: libapron_caml.so
 	ln -s $^ $@

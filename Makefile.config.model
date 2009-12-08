@@ -11,6 +11,8 @@ HAS_SHARED=1
 # If defined to non-empty value, compiles the OCaml interface
 HAS_OCAML = 1
 
+HAS_OCAMLOPT = 1
+
 # If defined to non-empty value, compiles the C++ interface (beta version)
 
 # HAS_CPP = 1
@@ -64,7 +66,7 @@ CAMLIDL_PREFIX = /usr
 ######################################################################
 
 # C compiler
-CC = gcc
+#CC = gcc
 
 # C compilation flags
 CFLAGS = \
@@ -89,7 +91,7 @@ CFLAGS_DEBUG = \
 #	   -mfpmath=sse -ftracer -funit-at-a-time -funroll-loops -fmove-all-movables
 
 # C++ compiler
-CXX = g++
+#CXX = g++
 # C++ compilation flags
 CXXFLAGS = \
 -Wcast-qual -Wswitch \
