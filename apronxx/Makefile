@@ -24,14 +24,6 @@ SRCDIR = $(shell pwd)
 
 
 #---------------------------------------
-# Programs
-#---------------------------------------
-
-# Library creation
-SHARED = gcc -shared
-
-
-#---------------------------------------
 # Flags
 #---------------------------------------
 
@@ -141,10 +133,10 @@ libapronxx_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(RANLIB) $@
 
 libapronxx.so: $(subst .cc,.o,$(CXXSOURCES))
-	$(SHARED) -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^
 
 libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
-	$(SHARED) -o $@ $^
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
 	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS)

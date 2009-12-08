@@ -55,16 +55,25 @@ libpolkaMPQ.so libpolkaMPQ_debug.so \
 libpolkaRll.so libpolkaRll_debug.so \
 
 CAML_TO_INSTALL = \
-polka.idl polka.mli polka.ml polka.cmi polka.cmx \
-polka.cma polka.cmxa polka.a \
-polkaMPQ.cma polkaMPQ.cmxa polkaMPQ.a \
-polkaRll.cma polkaRll.cmxa polkaRll.a \
+polka.idl polka.mli polka.ml polka.cmi \
+polka.cma \
+polkaMPQ.cma \
+polkaRll.cma \
 libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a \
-libpolkaRll_caml.a libpolkaRll_caml_debug.a \
+libpolkaRll_caml.a libpolkaRll_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
+polka.cmxa polka.a \
+polkaMPQ.cmxa polkaMPQ.a \
+polkaRll.cmxa polkaRll.a
+endif
+ifneq ($(HAS_SHARED),)
+CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
 libpolkaMPQ_caml.so libpolkaMPQ_caml_debug.so \
 libpolkaRll_caml.so libpolkaRll_caml_debug.so \
 dllpolkaMPQ_caml.so dllpolkaMPQ_caml_debug.so \
 dllpolkaRll_caml.so dllpolkaRll_caml_debug.so
+endif
 
 #---------------------------------------
 # Rules
@@ -83,10 +92,17 @@ allMPQ: libpolkaMPQ.so libpolkaMPQ_debug.so
 allRll: libpolkaRll.so libpolkaRll_debug.so
 endif
 
-ml: polka.mli polka.ml polka.cmi polka.cmx polka.a mlMPQ mlRll polka.cma polka.cmxa
+ml: polka.mli polka.ml polka.cmi mlMPQ mlRll polka.cma
+ifneq ($(HAS_OCAMLOPT),)
+ml: polka.cmxa polka.a
+endif
 
-mlMPQ: polkaMPQ.cma polkaMPQ.cmxa libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
-mlRll: polkaRll.cma polkaRll.cmxa libpolkaRll_caml.a libpolkaRll_caml_debug.a
+mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
+mlRll: polkaRll.cma libpolkaRll_caml.a libpolkaRll_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+mlMPQ: polkaMPQ.cmxa polkaMPQ.a
+mlRll: polkaRll.cmxa polkaRll.a
+endif
 ifneq ($(HAS_SHARED),)
 mlMPQ: libpolkaMPQ_caml.so libpolkaMPQ_caml_debug.so dllpolkaMPQ_caml.so dllpolkaMPQ_caml_debug.so
 mlRll: libpolkaRll_caml.so libpolkaRll_caml_debug.so dllpolkaRll_caml.so dllpolkaRll_caml_debug.so
@@ -209,9 +225,9 @@ libpolka%_caml_debug.a: polka_caml_debug.o libpolka%_debug.a
 	$(RANLIB) $@
 
 libpolka%_caml.so: polka_caml.o libpolka%.so
-	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o -L. -lpolka$* -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o -L. -lpolka$*
 libpolka%_caml_debug.so: polka_caml_debug.o libpolka%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ polka_caml_debug.o -L. -lpolka$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ polka_caml_debug.o -L. -lpolka$*_debug
 
 dllpolka%_caml.so: libpolka%_caml.so
 	ln -s -f $^ $@
@@ -230,10 +246,10 @@ polka.a: polkaMPQ.a
 	ln -s -f $^ $@
 
 polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -lpolka$* -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -lpolka$* -L$(APRON_PREFIX)/lib
 
 polka%.cmxa polka%.a: polka.cmx libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -lpolka$* -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -lpolka$* -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules
