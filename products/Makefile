@@ -44,6 +44,9 @@ libap_pkgrid.so libap_pkgrid_debug.so \
 libpolkaGrid_caml.so libpolkaGrid_caml_debug.so
 endif
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug -L../ppl -lap_ppl_debug -L$(PPL_PREFIX)/lib -lppl
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -114,9 +117,9 @@ libap_pkgrid_debug.a: ap_pkgrid_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_pkgrid.so: ap_pkgrid.o
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LIBS)
 libap_pkgrid_debug.so: ap_pkgrid_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 #---------------------------------------
 # C rules
@@ -129,9 +132,9 @@ libpolkaGrid_caml_debug.a: polkaGrid_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libpolkaGrid_caml.so: polkaGrid_caml.o libap_pkgrid.so
-	$(CXX) $(CXXFLAGS) -shared -o $@ $< -lap_pkgrid -L.
+	$(CXX) $(CXXFLAGS) -shared -o $@ $<  $(LIBS) -L. -lap_pkgrid
 libpolkaGrid_caml_debug.so: polkaGrid_caml_debug.o libap_pkgrid_debug.so
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $< -lap_pkgrid_debug -L.
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $<  $(LIBS_DEBUG) -L. -lap_pkgrid_debug
 dllpolkaGrid_caml.so: libpolkaGrid_caml.so
 	ln -s -f $^ $@
 dllpolkaGrid_caml_debug.so: libpolkaGrid_caml_debug.so
@@ -142,10 +145,10 @@ dllpolkaGrid_caml_debug.so: libpolkaGrid_caml_debug.so
 #---------------------------------------
 
 polkaGrid.cma: polkaGrid.cmo libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmo -lpolkaGrid -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmo $(LIBS) -lpolkaGrid -L$(APRON_PREFIX)/lib
 
 polkaGrid.cmxa polkaGrid.a: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx -lpolkaGrid -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx $(LIBS) -lpolkaGrid -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules

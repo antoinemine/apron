@@ -61,6 +61,9 @@ CXXSOURCES = ppl_user.cc ppl_poly.cc ppl_grid.cc
 CSOURCES = ppl_test.c
 CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron -L$(PPL_PREFIX)/lib -lppl
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug -L$(PPL_PREFIX)/lib -lppl
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -128,9 +131,9 @@ libap_ppl_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_ppl.so: $(subst .cc,.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ -lppl -lgmpxx -L$(PPL_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LIBS)
 libap_ppl_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ -lppl -lgmpxx -L$(PPL_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 	$(CXX) $(CXXFLAGS) -o $@ ppl_test_debug.o \
@@ -183,19 +186,19 @@ libap_ppl_caml_debug.a: ap_ppl_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_ppl_caml.so: ap_ppl_caml.o libap_ppl.so
-	$(CXX) $(CXXFLAGS) -shared -o $@ $< -lap_ppl -lppl -lgmpxx -L. -L$(PPL_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(CXX) $(CXXFLAGS) -shared -o $@ $< $(LIBS) -L. -lap_ppl
 libap_ppl_caml_debug.so: ap_ppl_caml_debug.o libap_ppl_debug.so
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $< -lap_ppl_debug -lppl -lgmpxx -L. -L$(PPL_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $< $(LIBS_DEBUG) -L. -lap_ppl_debug
 dllap_ppl_caml.so: libap_ppl_caml.so
 	ln -s -f $^ $@
 dllap_ppl_caml_debug.so: libap_ppl_caml_debug.so
 	ln -s -f $^ $@
 
 ppl.cma: ppl.cmo libap_ppl_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmo -lap_ppl -lppl -lgmpxx -L$(PPL_PREFIX)/lib -L$(APRON_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmo $(LIBS) -L. -lap_ppl
 
 ppl.cmxa ppl.a: ppl.cmx libap_ppl_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmx -lap_ppl -lppl -lgmpxx -L$(PPL_PREFIX)/lib -L$(APRON_PREFIX)/lib -L$(GMP_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmx $(LIBS) -L. -lap_ppl
 
 manager.idl: ../mlapronidl/manager.idl
 	ln -s $< $@
