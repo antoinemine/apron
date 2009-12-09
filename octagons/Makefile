@@ -52,6 +52,9 @@ CCINC = oct_internal.h oct_fun.h
 # trigers a whole recompilation
 #DEPS = $(APRON_PREFIX)/include/ap_abstract0.h
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -172,7 +175,10 @@ liboct%_debug.a: $(subst .c,%_debug.o,$(CCSOURCES))
 	$(RANLIB) $@
 
 liboct%.so: $(subst .c,%.o,$(CCSOURCES))
-	$(CC) $(CFLAGS) -shared -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
+
+liboct%_debug.so: $(subst .c,%_debug.o,$(CCSOURCES))
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS_DEBUG)
 
 octtest%: liboct%_debug.a oct_test%.o
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ oct_test$*.o \
@@ -286,10 +292,10 @@ oct.a: octMPQ.a
 	ln -s -f $^ $@
 
 oct%.cma: oct.cmi oct.cmo liboct%_caml.a liboct%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o oct$* -oc oct$*_caml oct.cmo -loct$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o oct$* -oc oct$*_caml oct.cmo $(LIBS) -L. -loct$*
 
 oct%.cmxa oct%.a: oct.cmi oct.cmx liboct%_caml.a liboct%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o oct$* -oc oct$*_caml oct.cmx -loct$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o oct$* -oc oct$*_caml oct.cmx $(LIBS) -L. -loct$*
 
 liboct%_caml.a: oct_caml.o liboct%.a
 	$(AR) rcs $@ $<
@@ -298,9 +304,9 @@ liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
 	$(AR) rcs $@ $<
 	$(RANLIB) $@
 liboct%_caml.so: oct_caml.o liboct%.so
-	$(CC) $(CFLAGS) -shared -o $@ oct_caml.o -L. -loct$*
+	$(CC) $(CFLAGS) -shared -o $@ oct_caml.o $(LIBS) -L. -loct$*
 liboct%_caml_debug.so: oct_caml_debug.o liboct%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ oct_caml_debug.o -L. -loct$*_debug
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ oct_caml_debug.o $(LIBS_DEBUG) -L. -loct$*_debug
 dlloct%_caml.so: liboct%_caml.so
 	ln -s -f $^ $@
 dlloct%_caml_debug.so: liboct%_caml_debug.so

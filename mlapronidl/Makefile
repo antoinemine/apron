@@ -60,6 +60,9 @@ libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -114,10 +117,10 @@ install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 #---------------------------------------
 
 apron.cma: apron.cmo libapron_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo -lapron -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo $(LIBS)
 
 apron.cmxa apron.a: apron.cmx libapron_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx -lapron -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx $(LIBS)
 
 libapron_caml.a: $(CCMODULES:%=%.o)
 	$(AR) rc $@ $^
@@ -127,10 +130,10 @@ libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
 	$(RANLIB) $@
 
 libapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
-	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) -L../apron -lapron
+	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) $(LIBS)
 
 libapron_caml_debug.so: $(CCMODULES:%=%_debug.o) ../apron/libapron_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) -L../apron -lapron
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) $(LIBS_DEBUG)
 
 dllapron_caml.so: libapron_caml.so
 	ln -s $^ $@

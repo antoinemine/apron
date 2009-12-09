@@ -65,6 +65,9 @@ dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so \
 dllboxMPQ_caml_debug.so dllboxD_caml_debug.so dllboxMPFR_caml_debug.so
 endif
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -166,9 +169,9 @@ libbox%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libbox%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
 libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -199,9 +202,9 @@ libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 	$(RANLIB) $@
 
 libbox%_caml.so: box_caml.o libbox%.so
-	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  -L. -lbox$*
+	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  $(LIBS) -L. -lbox$*
 libbox%_caml_debug.so: box_caml_debug.o libbox%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ box_caml_debug.o -L. -lbox$*_debug
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ box_caml_debug.o $(LIBS_DEBUG) -L. -lbox$*_debug
 
 dllbox%_caml.so: libbox%_caml.so
 	ln -s -f $^ $@
@@ -225,10 +228,10 @@ box.a: boxMPQ.a
 	ln -s -f $^ $@
 
 box%.cma: box.cmo libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo -lbox$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo $(LIBS) -L. -lbox$*
 
 box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx -lbox$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx $(LIBS) -L. -lbox$* -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules
