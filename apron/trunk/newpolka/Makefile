@@ -75,6 +75,9 @@ dllpolkaMPQ_caml.so dllpolkaMPQ_caml_debug.so \
 dllpolkaRll_caml.so dllpolkaRll_caml_debug.so
 endif
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -185,9 +188,9 @@ libpolka%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libpolka%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
 libpolka%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 %Rl.o: %.c $(CCINC)
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGRAT -c -o $@ $<
@@ -225,9 +228,9 @@ libpolka%_caml_debug.a: polka_caml_debug.o libpolka%_debug.a
 	$(RANLIB) $@
 
 libpolka%_caml.so: polka_caml.o libpolka%.so
-	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o -L. -lpolka$*
+	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o $(LIBS) -L. -lpolka$*
 libpolka%_caml_debug.so: polka_caml_debug.o libpolka%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ polka_caml_debug.o -L. -lpolka$*_debug
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ polka_caml_debug.o $(LIBS_DEBUG) -L. -lpolka$*_debug
 
 dllpolka%_caml.so: libpolka%_caml.so
 	ln -s -f $^ $@
@@ -246,10 +249,10 @@ polka.a: polkaMPQ.a
 	ln -s -f $^ $@
 
 polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -lpolka$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo $(LIBS) -L. -lpolka$*
 
 polka%.cmxa polka%.a: polka.cmx libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -lpolka$* -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx $(LIBS) -L. -lpolka$*
 
 #---------------------------------------
 # IDL rules
