@@ -34,12 +34,12 @@ HAS_OCAMLOPT = 1
 # Where to install and to find APRON
 # ($(APRON_PREFIX)/include, $(APRON_PREFIX)/lib)
 #
-APRON_PREFIX = /usr
+APRON_PREFIX = /tmp
 
 # Where to install and to find MLGMPIDL
 # ($(MLGMPIDL_PREFIX)/lib)
 #
-MLGMPIDL_PREFIX = /usr/local
+MLGMPIDL_PREFIX = /tmp
 
 # Where to find GMP ($(GMP_PREFIX)/include, ($GMP_PREFIX)/lib
 #
@@ -51,7 +51,7 @@ MPFR_PREFIX = /usr
 
 # Where to find PPL ($(PPL_PREFIX)/include, $(PPL_PREFIX)/lib
 #
-PPL_PREFIX = /usr
+PPL_PREFIX = /tmp
 
 # Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
 #
