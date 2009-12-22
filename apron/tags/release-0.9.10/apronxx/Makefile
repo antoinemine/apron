@@ -24,14 +24,6 @@ SRCDIR = $(shell pwd)
 
 
 #---------------------------------------
-# Programs
-#---------------------------------------
-
-# Library creation
-SHARED = gcc -shared
-
-
-#---------------------------------------
 # Flags
 #---------------------------------------
 
@@ -42,25 +34,10 @@ ICXXFLAGS = \
 -I../itv \
 -I../newpolka \
 -I../octagons \
+-I../ppl \
+-I../products \
 -I../box \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
-
-LIBS = \
- -L. -lapronxx_debug \
- -L../newpolka -lpolkaMPQ_debug \
- -L../octagons -loctMPQ_debug \
- -L../box -lboxMPQ_debug
-
-ifneq ($(HAS_PPL),)
-DEFS := $(DEFS) -DHAS_PPL
-LIBS := $(LIBS) -L$(PPL_PREFIX)/lib -L../ppl -L../products -lap_pkgrid -lap_ppl -lppl
-ICXXFLAGS := $(ICXXFLAGS) -I$(PPL_PREFIX)/include  -I../ppl -I../products
-endif
-
-LIBS := $(LIBS) \
- -L../apron -lapron_debug \
- -L../itv -litv_debug \
- -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -lgmpxx -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Files
@@ -86,14 +63,25 @@ CCINC = \
  apxx_generator0.hh          apxx_oct_inline.hh         apxx_var.hh			\
  apxx_generator0_inline.hh   apxx_polka.hh              apxx_var_inline.hh
 
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -lgmpxx -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -lgmpxx -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+
+ifneq ($(HAS_PPL),)
+DEFS := $(DEFS) -DHAS_PPL
+LIBS := $(LIBS) -L$(PPL_PREFIX)/lib -L../ppl -L../products -lap_pkgrid -lap_ppl -lppl
+LIBS_DEBUG := $(LIBS_DEBUG) -L$(PPL_PREFIX)/lib -L../ppl -L../products -lap_pkgrid_debug -lap_ppl_debug -lppl
+ICXXFLAGS := $(ICXXFLAGS) -I$(PPL_PREFIX)/include  -I../ppl -I../products
+endif
 
 #---------------------------------------
 # Rules
 #---------------------------------------
 
-all: libapronxx.a libapronxx_debug.a test
-
-test: apronxx_test
+all: libapronxx.a libapronxx_debug.a apronxx_test
+ifneq ($(HAS_SHARED),)
+all: libapronxx.so libapronxx_debug.so
+endif
 
 clean:
 	/bin/rm -f *.[ao] *.so apronxx_test
@@ -106,11 +94,11 @@ mostlyclean:
 install:
 	$(INSTALLd) $(INCDIR) $(INCDIR)/apronxx $(LIBDIR) $(BINDIR)
 	$(INSTALL) $(CCINC) $(INCDIR)/apronxx
-	$(INSTALL) libapronxx.a libapronxx_debug.a $(LIBDIR)
+	$(INSTALL) libapronxx.* libapronxx_debug.* $(LIBDIR)
 
 uninstall:
 	/bin/rm -rf $(INCDIR)/apronxx
-	/bin/rm -f $(LIBDIR)/linapronxx*.a
+	/bin/rm -f $(LIBDIR)/libapronxx*.*
 
 
 distclean: uninstall
@@ -137,8 +125,14 @@ libapronxx_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
+libapronxx.so: $(subst .cc,.o,$(CXXSOURCES))
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
+
+libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS)
+	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L. -lapronxx_debug
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<

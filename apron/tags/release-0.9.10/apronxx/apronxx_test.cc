@@ -11,9 +11,6 @@
    Please read the COPYING file packaged in the distribution.
 */
 
-#undef HAS_PPL
-#define HAS_PPL 1
-
 #include <iostream>
 #include <stdio.h>
 #include "apronxx.hh"
@@ -896,7 +893,7 @@ void test_texpr0()
   assert(x.is_interval_cst() && x.is_interval_linear() && x.is_interval_polynomial() && 
 	 x.is_interval_polyfrac() && !x.is_scalar());
   x = dim(2);
-  assert(x.max_dim()==2);
+  assert(x.max_dim()==3);
   assert(x.depth()==0);
   assert(x.size()==0);
   assert(x.equal(texpr0(dim(2))));
@@ -949,7 +946,7 @@ void test_texpr0()
   assert(!x.is_interval_cst() && !x.is_interval_linear() && !x.is_interval_polynomial() && 
 	 !x.is_interval_polyfrac() && x.is_scalar());
   assert(x.depth()==2);
-  assert(x.max_dim()==1);
+  assert(x.max_dim()==2);
   assert(!x.equal(texpr0(3)) && !x.equal(texpr0(dim(3))) && !x.equal(texpr0(dim(4)+dim(3))));
   assert(x.equal(sqrt(dim(1)+5,AP_RTYPE_SINGLE,AP_RDIR_NEAREST)));
   assert(x.root().get_discr()==AP_TEXPR_NODE);
@@ -972,7 +969,7 @@ void test_texpr0()
   assert(x.equal(cast(2+dim(3),AP_RTYPE_DOUBLE,AP_RDIR_ZERO)));
   assert(x.size()==2);
   assert(x.depth()==2);
-  assert(x.max_dim()==3);
+  assert(x.max_dim()==4);
   x = dim(0)+dim(5)+dim(2);
   assert(x.has_dim(0) && !x.has_dim(1) && x.has_dim(2) && !x.has_dim(3) && 
 	 !x.has_dim(4) && x.has_dim(5) && !x.has_dim(6));
@@ -2825,8 +2822,8 @@ void test_ppl()
   test_manager(m,mm);
   cout << endl << "Product Polka (loose) * PPL grids" 
        << endl << "=================================" << endl << endl;
-  m = pkgrid_manager();
-  mm = pkgrid_manager();
+  m = pkgrid_manager(false);
+  mm = pkgrid_manager(false);
   test_manager(m,mm);
   cout << endl << "Product Polka (strict) * PPL grids" 
        << endl << "==================================" << endl << endl;

@@ -32,8 +32,8 @@ int intdim;
 
 void random_interval(ap_interval_t* i)
 {
-  int n1 = rand()%20-10;
-  int n2 = n1 + rand()%20;
+  int n1 = rand()%10-5;
+  int n2 = n1 + rand()%10;
   int d  = rand()%3+1;
   ap_interval_set_frac(i,n1,d,n2,d);
 }
@@ -79,10 +79,9 @@ ap_abstract0_t* random_poly(ap_manager_t* man,int dim)
   ap_interval_t** t = ap_interval_array_alloc(dim);
   ap_generator0_array_t ar = ap_generator0_array_make(dim);
   for (i=0;i<dim;i++)
-    ap_interval_set_int(t[i],0,0);
+    random_interval(t[i]);
   for (i=0;i<dim;i++)
-    ar.p[i] = random_generator(dim,(rand()%100>=90)?AP_GEN_RAY:AP_GEN_VERTEX);
-  //ap_generator0_array_fprint(stderr,&ar,NULL);
+    ar.p[i] = random_generator(dim,AP_GEN_RAY);
   if (intdim)
     p = ap_abstract0_of_box(man,dim/2,dim-dim/2,(ap_interval_t**)t);
   else
@@ -278,7 +277,7 @@ void test_dimadd(void)
 {
   printf("\nadd dimensions\n");
   LOOP {
-    size_t i, dim = 8;
+    size_t i, dim = 5;
     ap_dimchange_t* a = ap_dimchange_alloc(0,3);
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     int proj = rand()%2;
@@ -287,7 +286,7 @@ void test_dimadd(void)
     ppla = convert(ppl,pka);
     d = ap_abstract0_dimension(pk,pka);
     for (i=0;i<a->intdim+a->realdim;i++) {
-      a->dim[i] = rand()%3;
+      a->dim[i] = rand()%2;
       if (i) a->dim[i] += a->dim[i-1];
       if (a->dim[i]<d.intdim) { a->intdim++; a->realdim--; }
       assert(a->dim[i]<dim);
@@ -310,7 +309,7 @@ void test_dimrem(void)
 {
   printf("\nremove dimensions\n");
   LOOP {
-    size_t i, dim = 8;
+    size_t i, dim = 5;
     ap_dimchange_t* a = ap_dimchange_alloc(0,2);
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dimension_t d;
@@ -318,7 +317,7 @@ void test_dimrem(void)
     ppla = convert(ppl,pka);
     d = ap_abstract0_dimension(pk,pka);
     for (i=0;i<a->intdim+a->realdim;i++) {
-      a->dim[i] = rand()%3 + 1;
+      a->dim[i] = rand()%2 + 1;
       if (i) a->dim[i] += a->dim[i-1];
       if (a->dim[i]<d.intdim) { a->intdim++; a->realdim--; }
       assert(a->dim[i]<dim);
@@ -341,7 +340,7 @@ void test_forget(void)
 {
   printf("\nforget\n");
   LOOP {
-    size_t i, dim = 8;
+    size_t i, dim = 5;
     ap_dimchange_t* a = ap_dimchange_alloc(0,2);
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dimension_t d;
@@ -350,7 +349,7 @@ void test_forget(void)
     ppla = convert(ppl,pka);
     d = ap_abstract0_dimension(pk,pka);
     for (i=0;i<a->intdim+a->realdim;i++) {
-      a->dim[i] = rand()%3 + 1;
+      a->dim[i] = rand()%2 + 1;
       if (i) a->dim[i] += a->dim[i-1];
       if (a->dim[i]<d.intdim) { a->intdim++; a->realdim--; }
       assert(a->dim[i]<dim);
@@ -373,7 +372,7 @@ void test_permute(void)
 {
   printf("\npermute dimensions\n");
   LOOP {
-    size_t i, dim = 6;
+    size_t i, dim = 5;
     ap_dimperm_t* p = ap_dimperm_alloc(dim);
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dimension_t d;
@@ -406,7 +405,7 @@ void test_expand(void)
 {
   printf("\nexpand dimensions\n");
   LOOP {
-    size_t i, dim = 6;
+    size_t i, dim = 5;
     ap_dim_t dd = rand() % dim;
     size_t n = (rand() % 2) + 1;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
@@ -431,7 +430,7 @@ void test_fold(void)
 {
   printf("\nfold dimensions\n");
   LOOP {
-    size_t i, dim = 6;
+    size_t i, dim = 5;
     ap_dim_t dd[3];
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dimension_t d;
@@ -462,7 +461,7 @@ void test_add_lincons(void)
 {
   printf("\nadd lincons\n");
   LOOP {
-    size_t i, dim = 6, nb = 4;
+    size_t i, dim = 5, nb = 4;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_lincons0_array_t ar = ap_lincons0_array_make(nb);
     pka = random_poly(pk,dim);
@@ -515,7 +514,7 @@ void test_box(void)
 {
   printf("\nbox conversion\n");
   LOOP {
-    size_t i, dim = 6;
+    size_t i, dim = 5;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_interval_t** pki,**ppli;
     pka = random_poly(pk,dim);
@@ -545,7 +544,7 @@ void test_vbound(void)
 {
   printf("\nvariable bound\n");
   LOOP {
-    size_t i, dim = 6;
+    size_t i, dim = 5;
     ap_abstract0_t* pka,*ppla;
     pka = random_poly(pk,dim);
     ppla = convert(ppl,pka);
@@ -575,7 +574,7 @@ void test_lbound(void)
 {
   printf("\nlinear expression bound\n");
   LOOP {
-    size_t dim = 6;
+    size_t dim = 5;
     ap_abstract0_t* pka,*ppla;
     ap_interval_t* pki,*ppli;
     ap_linexpr0_t* l = random_linexpr(dim);
@@ -602,7 +601,7 @@ void test_csat(void)
 {
   printf("\nconstraint saturation\n");
   LOOP {
-    size_t dim = 6;
+    size_t dim = 5;
     ap_abstract0_t* pka,*ppla;
     ap_lincons0_t l = ap_lincons0_make((rand()%100>=90)?AP_CONS_EQ:
 				       (rand()%100>=90)?AP_CONS_SUP:AP_CONS_SUPEQ,
@@ -628,7 +627,7 @@ void test_isat(void)
 {
   printf("\ninterval saturation\n");
   LOOP {
-    size_t dim = 6;
+    size_t dim = 5;
     size_t p = rand() % dim;
     ap_abstract0_t* pka,*ppla;
     ap_interval_t* i = ap_interval_alloc();
@@ -654,7 +653,7 @@ void test_assign(void)
 {
   printf("\nassign\n");
   LOOP {
-    size_t i, dim = 7;
+    size_t i, dim = 5;
     size_t p = rand() % dim;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_linexpr0_t* l = random_linexpr(dim);
@@ -679,7 +678,7 @@ void test_par_assign(void)
 {
   printf("\nparallel assign\n");
   LOOP {
-    size_t i, dim = 7;
+    size_t i, dim = 5;
     size_t p = rand() % dim;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dim_t d[NB];
@@ -713,7 +712,7 @@ void test_subst(void)
 {
   printf("\nsubst\n");
   LOOP {
-    size_t i, dim = 7;
+    size_t i, dim = 5;
     size_t p = rand() % dim;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_linexpr0_t* l = random_linexpr(dim);
@@ -737,7 +736,7 @@ void test_par_subst(void)
 {
   printf("\nparallel subst\n");
   LOOP {
-    size_t i, dim = 7;
+    size_t i, dim = 5;
     size_t p = rand() % dim;
     ap_abstract0_t* pka,*pkr, *ppla,*pplr;
     ap_dim_t d[NB];
