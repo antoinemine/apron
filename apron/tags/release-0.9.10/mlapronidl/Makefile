@@ -109,7 +109,7 @@ distclean:
 install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 	mkdir -p $(APRON_PREFIX)/lib
 	mkdir -p $(APRON_PREFIX)/include
-	for i in $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f -d $$i $(APRON_PREFIX)/lib; fi; done
+	for i in $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
 	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_PREFIX)/include
 
 #---------------------------------------
