@@ -53,6 +53,8 @@ C_FILES_AUX = ap_linearize_aux.c
 H_FILES_AUX = ap_linearize_aux.h
 CH_FILES_AUX = $(H_FILES_AUX) $(C_FILES_AUX)
 
+LIBS = -lm -L$(GMP_PREFIX)/lib -lgmp -L$(MPFR_PREFIX)/lib -lmpfr
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -98,13 +100,13 @@ distclean:
 .PHONY : html
 
 ap_pkgrid.texi: ../products/ap_pkgrid.texi
-	ln -s $< $@
+	ln -sf $< $@
 ap_ppl.texi: ../ppl/ap_ppl.texi
-	ln -s $< $@
+	ln -sf $< $@
 newpolka.texi: ../newpolka/newpolka.texi
-	ln -s $< $@
+	ln -sf $< $@
 box.texi: ../box/box.texi
-	ln -s $< $@
+	ln -sf $< $@
 
 apron.pdf: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
 	$(TEXI2DVI) --pdf -o $@ $<
@@ -132,14 +134,14 @@ libapron_debug.a: $(C_FILES:%.c=%_debug.o) $(C_FILES_AUX:%.c=%MPQ_debug.o) $(C_F
 	$(RANLIB) $@
 
 libapron.so: $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o)  $(C_FILES_AUX:%.c=%MPFR.o) ../itv/libitv.a
-	for i in `$(AR) t ../itv/libitv.a`; do ln -s ../itv/$$i $$i; done
-	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) `$(AR) t ../itv/libitv.a`
-	for i in `$(AR) t ../itv/libitv.a`; do $(RM) $$i; done
+	for i in $(filter %.o, $(shell $(AR) t ../itv/libitv.a)); do ln -sf ../itv/$$i $$i; done
+	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) $(filter %.o, $(shell $(AR) t ../itv/libitv.a)) $(LIBS)
+	for i in $(filter %.o, $(shell $(AR) t ../itv/libitv.a)); do $(RM) $$i; done
 
 libapron_debug.so: $(C_FILES:%.c=%_debug.o) $(C_FILES_AUX:%.c=%MPQ_debug.o) $(C_FILES_AUX:%.c=%D_debug.o) $(C_FILES_AUX:%.c=%MPFR_debug.o) ../itv/libitv_debug.a
-	for i in `$(AR) t ../itv/libitv_debug.a`; do ln -s ../itv/$$i $$i; done
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) `$(AR) t ../itv/libitv_debug.a`
-	for i in `$(AR) t ../itv/libitv_debug.a`; do $(RM) $$i; done
+	for i in $(filter %o,$(shell $(AR) t ../itv/libitv_debug.a)); do ln -sf ../itv/$$i $$i; done
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) $(filter %.o, $(shell $(AR) t ../itv/libitv_debug.a)) $(LIBS)
+	for i in $(filter %.o, $(shell $(AR) t ../itv/libitv_debug.a)); do $(RM) $$i; done
 
 .PHONY : dep
 

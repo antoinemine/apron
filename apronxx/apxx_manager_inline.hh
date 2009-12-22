@@ -70,6 +70,7 @@ inline std::ostream& operator<<(std::ostream& os, tbool x)
 
 inline manager::manager(ap_manager_t* m) : m(m)
 {
+  if (!m) throw std::invalid_argument("apron::manager::manager(ap_manager_t* m) m is NULL");
   // disable aborting as we manually check exception flags and throw C++ exceptions (see raise)
   for (size_t i=0; i<AP_EXC_SIZE; i++)
     m->option.abort_if_exception[i] = 0;
@@ -200,6 +201,11 @@ inline bool manager::get_flag_best()
 
 
 inline ap_manager_t* manager::get_ap_manager_t()
+{ 
+  return m; 
+}
+
+inline const ap_manager_t* manager::get_ap_manager_t() const
 { 
   return m; 
 }

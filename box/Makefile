@@ -36,21 +36,37 @@ CCINC_TO_INSTALL = box.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libboxMPQ.a libboxD.a libboxMPFR.a \
-libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a \
+libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
 libboxMPQ.so libboxD.so libboxMPFR.so \
 libboxMPQ_debug.so libboxD_debug.so libboxMPFR_debug.so
+endif
 CAML_TO_INSTALL = \
-box.idl box.ml box.mli box.cmi box.cmx \
-box.cma box.cmxa box.a \
-boxMPQ.cma boxMPQ.cmxa boxMPQ.a \
-boxD.cma boxD.cmxa boxD.a \
-boxMPFR.cma boxMPFR.cmxa boxMPFR.a \
+box.idl box.ml box.mli box.cmi \
+box.cma \
+boxMPQ.cma \
+boxD.cma \
+boxMPFR.cma \
 libboxMPQ_caml.a libboxD_caml.a libboxMPFR_caml.a \
-libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a \
+libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
+box.cmxa box.a \
+boxMPQ.cmxa boxMPQ.a \
+boxD.cmxa boxD.a \
+boxMPFR.cmxa boxMPFR.a
+endif
+ifneq ($(HAS_SHARED),)
+CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
 libboxMPQ_caml.so libboxD_caml.so libboxMPFR_caml.so \
 libboxMPQ_caml_debug.so libboxD_caml_debug.so libboxMPFR_caml_debug.so \
 dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so \
 dllboxMPQ_caml_debug.so dllboxD_caml_debug.so dllboxMPFR_caml_debug.so
+endif
+
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
 
 #---------------------------------------
 # Rules
@@ -71,11 +87,19 @@ allD: libboxD.so libboxD_debug.so
 allMPFR: libboxMPFR.so libboxMPFR_debug.so
 endif
 
-ml: box.mli box.ml box.cmi box.cmx box.a mlMPQ mlD mlMPFR box.cma box.cmxa
+ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR box.cma
+ifneq ($(HAS_OCAMLOPT),)
+ml: box.cmxa box.a
+endif
 
-mlMPQ: boxMPQ.cma boxMPQ.cmxa libboxMPQ_caml.a libboxMPQ_caml_debug.a 
-mlD: boxD.cma boxD.cmxa libboxD_caml.a libboxD_caml_debug.a
-mlMPFR: boxMPFR.cma boxMPFR.cmxa libboxMPFR_caml.a libboxMPFR_caml_debug.a
+mlMPQ: boxMPQ.cma libboxMPQ_caml.a libboxMPQ_caml_debug.a 
+mlD: boxD.cma libboxD_caml.a libboxD_caml_debug.a
+mlMPFR: boxMPFR.cma libboxMPFR_caml.a libboxMPFR_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+mlMPQ: boxMPQ.cmxa boxMPQ.a
+mlD: boxD.cmxa boxD.a
+mlMPFR: boxMPFR.cmxa boxMPFR.a
+endif
 ifneq ($(HAS_SHARED),)
 mlMPQ: libboxMPQ_caml.so libboxMPQ_caml_debug.so dllboxMPQ_caml.so dllboxMPQ_caml_debug.so
 mlD: libboxD_caml.so libboxD_caml_debug.so dllboxD_caml.so dllboxD_caml_debug.so
@@ -107,7 +131,7 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 #		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
 #	done
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then cp -f -d $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 
 uninstall:
@@ -145,9 +169,9 @@ libbox%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libbox%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
 libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -178,9 +202,9 @@ libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 	$(RANLIB) $@
 
 libbox%_caml.so: box_caml.o libbox%.so
-	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  -L. -lbox$* -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  $(LIBS) -L. -lbox$*
 libbox%_caml_debug.so: box_caml_debug.o libbox%_debug.so
-	$(CC) $(CFLAGS8DEBUG) -shared -o $@ box_caml_debug.o -L. -lbox$*_debug -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ box_caml_debug.o $(LIBS_DEBUG) -L. -lbox$*_debug
 
 dllbox%_caml.so: libbox%_caml.so
 	ln -s -f $^ $@
@@ -204,10 +228,10 @@ box.a: boxMPQ.a
 	ln -s -f $^ $@
 
 box%.cma: box.cmo libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo -lbox$* -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo $(LIBS) -L. -lbox$*
 
 box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx -lbox$* -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx $(LIBS) -L. -lbox$* -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules
