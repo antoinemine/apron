@@ -56,14 +56,12 @@ libpolkaRll.so libpolkaRll_debug.so \
 
 CAML_TO_INSTALL = \
 polka.idl polka.mli polka.ml polka.cmi \
-polka.cma \
 polkaMPQ.cma \
 polkaRll.cma \
 libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a \
 libpolkaRll_caml.a libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
 CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
-polka.cmxa polka.a \
 polkaMPQ.cmxa polkaMPQ.a \
 polkaRll.cmxa polkaRll.a
 endif
@@ -95,10 +93,7 @@ allMPQ: libpolkaMPQ.so libpolkaMPQ_debug.so
 allRll: libpolkaRll.so libpolkaRll_debug.so
 endif
 
-ml: polka.mli polka.ml polka.cmi mlMPQ mlRll polka.cma
-ifneq ($(HAS_OCAMLOPT),)
-ml: polka.cmxa polka.a
-endif
+ml: polka.mli polka.ml polka.cmi mlMPQ mlRll
 
 mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
 mlRll: polkaRll.cma libpolkaRll_caml.a libpolkaRll_caml_debug.a
@@ -211,7 +206,7 @@ libpolka%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 
 test_caml: test.cmo polkarun
 	$(OCAMLC) -g $(OCAMLINC) -o $@ -use-runtime polkarun \
-	bigarray.cma gmp.cma apron.cma polka.cma test.cmo
+	bigarray.cma gmp.cma apron.cma polkaMPQ.cma test.cmo
 
 test.cmo: test.ml
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -I $(CAMLLIB_PREFIX)/lib -c $<
@@ -240,13 +235,6 @@ dllpolka%_caml_debug.so: libpolka%_caml_debug.so
 #---------------------------------------
 # OCaml rules
 #---------------------------------------
-
-polka.cma: polkaMPQ.cma
-	ln -s -f $^ $@
-polka.cmxa: polkaMPQ.cmxa
-	ln -s -f $^ $@
-polka.a: polkaMPQ.a
-	ln -s -f $^ $@
 
 polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo $(LIBS) -L. -lpolka$*

@@ -61,7 +61,7 @@ CXXSOURCES = ppl_user.cc ppl_poly.cc ppl_grid.cc
 CSOURCES = ppl_test.c
 CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron -L$(PPL_PREFIX)/lib -lppl
+LIBS = -L$(PPL_PREFIX)/lib -lppl -L../apron -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lm
 LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug -L$(PPL_PREFIX)/lib -lppl
 
 #---------------------------------------
@@ -186,7 +186,7 @@ libap_ppl_caml_debug.a: ap_ppl_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_ppl_caml.so: ap_ppl_caml.o libap_ppl.so
-	$(CXX) $(CXXFLAGS) -shared -o $@ $< $(LIBS) -L. -lap_ppl
+	$(CXX) $(CXXFLAGS) -shared -o $@ $<  -L. -lap_ppl $(LIBS)
 libap_ppl_caml_debug.so: ap_ppl_caml_debug.o libap_ppl_debug.so
 	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $< $(LIBS_DEBUG) -L. -lap_ppl_debug
 dllap_ppl_caml.so: libap_ppl_caml.so
