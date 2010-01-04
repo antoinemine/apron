@@ -20,10 +20,11 @@ OCAMLINC = \
 -I $(APRON_PREFIX)/lib
 
 OCAMLLDFLAGS = \
--noautolink -ccopt "$(LCFLAGS)" \
+-verbose -noautolink -ccopt "$(LCFLAGS)" \
 bigarray.cma gmp.cma apron.cma \
 box.cma oct.cma polka.cma ppl.cma \
--cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolka_caml -lpolka_debug -loct_caml -loctMPQ -lbox_caml -lbox_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl"
+-cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolka_caml -lpolka_debug -loct_caml -loctMPQ -lbox_caml -lbox_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl" \
+-dllib "-lpolkaGrid_caml -lap_ppl_caml -lpolkaMPQ_caml -loctMPQ_caml -lboxMPQ_caml -lapron_caml -lgmp_caml -lbigarray"
 
 OCAMLOPTLDFLAGS = \
 -noautolink -verbose -ccopt "$(LCFLAGS)" \
@@ -48,11 +49,12 @@ ml: mlexample1.opt
 
 mlexample%.opt: mlexample%.cmx
 	$(OCAMLOPT) -cc "g++" $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
+
+mlexample%.byte: mlexample%.cmo
+	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -g -o $@ $<
+
 test.opt: test.cmx
 	$(OCAMLOPT) -cc "g++" $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
-
-%: %.cmo $(APRON_PREFIX)/bin/apronrun
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -g -use-runtime $(APRON_PREFIX)/bin/apronrun -o $@ $<
 
 %.cmo: %.ml
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c -o $@ $<

@@ -44,7 +44,6 @@ libboxMPQ_debug.so libboxD_debug.so libboxMPFR_debug.so
 endif
 CAML_TO_INSTALL = \
 box.idl box.ml box.mli box.cmi \
-box.cma \
 boxMPQ.cma \
 boxD.cma \
 boxMPFR.cma \
@@ -52,7 +51,6 @@ libboxMPQ_caml.a libboxD_caml.a libboxMPFR_caml.a \
 libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
 CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
-box.cmxa box.a \
 boxMPQ.cmxa boxMPQ.a \
 boxD.cmxa boxD.a \
 boxMPFR.cmxa boxMPFR.a
@@ -87,10 +85,7 @@ allD: libboxD.so libboxD_debug.so
 allMPFR: libboxMPFR.so libboxMPFR_debug.so
 endif
 
-ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR box.cma
-ifneq ($(HAS_OCAMLOPT),)
-ml: box.cmxa box.a
-endif
+ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR
 
 mlMPQ: boxMPQ.cma libboxMPQ_caml.a libboxMPQ_caml_debug.a 
 mlD: boxD.cma libboxD_caml.a libboxD_caml_debug.a
@@ -113,7 +108,7 @@ mlexample%.opt: mlexample.ml box%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt code2latex
+	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt *.annot
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr boxpolkarung boxpolkatopg tmp
 
@@ -219,13 +214,6 @@ box_caml_debug.o: box_caml.c
 #---------------------------------------
 # OCaml rules
 #---------------------------------------
-
-box.cma: boxMPQ.cma
-	ln -s -f $^ $@
-box.cmxa: boxMPQ.cmxa
-	ln -s -f $^ $@
-box.a: boxMPQ.a
-	ln -s -f $^ $@
 
 box%.cma: box.cmo libbox%_caml.a libbox%.a
 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo $(LIBS) -L. -lbox$*

@@ -138,7 +138,7 @@ install:
 	for i in octtest* octtop* octrun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
-	for i in oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct.a; do \
+	for i in oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
 
@@ -247,7 +247,7 @@ octtest%: liboct%_debug.a oct_test%.o
 
 .INTERMEDIATE: mlIl
 
-ml: oct.mli oct.cmi oct.cma
+ml: oct.mli oct.cmi
 mlIl: ml octIl.cma liboctIl_caml.a liboctIl_caml_debug.a
 mlIll: ml octIll.cma liboctIll_caml.a liboctIll_caml_debug.a 
 mlMPZ: ml octMPZ.cma liboctMPZ_caml.a liboctMPZ_caml_debug.a
@@ -257,7 +257,6 @@ mlD: ml octD.cma liboctD_caml.a liboctD_caml_debug.a
 mlDl: ml octDl.cma liboctDl_caml.a liboctDl_caml_debug.a
 mlMPFR: ml octMPFR.cma liboctMPFR_caml.a liboctMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-ml: oct.cmxa oct.a
 mlIl: octIl.cmxa octIl.a
 mlIll: octIll.cmxa octIll.a
 mlMPZ: octMPZ.cmxa octMPZ.a
@@ -283,13 +282,6 @@ endif
 
 #octrun%: oct.cma liboct_caml.a
 #	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl -L../apron -L../itv -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(CAMLIDL_PREFIX)/lib/ocaml" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
-
-oct.cma: octMPQ.cma
-	ln -s -f $^ $@
-oct.cmxa: octMPQ.cmxa
-	ln -s -f $^ $@
-oct.a: octMPQ.a
-	ln -s -f $^ $@
 
 oct%.cma: oct.cmi oct.cmo liboct%_caml.a liboct%.a
 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o oct$* -oc oct$*_caml oct.cmo $(LIBS) -L. -loct$*
