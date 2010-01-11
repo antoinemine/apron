@@ -431,8 +431,8 @@ pk_t* pk_permute_dimensions(ap_manager_t* man,
     po->satF = pa->satF ? satmat_copy(pa->satF) : NULL;
     po->nbline = pa->nbline;
     po->nbeq = pa->nbeq;
-    po->status = pa->status;
   }
+  po->status = pa->status & ~pk_status_consgauss & ~pk_status_gengauss;
   assert(poly_check(pk,po));
   return po;
 }
