@@ -456,12 +456,8 @@ void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank)
 
   for (k=(int)rank-1; k>=0; k--) {
     j = pk->cherni_intp[k];
-    for (i=0; i<(size_t)k; i++) {
-      if (numint_sgn(con->p[i][j]))
-	matrix_combine_rows(pk,con,i,(size_t)k,i,j);
-    }
-    for (i=k+1; i<con->nbrows; i++) {
-      if (numint_sgn(con->p[i][j]))
+    for (i=0; i<con->nbrows; i++) {
+      if (i != k && numint_sgn(con->p[i][j]))
 	matrix_combine_rows(pk,con,i,(size_t)k,i,j);
     }
   }
