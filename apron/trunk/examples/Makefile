@@ -22,14 +22,15 @@ OCAMLINC = \
 OCAMLLDFLAGS = \
 -verbose -noautolink -ccopt "$(LCFLAGS)" \
 bigarray.cma gmp.cma apron.cma \
-box.cma oct.cma polka.cma ppl.cma \
--cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolka_caml -lpolka_debug -loct_caml -loctMPQ -lbox_caml -lbox_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl" \
+boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma \
+-cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolkaMPQ_caml -lpolkaMPQ_debug -loctMPQ_caml -loctMPQ -lboxMPQ_caml -lboxMPQ_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl" \
 -dllib "-lpolkaGrid_caml -lap_ppl_caml -lpolkaMPQ_caml -loctMPQ_caml -lboxMPQ_caml -lapron_caml -lgmp_caml -lbigarray"
 
 OCAMLOPTLDFLAGS = \
 -noautolink -verbose -ccopt "$(LCFLAGS)" \
-bigarray.cmxa gmp.cmxa apron.cmxa box.cmxa polka.cmxa ppl.cmxa \
--cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolka_caml -lpolka_debug -loct_caml -loctMPQ -lbox_caml -lbox_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl"
+bigarray.cmxa gmp.cmxa apron.cmxa \
+boxMPQ.cmxa polkaMPQ.cmxa ppl.cmxa \
+-cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolkaMPQ_caml -lpolkaMPQ_debug -loctMPQ_caml -loctMPQ -lboxMPQ_caml -lboxMPQ_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl"
 
 all: C ml
 
