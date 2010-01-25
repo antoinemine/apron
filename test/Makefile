@@ -27,6 +27,7 @@ bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa polkaMPQ.cmxa octD.cmxa ppl.cmxa p
 all: C
 
 # C examples
+.PRECIOUS: %.o %_debug.o
 
 C: ctest1
 

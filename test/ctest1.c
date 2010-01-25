@@ -1352,7 +1352,6 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,intdim);
     /* run tests */
-    /*
     test_conv();
     test_bound_dimension();
     test_bound_linexpr();
@@ -1374,7 +1373,7 @@ void test(ap_manager_t* man1, /* the most precise */
     test_assign_linexpr_array();
     test_substitute_linexpr();
     test_substitute_linexpr_array();
-    */
+
     test_assign_texpr();
     test_assign_texpr_array();
     /*
@@ -1428,7 +1427,7 @@ int main(int argc, char** argv)
   ap_manager_t* manppll = ap_ppl_poly_manager_alloc(false);
   ap_manager_t* manppls = ap_ppl_poly_manager_alloc(true);
   ap_manager_t* manpplgrid = ap_ppl_grid_manager_alloc();
-  ap_manager_t* manpkgrid = ap_pkgrid_manager_alloc(false);
+  ap_manager_t* manpkgrid = ap_pkgrid_manager_alloc(manpkl,manpplgrid);
 
   /* First serie */
   intdim = 0;
