@@ -155,6 +155,7 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
     man->result.flag_best = man->result.flag_exact = false;
     return pk_top(man,pa->intdim,pa->realdim);
   }
+  assert(pk_is_leq(man,pa,pb));
   if (!pa->C && !pa->F) /* pa is empty */
     return pk_copy(man,pb);
   else {
