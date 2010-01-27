@@ -8,13 +8,12 @@
 # Do not forget to add -fPIC to CFLAGS and CFLAGS_DEBUG
 HAS_SHARED=1
 
-# If defined to non-empty value, compiles the OCaml interface
+# If defined to non-empty value, compiles the OCaml interface (bytecode)
 HAS_OCAML = 1
-
+# If defined to non-empty value, compiles the OCaml interface (native code)
 HAS_OCAMLOPT = 1
 
 # If defined to non-empty value, compiles the C++ interface (beta version)
-
 # HAS_CPP = 1
 
 # If defined to non-empty value, compiles the PPL domain
