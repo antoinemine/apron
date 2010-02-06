@@ -93,6 +93,11 @@ void ITVFUN(itv_linexpr_fprint)(FILE* stream, itv_linexpr_t* expr, char** name)
     else fprintf(stream,"x%lu",(unsigned long)dim);
   }
 }
+void ITVFUN(itv_linexpr_print)(itv_linexpr_t* expr, char** name)
+{
+  ITVFUN(itv_linexpr_fprint)(stdout,expr,name);
+}
+
 void ITVFUN(itv_lincons_set_bool)(itv_lincons_t* lincons, bool value)
 {
   /* constraint 0=0 if value, 1=0 otherwise */
@@ -111,11 +116,17 @@ void ITVFUN(itv_lincons_fprint)(FILE* stream, itv_lincons_t* cons, char** name)
 	    " >= 0" :
 	    (cons->constyp == AP_CONS_SUP ?
 	     " > 0" :
-	     "\"ERROR in itv_lincons_fprint\"")));
+	    (cons->constyp == AP_CONS_DISEQ ?
+	     " != 0" :
+	     "\"ERROR in itv_lincons_fprint\""))));
   if (cons->constyp == AP_CONS_EQMOD){
     fprintf(stream," mod ");
     num_fprint(stream,cons->num);
   }
+}
+void ITVFUN(itv_lincons_print)(itv_lincons_t* cons, char** name)
+{
+  ITVFUN(itv_lincons_fprint)(stdout,cons,name);
 }
 
 void ITVFUN(itv_lincons_array_init)(itv_lincons_array_t* array, size_t size)
@@ -160,6 +171,10 @@ void ITVFUN(itv_lincons_array_fprint)(FILE* stream, itv_lincons_array_t* array, 
     itv_lincons_fprint(stream,&array->p[i],name);
     fprintf(stream,"\n");
   }
+}
+void ITVFUN(itv_lincons_array_print)(itv_lincons_array_t* array, char** name)
+{
+  ITVFUN(itv_lincons_array_fprint)(stdout,array,name);
 }
 
 /* ********************************************************************** */
