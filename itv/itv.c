@@ -569,7 +569,10 @@ void ITVFUN(itv_fprint)(FILE* stream, itv_t a)
   bound_fprint(stream,a->sup);
   fprintf(stream,"]");
 }
-
+void ITVFUN(itv_print)(itv_t a)
+{
+  ITVFUN(itv_fprint)(stdout,a);
+}
 int ITVFUN(itv_snprint)(char* s, size_t size, itv_t a)
 {
   num_t num;
