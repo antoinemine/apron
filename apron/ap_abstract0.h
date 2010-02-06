@@ -78,9 +78,8 @@ void ap_abstract0_approximate(ap_manager_t* man, ap_abstract0_t* a, int algorith
 
 void ap_abstract0_fprint(FILE* stream,
 			 ap_manager_t* man, ap_abstract0_t* a, char** name_of_dim);
-  /* Print the abstract value in a pretty way, using function
-     name_of_dim to name dimensions */
-
+  /* Print the abstract value in a pretty way, using function name_of_dim to
+     name dimensions. If name_of_dim==NULL, use x0, x1, ... */
 
 void ap_abstract0_fprintdiff(FILE* stream,
 			     ap_manager_t* man,
