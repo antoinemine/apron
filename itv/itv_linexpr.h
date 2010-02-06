@@ -231,13 +231,16 @@ void ITVFUN(itv_linexpr_set)(itv_linexpr_t* res, itv_linexpr_t* expr);
 void ITVFUN(itv_linexpr_reinit)(itv_linexpr_t* expr, size_t size);
 void ITVFUN(itv_linexpr_clear)(itv_linexpr_t* expr);
 void ITVFUN(itv_linexpr_fprint)(FILE* stream, itv_linexpr_t* expr, char** name);
+void ITVFUN(itv_linexpr_print)(itv_linexpr_t* expr, char** name);
 void ITVFUN(itv_lincons_set_bool)(itv_lincons_t* cons, bool value);
 void ITVFUN(itv_lincons_fprint)(FILE* stream, itv_lincons_t* cons, char** name);
+void ITVFUN(itv_lincons_print)(itv_lincons_t* cons, char** name);
 
 void ITVFUN(itv_lincons_array_init)(itv_lincons_array_t* array, size_t size);
 void ITVFUN(itv_lincons_array_reinit)(itv_lincons_array_t* array, size_t size);
 void ITVFUN(itv_lincons_array_clear)(itv_lincons_array_t* array);
 void ITVFUN(itv_lincons_array_fprint)(FILE* stream, itv_lincons_array_t* array, char** name);
+void ITVFUN(itv_lincons_array_print)(itv_lincons_array_t* array, char** name);
 
 bool ITVFUN(itv_linexpr_set_ap_linexpr0)(itv_internal_t* intern, itv_linexpr_t* expr, ap_linexpr0_t* linexpr0);
 bool ITVFUN(itv_lincons_set_ap_lincons0)(itv_internal_t* intern, itv_lincons_t* cons, ap_lincons0_t* lincons0);
@@ -294,7 +297,7 @@ static inline void itv_linexpr_fprint(FILE* stream, itv_linexpr_t* expr, char** 
 { ITVFUN(itv_linexpr_fprint)(stream,expr,name); }
 
 static inline void itv_linexpr_print(itv_linexpr_t* expr, char** name)
-{ itv_linexpr_fprint(stdout,expr,name); }
+{ ITVFUN(itv_linexpr_print)(expr,name); }
 
 static inline void itv_lincons_init(itv_lincons_t* cons)
 { itv_linexpr_init(&cons->linexpr,0); num_init(cons->num); }
@@ -309,7 +312,7 @@ static inline void itv_lincons_fprint(FILE* stream, itv_lincons_t* cons, char** 
 { ITVFUN(itv_lincons_fprint)(stream,cons,name); }
 
 static inline void itv_lincons_print(itv_lincons_t* cons, char** name)
-{ itv_lincons_fprint(stdout,cons,name); }
+{ ITVFUN(itv_lincons_print)(cons,name); }
 static inline void itv_lincons_swap(itv_lincons_t* a, itv_lincons_t* b)
 { if (a!=b){ itv_lincons_t t=*a; *a=*b; *b=t; } }
 
@@ -326,7 +329,7 @@ static inline void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t* a
 { ITVFUN(itv_lincons_array_fprint)(stream,array,name); }
 
 static inline void itv_lincons_array_print(itv_lincons_array_t* array, char** name)
-{ itv_lincons_array_fprint(stdout,array,name); }
+{ ITVFUN(itv_lincons_array_print)(array,name); }
 
 
 static inline bool itv_linexpr_set_ap_linexpr0(itv_internal_t* intern, itv_linexpr_t* expr, ap_linexpr0_t* linexpr0)

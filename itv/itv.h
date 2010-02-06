@@ -227,6 +227,7 @@ bool ITVFUN(itv_sqrt)(itv_internal_t* intern, itv_t a, itv_t b);
 void ITVFUN(itv_abs)(itv_t a, itv_t b);
 void ITVFUN(itv_mod)(itv_internal_t* intern, itv_t a, itv_t b, itv_t c,  bool is_int);
 void ITVFUN(itv_fprint)(FILE* stream, itv_t a);
+void ITVFUN(itv_print)(itv_t a);
 int  ITVFUN(itv_snprint)(char* s, size_t size, itv_t a);
 
 bool ITVFUN(itv_set_ap_scalar)(itv_internal_t* intern, itv_t a, ap_scalar_t* b);
@@ -278,6 +279,8 @@ static inline void itv_div(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
 
 static inline void itv_fprint(FILE* stream, itv_t a)
 { ITVFUN(itv_fprint)(stream,a); }
+static inline void itv_print(itv_t itv)
+{ ITVFUN(itv_print)(itv); }
 
 static inline int itv_snprint(char* s, size_t size, itv_t a)
 { return ITVFUN(itv_snprint)(s,size,a); }
@@ -485,9 +488,6 @@ static inline void itv_abs(itv_t a, itv_t b)
 
 static inline void itv_mod(itv_internal_t* intern, itv_t a, itv_t b, itv_t c, bool is_int)
 { ITVFUN(itv_mod)(intern,a,b,c,is_int); }
-
-static inline void itv_print(itv_t itv)
-{ itv_fprint(stdout,itv); }
 
 static inline void itv_ceil(itv_t a, itv_t b)
 { bound_ceil(a->sup,b->sup); bound_floor(a->inf,b->inf); }
