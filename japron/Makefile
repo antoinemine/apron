@@ -157,7 +157,7 @@ uninstall:
 	done
 
 mostlyclean: clean
-	rm $(JAVAINST)
+	rm -f $(JAVAINST)
 
 distclean: uninstall mostlyclean
 
