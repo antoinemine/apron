@@ -25,6 +25,9 @@ HAS_OCAMLOPT = 1
 
 # HAS_LONG_DOUBLE = 1
 
+# If defined to non-empty value, compiles the Java interface
+# HAS_JAVA = 1
+
 
 ######################################################################
 # Directories
@@ -59,6 +62,28 @@ CAML_PREFIX = /usr
 # Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
 #
 CAMLIDL_PREFIX = /usr
+
+######################################################################
+# Java binaries and directories
+######################################################################
+
+# Java launcher
+# JAVA      = java
+
+# Java compiler
+# JAVAC     = javac -Xlint:unchecked
+
+# Java header compiler
+# JAVAH     = javah
+
+# Java documentation generator
+# JAVADOC   = javadoc
+
+# Java archive tool
+# JAR       = jar
+
+# preprocessing directives to find JNI headers
+# JNIINC    = -I/java/include
 
 ######################################################################
 # Tools and Flags
