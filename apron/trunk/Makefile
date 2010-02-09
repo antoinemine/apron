@@ -14,6 +14,9 @@ endif
 ifneq ($(HAS_CPP),)
 all: cxx
 endif
+ifneq ($(HAS_JAVA),)
+all: java
+endif
 
 c:
 	(cd num; make all)
@@ -39,6 +42,9 @@ ifneq ($(HAS_PPL),)
 	(cd ppl; make ml)
 	(cd products; make ml)
 endif
+
+java: c
+	(cd japron; make all)
 
 .PHONY: aprontop apronppltop
 
@@ -82,6 +88,9 @@ endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; make install)
 endif
+ifneq ($(HAS_JAVA),)
+	(cd japron; make install)
+endif
 
 clean:
 	(cd num; make clean)
@@ -94,6 +103,7 @@ clean:
 	(cd ppl; make clean)
 	(cd products; make clean)
 	(cd apronxx; make clean)
+	(cd japron; make clean)
 	(cd examples; make clean)
 	(cd test; make clean)
 	rm -fr online tmp apron*run aprontop apronppltop
@@ -104,6 +114,7 @@ mostlyclean: clean
 	(cd octagons; make mostlyclean)
 	(cd newpolka; make mostlyclean)
 	(cd ppl; make mostlyclean)
+	(cd japron; make mostlyclean)
 	(cd products; make mostlyclean)
 	(cd apronxx; make mostlyclean)
 
@@ -121,6 +132,7 @@ distclean:
 	(cd ppl; make distclean)
 	(cd products; make distclean)
 	(cd apronxx; make distclean)
+	(cd japron; make distclean)
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 
 doc:
@@ -131,12 +143,15 @@ endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; make doc)
 endif
+ifneq ($(HAS_JAVA),)
+	(cd japron; make doc)
+endif
 
 # make distribution, update to reflect current version
 
 PKGNAME  = apron-0.9.10
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box newpolka ppl products mlapronidl examples test apronxx
+PKGDIRS  = apron num itv octagons box newpolka ppl products mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all
