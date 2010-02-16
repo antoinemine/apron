@@ -24,7 +24,7 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
 		      ap_reducedproduct_t* a)
 {
   size_t i,index;
-  ap_reducedproduct_internal_t* intern = 
+  ap_reducedproduct_internal_t* intern =
     (ap_reducedproduct_internal_t*)manager->internal;
   ap_manager_t* manpoly = intern->tmanagers[0];
   ap_manager_t* mangrid = intern->tmanagers[1];
@@ -32,14 +32,11 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
   struct ppl_grid* grid = a->p[1];
   ap_lincons0_array_t array,array2;
   ap_interval_t* interval;
-  mpq_t quotient,aprime,diff,prod;
+  mpq_t quotient;
   int cmp;
   ap_dimension_t dimension;
 
-  mpq_init(diff);
-  mpq_init(prod);
   mpq_init(quotient);
-  mpq_init(aprime);
   dimension = pk_dimension(manpoly,poly);
 
   /* 1. Reduction from poly to grid:
@@ -72,13 +69,11 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
   /* 2. Reduction from grid to poly:
      for each equality e=0 mod m, m>0,
      compute [a,b] = range(e) in poly
-     if b-a > m, nothing to do;
-     otherwise, compute [a',b'] where a' = a - sup(a/m) m, b' = b - sup(a/m) m
-     (we have -m<a'<=0)
-     first case: b-a=m and a=0: nothing to do
-     second case: b-a=m and a!=0:  e = sup(a/m).m
-     third case: b-a<m, a'<=0<=b': e = sup(a/m) m
-     fourth case: b-a<m, b'=a'+(b-a)<0: bottom
+
+     a <= e <= b and e=0 mod m means a<=e<=b and e=km, with k integer.
+     possible range for k satisfies a <= km <= b <=> sup(a/m) <= k <= inf(b/m).
+     so we can refine the constraint with
+     sup(a/m)*m <= e <= inf(a/m)*m
   */
   /* 2.1 Extract constraints */
   ap_ppl_grid_canonicalize(mangrid,grid);
@@ -86,10 +81,11 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
     goto ap_pkgrid_reduce_exit2;
   }
   array = ap_ppl_grid_to_lincons_array(mangrid,grid);
-  array2 = ap_lincons0_array_make(array.size);
+  array2 = ap_lincons0_array_make(2*array.size);
   index = 0;
   for (i=0; i<array.size; i++){
     ap_lincons0_t cons = array.p[i];
+    ap_lincons0_t* cons2;
     switch (cons.constyp){
     case AP_CONS_EQ:
       array2.p[index] = ap_lincons0_copy(&cons);
@@ -97,54 +93,56 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
       break;
     case AP_CONS_EQMOD:
       interval = pk_bound_linexpr(manpoly,poly,cons.linexpr0);
-      if (ap_scalar_infty(interval->inf) || ap_scalar_infty(interval->sup)){
-	ap_interval_free(interval);
-	continue;
-      }
       assert(interval->inf->discr==AP_SCALAR_MPQ &&
 	     interval->sup->discr==AP_SCALAR_MPQ);
       assert(cons.scalar->discr==AP_SCALAR_MPQ);
-      mpq_sub(diff,
-	      interval->sup->val.mpq,
-	      interval->inf->val.mpq);
-      cmp = mpq_cmp(diff,cons.scalar->val.mpq);
-      if (cmp<=0){ /* b-a<=m */
-	mpq_div(quotient,interval->inf->val.mpq,cons.scalar->val.mpq);
-	mpz_cdiv_q(mpq_numref(quotient),
-		   mpq_numref(quotient),
-		   mpq_denref(quotient));
-	mpz_set_si(mpq_denref(quotient),1);
-	mpq_mul(prod,quotient,cons.scalar->val.mpq);
-	mpq_sub(aprime,interval->inf->val.mpq,prod);
-	if (cmp==0 && mpq_sgn(aprime)!=0){
-	  goto ap_pkgrid_reduce_red;
+      if (!ap_scalar_infty(interval->inf)){
+	/* lower  */
+	mpq_div(quotient,
+		interval->inf->val.mpq,
+		cons.scalar->val.mpq);
+	if (mpz_cmp_ui(mpq_denref(quotient),1)!=0){ /* a/m is not integer */
+	  mpz_cdiv_q(mpq_numref(quotient),
+		     mpq_numref(quotient),
+		     mpq_denref(quotient));
+	  mpz_set_ui(mpq_denref(quotient),1);
+	  mpq_mul(quotient,quotient,cons.scalar->val.mpq);
+	  array2.p[index] = ap_lincons0_copy(&cons);
+	  cons2 = &array2.p[index];
+	  cons2->constyp = AP_CONS_SUPEQ;
+	  mpq_sub(cons2->linexpr0->cst.val.scalar->val.mpq,
+		  cons2->linexpr0->cst.val.scalar->val.mpq,
+		  quotient);
+	  index++;
 	}
-	else if (cmp<0){
-	  mpq_add(diff,diff,aprime);
-	  if (mpq_sgn(diff)>=0){
-	  ap_pkgrid_reduce_red:
-	    assert(cons.linexpr0->cst.discr==AP_COEFF_SCALAR &&
-		   cons.linexpr0->cst.val.scalar->discr==AP_SCALAR_MPQ);
-	    array2.p[index] = ap_lincons0_copy(&cons);
-	    cons = array2.p[index];
-	    index++;
-	    mpq_add(cons.linexpr0->cst.val.scalar->val.mpq,
-		    cons.linexpr0->cst.val.scalar->val.mpq,
-		    prod);
-	    cons.constyp = AP_CONS_EQ;
+      }
+      if (!ap_scalar_infty(interval->sup)){
+	/* Upper */
+	mpq_div(quotient,
+		interval->sup->val.mpq,
+		cons.scalar->val.mpq);
+	if (mpz_cmp_ui(mpq_denref(quotient),1)!=0){ /* a/m is not integer */
+	  mpz_fdiv_q(mpq_numref(quotient),
+		     mpq_numref(quotient),
+		     mpq_denref(quotient));
+	  mpz_set_ui(mpq_denref(quotient),1);
+	  mpq_mul(quotient,quotient,cons.scalar->val.mpq);
+	  array2.p[index] = ap_lincons0_copy(&cons);
+	  cons2 = &array2.p[index];
+	  cons2->constyp = AP_CONS_SUPEQ;
+	  {
+	    size_t k,dim;
+	    ap_coeff_t* pcoeff;
+	    ap_linexpr0_ForeachLinterm(cons2->linexpr0,i,dim,pcoeff){
+	      ap_coeff_neg(pcoeff,pcoeff);
+	    }
+	    mpq_neg(cons2->linexpr0->cst.val.scalar->val.mpq,
+		    cons2->linexpr0->cst.val.scalar->val.mpq);
 	  }
-	  else {
-	    ap_lincons0_array_clear(&array);
-	    ap_lincons0_array_clear(&array2);
-	    ap_ppl_grid_free(mangrid,grid);
-	    pk_free(manpoly,poly);
-	    grid = ap_ppl_grid_bottom(mangrid,
-				      dimension.intdim,dimension.realdim);
-	    poly = pk_bottom(manpoly,
-			     dimension.intdim,dimension.realdim);
-	    ap_interval_free(interval);
-	    goto ap_pkgrid_reduce_exit;
-	  }
+	  mpq_add(cons2->linexpr0->cst.val.scalar->val.mpq,
+		  cons2->linexpr0->cst.val.scalar->val.mpq,
+		  quotient);
+	  index++;
 	}
       }
       ap_interval_free(interval);
@@ -157,12 +155,9 @@ void ap_pkgrid_reduce(ap_manager_t* manager,
   poly = pk_meet_lincons_array(manpoly,true,poly,&array2);
   ap_lincons0_array_clear(&array);
   ap_lincons0_array_clear(&array2);
-  
+
  ap_pkgrid_reduce_exit:
-  mpq_clear(diff);
-  mpq_clear(prod);
   mpq_clear(quotient);
-  mpq_clear(aprime);
   a->p[0] = poly;
   a->p[1] = grid;
 }
@@ -171,7 +166,7 @@ void ap_pkgrid_approximate(ap_manager_t* manager,
 			   ap_reducedproduct_t* a,
 			   int n)
 {
-  ap_reducedproduct_internal_t* intern = 
+  ap_reducedproduct_internal_t* intern =
     (ap_reducedproduct_internal_t*)manager->internal;
   ap_manager_t* manpoly = intern->tmanagers[0];
   ap_manager_t* mangrid = intern->tmanagers[1];
@@ -187,14 +182,14 @@ ap_manager_t* ap_pkgrid_manager_alloc(ap_manager_t* manpk, ap_manager_t* manpplg
   bool strict;
 
   strict = (strcmp(manpk->library,"polka, strict mode")==0);
-  
+
   if ( (strcmp(manpk->library,"polka, loose mode") && !strict) ||
        strcmp(manpplgrid->library,"PPL::Grid") )
     return NULL;
 
   tmanagers[0] = manpk;
   tmanagers[1] = manpplgrid;
-  char* library = strict ? 
+  char* library = strict ?
     "pkgrid: polka, strict mode and PPL::Grid" :
     "pkgrid: polka, loose mode and PPL::Grid";
 
