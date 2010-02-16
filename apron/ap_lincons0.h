@@ -75,6 +75,7 @@ static inline
 void ap_lincons0_clear(ap_lincons0_t* cons);
   /* Free the linear expression of the constraint and set pointer to NULL */
 
+void ap_lincons0_print(ap_lincons0_t* cons, char** name_of_dim);
 void ap_lincons0_fprint(FILE* stream,
 			ap_lincons0_t* cons, char** name_of_dim);
   /* Printing a linear constraint */
@@ -121,6 +122,8 @@ void ap_lincons0_array_resize(ap_lincons0_array_t* array, size_t size);
 void ap_lincons0_array_clear(ap_lincons0_array_t* array);
   /* Clear the constraints of the array, and then the array itself */
 
+void ap_lincons0_array_print(ap_lincons0_array_t* ap_lincons0_array,
+			     char** name_of_dim);
 void ap_lincons0_array_fprint(FILE* stream,
 			      ap_lincons0_array_t* ap_lincons0_array,
 			      char** name_of_dim);
