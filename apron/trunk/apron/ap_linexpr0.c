@@ -172,6 +172,8 @@ void ap_linexpr0_free(ap_linexpr0_t* e)
   free(e);
 }
 
+void ap_linexpr0_print(ap_linexpr0_t* a, char** name_of_dim)
+{ ap_linexpr0_fprint(stdout,a,name_of_dim); }
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t* a, char** name_of_dim)
 {
   size_t i;

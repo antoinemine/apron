@@ -102,6 +102,7 @@ ap_linexpr0_t* ap_linexpr0_copy(ap_linexpr0_t* a);
   /* Duplication */
 
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t* a, char** name_of_dim);
+void ap_linexpr0_print(ap_linexpr0_t* a, char** name_of_dim);
   /* Printing a linear expression */
 
 /* ====================================================================== */

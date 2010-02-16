@@ -11,6 +11,9 @@
 /* I. Linear constraints */
 /* ********************************************************************** */
 
+void ap_lincons0_print(ap_lincons0_t* cons,
+		       char** name_of_dim)
+{ ap_lincons0_fprint(stdout,cons,name_of_dim); }
 void ap_lincons0_fprint(FILE* stream, ap_lincons0_t* cons, char** name_of_dim)
 {
   ap_linexpr0_fprint(stream,cons->linexpr0,name_of_dim);
@@ -137,6 +140,9 @@ void ap_lincons0_array_clear(ap_lincons0_array_t* array)
   }
 }
 
+void ap_lincons0_array_print(ap_lincons0_array_t* array,
+			     char** name_of_dim)
+{ ap_lincons0_array_fprint(stdout,array,name_of_dim); }
 void ap_lincons0_array_fprint(FILE* stream,
 			      ap_lincons0_array_t* array,
 			      char** name_of_dim)
