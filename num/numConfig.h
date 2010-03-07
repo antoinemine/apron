@@ -1,6 +1,6 @@
 
-#ifndef _NUM_CONFIG_H_
-#define _NUM_CONFIG_H_
+#ifndef _NUMCONFIG_H_
+#define _NUMCONFIG_H_
 
 #include "ap_config.h"
 
