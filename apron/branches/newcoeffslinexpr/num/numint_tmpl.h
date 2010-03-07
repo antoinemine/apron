@@ -8,32 +8,13 @@
 #include <stdint.h>
 #include "gmp.h"
 #include "mpfr.h"
-#include "ap_scalar.h"
 
-#include "num_config.h"
-
-#if defined(NUMINT_LONGINT) || defined(NUMINT_LONGLONGINT)
-#include "numint_native.h"
-
-#elif defined(NUMINT_MPZ)
-#include "numint_mpz.h"
-
-#else
-#error "HERE"
-#endif
+#include "numConfig.h"
+#include "numint_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*
-   NUMINT_LONGINT and NUMINT_LONGLONGINT also define
-
-   - NUMINT_MAX: max positive value.
-     It is assumed that (-NUMINT_MAX) is also representable
-
-   - NUMINT_NATIVE: no heap allocated memory
-*/
 
 /* ====================================================================== */
 /* Assignement */
@@ -54,8 +35,7 @@ static inline void numint_init_set_int(numint_t a, long int i);
 static inline void numint_clear(numint_t a);
 static inline void numint_clear_array(numint_t* a, size_t size);
 
-static inline void numint_swap(numint_t a, numint_t b)
-{ numint_t t; *t=*a;*a=*b;*b=*t; }
+static inline void numint_swap(numint_t a, numint_t b);
 
 /* ====================================================================== */
 /* Arithmetic Operations */
@@ -124,8 +104,6 @@ static inline bool numint_set_double(numint_t a, double b);
   /* double -> numint */
 static inline bool numint_set_mpfr(numint_t a, mpfr_t b);
   /* mpfr -> numint */
-static inline bool numint_set_ap_scalar(numint_t a, ap_scalar_t* b);
-  /* (finite) ap_scalar -> numint */
 
 static inline bool int_set_numint(long int* a, numint_t b);
   /* numint -> int */
@@ -137,8 +115,6 @@ static inline bool double_set_numint(double* a, numint_t b);
   /* numint -> double */
 static inline bool mpfr_set_numint(mpfr_t a, numint_t b);
   /* numint -> mpfr */
-static inline bool ap_scalar_set_numint(ap_scalar_t* a, numint_t b);
-  /* numint -> ap_scalar */
 
 static inline bool mpz_fits_numint(mpz_t a);
 static inline bool mpq_fits_numint(mpq_t a);
@@ -162,27 +138,6 @@ static inline unsigned char numint_serialize_id(void);
 static inline size_t numint_serialize(void* dst, numint_t src);
 static inline size_t numint_deserialize(numint_t dst, const void* src);
 static inline size_t numint_serialized_size(numint_t a);
-
-
-/* */
-static inline bool numint_set_ap_scalar(numint_t a, ap_scalar_t* b)
-{
-  assert (ap_scalar_infty(b)==0);
-  switch (b->discr){
-  case AP_SCALAR_MPQ:
-    return numint_set_mpq(a,b->val.mpq);
-  case AP_SCALAR_DOUBLE:
-    return numint_set_double(a,b->val.dbl);
-  case AP_SCALAR_MPFR:
-    return numint_set_mpfr(a,b->val.mpfr);
-  default: abort();
-  }
-}
-static inline bool ap_scalar_set_numint(ap_scalar_t* a, numint_t b)
-{
-  ap_scalar_reinit(a,AP_SCALAR_MPQ);
-  return mpq_set_numint(a->val.mpq,b);
-}
 
 #ifdef __cplusplus
 }

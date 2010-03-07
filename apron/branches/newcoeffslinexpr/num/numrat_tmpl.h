@@ -8,26 +8,15 @@
 #include <stdint.h>
 #include "gmp.h"
 #include "mpfr.h"
-#include "ap_scalar.h"
-#include "num_config.h"
 
-/* We assume that the basic NUMINT on which rational is built is properly
-   defined */
+#include "numConfig.h"
+
 #include "numint.h"
-
-/* Two main cases: for NUMINT_MPZ, the scaling to rational is already done */
-#if defined(NUMINT_MPZ)
-#include "numrat_mpq.h"
-#elif defined(NUMINT_NATIVE)
-#include "numrat_native.h"
-#else
-#error "HERE"
-#endif
+#include "numrat_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /* ====================================================================== */
 /* Assignement */
@@ -48,8 +37,7 @@ static inline void numrat_init_set_int(numrat_t a, long int i);
 static inline void numrat_clear(numrat_t a);
 static inline void numrat_clear_array(numrat_t* a, size_t size);
 
-static inline void numrat_swap(numrat_t a, numrat_t b)
-{ numrat_t t; *t=*a;*a=*b;*b=*t; }
+static inline void numrat_swap(numrat_t a, numrat_t b);
 
 /* ====================================================================== */
 /* Arithmetic Operations */
@@ -105,8 +93,6 @@ static inline bool numrat_set_double(numrat_t a, double b);
   /* double -> numrat */
 static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b);
   /* mpfr -> numrat */
-static inline bool numrat_set_ap_scalar(numrat_t a, ap_scalar_t* b);
-  /* (finite) ap_scalar -> numrat */
 static inline bool int_set_numrat(long int* a, numrat_t b);
   /* numrat -> int */
 static inline bool mpz_set_numrat(mpz_t a, numrat_t b);
@@ -117,8 +103,6 @@ static inline bool double_set_numrat(double* a, numrat_t b);
   /* numrat -> double */
 static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b);
   /* numrat -> mpfr */
-static inline bool ap_scalar_set_numrat(ap_scalar_t* a, numrat_t b);
-  /* numrat -> ap_scalar */
 
 static inline bool mpz_fits_numrat(mpz_t a);
 static inline bool mpq_fits_numrat(mpq_t a);
@@ -161,27 +145,6 @@ static inline unsigned char numrat_serialize_id(void);
 static inline size_t numrat_serialize(void* dst, numrat_t src);
 static inline size_t numrat_deserialize(numrat_t dst, const void* src);
 static inline size_t numrat_serialized_size(numrat_t a);
-
-
-/* */
-static inline bool numrat_set_ap_scalar(numrat_t a, ap_scalar_t* b)
-{
-  assert (ap_scalar_infty(b)==0);
-  switch (b->discr){
-  case AP_SCALAR_MPQ:
-    return numrat_set_mpq(a,b->val.mpq);
-  case AP_SCALAR_DOUBLE:
-    return numrat_set_double(a,b->val.dbl);
-  case AP_SCALAR_MPFR:
-    return numrat_set_mpfr(a,b->val.mpfr);
-  default: abort();
-  }
-}
-static inline bool ap_scalar_set_numrat(ap_scalar_t* a, numrat_t b)
-{
-  ap_scalar_reinit(a,AP_SCALAR_MPQ);
-  return mpq_set_numrat(a->val.mpq,b);
-}
 
 #ifdef __cplusplus
 }
