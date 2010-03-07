@@ -1,9 +1,9 @@
 /* ********************************************************************** */
-/* rational_native.h */
+/* numrat_native_def_tmpl.h */
 /* ********************************************************************** */
 
-#ifndef _NUMRAT_NATIVE_H_
-#define _NUMRAT_NATIVE_H_
+#ifndef _NUMRAT_DEF_H_
+#define _NUMRAT_DEF_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,23 +14,15 @@
 #include <stdint.h>
 #include "gmp.h"
 #include "mpfr.h"
-#include "ap_scalar.h"
 
-#include "num_config.h"
-
-/* We assume that the basic NUMINT on which rational is built is properly
-   defined */
-#include "numint.h"
-
-#ifndef NUMINT_NATIVE
-#error "HERE"
-#endif
+#include "numConfig.h"
+#include "numint_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _rat_t {
+typedef struct numrat_native {
   numint_t n; /* numerator */
   numint_t d; /* denominator, >=0 */
 } numrat_t[1];
@@ -46,7 +38,7 @@ static inline void numrat_canonicalize(numrat_t r)
     numint_gcd(pgcd,r->n,r->d);
     if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMINT_MIN || *r->n==NUMINT_MIN))) {
       fprintf(stderr,"overflow in numrat_canonicalize\n");
-      return; 
+      return;
     }
     *r->n /= *pgcd;
     *r->d /= *pgcd;
@@ -85,7 +77,7 @@ static inline void numrat_set_int(numrat_t a, long int i)
 /* ====================================================================== */
 
 static inline void numrat_init(numrat_t a)
-{ 
+{
   numint_init(a->n);
   numint_init_set_int(a->d,1);
 }
@@ -103,7 +95,8 @@ static inline void numrat_clear(numrat_t a)
 {}
 static inline void numrat_clear_array(numrat_t* a, size_t size)
 {}
-
+static inline void numrat_swap(numrat_t a, numrat_t b)
+{ numrat_t t; *t=*a;*a=*b;*b=*t; }
 
 /* ====================================================================== */
 /* Arithmetic Operations */
@@ -112,7 +105,7 @@ static inline void numrat_clear_array(numrat_t* a, size_t size)
 static inline void numrat_neg(numrat_t a, numrat_t b)
 { numint_neg(a->n,b->n); numint_set(a->d,b->d); }
 static inline void numrat_inv(numrat_t a, numrat_t b)
-{ 
+{
   if (a!=b)
     *a = *b;
   numint_swap(a->n,a->d);
@@ -124,41 +117,41 @@ static inline void numrat_inv(numrat_t a, numrat_t b)
 static inline void numrat_abs(numrat_t a, numrat_t b)
 { numint_abs(a->n,b->n); numint_set(a->d,b->d); }
 static inline void numrat_add(numrat_t a, numrat_t b, numrat_t c)
-{ 
+{
   numint_t d;
 #if 0
   *d = *b->d * *c->d;
-  *a->n = *b->n * *c->d + *b->d * *c->n; 
-  *a->d = *d; 
+  *a->n = *b->n * *c->d + *b->d * *c->n;
+  *a->d = *d;
 #else /* more cost but less overflows */
   numint_lcm(d,b->d,c->d);
-  *a->n = *b->n * (*d / *b->d) + (*d / *c->d) * *c->n; 
-  *a->d = *d; 
+  *a->n = *b->n * (*d / *b->d) + (*d / *c->d) * *c->n;
+  *a->d = *d;
 #endif
-  numrat_canonicalize(a); 
+  numrat_canonicalize(a);
 }
 static inline void numrat_add_uint(numrat_t a, numrat_t b, unsigned long int c)
-{ 
+{
   *a->n = *b->n + (numint_native)c * (*b->d);
   *a->d = *b->d;
   numrat_canonicalize(a);
 }
 static inline void numrat_sub(numrat_t a, numrat_t b, numrat_t c)
-{ 
+{
   numint_t d;
 #if 0
   *d = *b->d * *c->d;
-  *a->n = *b->n * *c->d - *b->d * *c->n; 
-  *a->d = *d; 
+  *a->n = *b->n * *c->d - *b->d * *c->n;
+  *a->d = *d;
 #else /* more cost but less overflows */
   numint_lcm(d,b->d,c->d);
-  *a->n = *b->n * (*d / *b->d) - (*d / *c->d) * *c->n; 
-  *a->d = *d; 
+  *a->n = *b->n * (*d / *b->d) - (*d / *c->d) * *c->n;
+  *a->d = *d;
 #endif
-  numrat_canonicalize(a); 
+  numrat_canonicalize(a);
 }
 static inline void numrat_sub_uint(numrat_t a, numrat_t b, unsigned long int c)
-{ 
+{
   *a->n = *b->n - (numint_native)c * (*b->d);
   *a->d = *b->d;
   numrat_canonicalize(a);
@@ -167,7 +160,7 @@ static inline void numrat_mul(numrat_t a, numrat_t b, numrat_t c)
 {
   *a->n = *b->n * *c->n;
   *a->d = *b->d * *c->d;
-  numrat_canonicalize(a);   
+  numrat_canonicalize(a);
 }
 static inline void numrat_mul_2(numrat_t a, numrat_t b)
 {
@@ -192,7 +185,7 @@ static inline void numrat_div(numrat_t a, numrat_t b, numrat_t c)
     *a->n = *b->n * *c->d;
     *a->d = *d;
   }
-  numrat_canonicalize(a);   
+  numrat_canonicalize(a);
 }
 static inline void numrat_div_2(numrat_t a, numrat_t b)
 {
@@ -253,7 +246,7 @@ static inline void numrat_mul_2exp(numrat_t a, numrat_t b, int c)
 static inline int numrat_sgn(numrat_t a)
 { return numint_sgn(a->n); }
 static inline int numrat_cmp(numrat_t a, numrat_t b)
-{ 
+{
   numint_t aa,bb;
 #if 0
   *aa = *a->n * *b->d;
@@ -262,12 +255,12 @@ static inline int numrat_cmp(numrat_t a, numrat_t b)
   numint_t d;
   numint_lcm(d,a->d,b->d);
   *aa = *a->n * (*d / *a->d);
-  *bb = (*d / *b->d) * *b->n;  
+  *bb = (*d / *b->d) * *b->n;
 #endif
   return numint_cmp(aa,bb);
 }
 static inline int numrat_cmp_int(numrat_t a, long int b)
-{ 
+{
   numint_t aa,bb;
   *aa = *a->n;
   *bb = *a->d * b;
@@ -289,7 +282,7 @@ static inline bool numrat_integer(numrat_t a)
 /* ====================================================================== */
 
 static inline void numrat_fprint(FILE* stream, numrat_t a)
-{ 
+{
   if (*a->n==0)
     fprintf(stream,"0");
   else if (*a->d==1)
@@ -301,7 +294,7 @@ static inline void numrat_fprint(FILE* stream, numrat_t a)
   }
 }
 static inline void numrat_print(numrat_t a)
-{ 
+{
   numrat_fprint(stdout,a);
 }
 static inline int numrat_snprint(char* s, size_t size, numrat_t a)
@@ -325,7 +318,7 @@ static inline int numrat_snprint(char* s, size_t size, numrat_t a)
 
 /* int2 -> numrat */
 static inline bool numrat_set_int2(numrat_t a, long int i, long int j)
-{ 
+{
   assert(j>0);
   numint_set_int(a->n,i);
   numint_set_int(a->d,j);
@@ -335,7 +328,7 @@ static inline bool numrat_set_int2(numrat_t a, long int i, long int j)
 
 /* mpz -> numrat */
 static inline bool numrat_set_mpz(numrat_t a, mpz_t b)
-{ 
+{
   numint_set_mpz(a->n,b);
   numint_set_int(a->d,1);
   return true;
@@ -343,10 +336,10 @@ static inline bool numrat_set_mpz(numrat_t a, mpz_t b)
 
 /* mpq -> numrat */
 static inline bool numrat_set_mpq(numrat_t a, mpq_t b)
-{ 
-  numint_set_mpz(a->n,mpq_numref(b));
-  numint_set_mpz(a->d,mpq_denref(b));
-  return true;
+{
+  bool res1 = numint_set_mpz(a->n,mpq_numref(b));
+  bool res2 = numint_set_mpz(a->d,mpq_denref(b));
+  return res1 && res2;
 }
 
 /* double -> numrat */
@@ -383,13 +376,13 @@ static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b)
 }
 /* numrat -> int */
 static inline bool int_set_numrat(long int* a, numrat_t b)
-{ 
+{
   numint_t q,r;
   numint_cdiv_qr(q,r,b->n,b->d);
   *a = *q;
   return (*r==0);
 }
-static inline bool int_set_numrat_tmp(long int* a, numrat_t b, 
+static inline bool int_set_numrat_tmp(long int* a, numrat_t b,
 				      mpz_t q, mpz_t r)
 { return int_set_numrat(a,b); }
 
@@ -413,7 +406,7 @@ static inline bool mpq_set_numrat(mpq_t a, numrat_t b)
 }
 /* numrat -> double */
 /* mpfr should have exactly a precision of 53 bits */
-static inline bool double_set_numrat_tmp(double* a, numrat_t b, 
+static inline bool double_set_numrat_tmp(double* a, numrat_t b,
 					 mpq_t mpq, mpfr_t mpfr)
 {
   mpq_set_numrat(mpq,b);
@@ -434,7 +427,7 @@ static inline bool double_set_numrat(double* a, numrat_t b)
 }
 /* numrat -> mpfr */
 static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b)
-{ 
+{
   int r = mpfr_set_si(a,*numrat_numref(b),GMP_RNDU);
   return !mpfr_div_si(a,a,*numrat_denref(b),GMP_RNDU) && !r;
 }
@@ -485,8 +478,6 @@ static inline bool numrat_fits_double(numrat_t a)
 static inline bool numrat_fits_mpfr(numrat_t a)
 { return true; }
 
-
-
 /* ====================================================================== */
 /* Serialization */
 /* ====================================================================== */
@@ -509,7 +500,7 @@ static inline size_t numrat_deserialize(numrat_t dst, const void* src)
 static inline size_t numrat_serialized_size(numrat_t a)
 {
   return numint_serialized_size(numrat_numref(a)) +
-         numint_serialized_size(numrat_denref(a));
+	 numint_serialized_size(numrat_denref(a));
 }
 
 #ifdef __cplusplus

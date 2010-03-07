@@ -9,8 +9,6 @@
 #error "File bound.h requires num.h to be first included"
 #endif
 
-#include <stdio.h>
-#include "ap_scalar.h"
 #include "bound_def.h"
 
 #ifdef __cplusplus
@@ -119,22 +117,6 @@ static inline int bound_hash(bound_t a);
 static inline void bound_print(bound_t a);
 static inline void bound_fprint(FILE* stream, bound_t a);
 static inline int bound_snprint(char* s, size_t size, bound_t a);
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-static inline bool bound_set_ap_scalar(bound_t a, ap_scalar_t* b);
-  /* Convert a ap_scalar_t into a bound_t. */
-  /* Return true iff the conversion is exact */
-
-static inline bool ap_scalar_set_bound(ap_scalar_t* a, bound_t b);
-  /* Convert a bound_t into a ap_scalar_t */
-  /* Reinitialize a with the best type, depending on bound_t and num_t */
-  /* Return true iff the conversion is exact.
-
-     Normally always return true, with the exception of long double type for
-     num. */
 
 /* ====================================================================== */
 /* Serialization */

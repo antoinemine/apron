@@ -19,55 +19,12 @@
    we erase the (obsolete) GMP function mpq_set_num */
 #undef mpq_set_num
 
-#include "num_config.h"
-
-#if defined(NUM_LONGINT) || defined(NUM_LONGLONGINT) || defined(NUM_MPZ)
-#include "num_numint.h"
-#elif defined(NUM_LONGRAT) || defined(NUM_LONGLONGRAT) || defined(NUM_MPQ)
-#include "num_numrat.h"
-#elif defined(NUM_DOUBLE) || defined(NUM_LONGDOUBLE) || defined(NUM_MPFR)
-#include "num_numflt.h"
-#else
-#error "HERE"
-#endif
-
-#include "num_name.h"
+#include "numConfig.h"
+#include "num_numxxx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Parameter: one of the following macros should be defined:
-   NUM_LONGINT,
-   NUM_LONGLONGINT,
-   NUM_MPZ,
-
-   NUM_LONGRAT,
-   NUM_LONGLONGRAT,
-   NUM_MPQ,
-
-   NUM_DOUBLE,
-   NUM_LONGDOUBLE,
-   NUM_MPFR
-
-   Each parameter induces the definition of the following macros:
-   NUM_LONGINT:     NUM_NUMINT, NUMINT_LONGINT,     NUM_MAX, NUMINT_MAX, NUM_NATIVE, NUMINT_NATIVE
-   NUM_LONGLONGINT: NUM_NUMINT, NUMINT_LONGLONGINT, NUM_MAX, NUMINT_MAX, NUM_NATIVE, NUMINT_NATIVE
-   NUM_MPZ:         NUM_NUMINT, NUMINT_MPZ 
-
-   NUM_LONGRAT:     NUM_NUMRAT, NUMINT_LONGINT,     NUM_NATIVE, NUMINT_NATIVE
-   NUM_LONGLONGRAT: NUM_NUMRAT, NUMINT_LONGLONGINT, NUM_NATIVE, NUMINT_NATIVE
-   NUM_MPQ:         NUM_NUMRAT, NUMINT_MPZ 
-
-   NUM_DOUBLE:      NUM_NUMFLT, NUMFLT_DOUBLE,      NUM_MAX, NUMFLT_MAX, NUM_NATIVE, NUMFLT_NATIVE
-   NUM_LONGDOUBLE:  NUM_NUMFLT, NUMFLT_LONGDOUBLE,  NUM_MAX, NUMFLT_MAX, NUM_NATIVE, NUMFLT_NATIVE
-
-   Additionally, the following macros are defined:
-   NUM_NAME       litteral string with human-readable name of number type
-   NUM_SUFFIX     tag uniquely defining the number type (can be used as a function suffix)
-   NUM_AP_SCALAR  preferred AP_SCALAR_ type
-   NUMFUN(x)      name-mangling: append NUM_SUFFIX to x
-*/
 
 /* ====================================================================== */
 /* Assignement */
@@ -150,8 +107,6 @@ static inline bool num_set_double(num_t a, double b);
   /* double -> num */
 static inline bool num_set_mpfr(num_t a, mpfr_t b);
   /* mpfr -> num */
-static inline bool num_set_ap_scalar(num_t a, ap_scalar_t* b);
-  /* (finite) ap_scalar -> num */
 
 static inline bool int_set_num(long int* a, num_t b);
   /* num -> int */
@@ -165,8 +120,6 @@ static inline bool float_set_num(float* a, num_t b);
   /* num -> float */
 static inline bool mpfr_set_num(mpfr_t a, num_t b);
   /* num -> mpfr */
-static inline bool ap_scalar_set_num(ap_scalar_t* a, num_t b);
-  /* num -> ap_scalar */
 
 static inline bool mpz_fits_num(mpz_t a);
 static inline bool mpq_fits_num(mpq_t a);
