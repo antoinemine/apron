@@ -1,9 +1,9 @@
 include ../Makefile.config
 
 SEDSCRIPT_FILES = \
-sedscriptIl sedscriptIll sedscriptMPZ \
-sedscriptRl sedscriptRll sedscriptMPQ \
-sedscriptD sedscriptDl sedscriptMPFR
+numIl.sed numIll.sed numMPZ.sed \
+numRl.sed numRll.sed numMPQ.sed \
+numD.sed numDl.sed numMPFR.sed
 
 H_ORIG_FILES = \
 numConfig.h \
@@ -53,16 +53,16 @@ dist: $(SEDSCRIPT_FILES) $(H_ORIG_FILES) $(H_TMPL_FILES) Makefile README
 clean: 
 	rm -fr testI* testR* testMP* testD* testMPFR* out.* TAGS $(H_GENERATED_FILES)
 
-ICFLAGS = -I../apron -I$(APRON_PREFIX)/include -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(APRON_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
+ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
 
-CLIBS = -L../apron -lapron -lmpfr -lgmp -lm
+CLIBS = -lmpfr -lgmp -lm
 
 tests: testIl testIll testRl testRll testMPZ testMPQ testD testDl testMPFR
 
-test%.c: sedscript% test.c
+test%.c: num%.sed test.c
 	$(SED) -f $< test.c >$@
 
-test%: test%.c sedscript%
+test%: test%.c num%.sed
 	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< $(CLIBS)
 
 out: tests
@@ -76,29 +76,29 @@ out: tests
 	./testDl > out.Dl
 	./testMPFR > out.MPFR
 
-numint%.h: sedscript% numint_tmpl.h 
+numint%.h: num%.sed numint_tmpl.h 
 	$(SED) -f $< numint_tmpl.h >$@
-numratRl_def.h: sedscriptRl numrat_native_def_tmpl.h
+numratRl_def.h: numRl.sed numrat_native_def_tmpl.h
 	$(SED) -f $< numrat_native_def_tmpl.h >$@
-numratRll_def.h: sedscriptRll numrat_native_def_tmpl.h
+numratRll_def.h: numRll.sed numrat_native_def_tmpl.h
 	$(SED) -f $< numrat_native_def_tmpl.h >$@
-numrat%.h: sedscript% numrat_tmpl.h 
+numrat%.h: num%.sed numrat_tmpl.h 
 	$(SED) -f $< numrat_tmpl.h >$@
-numflt%.h: sedscript% numflt_tmpl.h 
+numflt%.h: num%.sed numflt_tmpl.h 
 	$(SED) -f $< numflt_tmpl.h >$@
-num%.h: sedscript% num_tmpl.h 
+num%.h: num%.sed num_tmpl.h 
 	$(SED) -f $< numint_tmpl.h >$@
-num%_numint.h: sedscript% num_numint_tmpl.h 
+num%_numint.h: num%.sed num_numint_tmpl.h 
 	$(SED) -f $< num_numint_tmpl.h >$@
-num%_numrat.h: sedscript% num_numrat_tmpl.h 
+num%_numrat.h: num%.sed num_numrat_tmpl.h 
 	$(SED) -f $< num_numrat_tmpl.h >$@
-num%_numflt.h: sedscript% num_numflt_tmpl.h 
+num%_numflt.h: num%.sed num_numflt_tmpl.h 
 	$(SED) -f $< num_numflt_tmpl.h >$@
-num%.h: sedscript% num_tmpl.h 
+num%.h: num%.sed num_tmpl.h 
 	$(SED) -f $< num_tmpl.h >$@
-bound%.h: sedscript% bound_tmpl.h 
+bound%.h: num%.sed bound_tmpl.h 
 	$(SED) -f $< bound_tmpl.h >$@
-bound%_def.h: sedscript% bound_def_tmpl.h 
+bound%_def.h: num%.sed bound_def_tmpl.h 
 	$(SED) -f $< bound_def_tmpl.h >$@
 
 .PHONY: tags TAGS
