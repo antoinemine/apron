@@ -20,10 +20,20 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-CCMODULES = itv itv_linexpr itv_linearize
-CCSRC = itv_config.h itv_fun.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
+CCMODULES_TMPL = itv_tmpl eitv_tmpl itv_linexpr_tmpl itv_linearize_tmpl
+CCSRC = itvConfig.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
-CCINC_TO_INSTALL = itv.h itv_fun.h itv_config.h itv_linexpr.h itv_linearize.h
+CCINC_TO_INSTALL = itvConfig.h \
+itvIl.h eitvIl.h itvIl_linexpr.h itvIl_linearize.h \
+itvIll.h eitvIll.h itvIll_linexpr.h itvIll_linearize.h \
+itvMPZ.h eitvMPZ.h itvMPZ_linexpr.h itvMPZ_linearize.h \
+itvRl.h eitvRl.h itvRl_linexpr.h itvRl_linearize.h \
+itvRll.h eitvRll.h itvRll_linexpr.h itvRll_linearize.h \
+itvMPQ.h eitvMPQ.h itvMPQ_linexpr.h itvMPQ_linearize.h \
+itvD.h eitvD.h itvD_linexpr.h itvD_linearize.h \
+itvDl.h eitvDl.h itvDl_linexpr.h itvDl_linearize.h \
+itvDll.h eitvDll.h itvDll_linexpr.h itvDll_linearize.h
+
 CCBIN_TO_INSTALL = 
 CCLIB_TO_INSTALL = \
 libitvIl.a libitvIl_debug.a \
@@ -96,7 +106,27 @@ dist: $(CCSRC) Makefile COPYING README
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-.SUFFIXES: .tex .c .h .a .o
+itv%.sed: ../num/num%.sed Makefile
+	cp $< $@
+	echo "s/_ITV_/_ITV\\U$*_/;" >>$@
+	echo "s/itv\(_\|(\|[.]h\)/itv$*\1/g;" >>$@
+
+itv%.h: itv%.sed itv_tmpl.h
+	$(SED) -f $< itv_tmpl.h >$@
+itv%.c: itv%.sed itv_tmpl.c
+	$(SED) -f $< itv_tmpl.c >$@
+eitv%.h: itv%.sed eitv_tmpl.h
+	$(SED) -f $< eitv_tmpl.h >$@
+eitv%.c: itv%.sed eitv_tmpl.c
+	$(SED) -f $< eitv_tmpl.c >$@
+itv%_linexpr.h: itv%.sed itv_linexpr_tmpl.h
+	$(SED) -f $< itv_linexpr_tmpl.h >$@
+itv%_linexpr.c: itv%.sed itv_linexpr_tmpl.c
+	$(SED) -f $< itv_linexpr_tmpl.c >$@
+itv%_linearize.h: itv%.sed itv_linearize_tmpl.h
+	$(SED) -f $< itv_linearize_tmpl.h >$@
+itv%_linearize.c: itv%.sed itv_linearize_tmpl.c
+	$(SED) -f $< itv_linearize_tmpl.c >$@
 
 #-----------------------------------
 # C part
