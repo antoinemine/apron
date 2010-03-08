@@ -23,11 +23,11 @@ extern "C" {
 
 typedef double numfltD_native;
 typedef numfltD_native numfltD_t[1];
-#define NUMFLTD_NATIVE
 #define NUMFLTD_ZERO 0.0
 #define NUMFLTD_ONE 1.0
 #define NUMFLTD_MANT_DIG DBL_MANT_DIG
 #define NUMFLTD_MAX NUMFLTD_ONE/NUMFLTD_ZERO
+#define NUMD_MAX NUMFLTD_ONE/NUMFLTD_ZERO
 
 #ifndef NUMFLTD_PRINT_PREC
 #define NUMFLTD_PRINT_PREC 20

@@ -30,11 +30,10 @@ extern "C" {
 typedef mpfr_t numfltMPFR_t;
 
 #undef NUMFLTMPFR_MAX
-#undef NUMFLTMPFR_NATIVE
+#undef NUMMPFR_MAX
 #undef NUMFLTMPFR_ZERO
 #undef NUMFLTMPFR_ONE
 #undef NUMFLTMPFR_MANT_DIG
-
 
 #ifndef NUMFLTMPFR_PRINT_PREC
 #define NUMFLTMPFR_PRINT_PREC 20

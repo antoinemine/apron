@@ -13,20 +13,6 @@ extern "C" {
 
 typedef numint_t num_t;
 
-#define NUM_NUMINT
-
-#ifdef NUMINT_MAX
-#define NUM_MAX NUMINT_MAX
-#else
-#undef NUM_MAX
-#endif
-
-#ifdef NUMINT_NATIVE
-#define NUM_NATIVE
-#else
-#undef NUM_NATIVE
-#endif
-
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */
