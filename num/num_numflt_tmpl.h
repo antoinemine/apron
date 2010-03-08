@@ -13,20 +13,6 @@ extern "C" {
 
 typedef numflt_t num_t;
 
-#define NUM_NUMFLT
-
-#ifdef NUMFLT_MAX
-#define NUM_MAX NUMFLT_MAX
-#else
-#undef NUM_MAX
-#endif
-
-#ifdef NUMFLT_NATIVE
-#define NUM_NATIVE
-#else
-#undef NUM_NATIVE
-#endif
-
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */

@@ -25,10 +25,10 @@ extern "C" {
 typedef long long int numintIll_native;
 typedef numintIll_native numintIll_t[1];
 
-#define NUMINTILL_NATIVE
 #define NUMINTILL_ZERO 0LL
 #define NUMINTILL_ONE 1LL
 #define NUMINTILL_MAX LLONG_MAX
+#define NUMILL_MAX LLONG_MAX
 #define NUMINTILL_MIN LLONG_MIN
 
 /* ====================================================================== */

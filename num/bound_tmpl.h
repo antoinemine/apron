@@ -9,6 +9,7 @@
 #error "File bound.h requires num.h to be first included"
 #endif
 
+#include "num.h"
 #include "bound_def.h"
 
 #ifdef __cplusplus

@@ -14,16 +14,6 @@ extern "C" {
 
 typedef numrat_t num_t;
 
-#define NUM_NUMRAT
-
-#undef NUM_MAX
-
-#ifdef NUMINT_NATIVE
-#define NUM_NATIVE
-#else
-#undef NUM_NATIVE
-#endif
-
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */

@@ -25,11 +25,10 @@ extern "C" {
 
 typedef mpz_t numintMPZ_t;
 
-#undef NUMINTMPZ_NATIVE
-#undef NUMINTMPZ_MAX
 #undef NUMINTMPZ_ZERO
 #undef NUMINTMPZ_ONE
 #undef NUMINTMPZ_MAX
+#undef NUMMPZ_MAX
 #undef NUMINTMPZ_MIN
 
 /* ====================================================================== */

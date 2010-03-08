@@ -24,11 +24,11 @@ extern "C" {
 
 typedef long double numfltDl_native;
 typedef numfltDl_native numfltDl_t[1];
-#define NUMFLTDL_NATIVE
 #define NUMFLTDL_ZERO 0.0L
 #define NUMFLTDL_ONE 1.0L
 #define NUMFLTDL_MANT_DIG LDBL_MANT_DIG
 #define NUMFLTDL_MAX NUMFLTDL_ONE/NUMFLTDL_ZERO
+#define NUMDL_MAX NUMFLTDL_ONE/NUMFLTDL_ZERO
 
 #ifndef NUMFLTDL_PRINT_PREC
 #define NUMFLTDL_PRINT_PREC 20

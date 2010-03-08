@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#if defined(NUM_MAX) || defined(NUM_NUMRAT) || defined(NUM_NUMFLT)
+#if NUM_HAS_MAX || NUM_NUMRAT || NUM_NUMFLT
 
 typedef num_t bound_t;
 #define bound_numref(a) a
@@ -35,11 +35,11 @@ typedef struct _bound_t {
 
 /* ---------------------------------------------------------------------- */
 static inline bool bound_infty(bound_t a)
-#if defined(NUM_NUMFLT)
+#if NUM_NUMFLT
 { return numflt_infty(a); }
-#elif defined(NUM_MAX)
+#elif NUM_HAS_MAX
 { return (*a>=NUM_MAX || *a<=-NUM_MAX); }
-#elif defined(NUM_NUMRAT)
+#elif NUM_NUMRAT
 { return numint_sgn(numrat_denref(a))==0; }
 #else
 { return (bool)a->inf; }
@@ -47,11 +47,11 @@ static inline bool bound_infty(bound_t a)
 
 /* ---------------------------------------------------------------------- */
 static inline void bound_set_infty(bound_t a, int sgn)
-#if defined(NUM_NUMFLT)
+#if NUM_NUMFLT
 { assert(sgn); numflt_set_infty(a,sgn); }
-#elif defined(NUM_MAX)
+#elif NUM_HAS_MAX
 { assert(sgn); *a = sgn>0 ? NUM_MAX : -NUM_MAX; }
-#elif defined(NUM_NUMRAT)
+#elif NUM_NUMRAT
 {
   assert(sgn);
   numint_set_int(numrat_numref(a),sgn>0 ? 1 : -1);
@@ -73,7 +73,7 @@ static inline void bound_init_set_infty(bound_t a, int sgn)
 }
 static inline void bound_swap(bound_t a, bound_t b)
 {
-#if defined(BOUND_INF)
+#ifdef BOUND_INF
   int t = a->inf; a->inf = b->inf; b->inf = t;
 #endif
   num_swap(bound_numref(a),bound_numref(b));
@@ -86,14 +86,14 @@ static inline int bound_sgn(bound_t a)
 /* Assignement */
 /* ====================================================================== */
 
-#if !defined(BOUND_INF)
+#ifndef BOUND_INF
 
 static inline void bound_set(bound_t a, bound_t b)
 { num_set(a,b); }
 static inline void bound_set_array(bound_t* a, bound_t* b, size_t size)
 { num_set_array(a,b,size); }
 
-#elif defined(NUM_NATIVE)
+#elif NUM_NATIVE
 
 static inline void bound_set(bound_t a, bound_t b)
 { *a = *b; }
@@ -129,7 +129,7 @@ static inline void bound_init_set_int(bound_t a, long int i)
 static inline void bound_clear(bound_t a)
 { num_clear(bound_numref(a)); }
 
-#if !defined(BOUND_INF)
+#ifndef BOUND_INF
 
 static inline void bound_init_array(bound_t* a, size_t size)
 { num_init_array(a,size); }
@@ -156,7 +156,7 @@ static inline void bound_init_set(bound_t a, bound_t b)
 }
 static inline void bound_clear_array(bound_t* a, size_t size)
 {
-#if !defined(NUM_NATIVE)
+#if !NUM_NATIVE
   size_t i;
   for (i=0;i<size;i++) bound_clear(a[i]);
 #endif
@@ -187,7 +187,7 @@ static inline void bound_clear_array(bound_t* a, size_t size)
 
 */
 
-#if defined (NUM_MAX) && defined(NUM_NUMFLT)
+#if NUM_HAS_MAX && NUM_NUMFLT
 static inline void bound_neg(bound_t a, bound_t b)
 { num_neg(a,b); }
 static inline void bound_abs(bound_t a, bound_t b)
@@ -306,7 +306,7 @@ static inline void bound_div_2(bound_t a, bound_t b)
 #endif
 
 
-#if defined(NUM_MAX) || defined(NUM_NUMFLT)
+#if NUM_HAS_MAX || NUM_NUMFLT
 
 static inline void bound_min(bound_t a, bound_t b, bound_t c)
 { num_min(a,b,c); }
@@ -392,7 +392,7 @@ static inline void bound_mul_2exp(bound_t a, bound_t b, int c)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-#if defined(NUM_MAX) || defined(NUM_NUMFLT)
+#if NUM_HAS_MAX || NUM_NUMFLT
 
 static inline int bound_cmp(bound_t a, bound_t b)
 { return num_cmp(a,b); }
@@ -473,7 +473,7 @@ static inline int bound_snprint(char* s, size_t size, bound_t a)
 
 static inline size_t bound_serialize(void* dst, bound_t src)
 {
-#if !defined(BOUND_INF)
+#ifndef BOUND_INF
   return num_serialize(dst,src);
 #else
   *(char*)dst = src->inf;
@@ -483,7 +483,7 @@ static inline size_t bound_serialize(void* dst, bound_t src)
 
 static inline size_t bound_deserialize(bound_t dst, const void* src)
 {
-#if !defined(BOUND_INF)
+#ifndef BOUND_INF
   return num_deserialize(dst,src);
 #else
   dst->inf = *(const char*)src;
@@ -493,7 +493,7 @@ static inline size_t bound_deserialize(bound_t dst, const void* src)
 
 static inline size_t bound_serialized_size(bound_t a)
 {
-#if !defined(BOUND_INF)
+#ifndef BOUND_INF
   return num_serialized_size(a);
 #else
   return num_serialized_size(bound_numref(a))+1;
