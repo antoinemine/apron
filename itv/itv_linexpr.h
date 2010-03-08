@@ -18,9 +18,7 @@ extern "C" {
 
 /* Interval linear term */
 typedef struct itv_linterm_t {
-  itv_t itv;
-  bool equality;
-    /* indicate that the interval is reduced to a single value */
+  eitv_t eitv;
   ap_dim_t dim;
 } itv_linterm_t;
 
@@ -28,9 +26,7 @@ typedef struct itv_linterm_t {
 typedef struct itv_linexpr_t {
   itv_linterm_t* linterm;
   size_t size;
-  itv_t cst;
-  bool equality;
-    /* indicate that the interval cst is reduced to a single value */
+  eitv_t cst;
 } itv_linexpr_t;
 
 /* Interval linear constraint */
@@ -54,15 +50,15 @@ typedef struct itv_lincons_array_t {
    - e is the inspected expression,
    - i is the internal iterator (of type size_t or int)
    - dim is the dimension of one linear term
-   - pitv is a pointer to the corresponding coefficient
+   - peitv is a pointer to the corresponding coefficient
    - pequality indicates if the interval is actually a point
 
 */
-#define itv_linexpr_ForeachLinterm(_p_e, _p_i, _p_d, _p_itv, _p_equality) \
+#define itv_linexpr_ForeachLinterm(_p_e, _p_i, _p_d, _p_eitv, _p_equality) \
   for ((_p_i)=0;							\
        (_p_i)<(_p_e)->size ?						\
 	 (((_p_d) = (_p_e)->linterm[i].dim),				\
-	  ((_p_itv) = (_p_e)->linterm[i].itv),				\
+	  ((_p_eitv) = (_p_e)->linterm[i].itv),				\
 	  ((_p_equality) = &((_p_e)->linterm[i].equality)),		\
 	  ((_p_d)!=AP_DIM_MAX)) :					\
 	 false;								\
@@ -101,45 +97,7 @@ static inline void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t* a
 static inline void itv_lincons_array_print(itv_lincons_array_t* array, char** name);
 
 /* ********************************************************************** */
-/* II. Conversions from and to APRON datatypes */
-/* ********************************************************************** */
-
-static inline bool itv_linexpr_set_ap_linexpr0(itv_internal_t* intern,
- itv_linexpr_t* expr,
- ap_linexpr0_t* linexpr0);
-  /* Convert an ap_linexpr0_t into an itv_linexpr_t.
-     expr points to an initialized object.
-     Return true if the conversion is exact
-  */
-static inline bool itv_lincons_set_ap_lincons0(itv_internal_t* intern,
- itv_lincons_t* cons,
- ap_lincons0_t* lincons0);
-  /* Convert an ap_lincons0_t into an itv_lincons_t
-     cons points to an initialized object.
-     Return true if the conversion is exact
-  */
-
-static inline bool itv_lincons_array_set_ap_lincons0_array(itv_internal_t* intern,
-							   itv_lincons_array_t* tcons, ap_lincons0_array_t* tlincons0);
-  /* Convert an ap_lincons0_array_t into an itv_lincons_array_t
-     tcons points to an initialized object.
-     Return true if the conversion is exact
-  */
-
-static inline void ap_linexpr0_set_itv_linexpr(itv_internal_t* intern,
-					       ap_linexpr0_t** plinexpr0, itv_linexpr_t* linexpr);
-  /* Convert an itv_linexpr_t into an ap_linexpr0_t.
-     If the result *plinexpr0 is not NULL,
-     possibly reinitialize *plinexpr0, otherwise allocate it.
-  */
-static inline void ap_lincons0_set_itv_lincons(itv_internal_t* intern,
-					       ap_lincons0_t* plincons0, itv_lincons_t* lincons);
-  /* Convert an itv_linexpr_t into an ap_linexpr0_t.
-     The result plincons0 is supposed initialized.
-  */
-
-/* ********************************************************************** */
-/* III. Arithmetic */
+/* II. Arithmetic */
 /* ********************************************************************** */
 
 static inline void itv_linexpr_neg(itv_linexpr_t* expr);
@@ -160,7 +118,7 @@ static inline void itv_linexpr_sub(itv_internal_t* intern,
      (Substraction temporarily negates exprB, and then restores it */
 
 /* ********************************************************************** */
-/* IV. Tests and Simplifications */
+/* III. Tests and Simplifications */
 /* ********************************************************************** */
 
 static inline bool itv_linexpr_is_integer(itv_linexpr_t* expr, size_t intdim);
