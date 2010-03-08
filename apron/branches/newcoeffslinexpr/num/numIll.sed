@@ -1,6 +1,9 @@
 1 i/* GENERATED, DO NOT MODIFY */
+s/NUM_\(NATIVE\|HAS_MAX\)/1/g;
+s/NUM_NUMINT/1/g;
+s/NUM_NUM\(RAT\|FLT\)/0/g;
+s/NUM_EXACT/1/g;
 s/_NUMINT_/_NUMINTILL_/;
-s/NUMINT_\(NATIVE\|MAX\)/NUMINTILL_\1/g;
 s/NUM_/NUMILL_/g;
 s/_BOUND_/_BOUNDILL_/;
 s/numint\(_\|(\|[.]h\)/numintIll\1/g;
