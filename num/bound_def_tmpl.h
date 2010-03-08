@@ -5,9 +5,7 @@
 #ifndef _BOUND_DEF_H_
 #define _BOUND_DEF_H_
 
-#ifndef _BOUND_H_
-#error "File bound_def.h should not be included directly, only via bound.h"
-#endif
+#include "num.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -357,7 +355,6 @@ static inline void bound_sqrt(bound_t up, bound_t down, bound_t b)
     _bound_inf(down);
   }
 }
-
 static inline void bound_to_float(bound_t a, bound_t b)
 {
   if (bound_infty(b) || !num_fits_float(bound_numref(b)))
@@ -447,6 +444,14 @@ static inline int bound_hash(bound_t a)
 }
 
 #endif
+
+static inline void bound_widening(bound_t a, bound_t b, bound_t c)
+{
+  if (bound_cmp(b,c)<0)
+    bound_set_infty(a,1);
+  else
+    bound_set(a,b);
+}
 
 /* ====================================================================== */
 /* Printing */

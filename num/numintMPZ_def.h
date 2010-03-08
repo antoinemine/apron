@@ -177,8 +177,8 @@ static inline int numintMPZ_snprint(char* s, size_t size, numintMPZ_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numint */
-static inline bool numintMPZ_set_int2(numintMPZ_t a, long int i, long int j)
+/* frac -> numint */
+static inline bool numintMPZ_set_frac(numintMPZ_t a, long int i, long int j)
 {
   unsigned long int r;
   assert(j>0);

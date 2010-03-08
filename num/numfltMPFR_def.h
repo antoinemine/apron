@@ -183,8 +183,8 @@ static inline void numfltMPFR_print(numfltMPFR_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numflt */
-static inline bool numfltMPFR_set_int2(numfltMPFR_t a, long int i, long int j)
+/* frac -> numflt */
+static inline bool numfltMPFR_set_frac(numfltMPFR_t a, long int i, long int j)
 {
   int r1,r2;
   assert(j>0);

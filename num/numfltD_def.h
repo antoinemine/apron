@@ -154,8 +154,8 @@ static inline int numfltD_snprint(char* s, size_t size, numfltD_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numflt */
-static inline bool numfltD_set_int2(numfltD_t a, long int i, long int j)
+/* frac -> numflt */
+static inline bool numfltD_set_frac(numfltD_t a, long int i, long int j)
 {
   assert(j>0);
   *a = (numfltD_native)i/(numfltD_native)j;
