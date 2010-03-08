@@ -93,8 +93,8 @@ static inline int numint_snprint(char* s, size_t size, numint_t a);
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numint_set_int2(numint_t a, long int i, long int j);
-  /* int2 -> numint */
+static inline bool numint_set_frac(numint_t a, long int i, long int j);
+  /* frac -> numint */
 
 static inline bool numint_set_mpz(numint_t a, mpz_t b);
   /* mpz -> numint */

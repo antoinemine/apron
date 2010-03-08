@@ -81,8 +81,8 @@ static inline int  numflt_snprint(char* s, size_t size, numflt_t a);
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numflt_set_int2(numflt_t a, long int i, long int j);
-  /* int2 -> numflt */
+static inline bool numflt_set_frac(numflt_t a, long int i, long int j);
+  /* frac -> numflt */
 static inline bool numflt_set_mpz(numflt_t a, mpz_t b);
   /* mpz -> numflt */
 static inline bool numflt_set_mpq(numflt_t a, mpq_t b);

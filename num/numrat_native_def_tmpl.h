@@ -50,7 +50,7 @@ static inline void numrat_canonicalize(numrat_t r)
 #define numrat_numref(a) (a)->n
 #define numrat_denref(a) (a)->d
 
-static inline bool numrat_set_numint2(numrat_t a, numint_t b, numint_t c)
+static inline bool numrat_set_numfrac(numrat_t a, numint_t b, numint_t c)
 {
   numint_set(numrat_numref(a),b);
   numint_set(numrat_denref(a),c);
@@ -316,8 +316,8 @@ static inline int numrat_snprint(char* s, size_t size, numrat_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numrat */
-static inline bool numrat_set_int2(numrat_t a, long int i, long int j)
+/* frac -> numrat */
+static inline bool numrat_set_frac(numrat_t a, long int i, long int j)
 {
   assert(j>0);
   numint_set_int(a->n,i);

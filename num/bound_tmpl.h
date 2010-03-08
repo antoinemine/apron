@@ -5,11 +5,7 @@
 #ifndef _BOUND_H_
 #define _BOUND_H_
 
-#ifndef _NUM_H_
-#error "File bound.h requires num.h to be first included"
-#endif
-
-#include "num.h"
+#include "numConfig.h"
 #include "bound_def.h"
 
 #ifdef __cplusplus
@@ -90,7 +86,7 @@ static inline void bound_floor(bound_t a, bound_t b);
 static inline void bound_ceil(bound_t a, bound_t b);
 static inline void bound_trunc(bound_t a, bound_t b);
 static inline void bound_sqrt(bound_t up, bound_t down, bound_t b);
-
+static inline void bound_widening(bound_t a, bound_t b, bound_t c);
 
 /* ====================================================================== */
 /* Floating-point casts */

@@ -115,9 +115,9 @@ static inline int num_snprint(char* s, size_t size, num_t a)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool num_set_int2(num_t a, long int i, long int j)
-{ return numrat_set_int2(a,i,j); }
-/* int2 -> num */
+static inline bool num_set_frac(num_t a, long int i, long int j)
+{ return numrat_set_frac(a,i,j); }
+/* frac -> num */
 
 static inline bool num_set_mpz(num_t a, mpz_t b)
 { return numrat_set_mpz(a,b); }
