@@ -217,8 +217,8 @@ static inline int numintIl_snprint(char* s, size_t size, numintIl_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numintIl */
-static inline bool numintIl_set_int2(numintIl_t a, long int i, long int j)
+/* frac -> numintIl */
+static inline bool numintIl_set_frac(numintIl_t a, long int i, long int j)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;

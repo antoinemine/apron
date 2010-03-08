@@ -163,8 +163,8 @@ void num(num_t a, num_t b, num_t c,
   printf("num_equal(b,c)=%d\n",num_equal(b,c));
 
   if (u<=LONG_MAX) {
-    num_set_int2(a,l,u);
-    printf("num_set_int2(l,u)=");num_print(a); printf("\n");
+    num_set_frac(a,l,u);
+    printf("num_set_frac(l,u)=");num_print(a); printf("\n");
   }
 
   printf("mpz_fits_num(mpz)=%d\n",mpz_fits_num(mpz));
@@ -419,7 +419,7 @@ int main(int argc, char**argv)
     num_t a,b,c;
 
     num_init(a); num_init(b); num_init(c);
-    num_set_int2(b,3002,3);
+    num_set_frac(b,3002,3);
     num_set_int(c,-1500);
     num(a,b,c,u,l,mpz,mpq,d,mpfr);
     num(a,c,b,u,l,mpz,mpq,d,mpfr);

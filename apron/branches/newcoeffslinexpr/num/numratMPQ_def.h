@@ -216,8 +216,8 @@ static inline int numratMPQ_snprint(char* s, size_t size, numratMPQ_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* int2 -> numrat */
-static inline bool numratMPQ_set_int2(numratMPQ_t a, long int i, long int j)
+/* frac -> numrat */
+static inline bool numratMPQ_set_frac(numratMPQ_t a, long int i, long int j)
 { assert(j>0); mpq_set_si(a,i,j); numratMPQ_canonicalize(a); return true; }
 
 /* mpz -> numrat */
