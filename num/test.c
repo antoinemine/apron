@@ -72,9 +72,11 @@ static bool num_fpu_init(void)
 /* ********************************************************************** */
 void num(num_t a, num_t b, num_t c,
 	 unsigned long int u, long int l,
+	 unsigned long long int u2, long long int l2,
 	 mpz_t mpz,
 	 mpq_t mpq,
 	 double d,
+	 long double ld,
 	 mpfr_t mpfr)
 {
   numinternal_t intern;
@@ -100,10 +102,12 @@ void num(num_t a, num_t b, num_t c,
   printf("b="); num_print(b);
   printf(" c="); num_print(c);
   printf("\nu=%lu l=%ld\n",u,l);
+  printf("\nu2=%llu l2=%lld\n",u2,l2);
   printf("mpz="); mpz_out_str(stdout,10,mpz);
   printf(" mpq="); mpq_out_str(stdout,10,mpq);
   printf(" mpfr="); mpfr_out_str(stdout,10,10,mpfr,GMP_RNDU);
   printf(" d=%.13e\n",d);
+  printf(" d=%.13Le\n",ld);
 
   num_set(b,bb); num_set(c,cc);
   num_swap(b,c);
@@ -171,6 +175,11 @@ void num(num_t a, num_t b, num_t c,
     printf("num_set_lfrac(l,u)=");num_print(a); printf("\n");
   }
 
+  if (u2<=LLONG_MAX) {
+    num_set_llfrac(a,l2,u2,intern);
+    printf("num_set_llfrac(l2,u2)=");num_print(a); printf("\n");
+  }
+
   printf("mpz_fits_num(mpz)=%d\n",mpz_fits_num(mpz));
   if (mpz_fits_num(mpz)) {
     num_set_mpz(a,mpz,intern);
@@ -187,6 +196,12 @@ void num(num_t a, num_t b, num_t c,
   if (double_fits_num(d)) {
     num_set_double(a,d,intern);
     printf("num_set_double(d)=");num_print(a); printf("\n");
+  }
+
+  printf("ldouble_fits_num(ld)=%d\n",ldouble_fits_num(d));
+  if (ldouble_fits_num(ld)) {
+    num_set_ldouble(a,ld,intern);
+    printf("num_set_ldouble(ld)=");num_print(a); printf("\n");
   }
 
   printf("mpfr_fits_num(mpfr)=%d\n",mpfr_fits_num(mpfr,intern));
@@ -370,10 +385,13 @@ int main(int argc, char**argv)
   numinternal_t intern;
   unsigned long int u;
   long int l;
+  unsigned long long int u2;
+  long long int l2;
   mpz_t mpz;
   mpq_t mpq,mpq2;
   mpfr_t mpfr;
   double d;
+  long double ld;
 
   num_fpu_init();
 
@@ -383,11 +401,14 @@ int main(int argc, char**argv)
   /* Extreme cases */
   u = ULONG_MAX;
   l = LONG_MIN+1;
+  u2 = ULLONG_MAX;
+  l2 = LLONG_MIN+1;
   mpz_set_ui(mpz,u);
   mpq_set_z(mpq,mpz);
   mpz_mul(mpz,mpz,mpz);
   mpq_inv(mpq,mpq);
   d = (double)1.0/(double)0.0;
+  ld = (long double)1.0/(long double)0.0;
   mpfr_set_d(mpfr,d,GMP_RNDU);
 
   {
@@ -396,8 +417,8 @@ int main(int argc, char**argv)
     num_init(a);
     num_init_set_int(b,1000);
     num_init_set_int(c,1500);
-    num(a,b,c,u,l,mpz,mpq,d,mpfr);
-    num(a,c,b,u,l,mpz,mpq,d,mpfr);
+    num(a,b,c,u,l,u2,l2,mpz,mpq,d,ld,mpfr);
+    num(a,c,b,u,l,u2,l2,mpz,mpq,d,ld,mpfr);
 
     num_clear(a); num_clear(b); num_clear(c);
   }
@@ -435,9 +456,9 @@ int main(int argc, char**argv)
     num_init(a); num_init(b); num_init(c);
     num_set_lfrac(b,3002,3,intern);
     num_set_int(c,-1500);
-    num(a,b,c,u,l,mpz,mpq,d,mpfr);
-    num(a,c,b,u,l,mpz,mpq,d,mpfr);
-    num(b,b,b,u,l,mpz,mpq,d,mpfr);
+    num(a,b,c,u,l,u2,l2,mpz,mpq,d,ld,mpfr);
+    num(a,c,b,u,l,u2,l2,mpz,mpq,d,ld,mpfr);
+    num(b,b,b,u,l,u2,l2,mpz,mpq,d,ld,mpfr);
 
     num_clear(a); num_clear(b); num_clear(c);
   }
