@@ -11,7 +11,7 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
-#include <stdint.h>
+/* #include <stdint.h> */
 #include "gmp.h"
 #include "mpfr.h"
 
