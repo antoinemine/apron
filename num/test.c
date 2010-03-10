@@ -4,6 +4,7 @@
 
 #include "num.h"
 #include "bound.h"
+#include "bound_conv.h"
 
 /* ********************************************************************** */
 /* FPU init */
@@ -34,16 +35,16 @@ static bool test_fpu(void)
 }
 
 #if defined(__ppc__)
-static bool num_fpu_init(void) 
-{ 
+static bool num_fpu_init(void)
+{
   __asm volatile ("mtfsfi 7,2");
   return test_fpu();
 }
 
 #elif defined(__linux) || defined (__APPLE__)
 #include <fenv.h>
-static bool num_fpu_init(void) 
-{ 
+static bool num_fpu_init(void)
+{
   if (!fesetround(FE_UPWARD)) return test_fpu();
   fprintf(stderr,"could not set fpu rounding mode: fesetround failed\n");
   return false;
@@ -52,8 +53,8 @@ static bool num_fpu_init(void)
 #elif defined(__FreeBSD__) || defined(sun)
 #include <ieeefp.h>
 static bool num_fpu_init(void)
-{ 
-  fpsetround(FP_RP); 
+{
+  fpsetround(FP_RP);
   return test_fpu();
 }
 
@@ -76,6 +77,7 @@ void num(num_t a, num_t b, num_t c,
 	 double d,
 	 mpfr_t mpfr)
 {
+  numinternal_t intern;
   num_t bb,cc;
   unsigned long int uu;
   long int ll;
@@ -83,6 +85,8 @@ void num(num_t a, num_t b, num_t c,
   mpq_t mpqq;
   mpfr_t mpfrr;
   double dd;
+
+  numinternal_init(intern);
 
   num_init_set(bb,b);
   num_init_set(cc,c);
@@ -163,57 +167,57 @@ void num(num_t a, num_t b, num_t c,
   printf("num_equal(b,c)=%d\n",num_equal(b,c));
 
   if (u<=LONG_MAX) {
-    num_set_frac(a,l,u);
-    printf("num_set_frac(l,u)=");num_print(a); printf("\n");
+    num_set_lfrac(a,l,u,intern);
+    printf("num_set_lfrac(l,u)=");num_print(a); printf("\n");
   }
 
   printf("mpz_fits_num(mpz)=%d\n",mpz_fits_num(mpz));
   if (mpz_fits_num(mpz)) {
-    num_set_mpz(a,mpz);
+    num_set_mpz(a,mpz,intern);
     printf("num_set_mpz(mpz)=");num_print(a); printf("\n");
   }
 
   printf("mpq_fits_num(mpq)=%d\n",mpq_fits_num(mpq));
   if (mpq_fits_num(mpq)) {
-    num_set_mpq(a,mpq);
+    num_set_mpq(a,mpq,intern);
     printf("num_set_mpq(mpq)=");num_print(a); printf("\n");
   }
 
   printf("double_fits_num(d)=%d\n",double_fits_num(d));
   if (double_fits_num(d)) {
-    num_set_double(a,d);
+    num_set_double(a,d,intern);
     printf("num_set_double(d)=");num_print(a); printf("\n");
   }
 
-  printf("mpfr_fits_num(mpfr)=%d\n",mpfr_fits_num(mpfr));
-  if (mpfr_fits_num(mpfr)) {
-    num_set_mpfr(a,mpfr);
+  printf("mpfr_fits_num(mpfr)=%d\n",mpfr_fits_num(mpfr,intern));
+  if (mpfr_fits_num(mpfr,intern)) {
+    num_set_mpfr(a,mpfr,intern);
     printf("num_set_mpfr(mpfr)=");num_print(a); printf("\n");
   }
 
   {
     long int i;
-    int_set_num(&i,b);
-    printf("int_set_num(b)=%ld\n",i);
+    lint_set_num(&i,b,intern);
+    printf("lint_set_num(b,intern)=%ld\n",i);
   }
 
-  mpz_set_num(mpz,b);
+  mpz_set_num(mpz,b,intern);
   printf("mpz_set_num(b)="); mpz_out_str(stdout,10,mpz); printf("\n"); mpz_set(mpz,mpzz);
 
-  mpq_set_num(mpq,b);
+  mpq_set_num(mpq,b,intern);
   printf("mpq_set_num(b)="); mpq_out_str(stdout,10,mpq); printf("\n"); mpq_set(mpq,mpqq);
 
   printf("num_fits_double(b)=%d\n",num_fits_double(b));
   if (num_fits_double(b)) {
     double k;
-    double_set_num(&k,b);
+    double_set_num(&k,b,intern);
     printf("double(b)=%.13e\n",k);
   }
   num_set(b,bb); num_set(c,cc);
 
   printf("num_fits_mpfr(b)=%d\n",num_fits_mpfr(b));
   if (num_fits_mpfr(b)) {
-    mpfr_set_num(mpfr,b); 
+    mpfr_set_num(mpfr,b,intern);
     printf("mpfr_set_num(b)="); mpfr_out_str(stdout,10,10,mpfr,GMP_RNDU); printf("\n"); mpfr_set(mpfr,mpfrr,GMP_RNDU);
   }
 
@@ -222,6 +226,8 @@ void num(num_t a, num_t b, num_t c,
   mpz_clear(mpzz);
   mpq_clear(mpqq);
   mpfr_clear(mpfrr);
+
+  numinternal_clear(intern);
 }
 
 void bound(bound_t a, bound_t b, bound_t c,
@@ -231,10 +237,14 @@ void bound(bound_t a, bound_t b, bound_t c,
 	   double d,
 	   mpfr_t mpfr)
 {
+  numinternal_t intern;
+
   bound_t bb,cc;
   unsigned long int uu;
   long int ll;
   double dd;
+
+  numinternal_init(intern);
 
   bound_init_set(bb,b);
   bound_init_set(cc,c);
@@ -249,8 +259,8 @@ void bound(bound_t a, bound_t b, bound_t c,
 
   bound_set(b,bb); bound_set(c,cc);
   if (!bound_infty(b)) {
-    bound_set_num(a,bound_numref(b));
-    printf("bound_set_num(b): "); printf("b="); bound_print(b); printf(" a="); bound_print(a); printf("\n");
+    bound_set_numt(a,bound_numref(b));
+    printf("bound_set_numt(b): "); printf("b="); bound_print(b); printf(" a="); bound_print(a); printf("\n");
   }
   bound_set_infty(a,1);
   printf("bound_set_infty(1)="); bound_print(a); printf("\n");
@@ -348,6 +358,8 @@ void bound(bound_t a, bound_t b, bound_t c,
   bound_set(b,bb); bound_set(c,cc);
   bound_clear(bb);
   bound_clear(cc);
+
+  numinternal_clear(intern);
 }
 
 
@@ -355,7 +367,8 @@ void bound(bound_t a, bound_t b, bound_t c,
 
 int main(int argc, char**argv)
 {
-  unsigned long int u; 
+  numinternal_t intern;
+  unsigned long int u;
   long int l;
   mpz_t mpz;
   mpq_t mpq,mpq2;
@@ -364,7 +377,8 @@ int main(int argc, char**argv)
 
   num_fpu_init();
 
-  mpz_init(mpz); mpq_init(mpq); mpq_init(mpq2); mpfr_init(mpfr); 
+  numinternal_init(intern);
+  mpz_init(mpz); mpq_init(mpq); mpq_init(mpq2); mpfr_init(mpfr);
 
   /* Extreme cases */
   u = ULONG_MAX;
@@ -419,7 +433,7 @@ int main(int argc, char**argv)
     num_t a,b,c;
 
     num_init(a); num_init(b); num_init(c);
-    num_set_frac(b,3002,3);
+    num_set_lfrac(b,3002,3,intern);
     num_set_int(c,-1500);
     num(a,b,c,u,l,mpz,mpq,d,mpfr);
     num(a,c,b,u,l,mpz,mpq,d,mpfr);
@@ -441,9 +455,10 @@ int main(int argc, char**argv)
 
     bound_clear(a); bound_clear(b); bound_clear(c);
   }
-  
+
   mpz_clear(mpz);
   mpq_clear(mpq2);
   mpq_clear(mpq);
   mpfr_clear(mpfr);
+  numinternal_clear(intern);
 }

@@ -15,8 +15,8 @@ H_TMPL_FILES = \
 numrat_native_def_tmpl.h \
 numint_tmpl.h numrat_tmpl.h numflt_tmpl.h \
 num_numint_tmpl.h num_numrat_tmpl.h num_numflt_tmpl.h \
-num_tmpl.h \
-bound_def_tmpl.h bound_tmpl.h 
+num_tmpl.h num_conv_tmpl.h \
+bound_def_tmpl.h bound_tmpl.h bound_conv_tmpl.h
 
 H_GENERATED_FILES = \
 numratRl_def.h numratRll_def.h \
@@ -29,14 +29,22 @@ numD_numflt.h numDl_numflt.h numMPFR_numflt.h \
 numIl.h numIll.h numMPZ.h \
 numRl.h numRll.h numMPQ.h \
 numD.h numDl.h numMPFR.h \
+numIl_conv.h numIll_conv.h numMPZ_conv.h \
+numRl_conv.h numRll_conv.h numMPQ_conv.h \
+numD_conv.h numDl_conv.h numMPFR_conv.h \
 boundIl_def.h boundIll_def.h boundMPZ_def.h \
 boundRl_def.h boundRll_def.h boundMPQ_def.h \
 boundD_def.h boundDl_def.h boundMPFR_def.h \
 boundIl.h boundIll.h boundMPZ.h \
 boundRl.h boundRll.h boundMPQ.h \
-boundD.h boundDl.h boundMPFR.h
+boundD.h boundDl.h boundMPFR.h \
+boundIl_conv.h boundIll_conv.h boundMPZ_conv.h \
+boundRl_conv.h boundRll_conv.h boundMPQ_conv.h \
+boundD_conv.h boundDl_conv.h boundMPFR_conv.h 
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
+
+.PRECIOUS: $(H_GENERATED_FILES)
 
 all: $(H_FILES)
 
@@ -62,7 +70,7 @@ tests: testIl testIll testRl testRll testMPZ testMPQ testD testDl testMPFR
 test%.c: num%.sed test.c
 	$(SED) -f $< test.c >$@
 
-test%: test%.c num%.sed
+test%: test%.c num%.sed $(H_FILES)
 	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< $(CLIBS)
 
 out: tests
@@ -96,10 +104,14 @@ num%_numflt.h: num%.sed num_numflt_tmpl.h
 	$(SED) -f $< num_numflt_tmpl.h >$@
 num%.h: num%.sed num_tmpl.h 
 	$(SED) -f $< num_tmpl.h >$@
+num%_conv.h: num%.sed num_conv_tmpl.h 
+	$(SED) -f $< num_conv_tmpl.h >$@
 bound%.h: num%.sed bound_tmpl.h 
 	$(SED) -f $< bound_tmpl.h >$@
 bound%_def.h: num%.sed bound_def_tmpl.h 
 	$(SED) -f $< bound_def_tmpl.h >$@
+bound%_conv.h: num%.sed bound_conv_tmpl.h 
+	$(SED) -f $< bound_conv_tmpl.h >$@
 
 .PHONY: tags TAGS
 tags: TAGS

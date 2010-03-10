@@ -5,21 +5,15 @@
 #ifndef _BOUND_DEF_H_
 #define _BOUND_DEF_H_
 
+#include "numConfig.h"
 #include "num.h"
+#include "num_conv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if NUM_HAS_MAX || NUM_NUMRAT || NUM_NUMFLT
-
-typedef num_t bound_t;
-#define bound_numref(a) a
-#define _bound_inf(a)
-#undef BOUND_INF
-
-#else
-
+#if NUM_NUMMPZ
 typedef struct _bound_t {
   num_t num; /* always allocated, even if inf=1 */
   char inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
@@ -29,38 +23,45 @@ typedef struct _bound_t {
 #define _bound_inf(a) a->inf = 0
 #define BOUND_INF
 
+#else
+
+typedef num_t bound_t;
+#define bound_numref(a) a
+#define _bound_inf(a)
+#undef BOUND_INF
+
 #endif
 
 /* ---------------------------------------------------------------------- */
 static inline bool bound_infty(bound_t a)
 #if NUM_NUMFLT
 { return numflt_infty(a); }
-#elif NUM_HAS_MAX
-{ return (*a>=NUM_MAX || *a<=-NUM_MAX); }
 #elif NUM_NUMRAT
 { return numint_sgn(numrat_denref(a))==0; }
-#else
+#elif NUM_NUMMPZ
 { return (bool)a->inf; }
+#else
+{ return (*a>=NUM_MAX || *a<=-NUM_MAX); }
 #endif
 
 /* ---------------------------------------------------------------------- */
 static inline void bound_set_infty(bound_t a, int sgn)
 #if NUM_NUMFLT
 { assert(sgn); numflt_set_infty(a,sgn); }
-#elif NUM_HAS_MAX
-{ assert(sgn); *a = sgn>0 ? NUM_MAX : -NUM_MAX; }
 #elif NUM_NUMRAT
 {
   assert(sgn);
   numint_set_int(numrat_numref(a),sgn>0 ? 1 : -1);
   numint_set_int(numrat_denref(a),0);
 }
-#else
+#elif NUM_NUMMPZ
 {
   assert(sgn);
   num_set_int(a->num,sgn>0 ? 1 : -1);
   a->inf = 1;
 }
+#else
+{ assert(sgn); *a = sgn>0 ? NUM_MAX : -NUM_MAX; }
 #endif
 
 /* ---------------------------------------------------------------------- */
@@ -113,7 +114,7 @@ static inline void bound_set_array(bound_t* a, bound_t* b, size_t size)
 static inline void bound_set_int(bound_t a, long int i)
 {  num_set_int(bound_numref(a),i); _bound_inf(a); }
 
-static inline void bound_set_num(bound_t a, num_t b)
+static inline void bound_set_numt(bound_t a, num_t b)
 { num_set(bound_numref(a),b); _bound_inf(a); }
 
 /* ====================================================================== */
@@ -185,7 +186,7 @@ static inline void bound_clear_array(bound_t* a, size_t size)
 
 */
 
-#if NUM_HAS_MAX && NUM_NUMFLT
+#if NUM_NUMFLT
 static inline void bound_neg(bound_t a, bound_t b)
 { num_neg(a,b); }
 static inline void bound_abs(bound_t a, bound_t b)
@@ -304,7 +305,7 @@ static inline void bound_div_2(bound_t a, bound_t b)
 #endif
 
 
-#if NUM_HAS_MAX || NUM_NUMFLT
+#if NUM_NUMFLT || (NUM_NUMINT && NUM_NATIVE)
 
 static inline void bound_min(bound_t a, bound_t b, bound_t c)
 { num_min(a,b,c); }
@@ -355,25 +356,25 @@ static inline void bound_sqrt(bound_t up, bound_t down, bound_t b)
     _bound_inf(down);
   }
 }
-static inline void bound_to_float(bound_t a, bound_t b)
+static inline void bound_to_float(bound_t a, bound_t b, numinternal_t intern)
 {
   if (bound_infty(b) || !num_fits_float(bound_numref(b)))
     bound_set_infty(a,bound_sgn(b));
   else {
     double d;
-    double_set_num(&d,bound_numref(b));
-    num_set_double(bound_numref(a),(double)((float)d));
+    double_set_num(&d,bound_numref(b),intern);
+    num_set_double(bound_numref(a),(double)((float)d),intern);
     _bound_inf(a);
   }
 }
-static inline void bound_to_double(bound_t a, bound_t b)
+static inline void bound_to_double(bound_t a, bound_t b, numinternal_t intern)
 {
   if (bound_infty(b) || !num_fits_double(bound_numref(b)))
     bound_set_infty(a,bound_sgn(b));
   else {
     double d;
-    double_set_num(&d,bound_numref(b));
-    num_set_double(bound_numref(a),d);
+    double_set_num(&d,bound_numref(b),intern);
+    num_set_double(bound_numref(a),d,intern);
     _bound_inf(a);
   }
 }
@@ -389,7 +390,7 @@ static inline void bound_mul_2exp(bound_t a, bound_t b, int c)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-#if NUM_HAS_MAX || NUM_NUMFLT
+#if NUM_NUMFLT || (NUM_NUMINT && NUM_NATIVE)
 
 static inline int bound_cmp(bound_t a, bound_t b)
 { return num_cmp(a,b); }
@@ -399,8 +400,6 @@ static inline int bound_cmp_num(bound_t a, num_t b)
 { return num_cmp(a,b); }
 static inline bool bound_equal(bound_t a, bound_t b)
 { return num_equal(a,b); }
-static inline int bound_hash(bound_t a)
-{ long int hash; int_set_num(&hash,bound_numref(a)); return hash; }
 
 #else
 
@@ -433,17 +432,16 @@ static inline bool bound_equal(bound_t a, bound_t b)
     else return num_equal(bound_numref(a),bound_numref(b));
   }
 }
+#endif
+
 static inline int bound_hash(bound_t a)
 { if (bound_infty(a))
-    return bound_sgn(a)>0 ? INT_MAX : INT_MIN;
+    return bound_sgn(a)>0 ? INT_MAX : -INT_MAX;
   else {
-    long int hash;
-    int_set_num(&hash,bound_numref(a));
-    return hash;
+    return num_hash(bound_numref(a));
   }
 }
 
-#endif
 
 static inline void bound_widening(bound_t a, bound_t b, bound_t c)
 {
@@ -452,6 +450,128 @@ static inline void bound_widening(bound_t a, bound_t b, bound_t c)
   else
     bound_set(a,b);
 }
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool bound_set_lint(bound_t a, long int b, numinternal_t intern)
+{
+  if (lint_fits_num(b)){
+    _bound_inf(a);
+    return num_set_lint(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_llint(bound_t a, long long int b, numinternal_t intern)
+{
+  if (llint_fits_num(b)){
+    _bound_inf(a);
+    return num_set_llint(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_mpz(bound_t a, mpz_t b, numinternal_t intern)
+{
+  if (mpz_fits_num(b)){
+    _bound_inf(a);
+    return num_set_mpz(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_lfrac(bound_t a, long int i, long int j, numinternal_t intern)
+{
+  if (lfrac_fits_num(i,j)){
+    _bound_inf(a); 
+    return num_set_lfrac(bound_numref(a),i,j,intern); 
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_llfrac(bound_t a, long long int i, long long int j, numinternal_t intern)
+{
+  if (llfrac_fits_num(i,j)){
+    _bound_inf(a); 
+    return num_set_lfrac(bound_numref(a),i,j,intern); 
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_mpq(bound_t a, mpq_t b, numinternal_t intern)
+{
+  if (mpq_fits_num(b)){
+    _bound_inf(a);
+    return num_set_mpq(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_double(bound_t a, double b, numinternal_t intern)
+{
+  if (double_fits_num(b)){
+    _bound_inf(a);
+    return num_set_double(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_ldouble(bound_t a, long double b, numinternal_t intern)
+{
+  if (ldouble_fits_num(b)){
+    _bound_inf(a);
+    return num_set_ldouble(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_mpfr(bound_t a, mpfr_t b, numinternal_t intern)
+{
+  if (mpfr_fits_num(b,intern)){
+    _bound_inf(a);
+    return num_set_mpfr(bound_numref(a),b,intern);
+  }
+  else {
+    bound_set_infty(a,1);
+    return false;
+  }
+}
+static inline bool bound_set_numIl(bound_t a, numIl_t b, numinternal_t intern)
+{ return bound_set_lint(a,*b,intern); }
+static inline bool bound_set_numIll(bound_t a, numIll_t b, numinternal_t intern)
+{ return bound_set_llint(a,*b,intern); }
+static inline bool bound_set_numMPZ(bound_t a, numMPZ_t b, numinternal_t intern)
+{ return bound_set_mpz(a,b,intern); }
+static inline bool bound_set_numRl(bound_t a, numRl_t b, numinternal_t intern)
+{ return bound_set_lfrac(a,*b->n,*b->d,intern); }
+static inline bool bound_set_numRll(bound_t a, numRll_t b, numinternal_t intern)
+{ return bound_set_llfrac(a,*b->n,*b->d,intern); }
+static inline bool bound_set_numMPQ(bound_t a, numMPQ_t b, numinternal_t intern)
+{ return bound_set_mpq(a,b,intern); }
+static inline bool bound_set_numD(bound_t a, numD_t b, numinternal_t intern)
+{ return bound_set_double(a,*b,intern); }
+static inline bool bound_set_numDl(bound_t a, numDl_t b, numinternal_t intern)
+{ return bound_set_ldouble(a,*b,intern); }
+static inline bool bound_set_numMPFR(bound_t a, numMPFR_t b, numinternal_t intern)
+{ return bound_set_mpfr(a,b,intern); }
 
 /* ====================================================================== */
 /* Printing */

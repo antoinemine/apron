@@ -161,7 +161,7 @@ static inline void numintIl_divexact(numintIl_t a, numintIl_t b, numintIl_t c)
 { *a = *b / *c; }
 static inline void numintIl_mod(numintIl_t a, numintIl_t b, numintIl_t c)
 { *a = *b % *c; }
-static inline numintIl_native _gcd_aux2(numintIl_native a, numintIl_native b)
+static inline numintIl_native _gcd_auxIl2(numintIl_native a, numintIl_native b)
 { /* a is supposed to be greater than b */
   numintIl_native t;
   while (b!=NUMINTIL_ZERO && a!=b) {
@@ -171,23 +171,23 @@ static inline numintIl_native _gcd_aux2(numintIl_native a, numintIl_native b)
   }
   return a;
 }
-static inline numintIl_native _gcd_aux(numintIl_native a, numintIl_native b)
+static inline numintIl_native _gcd_auxIl(numintIl_native a, numintIl_native b)
 {
   numintIl_abs(&a,&a);
   numintIl_abs(&b,&b);
-  return (a>=b) ? _gcd_aux2(a,b) : _gcd_aux2(b,a);
+  return (a>=b) ? _gcd_auxIl2(a,b) : _gcd_auxIl2(b,a);
 }
 static inline void numintIl_gcd(numintIl_t a, numintIl_t b,  numintIl_t c)
-{ *a = _gcd_aux(*b,*c); }
+{ *a = _gcd_auxIl(*b,*c); }
 
-static inline numintIl_native _lcm_aux(numintIl_native a, numintIl_native b)
+static inline numintIl_native _lcm_auxIl(numintIl_native a, numintIl_native b)
 {
   numintIl_abs(&a,&a);
   numintIl_abs(&b,&b);
-  return a / _gcd_aux(a,b) * b;
+  return a / _gcd_auxIl(a,b) * b;
 }
 static inline void numintIl_lcm(numintIl_t a, numintIl_t b,  numintIl_t c)
-{ *a = _lcm_aux(*b,*c); }
+{ *a = _lcm_auxIl(*b,*c); }
 
 /* ====================================================================== */
 /* Arithmetic Tests */
@@ -201,6 +201,8 @@ static inline bool numintIl_equal(numintIl_t a, numintIl_t b)
 { return *a==*b; }
 static inline bool numintIl_integer(numintIl_t a)
 { return true; }
+static inline int numintIl_hash(numintIl_t a)
+{ return (int)(*a); }
 
 /* ====================================================================== */
 /* Printing */
@@ -217,8 +219,82 @@ static inline int numintIl_snprint(char* s, size_t size, numintIl_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* frac -> numintIl */
-static inline bool numintIl_set_frac(numintIl_t a, long int i, long int j)
+/* ---------------------------------------------------------------------- */
+/* Fits */
+/* ---------------------------------------------------------------------- */
+
+static inline bool lint_fits_numintIl(long int a)
+{ return true; }
+static inline bool llint_fits_numintIl(long long int a)
+{ return a>=-NUMINTIL_MAX && a<=NUMINTIL_MAX; }
+static inline bool mpz_fits_numintIl(mpz_t a)
+{ return mpz_fits_slong_p(a); }
+static inline bool lfrac_fits_numintIl(long int i, long int j)
+{ return true; }
+static inline bool llfrac_fits_numintIl(long long int i, long long int j)
+{
+  return llint_fits_numintIl(i>=0 ? (i+j-1)/j : i/j);
+}
+static inline bool mpq_fits_numintIl(mpq_t a)
+{
+  size_t n = mpz_sizeinbase(mpq_numref(a),2);
+  size_t d = mpz_sizeinbase(mpq_denref(a),2);
+  return ((int)n - (int)d) <= (int)(sizeof(numintIl_t)*8-3);
+}
+static inline bool double_fits_numintIl(double a)
+{
+  return isfinite(a) && a>=(double)(-NUMINTIL_MAX) && a<=(double)NUMINTIL_MAX;
+}
+static inline bool ldouble_fits_numintIl(long double a)
+{
+  return isfinite(a) && a>=(long double)(-NUMINTIL_MAX) && a<=(long double)NUMINTIL_MAX;
+}
+static inline bool mpfr_fits_numintIl(mpfr_t a, numinternal_t intern)
+{
+  return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU);
+}
+
+static inline bool numintIl_fits_lint(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_llint(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_lfrac(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_llfrac(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_float(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_double(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_ldouble(numintIl_t a)
+{ return true; }
+static inline bool numintIl_fits_mpfr(numintIl_t a)
+{ return true; }
+
+/* ---------------------------------------------------------------------- */
+/* Conversions */
+/* ---------------------------------------------------------------------- */
+
+/* lint -> numintIl */
+static inline bool numintIl_set_lint(numintIl_t a, long int b, numinternal_t intern)
+{ *a = b; return true; }
+
+/* llint -> numintIl */
+static inline bool numintIl_set_llint(numintIl_t a, long long int b, numinternal_t intern)
+{
+  *a = (long int)b;
+  return true;
+}
+
+/* mpz -> numintIl */
+static inline bool numintIl_set_mpz(numintIl_t a, mpz_t b, numinternal_t intern)
+{
+  *a = mpz_get_si(b);
+  return true;
+}
+
+/* lfrac -> numintIl */
+static inline bool numintIl_set_lfrac(numintIl_t a, long int i, long int j, numinternal_t intern)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
@@ -226,111 +302,101 @@ static inline bool numintIl_set_frac(numintIl_t a, long int i, long int j)
   return (i%j) ? false : true;
 }
 
-/* mpz -> numintIl */
-static inline bool numintIl_set_mpz(numintIl_t a, mpz_t b)
+/* llfrac -> numintIl */
+static inline bool numintIl_set_llfrac(numintIl_t a, long long int i, long long int j, numinternal_t intern)
 {
-  *a = mpz_get_si(b);
-  return true;
+  long long int t;
+  assert(j>0);
+  t = i>=0 ? (i+j-1)/j : i/j;
+  return numintIl_set_llint(a,t,intern) && i%j==0;
 }
 
 /* mpq -> numintIl */
-static inline bool numintIl_set_mpq_tmp(numintIl_t a, mpq_t b,
-					mpz_t q, mpz_t r)
+static inline bool numintIl_set_mpq(numintIl_t a, mpq_t b, numinternal_t intern)
 {
-  mpz_cdiv_qr(q,r, mpq_numref(b),mpq_denref(b));
-  numintIl_set_mpz(a,q);
-  bool res = (mpz_sgn(r)==0);
-  return res;
-}
-static inline bool numintIl_set_mpq(numintIl_t a, mpq_t b)
-{
-  mpz_t q,r;
-  mpz_init(q);mpz_init(r);
-  bool res = numintIl_set_mpq_tmp(a,b,q,r);
-  mpz_clear(q); mpz_clear(r);
-  return res;
+  mpz_cdiv_qr(intern->q, intern->r, mpq_numref(b),mpq_denref(b));
+  numintIl_set_mpz(a,intern->q,intern);
+  return mpz_sgn(intern->r)==0;
 }
 /* double -> numintIl */
-static inline bool numintIl_set_double(numintIl_t a, double b)
+static inline bool numintIl_set_double(numintIl_t a, double b, numinternal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
-  return (b==c);
+  return b==c;
+}
+/* ldouble -> numintIl */
+static inline bool numintIl_set_ldouble(numintIl_t a, long double b, numinternal_t intern)
+{
+  long double c = ceill(b);
+  if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
+  *a = c;
+  return b==c;
 }
 /* mpfr -> numintIl */
-static inline bool numintIl_set_mpfr(numintIl_t a, mpfr_t b)
+static inline bool numintIl_set_mpfr(numintIl_t a, mpfr_t b, numinternal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numintIl_set_int(a,0); return false; }
   *a = mpfr_get_si(b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
-/* numintIl -> int */
-static inline bool int_set_numintIl(long int* a, numintIl_t b)
+/* numintIl -> lint */
+static inline bool lint_set_numintIl(long int* a, numintIl_t b, numinternal_t intern)
 { *a = *b; return true; }
 
+/* numintIl -> llint */
+static inline bool llint_set_numintIl(long long int* a, numintIl_t b, numinternal_t intern)
+{ *a = (long long int)(*b); return true; }
+
 /* numintIl -> mpz */
-static inline bool mpz_set_numintIl(mpz_t a, numintIl_t b)
+static inline bool mpz_set_numintIl(mpz_t a, numintIl_t b, numinternal_t intern)
+{ mpz_set_si(a,*b); return true; }
+
+/* numintIl -> lfrac */
+static inline bool lfrac_set_numintIl(long int *a, long int* b, numintIl_t c, numinternal_t intern)
 {
-  mpz_set_si(a,*b);
+  *a = *c;
+  *b = 1L;
+  return true;
+}
+
+/* numintIl -> llfrac */
+static inline bool llfrac_set_numintIl(long long int *a, long long int* b, numintIl_t c, numinternal_t intern)
+{
+  *a = (long long int)(*c);
+  *b = 1LL;
   return true;
 }
 
 /* numintIl -> mpq */
-static inline bool mpq_set_numintIl(mpq_t a, numintIl_t b)
+static inline bool mpq_set_numintIl(mpq_t a, numintIl_t b, numinternal_t intern)
 {
   mpq_set_si(a,*b,1);
   return true;
 }
 
 /* numintIl -> double */
-static inline bool double_set_numintIl(double* a, numintIl_t b)
+static inline bool double_set_numintIl(double* a, numintIl_t b, numinternal_t intern)
 {
   *a = (double)(*b);
   double aa = -((double)(-(*b)));
   return (*a==aa);
 }
 
+/* numintIl -> ldouble */
+static inline bool ldouble_set_numintIl(long double* a, numintIl_t b, numinternal_t intern)
+{
+  *a = (long double)(*b);
+  long double aa = -((long double)(-(*b)));
+  return (*a==aa);
+}
+
 /* numintIl -> mpfr */
-static inline bool mpfr_set_numintIl(mpfr_t a, numintIl_t b)
+static inline bool mpfr_set_numintIl(mpfr_t a, numintIl_t b, numinternal_t intern)
 {
   return !mpfr_set_si(a,*b,GMP_RNDU);
 }
-
-static inline bool mpz_fits_numintIl(mpz_t a)
-{
-  return mpz_fits_slong_p(a);
-}
-
-static inline bool mpq_fits_numintIl_tmp(mpq_t a, mpz_t mpz)
-{
-  mpz_cdiv_q(mpz,mpq_numref(a),mpq_denref(a));
-  return mpz_fits_numintIl(mpz);
-}
-static inline bool mpq_fits_numintIl(mpq_t a)
-{
-  mpz_t mpz;
-  mpz_init(mpz);
-  bool res = mpq_fits_numintIl_tmp(a,mpz);
-  mpz_clear(mpz);
-  return res;
-}
-static inline bool double_fits_numintIl(double a)
-{
-  return isfinite(a) && a>=(double)(-NUMINTIL_MAX) && a<=(double)NUMINTIL_MAX;
-}
-static inline bool mpfr_fits_numintIl(mpfr_t a)
-{
-  return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU);
-}
-static inline bool numintIl_fits_int(numintIl_t a)
-{ return true; }
-static inline bool numintIl_fits_float(numintIl_t a)
-{ return true; }
-static inline bool numintIl_fits_double(numintIl_t a)
-{ return true; }
-static inline bool numintIl_fits_mpfr(numintIl_t a)
-{ return true; }
 
 /* ====================================================================== */
 /* Serialization */
