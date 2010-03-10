@@ -114,7 +114,7 @@ static inline void bound_set_array(bound_t* a, bound_t* b, size_t size)
 static inline void bound_set_int(bound_t a, long int i)
 {  num_set_int(bound_numref(a),i); _bound_inf(a); }
 
-static inline void bound_set_numt(bound_t a, num_t b)
+static inline void bound_set_num(bound_t a, num_t b)
 { num_set(bound_numref(a),b); _bound_inf(a); }
 
 /* ====================================================================== */
@@ -554,25 +554,42 @@ static inline bool bound_set_mpfr(bound_t a, mpfr_t b, numinternal_t intern)
     return false;
   }
 }
+#if !NUM_NUMIL
 static inline bool bound_set_numIl(bound_t a, numIl_t b, numinternal_t intern)
 { return bound_set_lint(a,*b,intern); }
+#endif
+#if !NUM_NUMILL
 static inline bool bound_set_numIll(bound_t a, numIll_t b, numinternal_t intern)
 { return bound_set_llint(a,*b,intern); }
+#endif
+#if !NUM_NUMMPZ
 static inline bool bound_set_numMPZ(bound_t a, numMPZ_t b, numinternal_t intern)
 { return bound_set_mpz(a,b,intern); }
+#endif
+#if !NUM_NUMRL
 static inline bool bound_set_numRl(bound_t a, numRl_t b, numinternal_t intern)
 { return bound_set_lfrac(a,*b->n,*b->d,intern); }
+#endif
+#if !NUM_NUMRLL
 static inline bool bound_set_numRll(bound_t a, numRll_t b, numinternal_t intern)
 { return bound_set_llfrac(a,*b->n,*b->d,intern); }
+#endif
+#if !NUM_NUMMPQ
 static inline bool bound_set_numMPQ(bound_t a, numMPQ_t b, numinternal_t intern)
 { return bound_set_mpq(a,b,intern); }
+#endif
+#if !NUM_NUMD
 static inline bool bound_set_numD(bound_t a, numD_t b, numinternal_t intern)
 { return bound_set_double(a,*b,intern); }
+#endif
+#if !NUM_NUMDL
 static inline bool bound_set_numDl(bound_t a, numDl_t b, numinternal_t intern)
 { return bound_set_ldouble(a,*b,intern); }
+#endif
+#if !NUM_NUMMPFR
 static inline bool bound_set_numMPFR(bound_t a, numMPFR_t b, numinternal_t intern)
 { return bound_set_mpfr(a,b,intern); }
-
+#endif
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
