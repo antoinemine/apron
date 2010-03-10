@@ -25,7 +25,7 @@ Look in the Makefile how test.c can be compiled with different number types.
 Numbers
 =======
 
-The main file is numXXX.h, where XXX can be:
+The main file to be included are numXXX.h and numXXX_conversion.h, where XXX can be:
 - Il	 long int
 - Ill	 long long int
 - MPZ	 mpz_t (GMP library)
@@ -52,4 +52,4 @@ Bounds
 ======
 
 Bounds are *superior* bounds defined on top of num_t. They add +oo to num_t.
-Signatures of operations in boundXXX.h
+Signatures of operations in boundXXX.h and boundXXX_conversion.h

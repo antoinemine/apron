@@ -5,6 +5,9 @@
 #ifndef _BOUND_H_
 #define _BOUND_H_
 
+#include "gmp.h"
+#include "mpfr.h"
+
 #include "numConfig.h"
 #include "bound_def.h"
 
@@ -24,9 +27,9 @@ static inline num_t bound_numref(bound_t a);
 static inline void bound_set(bound_t a, bound_t b);
 static inline void bound_set_array(bound_t* a, bound_t* b, size_t size);
 static inline void bound_set_int(bound_t a, long int i);
-static inline void bound_set_num(bound_t a, num_t b);
 static inline void bound_set_infty(bound_t a, int sgn);
 static inline void bound_swap(bound_t a, bound_t b);
+static inline void bound_set_numt(bound_t a, num_t b);
 
 /* ====================================================================== */
 /* Constructors and Destructors */
@@ -93,8 +96,8 @@ static inline void bound_widening(bound_t a, bound_t b, bound_t c);
 /* ====================================================================== */
 
 /* always rounds toward +oo */
-static inline void bound_to_float(bound_t a, bound_t b);
-static inline void bound_to_double(bound_t a, bound_t b);
+static inline void bound_to_float(bound_t a, bound_t b, numinternal_t intern);
+static inline void bound_to_double(bound_t a, bound_t b, numinternal_t intern);
 
 /* ====================================================================== */
 /* Arithmetic Tests */
@@ -106,6 +109,29 @@ static inline int bound_cmp_int(bound_t a, long int b);
 static inline int bound_cmp_num(bound_t a, num_t b);
 static inline bool bound_equal(bound_t a, bound_t b);
 static inline int bound_hash(bound_t a);
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool bound_set_numIl(bound_t a, numIl_t b, numinternal_t internal);
+static inline bool bound_set_numIll(bound_t a, numIll_t b, numinternal_t internal);
+static inline bool bound_set_numMPZ(bound_t a, numMPZ_t b, numinternal_t internal);
+static inline bool bound_set_numRl(bound_t a, numRl_t b, numinternal_t internal);
+static inline bool bound_set_numRll(bound_t a, numRll_t b, numinternal_t internal);
+static inline bool bound_set_numD(bound_t a, numD_t b, numinternal_t internal);
+static inline bool bound_set_numDl(bound_t a, numDl_t b, numinternal_t internal);
+static inline bool bound_set_numMPFR(bound_t a, numMPFR_t b, numinternal_t internal);
+
+static inline bool bound_set_lint(bound_t a, long int b, numinternal_t intern);
+static inline bool bound_set_llint(bound_t a, long long int b, numinternal_t intern);
+static inline bool bound_set_mpz(bound_t a, mpz_t b, numinternal_t intern);
+static inline bool bound_set_lfrac(bound_t a, long int i, long int j, numinternal_t intern);
+static inline bool bound_set_llfrac(bound_t a, long long int i, long long int j, numinternal_t intern);
+static inline bool bound_set_mpq(bound_t a, mpq_t b, numinternal_t intern);
+static inline bool bound_set_double(bound_t a, double b, numinternal_t intern);
+static inline bool bound_set_ldouble(bound_t a, long double b, numinternal_t intern);
+static inline bool bound_set_mpfr(bound_t a, mpfr_t b, numinternal_t intern);
 
 /* ====================================================================== */
 /* Printing */

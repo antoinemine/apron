@@ -78,51 +78,79 @@ static inline void numflt_fprint(FILE* stream, numflt_t a);
 static inline int  numflt_snprint(char* s, size_t size, numflt_t a);
 
 /* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-static inline bool numflt_set_frac(numflt_t a, long int i, long int j);
-  /* frac -> numflt */
-static inline bool numflt_set_mpz(numflt_t a, mpz_t b);
-  /* mpz -> numflt */
-static inline bool numflt_set_mpq(numflt_t a, mpq_t b);
-  /* mpq -> numflt */
-static inline bool numflt_set_double(numflt_t a, double b);
-  /* double -> numflt */
-static inline bool numflt_set_mpfr(numflt_t a, mpfr_t b);
-  /* mpfr -> numflt */
-
-static inline bool int_set_numflt(long int* a, numflt_t b);
-  /* numflt -> int */
-static inline bool mpz_set_numflt(mpz_t a, numflt_t b);
-  /* numflt -> mpz */
-static inline bool mpq_set_numflt(mpq_t a, numflt_t b);
-  /* numflt -> mpq */
-static inline bool double_set_numflt(double* a, numflt_t b);
-  /* numflt -> double */
-static inline bool mpfr_set_numflt(mpfr_t a, numflt_t b);
-  /* numflt -> mpfr */
-
-static inline bool mpz_fits_numflt(mpz_t a);
-static inline bool mpq_fits_numflt(mpq_t a);
-static inline bool double_fits_numflt(double a);
-static inline bool mpfr_fits_numflt(mpfr_t a);
-static inline bool numflt_fits_int(numflt_t a);
-static inline bool numflt_fits_float(numflt_t a);
-static inline bool numflt_fits_double(numflt_t a);
-static inline bool numflt_fits_mpfr(numflt_t a);
-
-/* Optimized versions */
-/* mpfr should have exactly the precision NUMFLT_MANT_DIG */
-static inline bool numflt_set_mpz_tmp(numflt_t a, mpz_t b, mpfr_t mpfr);
-static inline bool numflt_set_mpq_tmp(numflt_t a, mpq_t b, mpfr_t mpfr);
-
-/* ====================================================================== */
 /* Only for floating point */
 /* ====================================================================== */
 
 static inline bool numflt_infty(numflt_t a);
 static inline void numflt_set_infty(numflt_t a, int sgn);
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+/* ---------------------------------------------------------------------- */
+/* Fits */
+/* ---------------------------------------------------------------------- */
+
+static inline bool lint_fits_numflt(long int a);
+static inline bool llint_fits_numflt(long long int a);
+static inline bool mpz_fits_numflt(mpz_t a);
+static inline bool lfrac_fits_numflt(long int i, long int j);
+static inline bool llfrac_fits_numflt(long long int i, long long int j);
+static inline bool mpq_fits_numflt(mpq_t a);
+static inline bool double_fits_numflt(double a);
+static inline bool ldouble_fits_numflt(long double a);
+static inline bool mpfr_fits_numflt(mpfr_t a, numinternal_t intern);
+
+static inline bool numflt_fits_lint(numflt_t a);
+static inline bool numflt_fits_llint(numflt_t a);
+static inline bool numflt_fits_lfrac(numflt_t a);
+static inline bool numflt_fits_llfrac(numflt_t a);
+static inline bool numflt_fits_double(numflt_t a);
+static inline bool numflt_fits_ldouble(numflt_t a);
+static inline bool numflt_fits_mpfr(numflt_t a);
+
+/* ---------------------------------------------------------------------- */
+/* Conversions */
+/* ---------------------------------------------------------------------- */
+
+static inline bool numflt_set_lint(numflt_t a, long int b, numinternal_t intern);;
+  /* lint -> numflt */
+static inline bool numflt_set_llint(numflt_t a, long long int b, numinternal_t intern);;
+  /* llint -> numflt */
+static inline bool numflt_set_mpz(numflt_t a, mpz_t b, numinternal_t intern);;
+  /* mpz -> numflt */
+static inline bool numflt_set_lfrac(numflt_t a, long int i, long int j, numinternal_t intern);;
+  /* lfrac -> numflt */
+static inline bool numflt_set_llfrac(numflt_t a, long long int i, long long int j, numinternal_t intern);;
+  /* llfrac -> numflt */
+static inline bool numflt_set_mpq(numflt_t a, mpq_t b, numinternal_t intern);
+  /* mpq -> numflt */
+static inline bool numflt_set_double(numflt_t a, double b, numinternal_t intern);;
+  /* double -> numflt */
+static inline bool numflt_set_ldouble(numflt_t a, long double b, numinternal_t intern);
+  /* ldouble -> numflt */
+static inline bool numflt_set_mpfr(numflt_t a, mpfr_t b, numinternal_t intern);
+  /* mpfr -> numflt */
+
+static inline bool lint_set_numflt(long int* a, numflt_t b, numinternal_t intern);;
+  /* numflt -> lint */
+static inline bool llint_set_numflt(long long int* a, numflt_t b, numinternal_t intern);;
+  /* numflt -> llint */
+static inline bool mpz_set_numflt(mpz_t a, numflt_t b, numinternal_t intern);;
+  /* numflt -> mpz */
+static inline bool lfrac_set_numflt(long int* i, long int* j, numflt_t b, numinternal_t intern);;
+  /* numflt -> lfrac */
+static inline bool llfrac_set_numflt(long long int* i, long long int* j, numflt_t b, numinternal_t intern);;
+  /* numflt -> llfrac */
+static inline bool mpq_set_numflt(mpq_t a, numflt_t b, numinternal_t intern);;
+  /* numflt -> mpq */
+static inline bool double_set_numflt(double* a, numflt_t b, numinternal_t intern);
+  /* numflt -> double */
+static inline bool ldouble_set_numflt(long double* a, numflt_t b, numinternal_t intern);
+  /* numflt -> ldouble */
+static inline bool mpfr_set_numflt(mpfr_t a, numflt_t b, numinternal_t intern);;
+  /* numflt -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

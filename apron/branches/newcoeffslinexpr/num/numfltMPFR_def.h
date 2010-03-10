@@ -17,6 +17,14 @@
 #include "mpfr.h"
 
 #include "numConfig.h"
+#include "numintIl_def.h"
+#include "numintIll_def.h"
+#include "numintMPZ_def.h"
+#include "numratRl_def.h"
+#include "numratRll_def.h"
+#include "numratMPQ_def.h"
+#include "numfltD_def.h"
+#include "numfltDl_def.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,6 +149,8 @@ static inline bool numfltMPFR_equal(numfltMPFR_t a, numfltMPFR_t b)
 { return mpfr_equal_p(a,b); }
 static inline bool numfltMPFR_integer(numfltMPFR_t a)
 { return mpfr_integer_p(a); }
+static inline int numfltMPFR_hash(numfltMPFR_t a)
+{ return mpfr_get_si(a,GMP_RNDU); }
 
 /* ====================================================================== */
 /* Printing */
@@ -183,95 +193,143 @@ static inline void numfltMPFR_print(numfltMPFR_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* frac -> numflt */
-static inline bool numfltMPFR_set_frac(numfltMPFR_t a, long int i, long int j)
-{
-  int r1,r2;
-  assert(j>0);
-  r1=mpfr_set_si(a,i,GMP_RNDU);
-  r2=mpfr_div_si(a,a,j,GMP_RNDU);
-  return !r1 && !r2;
-}
+/* ---------------------------------------------------------------------- */
+/* Fits */
+/* ---------------------------------------------------------------------- */
 
-/* mpz -> numflt */
-static inline bool numfltMPFR_set_mpz_tmp(numfltMPFR_t a, mpz_t b, mpfr_t mpfr)
-{ return !mpfr_set_z(a,b,GMP_RNDU); }
-static inline bool numfltMPFR_set_mpz(numfltMPFR_t a, mpz_t b)
-{ return !mpfr_set_z(a,b,GMP_RNDU); }
-
-/* mpq -> numflt */
-static inline bool numfltMPFR_set_mpq_tmp(numfltMPFR_t a, mpq_t b, mpfr_t mpfr)
-{ return !mpfr_set_q(a,b,GMP_RNDU); }
-static inline bool numfltMPFR_set_mpq(numfltMPFR_t a, mpq_t b)
-{ return !mpfr_set_q(a,b,GMP_RNDU); }
-
-/* double -> numflt */
-static inline bool numfltMPFR_set_double(numfltMPFR_t a, double k)
-{ return !mpfr_set_d(a,k,GMP_RNDU); }
-
-/* mpfr -> numflt */
-static inline bool numfltMPFR_set_mpfr(numfltMPFR_t a, mpfr_t b)
-{ return !mpfr_set(a,b,GMP_RNDU); }
-
-/* numflt -> int */
-static inline bool int_set_numfltMPFR(long int* a, numfltMPFR_t b)
-{
-  if (!mpfr_number_p(b)) { DEBUG_SPECIAL; *a = 0; return false; }
-  *a = mpfr_get_si(b,GMP_RNDU);
-  return mpfr_integer_p(b);
-}
-/* numflt -> mpz */
-static inline bool mpz_set_numfltMPFR(mpz_t a, numfltMPFR_t b)
-{
-  if (!mpfr_number_p(b)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
-  mpfr_get_z(a,b,GMP_RNDU);
-  return mpfr_integer_p(b);
-}
-/* numflt -> mpq */
-static inline bool mpq_set_numfltMPFR(mpq_t a, numfltMPFR_t b)
-{
-  mp_exp_t e;
-  if (!mpfr_number_p(b)) { DEBUG_SPECIAL; mpq_set_si(a,0,1); return false; }
-  /* XXX might fail if scaled exponent not representable in mp_exp_t */
-  e = mpfr_get_z_exp(mpq_numref(a),b);
-  mpz_set_si(mpq_denref(a),1);
-  if (e>0) mpq_mul_2exp(a,a,e);
-  if (e<0) mpq_div_2exp(a,a,-e);
-  return true;
-}
-
-/* numflt -> double */
-static inline bool double_set_numfltMPFR(double* a, numfltMPFR_t b)
-{
-  *a = mpfr_get_d(b,GMP_RNDU);
-  return !mpfr_cmp_d(b,*a);
-}
-
-/* numflt -> mpfr */
-static inline bool mpfr_set_numfltMPFR(mpfr_t a, numfltMPFR_t b)
-{ return !mpfr_set(a,b,GMP_RNDU); }
-
+static inline bool lint_fits_numfltMPFR(long int a)
+{ return numintIl_fits_mpfr(&a); }
+static inline bool llint_fits_numfltMPFR(long long int a)
+{ return numintIll_fits_mpfr(&a);  }
 static inline bool mpz_fits_numfltMPFR(mpz_t a)
-{ return mpz_sizeinbase(a,2)+1<(size_t)mpfr_get_emax(); }
-static inline bool mpq_fits_numfltMPFR(mpq_t a)
+{ return numintMPZ_fits_mpfr(a); }
+static inline bool lfrac_fits_numfltMPFR(long int i, long int j)
 {
-  return ((int)mpz_sizeinbase(mpq_numref(a),2)-
-	  (int)mpz_sizeinbase(mpq_denref(a),2)+1<mpfr_get_emax());
+  struct numratRl_native s;
+  *s.n = i;
+  *s.n = j;
+  return j>0 && numratRl_fits_mpfr(&s);
 }
-static inline bool double_fits_numfltMPFR(double a)
-{ return true; }
-static inline bool mpfr_fits_numfltMPFR(mpfr_t a)
+static inline bool llfrac_fits_numfltMPFR(long long int i, long long int j)
+{
+  struct numratRll_native s;
+  *s.n = i;
+  *s.n = j;
+  return j>0 && numratRll_fits_mpfr(&s);
+}
+static inline bool mpq_fits_numfltMPFR(mpq_t a)
+{ return numratMPQ_fits_mpfr(a); }
+static inline bool double_fits_numfltMPFR(double k)
+{ return numfltD_fits_mpfr(&k); }
+static inline bool ldouble_fits_numfltMPFR(long double k)
+{ return numfltDl_fits_mpfr(&k); }
+static inline bool mpfr_fits_numfltMPFR(mpfr_t a, numinternal_t intern)
 { return true; }
 
-static inline bool numfltMPFR_fits_int(numfltMPFR_t a)
-{ return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU); }
+static inline bool numfltMPFR_fits_lint(numfltMPFR_t a)
+{ return mpfr_fits_slong_p(a,GMP_RNDU); }
+static inline bool numfltMPFR_fits_llint(numfltMPFR_t a)
+{ return mpfr_fits_intmax_p(a,GMP_RNDU); }
+static inline bool numfltMPFR_fits_lfrac(numfltMPFR_t a)
+{ return mpfr_fits_numratRl(a,NULL); }
+static inline bool numfltMPFR_fits_llfrac(numfltMPFR_t a)
+{ return mpfr_fits_numratRll(a,NULL); }
 static inline bool numfltMPFR_fits_float(numfltMPFR_t a)
-{ return mpfr_number_p(a) && mpfr_get_exp(a)<126; }
+{
+  int e;
+  e = mpfr_get_exp(a);
+  return (e<FLT_MAX_EXP-1);
+}
 static inline bool numfltMPFR_fits_double(numfltMPFR_t a)
-{ return mpfr_number_p(a) && mpfr_get_exp(a)<1022; }
+{ return mpfr_fits_numfltD(a,NULL); }
+static inline bool numfltMPFR_fits_ldouble(numfltMPFR_t a)
+{ return mpfr_fits_numfltDl(a,NULL); }
 static inline bool numfltMPFR_fits_mpfr(numfltMPFR_t a)
 { return true; }
 
+/* ---------------------------------------------------------------------- */
+/* Conversions */
+/* ---------------------------------------------------------------------- */
+
+/* lint -> numflt */
+static inline bool numfltMPFR_set_lint(numfltMPFR_t a, long int i, numinternal_t intern)
+{ return mpfr_set_numintIl(a,&i,intern); }
+/* llint -> numflt */
+static inline bool numfltMPFR_set_llint(numfltMPFR_t a, long long int i, numinternal_t intern)
+{ return mpfr_set_numintIll(a,&i,intern); }
+/* mpz -> numflt */
+static inline bool numfltMPFR_set_mpz(numfltMPFR_t a, mpz_t b, numinternal_t intern)
+{ return mpfr_set_numintMPZ(a,b,intern); }
+/* lfrac -> numflt */
+static inline bool numfltMPFR_set_lfrac(numfltMPFR_t a, long int i, long int j, numinternal_t intern)
+{
+  assert(j>0);
+  struct numratRl_native s;
+  *s.n = i;
+  *s.d = j;
+  return mpfr_set_numratRl(a,&s,intern);
+}
+/* llfrac -> numflt */
+static inline bool numfltMPFR_set_llfrac(numfltMPFR_t a, long long int i, long long int j, numinternal_t intern)
+{
+  assert(j>0);
+  struct numratRll_native s;
+  *s.n = i;
+  *s.d = j;
+  return mpfr_set_numratRll(a,&s,intern);
+}
+/* mpq -> numflt */
+static inline bool numfltMPFR_set_mpq(numfltMPFR_t a, mpq_t b, numinternal_t intern)
+{ return mpfr_set_numratMPQ(a,b,intern); }
+/* double -> numflt */
+static inline bool numfltMPFR_set_double(numfltMPFR_t a, double k, numinternal_t intern)
+{ return mpfr_set_numfltD(a,&k,intern); }
+/* ldouble -> numflt */
+static inline bool numfltMPFR_set_ldouble(numfltMPFR_t a, long double k, numinternal_t intern)
+{ return mpfr_set_numfltDl(a,&k,intern); }
+/* mpfr -> numflt */
+static inline bool numfltMPFR_set_mpfr(numfltMPFR_t a, mpfr_t b, numinternal_t intern)
+{ return !mpfr_set(a,b,GMP_RNDU); }
+
+/* numflt -> lint */
+static inline bool lint_set_numfltMPFR(long int* a, numfltMPFR_t b, numinternal_t intern)
+{ return numintIl_set_mpfr(a,b,intern); }
+/* numflt -> llint */
+static inline bool llint_set_numfltMPFR(long long int* a, numfltMPFR_t b, numinternal_t intern)
+{ return numintIll_set_mpfr(a,b,intern); }
+/* numflt -> mpz */
+static inline bool mpz_set_numfltMPFR(mpz_t a, numfltMPFR_t b, numinternal_t intern)
+{ return numintMPZ_set_mpfr(a,b,intern); }
+/* numflt -> lfrac */
+static inline bool lfrac_set_numfltMPFR(long int* i, long int* j, numfltMPFR_t b, numinternal_t intern)
+{
+  struct numratRl_native s;
+  bool res = numratRl_set_mpfr(&s,b,intern);
+  *i = *s.n;
+  *j = *s.d;
+  return res;
+}
+/* numflt -> llfrac */
+static inline bool llfrac_set_numfltMPFR(long long int* i, long long int* j, numfltMPFR_t b, numinternal_t intern)
+{
+  struct numratRll_native s;
+  bool res = numratRll_set_mpfr(&s,b,intern);
+  *i = *s.n;
+  *j = *s.d;
+  return res;
+}
+/* numflt -> mpq */
+static inline bool mpq_set_numfltMPFR(mpq_t a, numfltMPFR_t b, numinternal_t intern)
+{ return numratMPQ_set_mpfr(a,b,intern); }
+/* numflt -> double */
+static inline bool double_set_numfltMPFR(double* a, numfltMPFR_t b, numinternal_t intern)
+{ return numfltD_set_mpfr(a,b,intern); }
+/* numflt -> long double */
+static inline bool ldouble_set_numfltMPFR(long double* a, numfltMPFR_t b, numinternal_t intern)
+{ return numfltDl_set_mpfr(a,b,intern); }
+/* numflt -> mpfr */
+static inline bool mpfr_set_numfltMPFR(mpfr_t a, numfltMPFR_t b, numinternal_t intern)
+{ return !mpfr_set(a,b,GMP_RNDU); }
 
 /* ====================================================================== */
 /* Only for floating point */
