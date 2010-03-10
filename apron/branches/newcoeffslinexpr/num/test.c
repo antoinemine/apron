@@ -259,8 +259,8 @@ void bound(bound_t a, bound_t b, bound_t c,
 
   bound_set(b,bb); bound_set(c,cc);
   if (!bound_infty(b)) {
-    bound_set_numt(a,bound_numref(b));
-    printf("bound_set_numt(b): "); printf("b="); bound_print(b); printf(" a="); bound_print(a); printf("\n");
+    bound_set_num(a,bound_numref(b));
+    printf("bound_set_num(b): "); printf("b="); bound_print(b); printf(" a="); bound_print(a); printf("\n");
   }
   bound_set_infty(a,1);
   printf("bound_set_infty(1)="); bound_print(a); printf("\n");
