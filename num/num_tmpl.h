@@ -84,6 +84,7 @@ static inline int num_cmp(num_t a, num_t b);
 static inline int num_cmp_int(num_t a, long int b);
 static inline bool num_equal(num_t a, num_t b);
 static inline bool num_integer(num_t a);
+static inline int num_hash(num_t a);
 
 /* ====================================================================== */
 /* Printing */
@@ -96,56 +97,66 @@ static inline int num_snprint(char* s, size_t size, num_t a);
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
+/* ---------------------------------------------------------------------- */
+/* Fits */
+/* ---------------------------------------------------------------------- */
 
-static inline bool num_set_frac(num_t a, long int i, long int j);
-  /* frac -> num */
-static inline bool num_set_mpz(num_t a, mpz_t b);
-  /* mpz -> num */
-static inline bool num_set_mpq(num_t a, mpq_t b);
-  /* mpq -> num */
-static inline bool num_set_double(num_t a, double b);
-  /* double -> num */
-static inline bool num_set_mpfr(num_t a, mpfr_t b);
-  /* mpfr -> num */
-
-static inline bool int_set_num(long int* a, num_t b);
-  /* num -> int */
-static inline bool mpz_set_num(mpz_t a, num_t b);
-  /* num -> mpz */
-static inline bool mpq_set_num(mpq_t a, num_t b);
-  /* num -> mpq */
-static inline bool double_set_num(double* a, num_t b);
-  /* num -> double */
-static inline bool float_set_num(float* a, num_t b);
-  /* num -> float */
-static inline bool mpfr_set_num(mpfr_t a, num_t b);
-  /* num -> mpfr */
-
+static inline bool lint_fits_num(long int a);
+static inline bool llint_fits_num(long long int a);
 static inline bool mpz_fits_num(mpz_t a);
+static inline bool lfrac_fits_num(long int i, long int j);
+static inline bool llfrac_fits_num(long long int i, long long int j);
 static inline bool mpq_fits_num(mpq_t a);
 static inline bool double_fits_num(double a);
-static inline bool mpfr_fits_num(mpfr_t a);
-static inline bool num_fits_int(num_t a);
+static inline bool ldouble_fits_num(long double a);
+static inline bool mpfr_fits_num(mpfr_t a, numinternal_t intern);
+
+static inline bool num_fits_lint(num_t a);
+static inline bool num_fits_llint(num_t a);
+static inline bool num_fits_lfrac(num_t a);
+static inline bool num_fits_llfrac(num_t a);
 static inline bool num_fits_float(num_t a);
 static inline bool num_fits_double(num_t a);
+static inline bool num_fits_ldouble(num_t a);
 static inline bool num_fits_mpfr(num_t a);
 
-/* Optimized versions */
-/* mpfr should have exactly the precision NUMFLT_MANT_DIG */
-static inline bool num_set_mpz_tmp(num_t a, mpz_t b, mpfr_t mpfr);
-static inline bool num_set_mpq_tmp(num_t a, mpq_t b, 
-				   mpz_t q, mpz_t r, mpfr_t mpfr);
-static inline bool num_set_double_tmp(num_t a, double k, mpq_t mpq);
+static inline bool num_set_lint(num_t a, long int b, numinternal_t intern);;
+  /* lint -> num */
+static inline bool num_set_llint(num_t a, long long int b, numinternal_t intern);;
+  /* llint -> num */
+static inline bool num_set_mpz(num_t a, mpz_t b, numinternal_t intern);;
+  /* mpz -> num */
+static inline bool num_set_lfrac(num_t a, long int i, long int j, numinternal_t intern);;
+  /* lfrac -> num */
+static inline bool num_set_llfrac(num_t a, long long int i, long long int j, numinternal_t intern);;
+  /* llfrac -> num */
+static inline bool num_set_mpq(num_t a, mpq_t b, numinternal_t intern);
+  /* mpq -> num */
+static inline bool num_set_double(num_t a, double b, numinternal_t intern);;
+  /* double -> num */
+static inline bool num_set_ldouble(num_t a, long double b, numinternal_t intern);
+  /* ldouble -> num */
+static inline bool num_set_mpfr(num_t a, mpfr_t b, numinternal_t intern);
+  /* mpfr -> num */
 
-static inline bool int_set_num_tmp(long int* a, num_t b, 
-				   mpz_t q, mpz_t r);
-static inline bool mpz_set_num_tmp(mpz_t a, num_t b, mpz_t mpz);
-/* mpfr should have exactly the precision DBL_MANT_DIG */
-static inline bool double_set_num_tmp(double* a, num_t b, 
-				      mpq_t mpq, mpfr_t mpfr);
-
-static inline bool mpq_fits_num_tmp(mpq_t a, mpz_t mpz);
-static inline bool double_fits_num_tmp(double k, mpq_t mpq);
+static inline bool lint_set_num(long int* a, num_t b, numinternal_t intern);;
+  /* num -> lint */
+static inline bool llint_set_num(long long int* a, num_t b, numinternal_t intern);;
+  /* num -> llint */
+static inline bool mpz_set_num(mpz_t a, num_t b, numinternal_t intern);;
+  /* num -> mpz */
+static inline bool lfrac_set_num(long int* i, long int* j, num_t b, numinternal_t intern);;
+  /* num -> lfrac */
+static inline bool llfrac_set_num(long long int* i, long long int* j, num_t b, numinternal_t intern);;
+  /* num -> llfrac */
+static inline bool mpq_set_num(mpq_t a, num_t b, numinternal_t intern);;
+  /* num -> mpq */
+static inline bool double_set_num(double* a, num_t b, numinternal_t intern);
+  /* num -> double */
+static inline bool ldouble_set_num(long double* a, num_t b, numinternal_t intern);
+  /* num -> ldouble */
+static inline bool mpfr_set_num(mpfr_t a, num_t b, numinternal_t intern);;
+  /* num -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

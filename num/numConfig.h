@@ -14,9 +14,35 @@ static const bool true  = 1;
 #endif
 
 #include <string.h>
+#include <float.h>
+#include "gmp.h"
+#include "mpfr.h"
 
 /* prints attempts to convert NaN and infinities to non floating-point types */
 #define DEBUG_SPECIAL fprintf(stderr,"invalid floating-point in %s\n",__func__)
+
+typedef struct __numinternal_struct {
+  mpz_t q;
+  mpz_t r;
+  mpq_t mpq;
+  mpfr_t dbl;
+  mpfr_t ldbl;
+} __numinternal_struct;
+typedef __numinternal_struct numinternal_t[1];
+
+static inline void numinternal_init(numinternal_t intern)
+{
+  mpz_init(intern->q); mpz_init(intern->r);
+  mpq_init(intern->mpq);
+  mpfr_init2(intern->dbl,DBL_MANT_DIG);
+  mpfr_init2(intern->ldbl,LDBL_MANT_DIG);
+}
+static inline void numinternal_clear(numinternal_t intern)
+{
+  mpz_clear(intern->q); mpz_clear(intern->r);
+  mpq_clear(intern->mpq);
+  mpfr_clear(intern->dbl); mpfr_clear(intern->ldbl);
+}
 
 static inline void num_store_words8(void* dst, const void* src, size_t t)
 {

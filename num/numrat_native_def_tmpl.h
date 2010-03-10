@@ -276,6 +276,8 @@ static inline void numrat_max(numrat_t a, numrat_t b, numrat_t c)
 
 static inline bool numrat_integer(numrat_t a)
 { return (*a->d==1); }
+static inline int numrat_hash(numrat_t a)
+{ return (int)((*a->n)/(*a->d)); }
 
 /* ====================================================================== */
 /* Printing */
@@ -316,167 +318,258 @@ static inline int numrat_snprint(char* s, size_t size, numrat_t a)
 /* Conversions */
 /* ====================================================================== */
 
-/* frac -> numrat */
-static inline bool numrat_set_frac(numrat_t a, long int i, long int j)
-{
-  assert(j>0);
-  numint_set_int(a->n,i);
-  numint_set_int(a->d,j);
-  numrat_canonicalize(a);
-  return true;
-}
+/* ---------------------------------------------------------------------- */
+/* Fits */
+/* ---------------------------------------------------------------------- */
 
-/* mpz -> numrat */
-static inline bool numrat_set_mpz(numrat_t a, mpz_t b)
-{
-  numint_set_mpz(a->n,b);
-  numint_set_int(a->d,1);
-  return true;
-}
-
-/* mpq -> numrat */
-static inline bool numrat_set_mpq(numrat_t a, mpq_t b)
-{
-  bool res1 = numint_set_mpz(a->n,mpq_numref(b));
-  bool res2 = numint_set_mpz(a->d,mpq_denref(b));
-  return res1 && res2;
-}
-
-/* double -> numrat */
-static inline bool numrat_set_double_tmp(numrat_t a, double k, mpq_t mpq)
-{
-  if (!isfinite(k)) { DEBUG_SPECIAL; numrat_set_int(a,0); return false; }
-  mpq_set_d(mpq,k);
-  numrat_set_mpq(a,mpq);
-  return true;
-}
-static inline bool numrat_set_double(numrat_t a, double k)
-{
-  mpq_t mpq;
-  mpq_init(mpq);
-  numrat_set_double_tmp(a,k,mpq);
-  mpq_clear(mpq);
-  return true;
-}
-/* mpfr -> numrat */
-static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b)
-{
-  mpq_t q;
-  mp_exp_t e;
-  if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numrat_set_int(a,0); return false; }
-  mpq_init(q);
-  /* XXX might fail if scaled exponent not representable in mp_exp_t */
-  e = mpfr_get_z_exp(mpq_numref(q),b);
-  mpz_set_si(mpq_denref(q),1);
-  if (e>0) mpq_mul_2exp(q,q,e);
-  if (e<0) mpq_div_2exp(q,q,-e);
-  numrat_set_mpq(a,q);
-  mpq_clear(q);
-  return true;
-}
-/* numrat -> int */
-static inline bool int_set_numrat(long int* a, numrat_t b)
-{
-  numint_t q,r;
-  numint_cdiv_qr(q,r,b->n,b->d);
-  *a = *q;
-  return (*r==0);
-}
-static inline bool int_set_numrat_tmp(long int* a, numrat_t b,
-				      mpz_t q, mpz_t r)
-{ return int_set_numrat(a,b); }
-
-/* numrat -> mpz */
-static inline bool mpz_set_numrat(mpz_t a, numrat_t b)
-{
-  numint_t q,r;
-  numint_cdiv_qr(q,r,numrat_numref(b),numrat_denref(b));
-  mpz_set_numint(a,q);
-  return (numint_sgn(r)==0);
-}
-static inline bool mpz_set_numrat_tmp(mpz_t a, numrat_t b, mpz_t mpz)
-{ return mpz_set_numrat(a,b); }
-
-/* numrat -> mpq */
-static inline bool mpq_set_numrat(mpq_t a, numrat_t b)
-{
-  mpz_set_numint(mpq_numref(a), numrat_numref(b));
-  mpz_set_numint(mpq_denref(a), numrat_denref(b));
-  return true;
-}
-/* numrat -> double */
-/* mpfr should have exactly a precision of 53 bits */
-static inline bool double_set_numrat_tmp(double* a, numrat_t b,
-					 mpq_t mpq, mpfr_t mpfr)
-{
-  mpq_set_numrat(mpq,b);
-  int res = mpfr_set_q(mpfr,mpq,GMP_RNDU);
-  *a = mpfr_get_d(mpfr,GMP_RNDU); /* should be exact */
-  return (res==0);
-}
-static inline bool double_set_numrat(double* a, numrat_t b)
-{
-  mpq_t mpq;
-  mpfr_t mpfr;
-  mpq_init(mpq);
-  mpfr_init2(mpfr,53);
-  bool res = double_set_numrat_tmp(a,b,mpq,mpfr);
-  mpq_clear(mpq);
-  mpfr_clear(mpfr);
-  return res;
-}
-/* numrat -> mpfr */
-static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b)
-{
-  int r = mpfr_set_si(a,*numrat_numref(b),GMP_RNDU);
-  return !mpfr_div_si(a,a,*numrat_denref(b),GMP_RNDU) && !r;
-}
-
+static inline bool lint_fits_numrat(long int a)
+{ return lint_fits_numint(a); }
+static inline bool llint_fits_numrat(long long int a)
+{ return llint_fits_numint(a); }
 static inline bool mpz_fits_numrat(mpz_t a)
 { return mpz_fits_numint(a); }
+static inline bool lfrac_fits_numrat(long int i, long int j)
+{ return lint_fits_numint(i) && lint_fits_numint(j); }
+static inline bool llfrac_fits_numrat(long long int i, long long int j)
+{ return llint_fits_numint(i) && llint_fits_numint(j); }
 static inline bool mpq_fits_numrat(mpq_t a)
 { return mpz_fits_numint(mpq_numref(a)) && mpz_fits_numint(mpq_denref(a)); }
-static inline bool double_fits_numrat_tmp(double k, mpq_t mpq)
-{
-  if (!isfinite(k)) return false;
-  mpq_set_d(mpq,k);
-  bool res = mpq_fits_numrat(mpq);
-  return res;
-}
 static inline bool double_fits_numrat(double k)
 {
-  mpq_t mpq;
-  mpq_init(mpq);
-  bool res = double_fits_numrat_tmp(k,mpq);
-  mpq_clear(mpq);
-  return res;
+  double mant;
+  int e;
+  if (!isfinite(k)) return false;
+  mant = frexp(k,&e);
+  return e < (int)sizeof(numint_t)*8-1;
 }
-static inline bool mpfr_fits_numrat(mpfr_t a)
+static inline bool ldouble_fits_numrat(long double k)
 {
-  mpz_t z;
+  long double mant;
+  int e;
+  if (!isfinite(k)) return false;
+  mant = frexpl(k,&e);
+  return e < (int)sizeof(numint_t)*8-1;
+}
+static inline bool mpfr_fits_numrat(mpfr_t a, numinternal_t intern)
+{
   mp_exp_t e;
   if (!mpfr_number_p(a)) return false;
-  mpz_init(z);
-  e = mpfr_get_z_exp(z,a);
-  if (!mpz_fits_numrat(z)) {
-    mpz_clear(z);
-    return false;
-  }
-  mpz_clear(z);
-  return e<(mp_exp_t)sizeof(numint_t)*8-1;
+  if (mpfr_sgn(a)==0) return true;
+  e = mpfr_get_exp(a);
+  return e < (mp_exp_t)sizeof(numint_t)*8-1;
 }
-static inline bool numrat_fits_int(numrat_t a)
+static inline bool numrat_fits_lint(numrat_t a)
 {
   numint_t b;
   numint_cdiv_q(b,a->n,a->d);
   return *b<=LONG_MAX && *b>=-LONG_MAX;
 }
+static inline bool numrat_fits_llint(numrat_t a)
+{ return true; }
+static inline bool numrat_fits_lfrac(numrat_t a)
+{ return numint_fits_lint(numrat_numref(a)) && numint_fits_lint(numrat_denref(a)); }
+static inline bool numrat_fits_llfrac(numrat_t a)
+{ return true; }
+static inline bool numrat_fits_mpq(numrat_t a)
+{ return true; }
 static inline bool numrat_fits_float(numrat_t a)
 { return true; }
 static inline bool numrat_fits_double(numrat_t a)
 { return true; }
-static inline bool numrat_fits_mpfr(numrat_t a)
+static inline bool numrat_fits_ldouble(numrat_t a)
 { return true; }
+static inline bool numrat_fits_mpfr(numrat_t a)
+{ return numint_fits_mpfr(numrat_numref(a)) && numint_fits_mpfr(numrat_denref(a)); }
+
+/* lint -> numrat */
+static inline bool numrat_set_lint(numrat_t a, long int b, numinternal_t intern)
+{
+  assert(j>0);
+  numint_set_lint(a->n,b,intern);
+  numint_set_int(a->d,1L);
+  return true;
+}
+/* llint -> numrat */
+static inline bool numrat_set_llint(numrat_t a, long long int b, numinternal_t intern)
+{
+  assert(j>0);
+  numint_set_llint(a->n,b,intern);
+  numint_set_int(a->d,1);
+  return true;
+}
+/* mpz -> numrat */
+static inline bool numrat_set_mpz(numrat_t a, mpz_t b, numinternal_t intern)
+{
+  numint_set_mpz(a->n,b,intern);
+  numint_set_int(a->d,1);
+  return true;
+}
+/* lfrac -> numrat */
+static inline bool numrat_set_lfrac(numrat_t a, long int i, long int j, numinternal_t intern)
+{
+  assert(j>0);
+  numint_set_lint(a->n,i,intern);
+  numint_set_lint(a->d,j,intern);
+  numrat_canonicalize(a);
+  return true;
+}
+/* llfrac -> numrat */
+static inline bool numrat_set_llfrac(numrat_t a, long long int i, long long int j, numinternal_t intern)
+{
+  assert(j>0);
+  numint_set_llint(a->n,i,intern);
+  numint_set_llint(a->d,j,intern);
+  numrat_canonicalize(a);
+  return true;
+}
+/* mpq -> numrat */
+static inline bool numrat_set_mpq(numrat_t a, mpq_t b, numinternal_t intern)
+{
+  numint_set_mpz(a->n,mpq_numref(b),intern);
+  numint_set_mpz(a->d,mpq_denref(b),intern);
+  numrat_canonicalize(a);
+  return true;
+}
+/* double -> numrat */
+static inline bool numrat_set_double(numrat_t a, double k, numinternal_t intern)
+{
+  const int size = sizeof(numint_t)*8-2;
+  int e,l;
+  bool res;
+
+  if (!isfinite(k)) { DEBUG_SPECIAL; numrat_set_int(a,0); return false; }
+  if (k==0.0){
+    numrat_set_int(a,0);
+    return true;
+  }
+  k = frexp(k,&e);
+  if (e < -size){
+    if (k>0.0){
+      *a->n = NUMINT_ONE;
+      *a->d = NUMINT_MAX;
+    }
+    else {
+      numrat_set_int(a,0);
+    }
+    return false;
+  }
+  else if (size-e>=0) {
+    l = (e>=0) ? size : (size + e);
+    k = ldexp(k,l);
+    res = numint_set_double(a->n,k,intern);
+    *a->d = NUMINT_ONE << (l-e);
+    numrat_canonicalize(a);
+    return res;
+  }
+  else {
+    numrat_set_int(a,0);
+    return false;
+  }
+}
+/* ldouble -> numrat */
+static inline bool numrat_set_ldouble(numrat_t a, long double k, numinternal_t intern)
+{
+  const int size = sizeof(numint_t)*8-2;
+  int e,l;
+  bool res;
+
+  if (!isfinite(k)) { DEBUG_SPECIAL; numrat_set_int(a,0); return false; }
+  if (k==0.0){
+    numrat_set_int(a,0);
+    return true;
+  }
+  k = frexpl(k,&e);
+  if (e < -size){
+    if (k>0.0){
+      *a->n = NUMINT_ONE;
+      *a->d = NUMINT_MAX;
+    }
+    else {
+      numrat_set_int(a,0);
+    }
+    return false;
+  }
+  else if (size-e>=0) {
+    l = (e>=0) ? size : (size + e);
+    k = ldexpl(k,l);
+    res = numint_set_ldouble(a->n,k,intern);
+    *a->d = NUMINT_ONE << (l-e);
+    numrat_canonicalize(a);
+    return res;
+  }
+  else {
+    numrat_set_int(a,0);
+    return false;
+  }
+}
+/* mpfr -> numrat */
+static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b, numinternal_t intern)
+{
+  long double k = mpfr_get_ld(b, GMP_RNDU);
+  return numrat_set_ldouble(a,k,intern) && (mpfr_cmp_ld(b,k)==0);
+}
+
+/* numrat -> lint */
+static inline bool lint_set_numrat(long int* a, numrat_t b, numinternal_t intern)
+{
+  numint_t q,r;
+  numint_cdiv_qr(q,r,numrat_numref(b),numrat_denref(b));
+  return lint_set_numint(a,q,intern) && (numint_sgn(r)==0);
+}
+/* numrat -> llint */
+static inline bool llint_set_numrat(long long int* a, numrat_t b, numinternal_t intern)
+{
+  numint_t q,r;
+  numint_cdiv_qr(q,r,numrat_numref(b),numrat_denref(b));
+  return llint_set_numint(a,q,intern) && (numint_sgn(r)==0);
+}
+/* numrat -> mpz */
+static inline bool mpz_set_numrat(mpz_t a, numrat_t b, numinternal_t intern)
+{
+  numint_t q,r;
+  numint_cdiv_qr(q,r,numrat_numref(b),numrat_denref(b));
+  mpz_set_numint(a,q,intern);
+  return (numint_sgn(r)==0);
+}
+/* numrat -> lfrac */
+static inline bool lfrac_set_numrat(long int* i, long int* j, numrat_t b, numinternal_t intern)
+{
+  lint_set_numint(i,numrat_numref(b),intern);
+  lint_set_numint(j,numrat_denref(b),intern);
+  return true;
+}
+/* numrat -> llfrac */
+static inline bool llfrac_set_numrat(long long int* i, long long int* j, numrat_t b, numinternal_t intern)
+{
+  llint_set_numint(i,numrat_numref(b),intern);
+  llint_set_numint(j,numrat_denref(b),intern);
+  return true;
+}
+/* numrat -> mpq */
+static inline bool mpq_set_numrat(mpq_t a, numrat_t b, numinternal_t intern)
+{
+  mpz_set_numint(mpq_numref(a), numrat_numref(b),intern);
+  mpz_set_numint(mpq_denref(a), numrat_denref(b),intern);
+  return true;
+}
+/* numrat -> double */
+static inline bool double_set_numrat(double* a, numrat_t b, numinternal_t intern)
+{
+  *a = (double)(*b->n)/(double)(*b->d);
+  return (-*a==(double)(-*b->n)/(double)(*b->d));
+}
+/* numrat -> ldouble */
+static inline bool ldouble_set_numrat(long double* a, numrat_t b, numinternal_t intern)
+{
+  *a = (long double)(*b->n)/(long double)(*b->d);
+  return (-*a==(long double)(-*b->n)/(long double)(*b->d));
+}
+/* numrat -> mpfr */
+static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b, numinternal_t intern)
+{
+  int r = mpfr_set_si(a,*numrat_numref(b),GMP_RNDU);
+  return !mpfr_div_si(a,a,*numrat_denref(b),GMP_RNDU) && !r;
+}
 
 /* ====================================================================== */
 /* Serialization */
