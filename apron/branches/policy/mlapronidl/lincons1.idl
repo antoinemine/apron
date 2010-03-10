@@ -1,0 +1,311 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_lincons1.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+import "linexpr0.idl";
+import "lincons0.idl";
+import "environment.idl";
+import "linexpr1.idl";
+
+struct ap_lincons1_t {
+  [mlname(mutable_lincons0)] ap_lincons0_t lincons0;
+  [mlname(mutable_env)] ap_environment_ptr env;
+};
+struct ap_lincons1_array_t {
+  [mlname(mutable_lincons0_array)] struct ap_lincons0_array_t lincons0_array;
+  [mlname(mutable_array_env)] ap_environment_ptr env;
+};
+
+quote(MLMLI,"(** APRON Constraints and array of constraints of level 1 *)")
+
+quote(MLMLI,"\n\
+type typ = Lincons0.typ =\n\
+  | EQ\n\
+  | SUPEQ\n\
+  | SUP\n\
+  | DISEQ\n\
+  | EQMOD of Scalar.t\n\
+")
+quote(MLI,"\n\
+(** Make a linear constraint. Modifying later the linear expression ({e not\n\
+  advisable}) modifies correspondingly the linear constraint and conversely,\n\
+  except for changes of environements *)\n\
+val make: Linexpr1.t -> typ -> t\n\
+\n\
+(** Copy (deep copy) *)\n\
+val copy: t -> t\n\
+\n\
+(** Convert a constraint type to a string ([=],[>=], or [>]) *)\n\
+val string_of_typ : typ -> string\n\
+\n\
+(** Print the linear constraint *)\n\
+val print : Format.formatter -> t -> unit\n\
+\n\
+(** Get the constraint type *)\n\
+val get_typ: t -> typ\n\
+\n\
+(** Iter the function on the pair coefficient/variable of the underlying linear\n\
+  expression *)\n\
+val iter: (Coeff.t -> Var.t -> unit) -> t -> unit\n\
+\n\
+(** Get the constant of the underlying linear expression *)\n\
+val get_cst: t -> Coeff.t\n\
+\n\
+(** Set the constraint type *)\n\
+val set_typ: t -> typ -> unit\n\
+\n\
+(** Set simultaneously a number of coefficients.\n\
+\n\
+  [set_list expr [(c1,\"x\"); (c2,\"y\")] (Some cst)] assigns coefficients [c1] \n\
+  to variable [\"x\"], coefficient [c2] to variable [\"y\"], and coefficient [cst]\n\
+  to the constant. If [(Some cst)] is replaced by [None],\n\
+  the constant coefficient is not assigned. *)\n\
+val set_list : t -> (Coeff.t * Var.t) list -> Coeff.t option -> unit\n\
+\n\
+  (** Set simultaneously a number of coefficients, as [set_list]. *)\n\
+val set_array : t -> (Coeff.t * Var.t) array -> Coeff.t option -> unit\n\
+\n\
+(** Set the constant of the underlying linear expression *)\n\
+val set_cst: t -> Coeff.t -> unit\n\
+")
+
+quote(MLI,"(** Get the coefficient of the variable in the underlying linear expression *)")
+struct ap_coeff_t ap_lincons1_get_coeff([ref]struct ap_lincons1_t* a, ap_var_t var)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  ap_coeff_init(&_res,AP_COEFF_SCALAR);\n\
+  b = ap_lincons1_get_coeff(&_res,a,var);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    ap_coeff_clear(&_res);\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Lincons1.get_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}\n\
+")
+     quote(dealloc,"ap_coeff_clear(&_res);");
+quote(MLI,"(** Set the coefficient of the variable in the underlying linear expression *)")
+void ap_lincons1_set_coeff([ref]struct ap_lincons1_t* a, ap_var_t var,
+			[ref]struct ap_coeff_t* coeff)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  b = ap_lincons1_set_coeff(a,var,coeff);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Lincons1.set_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}\n\
+");
+
+quote(MLI,"(** Build the unsatisfiable constraint -1>=0 *)")
+struct ap_lincons1_t ap_lincons1_make_unsat(ap_environment_ptr env);
+quote(MLI,"(** Is the constraint not satisfiable ? *)")
+boolean ap_lincons1_is_unsat([ref]struct ap_lincons1_t* cons);
+
+quote(MLI,"(** Change the environement of the constraint for a super-environement. Raise [Failure] if it is not the case *)")
+struct ap_lincons1_t ap_lincons1_extend_environment(const struct ap_lincons1_t lincons,
+					      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_lincons1_extend_environment(&_res,&lincons,env);\n\
+  if (b) caml_failwith(\"Lincons1.extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_lincons1_extend_environment_with(struct ap_lincons1_t lincons,
+				      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (lincons.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(lincons.env); /* to protect it */ \n\
+    b = ap_lincons1_extend_environment_with(&lincons,env);\n\
+    if (b){ \n\
+      ap_environment_free(lincons.env); \n\
+      caml_failwith(\"Lincons1.extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_lincons,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(MLI,"\n\
+(** Get the environement of the linear constraint *)\n\
+val get_env: t -> Environment.t\n\
+\n\
+(** Get the underlying linear expression. Modifying the linear expression ({e\n\
+  not advisable}) modifies correspondingly the linear constraint and\n\
+  conversely, except for changes of environements *)\n\
+val get_linexpr1: t -> Linexpr1.t\n\
+\n\
+(** Get the underlying linear constraint of level 0. Modifying the constraint\n\
+  of level 0 ({e not advisable}) modifies correspondingly the linear constraint\n\
+  and conversely, except for changes of environements*)\n\
+val get_lincons0: t -> Lincons0.t\n\
+\n\
+")
+
+quote(ML,"\n\
+let make linexpr1 typ = {\n\
+  lincons0 = {\n\
+    Lincons0.linexpr0 = linexpr1.Linexpr1.linexpr0;\n\
+    Lincons0.typ = typ;\n\
+  };\n\
+  env = linexpr1.Linexpr1.env;\n\
+}\n\
+let copy cons = {\n\
+  lincons0 = Lincons0.copy cons.lincons0;\n\
+  env = cons.env;\n\
+}\n\
+let string_of_typ = Lincons0.string_of_typ\n\
+\n\
+let print fmt cons = \n\
+  Lincons0.print\n\
+   (fun dim -> Var.to_string (Environment.var_of_dim cons.env dim)) fmt cons.lincons0;\n \
+  ()\n\
+let get_typ cons = cons.lincons0.Lincons0.typ\n\
+let set_typ cons typ = cons.lincons0.Lincons0.typ <- typ\n\
+let get_cst cons = Linexpr0.get_cst cons.lincons0.Lincons0.linexpr0\n\
+let set_cst cons cst = Linexpr0.set_cst cons.lincons0.Lincons0.linexpr0 cst\n\
+let get_lincons0 cons = cons.lincons0\n\
+let get_env cons = cons.env\n\
+let set_list expr list ocst = \n\
+  List.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    list;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+let set_array expr tab ocst = \n\
+  Array.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    tab;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+\n\
+let iter f cons =\n\
+  Linexpr0.iter\n\
+    (begin fun coeff dim ->\n\
+      f coeff (Environment.var_of_dim cons.env dim)\n\
+    end)\n\
+    cons.lincons0.Lincons0.linexpr0\n\
+let get_linexpr1 cons = {\n\
+  Linexpr1.linexpr0 = cons.lincons0.Lincons0.linexpr0;\n\
+  Linexpr1.env = cons.env;\n\
+}")
+
+quote(MLMLI,"(* ====================================================================== *)")
+quote(MLMLI,"(** {2 Type array} *)")
+quote(MLMLI,"(* ====================================================================== *)")
+quote(MLI,"\n\
+(** Make an array of linear constraints with the given size and defined on the\n\
+  given environement. The elements are initialized with the constraint 0=0. *)\n\
+val array_make : Environment.t -> int -> earray\n\
+\n\
+(** Print an array of constraints *)\n\
+val array_print :\n\
+  ?first:(unit, Format.formatter, unit) format ->\n\
+  ?sep:(unit, Format.formatter, unit) format ->\n\
+  ?last:(unit, Format.formatter, unit) format ->\n\
+  Format.formatter -> earray -> unit\n\
+\n\
+(** Get the size of the array *)\n\
+val array_length : earray -> int\n\
+\n\
+(** Get the environment of the array *)\n\
+val array_get_env : earray -> Environment.t\n\
+\n\
+(** Get the element of the given index (which is not a copy) *)\n\
+val array_get : earray -> int -> t\n\
+\n\
+(** Set the element of the given index (without any copy). The array and the\n\
+  constraint should be defined on the same environement; otherwise a [Failure]\n\
+  exception is raised.*)\n\
+val array_set : earray -> int -> t -> unit\n\
+")
+
+quote(MLI,"(** Change the environement of the array of constraints for a super-environement. Raise [Failure] if it is not the case*)")
+struct ap_lincons1_array_t ap_lincons1_array_extend_environment(const struct ap_lincons1_array_t array,
+					      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_lincons1_array_extend_environment(&_res,&array,env);\n\
+  if (b) caml_failwith(\"Lincons1.array_extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_lincons1_array_extend_environment_with(struct ap_lincons1_array_t array,
+				      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (array.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(array.env); /* to protect it */ \n\
+    b = ap_lincons1_array_extend_environment_with(&array,env);\n\
+    if (b){ \n\
+      ap_environment_free(array.env); \n\
+      caml_failwith(\"Lincons1.array_extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_array,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(ML,"\n\
+let array_make env size =\n\
+  let cons = Lincons0.make (Linexpr0.make None) Lincons0.EQ in\n\
+  {\n\
+    lincons0_array = Array.make size cons;\n\
+    array_env = env\n\
+  }\n\
+let array_print\n\
+  ?(first=(\"[|@[<hov>\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  fmt array \n\
+  = \n\
+  Abstract0.print_array ~first ~sep ~last\n\
+    (Lincons0.print\n\
+     (fun dim -> Var.to_string (Environment.var_of_dim array.array_env dim)))\n	\
+    fmt array.lincons0_array;\n\
+  ()\n\
+let array_length array = Array.length (array.lincons0_array)\n\
+let array_get_env array = array.array_env\n\
+let array_get array index =\n\
+  let cons0 = array.lincons0_array.(index) in\n\
+  { lincons0 = cons0; env = array.array_env; }\n\
+let array_set array index cons1 =\n\
+  if not (Environment.equal array.array_env cons1.env) then\n\
+    failwith \"Lincons1.array_set: environments are not the same\"\n\
+  else\n\
+    array.lincons0_array.(index) <- cons1.lincons0;\n\
+ ")
