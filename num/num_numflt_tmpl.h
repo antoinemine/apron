@@ -5,6 +5,7 @@
 #ifndef _NUM__NUMFLT_H_
 #define _NUM__NUMFLT_H_
 
+#include "numConfig.h"
 #include "numflt.h"
 
 #ifdef __cplusplus

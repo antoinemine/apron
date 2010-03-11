@@ -5,6 +5,7 @@
 #ifndef _NUM__NUMINT_H_
 #define _NUM__NUMINT_H_
 
+#include "numConfig.h"
 #include "numint.h"
 
 #ifdef __cplusplus
