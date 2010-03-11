@@ -5,15 +5,11 @@
 #ifndef _NUMINTILL_DEF_H_
 #define _NUMINTILL_DEF_H_
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
-#include <string.h>
 #include <assert.h>
-/* #include <stdint.h> */
-#include "gmp.h"
-#include "mpfr.h"
+#include <stdlib.h>
 
 #include "numConfig.h"
 /* Require C99 compliant compiler */

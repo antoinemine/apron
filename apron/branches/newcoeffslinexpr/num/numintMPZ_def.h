@@ -5,15 +5,11 @@
 #ifndef _NUMINTMPZ_DEF_H_
 #define _NUMINTMPZ_DEF_H_
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
-#include <string.h>
+#include <float.h>
 #include <assert.h>
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
 
 #include "numConfig.h"
 

@@ -5,10 +5,6 @@
 #ifndef _NUMRAT_H_
 #define _NUMRAT_H_
 
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
-
 #include "numConfig.h"
 
 #include "numint.h"
