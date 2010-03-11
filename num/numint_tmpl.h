@@ -5,10 +5,6 @@
 #ifndef _NUMINT_H_
 #define _NUMINT_H_
 
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
-
 #include "numConfig.h"
 #include "numint_def.h"
 

@@ -5,16 +5,6 @@
 #ifndef _NUM_H_
 #define _NUM_H_
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <limits.h>
-#include <string.h>
-#include <assert.h>
-#include <math.h>
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
-
 /* Be aware: 
    we erase the (obsolete) GMP function mpq_set_num */
 #undef mpq_set_num

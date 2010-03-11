@@ -5,10 +5,6 @@
 #ifndef _NUMFLT_H_
 #define _NUMFLT_H_
 
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
-
 #include "numConfig.h"
 #include "numflt_def.h"
 

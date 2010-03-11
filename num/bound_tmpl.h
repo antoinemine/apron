@@ -5,9 +5,6 @@
 #ifndef _BOUND_H_
 #define _BOUND_H_
 
-#include "gmp.h"
-#include "mpfr.h"
-
 #include "numConfig.h"
 #include "bound_def.h"
 

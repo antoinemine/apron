@@ -15,6 +15,7 @@ static const bool true  = 1;
 
 #include <string.h>
 #include <float.h>
+#include <stdint.h>
 #include "gmp.h"
 #include "mpfr.h"
 
