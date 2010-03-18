@@ -13,14 +13,11 @@
 
 #include "numConfig.h"
 /* Require C99 compliant compiler */
+#include "numint.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef long int numintIl_native;
-typedef numintIl_native* numintIl_ptr;
-typedef numintIl_native numintIl_t[1];
 
 #define NUMINTIL_ZERO 0L
 #define NUMINTIL_ONE 1L
@@ -158,21 +155,21 @@ static inline void numintIl_divexact(numintIl_t a, numintIl_t b, numintIl_t c)
 { *a = *b / *c; }
 static inline void numintIl_mod(numintIl_t a, numintIl_t b, numintIl_t c)
 { *a = *b % *c; }
-static inline numintIl_native _gcd_auxIl2(numintIl_native a, numintIl_native b)
-{ /* a is supposed to be greater than b */
+static inline numintIl_native _gcd_auxIl(numintIl_native a, numintIl_native b)
+{
   numintIl_native t;
+  numintIl_abs(&a,&a);
+  numintIl_abs(&b,&b);
+  if (a<b){
+    numintIl_native t=a; a=b; b=t;
+  }
+  /* a is supposed to be greater than b */
   while (b!=NUMINTIL_ZERO && a!=b) {
     t = b;
     b = a % b;
     a = t;
   }
   return a;
-}
-static inline numintIl_native _gcd_auxIl(numintIl_native a, numintIl_native b)
-{
-  numintIl_abs(&a,&a);
-  numintIl_abs(&b,&b);
-  return (a>=b) ? _gcd_auxIl2(a,b) : _gcd_auxIl2(b,a);
 }
 static inline void numintIl_gcd(numintIl_t a, numintIl_t b,  numintIl_t c)
 { *a = _gcd_auxIl(*b,*c); }
@@ -181,7 +178,7 @@ static inline numintIl_native _lcm_auxIl(numintIl_native a, numintIl_native b)
 {
   numintIl_abs(&a,&a);
   numintIl_abs(&b,&b);
-  return a / _gcd_auxIl(a,b) * b;
+  return (a / _gcd_auxIl(a,b)) * b;
 }
 static inline void numintIl_lcm(numintIl_t a, numintIl_t b,  numintIl_t c)
 { *a = _lcm_auxIl(*b,*c); }

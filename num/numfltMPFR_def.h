@@ -12,6 +12,7 @@
 #include <float.h>
 
 #include "numConfig.h"
+#include "numflt.h"
 #include "numintIl_def.h"
 #include "numintIll_def.h"
 #include "numintMPZ_def.h"
@@ -29,9 +30,6 @@ extern "C" {
    - use mpfr_set_default_prec to change the precision (global)
    - rounding is always towards +oo
 */
-
-typedef mpfr_ptr numfltMPFR_ptr;
-typedef mpfr_t numfltMPFR_t;
 
 #undef NUMFLTMPFR_MAX
 #undef NUMMPFR_MAX

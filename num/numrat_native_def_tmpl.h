@@ -11,18 +11,12 @@
 #include <assert.h>
 
 #include "numConfig.h"
+#include "numrat.h"
 #include "numint_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct numrat_native {
-  numint_t n; /* numerator */
-  numint_t d; /* denominator, >=0 */
-} numrat_native;
-typedef numrat_native* numrat_ptr;
-typedef numrat_native numrat_t[1];
 
 /* ====================================================================== */
 /* Rational operations */

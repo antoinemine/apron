@@ -13,14 +13,11 @@
 
 #include "numConfig.h"
 /* Require C99 compliant compiler */
+#include "numint.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef long long int numintIll_native;
-typedef numintIll_native* numintIll_ptr;
-typedef numintIll_native numintIll_t[1];
 
 #define NUMINTILL_ZERO 0LL
 #define NUMINTILL_ONE 1LL
@@ -158,21 +155,21 @@ static inline void numintIll_divexact(numintIll_t a, numintIll_t b, numintIll_t 
 { *a = *b / *c; }
 static inline void numintIll_mod(numintIll_t a, numintIll_t b, numintIll_t c)
 { *a = *b % *c; }
-static inline numintIll_native _gcd_auxIll2(numintIll_native a, numintIll_native b)
-{ /* a is supposed to be greater than b */
+static inline numintIll_native _gcd_auxIll(numintIll_native a, numintIll_native b)
+{
   numintIll_native t;
+  numintIll_abs(&a,&a);
+  numintIll_abs(&b,&b);
+  if (a<b){
+    numintIll_native t=a; a=b; b=t;
+  }
+  /* a is supposed to be greater than b */
   while (b!=NUMINTILL_ZERO && a!=b) {
     t = b;
     b = a % b;
     a = t;
   }
   return a;
-}
-static inline numintIll_native _gcd_auxIll(numintIll_native a, numintIll_native b)
-{
-  numintIll_abs(&a,&a);
-  numintIll_abs(&b,&b);
-  return (a>=b) ? _gcd_auxIll2(a,b) : _gcd_auxIll2(b,a);
 }
 static inline void numintIll_gcd(numintIll_t a, numintIll_t b,  numintIll_t c)
 { *a = _gcd_auxIll(*b,*c); }
@@ -181,7 +178,7 @@ static inline numintIll_native _lcm_auxIll(numintIll_native a, numintIll_native 
 {
   numintIll_abs(&a,&a);
   numintIll_abs(&b,&b);
-  return a / _gcd_auxIll(a,b) * b;
+  return (a / _gcd_auxIll(a,b)) * b;
 }
 static inline void numintIll_lcm(numintIll_t a, numintIll_t b,  numintIll_t c)
 { *a = _lcm_auxIll(*b,*c); }

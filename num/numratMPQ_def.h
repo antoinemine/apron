@@ -11,6 +11,7 @@
 #include <assert.h>
 
 #include "numConfig.h"
+#include "numrat.h"
 #include "numintIl_def.h"
 #include "numintIll_def.h"
 #include "numintMPZ_def.h"
