@@ -13,120 +13,117 @@
 #include <stdio.h>
 
 #include "ap_config.h"
-#include "ap_scalar.h"
-#include "ap_interval.h"
+#include "eitvMPQ.h"
+#include "eitvD.h"
+#include "eitvMPFR.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum ap_coeff_discr_t {
-  AP_COEFF_SCALAR,
-  AP_COEFF_INTERVAL
-} ap_coeff_discr_t;
-  /* Discriminant for coefficients */
+typedef enum ap_scalar_discr_t {
+  AP_SCALAR_MPQ,    /* GMP arbitrary precision rational */
+  AP_SCALAR_D,      /* double-precision floating-point number */
+  AP_SCALAR_MPFR,   /* MPFR floating-point number */
+} ap_scalar_discr_t;
 
 typedef struct ap_coeff_t {
-  ap_coeff_discr_t discr; /* discriminant for coefficient */
+  ap_scalar_discr_t discr; /* discriminant for coefficient */
   union {
-    ap_scalar_t* scalar;       /* cst (normal linear expression) */
-    ap_interval_t* interval;   /* interval (quasi-linear expression) */
-  } val;
+    eitvD_t    D;
+    eitvMPQ_t  MPQ;
+    eitvMPFR_t MPFR;
+  } eitv;
 } ap_coeff_t;
 
 /* ====================================================================== */
 /* Basics */
 /* ====================================================================== */
 
-ap_coeff_t* ap_coeff_alloc(ap_coeff_discr_t ap_coeff_discr);
-  /* Initialization, specifying the type of the coefficient */
-void ap_coeff_reinit(ap_coeff_t* coeff, ap_coeff_discr_t ap_coeff_discr, ap_scalar_discr_t ap_scalar_discr);
+static inline void ap_coeff_init(ap_coeff_t* coeff, ap_scalar_discr_t discr);
+void ap_coeff_init_set(ap_coeff_t* coeff, ap_coeff_t* coeff2);
+void ap_coeff_clear(ap_coeff_t* coeff);
+
+void ap_coeff_reinit(ap_coeff_t* coeff, ap_scalar_discr_t ap_scalar_discr);
   /* Changing the type of scalar(s) and the type of the coefficient */
+
+ap_coeff_t* ap_coeff_alloc(ap_scalar_discr_t discr);
+  /* Initialization, specifying the type of the coefficient */
 void ap_coeff_free(ap_coeff_t* a);
   /* Free a coefficient */
-void ap_coeff_fprint(FILE* stream, ap_coeff_t* a);
-static inline 
-void ap_coeff_print(ap_coeff_t* a)
-{ ap_coeff_fprint(stdout,a); }
-  /* Printing */
 
-void ap_coeff_reduce(ap_coeff_t* coeff);
-  /* If the coefficient is an interval [a;a], convert it to a scalar */
-static inline
-void ap_coeff_swap(ap_coeff_t* a, ap_coeff_t* b)
+void ap_coeff_fprint(FILE* stream, ap_coeff_t* a);
+static inline void ap_coeff_print(ap_coeff_t* a);
+
+static inline void ap_coeff_swap(ap_coeff_t* a, ap_coeff_t* b)
 { ap_coeff_t t = *a; *a = *b; *b = t; }
   /* Exchange */
 
 /* ====================================================================== */
-/* Assignments */
+/* Assignement */
 /* ====================================================================== */
 
 void ap_coeff_set(ap_coeff_t* a, ap_coeff_t* b);
-  /* Assignment */
-void ap_coeff_set_scalar(ap_coeff_t* coeff, ap_scalar_t* scalar);
-void ap_coeff_set_scalar_mpq(ap_coeff_t* coeff, mpq_t mpq);
-void ap_coeff_set_scalar_int(ap_coeff_t* coeff, long int num);
-void ap_coeff_set_scalar_frac(ap_coeff_t* coeff, long int num, unsigned long int den);
-void ap_coeff_set_scalar_double(ap_coeff_t* coeff, double num);
-void ap_coeff_set_scalar_mpfr(ap_coeff_t* coeff, mpfr_t mpfr);
-  /* Assign a coefficient of type SCALAR, with resp.
+void ap_coeff_set_numMPQ(ap_coeff_t* coeff, numMPQ_t num);
+void ap_coeff_set_numD(ap_coeff_t* coeff, numD_t num);
+void ap_coeff_set_numMPFR(ap_coeff_t* coeff, numMPFR_t num);
+void ap_coeff_set_lint(ap_coeff_t* coeff, long int num);
+void ap_coeff_set_lfrac(ap_coeff_t* coeff, long int num, long int den);
+void ap_coeff_set_llfrac(ap_coeff_t* coeff, long long int num, long long int den);
+void ap_coeff_set_mpq(ap_coeff_t* coeff, mpq_t mpq);
+void ap_coeff_set_double(ap_coeff_t* coeff, double num);
+void ap_coeff_set_mpfr(ap_coeff_t* coeff, mpfr_t mpfr);
+void ap_coeff_set_int(ap_coeff_t* coeff, int num);
+  /* Assign a coefficient with resp.
      - a coeff
-     - a rational of type mpq_t, converted to type MPQ
-     - an integer, converted to type MPQ
-     - a rational, converted to type MPQ
-     - a double, converted to type DOUBLE
-     - a MPFR, converted to type MPFR
+     - a num (giving its type)
+     - an integer, converted to type MPQ (same as numIl)
+     - a rational, converted to type MPQ (same as numRl)
+     - a rational of type mpq_t, converted to type MPQ (same as numMPQ)
+     - a double, converted to type DOUBLE (same as numD)
+     - a MPFR, converted to type MPFR (same as numMPFR)
+     - a (small) integer, converted to existing type (small, because it is
+       assumed that the conversion is exact; typically, -1,0,1,...).
   */
-void ap_coeff_set_interval(ap_coeff_t* coeff, ap_interval_t* itv);
-void ap_coeff_set_interval_scalar(ap_coeff_t* coeff, ap_scalar_t* inf, ap_scalar_t* sup);
-void ap_coeff_set_interval_mpq(ap_coeff_t* coeff, mpq_t inf, mpq_t sup);
-void ap_coeff_set_interval_int(ap_coeff_t* coeff, long int inf, long int sup);
-void ap_coeff_set_interval_frac(ap_coeff_t* coeff,
-                                  long int numinf, unsigned long int deninf,
-                                  long int numsup, unsigned long int densup);
-void ap_coeff_set_interval_double(ap_coeff_t* coeff, double inf, double sup);
-void ap_coeff_set_interval_top(ap_coeff_t* coeff);
-void ap_coeff_set_interval_mpfr(ap_coeff_t* coeff, mpfr_t inf, mpfr_t sup);
-  /* Assign a coefficient of type INTERVAL, with resp.
-     - an interval of coeff
-     - an interval of rationals of type MPQ
+void ap_coeff_set_eitvMPQ(ap_coeff_t* coeff, eitvMPQ_t eitv);
+void ap_coeff_set_eitvD(ap_coeff_t* coeff, eitvD_t eitv);
+void ap_coeff_set_eitvMPFR(ap_coeff_t* coeff, eitvMPFR_t eitv);
+void ap_coeff_set_lfrac2(ap_coeff_t* coeff, 
+			 long int numinf, long int deninf,
+			 long int numsup, long int densup);
+void ap_coeff_set_mpq2(ap_coeff_t* coeff, mpq_t inf, mpq_t sup);
+void ap_coeff_set_double2(ap_coeff_t* coeff, double inf, double sup);
+void ap_coeff_set_mpfr2(ap_coeff_t* coeff, mpfr_t inf, mpfr_t sup);
+void ap_coeff_set_int2(ap_coeff_t* coeff, int inf, int sup);
+void ap_coeff_set_top(ap_coeff_t* coeff);
+  /* Assign a coefficient with resp.
+     - an interval (giving its type)
      - an interval of integers, converted to type MPQ
      - an interval of rationals, converted to type MPQ
+     - an interval of rationals of type MPQ
      - an interval of double, converted to type DOUBLE
      - an interval of MPFR, converted to type MPFR
-     - a top interval (type not precised).
+     - a (small) integer, converted to existing type (small, because it is
+       assumed that the conversion is exact; typically, -1,0,1,...).
+     - a top interval (the type remains the same).
   */
 
-/* ====================================================================== */
-/* Combined allocation and assignment */
-/* ====================================================================== */
-ap_coeff_t* ap_coeff_alloc_set(ap_coeff_t* coeff);
-ap_coeff_t* ap_coeff_alloc_set_scalar(ap_scalar_t* scalar);
-ap_coeff_t* ap_coeff_alloc_set_interval(ap_interval_t* interval);
+bool eitvD_set_ap_coeff(eitvD_t eitv, ap_coeff_t* coeff, numinternal_t intern);
+bool eitvMPQ_set_ap_coeff(eitvMPQ_t eitv, ap_coeff_t* coeff, numinternal_t intern);
+bool eitvMPFR_set_ap_coeff(eitvMPFR_t eitv, ap_coeff_t* coeff, numinternal_t intern);
 
 /* ====================================================================== */
 /* Tests */
 /* ====================================================================== */
 
-int ap_coeff_cmp(ap_coeff_t* coeff1, ap_coeff_t* coeff2);
-  /* Non Total Comparison:
-     - If the 2 coefficients are both scalars, corresp. to ap_scalar_cmp
-     - If the 2 coefficients are both intervals, corresp. to ap_interval_cmp
-     - otherwise, -3 if the first is a scalar, 3 otherwise
-  */
-bool ap_coeff_equal(ap_coeff_t* coeff1, ap_coeff_t* coeff2);
-  /* Equality */
-
 bool ap_coeff_zero(ap_coeff_t* coeff);
-  /* Return true iff coeff is a zero scalar or an interval with zero bounds */
-bool ap_coeff_equal_int(ap_coeff_t* coeff, int i);
-  /* Return true iff coeff is a scalar equals to i or an interval with bounds equal to i */
+  /* Return true iff coeff is zero */
+bool ap_coeff_equal(ap_coeff_t* a, ap_coeff_t* b);
+  /* Return true iff equality */
 
 /* ====================================================================== */
 /* Other operations */
 /* ====================================================================== */
-void ap_coeff_neg(ap_coeff_t* a, ap_coeff_t* b);
-  /* Negation */
 
 long ap_coeff_hash(ap_coeff_t* coeff);
   /* Hash code */
@@ -134,9 +131,27 @@ long ap_coeff_hash(ap_coeff_t* coeff);
 /* ====================================================================== */
 /* FOR INTERNAL USE ONLY */
 /* ====================================================================== */
-void ap_coeff_init(ap_coeff_t* coeff, ap_coeff_discr_t ap_coeff_discr);
-void ap_coeff_init_set(ap_coeff_t* coeff, ap_coeff_t* coeff2);
-void ap_coeff_clear(ap_coeff_t* coeff);
+
+static inline void ap_coeff_print(ap_coeff_t* a)
+{ ap_coeff_fprint(stdout,a); }
+  /* Printing */
+
+static inline void ap_coeff_init(ap_coeff_t* a, ap_scalar_discr_t discr)
+{
+  a->discr = discr;
+  switch(discr){
+  case AP_SCALAR_D:
+    eitvD_init(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    eitvMPQ_init(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    eitvMPFR_init(a->eitv.MPFR);
+    break;
+  }
+}
+
 
 #ifdef __cplusplus
 }
