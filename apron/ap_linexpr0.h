@@ -26,70 +26,44 @@ extern "C" {
 /* Datatypes */
 /* ====================================================================== */
 
-/* Discriminant for dense or sparse representation */
-typedef enum ap_linexpr_discr_t {
-  AP_LINEXPR_DENSE,
-  AP_LINEXPR_SPARSE
-} ap_linexpr_discr_t;
-
-/* A term, for use in sparse representation */
-/* Meant to be an abstract datatype ! */
-typedef struct ap_linterm_t {
-  ap_dim_t dim;
-  ap_coeff_t coeff;
-} ap_linterm_t;
-
 /* A linear expression. */
-/* Meant to be an abstract datatype ! */
 typedef struct ap_linexpr0_t {
-  ap_coeff_t cst;             /* constant */
-  ap_linexpr_discr_t discr;   /* discriminant for array */
-  size_t size;             /* size of the array */
+  ap_scalar_discr_t discr;
   union {
-    ap_coeff_t* coeff;     /* array of coefficients */
-    ap_linterm_t* linterm; /* array of linear terms */
-  } p;
-} ap_linexpr0_t;
-/* Important invariant:
-   If sparse representation,
+    itvD_linexpr_t    D;
+    itvMPQ_linexpr_t  MPQ;
+    itvMPFR_linexpr_t MPFR;
+  } linexpr;
+}
 
+/* Important invariant:
    - linear terms are sorted in increasing order wrt their dimension.
 
    - AP_DIM_MAX dimensions are meaningless: they serve as free linterm when a new dimension
      is needed (this avoids to permanently reallocating the array.
      They should be ignored.
-
 */
 
-/* Comment: we do not inline the array in the structure, because this allows to
-   redimension (with realloc) the array in a transparent way for the user. */
-
-/* - An interval linear expression is the more general form.
-   - A quasilinear expression is such that the only non-scalar
-     coefficient is the constant coefficient.
-
-   - A linear expression contains no non-scalar coefficients
-*/ 
-typedef enum ap_linexpr_type_t {
-  AP_LINEXPR_INTLINEAR,
-  AP_LINEXPR_QUASILINEAR,
-  AP_LINEXPR_LINEAR
-} ap_linexpr_type_t;
+/* Array of linear expressions */
+typedef struct ap_linexpr_array_t {
+  ap_scalar_discr_t discr;
+  union {
+    itvD_linexpr_t*    D;
+    itvMPQ_linexpr_t*  MPQ;
+    itvMPFR_linexpr_t* MPFR;
+  } p;
+  size_t size;
+}
 
 /* ====================================================================== */
 /* I. Memory management and printing */
 /* ====================================================================== */
 
-ap_linexpr0_t* ap_linexpr0_alloc(ap_linexpr_discr_t lin_discr, size_t size);
-  /* Allocates a linear expressions with coefficients by default of type SCALAR
-     and DOUBLE. If sparse representation, corresponding new dimensions are
-     initialized with AP_DIM_MAX. */
+ap_linexpr0_t* ap_linexpr0_alloc(ap_scalar_discr_t discr, size_t size);
+  /* Allocates a linear expressions with the given number of linterms */
 
 void ap_linexpr0_realloc(ap_linexpr0_t* e, size_t size);
-  /* Change the dimensions of the array in linexpr0.
-     If new coefficients are added, their type is of type SCALAR and DOUBLE.
-     If sparse representation, corresponding new dimensions are initialized
-     with AP_DIM_MAX. */
+  /* Change the dimensions of the array in linexpr0. */
 
 void ap_linexpr0_minimize(ap_linexpr0_t* e);
   /* Reduce the coefficients (transform intervals into scalars when possible).
@@ -113,20 +87,20 @@ bool ap_linexpr0_is_integer(ap_linexpr0_t* a, size_t intdim);
      that the first intdim dimensions are integer */
 bool ap_linexpr0_is_real(ap_linexpr0_t* a, size_t intdim);
   /* Does the expression depends only on real variables ? assuming
-     that the first intdim dimensions are integer */
+     that the first intdim dimensions are integers */
 
   /* Expression classification */
 
-ap_linexpr_type_t ap_linexpr0_type(ap_linexpr0_t* a);
+itv_linexpr_type_t ap_linexpr0_type(ap_linexpr0_t* a);
   /* Return the type of the linear expression */
 bool ap_linexpr0_is_linear(ap_linexpr0_t* a);
   /* Return true iff all involved coefficients are scalars */
 bool ap_linexpr0_is_quasilinear(ap_linexpr0_t* a);
   /* Return true iff all involved coefficients but the constant are scalars */
 
-ap_linexpr_type_t ap_linexpr0_array_type(ap_linexpr0_t** texpr, size_t size);
-bool ap_linexpr0_array_is_linear(ap_linexpr0_t** texpr, size_t size);
-bool ap_linexpr0_array_is_quasilinear(ap_linexpr0_t** texpr, size_t size);
+itv_linexpr_type_t ap_linexpr0_array_type(ap_linexpr0_array* array);
+bool ap_linexpr0_array_is_linear(ap_linexpr0_array* array);
+bool ap_linexpr0_array_is_quasilinear(ap_linexpr0_array* array);
   /* Idem for arrays */
 
 /* ====================================================================== */
@@ -138,17 +112,13 @@ size_t ap_linexpr0_size(ap_linexpr0_t* expr);
   /* Get the size of the linear expression */
 
 static inline
-ap_coeff_t* ap_linexpr0_cstref(ap_linexpr0_t* expr);
-  /* Get a reference to the constant. Do not free it. */
+ap_coeff_t ap_linexpr0_cstref(ap_linexpr0_t* expr);
+  /* Get a reference to the constant. Do not clear it. */
 
-ap_coeff_t* ap_linexpr0_coeffref(ap_linexpr0_t* expr, ap_dim_t dim);
+ap_coeff_t ap_linexpr0_coeffref(ap_linexpr0_t* expr, ap_dim_t dim);
   /* Get a reference to the coefficient associated to the dimension.
-     Do not free it.
-     In case of sparse representation,
+     Do not clear it.
      possibly induce the addition of a new linear term.
-     Return NULL if:
-     In case of dense representation, dim>=expr->size.
-     In case of sparse representation, dim==AP_DIM_MAX.
  */
 
 static inline
@@ -159,104 +129,28 @@ bool ap_linexpr0_get_coeff(ap_coeff_t* coeff, ap_linexpr0_t* expr, ap_dim_t dim)
   /* Get coefficient of dimension dim in the expression and assign it to coeff
      Return true in case ap_linexpr0_coeffref returns NULL */
 
-/* Set the constant of the linear expression */
-static inline void ap_linexpr0_set_cst(ap_linexpr0_t* expr, ap_coeff_t* cst);
-static inline void ap_linexpr0_set_cst_scalar(ap_linexpr0_t* expr, ap_scalar_t* scalar);
-static inline void ap_linexpr0_set_cst_scalar_int(ap_linexpr0_t* expr, int num);
-static inline void ap_linexpr0_set_cst_scalar_frac(ap_linexpr0_t* expr, int num, unsigned int den);
-static inline void ap_linexpr0_set_cst_scalar_double(ap_linexpr0_t* expr, double num);
-static inline void ap_linexpr0_set_cst_interval(ap_linexpr0_t* expr, ap_interval_t* itv);
-static inline void ap_linexpr0_set_cst_interval_scalar(ap_linexpr0_t* expr, ap_scalar_t* inf, ap_scalar_t* sup);
-static inline void ap_linexpr0_set_cst_interval_int(ap_linexpr0_t* expr, int inf, int sup);
-static inline void ap_linexpr0_set_cst_interval_frac(ap_linexpr0_t* expr,
-							 int numinf, unsigned int deninf,
-							 int numsup, unsigned int densup);
-static inline void ap_linexpr0_set_cst_interval_double(ap_linexpr0_t* expr, double inf, double sup);
-
-/* Set the coefficient of dimension dim in the expression.
-   Return true in case ap_linexpr0_coeffref returns NULL */
-static inline bool ap_linexpr0_set_coeff(ap_linexpr0_t* expr, ap_dim_t dim, ap_coeff_t* coeff);
-static inline bool ap_linexpr0_set_coeff_scalar(ap_linexpr0_t* expr, ap_dim_t dim, ap_scalar_t* scalar);
-static inline bool ap_linexpr0_set_coeff_scalar_int(ap_linexpr0_t* expr, ap_dim_t dim, int num);
-static inline bool ap_linexpr0_set_coeff_scalar_frac(ap_linexpr0_t* expr, ap_dim_t dim, int num, unsigned int den);
-static inline bool ap_linexpr0_set_coeff_scalar_double(ap_linexpr0_t* expr, ap_dim_t dim, double num);
-static inline bool ap_linexpr0_set_coeffinterval(ap_linexpr0_t* expr, ap_dim_t dim, ap_interval_t* itv);
-static inline bool ap_linexpr0_set_coeff_interval_scalar(ap_linexpr0_t* expr, ap_dim_t dim, ap_scalar_t* inf, ap_scalar_t* sup);
-static inline bool ap_linexpr0_set_coeff_interval_int(ap_linexpr0_t* expr, ap_dim_t dim, int inf, int sup);
-static inline bool ap_linexpr0_set_coeff_interval_frac(ap_linexpr0_t* expr, ap_dim_t dim,
-							   int numinf, unsigned int deninf,
-							   int numsup, unsigned int densup);
-static inline bool ap_linexpr0_set_coeff_interval_double(ap_linexpr0_t* expr, ap_dim_t dim, double inf, double sup);
-
-/*
-bool ap_linexpr0_set_format_generic(ap_coeff_t* (*get_pcoeff)(char*,va_list*,void*,bool*),
-				 void* expr, char* fmt, va_list* ap);
-
-bool ap_linexpr0_set_format(ap_linexpr0_t* expr, char* fmt, ...);
-*/
-
-typedef enum ap_coefftag_t {
-  AP_COEFF,          /* waiting for a coeff_t* object and a dimension */
-  AP_COEFF_S,        /* waiting for a scalar_t* object and a dimension */
-  AP_COEFF_S_MPQ,    /* waiting for a mpq_t object and a dimension */
-  AP_COEFF_S_MPFR,   /* waiting for a mpfr_t object and a dimension */
-  AP_COEFF_S_INT,    /* waiting for a int object and a dimension */
-  AP_COEFF_S_FRAC,   /* waiting for 2 int objects and a dimension */
-  AP_COEFF_S_DOUBLE, /* waiting for a double object and a dimension */
-  AP_COEFF_I,        /* waiting for a interval_t* object and a dimension */
-  AP_COEFF_I_SCALAR, /* waiting for 2 scalar_t* objects and a dimension */
-  AP_COEFF_I_MPQ,    /* waiting for 2 mpq_t objects and a dimension */
-  AP_COEFF_I_MPFR,   /* waiting for 2 mpfr_t objects and a dimension */
-  AP_COEFF_I_INT,    /* waiting for 2 int objects and a dimension */
-  AP_COEFF_I_FRAC,   /* waiting for 4 int objects and a dimension */
-  AP_COEFF_I_DOUBLE, /* waiting for 2 double objects and a dimension */
-  AP_CST,            /* waiting for a coeff_t* object */
-  AP_CST_S,          /* waiting for a scalar_t* object */
-  AP_CST_S_MPQ,      /* waiting for a mpq_t object */
-  AP_CST_S_MPFR,     /* waiting for a mpfr_t object */
-  AP_CST_S_INT,      /* waiting for a int object */
-  AP_CST_S_FRAC,     /* waiting for 2 int objects */
-  AP_CST_S_DOUBLE,   /* waiting for a double object */
-  AP_CST_I,          /* waiting for a interval_t* object */
-  AP_CST_I_SCALAR,   /* waiting for 2 scalar_t* objects */
-  AP_CST_I_MPQ,      /* waiting for 2 mpq_t objects */
-  AP_CST_I_MPFR,     /* waiting for 2 mpfr_t objects */
-  AP_CST_I_INT,      /* waiting for 2 int objects */
-  AP_CST_I_FRAC,     /* waiting for 4 int objects */
-  AP_CST_I_DOUBLE,   /* waiting for 2 double objects */
-  AP_END
-} ap_coefftag_t;
-
-bool ap_linexpr0_set_list_generic(ap_coeff_t* (*get_pcoeff)(void* expr, bool cst, va_list* va),
-				  void* expr, va_list* va);
-
 bool ap_linexpr0_set_list(ap_linexpr0_t* expr, ...);
+  /* This function assigns the linear expression from a list of tags of type
+     itv_coefftag_t, each followed by a number of arguments as specified in
+     the definition of the type ap_coefftag_t, and ended by the tag ITV_END;
 
-/* Iterator (Macro): use:
-   ap_linexpr0_ForeachLinterm(ap_linexpr0_t* e, size_t i, ap_dim_t d, ap_coeff_t* coeff){
-     ..
-   }
-   where
-   - e is the inspected expression,
-   - i is the internal iterator (of type size_t or int)
-   - dim is the dimension of one linear term
-   - coeff is a pointer to the corresponding coefficient
+     - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
+     - If the same dimension appears several times, only the last tag
+       referring to it is taken into account.
+       
+     Returns true iff all conversions were exact.
 
-   AP_DIM_MAX dimensions are filtered out.
-
-*/
-#define ap_linexpr0_ForeachLinterm(_p_e_, _p_i_, _p_dim_, _p_ap_coeff) \
-  for ((_p_i_)=0; \
-       (_p_i_)<(_p_e_)->size ? \
-	 ((_p_e_)->discr==AP_LINEXPR_DENSE ? \
-	  ((_p_dim_) = (_p_i_), \
-	   (_p_ap_coeff) = &(_p_e_)->p.coeff[_p_i_], \
-	   true) :				\
-	  ((_p_dim_) = (_p_e_)->p.linterm[_p_i_].dim, \
-	   (_p_ap_coeff) = &(_p_e_)->p.linterm[_p_i_].coeff, \
-	   (_p_dim_)!=AP_DIM_MAX)) :			   \
-	 false; \
-       (_p_i_)++)
+     Example:
+     itv_linexpr_set_list(intern,
+			  expr,
+			  ITV_LFRAC,7,9,0,
+			  ITV_DOUBLE2,-3.0,4.5,1,
+			  ITV_LLINT,3LL,ITV_DIM_MAX,
+			  ITV_END)
+     sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
+     assuming that the expression was "0" before the call and that all the
+     number conversions were exact.
+  */
 
 /* ====================================================================== */
 /* IV. Change of dimensions and permutations */
