@@ -1,22 +1,80 @@
 
 /* Some more itv testing.
-   Compile with
-
-   gcc test2.c itv.c itv_linexpr.c -std=c99 -I../num -I../apron  -L../apron -lapron_debug -lmpfr -lgmp -lm -DNUM_MPQ
-
-   (replacing NUM_MPQ with your choice of NUM_)
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 
-#include "ap_manager.h"
-#include "num.h"
-#include "bound.h"
 #include "itv.h"
 
-itv_internal_t* intern;
+itv_internal_t* intern=NULL;
+
+/* ********************************************************************** */
+/* FPU init */
+/* ********************************************************************** */
+
+/* simple run-time test that fpu behaves correctly */
+static bool test_fpu(void)
+{
+  int i;
+  long double d = 1., dd;
+  /* find the minimal long double, as the fixpoint of x -> x/2 with rounding
+     towards +oo;
+     the max iteration value should be enough for 128-bit floating-point */
+  for (i=0;i<5000000;i++) {
+    dd = d;
+    d /= 2;
+    if (d==dd || d==0.) break;
+  }
+  /* fails if flush to 0 */
+  if (d!=dd) { fprintf(stderr,"test_fpu failed test #1 after %i iterations\n",i); return false; }
+  /* fails if long double rounding is not towards +oo */
+  if (d*0.25!=dd) { fprintf(stderr,"test_fpu failed test #2\n"); return false; }
+  /* fails if double rounding is not towards +oo */
+  if ((double)d<dd) { fprintf(stderr,"test_fpu failed test #3\n"); return false; }
+  /* fails if float rounding is not towards +oo */
+  if ((float)d<dd) { fprintf(stderr,"test_fpu failed test #4\n"); return false; }
+  return true;
+}
+
+#if defined(__ppc__)
+static bool num_fpu_init(void)
+{
+  __asm volatile ("mtfsfi 7,2");
+  return test_fpu();
+}
+
+#elif defined(__linux) || defined (__APPLE__)
+#include <fenv.h>
+static bool num_fpu_init(void)
+{
+  if (!fesetround(FE_UPWARD)) return test_fpu();
+  fprintf(stderr,"could not set fpu rounding mode: fesetround failed\n");
+  return false;
+}
+
+#elif defined(__FreeBSD__) || defined(sun)
+#include <ieeefp.h>
+static bool num_fpu_init(void)
+{
+  fpsetround(FP_RP);
+  return test_fpu();
+}
+
+#else
+static bool num_fpu_init(void)
+{
+  fprintf(stderr,"could not set fpu rounding mode: platform not supported\n");
+  return false;
+}
+
+#endif
+
+
+
+
+
 
 void testun(itv_t a)
 {
@@ -31,8 +89,8 @@ void testun(itv_t a)
   itv_floor(b,a); printf("floor(x) = "); itv_print(b); printf("\n");
   itv_trunc(b,a); printf("trunc(x) = "); itv_print(b); printf("\n");
   itv_to_int(b,a); printf("int(x) = "); itv_print(b); printf("\n");
-  itv_to_float(b,a); printf("float(x) = "); itv_print(b); printf("\n");
-  itv_to_double(b,a); printf("double(x) = "); itv_print(b); printf("\n");
+  itv_to_float(intern,b,a); printf("float(x) = "); itv_print(b); printf("\n");
+  itv_to_double(intern,b,a); printf("double(x) = "); itv_print(b); printf("\n");
   itv_mul_2exp(b,a,2); printf("x << 2 = "); itv_print(b); printf("\n");
   itv_mul_2exp(b,a,-2); printf("x >> 2 = "); itv_print(b); printf("\n");
   printf("\n");
@@ -77,9 +135,9 @@ void set_double(itv_t a, double inf, double sup)
   num_init(n);
   printf("[%f,%f]\n",inf,sup);
   if (sup==1./0.) bound_set_infty(a->sup,1);
-  else { num_set_double(n,sup); bound_set_num(a->sup,n); }
-  if (inf==-1./0.) bound_set_infty(a->inf,1);
-  else { num_set_double(n,-inf); bound_set_num(a->inf,n); }
+  else { num_set_double(n,sup,intern->num); bound_set_num(a->sup,n); }
+  if (inf==-1./0.) bound_set_infty(a->neginf,1);
+  else { num_set_double(n,-inf,intern->num); bound_set_num(a->neginf,n); }
   num_clear(n);
 }
 
@@ -88,8 +146,8 @@ void set_frac(itv_t a, int ninf, int dinf, int nsup, int dsup)
   num_t n;
   num_init(n);
   printf("[%i/%i,%i/%i]\n",ninf,dinf,nsup,dsup);
-  num_set_int2(n,nsup,dsup);  bound_set_num(a->sup,n);
-  num_set_int2(n,-ninf,dinf); bound_set_num(a->inf,n);
+  num_set_lfrac(n,nsup,dsup,intern->num);  bound_set_num(a->sup,n);
+  num_set_lfrac(n,-ninf,dinf,intern->num); bound_set_num(a->neginf,n);
   num_clear(n);
 }
 
@@ -97,7 +155,7 @@ int main()
 {
   itv_t a,b;
 
-  ap_fpu_init();
+  num_fpu_init();
   mpfr_set_default_prec(4046);
 
   intern = itv_internal_alloc();

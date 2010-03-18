@@ -328,7 +328,7 @@ void itv_lincons_reduce_integer(itv_internal_t* intern,
     itv_linexpr_ForeachLinterm(expr,i,dim,pitv) {
       if (!numflt_integer(pitv->itv->sup))
 	return;
-      mpz_set_numflt(intern->reduce_lincons_mpz,pitv->itv->sup);
+      mpz_set_num(intern->reduce_lincons_mpz,pitv->itv->sup,intern->num);
       mpz_gcd(intern->reduce_lincons_gcd,
 	      intern->reduce_lincons_gcd,
 	      intern->reduce_lincons_mpz);
@@ -336,7 +336,7 @@ void itv_lincons_reduce_integer(itv_internal_t* intern,
     if (mpz_sgn(intern->reduce_lincons_gcd)==0 ||
 	mpz_cmp_si(intern->reduce_lincons_gcd,1)==0)
       return;
-    bool exact = numflt_set_mpz(intern->quasi_num,intern->reduce_lincons_gcd);
+    bool exact = num_set_mpz(intern->quasi_num,intern->reduce_lincons_gcd,intern->num);
     if (!exact) return;
   }
 #elif NUM_NUMINT

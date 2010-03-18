@@ -43,11 +43,8 @@ $(CCMODULES_RL) \
 $(CCMODULES_RLL) \
 $(CCMODULES_MPQ) \
 $(CCMODULES_D) \
+$(CCMODULES_DL) \
 $(CCMODULES_MPFR)
-
-ifneq ($(HAS_LONG_DOUBLE),)
-CCMODULES := $(CCMODULES) $(CCMODULES_DL)
-endif
 
 CCINC_TO_INSTALL = itvConfig.h $(CCMODULES:%=%.h)
 
@@ -60,12 +57,9 @@ libitvRll.a libitvRll_debug.a \
 libitvMPZ.a libitvMPZ_debug.a \
 libitvMPQ.a libitvMPQ_debug.a \
 libitvD.a libitvD_debug.a \
+libitvDl.a libitvDl_debug.a \
 libitvMPFR.a libitvMPFR_debug.a \
 libitv.a libitv_debug.a
-
-ifneq ($(HAS_LONG_DOUBLE),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libitvDl.a libitvDl_debug.a
-endif
 
 OFILES = $(CCMODULES:%=%.o)
 
@@ -125,6 +119,7 @@ dist: $(CCSRC) Makefile COPYING README
 itv%.sed: ../num/num%.sed Makefile
 	cp $< $@
 	echo "s/_ITV_/_ITV\\U$*_/;" >>$@
+	echo "s/_EITV_/_EITV\\U$*_/;" >>$@
 	echo "s/itv\(_\|(\|[.]h\)/itv$*\1/g;" >>$@
 
 itv%.h: itv%.sed itv_tmpl.h
@@ -191,7 +186,7 @@ libitv%_debug.a: itv%_debug.o itv%_conv_debug.o eitv%_debug.o eitv%_conv_debug.o
 
 itv%.o: itv%.c itv%.h eitv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_debug.o: itv%.c itv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
+itv%_debug.o: itv%.c itv%.h eitv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 itv%_conv.o: itv%_conv.c itv%_conv.h itv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
@@ -223,7 +218,6 @@ itv%_linearize_debug.o: itv%_linearize.c itv%_linearize.h itv%_lincons.h itv%_li
 %_debug.o: %.c %.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
-
 #-----------------------------------
 # Test
 #-----------------------------------
@@ -236,10 +230,10 @@ test2%.c: itv%.sed test2.c
 	$(SED) -f $< test2.c >>$@
 
 test%: test%.c itv%.sed libitv%_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -I../num -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
 
 test2%: test2%.c itv%.sed libitv%_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -I../num -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
 
 out: tests
 	./testMPQ > out.MPQ

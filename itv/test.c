@@ -2,10 +2,68 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "ap_manager.h"
-#include "num.h"
-#include "bound.h"
 #include "itv.h"
+
+/* ********************************************************************** */
+/* FPU init */
+/* ********************************************************************** */
+
+/* simple run-time test that fpu behaves correctly */
+static bool test_fpu(void)
+{
+  int i;
+  long double d = 1., dd;
+  /* find the minimal long double, as the fixpoint of x -> x/2 with rounding
+     towards +oo;
+     the max iteration value should be enough for 128-bit floating-point */
+  for (i=0;i<5000000;i++) {
+    dd = d;
+    d /= 2;
+    if (d==dd || d==0.) break;
+  }
+  /* fails if flush to 0 */
+  if (d!=dd) { fprintf(stderr,"test_fpu failed test #1 after %i iterations\n",i); return false; }
+  /* fails if long double rounding is not towards +oo */
+  if (d*0.25!=dd) { fprintf(stderr,"test_fpu failed test #2\n"); return false; }
+  /* fails if double rounding is not towards +oo */
+  if ((double)d<dd) { fprintf(stderr,"test_fpu failed test #3\n"); return false; }
+  /* fails if float rounding is not towards +oo */
+  if ((float)d<dd) { fprintf(stderr,"test_fpu failed test #4\n"); return false; }
+  return true;
+}
+
+#if defined(__ppc__)
+static bool num_fpu_init(void)
+{
+  __asm volatile ("mtfsfi 7,2");
+  return test_fpu();
+}
+
+#elif defined(__linux) || defined (__APPLE__)
+#include <fenv.h>
+static bool num_fpu_init(void)
+{
+  if (!fesetround(FE_UPWARD)) return test_fpu();
+  fprintf(stderr,"could not set fpu rounding mode: fesetround failed\n");
+  return false;
+}
+
+#elif defined(__FreeBSD__) || defined(sun)
+#include <ieeefp.h>
+static bool num_fpu_init(void)
+{
+  fpsetround(FP_RP);
+  return test_fpu();
+}
+
+#else
+static bool num_fpu_init(void)
+{
+  fprintf(stderr,"could not set fpu rounding mode: platform not supported\n");
+  return false;
+}
+
+#endif
 
 void arith(itv_internal_t* intern,
 	   itv_t a, itv_t b, itv_t c, bound_t bound)
@@ -70,15 +128,15 @@ int main(int argc, char**argv)
   bound_t bound;
   itv_internal_t* intern;
 
-  ap_fpu_init();
+  num_fpu_init();
   mpfr_set_default_prec(4046);
 
   intern = itv_internal_alloc();
   itv_init(a); itv_init(b); itv_init(c); bound_init(bound);
 
   /* Positive or negative intervals */
-  bound_set_int(b->inf,-3); bound_set_int(b->sup,5);
-  bound_set_int(c->inf,-1); bound_set_int(c->sup,5);
+  bound_set_int(b->neginf,-3); bound_set_int(b->sup,5);
+  bound_set_int(c->neginf,-1); bound_set_int(c->sup,5);
   bound_set_int(bound,4);
   arith(intern,a,b,c,bound);
   itv_neg(c,c);
@@ -88,16 +146,16 @@ int main(int argc, char**argv)
   itv_neg(c,c);
   arith(intern,a,b,c,bound);
   /* general intervals */
-  bound_set_int(b->inf,3); bound_set_int(b->sup,5);
-  bound_set_int(c->inf,7); bound_set_int(c->sup,11);
+  bound_set_int(b->neginf,3); bound_set_int(b->sup,5);
+  bound_set_int(c->neginf,7); bound_set_int(c->sup,11);
   bound_set_int(bound,3);
   arith(intern,a,b,c,bound);
   bound_set_int(bound,-3);
   arith(intern,a,b,c,bound);
 
   /* aliases */
-  bound_set_int(b->inf,3); bound_set_int(b->sup,5);
-  bound_set_int(c->inf,7); bound_set_int(c->sup,11);
+  bound_set_int(b->neginf,3); bound_set_int(b->sup,5);
+  bound_set_int(c->neginf,7); bound_set_int(c->sup,11);
   bound_set_int(bound,3);
   arith(intern,b,b,b,bound);
   bound_set_int(bound,-3);

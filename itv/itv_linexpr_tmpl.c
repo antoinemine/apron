@@ -404,13 +404,15 @@ eitv_ptr itv_linexpr_eitvref(itv_linexpr_t expr, itv_dim_t dim)
   return expr->linterm[index]->eitv;
 }
 
-void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
-				  itv_internal_t* intern,
+bool itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
+				  numinternal_t intern,
 				  void* expr, va_list* va)
 {
   itv_coefftag_t tag;
   eitv_ptr a;
+  bool res;
 
+  res = true;
   while (true){
     tag = va_arg(*va,itv_coefftag_t);
     if (tag==ITV_END)
@@ -443,7 +445,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
       {
 	long int b = va_arg(*va,long int);
 	a = getcoeff(expr,va);
-	eitv_set_lint(intern,a,b);
+	res = eitv_set_lint(a,b,intern) && res;
       }
       break;
     case ITV_LINT2:
@@ -451,14 +453,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long int b = va_arg(*va,long int);
 	long int c = va_arg(*va,long int);
 	a = getcoeff(expr,va);
-	eitv_set_lint2(intern,a,b,c);
+	res = eitv_set_lint2(a,b,c,intern) && res;
       }
       break;
     case ITV_LLINT:
       {
 	long long int b = va_arg(*va,long long int);
 	a = getcoeff(expr,va);
-	eitv_set_llint(intern,a,b);
+	res = eitv_set_llint(a,b,intern) && res;
       }
       break;
     case ITV_LLINT2:
@@ -466,14 +468,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long long int b = va_arg(*va,long long int);
 	long long int c = va_arg(*va,long long int);
 	a = getcoeff(expr,va);
-	eitv_set_llint2(intern,a,b,c);
+	res = eitv_set_llint2(a,b,c,intern) && res;
       }
       break;
     case ITV_MPZ:
       {
 	mpz_ptr b = va_arg(*va,mpz_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpz(intern,a,b);
+	res = eitv_set_mpz(a,b,intern) && res;
       }
       break;
     case ITV_MPZ2:
@@ -481,7 +483,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	mpz_ptr b = va_arg(*va,mpz_ptr);
 	mpz_ptr c = va_arg(*va,mpz_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpz2(intern,a,b,c);
+	res = eitv_set_mpz2(a,b,c,intern) && res;
       }
       break;
     case ITV_LFRAC:
@@ -489,7 +491,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long int i = va_arg(*va,long int);
 	long int j = va_arg(*va,long int);
 	a = getcoeff(expr,va);
-	eitv_set_lfrac(intern,a,i,j);
+	res = eitv_set_lfrac(a,i,j,intern) && res;
       }
       break;
     case ITV_LFRAC2:
@@ -499,7 +501,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long int k = va_arg(*va,long int);
 	long int l = va_arg(*va,long int);
 	a = getcoeff(expr,va);
-	eitv_set_lfrac2(intern,a,i,j,k,l);
+	res = eitv_set_lfrac2(a,i,j,k,l,intern) && res;
       }
       break;
     case ITV_LLFRAC:
@@ -507,7 +509,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long long int i = va_arg(*va,long long int);
 	long long int j = va_arg(*va,long long int);
 	a = getcoeff(expr,va);
-	eitv_set_llfrac(intern,a,i,j);
+	res = eitv_set_llfrac(a,i,j,intern) && res;
       }
       break;
     case ITV_LLFRAC2:
@@ -517,14 +519,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long long int k = va_arg(*va,long long int);
 	long long int l = va_arg(*va,long long int);
 	a = getcoeff(expr,va);
-	eitv_set_llfrac2(intern,a,i,j,k,l);
+	res = eitv_set_llfrac2(a,i,j,k,l,intern) && res;
       }
       break;
     case ITV_MPQ:
       {
 	mpq_ptr b = va_arg(*va,mpq_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpq(intern,a,b);
+	res = eitv_set_mpq(a,b,intern) && res;
       }
       break;
     case ITV_MPQ2:
@@ -532,14 +534,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	mpq_ptr b = va_arg(*va,mpq_ptr);
 	mpq_ptr c = va_arg(*va,mpq_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpq2(intern,a,b,c);
+	res = eitv_set_mpq2(a,b,c,intern) && res;
       }
       break;
     case ITV_DOUBLE:
       {
 	double b = va_arg(*va,double);
 	a = getcoeff(expr,va);
-	eitv_set_double(intern,a,b);
+	res = eitv_set_double(a,b,intern) && res;
       }
       break;
     case ITV_DOUBLE2:
@@ -547,14 +549,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	double b = va_arg(*va,double);
 	double c = va_arg(*va,double);
 	a = getcoeff(expr,va);
-	eitv_set_double2(intern,a,b,c);
+	res = eitv_set_double2(a,b,c,intern) && res;
       }
       break;
     case ITV_LDOUBLE:
       {
 	long double b = va_arg(*va,long double);
 	a = getcoeff(expr,va);
-	eitv_set_ldouble(intern,a,b);
+	res = eitv_set_ldouble(a,b,intern) && res;
       }
       break;
     case ITV_LDOUBLE2:
@@ -562,14 +564,14 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	long double b = va_arg(*va,long double);
 	long double c = va_arg(*va,long double);
 	a = getcoeff(expr,va);
-	eitv_set_ldouble2(intern,a,b,c);
+	res = eitv_set_ldouble2(a,b,c,intern) && res;
       }
       break;
     case ITV_MPFR:
       {
 	mpfr_ptr b = va_arg(*va,mpfr_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpfr(intern,a,b);
+	res = eitv_set_mpfr(a,b,intern) && res;
       }
       break;
     case ITV_MPFR2:
@@ -577,7 +579,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
 	mpfr_ptr b = va_arg(*va,mpfr_ptr);
 	mpfr_ptr c = va_arg(*va,mpfr_ptr);
 	a = getcoeff(expr,va);
-	eitv_set_mpfr2(intern,a,b,c);
+	res = eitv_set_mpfr2(a,b,c,intern) && res;
       }
       break;
    default:
@@ -586,6 +588,7 @@ void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
       abort();
     }
   }
+  return res;
 }
 
 eitv_ptr itv_linexpr_set_list_getcoeff(void* expr, va_list* va)
@@ -599,10 +602,12 @@ eitv_ptr itv_linexpr_set_list_getcoeff(void* expr, va_list* va)
   return ptr;
 }
 
-void itv_linexpr_set_list(itv_internal_t* intern, itv_linexpr_t expr, ...)
+bool itv_linexpr_set_list(numinternal_t intern, itv_linexpr_t expr, ...)
 {
+  bool res;
   va_list va;
   va_start(va,expr);
-  itv_linexpr_set_list_generic(itv_linexpr_set_list_getcoeff,intern,expr,&va);
+  res = itv_linexpr_set_list_generic(itv_linexpr_set_list_getcoeff,intern,expr,&va);
   va_end(va);
+  return res;
 }
