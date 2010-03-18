@@ -13,6 +13,7 @@
 #include <float.h>
 
 #include "numConfig.h"
+#include "numflt.h"
 #include "numintIl_def.h"
 #include "numintIll_def.h"
 #include "numintMPZ_def.h"
@@ -24,9 +25,6 @@
 extern "C" {
 #endif
 
-typedef long double numfltDl_native;
-typedef numfltDl_native* numfltDl_ptr;
-typedef numfltDl_native numfltDl_t[1];
 #define NUMFLTDL_ZERO 0.0L
 #define NUMFLTDL_ONE 1.0L
 #define NUMFLTDL_MANT_DIG LDBL_MANT_DIG

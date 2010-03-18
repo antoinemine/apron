@@ -6,10 +6,24 @@
 #define _NUMINT_H_
 
 #include "numConfig.h"
-#include "numint_def.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if NUM_NUMIL
+typedef long int numint_native;
+typedef numint_native* numint_ptr;
+typedef numint_native numint_t[1];
+#elif NUM_NUMILL
+typedef long long int numint_native;
+typedef numint_native* numint_ptr;
+typedef numint_native numint_t[1];
+#elif NUM_NUMMPZ
+typedef mpz_ptr numint_ptr;
+typedef mpz_t numint_t;
+#else
+#error "HERE"
 #endif
 
 /* ====================================================================== */

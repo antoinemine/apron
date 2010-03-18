@@ -12,7 +12,7 @@
 #include <assert.h>
 
 #include "numConfig.h"
-
+#include "numint.h"
 #include "numintIll_def.h"
 
 #ifdef __cplusplus
@@ -20,9 +20,6 @@ extern "C" {
 #endif
 
 /* Require C99 compliant compiler */
-
-typedef mpz_ptr numintMPZ_ptr;
-typedef mpz_t numintMPZ_t;
 
 #undef NUMINTMPZ_ZERO
 #undef NUMINTMPZ_ONE
