@@ -10,7 +10,6 @@
 #undef mpq_set_num
 
 #include "numConfig.h"
-#include "num_numxxx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,70 +98,6 @@ static inline int num_hash(num_t a);
 static inline void num_print(num_t a);
 static inline void num_fprint(FILE* stream, num_t a);
 static inline int num_snprint(char* s, size_t size, num_t a);
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_num(long int a);
-static inline bool llint_fits_num(long long int a);
-static inline bool mpz_fits_num(mpz_t a);
-static inline bool lfrac_fits_num(long int i, long int j);
-static inline bool llfrac_fits_num(long long int i, long long int j);
-static inline bool mpq_fits_num(mpq_t a);
-static inline bool double_fits_num(double a);
-static inline bool ldouble_fits_num(long double a);
-static inline bool mpfr_fits_num(mpfr_t a, numinternal_t intern);
-
-static inline bool num_fits_lint(num_t a);
-static inline bool num_fits_llint(num_t a);
-static inline bool num_fits_lfrac(num_t a);
-static inline bool num_fits_llfrac(num_t a);
-static inline bool num_fits_float(num_t a);
-static inline bool num_fits_double(num_t a);
-static inline bool num_fits_ldouble(num_t a);
-static inline bool num_fits_mpfr(num_t a);
-
-static inline bool num_set_lint(num_t a, long int b, numinternal_t intern);
-  /* lint -> num */
-static inline bool num_set_llint(num_t a, long long int b, numinternal_t intern);
-  /* llint -> num */
-static inline bool num_set_mpz(num_t a, mpz_t b, numinternal_t intern);
-  /* mpz -> num */
-static inline bool num_set_lfrac(num_t a, long int i, long int j, numinternal_t intern);
-  /* lfrac -> num */
-static inline bool num_set_llfrac(num_t a, long long int i, long long int j, numinternal_t intern);
-  /* llfrac -> num */
-static inline bool num_set_mpq(num_t a, mpq_t b, numinternal_t intern);
-  /* mpq -> num */
-static inline bool num_set_double(num_t a, double b, numinternal_t intern);
-  /* double -> num */
-static inline bool num_set_ldouble(num_t a, long double b, numinternal_t intern);
-  /* ldouble -> num */
-static inline bool num_set_mpfr(num_t a, mpfr_t b, numinternal_t intern);
-  /* mpfr -> num */
-
-static inline bool lint_set_num(long int* a, num_t b, numinternal_t intern);
-  /* num -> lint */
-static inline bool llint_set_num(long long int* a, num_t b, numinternal_t intern);
-  /* num -> llint */
-static inline bool mpz_set_num(mpz_t a, num_t b, numinternal_t intern);
-  /* num -> mpz */
-static inline bool lfrac_set_num(long int* i, long int* j, num_t b, numinternal_t intern);
-  /* num -> lfrac */
-static inline bool llfrac_set_num(long long int* i, long long int* j, num_t b, numinternal_t intern);
-  /* num -> llfrac */
-static inline bool mpq_set_num(mpq_t a, num_t b, numinternal_t intern);
-  /* num -> mpq */
-static inline bool double_set_num(double* a, num_t b, numinternal_t intern);
-  /* num -> double */
-static inline bool ldouble_set_num(long double* a, num_t b, numinternal_t intern);
-  /* num -> ldouble */
-static inline bool mpfr_set_num(mpfr_t a, num_t b, numinternal_t intern);
-  /* num -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

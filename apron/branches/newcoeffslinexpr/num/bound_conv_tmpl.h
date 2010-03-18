@@ -24,6 +24,7 @@ static inline bool boundMPFR_set_bound(boundMPFR_t a, bound_t b, numinternal_t i
 /* ********************************************************************** */
 /* Inline definitions */
 /* ********************************************************************** */
+
 static inline bool bound_set_boundMPQ(bound_t a, boundMPQ_t b, numinternal_t intern)
 {
   if (boundMPQ_infty(b)){
