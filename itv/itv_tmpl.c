@@ -6,7 +6,7 @@
 #include "eitv.h"
 #include "math.h"
 
-/* The macro itv_name (defined in itv.h) expands name 
+/* The macro itv_name (defined in itv.h) expands name
    with itvNUM_SUFFIX_ */
 
 static void make_itv_float_const(int frac_bits, int exp_bits, int exp_bias,
@@ -151,13 +151,43 @@ bool itv_canonicalize(itv_internal_t* intern,
   return exc;
 }
 
+/* Comparison:
+   0: equality
+   -1: i1 included in i2
+   +1: i2 included in i1
+   -2: i1->sup less than i2->sup
+   +2: i1->sup greater than i2->sup
+*/
+int itv_cmp(itv_t a, itv_t b)
+{
+  int sup = bound_cmp(a->sup,b->sup);
+  int neginf = bound_cmp(a->neginf,b->neginf);
+  if (neginf<0)
+    return sup<=0 ? -1 : 2;
+  else if (neginf==0)
+    return sup<0 ? -1 : (sup==0 ? 0 : 1);
+  else
+    return sup<0 ? -2 : 1;
+}
+int itv_cmp_zero(itv_t a)
+{
+  int sup = bound_sgn(a->sup);
+  int neginf = bound_sgn(a->neginf);
+  if (neginf<0)
+    return sup<=0 ? -1 : 2;
+  else if (neginf==0)
+    return sup<0 ? -1 : (sup==0 ? 0 : 1);
+  else
+    return sup<0 ? -2 : 1;
+}
+
 /* ********************************************************************** */
 /* Arithmetic operations */
 /* ********************************************************************** */
 
-/* We assume no aliasing between 
+/* We assume no aliasing between
 
-   - an itv and a num or a bound, 
+   - an itv and a num or a bound,
 */
 
 void itv_mul_num(itv_t a, itv_t b, num_t c)
@@ -282,7 +312,7 @@ void itv_mod(itv_internal_t* intern, itv_t a, itv_t b, itv_t c,
     else if (bound_sgn(b->neginf)>0)
       /* [-max|c|,max|c|] */
       bound_set(intern->eval_itv->neginf, intern->eval_itv->sup);
-    else 
+    else
       /* [0,max|c|] */
       bound_set_int(intern->eval_itv->neginf, 0);
     itv_sub(a, b, intern->eval_itv2);
@@ -403,11 +433,11 @@ void itv_mul(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
     bound_set(intern->mul_itv->neginf,c->neginf);
     bound_set_int(intern->mul_itv->sup,0);
     itv_muln(intern,intern->mul_itv2,b,intern->mul_itv);
- 
+
     bound_set_int(intern->mul_itv->neginf,0);
     bound_set(intern->mul_itv->sup,c->sup);
     itv_mulp(intern,a,b,intern->mul_itv);
-    
+
     itv_join(a,a,intern->mul_itv2);
   }
 }
@@ -445,7 +475,7 @@ void itv_divnn(itv_internal_t* intern,
     bound_div(a->sup,b->neginf,c->sup);
     bound_neg(a->sup,a->sup);
     bound_set(a->neginf,intern->mul_bound);
-  }    
+  }
 }
 /* Assume that b is positive and c negative */
 static
@@ -455,7 +485,7 @@ void itv_divpn(itv_internal_t* intern,
 	       itv_t c)
 {
   assert(bound_sgn(b->neginf)<=0 && bound_sgn(c->sup)<0);
-  /* 
+  /*
      bound_div(a->neginf,b->sup,c->sup);
      bound_neg(a->neginf,a->neginf)
      bound_div(a->sup,b->neginf,c->neginf);
@@ -575,8 +605,8 @@ void itv_fprint(FILE* stream, itv_t a)
   bound_fprint(stream,a->sup);
   fprintf(stream,"]");
 }
-void itv_print(itv_t itv){ 
-  itv_fprint(stdout,itv); 
+void itv_print(itv_t itv){
+  itv_fprint(stdout,itv);
 }
 int itv_snprint(char* s, size_t size, itv_t a)
 {

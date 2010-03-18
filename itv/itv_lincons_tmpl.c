@@ -30,6 +30,7 @@ void itv_lincons_fprint(FILE* stream, itv_lincons_t cons, char** name)
     fprintf(stream," mod ");
     num_fprint(stream,cons->num);
   }
+  fflush(stream);
 }
 
 void itv_lincons_array_init(itv_lincons_array_t array, size_t size)
@@ -267,7 +268,7 @@ void itv_lincons_reduce_integer(itv_internal_t* intern,
   itv_linexpr_ptr expr;
   size_t i;
   eitv_ptr pitv;
-  itv_dim_t dim;
+  ap_dim_t dim;
   bool integer;
 
   switch (cons->constyp){
@@ -317,7 +318,7 @@ void itv_lincons_reduce_integer(itv_internal_t* intern,
       bound_neg(pitv->itv->neginf,pitv->itv->sup);
     }
     numrat_inv(intern->quasi_num,intern->quasi_num);
-    itv_mul_num(expr->cst,expr->cst,intern->quasi_num);
+    eitv_mul_num(expr->cst,expr->cst,intern->quasi_num);
   }
 #else
 #if NUM_NUMFLT
