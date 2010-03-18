@@ -7,7 +7,7 @@
 
 #include "itv.h"
 #include "itv_linexpr.h"
-#include "ap_expr0.h"
+#include "itv_lincons.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,15 +23,6 @@ static inline void itv_eval_linexpr(itv_internal_t* intern,
 				    itv_t* env);
   /* Evaluate the interval linear expression, using the array p[]
      associating intervals to dimensions */
-
-static inline bool itv_eval_ap_linexpr0(itv_internal_t* intern,
-					itv_t itv,
-					ap_linexpr0_t* expr,
-					itv_t* env);
-  /* Evaluate the interval linear expression, using the array p[]
-     associating intervals to dimensions.
-
-     Return true if all conversions were exact */
 
 /* ********************************************************************** */
 /* II. Boxization of interval linear expressions */

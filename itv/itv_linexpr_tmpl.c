@@ -3,162 +3,92 @@
 /* ********************************************************************** */
 
 #include "itv_linexpr.h"
+#include <stddef.h>
+#include <stdarg.h>
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
-void itv_linexpr_init(itv_linexpr_t* expr, size_t size)
+void itv_linexpr_init(itv_linexpr_t expr, size_t size)
 {
   expr->linterm = NULL;
   expr->size = 0;
-  itv_init(expr->cst);
-  expr->equality = true;
+  eitv_init(expr->cst);
   itv_linexpr_reinit(expr,size);
 }
-void itv_linexpr_init_set(itv_linexpr_t* res, itv_linexpr_t* expr)
+void itv_linexpr_init_set(itv_linexpr_t res, itv_linexpr_t expr)
 {
   size_t i;
 
-  itv_init_set(res->cst,expr->cst);
-  res->equality = expr->equality;
+  eitv_init_set(res->cst,expr->cst);
   res->linterm = expr->size ? malloc(expr->size*sizeof(itv_linterm_t)) : NULL;
   for (i=0;i<expr->size;i++){
-    itv_linterm_init_set(&res->linterm[i],&expr->linterm[i]);
+    itv_linterm_init_set(res->linterm[i],expr->linterm[i]);
   }
   res->size = expr->size;
 }
-void itv_linexpr_set(itv_linexpr_t* res, itv_linexpr_t* expr)
+void itv_linexpr_set(itv_linexpr_t res, itv_linexpr_t expr)
 {
   size_t i,size;
 
   if (res==expr) return;
 
-  itv_set(res->cst,expr->cst);
-  res->equality = expr->equality;
+  eitv_set(res->cst,expr->cst);
   for  (i=expr->size; i<res->size; i++){
-    itv_linterm_clear(&res->linterm[i]);
+    itv_linterm_clear(res->linterm[i]);
   }
   res->linterm = realloc(res->linterm,expr->size*sizeof(itv_linterm_t));
   size = res->size < expr->size ? res->size : expr->size;
   for (i=0;i<size;i++){
-    itv_linterm_set(&res->linterm[i],&expr->linterm[i]);
+    itv_linterm_set(res->linterm[i],expr->linterm[i]);
   }
   for (i=size; i<expr->size;i++){
-    itv_linterm_init_set(&res->linterm[i],&expr->linterm[i]);
+    itv_linterm_init_set(res->linterm[i],expr->linterm[i]);
   }
   res->size = expr->size;
 }
 
-void itv_linexpr_reinit(itv_linexpr_t* expr, size_t size)
+void itv_linexpr_reinit(itv_linexpr_t expr, size_t size)
 {
   size_t i;
 
   for  (i=size; i<expr->size; i++){
-    itv_linterm_clear(&expr->linterm[i]);
+    itv_linterm_clear(expr->linterm[i]);
   }
   expr->linterm = realloc(expr->linterm,size*sizeof(itv_linterm_t));
   for (i=expr->size;i<size;i++){
-    itv_linterm_init(&expr->linterm[i]);
+    itv_linterm_init(expr->linterm[i]);
   }
   expr->size = size;
   return;
 }
-void itv_linexpr_clear(itv_linexpr_t* expr)
+void itv_linexpr_clear(itv_linexpr_t expr)
 {
   size_t i;
   if (expr->linterm){
     for (i=0;i<expr->size;i++){
-      itv_linterm_clear(&expr->linterm[i]);
+      itv_linterm_clear(expr->linterm[i]);
     }
     free(expr->linterm);
     expr->linterm = NULL;
     expr->size = 0;
   }
-  itv_clear(expr->cst);
+  eitv_clear(expr->cst);
 }
 
-void itv_linexpr_fprint(FILE* stream, itv_linexpr_t* expr, char** name)
+void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name)
 {
-  itv_linexpr_t* e;
+  itv_linexpr_t e;
   size_t i;
-  ap_dim_t dim;
-  itv_ptr pitv;
-  bool* peq;
-  itv_fprint(stream,expr->cst);
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
+  itv_dim_t dim;
+  eitv_ptr pitv;
+  eitv_fprint(stream,expr->cst);
+  itv_linexpr_ForeachLinterm(expr,i,dim,pitv) {
     fprintf(stream, " + ");
-    itv_fprint(stream,pitv);
+    eitv_fprint(stream,pitv);
     if (name) fprintf(stream,"%s",name[dim]);
     else fprintf(stream,"x%lu",(unsigned long)dim);
-  }
-}
-void itv_lincons_set_bool(itv_lincons_t* lincons, bool value)
-{
-  /* constraint 0=0 if value, 1=0 otherwise */
-  itv_linexpr_reinit(&lincons->linexpr,0);
-  itv_set_int(lincons->linexpr.cst,value ? 0 : 1);
-  lincons->linexpr.equality = true;
-  lincons->constyp = AP_CONS_EQ;
-}
-void itv_lincons_fprint(FILE* stream, itv_lincons_t* cons, char** name)
-{
-  itv_linexpr_fprint(stream,&cons->linexpr,name);
-  fprintf(stream,
-	  cons->constyp == AP_CONS_EQ || cons->constyp == AP_CONS_EQMOD ?
-	  " = 0" :
-	  ( cons->constyp == AP_CONS_SUPEQ ?
-	    " >= 0" :
-	    (cons->constyp == AP_CONS_SUP ?
-	     " > 0" :
-	     "\"ERROR in itv_lincons_fprint\"")));
-  if (cons->constyp == AP_CONS_EQMOD){
-    fprintf(stream," mod ");
-    num_fprint(stream,cons->num);
-  }
-}
-
-void itv_lincons_array_init(itv_lincons_array_t* array, size_t size)
-{
-  size_t i;
-  array->size = size;
-  array->p = malloc(size*sizeof(itv_lincons_t));
-  for (i=0; i<size; i++) itv_lincons_init(&array->p[i]);
-}
-void itv_lincons_array_reinit(itv_lincons_array_t* array, size_t size)
-{
-  size_t i;
-  if (size == array->size) return;
-  if (size < array->size){
-    for (i=size; i<array->size; i++){
-      itv_lincons_clear(&array->p[i]);
-    }
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
-  }
-  else { /* size > array->size */
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
-    for (i=array->size; i<size; i++){
-      itv_lincons_init(&array->p[i]);
-    }
-  }
-  array->size = size;
-  return;
-}
-void itv_lincons_array_clear(itv_lincons_array_t* array)
-{
-  size_t i;
-  for (i=0; i<array->size; i++) itv_lincons_clear(&array->p[i]);
-  free(array->p);
-  array->size = 0;
-  array->p = NULL;
-}
-void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t* array, char** name)
-{
-  size_t i;
-  fprintf(stream,"array of size %d\n",(int)array->size);
-  for (i=0; i<array->size; i++){
-    itv_lincons_fprint(stream,&array->p[i],name);
-    fprintf(stream,"\n");
   }
 }
 
@@ -166,138 +96,156 @@ void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t* array, char** n
 /* II. Arithmetic */
 /* ********************************************************************** */
 
-void itv_linexpr_neg(itv_linexpr_t* expr)
+void itv_linexpr_neg(itv_linexpr_t res, itv_linexpr_t expr)
 {
   size_t i;
-  ap_dim_t dim;
+  itv_dim_t dim;
   bool* peq;
-  itv_ptr pitv;
+  eitv_ptr pitv;
 
-  itv_neg(expr->cst,expr->cst);
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq){
-    itv_neg(pitv,pitv);
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_neg(res->cst, expr->cst);
+  itv_linexpr_ForeachLinterm(res,i,dim,pitv){
+    eitv_neg(pitv,pitv);
   }
   return;
 }
 void itv_linexpr_scale(itv_internal_t* intern,
-		       itv_linexpr_t* expr, itv_t coeff)
+		       itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
 {
   size_t i;
-  ap_dim_t dim;
+  itv_dim_t dim;
   bool* peq;
-  itv_ptr pitv;
+  eitv_ptr pitv;
 
-  if (itv_is_zero(coeff)){
-    itv_set(expr->cst,coeff);
+  eitv_is_point(coeff);
+  if (eitv_is_zero(coeff)){
+    eitv_set(expr->cst,coeff);
     itv_linexpr_reinit(expr,0);
     return;
   }
-  itv_mul(intern,expr->cst,expr->cst,coeff);
-  if (itv_is_top(expr->cst)){
-    itv_linexpr_reinit(expr,0);
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_mul(intern,res->cst,res->cst,coeff);
+  if (eitv_is_top(res->cst)){
+    itv_linexpr_reinit(res,0);
     return;
   }
   else {
-    itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq){
-      itv_mul(intern,pitv,pitv,coeff);
-      *peq = *peq /* speed-up */ && itv_is_point(intern,pitv);
+    itv_linexpr_ForeachLinterm(res,i,dim,pitv){
+      eitv_mul(intern,pitv,pitv,coeff);
     }
   }
   return;
 }
 void itv_linexpr_div(itv_internal_t* intern,
-		     itv_linexpr_t* expr, itv_t coeff)
+		     itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
 {
   size_t i;
-  ap_dim_t dim;
-  bool* peq;
-  itv_ptr pitv;
+  itv_dim_t dim;
+  eitv_ptr pitv;
 
-  itv_div(intern,expr->cst,expr->cst,coeff);
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq){
-    itv_div(intern,pitv,pitv,coeff);
-    *peq = *peq /* speed-up */ && itv_is_point(intern,pitv);
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_div(intern,res->cst,res->cst,coeff);
+  itv_linexpr_ForeachLinterm(expr,i,dim,pitv){
+    eitv_div(intern,pitv,pitv,coeff);
   }
   return;
 }
 
 void itv_linexpr_add(itv_internal_t* intern,
-		     itv_linexpr_t* res, 
-		     itv_linexpr_t* exprA,
-		     itv_linexpr_t* exprB)
+		     itv_linexpr_t res,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB)
 {
   size_t i,j,k;
   itv_linexpr_t expr;
   bool endA,endB;
 
   if (res==exprA || res==exprB){
-    itv_linexpr_init(&expr,exprA->size+exprB->size);
+    itv_linexpr_init(expr,exprA->size+exprB->size);
   }
   else {
-    expr = *res;
-    itv_linexpr_reinit(&expr,exprA->size+exprB->size);
+    *expr = *res;
+    itv_linexpr_reinit(expr,exprA->size+exprB->size);
   }
   i = j = k = 0;
   endA = endB = false;
-  itv_add(expr.cst,exprA->cst,exprB->cst);
-  expr.equality = exprA->equality && exprB->equality && itv_is_point(intern,expr.cst);
-  if (itv_is_top(expr.cst))
+  eitv_add(expr->cst,exprA->cst,exprB->cst);
+  if (eitv_is_top(expr->cst))
     goto _itv_linexpr_add_return;
   while (true){
-    endA = endA || (i==exprA->size) || exprA->linterm[i].dim == AP_DIM_MAX;
-    endB = endB || (j==exprB->size) || exprB->linterm[j].dim == AP_DIM_MAX;
+    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == ITV_DIM_MAX;
+    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == ITV_DIM_MAX;
     if (endA && endB)
       break;
-    if (endA || (!endB && exprB->linterm[j].dim < exprA->linterm[i].dim)){
-      itv_set(expr.linterm[k].itv, exprB->linterm[j].itv);
-      expr.linterm[k].equality = exprB->linterm[j].equality;
-      expr.linterm[k].dim = exprB->linterm[j].dim;
+    if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
+      itv_linterm_set(expr->linterm[k], exprB->linterm[j]);
       k++; j++;
     }
-    else if (endB || (!endA && exprA->linterm[i].dim < exprB->linterm[j].dim)){
-      itv_set(expr.linterm[k].itv, exprA->linterm[i].itv);
-      expr.linterm[k].equality = exprA->linterm[i].equality;
-      expr.linterm[k].dim = exprA->linterm[i].dim;
+    else if (endB || (!endA && exprA->linterm[i]->dim < exprB->linterm[j]->dim)){
+      itv_linterm_set(expr->linterm[k], exprA->linterm[i]);
       k++; i++;
     }
     else {
-      itv_add(expr.linterm[k].itv, exprA->linterm[i].itv,exprB->linterm[j].itv);
-      expr.linterm[k].equality =
-	exprA->linterm[i].equality && exprB->linterm[j].equality && /* speed-up */
-	itv_is_point(intern,expr.linterm[k].itv);
-      expr.linterm[k].dim = exprA->linterm[i].dim;
-      if (!itv_is_zero(expr.linterm[k].itv)){
+      eitv_add(expr->linterm[k]->eitv, exprA->linterm[i]->eitv,exprB->linterm[j]->eitv);
+      expr->linterm[k]->dim = exprA->linterm[i]->dim;
+      if (!eitv_is_zero(expr->linterm[k]->eitv)){
 	k++;
       }
       i++; j++;
     }
   }
  _itv_linexpr_add_return:
-  itv_linexpr_reinit(&expr,k);
+  itv_linexpr_reinit(expr,k);
   if (res==exprA || res==exprB){
     itv_linexpr_clear(res);
   }
-  *res = expr;
+  *res = *expr;
   return;
 }
 void itv_linexpr_sub(itv_internal_t* intern,
-		     itv_linexpr_t* res,
-		     itv_linexpr_t* exprA,
-		     itv_linexpr_t* exprB)
+		     itv_linexpr_t res,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB)
 {
   if (exprA==exprB){
     itv_linexpr_t expr;
-    itv_linexpr_init_set(&expr,exprB);
-    itv_linexpr_neg(&expr);
-    itv_linexpr_add(intern,res,exprA,&expr);
-    itv_linexpr_clear(&expr);
+    itv_linexpr_init(expr,0);
+    itv_linexpr_neg(expr,exprB);
+    itv_linexpr_add(intern,res,exprA,expr);
+    itv_linexpr_clear(expr);
   }
   else {
-    itv_linexpr_neg(exprB);
+    itv_linexpr_neg(exprB,exprB);
     itv_linexpr_add(intern,res,exprA,exprB);
     if (exprB!=res){
-      itv_linexpr_neg(exprB);
+      itv_linexpr_neg(exprB,exprB);
     }
+  }
+}
+
+/* Evaluate an interval linear expression */
+void itv_linexpr_eval(itv_internal_t* intern,
+		      eitv_t res, itv_linexpr_t expr, eitv_t* env)
+{
+  size_t i;
+  itv_dim_t dim;
+  eitv_ptr eitv;
+  assert(env);
+
+  eitv_set(res, expr->cst);
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    eitv_mul(intern,
+	     intern->eval_eitv,env[dim],eitv);
+    eitv_add(res,res,intern->eval_eitv);
+    if (eitv_is_top(res))
+      break;
   }
 }
 
@@ -305,421 +253,356 @@ void itv_linexpr_sub(itv_internal_t* intern,
 /* III. Tests */
 /* ********************************************************************** */
 
-bool itv_linexpr_is_scalar(itv_linexpr_t* expr)
+bool itv_linexpr_is_integer(itv_linexpr_t expr, size_t intdim)
 {
-  bool res = expr->equality;
-  if (res){
-    size_t i;
-    for (i=0; i<expr->size; i++){
-      res = expr->linterm[i].equality;
-      if (!res) break;
-    }
-  }
-  return res;
-}
-bool itv_linexpr_is_quasilinear(itv_linexpr_t* expr)
-{
-  bool res;
-  if (expr->size==0)
-    res = true;
-  else {
-    size_t i;
-    for (i=0; i<expr->size; i++){
-      res = expr->linterm[i].equality;
-      if (!res) break;
-    }
-  }
-  return res;
-}
-bool itv_lincons_array_is_scalar(itv_lincons_array_t* array)
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    res = itv_lincons_is_scalar(&array->p[i]);
-    if (!res) break;
-  }
-  return res;
-}
-bool itv_lincons_array_is_quasilinear(itv_lincons_array_t* array)
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    res = itv_lincons_is_quasilinear(&array->p[i]);
-    if (!res) break;
-  }
-  return res;
-}
-
-bool itv_linexpr_is_integer(itv_linexpr_t* expr, size_t intdim)
-{
-  size_t i;
+  size_t i,dim;
+  eitv_ptr eitv;
   bool res;
 
   res = true;
-  for (i=0; i<expr->size; i++){
-    if (expr->linterm[i].dim>=intdim){
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    if (dim>=intdim && !eitv_is_zero(eitv)){
       res = false;
       break;
     }
   }
   return res;
 }
-bool itv_lincons_is_integer(itv_lincons_t* cons, size_t intdim)
+bool itv_linexpr_is_real(itv_linexpr_t expr, size_t intdim)
 {
-  return itv_linexpr_is_integer(&cons->linexpr,intdim);
-}
-/* Evaluate a constraint, composed of a constant (interval) expression */
-tbool_t itv_eval_cstlincons(itv_internal_t* intern,
-				    itv_lincons_t* lincons)
-{
-  tbool_t res;
-  itv_ptr cst = lincons->linexpr.cst;
-  bool equality = lincons->linexpr.equality;
+  size_t i,dim;
+  eitv_ptr eitv;
+  bool res;
 
-  assert (lincons->linexpr.size==0);
-  if (itv_is_bottom(intern,cst)){
-    return tbool_false;
-  }
-  switch (lincons->constyp){
-  case AP_CONS_EQ:
-    if (equality){
-      int sgn = bound_sgn(cst->sup);
-      res = (sgn==0 ? tbool_true : tbool_false);
+  res = true;
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    if (dim<intdim){
+      if (!eitv_is_zero(eitv)){
+	res = false;
+	break;
+      }
     }
-    else {
-      if (bound_sgn(cst->sup)<0 ||
-	  bound_sgn(cst->inf)<0)
-	res = tbool_false;
-      else
-	res = tbool_top;
-    }
-    break;
-  case AP_CONS_DISEQ:
-    res =
-      (bound_sgn(cst->inf)<0 ||
-       bound_sgn(cst->sup)<0) ?
-      tbool_true :
-      tbool_top;
-    break;
-  case AP_CONS_SUPEQ:
-    if (bound_sgn(cst->inf)<=0)
-      res = tbool_true;
-    else if (bound_sgn(cst->sup)<0)
-      res = tbool_false;
     else
-      res = tbool_top;
-    break;
-  case AP_CONS_SUP:
-    if (bound_sgn(cst->inf)<0)
-      res = tbool_true;
-    else if (bound_sgn(cst->sup)<=0)
-      res = tbool_false;
+      break;
+  }
+  return res;
+}
+itv_linexpr_type_t itv_linexpr_type(itv_linexpr_t a)
+{
+  if (itv_linexpr_is_quasilinear(a)){
+    if (eitv_is_point(a->cst))
+      return ITV_LINEXPR_LINEAR;
     else
-      res = tbool_top;
-    break;
-  case AP_CONS_EQMOD:
-    if (equality){
-      if (bound_sgn(cst->sup)==0){
-	res = tbool_true;
-      }
-      else if (num_cmp_int(lincons->num,0)){
-	res = (bound_sgn(cst->sup)==0) ? tbool_true : tbool_top;
-      }
-      else {
-#if defined(NUM_NUMRAT)
-	numrat_t numrat;
-	numrat_init(numrat);
-	numrat_div(numrat,bound_numref(cst->sup),lincons->num);
-	if (numint_cmp_int(numrat_denref(numrat),1)==0){
-	  res = tbool_true;
-	}
-	else {
-	  res = tbool_top;
-	}
-	numrat_clear(numrat);
-#elif defined(NUM_NUMINT)
-	numint_t numint;
-	numint_init(numint);
-	numint_mod(numint,bound_numref(cst->sup),lincons->num);
-	if (numint_sgn(numint)==0){
-	  res = tbool_true;
-	}
-	else {
-	  res = tbool_top;
-	}
-	numint_clear(numint);
-#else
-	res = tbool_top;
-#endif
-      }
-    }
-    else {
-      res = tbool_top;
-    }
-    break;
-  default:
-    abort();
+      return ITV_LINEXPR_QUASILINEAR;
+  }
+  else
+    return ITV_LINEXPR_INTLINEAR;
+}
+bool itv_linexpr_is_quasilinear(itv_linexpr_t expr)
+{
+  size_t i,dim;
+  eitv_ptr eitv;
+  bool res;
+
+  res = true;
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    res = eitv->eq;
+    if (!res) break;
   }
   return res;
 }
-
-bool itv_sat_lincons_is_false(itv_internal_t* intern,
-			      itv_lincons_t* lincons)
-{
-  bool res = false;
-
-  bool equality = lincons->linexpr.equality;
-  itv_ptr cst = lincons->linexpr.cst;
-  bool inf = bound_infty(cst->inf);
-  
-  switch (lincons->constyp){
-  case AP_CONS_EQ:
-  case AP_CONS_EQMOD:
-    res = !equality;
-    break;
-  case AP_CONS_DISEQ:
-    res = inf && bound_infty(cst->sup);
-    break;
-  case AP_CONS_SUPEQ:
-  case AP_CONS_SUP:
-    res = inf;
-    break;
-  default:
-    break;
-  }
-  if (!res && 
-      lincons->linexpr.size==0 && 
-      itv_eval_cstlincons(intern,lincons)==tbool_false){
-    res = true;
-  }
-  return res;
-}
-
-static bool 
-itv_lincons_is_useless_for_meet(itv_internal_t* intern,
-				itv_lincons_t* lincons)
-{
-  bool res = false;
-  itv_ptr cst = lincons->linexpr.cst;
-  if (lincons->linexpr.size==0){
-    if (itv_eval_cstlincons(intern,lincons)!=tbool_false)
-      res = true;
-  }
-  else {
-    if (!lincons->linexpr.equality){
-      bool sup = bound_infty(cst->sup);
-      switch (lincons->constyp){
-      case AP_CONS_EQ:
-      case AP_CONS_DISEQ:
-      case AP_CONS_EQMOD:
-	{
-	  bool inf = bound_infty(cst->inf);
-	  res = inf && sup;
-	}
-	break;
-      case AP_CONS_SUPEQ:
-      case AP_CONS_SUP:
-	res = sup;
-	break;
-      default:
-	break;
-      }
-    }
-  }
-  return res;
-}
-
-void itv_lincons_reduce_integer(itv_internal_t* intern,
-					itv_lincons_t* cons,
-					size_t intdim)
-{
-  itv_linexpr_t* expr;
-  size_t i;
-  itv_ptr pitv;
-  ap_dim_t dim;
-  bool* peq;
-  bool integer;
-
-  switch (cons->constyp){
-  case AP_CONS_EQ:
-  case AP_CONS_SUPEQ:
-  case AP_CONS_SUP:
-    break;
-  default:
-    return;
-  }
-  expr = &cons->linexpr;
-  /* Tests if only integer variables are involved */
-  if (!itv_linexpr_is_integer(expr,intdim))
-    return;
-  /* Check that there are only scalar coefficients for dimensions */
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-    if (!(*peq))
-      return;
-  }
-#if defined(NUM_NUMRAT)
-  {
-    /* compute lcm of denominators and gcd of numerators */
-    numint_set_int(numrat_denref(intern->quasi_num),1);
-    numint_set_int(numrat_numref(intern->quasi_num),0);
-    itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-      numint_lcm(numrat_denref(intern->quasi_num),
-		 numrat_denref(intern->quasi_num),
-		 numrat_denref(bound_numref(pitv->sup)));
-      numint_gcd(numrat_numref(intern->quasi_num),
-		 numrat_numref(intern->quasi_num),
-		 numrat_numref(bound_numref(pitv->sup)));
-    }
-    if (numint_sgn(numrat_numref(intern->quasi_num))==0)
-      return;
-    itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-      numint_divexact(numrat_numref(bound_numref(pitv->sup)),
-		      numrat_numref(bound_numref(pitv->sup)),
-		      numrat_numref(intern->quasi_num));
-      numint_mul(numrat_numref(bound_numref(pitv->sup)),
-		 numrat_numref(bound_numref(pitv->sup)),
-		 numrat_denref(intern->quasi_num));
-      numint_divexact(numrat_numref(bound_numref(pitv->sup)),
-		      numrat_numref(bound_numref(pitv->sup)),
-		      numrat_denref(bound_numref(pitv->sup)));
-      numint_set_int(numrat_denref(bound_numref(pitv->sup)),
-		     1);
-      bound_neg(pitv->inf,pitv->sup);
-    }
-    numrat_inv(intern->quasi_num,intern->quasi_num);
-    itv_mul_num(expr->cst,expr->cst,intern->quasi_num);
-  }
-#else
-#if defined(NUM_NUMFLT)
-  {
-    /* Assuming that all coefficients are either integer,
-       compute the pgcd */
-    mpz_set_si(intern->reduce_lincons_gcd,0);
-    itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-      if (!numflt_integer(pitv->sup)) 
-	return;
-      mpz_set_numflt(intern->reduce_lincons_mpz,pitv->sup);
-      mpz_gcd(intern->reduce_lincons_gcd,
-	      intern->reduce_lincons_gcd,
-	      intern->reduce_lincons_mpz);
-    }
-    if (mpz_sgn(intern->reduce_lincons_gcd)==0 ||
-	mpz_cmp_si(intern->reduce_lincons_gcd,1)==0)
-      return;
-    bool exact = numflt_set_mpz(intern->quasi_num,intern->reduce_lincons_gcd);
-    if (!exact) return;
-  }
-#elif defined(NUM_NUMINT)
-  {
-    num_set_int(intern->quasi_num,0);
-    itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-      numint_gcd(intern->quasi_num,
-		 intern->quasi_num,
-		 bound_numref(pitv->sup));
-    }
-    if (numint_sgn(intern->quasi_num)==0 ||
-	numint_cmp_int(intern->quasi_num,1)==0)
-      return;
-  }
-#else
-#error "HERE"
-#endif
-  /* divide by gcd put in intern->quasi_num */
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
-    itv_div_num(pitv,pitv,intern->quasi_num);
-  }
-  itv_div_num(expr->cst,expr->cst,intern->quasi_num);
-#endif 
-  /* Constrain bounds */
-  if (!bound_infty(expr->cst->sup)){
-    if (cons->constyp==AP_CONS_SUP){
-      if (num_integer(bound_numref(expr->cst->sup))){
-	bound_sub_uint(expr->cst->sup,expr->cst->sup,1);
-      }
-      else {
-	num_floor(bound_numref(expr->cst->sup),
-		  bound_numref(expr->cst->sup));
-      }
-      cons->constyp = AP_CONS_SUPEQ;
-    }
-    else {
-      num_floor(bound_numref(expr->cst->sup),
-		bound_numref(expr->cst->sup));
-    }
-  }
-  if (cons->constyp == AP_CONS_EQ){
-    if (!bound_infty(expr->cst->inf)){
-      if (expr->equality){
-	bound_neg(expr->cst->inf,
-		  expr->cst->sup);
-      }
-      else {
-	num_floor(bound_numref(expr->cst->inf),
-		  bound_numref(expr->cst->inf));
-      }
-    }
-    if (itv_is_bottom(intern,expr->cst)){
-      itv_lincons_set_bool(cons,false);
-    }
-  }
-  else {
-    if (!bound_infty(expr->cst->sup)){
-      bound_neg(expr->cst->inf,expr->cst->sup);
-      expr->equality = true;
-    }
-  }
-}
-
-tbool_t itv_lincons_array_reduce(itv_internal_t* intern,
-				 itv_lincons_array_t* array, bool meet)
-{
-  tbool_t res;
-  size_t i,size;
-
-  res = tbool_top;
-  i = 0;
-  size = array->size;
-  while (i<size){
-    if (array->p[i].linexpr.size==0){
-      tbool_t sat = itv_eval_cstlincons(intern,&array->p[i]);
-      if (sat==tbool_true){
-      itv_lincons_array_reduce_remove:
-	size --;
-	itv_lincons_swap(&array->p[i],&array->p[size]);
-	continue;
-      }
-      else if (sat==tbool_false){
-      itv_lincons_array_reduce_false:
-	itv_lincons_array_reinit(array,1);
-	itv_lincons_set_bool(&array->p[0],false);
-	return tbool_false;
-      }
-    }
-    if (meet && itv_lincons_is_useless_for_meet(intern,&array->p[i]))
-      goto itv_lincons_array_reduce_remove;
-    else if (!meet && itv_sat_lincons_is_false(intern,&array->p[i]))
-      goto itv_lincons_array_reduce_false;
-    else {
-      i++;
-    }
-  }
-  itv_lincons_array_reinit(array,size);
-  if (size==0) 
-    res = tbool_true;
-  else if (size==1 && array->p[0].linexpr.size==0)
-    res = itv_eval_cstlincons(intern,&array->p[0]);
-  return res;
-}
-
-tbool_t itv_lincons_array_reduce_integer(itv_internal_t* intern,
-					 itv_lincons_array_t* array,
-					 size_t intdim)
+itv_linexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size)
 {
   size_t i;
-  for (i=0; i<array->size; i++){
-    itv_lincons_reduce_integer(intern,&array->p[i],intdim);
+  itv_linexpr_type_t type;
+
+  type = ITV_LINEXPR_LINEAR;
+  for (i=0; i<size; i++){
+    itv_linexpr_type_t t = itv_linexpr_type(texpr[i]);
+    if (t<type){
+      type = t;
+      if (type==ITV_LINEXPR_INTLINEAR)
+	break;
+    }
   }
-  return itv_lincons_array_reduce(intern,array,true);
+  return type;
+}
+bool itv_linexpr_array_is_linear(itv_linexpr_t* texpr, size_t size)
+{
+  size_t i;
+  bool res;
+
+  res = true;
+  for (i=0;i<size;i++){
+    res = itv_linexpr_is_linear(texpr[i]);
+    if (!res) break;
+  }
+  return res;
+}
+bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size)
+{
+  size_t i;
+  bool res;
+
+  res = true;
+  for (i=0;i<size;i++){
+    res = itv_linexpr_is_quasilinear(texpr[i]);
+    if (!res) break;
+  }
+  return res;
+}
+
+/* ====================================================================== */
+/* IV. Access */
+/* ====================================================================== */
+
+static size_t index_of_or_after_dim(itv_dim_t dim, itv_linterm_t* linterm, size_t size)
+{
+  if (size<=10){
+    size_t i;
+    for (i=0; i<size; i++){
+      if (dim<=linterm[i]->dim)
+	return i;
+    }
+    return size;
+  }
+  else {
+    size_t mid = size/2;
+    if (dim==linterm[mid]->dim)
+      return mid;
+    else if (dim<linterm[mid]->dim)
+      return index_of_or_after_dim(dim, linterm, mid);
+    else
+      return mid + 1 + index_of_or_after_dim(dim, linterm+mid+1, size-mid-1);
+  }
+}
+
+eitv_ptr itv_linexpr_eitvref(itv_linexpr_t expr, itv_dim_t dim)
+{
+  size_t index;
+
+  index = index_of_or_after_dim(dim,expr->linterm,expr->size);
+  if (index>=expr->size || dim != expr->linterm[index]->dim){
+    if (index<expr->size && expr->linterm[index]->dim==ITV_DIM_MAX){
+      /* We have a free linterm at the right place */
+      expr->linterm[index]->dim=dim;
+      return expr->linterm[index]->eitv;
+    }
+    if (expr->size==0 || expr->linterm[expr->size-1]->dim!=ITV_DIM_MAX){
+	/* We have to insert a new linterm at the end */
+      itv_linexpr_reinit(expr, expr->size+1);
+    }
+    /* We insert a linterm with ITV_DIM_MAX at the right place */
+    if (index<expr->size-1){
+      itv_linterm_struct tmp = *(expr->linterm[expr->size-1]);
+      memmove(&expr->linterm[index+1], &expr->linterm[index],
+	      (expr->size-index-1)*sizeof(itv_linterm_t));
+      *(expr->linterm[index]) = tmp;
+    }
+    expr->linterm[index]->dim = dim;
+  }
+  return expr->linterm[index]->eitv;
+}
+
+void itv_linexpr_set_list_generic(eitv_ptr (*getcoeff)(void* expr, va_list* va),
+				  itv_internal_t* intern,
+				  void* expr, va_list* va)
+{
+  itv_coefftag_t tag;
+  eitv_ptr a;
+
+  while (true){
+    tag = va_arg(*va,itv_coefftag_t);
+    if (tag==ITV_END)
+      break;
+
+    switch (tag){
+    case ITV_EITV:
+      {
+	eitv_ptr b = va_arg(*va,eitv_ptr);
+	a = getcoeff(expr,va);
+	eitv_set(a,b);
+      }
+      break;
+    case ITV_NUM:
+      {
+	num_ptr b = va_arg(*va,num_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_num(a,b);
+      }
+      break;
+    case ITV_NUM2:
+      {
+	num_ptr b = va_arg(*va,num_ptr);
+	num_ptr c = va_arg(*va,num_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_num2(a,b,c);
+      }
+      break;
+    case ITV_LINT:
+      {
+	long int b = va_arg(*va,long int);
+	a = getcoeff(expr,va);
+	eitv_set_lint(intern,a,b);
+      }
+      break;
+    case ITV_LINT2:
+      {
+	long int b = va_arg(*va,long int);
+	long int c = va_arg(*va,long int);
+	a = getcoeff(expr,va);
+	eitv_set_lint2(intern,a,b,c);
+      }
+      break;
+    case ITV_LLINT:
+      {
+	long long int b = va_arg(*va,long long int);
+	a = getcoeff(expr,va);
+	eitv_set_llint(intern,a,b);
+      }
+      break;
+    case ITV_LLINT2:
+      {
+	long long int b = va_arg(*va,long long int);
+	long long int c = va_arg(*va,long long int);
+	a = getcoeff(expr,va);
+	eitv_set_llint2(intern,a,b,c);
+      }
+      break;
+    case ITV_MPZ:
+      {
+	mpz_ptr b = va_arg(*va,mpz_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpz(intern,a,b);
+      }
+      break;
+    case ITV_MPZ2:
+      {
+	mpz_ptr b = va_arg(*va,mpz_ptr);
+	mpz_ptr c = va_arg(*va,mpz_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpz2(intern,a,b,c);
+      }
+      break;
+    case ITV_LFRAC:
+      {
+	long int i = va_arg(*va,long int);
+	long int j = va_arg(*va,long int);
+	a = getcoeff(expr,va);
+	eitv_set_lfrac(intern,a,i,j);
+      }
+      break;
+    case ITV_LFRAC2:
+      {
+	long int i = va_arg(*va,long int);
+	long int j = va_arg(*va,long int);
+	long int k = va_arg(*va,long int);
+	long int l = va_arg(*va,long int);
+	a = getcoeff(expr,va);
+	eitv_set_lfrac2(intern,a,i,j,k,l);
+      }
+      break;
+    case ITV_LLFRAC:
+      {
+	long long int i = va_arg(*va,long long int);
+	long long int j = va_arg(*va,long long int);
+	a = getcoeff(expr,va);
+	eitv_set_llfrac(intern,a,i,j);
+      }
+      break;
+    case ITV_LLFRAC2:
+      {
+	long long int i = va_arg(*va,long long int);
+	long long int j = va_arg(*va,long long int);
+	long long int k = va_arg(*va,long long int);
+	long long int l = va_arg(*va,long long int);
+	a = getcoeff(expr,va);
+	eitv_set_llfrac2(intern,a,i,j,k,l);
+      }
+      break;
+    case ITV_MPQ:
+      {
+	mpq_ptr b = va_arg(*va,mpq_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpq(intern,a,b);
+      }
+      break;
+    case ITV_MPQ2:
+      {
+	mpq_ptr b = va_arg(*va,mpq_ptr);
+	mpq_ptr c = va_arg(*va,mpq_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpq2(intern,a,b,c);
+      }
+      break;
+    case ITV_DOUBLE:
+      {
+	double b = va_arg(*va,double);
+	a = getcoeff(expr,va);
+	eitv_set_double(intern,a,b);
+      }
+      break;
+    case ITV_DOUBLE2:
+      {
+	double b = va_arg(*va,double);
+	double c = va_arg(*va,double);
+	a = getcoeff(expr,va);
+	eitv_set_double2(intern,a,b,c);
+      }
+      break;
+    case ITV_LDOUBLE:
+      {
+	long double b = va_arg(*va,long double);
+	a = getcoeff(expr,va);
+	eitv_set_ldouble(intern,a,b);
+      }
+      break;
+    case ITV_LDOUBLE2:
+      {
+	long double b = va_arg(*va,long double);
+	long double c = va_arg(*va,long double);
+	a = getcoeff(expr,va);
+	eitv_set_ldouble2(intern,a,b,c);
+      }
+      break;
+    case ITV_MPFR:
+      {
+	mpfr_ptr b = va_arg(*va,mpfr_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpfr(intern,a,b);
+      }
+      break;
+    case ITV_MPFR2:
+      {
+	mpfr_ptr b = va_arg(*va,mpfr_ptr);
+	mpfr_ptr c = va_arg(*va,mpfr_ptr);
+	a = getcoeff(expr,va);
+	eitv_set_mpfr2(intern,a,b,c);
+      }
+      break;
+   default:
+      fprintf(stderr,
+	      "itv_linexpr_set_list_generic: probably bad structure for the argument list\n");
+      abort();
+    }
+  }
+}
+
+eitv_ptr itv_linexpr_set_list_getcoeff(void* expr, va_list* va)
+{
+  eitv_ptr ptr;
+  itv_dim_t dim = va_arg(*va,itv_dim_t);
+  if (dim==ITV_DIM_MAX)
+    ptr = ((itv_linexpr_ptr)expr)->cst;
+  else
+    ptr = itv_linexpr_eitvref(expr,dim);
+  return ptr;
+}
+
+void itv_linexpr_set_list(itv_internal_t* intern, itv_linexpr_t expr, ...)
+{
+  va_list va;
+  va_start(va,expr);
+  itv_linexpr_set_list_generic(itv_linexpr_set_list_getcoeff,intern,expr,&va);
+  va_end(va);
 }
