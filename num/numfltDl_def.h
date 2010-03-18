@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 typedef long double numfltDl_native;
+typedef numfltDl_native* numfltDl_ptr;
 typedef numfltDl_native numfltDl_t[1];
 #define NUMFLTDL_ZERO 0.0L
 #define NUMFLTDL_ONE 1.0L

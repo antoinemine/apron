@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+typedef numint_ptr num_ptr;
 typedef numint_t num_t;
 
 /* ====================================================================== */

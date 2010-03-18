@@ -21,6 +21,7 @@ extern "C" {
 
 /* Require C99 compliant compiler */
 
+typedef mpz_ptr numintMPZ_ptr;
 typedef mpz_t numintMPZ_t;
 
 #undef NUMINTMPZ_ZERO

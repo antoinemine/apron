@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+typedef mpq_ptr numratMPQ_ptr;
 typedef mpq_t numratMPQ_t;
 
 /* ====================================================================== */
