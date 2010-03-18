@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 typedef long long int numintIll_native;
+typedef numintIll_native* numintIll_ptr;
 typedef numintIll_native numintIll_t[1];
 
 #define NUMINTILL_ZERO 0LL
@@ -392,7 +393,7 @@ static inline bool lfrac_set_numintIll(long int* a, long int* b, numintIll_t c, 
 {
   *a = (long int)(*c);
   *b = 1L;
-  return true; 
+  return true;
 }
 
 /* numintIll -> llfrac */
@@ -400,7 +401,7 @@ static inline bool llfrac_set_numintIll(long long int* a, long long int* b, numi
 {
   *a = *c;
   *b = 1LL;
-  return true; 
+  return true;
 }
 
 /* numintIll -> mpq */
