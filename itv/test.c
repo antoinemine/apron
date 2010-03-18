@@ -11,13 +11,13 @@ void arith(itv_internal_t* intern,
 	   itv_t a, itv_t b, itv_t c, bound_t bound)
 {
   itv_t bb,cc;
-  
+
   itv_init_set(bb,b);
   itv_init_set(cc,c);
 
   printf("********************\n");
   printf("b="); itv_print(b);
-  printf(" c="); itv_print(c); 
+  printf(" c="); itv_print(c);
   printf(" bound="); bound_print(bound); printf("\n");
 
   itv_set(b,bb); itv_set(c,cc);

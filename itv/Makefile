@@ -12,7 +12,6 @@ SRCDIR = $(shell pwd)
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
 -I../num \
--I../apron \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include
 
@@ -20,19 +19,37 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-CCMODULES_TMPL = itv_tmpl eitv_tmpl itv_linexpr_tmpl itv_linearize_tmpl
-CCSRC = itvConfig.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
+CCMODULES_NAME = itv itv_conv eitv eitv_conv itv_linexpr itv_lincons # itv_linearize
 
-CCINC_TO_INSTALL = itvConfig.h \
-itvIl.h eitvIl.h itvIl_linexpr.h itvIl_linearize.h \
-itvIll.h eitvIll.h itvIll_linexpr.h itvIll_linearize.h \
-itvMPZ.h eitvMPZ.h itvMPZ_linexpr.h itvMPZ_linearize.h \
-itvRl.h eitvRl.h itvRl_linexpr.h itvRl_linearize.h \
-itvRll.h eitvRll.h itvRll_linexpr.h itvRll_linearize.h \
-itvMPQ.h eitvMPQ.h itvMPQ_linexpr.h itvMPQ_linearize.h \
-itvD.h eitvD.h itvD_linexpr.h itvD_linearize.h \
-itvDl.h eitvDl.h itvDl_linexpr.h itvDl_linearize.h \
-itvDll.h eitvDll.h itvDll_linexpr.h itvDll_linearize.h
+CCMODULES_TMPL = $(CCMODULES_NAME:%=%_tmpl)
+
+CCSRC = itvConfig.h $(CCMODULES_TMPL:%=%.h) $(CCMODULES_TMPL:%=%.c)
+
+CCMODULES_IL = $(subst itv,itvIl,$(CCMODULES_NAME))
+CCMODULES_ILL = $(subst itv,itvIll,$(CCMODULES_NAME))
+CCMODULES_MPZ = $(subst itv,itvMPZ,$(CCMODULES_NAME))
+CCMODULES_RL = $(subst itv,itvRl,$(CCMODULES_NAME))
+CCMODULES_RLL = $(subst itv,itvRll,$(CCMODULES_NAME))
+CCMODULES_MPQ = $(subst itv,itvMPQ,$(CCMODULES_NAME))
+CCMODULES_D = $(subst itv,itvD,$(CCMODULES_NAME))
+CCMODULES_DL = $(subst itv,itvDl,$(CCMODULES_NAME))
+CCMODULES_MPFR = $(subst itv,itvMPFR,$(CCMODULES_NAME))
+
+CCMODULES = \
+$(CCMODULES_IL) \
+$(CCMODULES_ILL) \
+$(CCMODULES_MPZ) \
+$(CCMODULES_RL) \
+$(CCMODULES_RLL) \
+$(CCMODULES_MPQ) \
+$(CCMODULES_D) \
+$(CCMODULES_MPFR)
+
+ifneq ($(HAS_LONG_DOUBLE),)
+CCMODULES := $(CCMODULES) $(CCMODULES_DL)
+endif
+
+CCINC_TO_INSTALL = itvConfig.h $(CCMODULES:%=%.h)
 
 CCBIN_TO_INSTALL = 
 CCLIB_TO_INSTALL = \
@@ -50,11 +67,7 @@ ifneq ($(HAS_LONG_DOUBLE),)
 CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libitvDl.a libitvDl_debug.a
 endif
 
-OFILES = $(CCMODULES:%=%Il.o) $(CCMODULES:%=%Ill.o) $(CCMODULES:%=%Rl.o) $(CCMODULES:%=%Rll.o) $(CCMODULES:%=%MPZ.o) $(CCMODULES:%=%MPQ.o) $(CCMODULES:%=%D.o) $(CCMODULES:%=%MPFR.o)
-
-ifneq ($(HAS_LONG_DOUBLE),)
-OFILES := $(OFILES) $(CCMODULES:%=%Dl.o) 
-endif
+OFILES = $(CCMODULES:%=%.o)
 
 
 #---------------------------------------
@@ -65,20 +78,23 @@ endif
 # depend doc install
 # and the following one
 
-all: allMPQ allRll allD allMPFR libitv.a libitv_debug.a
+all: allIl allIll allMPZ allRl allRll allMPQ allD allDl allMPFR libitv.a libitv_debug.a
 
-allMPQ: libitvMPQ.a libitvMPQ_debug.a
+allIl: itvIl.sed libitvIl.a libitvIl_debug.a
+allIll: itvIll.sed libitvIll.a libitvIll_debug.a
+allMPZ: itvMPZ.sed libitvMPZ.a libitvMPZ_debug.a
+allRl: itvRl.sed libitvRl.a libitvRl_debug.a
+allRll: itvRll.sed libitvRll.a libitvRll_debug.a
+allMPQ: itvMPQ.sed libitvMPQ.a libitvMPQ_debug.a
+allD: itvD.sed libitvD.a libitvD_debug.a
+allDl: itvDl.sed libitvDl.a libitvDl_debug.a
+allMPFR: itvMPFR.sed libitvMPFR.a libitvMPFR_debug.a
 
-allRll: libitvRll.a libitvRll_debug.a
-
-allD: libitvD.a libitvD_debug.a
-
-allMPFR: libitvMPFR.a libitvMPFR_debug.a
-
-tests: testMPQ testRll testD testMPFR test2MPQ test2Rll test2D test2MPFR
+tests: testIl testIll testMPZ testRl testRll testMPQ testD testDl testMPFR test2Il test2Ill test2MPZ test2Rl test2Rll test2MPQ test2D test2Dl test2MPFR 
 
 clean:
-	/bin/rm -f *.[ao] testMPQ testRll testD testMPFR test2MPQ test2Rll test2D test2MPFR
+	/bin/rm -fr *.[ao] testIl* testMP* testRl* testD* test2Il* test2MP* test2Rl* test2D*  
+	/bin/rm -f $(CCMODULES:%=%.c) $(CCMODULES:%=%.h)
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 
 mostlyclean: clean
@@ -112,21 +128,47 @@ itv%.sed: ../num/num%.sed Makefile
 	echo "s/itv\(_\|(\|[.]h\)/itv$*\1/g;" >>$@
 
 itv%.h: itv%.sed itv_tmpl.h
-	$(SED) -f $< itv_tmpl.h >$@
-itv%.c: itv%.sed itv_tmpl.c
-	$(SED) -f $< itv_tmpl.c >$@
-eitv%.h: itv%.sed eitv_tmpl.h
-	$(SED) -f $< eitv_tmpl.h >$@
-eitv%.c: itv%.sed eitv_tmpl.c
-	$(SED) -f $< eitv_tmpl.c >$@
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_tmpl.h\"" >$@
+	$(SED) -f $< itv_tmpl.h >>$@
+itv%.c: itv%.sed itv_tmpl.c itv%.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_tmpl.c\"" >$@
+	$(SED) -f $< itv_tmpl.c >>$@
+eitv%.h: itv%.sed eitv_tmpl.h itv%.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_tmpl.h\"" >$@
+	$(SED) -f $< eitv_tmpl.h >>$@
+eitv%.c: itv%.sed eitv_tmpl.c eitv%.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_tmpl.c\"" >$@
+	$(SED) -f $< eitv_tmpl.c >>$@
 itv%_linexpr.h: itv%.sed itv_linexpr_tmpl.h
-	$(SED) -f $< itv_linexpr_tmpl.h >$@
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_tmpl.h\"" >$@
+	$(SED) -f $< itv_linexpr_tmpl.h >>$@
 itv%_linexpr.c: itv%.sed itv_linexpr_tmpl.c
-	$(SED) -f $< itv_linexpr_tmpl.c >$@
-itv%_linearize.h: itv%.sed itv_linearize_tmpl.h
-	$(SED) -f $< itv_linearize_tmpl.h >$@
-itv%_linearize.c: itv%.sed itv_linearize_tmpl.c
-	$(SED) -f $< itv_linearize_tmpl.c >$@
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_tmpl.c\"" >$@
+	$(SED) -f $< itv_linexpr_tmpl.c >>$@
+itv%_lincons.h: itv%.sed itv_lincons_tmpl.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_tmpl.h\"" >$@
+	$(SED) -f $< itv_lincons_tmpl.h >>$@
+itv%_lincons.c: itv%.sed itv_lincons_tmpl.c
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_tmpl.c\"" >$@
+	$(SED) -f $< itv_lincons_tmpl.c >>$@
+itv%_conv.h: itv%.sed itv_conv_tmpl.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_conv_tmpl.h\"" >$@
+	$(SED) -f $< itv_conv_tmpl.h >>$@
+itv%_conv.c: itv%.sed itv_conv_tmpl.c itv%_conv.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_conv_tmpl.c\"" >$@
+	$(SED) -f $< itv_conv_tmpl.c >>$@
+eitv%_conv.h: itv%.sed eitv_conv_tmpl.h
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_conv_tmpl.h\"" >$@
+	$(SED) -f $< eitv_conv_tmpl.h >>$@
+eitv%_conv.c: itv%.sed eitv_conv_tmpl.c
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_conv_tmpl.c\"" >$@
+	$(SED) -f $< eitv_conv_tmpl.c >>$@
+
+.PRECIOUS: $(CCMODULES:%=%.c) $(CCMODULES:%=%.h) \
+itvIl.sed itvIll.sed itvMPZ.sed \
+itvRl.sed itvRll.sed itvMPQ.sed \
+itvD.sed itvDl.sed itvMPFR.sed
+
 
 #-----------------------------------
 # C part
@@ -140,83 +182,64 @@ libitv_debug.a: $(OFILES:%.o=%_debug.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-libitv%.a: $(subst .c,%.o,$(CCMODULES:%=%.c))
+libitv%.a: itv%.o itv%_conv.o eitv%.o eitv%_conv.o itv%_linexpr.o itv%_lincons.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libitv%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
+libitv%_debug.a: itv%_debug.o itv%_conv_debug.o eitv%_debug.o eitv%_conv_debug.o itv%_linexpr_debug.o itv%_lincons_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-%Il.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGINT -c -o $@ $<
-%Il_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGINT -c -o $@ $<
+itv%.o: itv%.c itv%.h eitv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+itv%_debug.o: itv%.c itv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+itv%_conv.o: itv%_conv.c itv%_conv.h itv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+itv%_conv_debug.o: itv%_conv.c itv%_conv.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+eitv%.o: eitv%.c eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+eitv%_debug.o: eitv%.c eitv%.h itv%.sed
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+eitv%_conv.o: eitv%_conv.c eitv%_conv.h eitv%.h itv%.h itv%.sed eitvMPQ.h eitvD.h eitvMPFR.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+eitv%_conv_debug.o: eitv%_conv.c eitv%_conv.h eitv%.h itv%.h itv%.sed eitvMPQ.h eitvD.h eitvMPFR.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+itv%_linexpr.o: itv%_linexpr.c itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+itv%_linexpr_debug.o: itv%_linexpr.c itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+itv%_lincons.o: itv%_lincons.c itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+itv%_lincons_debug.o: itv%_lincons.c itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+itv%_linearize.o: itv%_linearize.c itv%_linearize.h itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+itv%_linearize_debug.o: itv%_linearize.c itv%_linearize.h itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
-%Ill.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGINT -c -o $@ $<
-%Ill_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGLONGINT -c -o $@ $<
-
-%Rl.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGRAT -c -o $@ $<
-%Rl_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGRAT -c -o $@ $<
-
-%Rll.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGRAT -c -o $@ $<
-%Rll_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGLONGRAT -c -o $@ $<
-
-%MPZ.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPZ -c -o $@ $<
-%MPZ_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPZ -c -o $@ $<
-
-%MPQ.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
-%MPQ_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
-
-
-%D.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -c -o $@ $<
-%D_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_DOUBLE -c -o $@ $<
-
-%Dl.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
-%Dl_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
-
-%MPFR.o: %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -c -o $@ $<
-%MPFR_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -c -o $@ $<
+%.o: %.c %.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+%_debug.o: %.c %.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
 
-testMPQ: testMPQ_debug.o libitvMPQ_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvMPQ_debug -lapron_debug -lgmp -lmpfr -lm
+#-----------------------------------
+# Test
+#-----------------------------------
 
-testRll: testRll_debug.o libitvRll_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvRll_debug -lapron_debug -lgmp -lmpfr -lm
+test%.c: itv%.sed test.c
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"test.c\"" >$@
+	$(SED) -f $< test.c >>$@
+test2%.c: itv%.sed test2.c
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"test2.c\"" >$@
+	$(SED) -f $< test2.c >>$@
 
-testD: testD_debug.o libitvD_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvD_debug -lapron_debug -lgmp -lmpfr -lm
+test%: test%.c itv%.sed libitv%_debug.a
+	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
 
-testMPFR: testMPFR_debug.o libitvMPFR_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvMPFR_debug -lapron_debug -lgmp -lmpfr -lm
-
-test2MPQ: testMPQ_debug.o libitvMPQ_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvMPQ_debug -lapron_debug -lgmp -lmpfr -lm
-
-test2Rll: testRll_debug.o libitvRll_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvRll_debug -lapron_debug -lgmp -lmpfr -lm
-
-test2D: testD_debug.o libitvD_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvD_debug -lapron_debug -lgmp -lmpfr -lm
-
-test2MPFR: testMPFR_debug.o libitvMPFR_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L../apron -o $@ $< -litvMPFR_debug -lapron_debug -lgmp -lmpfr -lm
+test2%: test2%.c itv%.sed libitv%_debug.a
+	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -o $@ $< -litv$*_debug -lgmp -lmpfr -lm
 
 out: tests
 	./testMPQ > out.MPQ
@@ -228,9 +251,3 @@ out: tests
 	./testD > out.D
 	./test2D > out2.D
 
-#-----------------------------------
-# DEPENDENCIES
-#-----------------------------------
-
-itv%.o: itv.c itv.h itv_fun.h
-itv_linexpr%.o: itv_linexpr.c itv_linexpr.h itv.h itv_fun.h

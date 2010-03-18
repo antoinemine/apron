@@ -2,8 +2,8 @@
 /* itv.h: (unidimensional) intervals */
 /* ********************************************************************** */
 
-#ifndef _ITV_H_
-#define _ITV_H_
+#ifndef _EITV_H_
+#define _EITV_H_
 
 #include <stdio.h>
 #include "itv.h"
@@ -12,13 +12,14 @@
 extern "C" {
 #endif
 
-typedef struct __eitv_struct {
+/* Already defined in itv_tmpl.h, for dependency reasons
+typedef struct eitv_struct {
   itv_t itv;
   bool eq;
-} __eitv_struct;
-typedef __eitv_struct eitv_t[1];
-typedef __eitv_struct* eitv_ptr;
-
+} eitv_struct;
+typedef eitv_struct eitv_t[1];
+typedef eitv_struct* eitv_ptr;
+*/
 /* ********************************************************************** */
 /* eitv */
 /* ********************************************************************** */
@@ -56,15 +57,15 @@ static inline void eitv_enlarge_bound(eitv_t a, eitv_t b, bound_t c);
 /* ====================================================================== */
 /* Normalization and tests */
 /* ====================================================================== */
-bool eitv_canonicalize(eitv_internal_t* intern, eitv_t a, bool integer);
+bool eitv_canonicalize(itv_internal_t* intern, eitv_t a, bool integer);
   /* Canonicalize an interval:
      - if integer is true, narrows bound to integers
      - return true if the interval is bottom
      - return false otherwise
   */
-static inline bool eitv_is_int(eitv_internal_t* intern, eitv_t a);
+static inline bool eitv_is_int(itv_internal_t* intern, eitv_t a);
   /* has integer bounds */
-static inline bool eitv_is_point(eitv_internal_t* intern, eitv_t a);
+static inline bool eitv_is_point(eitv_t a);
   /* Return true iff the interval is a single point */
 static inline bool eitv_is_zero(eitv_t a);
   /* Return true iff the interval is a single zero point */
@@ -72,7 +73,7 @@ static inline bool eitv_is_pos(eitv_t a);
 static inline bool eitv_is_neg(eitv_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
 static inline bool eitv_is_top(eitv_t a);
-static inline bool eitv_is_bottom(eitv_internal_t* intern, eitv_t a);
+static inline bool eitv_is_bottom(itv_internal_t* intern, eitv_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
 static inline bool eitv_is_leq(eitv_t a, eitv_t b);
   /* Inclusion test */
@@ -83,13 +84,13 @@ static inline int eitv_hash(eitv_t a);
   /* Hash code */
 static inline void eitv_range_abs(bound_t a, eitv_t b);
   /* a=(max b - min b) */
-static inline void eitv_range_rel(eitv_internal_t* intern, bound_t a, eitv_t b);
+static inline void eitv_range_rel(itv_internal_t* intern, bound_t a, eitv_t b);
   /* a=(max b - min b) / (|a+b|/2) */
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-static inline bool eitv_meet(eitv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
+static inline bool eitv_meet(itv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
   /* Assign a with the intersection of b and c */
 static inline void eitv_join(eitv_t a, eitv_t b, eitv_t c);
   /* Assign a with the union of b and c */
@@ -101,9 +102,9 @@ static inline void eitv_widening(eitv_t a, eitv_t b, eitv_t c);
 /* ====================================================================== */
 static inline void eitv_add(eitv_t a, eitv_t b, eitv_t c);
 void eitv_sub(eitv_t a, eitv_t b, eitv_t c);
-void eitv_neg(eitv_t a, eitv_t b);
-void eitv_mul(eitv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
-void eitv_div(eitv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
+static inline void eitv_neg(eitv_t a, eitv_t b);
+void eitv_mul(itv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
+void eitv_div(itv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c);
 static inline void eitv_add_num(eitv_t a, eitv_t b, num_t c);
 static inline void eitv_sub_num(eitv_t a, eitv_t b, num_t c);
 void eitv_mul_num(eitv_t a, eitv_t b, num_t c);
@@ -112,14 +113,14 @@ static inline void eitv_add_bound(eitv_t a, eitv_t b, bound_t c);
 static inline void eitv_sub_bound(eitv_t a, eitv_t b, bound_t c);
 void eitv_mul_bound(eitv_t a, eitv_t b, bound_t c);
 void eitv_div_bound(eitv_t a, eitv_t b, bound_t c);
-static inline bool eitv_sqrt(eitv_internal_t* intern, eitv_t a, eitv_t b);
+static inline bool eitv_sqrt(itv_internal_t* intern, eitv_t a, eitv_t b);
 void eitv_abs(eitv_t a, eitv_t b);
 static inline void eitv_mul_2exp(eitv_t a, eitv_t b, int c);
 
 static inline void eitv_magnitude(bound_t a, eitv_t b);
   /* get the absolute value of maximal bound */
 
-static inline void eitv_mod(eitv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c, bool is_int);
+static inline void eitv_mod(itv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c, bool is_int);
   /* x mod y = x - y*trunc(x/y) */
 
 /* ====================================================================== */
@@ -132,9 +133,31 @@ static inline void eitv_trunc(eitv_t a, eitv_t b);
 static inline void eitv_to_int(eitv_t a, eitv_t b);
 
 /* Floating-point casts (worst cases) */
-static inline void eitv_to_float(eitv_t a, eitv_t b);
-static inline void eitv_to_double(eitv_t a, eitv_t b);
+static inline void eitv_to_float(itv_internal_t* intern, eitv_t a, eitv_t b);
+static inline void eitv_to_double(itv_internal_t* intern, eitv_t a, eitv_t b);
 
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool eitv_set_lint(itv_internal_t* intern, eitv_t a, long int b);
+static inline bool eitv_set_lint2(itv_internal_t* intern, eitv_t a, long int b, long int c);
+static inline bool eitv_set_llint(itv_internal_t* intern, eitv_t a, long long int b);
+static inline bool eitv_set_llint2(itv_internal_t* intern, eitv_t a, long long int b, long long int c);
+static inline bool eitv_set_mpz(itv_internal_t* intern, eitv_t a, mpz_t b);
+static inline bool eitv_set_mpz2(itv_internal_t* intern, eitv_t a, mpz_t b, mpz_t c);
+static inline bool eitv_set_lfrac(itv_internal_t* intern, eitv_t a, long int i, long int j);
+static inline bool eitv_set_lfrac2(itv_internal_t* intern, eitv_t a, long int i, long int j, long int k, long int l);
+static inline bool eitv_set_llfrac(itv_internal_t* intern, eitv_t a, long long int i, long long int j);
+static inline bool eitv_set_llfrac2(itv_internal_t* intern, eitv_t a, long long int i, long long int j, long long int k, long long int l);
+static inline bool eitv_set_mpq(itv_internal_t* intern, eitv_t a, mpq_t b);
+static inline bool eitv_set_mpq2(itv_internal_t* intern, eitv_t a, mpq_t b, mpq_t c);
+static inline bool eitv_set_double(itv_internal_t* intern, eitv_t a, double b);
+static inline bool eitv_set_double2(itv_internal_t* intern, eitv_t a, double b, double c);
+static inline bool eitv_set_ldouble(itv_internal_t* intern, eitv_t a, long double b);
+static inline bool eitv_set_ldouble2(itv_internal_t* intern, eitv_t a, long double b, long double c);
+static inline bool eitv_set_mpfr(itv_internal_t* intern, eitv_t a, mpfr_t b);
+static inline bool eitv_set_mpfr2(itv_internal_t* intern, eitv_t a, mpfr_t b, mpfr_t c);
 
 /* ====================================================================== */
 /* Printing */
@@ -170,7 +193,7 @@ static inline void eitv_clear(eitv_t a)
 { itv_clear(a->itv); }
 static inline void eitv_clear_array(eitv_t* a, size_t size)
 {
-#if !defined(NUM_NATIVE)
+#if !NUM_NATIVE
   size_t i;
   for (i=0; i<size; i++) eitv_clear(a[i]);
 #endif
@@ -193,8 +216,7 @@ static inline void eitv_array_free(eitv_t* a, size_t size)
 
 static inline void eitv_set(eitv_t a, eitv_t b)
 {
-  bound_set(a->itv->neginf,b->itv->neginf);
-  bound_set(a->itv->sup,b->itv->sup);
+  itv_set(a->itv,b->itv);
   a->eq = b->eq;
 }
 static inline void eitv_set_num(eitv_t a, num_t b)
@@ -205,17 +227,17 @@ static inline void eitv_set_num(eitv_t a, num_t b)
 static inline void eitv_set_num2(eitv_t a, num_t b, num_t c)
 {
   itv_set_num2(a->itv,b,c);
-  a->eq = false;
+  a->eq = num_equal(b,c);
 }
 static inline void eitv_set_int(eitv_t a, long int b)
 {
-  bound_set_int(a->itv->sup,b);
-  a->eq = true;
+  itv_set_int(a->itv,b);
+  a->eq = itv_is_point(a->itv);
 }
 static inline void eitv_set_int2(eitv_t a, long int b, long int c)
 {
   itv_set_int2(a->itv,b,c);
-  a->eq = (b == -c);
+  a->eq = itv_is_point(a->itv);
 }
 static inline void eitv_set_bottom(eitv_t a)
 {
@@ -233,24 +255,24 @@ static inline void eitv_swap(eitv_t a, eitv_t b)
 static inline void eitv_set_unit_num(eitv_t a, num_t b)
 {
   itv_set_unit_num(a->itv,b);
-  a->eq = false;
+  a->eq = (num_sgn(b)==0);
 }
 static inline void eitv_set_unit_bound(eitv_t a, bound_t b)
 {
   itv_set_unit_bound(a->itv,b);
-  a->eq = false;
+  a->eq = (bound_sgn(b)==0);
 }
 static inline void eitv_enlarge_bound(eitv_t a, eitv_t b, bound_t c)
 {
   itv_enlarge_bound(a->itv,b->itv,c);
-  a->eq = false;
+  a->eq = NUM_EXACT && b->eq && (bound_sgn(c)==0);
 }
 
 /* ====================================================================== */
 /* Normalization and tests */
 /* ====================================================================== */
 
-static inline bool eitv_is_int(eitv_internal_t* intern, eitv_t a)
+static inline bool eitv_is_int(itv_internal_t* intern, eitv_t a)
 {
   bound_trunc(intern->muldiv_bound,a->itv->sup);
   if (bound_cmp(intern->muldiv_bound,a->itv->sup)) return false;
@@ -261,9 +283,9 @@ static inline bool eitv_is_int(eitv_internal_t* intern, eitv_t a)
     return !bound_cmp(intern->muldiv_bound,a->itv->neginf);
   }
 }
-static inline bool eitv_is_point(eitv_internal_t* intern, eitv_t a)
+static inline bool eitv_is_point(eitv_t a)
 {
-  return a->eq || itv_is_point(intern,a->itv);
+  return a->eq || itv_is_point(a->itv);
 }
 static inline bool eitv_is_zero(eitv_t a)
 {
@@ -278,7 +300,7 @@ static inline bool eitv_is_top(eitv_t a)
 {
   return !a->eq && itv_is_top(a->itv);
 }
-static inline bool eitv_is_bottom(eitv_internal_t* intern, eitv_t a)
+static inline bool eitv_is_bottom(itv_internal_t* intern, eitv_t a)
 {
   return !a->eq && eitv_canonicalize(intern, a, false);
 }
@@ -289,7 +311,7 @@ static inline bool eitv_is_leq(eitv_t a, eitv_t b)
      bound_equal(a->itv->sup,b->itv->sup) :
      itv_is_leq(a->itv,b->itv));
 }
-static inline bool eitv_is_eq(eitv_internal_t* intern, eitv_t a, eitv_t b)
+static inline bool eitv_is_eq(eitv_t a, eitv_t b)
 {
   return bound_equal(a->itv->sup,b->itv->sup) &&
     (a->eq && b->eq ?
@@ -306,14 +328,14 @@ static inline int eitv_hash(eitv_t a)
 static inline void eitv_range_abs(bound_t a, eitv_t b)
 { itv_range_abs(a,b->itv); }
 
-static inline void eitv_range_rel(eitv_internal_t* intern, bound_t a, eitv_t b)
+static inline void eitv_range_rel(itv_internal_t* intern, bound_t a, eitv_t b)
 { itv_range_rel(intern,a,b->itv); }
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
 
-static inline bool eitv_meet(eitv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c)
+static inline bool eitv_meet(itv_internal_t* intern, eitv_t a, eitv_t b, eitv_t c)
 {
   bound_min(a->itv->sup,b->itv->sup,c->itv->sup);
   bound_min(a->itv->neginf,b->itv->neginf,c->itv->neginf);
@@ -430,7 +452,7 @@ static inline bool eitv_sqrt(itv_internal_t* intern, eitv_t a, eitv_t b)
   return exact;
 }
 
-static inline void eitv_mod(itv_internal_t* intern, 
+static inline void eitv_mod(itv_internal_t* intern,
 			    eitv_t a, eitv_t b, eitv_t c,
 			    bool is_int)
 {
@@ -443,70 +465,114 @@ static inline void eitv_mod(itv_internal_t* intern,
 
 static inline void eitv_ceil(eitv_t a, eitv_t b)
 {
-  bound_ceil(a->itv->sup,b->itv->sup); 
+  bound_ceil(a->itv->sup,b->itv->sup);
   if (b->eq){
     bound_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
     bound_floor(a->itv->neginf,b->itv->sup);
-    a->eq = false;
+    a->eq = itv_is_point(a->itv);
   }
 }
 
 static inline void eitv_floor(eitv_t a, eitv_t b)
 {
-  bound_floor(a->itv->sup,b->itv->sup); 
+  bound_floor(a->itv->sup,b->itv->sup);
   if (b->eq){
     bound_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
     bound_ceil(a->itv->neginf,b->itv->sup);
-    a->eq = false;
+    a->eq = itv_is_point(a->itv);
   }
 }
 
 static inline void eitv_trunc(eitv_t a, eitv_t b)
 {
   itv_trunc(a->itv,b->itv);
-  a->eq = false;
+  a->eq = itv_is_point(a->itv);
 }
 
 static inline void eitv_to_int(eitv_t a, eitv_t b)
 {
   itv_to_int(a->itv,b->itv);
-  a->eq = false;
+  a->eq = itv_is_point(a->itv);
 }
 
-static inline void eitv_to_float(eitv_t a, eitv_t b)
+static inline void eitv_to_float(itv_internal_t* intern, eitv_t a, eitv_t b)
 {
-  itv_to_float(a->itv,b->itv);
-  a->eq = false;
+  itv_to_float(intern,a->itv,b->itv);
+  a->eq = itv_is_point(a->itv);
 }
-static inline void eitv_to_double(eitv_t a, eitv_t b)
+static inline void eitv_to_double(itv_internal_t* intern, eitv_t a, eitv_t b)
 {
-  itv_to_double(a->itv,b->itv);
-  a->eq = false;
+  itv_to_double(intern,a->itv,b->itv);
+  a->eq = itv_is_point(a->itv);
 }
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool eitv_set_lint(itv_internal_t* intern, eitv_t a, long int b)
+{ a->eq = itv_set_lint(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_llint(itv_internal_t* intern, eitv_t a, long long int b)
+{ a->eq = itv_set_llint(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_mpz(itv_internal_t* intern, eitv_t a, mpz_t b)
+{ a->eq = itv_set_mpz(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_lfrac(itv_internal_t* intern, eitv_t a, long int i, long int j)
+{ a->eq = itv_set_lfrac(intern,a->itv,i,j); return a->eq; }
+static inline bool eitv_set_llfrac(itv_internal_t* intern, eitv_t a, long long int i, long long int j)
+{ a->eq = itv_set_llfrac(intern,a->itv,i,j); return a->eq; }
+static inline bool eitv_set_mpq(itv_internal_t* intern, eitv_t a, mpq_t b)
+{ a->eq = itv_set_mpq(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_double(itv_internal_t* intern, eitv_t a, double b)
+{ a->eq = itv_set_double(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_ldouble(itv_internal_t* intern, eitv_t a, long double b)
+{ a->eq = itv_set_ldouble(intern,a->itv,b); return a->eq; }
+static inline bool eitv_set_mpfr(itv_internal_t* intern, eitv_t a, mpfr_t b)
+{ a->eq = itv_set_mpfr(intern,a->itv,b); return a->eq; }
+
+
+static inline bool eitv_set_lint2(itv_internal_t* intern, eitv_t a, long int b, long int c)
+{ bool res = itv_set_lint2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_llint2(itv_internal_t* intern, eitv_t a, long long int b, long long int c)
+{ bool res = itv_set_llint2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_mpz2(itv_internal_t* intern, eitv_t a, mpz_t b, mpz_t c)
+{ bool res = itv_set_mpz2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_lfrac2(itv_internal_t* intern, eitv_t a, long int i, long int j, long int k, long int l)
+{ bool res = itv_set_lfrac2(intern,a->itv,i,j,k,l); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_llfrac2(itv_internal_t* intern, eitv_t a, long long int i, long long int j, long long int k, long long int l)
+{ bool res = itv_set_llfrac2(intern,a->itv,i,j,k,l); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_mpq2(itv_internal_t* intern, eitv_t a, mpq_t b, mpq_t c)
+{ bool res = itv_set_mpq2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_double2(itv_internal_t* intern, eitv_t a, double b, double c)
+{ bool res = itv_set_double2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_ldouble2(itv_internal_t* intern, eitv_t a, long double b, long double c)
+{ bool res = itv_set_ldouble2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+static inline bool eitv_set_mpfr2(itv_internal_t* intern, eitv_t a, mpfr_t b, mpfr_t c)
+{ bool res = itv_set_mpfr2(intern,a->itv,b,c); a->eq = false; if (res) eitv_is_point(a); return res; }
+
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
 
 static inline void eitv_fprint(FILE* stream, eitv_t a)
-{ 
+{
   if (a->eq)
     bound_fprint(stream,a->itv->sup);
   else
     itv_fprint(stream,a->itv);
  }
 static inline void eitv_print(eitv_t a)
-{ eitv_fprint(stream, a); }
+{ eitv_fprint(stdout, a); }
 static inline int eitv_snprint(char* s, size_t size, eitv_t a)
-{ 
-  return a->eq ? 
+{
+  return a->eq ?
     bound_snprint(s,size,a->itv->sup) :
-    itv_snprintf(s,size,a->itv); 
+    itv_snprint(s,size,a->itv);
 }
 
 #ifdef __cplusplus
