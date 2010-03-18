@@ -206,24 +206,24 @@ static inline void itv_to_double(itv_internal_t* intern, itv_t a, itv_t b);
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool itv_set_lint(itv_internal_t* intern, itv_t a, long int b);
-static inline bool itv_set_lint2(itv_internal_t* intern, itv_t a, long int b, long int c);
-static inline bool itv_set_llint(itv_internal_t* intern, itv_t a, long long int b);
-static inline bool itv_set_llint2(itv_internal_t* intern, itv_t a, long long int b, long long int c);
-static inline bool itv_set_mpz(itv_internal_t* intern, itv_t a, mpz_t b);
-static inline bool itv_set_mpz2(itv_internal_t* intern, itv_t a, mpz_t b, mpz_t c);
-static inline bool itv_set_lfrac(itv_internal_t* intern, itv_t a, long int i, long int j);
-static inline bool itv_set_lfrac2(itv_internal_t* intern, itv_t a, long int i, long int j, long int k, long int l);
-static inline bool itv_set_llfrac(itv_internal_t* intern, itv_t a, long long int i, long long int j);
-static inline bool itv_set_llfrac2(itv_internal_t* intern, itv_t a, long long int i, long long int j, long long int k, long long int l);
-static inline bool itv_set_mpq(itv_internal_t* intern, itv_t a, mpq_t b);
-static inline bool itv_set_mpq2(itv_internal_t* intern, itv_t a, mpq_t b, mpq_t c);
-static inline bool itv_set_double(itv_internal_t* intern, itv_t a, double b);
-static inline bool itv_set_double2(itv_internal_t* intern, itv_t a, double b, double c);
-static inline bool itv_set_ldouble(itv_internal_t* intern, itv_t a, long double b);
-static inline bool itv_set_ldouble2(itv_internal_t* intern, itv_t a, long double b, long double c);
-static inline bool itv_set_mpfr(itv_internal_t* intern, itv_t a, mpfr_t b);
-static inline bool itv_set_mpfr2(itv_internal_t* intern, itv_t a, mpfr_t b, mpfr_t c);
+static inline bool itv_set_lint(itv_t a, long int b, numinternal_t intern);
+static inline bool itv_set_lint2(itv_t a, long int b, long int c, numinternal_t intern);
+static inline bool itv_set_llint(itv_t a, long long int b, numinternal_t intern);
+static inline bool itv_set_llint2(itv_t a, long long int b, long long int c, numinternal_t intern);
+static inline bool itv_set_mpz(itv_t a, mpz_t b, numinternal_t intern);
+static inline bool itv_set_mpz2(itv_t a, mpz_t b, mpz_t c, numinternal_t intern);
+static inline bool itv_set_lfrac(itv_t a, long int i, long int j, numinternal_t intern);
+static inline bool itv_set_lfrac2(itv_t a, long int i, long int j, long int k, long int l, numinternal_t intern);
+static inline bool itv_set_llfrac(itv_t a, long long int i, long long int j, numinternal_t intern);
+static inline bool itv_set_llfrac2(itv_t a, long long int i, long long int j, long long int k, long long int l, numinternal_t intern);
+static inline bool itv_set_mpq(itv_t a, mpq_t b, numinternal_t intern);
+static inline bool itv_set_mpq2(itv_t a, mpq_t b, mpq_t c, numinternal_t intern);
+static inline bool itv_set_double(itv_t a, double b, numinternal_t intern);
+static inline bool itv_set_double2(itv_t a, double b, double c, numinternal_t intern);
+static inline bool itv_set_ldouble(itv_t a, long double b, numinternal_t intern);
+static inline bool itv_set_ldouble2(itv_t a, long double b, long double c, numinternal_t intern);
+static inline bool itv_set_mpfr(itv_t a, mpfr_t b, numinternal_t intern);
+static inline bool itv_set_mpfr2(itv_t a, mpfr_t b, mpfr_t c, numinternal_t intern);
 
 /* ====================================================================== */
 /* Printing */
@@ -494,74 +494,74 @@ static inline void itv_to_double(itv_internal_t* intern, itv_t a, itv_t b)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool itv_set_lint(itv_internal_t* intern, itv_t a, long int b)
-{ return itv_set_lint2(intern,a,b,b); }
-static inline bool itv_set_lint2(itv_internal_t* intern, itv_t a, long int b, long int c)
+static inline bool itv_set_lint(itv_t a, long int b, numinternal_t intern)
+{ return itv_set_lint2(a,b,b,intern); }
+static inline bool itv_set_lint2(itv_t a, long int b, long int c, numinternal_t intern)
 {
-  bool res = bound_set_lint(a->neginf,-b,intern->num);
-  return bound_set_lint(a->sup,c,intern->num) && res;
+  bool res = bound_set_lint(a->neginf,-b,intern);
+  return bound_set_lint(a->sup,c,intern) && res;
 }
-static inline bool itv_set_llint(itv_internal_t* intern, itv_t a, long long int b)
-{ return itv_set_llint2(intern,a,b,b); }
-static inline bool itv_set_llint2(itv_internal_t* intern, itv_t a, long long int b, long long int c)
+static inline bool itv_set_llint(itv_t a, long long int b, numinternal_t intern)
+{ return itv_set_llint2(a,b,b,intern); }
+static inline bool itv_set_llint2(itv_t a, long long int b, long long int c, numinternal_t intern)
 {
-  bool res = bound_set_llint(a->neginf,-b,intern->num);
-  return bound_set_llint(a->sup,c,intern->num) && res;
+  bool res = bound_set_llint(a->neginf,-b,intern);
+  return bound_set_llint(a->sup,c,intern) && res;
 }
-static inline bool itv_set_mpz(itv_internal_t* intern, itv_t a, mpz_t b)
-{ return itv_set_mpz2(intern,a,b,b); }
-static inline bool itv_set_mpz2(itv_internal_t* intern, itv_t a, mpz_t b, mpz_t c)
+static inline bool itv_set_mpz(itv_t a, mpz_t b, numinternal_t intern)
+{ return itv_set_mpz2(a,b,b,intern); }
+static inline bool itv_set_mpz2(itv_t a, mpz_t b, mpz_t c, numinternal_t intern)
 {
   mpz_neg(b,b);
-  bool res = bound_set_mpz(a->neginf,b,intern->num);
+  bool res = bound_set_mpz(a->neginf,b,intern);
   mpz_neg(b,b);
-  return bound_set_mpz(a->sup,c,intern->num) && res;
+  return bound_set_mpz(a->sup,c,intern) && res;
 }
-static inline bool itv_set_lfrac(itv_internal_t* intern, itv_t a, long int i, long int j)
-{ return itv_set_lfrac2(intern,a,i,j,i,j); }
-static inline bool itv_set_lfrac2(itv_internal_t* intern, itv_t a, long int i, long int j, long int k, long int l)
+static inline bool itv_set_lfrac(itv_t a, long int i, long int j, numinternal_t intern)
+{ return itv_set_lfrac2(a,i,j,i,j,intern); }
+static inline bool itv_set_lfrac2(itv_t a, long int i, long int j, long int k, long int l, numinternal_t intern)
 {
-  bool res = bound_set_lfrac(a->neginf,-i,j,intern->num);
-  return bound_set_lfrac(a->sup,k,l,intern->num) && res;
+  bool res = bound_set_lfrac(a->neginf,-i,j,intern);
+  return bound_set_lfrac(a->sup,k,l,intern) && res;
 }
-static inline bool itv_set_llfrac(itv_internal_t* intern, itv_t a, long long int i, long long int j)
-{ return itv_set_llfrac2(intern,a,i,j,i,j); }
-static inline bool itv_set_llfrac2(itv_internal_t* intern, itv_t a, long long int i, long long int j, long long int k, long long int l)
+static inline bool itv_set_llfrac(itv_t a, long long int i, long long int j, numinternal_t intern)
+{ return itv_set_llfrac2(a,i,j,i,j,intern); }
+static inline bool itv_set_llfrac2(itv_t a, long long int i, long long int j, long long int k, long long int l, numinternal_t intern)
 {
-  bool res = bound_set_llfrac(a->neginf,-i,j,intern->num);
-  return bound_set_llfrac(a->sup,k,l,intern->num) && res;
+  bool res = bound_set_llfrac(a->neginf,-i,j,intern);
+  return bound_set_llfrac(a->sup,k,l,intern) && res;
 }
-static inline bool itv_set_mpq(itv_internal_t* intern, itv_t a, mpq_t b)
-{ return itv_set_mpq2(intern,a,b,b); }
-static inline bool itv_set_mpq2(itv_internal_t* intern, itv_t a, mpq_t b, mpq_t c)
+static inline bool itv_set_mpq(itv_t a, mpq_t b, numinternal_t intern)
+{ return itv_set_mpq2(a,b,b,intern); }
+static inline bool itv_set_mpq2(itv_t a, mpq_t b, mpq_t c, numinternal_t intern)
 {
   mpq_neg(b,b);
-  bool res = bound_set_mpq(a->neginf,b,intern->num);
+  bool res = bound_set_mpq(a->neginf,b,intern);
   mpq_neg(b,b);
-  return bound_set_mpq(a->sup,c,intern->num) && res;
+  return bound_set_mpq(a->sup,c,intern) && res;
 }
-static inline bool itv_set_double(itv_internal_t* intern, itv_t a, double b)
-{ return itv_set_double2(intern,a,b,b); }
-static inline bool itv_set_double2(itv_internal_t* intern, itv_t a, double b, double c)
+static inline bool itv_set_double(itv_t a, double b, numinternal_t intern)
+{ return itv_set_double2(a,b,b,intern); }
+static inline bool itv_set_double2(itv_t a, double b, double c, numinternal_t intern)
 {
-  bool res = bound_set_double(a->neginf,-b,intern->num);
-  return bound_set_double(a->sup,c,intern->num) && res;
+  bool res = bound_set_double(a->neginf,-b,intern);
+  return bound_set_double(a->sup,c,intern) && res;
 }
-static inline bool itv_set_ldouble(itv_internal_t* intern, itv_t a, long double b)
-{ return itv_set_ldouble2(intern,a,b,b); }
-static inline bool itv_set_ldouble2(itv_internal_t* intern, itv_t a, long double b, long double c)
+static inline bool itv_set_ldouble(itv_t a, long double b, numinternal_t intern)
+{ return itv_set_ldouble2(a,b,b,intern); }
+static inline bool itv_set_ldouble2(itv_t a, long double b, long double c, numinternal_t intern)
 {
-  bool res = bound_set_ldouble(a->neginf,-b,intern->num);
-  return bound_set_ldouble(a->sup,c,intern->num) && res;
+  bool res = bound_set_ldouble(a->neginf,-b,intern);
+  return bound_set_ldouble(a->sup,c,intern) && res;
 }
-static inline bool itv_set_mpfr(itv_internal_t* intern, itv_t a, mpfr_t b)
-{ return itv_set_mpfr2(intern,a,b,b); }
-static inline bool itv_set_mpfr2(itv_internal_t* intern, itv_t a, mpfr_t b, mpfr_t c)
+static inline bool itv_set_mpfr(itv_t a, mpfr_t b, numinternal_t intern)
+{ return itv_set_mpfr2(a,b,b,intern); }
+static inline bool itv_set_mpfr2(itv_t a, mpfr_t b, mpfr_t c, numinternal_t intern)
 {
   mpfr_neg(b,b,GMP_RNDU);
-  bool res = bound_set_mpfr(a->neginf,b,intern->num);
+  bool res = bound_set_mpfr(a->neginf,b,intern);
   mpfr_neg(b,b,GMP_RNDU);
-  return bound_set_mpfr(a->sup,c,intern->num) && res;
+  return bound_set_mpfr(a->sup,c,intern) && res;
 }
 
 #ifdef __cplusplus

@@ -163,11 +163,11 @@ typedef enum itv_coefftag_t {
   ITV_END
 } itv_coefftag_t;
 
-void itv_linexpr_set_list_generic(eitv_ptr (*get_eitv)(void* expr, va_list* va),
-				  itv_internal_t* intern,
+bool itv_linexpr_set_list_generic(eitv_ptr (*get_eitv)(void* expr, va_list* va),
+				  numinternal_t intern,
 				  void* expr, va_list* va);
 
-void itv_linexpr_set_list(itv_internal_t* intern, itv_linexpr_t expr, ...);
+bool itv_linexpr_set_list(numinternal_t intern, itv_linexpr_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
      the definition of the type ap_coefftag_t, and ended by the tag ITV_END;
@@ -175,6 +175,8 @@ void itv_linexpr_set_list(itv_internal_t* intern, itv_linexpr_t expr, ...);
      - The dimension ITV_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
        referring to it is taken into account.
+       
+     Returns true iff all conversions were exact.
 
      Example:
      itv_linexpr_set_list(intern,
