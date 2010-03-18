@@ -1,4 +1,3 @@
-1 i/* GENERATED, DO NOT MODIFY */
 # Macros defined for any type, to be used with #if #else #endif
 s/NUM_NUMINT/0/g;
 s/NUM_NUMRAT/0/g;

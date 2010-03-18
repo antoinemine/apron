@@ -30,6 +30,7 @@ extern "C" {
    - rounding is always towards +oo
 */
 
+typedef mpfr_ptr numfltMPFR_ptr;
 typedef mpfr_t numfltMPFR_t;
 
 #undef NUMFLTMPFR_MAX

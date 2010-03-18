@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+typedef numrat_ptr num_ptr;
 typedef numrat_t num_t;
 
 /* ====================================================================== */

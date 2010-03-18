@@ -20,7 +20,9 @@ extern "C" {
 typedef struct numrat_native {
   numint_t n; /* numerator */
   numint_t d; /* denominator, >=0 */
-} numrat_t[1];
+} numrat_native;
+typedef numrat_native* numrat_ptr;
+typedef numrat_native numrat_t[1];
 
 /* ====================================================================== */
 /* Rational operations */
@@ -379,7 +381,6 @@ static inline bool numrat_fits_mpfr(numrat_t a)
 /* lint -> numrat */
 static inline bool numrat_set_lint(numrat_t a, long int b, numinternal_t intern)
 {
-  assert(j>0);
   numint_set_lint(a->n,b,intern);
   numint_set_int(a->d,1L);
   return true;
@@ -387,7 +388,6 @@ static inline bool numrat_set_lint(numrat_t a, long int b, numinternal_t intern)
 /* llint -> numrat */
 static inline bool numrat_set_llint(numrat_t a, long long int b, numinternal_t intern)
 {
-  assert(j>0);
   numint_set_llint(a->n,b,intern);
   numint_set_int(a->d,1);
   return true;

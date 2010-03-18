@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+typedef numflt_ptr num_ptr;
 typedef numflt_t num_t;
 
 /* ====================================================================== */

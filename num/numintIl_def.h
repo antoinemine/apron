@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 typedef long int numintIl_native;
+typedef numintIl_native* numintIl_ptr;
 typedef numintIl_native numintIl_t[1];
 
 #define NUMINTIL_ZERO 0L
