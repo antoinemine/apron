@@ -3,13 +3,14 @@
 /* ********************************************************************** */
 
 #include "itv.h"
+#include "eitv.h"
 #include "math.h"
 
 /* The macro itv_name (defined in itv.h) expands name 
    with itvNUM_SUFFIX_ */
 
-static void make_float_const(int frac_bits, int exp_bits, int exp_bias,
-			     float_const* cst)
+static void make_itv_float_const(int frac_bits, int exp_bits, int exp_bias,
+				 itv_float_const* cst)
 {
   bound_t b,c;
   bound_init(b); bound_init(c);
@@ -41,7 +42,7 @@ static void make_float_const(int frac_bits, int exp_bits, int exp_bias,
 
   bound_clear(b); bound_clear(c);
 }
-static void float_const_clear(float_const* cst)
+static void itv_float_const_clear(itv_float_const* cst)
 {
   itv_clear(cst->ulp); itv_clear(cst->min); itv_clear(cst->min_normal); itv_clear(cst->max); itv_clear(cst->max_exact);
 }
@@ -52,6 +53,7 @@ static void float_const_clear(float_const* cst)
 
 void itv_internal_init(itv_internal_t* intern)
 {
+  numinternal_init(intern->num);
   num_init(intern->canonicalize_num);
   bound_init(intern->muldiv_bound);
   bound_init(intern->mul_bound);
@@ -61,11 +63,10 @@ void itv_internal_init(itv_internal_t* intern)
   bound_init(intern->linear_bound3);
   itv_init(intern->mul_itv);
   itv_init(intern->mul_itv2);
-  intern->ap_conversion_scalar = ap_scalar_alloc();
-  bound_init(intern->ap_conversion_bound);
   itv_init(intern->eval_itv);
   itv_init(intern->eval_itv2);
   itv_init(intern->eval_itv3);
+  eitv_init(intern->eval_eitv);
   num_init(intern->quasi_num);
   itv_init(intern->boxize_lincons_itv);
   itv_init(intern->boxize_lincons_eval);
@@ -73,17 +74,18 @@ void itv_internal_init(itv_internal_t* intern)
   mpz_init(intern->reduce_lincons_gcd);
   mpz_init(intern->reduce_lincons_mpz);
 
-  make_float_const(10,5,15,&intern->cst_half);         /* 16-bit */
-  make_float_const(23,8,127,&intern->cst_single);      /* 32-bit */
-  make_float_const(52,11,1023,&intern->cst_double);    /* 64-bit */
-  make_float_const(63,15,16383,&intern->cst_extended); /* 80-bit, no hidden bit */
-  make_float_const(112,15,16383,&intern->cst_quad);    /* 128-bit */
+  make_itv_float_const(10,5,15,&intern->cst_half);         /* 16-bit */
+  make_itv_float_const(23,8,127,&intern->cst_single);      /* 32-bit */
+  make_itv_float_const(52,11,1023,&intern->cst_double);    /* 64-bit */
+  make_itv_float_const(63,15,16383,&intern->cst_extended); /* 80-bit, no hidden bit */
+  make_itv_float_const(112,15,16383,&intern->cst_quad);    /* 128-bit */
   itv_init(intern->itv_half);
   itv_set_int2(intern->itv_half,-1,1);
   itv_mul_2exp(intern->itv_half,intern->itv_half,-1);
 }
 void itv_internal_clear(itv_internal_t* intern)
 {
+  numinternal_clear(intern->num);
   num_clear(intern->canonicalize_num);
   bound_clear(intern->muldiv_bound);
   bound_clear(intern->mul_bound);
@@ -93,22 +95,21 @@ void itv_internal_clear(itv_internal_t* intern)
   bound_clear(intern->linear_bound3);
   itv_clear(intern->mul_itv);
   itv_clear(intern->mul_itv2);
-  ap_scalar_free(intern->ap_conversion_scalar); intern->ap_conversion_scalar = NULL;
-  bound_clear(intern->ap_conversion_bound);
   itv_clear(intern->eval_itv);
   itv_clear(intern->eval_itv2);
   itv_clear(intern->eval_itv3);
+  eitv_clear(intern->eval_eitv);
   num_clear(intern->quasi_num);
   itv_clear(intern->boxize_lincons_itv);
   itv_clear(intern->boxize_lincons_eval);
   bound_clear(intern->boxize_lincons_bound);
   mpz_clear(intern->reduce_lincons_gcd);
   mpz_clear(intern->reduce_lincons_mpz);
-  float_const_clear(&intern->cst_half);
-  float_const_clear(&intern->cst_single);
-  float_const_clear(&intern->cst_double);
-  float_const_clear(&intern->cst_extended);
-  float_const_clear(&intern->cst_quad);
+  itv_float_const_clear(&intern->cst_half);
+  itv_float_const_clear(&intern->cst_single);
+  itv_float_const_clear(&intern->cst_double);
+  itv_float_const_clear(&intern->cst_extended);
+  itv_float_const_clear(&intern->cst_quad);
   itv_clear(intern->itv_half);
 }
 

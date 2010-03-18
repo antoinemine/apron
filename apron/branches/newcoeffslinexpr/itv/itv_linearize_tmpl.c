@@ -11,10 +11,10 @@
 /* ********************************************************************** */
 
 /* Evaluate an ITV interval linear expression */
-void ITVFUN(itv_eval_linexpr)(itv_internal_t* intern,
-			      itv_t itv,
-			      itv_linexpr_t* expr,
-			      itv_t* env)
+void itv_eval_linexpr(itv_internal_t* intern,
+		      itv_t itv,
+		      itv_linexpr_t* expr,
+		      itv_t* env)
 {
   size_t i;
   ap_dim_t dim;
@@ -46,10 +46,10 @@ void ITVFUN(itv_eval_linexpr)(itv_internal_t* intern,
 }
 
 /* Evaluate an APRON interval linear expression */
-bool ITVFUN(itv_eval_ap_linexpr0)(itv_internal_t* intern,
-				  itv_t itv,
-				  ap_linexpr0_t* expr,
-				  itv_t* env)
+bool itv_eval_ap_linexpr0(itv_internal_t* intern,
+			  itv_t itv,
+			  ap_linexpr0_t* expr,
+			  itv_t* env)
 {
   size_t i;
   ap_dim_t dim;
@@ -90,7 +90,7 @@ bool ITVFUN(itv_eval_ap_linexpr0)(itv_internal_t* intern,
 /* ********************************************************************** */
 
 static bool itv_boxize_lincons(itv_internal_t* intern,
-			       itv_t* res, 
+			       itv_t* res,
 			       bool* tchange,
 			       itv_lincons_t* cons,
 			       itv_t* env,
@@ -136,8 +136,8 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
 	  */
 	  if (sgn>0 || cons->constyp == AP_CONS_EQ){
 	    /*
-	       If we have a>0, we compute sup(e')/a=sup(e'/a)=-inf(-e'/a)
-	       If we have a<0, we compute -inf(e')/(-a)=-inf(-e'/a)
+	      If we have a>0, we compute sup(e')/a=sup(e'/a)=-inf(-e'/a)
+	      If we have a<0, we compute -inf(e')/(-a)=-inf(-e'/a)
 	    */
 	    if (sgn>0){
 	      bound_div(intern->boxize_lincons_bound,
@@ -207,24 +207,24 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
       else if (!equality){
 	/* We have an interval */
 	/*
-	  - If we have [m;M]x+e' >= 0 with m>0, 
-	    then [m,M]x>=inf(-e'), or [m,M]x>=-sup(e')
-	    so we need at least
-	    * if -sup(e')>=0: x>=-sup(e')/M
-	    * if -sup(e')<=0: x>=-sup(e')/m
+	  - If we have [m;M]x+e' >= 0 with m>0,
+	  then [m,M]x>=inf(-e'), or [m,M]x>=-sup(e')
+	  so we need at least
+	  * if -sup(e')>=0: x>=-sup(e')/M
+	  * if -sup(e')<=0: x>=-sup(e')/m
 	  - If we have [m,M]x+e'<=0 with M<0, then [-M,-m]x>=inf(e')
-	    * inf(e')>=0: x>=inf(e')/-m
-	    * inf(e')<=0: x>=inf(e')/-M
+	  * inf(e')>=0: x>=inf(e')/-m
+	  * inf(e')<=0: x>=inf(e')/-M
 
-	  - If we have [m;M]x+e' >= 0 with M<0, 
-	    then [-M,-m]x<=sup(e'), so we need at least
-	    * if sup(e')>=0: x<=sup(e')/-M
-	    * if sup(e')<=0: x<=sup(e')/-m
+	  - If we have [m;M]x+e' >= 0 with M<0,
+	  then [-M,-m]x<=sup(e'), so we need at least
+	  * if sup(e')>=0: x<=sup(e')/-M
+	  * if sup(e')<=0: x<=sup(e')/-m
 	  - If we have [m,M]x+e'<=0 with m>0, then [m,M]x<=sup(-e')
-	    or [m,M]x<=-inf(e')
-	    * -inf(e')>=0: x<=inf(e')/-M
-	    * -inf(e')<=0: x<=inf(e')/-m
-	*/
+	  or [m,M]x<=-inf(e')
+	  * -inf(e')>=0: x<=inf(e')/-M
+	  * -inf(e')<=0: x<=inf(e')/-m
+	  */
 	int sgnitv =
 	  bound_sgn(intern->boxize_lincons_itv->inf)<0 ?
 	  1 :
@@ -301,7 +301,7 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
 	      }
 	    }
 	    else {
-	      if (sgnevalinf>=0){		
+	      if (sgnevalinf>=0){
 		/* We compute -inf(e')/M */
 		bound_div(intern->boxize_lincons_bound,
 			  intern->boxize_lincons_eval->inf,
@@ -364,20 +364,20 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
 
    - The inferred bounds are stored in res (which may be equal to env)
    - If tchange!=NULL *and initialized to false*,
-     tchange[2dim] (resp. 2dim+1) set to true indicates
-     that the inf (resp. sup) bound of dimension dim has been improved.
+   tchange[2dim] (resp. 2dim+1) set to true indicates
+   that the inf (resp. sup) bound of dimension dim has been improved.
    - env is the current bounds for variables
    - kmax specifies the maximum number of iterations, when res==env
    - if intervalonly is true, deduces bounds from a constraint only when the
-     coefficient associated to the current dimension is an interval.
+   coefficient associated to the current dimension is an interval.
 */
-bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern,
-				      itv_t* res, 
-				      bool* tchange,
-				      itv_lincons_array_t* array,
-				      itv_t* env,size_t intdim,
-				      size_t kmax,
-				      bool intervalonly)
+bool itv_boxize_lincons_array(itv_internal_t* intern,
+			      itv_t* res,
+			      bool* tchange,
+			      itv_lincons_array_t* array,
+			      itv_t* env,size_t intdim,
+			      size_t kmax,
+			      bool intervalonly)
 {
   size_t i,k;
   bool change,globalchange;
@@ -425,36 +425,36 @@ bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern,
 /* Choose the middle of interval coefficient coeff for quasilinearisation */
 /* Applies the following choice:
 
-  if coeff=[-oo,+oo], choose 0
-  if coeff=[-oo,x], choose x
-  if coeff=[x,+oo], choose x
-  if coeff = [inf,sup]
-    if for_meet_inequality, 
-      (* always choose in favour of a finite sup bound in the constant
-         of the quasilinear expression *)
-      if var=[-oo,a]
-        choose inf,
-	because it gives inf.var + [0,sup-inf].[-oo,a] = inf.var + [-oo,b]
-      if var=[a,+oo]
-        choose sup,
-	because it gives sup.var + [inf-sup,0].[a,+oo] = sup.var + [-oo,b]
-      if var=[a,b], choose middle 
-    else
-      (* always choose in favour of at least a finite bound in the evaluation
-         of the quasilinear expression *)
-      if var=[-oo,a]
-        if inf >= 0, choose inf,
-	  because inf.var + [0,sup-inf][-oo,a] evaluates to a finite sup bound
-        if sup<=0, choose sup
-	  because sup.var + [inf-sup,0][-oo,a] evaluates to a finite inf bound
-        otherwise arbitrary choice (middle)
-      if var=[a,+oo]
-        if inf >= 0, choose inf,
-	  because inf.var + [0,sup-inf][a,+oo] evaluates to a finite inf bound
-        if sup <= 0, choose sup,
-	  because sup.var + [inf-sup,0][a,+oo] evaluates to a finite sup bound
-        otherwise arbitrary choice (middle)
-      if var=[a,b], choose middle
+   if coeff=[-oo,+oo], choose 0
+   if coeff=[-oo,x], choose x
+   if coeff=[x,+oo], choose x
+   if coeff = [inf,sup]
+   if for_meet_inequality,
+   (* always choose in favour of a finite sup bound in the constant
+   of the quasilinear expression *)
+   if var=[-oo,a]
+   choose inf,
+   because it gives inf.var + [0,sup-inf].[-oo,a] = inf.var + [-oo,b]
+   if var=[a,+oo]
+   choose sup,
+   because it gives sup.var + [inf-sup,0].[a,+oo] = sup.var + [-oo,b]
+   if var=[a,b], choose middle
+   else
+   (* always choose in favour of at least a finite bound in the evaluation
+   of the quasilinear expression *)
+   if var=[-oo,a]
+   if inf >= 0, choose inf,
+   because inf.var + [0,sup-inf][-oo,a] evaluates to a finite sup bound
+   if sup<=0, choose sup
+   because sup.var + [inf-sup,0][-oo,a] evaluates to a finite inf bound
+   otherwise arbitrary choice (middle)
+   if var=[a,+oo]
+   if inf >= 0, choose inf,
+   because inf.var + [0,sup-inf][a,+oo] evaluates to a finite inf bound
+   if sup <= 0, choose sup,
+   because sup.var + [inf-sup,0][a,+oo] evaluates to a finite sup bound
+   otherwise arbitrary choice (middle)
+   if var=[a,b], choose middle
 */
 
 static void
@@ -514,7 +514,7 @@ itv_quasilinearize_choose_middle(num_t middle, /* the result */
   }
 }
 
-bool ITVFUN(itv_quasilinearize_linexpr)(itv_internal_t* intern, itv_linexpr_t* linexpr, itv_t* env, bool for_meet_inequality)
+bool itv_quasilinearize_linexpr(itv_internal_t* intern, itv_linexpr_t* linexpr, itv_t* env, bool for_meet_inequality)
 {
   size_t i,k,size;
   ap_dim_t dim;
@@ -591,7 +591,7 @@ bool ITVFUN(itv_quasilinearize_linexpr)(itv_internal_t* intern, itv_linexpr_t* l
 #endif
 }
 
-bool ITVFUN(itv_quasilinearize_lincons)(itv_internal_t* intern, itv_lincons_t* lincons, itv_t* env, bool meet)
+bool itv_quasilinearize_lincons(itv_internal_t* intern, itv_lincons_t* lincons, itv_t* env, bool meet)
 {
   if (lincons->linexpr.size==0){
     /* constant expression */
@@ -604,23 +604,23 @@ bool ITVFUN(itv_quasilinearize_lincons)(itv_internal_t* intern, itv_lincons_t* l
   else {
   itv_quasilinearize_lincons_std:
     return itv_quasilinearize_linexpr(intern,&lincons->linexpr,env,
-				      meet && 
+				      meet &&
 				      (lincons->constyp==AP_CONS_SUP ||
 				       lincons->constyp==AP_CONS_SUPEQ));
   }
 }
 
 
-bool ITVFUN(itv_quasilinearize_lincons_array)(itv_internal_t* intern, itv_lincons_array_t* array, itv_t* env, bool meet)
+bool itv_quasilinearize_lincons_array(itv_internal_t* intern, itv_lincons_array_t* array, itv_t* env, bool meet)
 {
   size_t i,j,size;
   bool exact = true;
-  
+
   itv_lincons_array_reduce(intern,array,meet);
   size = array->size;
   for (i=0; i<size; i++){
     if (meet &&
-	array->p[i].constyp == AP_CONS_EQ && 
+	array->p[i].constyp == AP_CONS_EQ &&
 	!itv_linexpr_is_quasilinear(&array->p[i].linexpr)){
       /* Split an equality constraint into two inequalities if it is really
 	 interval linear ==> better precision because quasilinearisation
@@ -670,13 +670,13 @@ static void itv_lincons_select_inf(itv_lincons_t* cons)
   }
 }
 
-void ITVFUN(itv_linearize_lincons_array)(itv_internal_t* intern, itv_lincons_array_t* array, bool meet)
+void itv_linearize_lincons_array(itv_internal_t* intern, itv_lincons_array_t* array, bool meet)
 {
   size_t index,size,sizeorg;
 
   tbool_t res = itv_lincons_array_reduce(intern,array,meet);
   if (res!=tbool_top) return;
-    
+
   /* One now remove intervals when we can */
   sizeorg = array->size;
   size = sizeorg;
@@ -829,10 +829,10 @@ itv_eval_ap_texpr0_node(itv_internal_t* intern,
 
 /* evaluates expr into intervalres,
    assuming env maps dimensions to interval values */
-void ITVFUN(itv_eval_ap_texpr0)(itv_internal_t* intern,
-				itv_t res,
-				ap_texpr0_t* expr,
-				itv_t* env)
+void itv_eval_ap_texpr0(itv_internal_t* intern,
+			itv_t res,
+			ap_texpr0_t* expr,
+			itv_t* env)
 {
   if (!expr) {
     itv_set_bottom(res);
@@ -855,7 +855,7 @@ void ITVFUN(itv_eval_ap_texpr0)(itv_internal_t* intern,
       itv_eval_ap_texpr0(intern,res,expr->val.node->exprB,env);
       if (itv_is_bottom(intern,x) || itv_is_bottom(intern,res)){
 	itv_set_bottom(res);
-      } 
+      }
       else {
 	itv_eval_ap_texpr0_node(intern,expr->val.node,res,x,res);
       }
@@ -908,22 +908,22 @@ ap_texpr0_node_intlinearize_linear(itv_internal_t* intern,
   case AP_TEXPR_SQRT:
     exc = true;
     break;
-	
+
   case AP_TEXPR_ADD:
   case AP_TEXPR_SUB:
     itv_linexpr_init(&l1,0);
-      
+
     /* intlinearize arguments */
     exc = itv_intlinearize_ap_texpr0_intlinear(intern,&l1,n->exprA);
     exc = itv_intlinearize_ap_texpr0_intlinear(intern,lres,n->exprB) || exc;
     /* add/sub linear form & interval */
-    if (n->op==AP_TEXPR_ADD) 
+    if (n->op==AP_TEXPR_ADD)
       itv_linexpr_add(intern,lres,&l1,lres);
-    else 
+    else
       itv_linexpr_sub(intern,lres,&l1,lres);
     itv_linexpr_clear(&l1);
     break;
-    
+
   case AP_TEXPR_MUL:
   case AP_TEXPR_DIV:
     itv_init(i1);
@@ -957,14 +957,14 @@ ap_texpr0_node_intlinearize_linear(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_texpr0_intlinear)(itv_internal_t* intern,
-					  itv_linexpr_t* lres,
-					  ap_texpr0_t* expr)
+itv_intlinearize_ap_texpr0_intlinear(itv_internal_t* intern,
+				     itv_linexpr_t* lres,
+				     ap_texpr0_t* expr)
 {
   itv_linexpr_t r;
   bool exc = false;
   assert(expr);
-  
+
   switch(expr->discr){
   case AP_TEXPR_CST:
     itv_linexpr_reinit(lres,0);
@@ -996,9 +996,9 @@ ITVFUN(itv_intlinearize_ap_texpr0_intlinear)(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_tcons0_intlinear)(itv_internal_t* intern,
-					     itv_lincons_t* res,
-					     ap_tcons0_t* cons)
+itv_intlinearize_ap_tcons0_intlinear(itv_internal_t* intern,
+				     itv_lincons_t* res,
+				     ap_tcons0_t* cons)
 {
   bool exc = itv_intlinearize_ap_texpr0_intlinear(intern,&res->linexpr,cons->texpr0);
   if (exc){
@@ -1017,9 +1017,9 @@ ITVFUN(itv_intlinearize_ap_tcons0_intlinear)(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_tcons0_array_intlinear)(itv_internal_t* intern,
-						   itv_lincons_array_t* res,
-						   ap_tcons0_array_t* array)
+itv_intlinearize_ap_tcons0_array_intlinear(itv_internal_t* intern,
+					   itv_lincons_array_t* res,
+					   ap_tcons0_array_t* array)
 {
   bool exc;
   size_t i,index;
@@ -1327,7 +1327,7 @@ ap_texpr0_node_intlinearize(itv_internal_t* intern,
     itv_clear(i1);
     itv_linexpr_clear(&l1);
     break;
-    
+
   case AP_TEXPR_DIV:
     itv_init(i1);
     itv_linexpr_init(&l1,0);
@@ -1479,7 +1479,7 @@ itv_intlinearize_texpr0_rec(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_texpr0)(itv_internal_t* intern,
+itv_intlinearize_ap_texpr0(itv_internal_t* intern,
 				   itv_linexpr_t* res,
 				   ap_texpr0_t* expr,
 				   itv_t* env, size_t intdim)
@@ -1503,7 +1503,7 @@ ITVFUN(itv_intlinearize_ap_texpr0)(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,
+itv_intlinearize_ap_tcons0(itv_internal_t* intern,
 				   itv_lincons_t* res,
 				   ap_tcons0_t* cons,
 				   itv_t* env, size_t intdim)
@@ -1525,7 +1525,7 @@ ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,
 }
 
 bool
-ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
+itv_intlinearize_ap_tcons0_array(itv_internal_t* intern,
 					 itv_lincons_array_t* res,
 					 ap_tcons0_array_t* array,
 					 itv_t* env, size_t intdim)
@@ -1549,7 +1549,7 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
     }
     if (itv_is_bottom(intern,itv) ||
 	itv_is_bottom(intern,res->p[i].linexpr.cst) ||
-	(res->p[i].linexpr.size==0 ? 
+	(res->p[i].linexpr.size==0 ?
 	 itv_eval_cstlincons(intern,&res->p[i])==tbool_false :
 	 false)){
       exc = true;
@@ -1561,4 +1561,3 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
   itv_clear(itv);
   return exc;
 }
-

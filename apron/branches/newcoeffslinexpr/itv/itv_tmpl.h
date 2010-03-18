@@ -6,21 +6,35 @@
 #define _ITV_H_
 
 #include <stdio.h>
-#include "bound.h"
+#include <stdlib.h>
+#include "assert.h"
+#include "bound_def.h"
+#include "itvConfig.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Be cautious: interval [a,b] is represented by [-a,b].  This is because
-   bound quantities are always rounded toward +infty */
+/* Intervals.
 
-typedef struct __itv_struct {
+   Be cautious: interval [a,b] is represented by [-a,b].  This is because
+   bound quantities are always rounded toward +infty */
+typedef struct itv_struct {
   bound_t neginf; /* negation of the inf bound */
   bound_t sup; /* sup bound */
-} __itv_struct;
-typedef __itv_struct itv_t[1];
-typedef __itv_struct* itv_ptr;
+} itv_struct;
+typedef itv_struct itv_t[1];
+typedef itv_struct* itv_ptr;
+
+/* Intervals with equality flag (defined here because of itv_internal_t
+   datatype below: functions available in eitvXXX.h)
+*/
+typedef struct eitv_struct {
+  itv_t itv;
+  bool eq;
+} eitv_struct;
+typedef eitv_struct eitv_t[1];
+typedef eitv_struct* eitv_ptr;
 
 /* Workspace to avoid temporary allocation and deallocation when num_t and
    bound_t are multiprecision numbers */
@@ -32,9 +46,10 @@ typedef struct {
   itv_t min_normal; /* [-1;1] * minimum positive normal */
   itv_t max;        /* [-1;1] * maximum non +oo  */
   itv_t max_exact;  /* [-1;1] * maximum exactly representable integer */
-} float_const;
+} itv_float_const;
 
 typedef struct itv_internal_t {
+  numinternal_t num;
   num_t canonicalize_num;
   bound_t muldiv_bound;
   bound_t mul_bound;
@@ -47,11 +62,12 @@ typedef struct itv_internal_t {
   itv_t eval_itv;
   itv_t eval_itv2;
   itv_t eval_itv3;
+  eitv_t eval_eitv;
   num_t quasi_num;
   itv_t boxize_lincons_itv;
   itv_t boxize_lincons_eval;
   bound_t boxize_lincons_bound;
-  float_const cst_half, cst_single, cst_double, cst_extended, cst_quad;
+  itv_float_const cst_half, cst_single, cst_double, cst_extended, cst_quad;
   itv_t itv_half; /* [-0.5,0.5] */
   mpz_t reduce_lincons_gcd;
   mpz_t reduce_lincons_mpz;
@@ -115,7 +131,7 @@ bool itv_canonicalize(itv_internal_t* intern, itv_t a, bool integer);
   */
 static inline bool itv_is_int(itv_internal_t* intern, itv_t a);
   /* has integer bounds */
-static inline bool itv_is_point(itv_internal_t* intern, itv_t a);
+static inline bool itv_is_point(itv_t a);
   /* Return true iff the interval is a single point */
 static inline bool itv_is_zero(itv_t a);
   /* Return true iff the interval is a single zero point */
@@ -135,7 +151,7 @@ static inline int itv_hash(itv_t a);
 static inline void itv_range_abs(bound_t a, itv_t b);
   /* a=(max b - min b) */
 static inline void itv_range_rel(itv_internal_t* intern, bound_t a, itv_t b);
-  /* a=(max b - min b) / (|a+b|/2) */ 
+  /* a=(max b - min b) / (|a+b|/2) */
 
 /* ====================================================================== */
 /* Lattice operations */
@@ -183,9 +199,31 @@ static inline void itv_trunc(itv_t a, itv_t b);
 static inline void itv_to_int(itv_t a, itv_t b);
 
 /* Floating-point casts (worst cases) */
-void itv_to_float(itv_t a, itv_t b);
-void itv_to_double(itv_t a, itv_t b);
+static inline void itv_to_float(itv_internal_t* intern, itv_t a, itv_t b);
+static inline void itv_to_double(itv_internal_t* intern, itv_t a, itv_t b);
 
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool itv_set_lint(itv_internal_t* intern, itv_t a, long int b);
+static inline bool itv_set_lint2(itv_internal_t* intern, itv_t a, long int b, long int c);
+static inline bool itv_set_llint(itv_internal_t* intern, itv_t a, long long int b);
+static inline bool itv_set_llint2(itv_internal_t* intern, itv_t a, long long int b, long long int c);
+static inline bool itv_set_mpz(itv_internal_t* intern, itv_t a, mpz_t b);
+static inline bool itv_set_mpz2(itv_internal_t* intern, itv_t a, mpz_t b, mpz_t c);
+static inline bool itv_set_lfrac(itv_internal_t* intern, itv_t a, long int i, long int j);
+static inline bool itv_set_lfrac2(itv_internal_t* intern, itv_t a, long int i, long int j, long int k, long int l);
+static inline bool itv_set_llfrac(itv_internal_t* intern, itv_t a, long long int i, long long int j);
+static inline bool itv_set_llfrac2(itv_internal_t* intern, itv_t a, long long int i, long long int j, long long int k, long long int l);
+static inline bool itv_set_mpq(itv_internal_t* intern, itv_t a, mpq_t b);
+static inline bool itv_set_mpq2(itv_internal_t* intern, itv_t a, mpq_t b, mpq_t c);
+static inline bool itv_set_double(itv_internal_t* intern, itv_t a, double b);
+static inline bool itv_set_double2(itv_internal_t* intern, itv_t a, double b, double c);
+static inline bool itv_set_ldouble(itv_internal_t* intern, itv_t a, long double b);
+static inline bool itv_set_ldouble2(itv_internal_t* intern, itv_t a, long double b, long double c);
+static inline bool itv_set_mpfr(itv_internal_t* intern, itv_t a, mpfr_t b);
+static inline bool itv_set_mpfr2(itv_internal_t* intern, itv_t a, mpfr_t b, mpfr_t c);
 
 /* ====================================================================== */
 /* Printing */
@@ -193,17 +231,6 @@ void itv_to_double(itv_t a, itv_t b);
 int itv_snprint(char* s, size_t size, itv_t a);
 void itv_fprint(FILE* stream, itv_t a);
 void itv_print(itv_t a);
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-/* These 2 functions return true if the conversion is exact */
-
-bool itv_set_ap_coeff(itv_internal_t* intern, itv_t a, ap_coeff_t* b);
-  /* Convert a ap_coeff_t into a itv_t. */
-
-bool ap_coeff_set_itv(itv_internal_t* intern, ap_coeff_t* a, itv_t b);
-  /* Convert a itv_t into a ap_coeff_t */
 
 /* ********************************************************************** */
 /* Definition of inline functions */
@@ -235,7 +262,7 @@ static inline void itv_clear(itv_t a)
 }
 static inline void itv_clear_array(itv_t* a, size_t size)
 {
-#if !defined(NUM_NATIVE)
+#if !NUM_NATIVE
   size_t i;
   for (i=0; i<size; i++) itv_clear(a[i]);
 #endif
@@ -290,8 +317,8 @@ static inline void itv_set_bottom(itv_t a)
 }
 static inline void itv_set_top(itv_t a)
 {
-  bound_set_neginfty(a->neginf,1);
-  bound_set_neginfty(a->sup,1);
+  bound_set_infty(a->neginf,1);
+  bound_set_infty(a->sup,1);
 }
 static inline void itv_swap(itv_t a, itv_t b)
 { itv_t t; *t=*a;*a=*b;*b=*t; }
@@ -323,11 +350,14 @@ static inline bool itv_is_int(itv_internal_t* intern, itv_t a)
   bound_trunc(intern->muldiv_bound,a->neginf);
   return !bound_cmp(intern->muldiv_bound,a->neginf);
 }
-static inline bool itv_is_point(itv_internal_t* intern, itv_t a)
+static inline bool itv_is_point(itv_t a)
 {
   if (!bound_infty(a->neginf) && !bound_infty(a->sup)){
-    num_neg(intern->canonicalize_num,bound_numref(a->neginf));
-    return num_equal(intern->canonicalize_num,bound_numref(a->sup));
+    num_ptr b = bound_numref(a->neginf);
+    num_neg(b,b);
+    bool res = num_equal(b,bound_numref(a->sup));
+    num_neg(b,b);
+    return res;
   }
   else
     return false;
@@ -366,7 +396,7 @@ static inline void itv_range_abs(bound_t a, itv_t b)
 { bound_add(a,b->sup,b->neginf); }
 
 static inline void itv_range_rel(itv_internal_t* intern, bound_t a, itv_t b)
-{ 
+{
   bound_add(a,b->sup,b->neginf);
   if (!bound_infty(a)) {
     itv_magnitude(intern->muldiv_bound,b);
@@ -452,11 +482,87 @@ static inline void itv_to_int(itv_t a, itv_t b)
 { bound_ceil(a->sup,b->sup); bound_ceil(a->neginf,b->neginf); }
 
 
-static inline void itv_to_float(itv_t a, itv_t b)
-{ bound_to_float(a->sup,b->sup); bound_to_float(a->neginf,b->neginf); }
+static inline void itv_to_float(itv_internal_t* intern, itv_t a, itv_t b)
+{ bound_to_float(a->sup,b->sup,intern->num);
+  bound_to_float(a->neginf,b->neginf,intern->num); }
 
-static inline void itv_to_double(itv_t a, itv_t b)
-{ bound_to_double(a->sup,b->sup); bound_to_double(a->neginf,b->neginf); }
+static inline void itv_to_double(itv_internal_t* intern, itv_t a, itv_t b)
+{ bound_to_double(a->sup,b->sup,intern->num);
+  bound_to_double(a->neginf,b->neginf,intern->num); }
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool itv_set_lint(itv_internal_t* intern, itv_t a, long int b)
+{ return itv_set_lint2(intern,a,b,b); }
+static inline bool itv_set_lint2(itv_internal_t* intern, itv_t a, long int b, long int c)
+{
+  bool res = bound_set_lint(a->neginf,-b,intern->num);
+  return bound_set_lint(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_llint(itv_internal_t* intern, itv_t a, long long int b)
+{ return itv_set_llint2(intern,a,b,b); }
+static inline bool itv_set_llint2(itv_internal_t* intern, itv_t a, long long int b, long long int c)
+{
+  bool res = bound_set_llint(a->neginf,-b,intern->num);
+  return bound_set_llint(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_mpz(itv_internal_t* intern, itv_t a, mpz_t b)
+{ return itv_set_mpz2(intern,a,b,b); }
+static inline bool itv_set_mpz2(itv_internal_t* intern, itv_t a, mpz_t b, mpz_t c)
+{
+  mpz_neg(b,b);
+  bool res = bound_set_mpz(a->neginf,b,intern->num);
+  mpz_neg(b,b);
+  return bound_set_mpz(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_lfrac(itv_internal_t* intern, itv_t a, long int i, long int j)
+{ return itv_set_lfrac2(intern,a,i,j,i,j); }
+static inline bool itv_set_lfrac2(itv_internal_t* intern, itv_t a, long int i, long int j, long int k, long int l)
+{
+  bool res = bound_set_lfrac(a->neginf,-i,j,intern->num);
+  return bound_set_lfrac(a->sup,k,l,intern->num) && res;
+}
+static inline bool itv_set_llfrac(itv_internal_t* intern, itv_t a, long long int i, long long int j)
+{ return itv_set_llfrac2(intern,a,i,j,i,j); }
+static inline bool itv_set_llfrac2(itv_internal_t* intern, itv_t a, long long int i, long long int j, long long int k, long long int l)
+{
+  bool res = bound_set_llfrac(a->neginf,-i,j,intern->num);
+  return bound_set_llfrac(a->sup,k,l,intern->num) && res;
+}
+static inline bool itv_set_mpq(itv_internal_t* intern, itv_t a, mpq_t b)
+{ return itv_set_mpq2(intern,a,b,b); }
+static inline bool itv_set_mpq2(itv_internal_t* intern, itv_t a, mpq_t b, mpq_t c)
+{
+  mpq_neg(b,b);
+  bool res = bound_set_mpq(a->neginf,b,intern->num);
+  mpq_neg(b,b);
+  return bound_set_mpq(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_double(itv_internal_t* intern, itv_t a, double b)
+{ return itv_set_double2(intern,a,b,b); }
+static inline bool itv_set_double2(itv_internal_t* intern, itv_t a, double b, double c)
+{
+  bool res = bound_set_double(a->neginf,-b,intern->num);
+  return bound_set_double(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_ldouble(itv_internal_t* intern, itv_t a, long double b)
+{ return itv_set_ldouble2(intern,a,b,b); }
+static inline bool itv_set_ldouble2(itv_internal_t* intern, itv_t a, long double b, long double c)
+{
+  bool res = bound_set_ldouble(a->neginf,-b,intern->num);
+  return bound_set_ldouble(a->sup,c,intern->num) && res;
+}
+static inline bool itv_set_mpfr(itv_internal_t* intern, itv_t a, mpfr_t b)
+{ return itv_set_mpfr2(intern,a,b,b); }
+static inline bool itv_set_mpfr2(itv_internal_t* intern, itv_t a, mpfr_t b, mpfr_t c)
+{
+  mpfr_neg(b,b,GMP_RNDU);
+  bool res = bound_set_mpfr(a->neginf,b,intern->num);
+  mpfr_neg(b,b,GMP_RNDU);
+  return bound_set_mpfr(a->sup,c,intern->num) && res;
+}
 
 #ifdef __cplusplus
 }
