@@ -6,22 +6,65 @@
 #define _NUMFLT_H_
 
 #include "numConfig.h"
+#include "float.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#id NUM_NUMD
+#if NUM_NUMD
 typedef double numflt_native;
 typedef numflt_native* numflt_ptr;
 typedef numflt_native numflt_t[1];
+#define NUMFLTD_ZERO 0.0
+#define NUMFLTD_ONE 1.0
+#define NUMFLTD_MANT_DIG DBL_MANT_DIG
+#define NUMFLTD_MAX NUMFLTD_ONE/NUMFLTD_ZERO
+#define NUMD_MAX NUMFLTD_ONE/NUMFLTD_ZERO
+
+#ifndef NUMFLTD_PRINT_PREC
+#define NUMFLTD_PRINT_PREC 20
+#endif
+/* Number of significant digits used for printing.
+   Defaults to 20, but you can override NUMFLTD_PRINT_PREC to be any other
+   expression (including variable and function call).
+*/
+
 #elif NUM_NUMDL
 typedef long double numflt_native;
 typedef numflt_native* numflt_ptr;
 typedef numflt_native numflt_t[1];
+#define NUMFLTDL_ZERO 0.0L
+#define NUMFLTDL_ONE 1.0L
+#define NUMFLTDL_MANT_DIG LDBL_MANT_DIG
+#define NUMFLTDL_MAX NUMFLTDL_ONE/NUMFLTDL_ZERO
+#define NUMDL_MAX NUMFLTDL_ONE/NUMFLTDL_ZERO
+
+#ifndef NUMFLTDL_PRINT_PREC
+#define NUMFLTDL_PRINT_PREC 20
+#endif
+/* Number of significant digits used for printing.
+   Defaults to 20, but you can override NUMFLTDL_PRINT_PREC to be any other
+   expression (including variable and function call).
+*/
+
 #elif NUM_NUMMPFR
 typedef mpfr_ptr numflt_ptr;
 typedef mpfr_t numflt_t;
+#undef NUMFLTMPFR_MAX
+#undef NUMMPFR_MAX
+#undef NUMFLTMPFR_ZERO
+#undef NUMFLTMPFR_ONE
+#undef NUMFLTMPFR_MANT_DIG
+
+#ifndef NUMFLTMPFR_PRINT_PREC
+#define NUMFLTMPFR_PRINT_PREC 20
+#endif
+/* Number of significant digits used for printing.
+   Defaults to 20, but you can override NUMFLTMPFR_PRINT_PREC to be any other
+   expression (including variable and function call).
+*/
+
 #else
 #error "HERE"
 #endif
@@ -93,74 +136,6 @@ static inline int  numflt_snprint(char* s, size_t size, numflt_t a);
 
 static inline bool numflt_infty(numflt_t a);
 static inline void numflt_set_infty(numflt_t a, int sgn);
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_numflt(long int a);
-static inline bool llint_fits_numflt(long long int a);
-static inline bool mpz_fits_numflt(mpz_t a);
-static inline bool lfrac_fits_numflt(long int i, long int j);
-static inline bool llfrac_fits_numflt(long long int i, long long int j);
-static inline bool mpq_fits_numflt(mpq_t a);
-static inline bool double_fits_numflt(double a);
-static inline bool ldouble_fits_numflt(long double a);
-static inline bool mpfr_fits_numflt(mpfr_t a, numinternal_t intern);
-
-static inline bool numflt_fits_lint(numflt_t a);
-static inline bool numflt_fits_llint(numflt_t a);
-static inline bool numflt_fits_lfrac(numflt_t a);
-static inline bool numflt_fits_llfrac(numflt_t a);
-static inline bool numflt_fits_double(numflt_t a);
-static inline bool numflt_fits_ldouble(numflt_t a);
-static inline bool numflt_fits_mpfr(numflt_t a);
-
-/* ---------------------------------------------------------------------- */
-/* Conversions */
-/* ---------------------------------------------------------------------- */
-
-static inline bool numflt_set_lint(numflt_t a, long int b, numinternal_t intern);;
-  /* lint -> numflt */
-static inline bool numflt_set_llint(numflt_t a, long long int b, numinternal_t intern);;
-  /* llint -> numflt */
-static inline bool numflt_set_mpz(numflt_t a, mpz_t b, numinternal_t intern);;
-  /* mpz -> numflt */
-static inline bool numflt_set_lfrac(numflt_t a, long int i, long int j, numinternal_t intern);;
-  /* lfrac -> numflt */
-static inline bool numflt_set_llfrac(numflt_t a, long long int i, long long int j, numinternal_t intern);;
-  /* llfrac -> numflt */
-static inline bool numflt_set_mpq(numflt_t a, mpq_t b, numinternal_t intern);
-  /* mpq -> numflt */
-static inline bool numflt_set_double(numflt_t a, double b, numinternal_t intern);;
-  /* double -> numflt */
-static inline bool numflt_set_ldouble(numflt_t a, long double b, numinternal_t intern);
-  /* ldouble -> numflt */
-static inline bool numflt_set_mpfr(numflt_t a, mpfr_t b, numinternal_t intern);
-  /* mpfr -> numflt */
-
-static inline bool lint_set_numflt(long int* a, numflt_t b, numinternal_t intern);;
-  /* numflt -> lint */
-static inline bool llint_set_numflt(long long int* a, numflt_t b, numinternal_t intern);;
-  /* numflt -> llint */
-static inline bool mpz_set_numflt(mpz_t a, numflt_t b, numinternal_t intern);;
-  /* numflt -> mpz */
-static inline bool lfrac_set_numflt(long int* i, long int* j, numflt_t b, numinternal_t intern);;
-  /* numflt -> lfrac */
-static inline bool llfrac_set_numflt(long long int* i, long long int* j, numflt_t b, numinternal_t intern);;
-  /* numflt -> llfrac */
-static inline bool mpq_set_numflt(mpq_t a, numflt_t b, numinternal_t intern);;
-  /* numflt -> mpq */
-static inline bool double_set_numflt(double* a, numflt_t b, numinternal_t intern);
-  /* numflt -> double */
-static inline bool ldouble_set_numflt(long double* a, numflt_t b, numinternal_t intern);
-  /* numflt -> ldouble */
-static inline bool mpfr_set_numflt(mpfr_t a, numflt_t b, numinternal_t intern);;
-  /* numflt -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

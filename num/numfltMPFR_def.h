@@ -12,15 +12,7 @@
 #include <float.h>
 
 #include "numConfig.h"
-#include "numflt.h"
-#include "numintIl_def.h"
-#include "numintIll_def.h"
-#include "numintMPZ_def.h"
-#include "numratRl_def.h"
-#include "numratRll_def.h"
-#include "numratMPQ_def.h"
-#include "numfltD_def.h"
-#include "numfltDl_def.h"
+#include "numfltMPFR.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,20 +21,6 @@ extern "C" {
 /* NOTES:
    - use mpfr_set_default_prec to change the precision (global)
    - rounding is always towards +oo
-*/
-
-#undef NUMFLTMPFR_MAX
-#undef NUMMPFR_MAX
-#undef NUMFLTMPFR_ZERO
-#undef NUMFLTMPFR_ONE
-#undef NUMFLTMPFR_MANT_DIG
-
-#ifndef NUMFLTMPFR_PRINT_PREC
-#define NUMFLTMPFR_PRINT_PREC 20
-#endif
-/* Number of significant digits used for printing.
-   Defaults to 20, but you can override NUMFLTMPFR_PRINT_PREC to be any other
-   expression (including variable and function call).
 */
 
 /* ====================================================================== */
@@ -182,148 +160,6 @@ static inline void numfltMPFR_fprint(FILE* stream, numfltMPFR_t a)
 }
 static inline void numfltMPFR_print(numfltMPFR_t a)
 { numfltMPFR_fprint(stdout,a); }
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_numfltMPFR(long int a)
-{ return numintIl_fits_mpfr(&a); }
-static inline bool llint_fits_numfltMPFR(long long int a)
-{ return numintIll_fits_mpfr(&a);  }
-static inline bool mpz_fits_numfltMPFR(mpz_t a)
-{ return numintMPZ_fits_mpfr(a); }
-static inline bool lfrac_fits_numfltMPFR(long int i, long int j)
-{
-  struct numratRl_native s;
-  *s.n = i;
-  *s.n = j;
-  return j>0 && numratRl_fits_mpfr(&s);
-}
-static inline bool llfrac_fits_numfltMPFR(long long int i, long long int j)
-{
-  struct numratRll_native s;
-  *s.n = i;
-  *s.n = j;
-  return j>0 && numratRll_fits_mpfr(&s);
-}
-static inline bool mpq_fits_numfltMPFR(mpq_t a)
-{ return numratMPQ_fits_mpfr(a); }
-static inline bool double_fits_numfltMPFR(double k)
-{ return numfltD_fits_mpfr(&k); }
-static inline bool ldouble_fits_numfltMPFR(long double k)
-{ return numfltDl_fits_mpfr(&k); }
-static inline bool mpfr_fits_numfltMPFR(mpfr_t a, numinternal_t intern)
-{ return true; }
-
-static inline bool numfltMPFR_fits_lint(numfltMPFR_t a)
-{ return mpfr_fits_slong_p(a,GMP_RNDU); }
-static inline bool numfltMPFR_fits_llint(numfltMPFR_t a)
-{ return mpfr_fits_intmax_p(a,GMP_RNDU); }
-static inline bool numfltMPFR_fits_lfrac(numfltMPFR_t a)
-{ return mpfr_fits_numratRl(a,NULL); }
-static inline bool numfltMPFR_fits_llfrac(numfltMPFR_t a)
-{ return mpfr_fits_numratRll(a,NULL); }
-static inline bool numfltMPFR_fits_float(numfltMPFR_t a)
-{
-  int e;
-  e = mpfr_get_exp(a);
-  return (e<FLT_MAX_EXP-1);
-}
-static inline bool numfltMPFR_fits_double(numfltMPFR_t a)
-{ return mpfr_fits_numfltD(a,NULL); }
-static inline bool numfltMPFR_fits_ldouble(numfltMPFR_t a)
-{ return mpfr_fits_numfltDl(a,NULL); }
-static inline bool numfltMPFR_fits_mpfr(numfltMPFR_t a)
-{ return true; }
-
-/* ---------------------------------------------------------------------- */
-/* Conversions */
-/* ---------------------------------------------------------------------- */
-
-/* lint -> numflt */
-static inline bool numfltMPFR_set_lint(numfltMPFR_t a, long int i, numinternal_t intern)
-{ return mpfr_set_numintIl(a,&i,intern); }
-/* llint -> numflt */
-static inline bool numfltMPFR_set_llint(numfltMPFR_t a, long long int i, numinternal_t intern)
-{ return mpfr_set_numintIll(a,&i,intern); }
-/* mpz -> numflt */
-static inline bool numfltMPFR_set_mpz(numfltMPFR_t a, mpz_t b, numinternal_t intern)
-{ return mpfr_set_numintMPZ(a,b,intern); }
-/* lfrac -> numflt */
-static inline bool numfltMPFR_set_lfrac(numfltMPFR_t a, long int i, long int j, numinternal_t intern)
-{
-  assert(j>0);
-  struct numratRl_native s;
-  *s.n = i;
-  *s.d = j;
-  return mpfr_set_numratRl(a,&s,intern);
-}
-/* llfrac -> numflt */
-static inline bool numfltMPFR_set_llfrac(numfltMPFR_t a, long long int i, long long int j, numinternal_t intern)
-{
-  assert(j>0);
-  struct numratRll_native s;
-  *s.n = i;
-  *s.d = j;
-  return mpfr_set_numratRll(a,&s,intern);
-}
-/* mpq -> numflt */
-static inline bool numfltMPFR_set_mpq(numfltMPFR_t a, mpq_t b, numinternal_t intern)
-{ return mpfr_set_numratMPQ(a,b,intern); }
-/* double -> numflt */
-static inline bool numfltMPFR_set_double(numfltMPFR_t a, double k, numinternal_t intern)
-{ return mpfr_set_numfltD(a,&k,intern); }
-/* ldouble -> numflt */
-static inline bool numfltMPFR_set_ldouble(numfltMPFR_t a, long double k, numinternal_t intern)
-{ return mpfr_set_numfltDl(a,&k,intern); }
-/* mpfr -> numflt */
-static inline bool numfltMPFR_set_mpfr(numfltMPFR_t a, mpfr_t b, numinternal_t intern)
-{ return !mpfr_set(a,b,GMP_RNDU); }
-
-/* numflt -> lint */
-static inline bool lint_set_numfltMPFR(long int* a, numfltMPFR_t b, numinternal_t intern)
-{ return numintIl_set_mpfr(a,b,intern); }
-/* numflt -> llint */
-static inline bool llint_set_numfltMPFR(long long int* a, numfltMPFR_t b, numinternal_t intern)
-{ return numintIll_set_mpfr(a,b,intern); }
-/* numflt -> mpz */
-static inline bool mpz_set_numfltMPFR(mpz_t a, numfltMPFR_t b, numinternal_t intern)
-{ return numintMPZ_set_mpfr(a,b,intern); }
-/* numflt -> lfrac */
-static inline bool lfrac_set_numfltMPFR(long int* i, long int* j, numfltMPFR_t b, numinternal_t intern)
-{
-  struct numratRl_native s;
-  bool res = numratRl_set_mpfr(&s,b,intern);
-  *i = *s.n;
-  *j = *s.d;
-  return res;
-}
-/* numflt -> llfrac */
-static inline bool llfrac_set_numfltMPFR(long long int* i, long long int* j, numfltMPFR_t b, numinternal_t intern)
-{
-  struct numratRll_native s;
-  bool res = numratRll_set_mpfr(&s,b,intern);
-  *i = *s.n;
-  *j = *s.d;
-  return res;
-}
-/* numflt -> mpq */
-static inline bool mpq_set_numfltMPFR(mpq_t a, numfltMPFR_t b, numinternal_t intern)
-{ return numratMPQ_set_mpfr(a,b,intern); }
-/* numflt -> double */
-static inline bool double_set_numfltMPFR(double* a, numfltMPFR_t b, numinternal_t intern)
-{ return numfltD_set_mpfr(a,b,intern); }
-/* numflt -> long double */
-static inline bool ldouble_set_numfltMPFR(long double* a, numfltMPFR_t b, numinternal_t intern)
-{ return numfltDl_set_mpfr(a,b,intern); }
-/* numflt -> mpfr */
-static inline bool mpfr_set_numfltMPFR(mpfr_t a, numfltMPFR_t b, numinternal_t intern)
-{ return !mpfr_set(a,b,GMP_RNDU); }
 
 /* ====================================================================== */
 /* Only for floating point */

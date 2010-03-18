@@ -20,6 +20,8 @@ typedef struct numrat_native {
 } numrat_native;
 typedef numrat_native* numrat_ptr;
 typedef numrat_native numrat_t[1];
+#define numrat_numref(a) (a)->n
+#define numrat_denref(a) (a)->d
 #elif NUM_NUMRLL
 typedef struct numrat_native {
   numintIll_t n; /* numerator */
@@ -27,9 +29,13 @@ typedef struct numrat_native {
 } numrat_native;
 typedef numrat_native* numrat_ptr;
 typedef numrat_native numrat_t[1];
+#define numrat_numref(a) (a)->n
+#define numrat_denref(a) (a)->d
 #elif NUM_NUMMPQ
 typedef mpq_ptr numrat_ptr;
 typedef mpq_t numrat_t;
+#define numrat_numref(a) mpq_numref(a)
+#define numrat_denref(a) mpq_denref(a)
 #else
 #error "HERE"
 #endif
@@ -106,74 +112,6 @@ static inline bool numrat_set_numfrac(numrat_t a, numint_t b, numint_t c);
 static inline numint_t numrat_numref(numrat_t a);
 static inline numint_t numrat_denref(numrat_t a);
 */
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_numrat(long int a);
-static inline bool llint_fits_numrat(long long int a);
-static inline bool mpz_fits_numrat(mpz_t a);
-static inline bool lfrac_fits_numrat(long int i, long int j);
-static inline bool llfrac_fits_numrat(long long int i, long long int j);
-static inline bool mpq_fits_numrat(mpq_t a);
-static inline bool double_fits_numrat(double a);
-static inline bool ldouble_fits_numrat(long double a);
-static inline bool mpfr_fits_numrat(mpfr_t a, numinternal_t intern);
-
-static inline bool numrat_fits_lint(numrat_t a);
-static inline bool numrat_fits_llint(numrat_t a);
-static inline bool numrat_fits_lfrac(numrat_t a);
-static inline bool numrat_fits_llfrac(numrat_t a);
-static inline bool numrat_fits_double(numrat_t a);
-static inline bool numrat_fits_ldouble(numrat_t a);
-static inline bool numrat_fits_mpfr(numrat_t a);
-
-/* ---------------------------------------------------------------------- */
-/* Conversions */
-/* ---------------------------------------------------------------------- */
-
-static inline bool numrat_set_lint(numrat_t a, long int b, numinternal_t intern);;
-  /* lint -> numrat */
-static inline bool numrat_set_llint(numrat_t a, long long int b, numinternal_t intern);;
-  /* llint -> numrat */
-static inline bool numrat_set_mpz(numrat_t a, mpz_t b, numinternal_t intern);;
-  /* mpz -> numrat */
-static inline bool numrat_set_lfrac(numrat_t a, long int i, long int j, numinternal_t intern);;
-  /* lfrac -> numrat */
-static inline bool numrat_set_llfrac(numrat_t a, long long int i, long long int j, numinternal_t intern);;
-  /* llfrac -> numrat */
-static inline bool numrat_set_mpq(numrat_t a, mpq_t b, numinternal_t intern);
-  /* mpq -> numrat */
-static inline bool numrat_set_double(numrat_t a, double b, numinternal_t intern);;
-  /* double -> numrat */
-static inline bool numrat_set_ldouble(numrat_t a, long double b, numinternal_t intern);
-  /* ldouble -> numrat */
-static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b, numinternal_t intern);
-  /* mpfr -> numrat */
-
-static inline bool lint_set_numrat(long int* a, numrat_t b, numinternal_t intern);;
-  /* numrat -> lint */
-static inline bool llint_set_numrat(long long int* a, numrat_t b, numinternal_t intern);;
-  /* numrat -> llint */
-static inline bool mpz_set_numrat(mpz_t a, numrat_t b, numinternal_t intern);;
-  /* numrat -> mpz */
-static inline bool lfrac_set_numrat(long int* i, long int* j, numrat_t b, numinternal_t intern);;
-  /* numrat -> lfrac */
-static inline bool llfrac_set_numrat(long long int* i, long long int* j, numrat_t b, numinternal_t intern);;
-  /* numrat -> llfrac */
-static inline bool mpq_set_numrat(mpq_t a, numrat_t b, numinternal_t intern);;
-  /* numrat -> mpq */
-static inline bool double_set_numrat(double* a, numrat_t b, numinternal_t intern);
-  /* numrat -> double */
-static inline bool ldouble_set_numrat(long double* a, numrat_t b, numinternal_t intern);
-  /* numrat -> ldouble */
-static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b, numinternal_t intern);;
-  /* numrat -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

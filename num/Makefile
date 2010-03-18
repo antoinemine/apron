@@ -14,8 +14,7 @@ numfltD_def.h numfltDl_def.h numfltMPFR_def.h
 H_TMPL_FILES = \
 numrat_native_def_tmpl.h \
 numint_tmpl.h numrat_tmpl.h numflt_tmpl.h \
-num_numint_tmpl.h num_numrat_tmpl.h num_numflt_tmpl.h \
-num_tmpl.h num_conv_tmpl.h \
+num_tmpl.h num_def_tmpl.h num_conv_tmpl.h \
 bound_def_tmpl.h bound_tmpl.h bound_conv_tmpl.h
 
 H_GENERATED_FILES = \
@@ -23,9 +22,9 @@ numratRl_def.h numratRll_def.h \
 numintIl.h numintIll.h numintMPZ.h \
 numratRl.h numratRll.h numratMPQ.h \
 numfltD.h numfltDl.h numfltMPFR.h \
-numIl_numint.h numIll_numint.h numMPZ_numint.h \
-numRl_numrat.h numRll_numrat.h numMPQ_numrat.h \
-numD_numflt.h numDl_numflt.h numMPFR_numflt.h \
+numIl_def.h numIll_def.h numMPZ_def.h \
+numRl_def.h numRll_def.h numMPQ_def.h \
+numD_def.h numDl_def.h numMPFR_def.h \
 numIl.h numIll.h numMPZ.h \
 numRl.h numRll.h numMPQ.h \
 numD.h numDl.h numMPFR.h \
@@ -100,15 +99,9 @@ numrat%.h: num%.sed numrat_tmpl.h
 numflt%.h: num%.sed numflt_tmpl.h 
 	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numflt_tmpl.h\"" >$@
 	$(SED) -f $< numflt_tmpl.h >>$@
-num%_numint.h: num%.sed num_numint_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_numint_tmpl.h\"" >$@
-	$(SED) -f $< num_numint_tmpl.h >>$@
-num%_numrat.h: num%.sed num_numrat_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_numrat_tmpl.h\"" >$@
-	$(SED) -f $< num_numrat_tmpl.h >>$@
-num%_numflt.h: num%.sed num_numflt_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_numflt_tmpl.h\"" >$@
-	$(SED) -f $< num_numflt_tmpl.h >>$@
+num%_def.h: num%.sed num_def_tmpl.h 
+	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_def_tmpl.h\"" >$@
+	$(SED) -f $< num_def_tmpl.h >>$@
 num%.h: num%.sed num_tmpl.h 
 	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_tmpl.h\"" >$@
 	$(SED) -f $< num_tmpl.h >>$@
