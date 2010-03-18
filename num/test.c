@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "num.h"
-#include "bound.h"
+#include "bound_def.h"
 #include "bound_conv.h"
 
 /* ********************************************************************** */

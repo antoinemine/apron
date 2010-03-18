@@ -8,6 +8,7 @@
 #include "numConfig.h"
 #include "bound.h"
 #include "num_def.h"
+#include "num_conv.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -423,7 +424,6 @@ static inline int bound_hash(bound_t a)
   }
 }
 
-
 static inline void bound_widening(bound_t a, bound_t b, bound_t c)
 {
   if (bound_cmp(b,c)<0)
@@ -571,6 +571,7 @@ static inline bool bound_set_numDl(bound_t a, numDl_t b, numinternal_t intern)
 static inline bool bound_set_numMPFR(bound_t a, numMPFR_t b, numinternal_t intern)
 { return bound_set_mpfr(a,b,intern); }
 #endif
+
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */

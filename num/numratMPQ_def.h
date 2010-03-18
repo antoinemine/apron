@@ -11,19 +11,12 @@
 #include <assert.h>
 
 #include "numConfig.h"
-#include "numrat.h"
-#include "numintIl_def.h"
-#include "numintIll_def.h"
+#include "numratMPQ.h"
 #include "numintMPZ_def.h"
-#include "numratRl_def.h"
-#include "numratRll_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef mpq_ptr numratMPQ_ptr;
-typedef mpq_t numratMPQ_t;
 
 /* ====================================================================== */
 /* Rational operations */
@@ -31,9 +24,6 @@ typedef mpq_t numratMPQ_t;
 
 static inline void numratMPQ_canonicalize(numratMPQ_t a)
 { mpq_canonicalize(a); }
-
-#define numratMPQ_numref(a) mpq_numref(a)
-#define numratMPQ_denref(a) mpq_denref(a)
 
 static inline bool numratMPQ_set_numintMPZ2(numratMPQ_t a, numintMPZ_t b, numintMPZ_t c)
 {
@@ -221,160 +211,6 @@ static inline int numratMPQ_snprint(char* s, size_t size, numratMPQ_t a)
   }
   return res;
 }
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_numratMPQ(long int a)
-{ return true; }
-static inline bool llint_fits_numratMPQ(long long int a)
-{ return true; }
-static inline bool mpz_fits_numratMPQ(mpz_t a)
-{ return true; }
-static inline bool lfrac_fits_numratMPQ(long int i, long int j)
-{ return true; }
-static inline bool llfrac_fits_numratMPQ(long long int i, long long int j)
-{ return true; }
-static inline bool mpq_fits_numratMPQ(mpq_t a)
-{ return true; }
-static inline bool double_fits_numratMPQ(double k)
-{ return isfinite(k); }
-static inline bool ldouble_fits_numratMPQ(long double k)
-{ return isfinite(k); }
-static inline bool mpfr_fits_numratMPQ(mpfr_t a, numinternal_t intern)
-{ return mpfr_number_p(a); }
-
-static inline bool numratMPQ_fits_lint(numratMPQ_t a)
-{ return mpq_fits_numintIl(a); }
-static inline bool numratMPQ_fits_llint(numratMPQ_t a)
-{ return mpq_fits_numintIll(a); }
-static inline bool numratMPQ_fits_lfrac(numratMPQ_t a)
-{ return mpq_fits_numratRl(a); }
-static inline bool numratMPQ_fits_llfrac(numratMPQ_t a)
-{ return mpq_fits_numratRll(a); }
-static inline bool numratMPQ_fits_float(numratMPQ_t a)
-{
-  return ((int)mpz_sizeinbase(numratMPQ_numref(a),2)-
-	  (int)mpz_sizeinbase(numratMPQ_denref(a),2)<FLT_MAX_EXP-2);
-}
-static inline bool numratMPQ_fits_double(numratMPQ_t a)
-{
-  return ((int)mpz_sizeinbase(numratMPQ_numref(a),2)-
-	  (int)mpz_sizeinbase(numratMPQ_denref(a),2)<DBL_MAX_EXP-2);
-}
-static inline bool numratMPQ_fits_ldouble(numratMPQ_t a)
-{
-  return ((int)mpz_sizeinbase(numratMPQ_numref(a),2)-
-	  (int)mpz_sizeinbase(numratMPQ_denref(a),2)<LDBL_MAX_EXP-2);
-}
-static inline bool numratMPQ_fits_mpfr(numratMPQ_t a)
-{
-  return ((int)mpz_sizeinbase(numratMPQ_numref(a),2)-
-	  (int)mpz_sizeinbase(numratMPQ_denref(a),2)+1<mpfr_get_emax());
-}
-
-/* ---------------------------------------------------------------------- */
-/* Conversions */
-/* ---------------------------------------------------------------------- */
-
-/* lint -> numrat */
-static inline bool numratMPQ_set_lint(numratMPQ_t a, long int b, numinternal_t intern)
-{ return mpq_set_numintIl(a,&b,intern); }
-/* llint -> numrat */
-static inline bool numratMPQ_set_llint(numratMPQ_t a, long long int b, numinternal_t intern)
-{ return mpq_set_numintIll(a,&b,intern); }
-/* mpz -> numrat */
-static inline bool numratMPQ_set_mpz(numratMPQ_t a, mpz_t b, numinternal_t intern)
-{ return mpq_set_numintMPZ(a,b,intern); }
-/* lfrac -> numrat */
-static inline bool numratMPQ_set_lfrac(numratMPQ_t a, long int i, long int j, numinternal_t intern)
-{ mpq_set_si(a,i,j); return true; }
-/* llfrac -> numrat */
-static inline bool numratMPQ_set_llfrac(numratMPQ_t a, long long int i, long long int j, numinternal_t intern)
-{
-  numintMPZ_set_llint(mpq_numref(a),i,intern);
-  numintMPZ_set_llint(mpq_denref(a),j,intern);
-  mpq_canonicalize(a);
-  return true;
-}
-/* mpq -> numrat */
-static inline bool numratMPQ_set_mpq(numratMPQ_t a, mpq_t b, numinternal_t intern)
-{ mpq_set(a,b); return true; }
-/* double -> numrat */
-static inline bool numratMPQ_set_double(numratMPQ_t a, double k, numinternal_t intern)
-{
-  if (!isfinite(k)) { DEBUG_SPECIAL; numratMPQ_set_int(a,0); return false; }
-  mpq_set_d(a,k);
-  return true;
-}
-/* mpfr -> numrat */
-static inline bool numratMPQ_set_mpfr(numratMPQ_t a, mpfr_t b, numinternal_t intern)
-{
-  mp_exp_t e;
-  if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numratMPQ_set_int(a,0); return false; }
-  /* XXX might fail if scaled exponent not representable in mp_exp_t */
-  e = mpfr_get_z_exp(mpq_numref(a),b);
-  mpz_set_si(mpq_denref(a),1);
-  if (e>0) mpq_mul_2exp(a,a,e);
-  if (e<0) mpq_div_2exp(a,a,-e);
-  return true;
-}
-
-/* ldouble -> numrat */
-static inline bool numratMPQ_set_ldouble(numratMPQ_t a, long double b, numinternal_t intern)
-{
-  mp_exp_t e;
-  if (!isfinite(b)) { DEBUG_SPECIAL; mpq_set_si(a,0,1); return false; }
-  int res = mpfr_set_ld(intern->ldbl,b,GMP_RNDU);
-  numratMPQ_set_mpfr(a,intern->ldbl,intern);
-  return (res==0);
-}
-
-/* numrat -> int */
-static inline bool lint_set_numratMPQ(long int* a, numratMPQ_t b, numinternal_t intern)
-{ return numintIl_set_mpq(a,b,intern); }
-static inline bool llint_set_numratMPQ(long long int* a, numratMPQ_t b, numinternal_t intern)
-{ return numintIll_set_mpq(a,b,intern); }
-static inline bool mpz_set_numratMPQ(mpz_t a, numratMPQ_t b, numinternal_t intern)
-{ return numintMPZ_set_mpq(a,b,intern); }
-static inline bool lfrac_set_numratMPQ(long int* i, long int* j, numratMPQ_t b, numinternal_t intern)
-{
-  numintIl_set_mpz(i,mpq_numref(b),intern);
-  numintIl_set_mpz(j,mpq_denref(b),intern);
-  return true;
-}
-static inline bool llfrac_set_numratMPQ(long long int* i, long long int* j, numratMPQ_t b, numinternal_t intern)
-{
-  numintIll_set_mpz(i,mpq_numref(b),intern);
-  numintIll_set_mpz(j,mpq_denref(b),intern);
-  return true;
-}
-static inline bool mpq_set_numratMPQ(mpq_t a, numratMPQ_t b, numinternal_t intern)
-{ mpq_set(a,b); return true; }
-/* numrat -> double */
-/* mpfr should have exactly a precision of 53 bits */
-static inline bool double_set_numratMPQ(double* a, numratMPQ_t b, numinternal_t intern)
-{
-  int res = mpfr_set_q(intern->dbl,b,GMP_RNDU);
-  *a = mpfr_get_d(intern->dbl,GMP_RNDU); /* should be exact */
-  return (res==0);
-}
-/* numrat -> ldouble */
-static inline bool ldouble_set_numratMPQ(long double* a, numratMPQ_t b, numinternal_t intern)
-{
-  int res = mpfr_set_q(intern->ldbl,b,GMP_RNDU);
-  *a = mpfr_get_ld(intern->ldbl,GMP_RNDU); /* should be exact */
-  return (res==0);
-}
-/* numrat -> mpfr */
-static inline bool mpfr_set_numratMPQ(mpfr_t a, numratMPQ_t b, numinternal_t intern)
-{ return !mpfr_set_q(a,b,GMP_RNDU); }
-
 
 /* ====================================================================== */
 /* Serialization */

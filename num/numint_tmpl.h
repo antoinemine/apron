@@ -15,13 +15,31 @@ extern "C" {
 typedef long int numint_native;
 typedef numint_native* numint_ptr;
 typedef numint_native numint_t[1];
+#define NUMINTIL_ZERO 0L
+#define NUMINTIL_ONE 1L
+#define NUMINTIL_MAX LONG_MAX
+#define NUMIL_MAX LONG_MAX
+#define NUMINTIL_MIN LONG_MIN
+
 #elif NUM_NUMILL
 typedef long long int numint_native;
 typedef numint_native* numint_ptr;
 typedef numint_native numint_t[1];
+#define NUMINTILL_ZERO 0LL
+#define NUMINTILL_ONE 1LL
+#define NUMINTILL_MAX LLONG_MAX
+#define NUMILL_MAX LLONG_MAX
+#define NUMINTILL_MIN LLONG_MIN
+
 #elif NUM_NUMMPZ
 typedef mpz_ptr numint_ptr;
 typedef mpz_t numint_t;
+#undef NUMINTMPZ_ZERO
+#undef NUMINTMPZ_ONE
+#undef NUMINTMPZ_MAX
+#undef NUMMPZ_MAX
+#undef NUMINTMPZ_MIN
+
 #else
 #error "HERE"
 #endif
@@ -98,74 +116,6 @@ static inline bool numint_equal(numint_t a, numint_t b);
 static inline void numint_print(numint_t a);
 static inline void numint_fprint(FILE* stream, numint_t a);
 static inline int numint_snprint(char* s, size_t size, numint_t a);
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-/* ---------------------------------------------------------------------- */
-/* Fits */
-/* ---------------------------------------------------------------------- */
-
-static inline bool lint_fits_numint(long int a);
-static inline bool llint_fits_numint(long long int a);
-static inline bool mpz_fits_numint(mpz_t a);
-static inline bool lfrac_fits_numint(long int i, long int j);
-static inline bool llfrac_fits_numint(long long int i, long long int j);
-static inline bool mpq_fits_numint(mpq_t a);
-static inline bool double_fits_numint(double a);
-static inline bool ldouble_fits_numint(long double a);
-static inline bool mpfr_fits_numint(mpfr_t a, numinternal_t intern);
-
-static inline bool numint_fits_lint(numint_t a);
-static inline bool numint_fits_llint(numint_t a);
-static inline bool numint_fits_lfrac(numint_t a);
-static inline bool numint_fits_llfrac(numint_t a);
-static inline bool numint_fits_double(numint_t a);
-static inline bool numint_fits_ldouble(numint_t a);
-static inline bool numint_fits_mpfr(numint_t a);
-
-/* ---------------------------------------------------------------------- */
-/* Conversions */
-/* ---------------------------------------------------------------------- */
-
-static inline bool numint_set_lint(numint_t a, long int b, numinternal_t intern);;
-  /* lint -> numint */
-static inline bool numint_set_llint(numint_t a, long long int b, numinternal_t intern);;
-  /* llint -> numint */
-static inline bool numint_set_mpz(numint_t a, mpz_t b, numinternal_t intern);;
-  /* mpz -> numint */
-static inline bool numint_set_lfrac(numint_t a, long int i, long int j, numinternal_t intern);;
-  /* lfrac -> numint */
-static inline bool numint_set_llfrac(numint_t a, long long int i, long long int j, numinternal_t intern);;
-  /* llfrac -> numint */
-static inline bool numint_set_mpq(numint_t a, mpq_t b, numinternal_t intern);
-  /* mpq -> numint */
-static inline bool numint_set_double(numint_t a, double b, numinternal_t intern);;
-  /* double -> numint */
-static inline bool numint_set_ldouble(numint_t a, long double b, numinternal_t intern);
-  /* ldouble -> numint */
-static inline bool numint_set_mpfr(numint_t a, mpfr_t b, numinternal_t intern);
-  /* mpfr -> numint */
-
-static inline bool lint_set_numint(long int* a, numint_t b, numinternal_t intern);;
-  /* numint -> lint */
-static inline bool llint_set_numint(long long int* a, numint_t b, numinternal_t intern);;
-  /* numint -> llint */
-static inline bool mpz_set_numint(mpz_t a, numint_t b, numinternal_t intern);;
-  /* numint -> mpz */
-static inline bool lfrac_set_numint(long int* i, long int* j, numint_t b, numinternal_t intern);;
-  /* numint -> lfrac */
-static inline bool llfrac_set_numint(long long int* i, long long int* j, numint_t b, numinternal_t intern);;
-  /* numint -> llfrac */
-static inline bool mpq_set_numint(mpq_t a, numint_t b, numinternal_t intern);;
-  /* numint -> mpq */
-static inline bool double_set_numint(double* a, numint_t b, numinternal_t intern);
-  /* numint -> double */
-static inline bool ldouble_set_numint(long double* a, numint_t b, numinternal_t intern);
-  /* numint -> ldouble */
-static inline bool mpfr_set_numint(mpfr_t a, numint_t b, numinternal_t intern);;
-  /* numint -> mpfr */
 
 /* ====================================================================== */
 /* Serialization */

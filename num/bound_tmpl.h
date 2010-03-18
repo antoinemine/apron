@@ -6,7 +6,15 @@
 #define _BOUND_H_
 
 #include "numConfig.h"
-#include "num.h"
+#include "numIl.h"
+#include "numIll.h"
+#include "numMPZ.h"
+#include "numRl.h"
+#include "numRll.h"
+#include "numMPQ.h"
+#include "numD.h"
+#include "numDl.h"
+#include "numMPFR.h"
 
 #ifdef __cplusplus
 extern "C" {
