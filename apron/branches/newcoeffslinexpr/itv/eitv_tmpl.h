@@ -82,6 +82,15 @@ static inline bool eitv_is_eq(eitv_t a, eitv_t b);
 
 static inline int eitv_hash(eitv_t a);
   /* Hash code */
+static inline int eitv_cmp(eitv_t a, eitv_t b);
+static inline int eitv_cmp_zero(eitv_t a);
+  /* Comparison:     
+     0: equality
+     -1: i1 included in i2
+     +1: i2 included in i1
+     -2: i1->sup less than i2->sup
+     +2: i1->sup greater than i2->sup
+  */
 static inline void eitv_range_abs(bound_t a, eitv_t b);
   /* a=(max b - min b) */
 static inline void eitv_range_rel(itv_internal_t* intern, bound_t a, eitv_t b);
@@ -321,9 +330,15 @@ static inline bool eitv_is_eq(eitv_t a, eitv_t b)
 
 static inline int eitv_hash(eitv_t a)
 {
-  return a->eq ?
-    12*bound_hash(a->itv->sup) :
-    5*bound_hash(a->itv->neginf) + 7*bound_hash(a->itv->sup);
+  return a->eq ? 12*bound_hash(a->itv->sup) : itv_hash(a->itv);
+}
+static inline int eitv_cmp(eitv_t a, eitv_t b)
+{
+  return a->eq && b->eq ? 2*bound_cmp(a->itv->sup,b->itv->sup) : itv_cmp(a->itv,b->itv);
+}
+static inline int eitv_cmp_zero(eitv_t a)
+{
+  return a->eq ? 2*bound_sgn(a->itv->sup) : eitv_cmp_zero(a);
 }
 static inline void eitv_range_abs(bound_t a, eitv_t b)
 { itv_range_abs(a,b->itv); }

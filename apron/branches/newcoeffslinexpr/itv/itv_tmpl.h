@@ -148,6 +148,15 @@ static inline bool itv_is_eq(itv_t a, itv_t b);
 
 static inline int itv_hash(itv_t a);
   /* Hash code */
+int itv_cmp(itv_t a, itv_t b);
+int itv_cmp_zero(itv_t a);
+  /* Comparison:
+     0: equality
+     -1: i1 included in i2
+     +1: i2 included in i1
+     -2: i1->sup less than i2->sup
+     +2: i1->sup greater than i2->sup
+  */
 static inline void itv_range_abs(bound_t a, itv_t b);
   /* a=(max b - min b) */
 static inline void itv_range_rel(itv_internal_t* intern, bound_t a, itv_t b);
