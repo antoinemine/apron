@@ -1850,7 +1850,8 @@ auxiliary variable used internally by the macro.
 @c -------------------------------------------------------------------
 @subsubsection Assigning values with a list of arguments
 
-@deftypefun bool ap_linexpr1_set_list (ap_linexpr1_t* @var{e}, ...)
+@deftypefun bool ap_linexpr1_set_list
+ (ap_linexpr1_t* @var{e}, ...)
 This function assign the linear expression @var{e} from a list of tags
 of type @code{ap_coefftag_t}, each followed by a number of arguments
 as specified in the definition of the type @code{ap_coefftag_t}

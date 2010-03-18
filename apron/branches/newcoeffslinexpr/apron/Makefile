@@ -17,7 +17,7 @@ BINDIR = $(PREFIX)/bin
 #---------------------------------------
 # C part
 #---------------------------------------
-ICFLAGS = -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICFLAGS = -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
 # Files
