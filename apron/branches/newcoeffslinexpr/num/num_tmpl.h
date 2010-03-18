@@ -119,34 +119,13 @@ static inline int num_snprint(char* s, size_t size, num_t a);
 */
 
 static inline unsigned char num_serialize_id(void);
-
 static inline size_t num_serialize(void* dst, num_t src);
 static inline size_t num_deserialize(num_t dst, const void* src);
 static inline size_t num_serialized_size(num_t a);
 
-static inline size_t num_serialize_array(void* dst, num_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += num_serialize((char*)dst+n,src[i]);
-  return n;
-}
-
-static inline size_t num_deserialize_array(num_t* dst, const void* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += num_deserialize(dst[i],(const char*)src+n);
-  return n;
-}
-
-static inline size_t num_serialized_size_array(num_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += num_serialized_size(src[i]);
-  return n;
-}
+static inline size_t num_serialize_array(void* dst, num_t* src, size_t size);
+static inline size_t num_deserialize_array(num_t* dst, const void* src, size_t size);
+static inline size_t num_serialized_size_array(num_t* src, size_t size);
 
 #ifdef __cplusplus
 }
