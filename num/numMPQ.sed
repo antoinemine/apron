@@ -1,16 +1,7 @@
 # Macros defined for any type, to be used with #if #else #endif
-s/NUM_NUMINT/0/g;
 s/NUM_NUMRAT/1/g;
-s/NUM_NUMFLT/0/g;
-s/NUM_NUMILL/0/g;
-s/NUM_NUMIL/0/g;
-s/NUM_NUMMPZ/0/g;
-s/NUM_NUMRLL/0/g;
-s/NUM_NUMRL/0/g;
 s/NUM_NUMMPQ/1/g;
-s/NUM_NUMDL/0/g;
-s/NUM_NUMD/0/g;
-s/NUM_NUMMPFR/0/g;
+s/NUM_NUM\(INT\|FLT\|IL\|ILL\|MPZ\|RL\|RLL\|D\|DL\|MPFR\)/0/g;
 s/NUM_NATIVE/0/g;
 s/NUM_EXACT/1/g;
 # For including only once an include file
