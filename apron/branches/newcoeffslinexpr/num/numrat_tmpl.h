@@ -8,10 +8,30 @@
 #include "numConfig.h"
 
 #include "numint.h"
-#include "numrat_def.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if NUM_NUMRL
+typedef struct numrat_native {
+  numintIl_t n; /* numerator */
+  numintIl_t d; /* denominator, >=0 */
+} numrat_native;
+typedef numrat_native* numrat_ptr;
+typedef numrat_native numrat_t[1];
+#elif NUM_NUMRLL
+typedef struct numrat_native {
+  numintIll_t n; /* numerator */
+  numintIll_t d; /* denominator, >=0 */
+} numrat_native;
+typedef numrat_native* numrat_ptr;
+typedef numrat_native numrat_t[1];
+#elif NUM_NUMMPQ
+typedef mpq_ptr numrat_ptr;
+typedef mpq_t numrat_t;
+#else
+#error "HERE"
 #endif
 
 /* ====================================================================== */

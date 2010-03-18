@@ -6,10 +6,24 @@
 #define _NUMFLT_H_
 
 #include "numConfig.h"
-#include "numflt_def.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#id NUM_NUMD
+typedef double numflt_native;
+typedef numflt_native* numflt_ptr;
+typedef numflt_native numflt_t[1];
+#elif NUM_NUMDL
+typedef long double numflt_native;
+typedef numflt_native* numflt_ptr;
+typedef numflt_native numflt_t[1];
+#elif NUM_NUMMPFR
+typedef mpfr_ptr numflt_ptr;
+typedef mpfr_t numflt_t;
+#else
+#error "HERE"
 #endif
 
 /* ====================================================================== */

@@ -6,16 +6,35 @@
 #define _BOUND_H_
 
 #include "numConfig.h"
-#include "bound_def.h"
+#include "num.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if NUM_NUMMPZ
+typedef struct _bound_t {
+  num_t num; /* always allocated, even if inf=1 */
+  char inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
+		0 => >-oo, <+oo */
+} bound_t[1];
+#define bound_numref(a) a->num
+#define _bound_inf(a) a->inf = 0
+#define BOUND_INF
+
+#else
+
+typedef num_t bound_t;
+#define bound_numref(a) a
+#define _bound_inf(a)
+#undef BOUND_INF
+
+#endif
+
 static inline bool bound_infty(bound_t a);
 /*
 Macro:
-static inline num_t bound_numref(bound_t a); 
+static inline num_t bound_numref(bound_t a);
 */
 
 /* ====================================================================== */
@@ -46,7 +65,7 @@ static inline void bound_clear_array(bound_t* a, size_t size);
 /* Arithmetic Operations */
 /* ====================================================================== */
 
-/* +oo + -oo  \ 
+/* +oo + -oo  \
    -oo + +oo  | undefined
    +oo - +oo  |
    -oo - -oo  /
@@ -62,7 +81,7 @@ static inline void bound_clear_array(bound_t* a, size_t size);
    x / 0 = sign(x) * oo     if x!=0
    +oo / x =  sign(x) * oo  if x!=0,+oo,-oo
    -oo / x = -sign(x) * oo  if x!=0,+oo,-oo
-   
+
 */
 
 static inline void bound_neg(bound_t a, bound_t b);

@@ -16,6 +16,22 @@
 extern "C" {
 #endif
 
+#if NUM_NUMINT
+#include "numint.h"
+typedef numint_ptr num_ptr;
+typedef numint_t num_t;
+#elif NUM_NUMRAT
+#include "numrat.h"
+typedef numrat_ptr num_ptr;
+typedef numrat_t num_t;
+#elif NUM_NUMFLT
+#include "numflt.h"
+typedef numflt_ptr num_ptr;
+typedef numflt_t num_t;
+#else
+#error "HERE"
+#endif
+
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */
