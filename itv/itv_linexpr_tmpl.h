@@ -69,38 +69,16 @@ void itv_linexpr_minimize(itv_linexpr_t e);
 void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name);
 static inline void itv_linexpr_print(itv_linexpr_t expr, char** name);
 
-void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_array_t tab, char** name);
-static inline void itv_linexpr_array_print(itv_linexpr_array_t tab, char** name);
+void itv_linexpr_array_init(itv_linexpr_t* tab, size_t size);
+void itv_linexpr_array_clear(itv_linexpr_t* tab, size_t size);
+itv_linexpr_t* itv_linexpr_array_alloc(size_t size);
+void itv_linexpr_array_free(itv_linexpr_t* tab, size_t size);
+
+void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_t* tab, size_t size, char** name);
+static inline void itv_linexpr_array_print(itv_linexpr_t* tab, size_t size, char** name);
 
 /* ********************************************************************** */
-/* II. Arithmetic */
-/* ********************************************************************** */
-
-void itv_linexpr_neg(itv_linexpr_t res, itv_linexpr_t expr);
-  /* Negate an expression */
-void itv_linexpr_scale(itv_internal_t* intern,
-		       itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff);
-void itv_linexpr_div(itv_internal_t* intern,
-		     itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff);
-  /* Scale an expression by an interval */
-
-void itv_linexpr_add(itv_internal_t* intern,
-		     itv_linexpr_t expr,
-		     itv_linexpr_t exprA,
-		     itv_linexpr_t exprB);
-void itv_linexpr_sub(itv_internal_t* intern,
-		     itv_linexpr_t expr,
-		     itv_linexpr_t exprA,
-		     itv_linexpr_t exprB);
-  /* Resp. add and substract two linear epxression.
-     (Substraction temporarily negates exprB, and then restores it */
-
-void itv_linexpr_eval(itv_internal_t* intern,
-		      eitv_t res, itv_linexpr_t expr, eitv_t* env);
-  /* Evaluate an interval linear expression */
-
-/* ********************************************************************** */
-/* III. Tests and Simplifications */
+/* II. Tests */
 /* ********************************************************************** */
 
 bool itv_linexpr_is_integer(itv_linexpr_t expr, size_t intdim);
@@ -112,21 +90,19 @@ bool itv_linexpr_is_real(itv_linexpr_t expr, size_t intdim);
 
   /* Expression classification */
 
-itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a);
-  /* Classify an expression */
 static inline bool itv_linexpr_is_linear(itv_linexpr_t expr);
   /* Return true iff all involved coefficients are scalars */
 bool itv_linexpr_is_quasilinear(itv_linexpr_t expr);
-  /* Return true iff all involved coefficients but the constant are scalars */
-
-itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size);
+  /* Return true iff all involved coefficients but the constant are scalars. */
+itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a);
+  /* Classify an expression */
 bool itv_linexpr_array_is_linear(itv_linexpr_t* texpr, size_t size);
 bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size);
-  /* Idem for arrays */
+itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size);
 
-/* ====================================================================== */
-/* IV. Access */
-/* ====================================================================== */
+/* ********************************************************************** */
+/* III. Access */
+/* ********************************************************************** */
 
 static inline
 size_t itv_linexpr_size(itv_linexpr_t expr);
@@ -146,27 +122,27 @@ static inline void itv_linexpr_set_eitv(itv_linexpr_t expr, ap_dim_t dim, eitv_t
 /* Defined in itvConfig.h for avoiding multiple definitions */
 /*
 typedef enum itv_coefftag_t {
-  ITV_EITV,            waiting for 1 eitv_t and a dimension 
-  ITV_NUM,             waiting for 1 num_t and a dimension 
-  ITV_NUM2,            waiting for 2 num_t and a dimension 
-  ITV_LINT,            waiting for 1 long int and a dimension 
-  ITV_LINT2,           waiting for 2 long int and a dimension 
-  ITV_LLINT,           waiting for 1 long long int and a dimension 
-  ITV_LLINT2,          waiting for 2 long long int and a dimension 
-  ITV_MPZ,             waiting for 1 mpz_t and a dimension 
-  ITV_MPZ2,            waiting for 2 mpz_t and a dimension 
-  ITV_LFRAC,           waiting for 2 long int and a dimension 
-  ITV_LFRAC2,          waiting for 4 long int and a dimension 
-  ITV_LLFRAC,          waiting for 2 long long int and a dimension 
-  ITV_LLFRAC2,         waiting for 4 long long int and a dimension 
-  ITV_MPQ,             waiting for 1 mpq_t and a dimension 
-  ITV_MPQ2,            waiting for 2 mpq_t and a dimension 
-  ITV_DOUBLE,          waiting for 1 double and a dimension 
-  ITV_DOUBLE2,         waiting for 2 double and a dimension 
-  ITV_LDOUBLE,         waiting for 1 long double and a dimension 
-  ITV_LDOUBLE2,        waiting for 2 long double and a dimension 
-  ITV_MPFR,            waiting for 1 mpfr_t and a dimension 
-  ITV_MPFR2,           waiting for 2 mpfr_t double and a dimension 
+  ITV_EITV,            waiting for 1 eitv_t and a dimension
+  ITV_NUM,             waiting for 1 num_t and a dimension
+  ITV_NUM2,            waiting for 2 num_t and a dimension
+  ITV_LINT,            waiting for 1 long int and a dimension
+  ITV_LINT2,           waiting for 2 long int and a dimension
+  ITV_LLINT,           waiting for 1 long long int and a dimension
+  ITV_LLINT2,          waiting for 2 long long int and a dimension
+  ITV_MPZ,             waiting for 1 mpz_t and a dimension
+  ITV_MPZ2,            waiting for 2 mpz_t and a dimension
+  ITV_LFRAC,           waiting for 2 long int and a dimension
+  ITV_LFRAC2,          waiting for 4 long int and a dimension
+  ITV_LLFRAC,          waiting for 2 long long int and a dimension
+  ITV_LLFRAC2,         waiting for 4 long long int and a dimension
+  ITV_MPQ,             waiting for 1 mpq_t and a dimension
+  ITV_MPQ2,            waiting for 2 mpq_t and a dimension
+  ITV_DOUBLE,          waiting for 1 double and a dimension
+  ITV_DOUBLE2,         waiting for 2 double and a dimension
+  ITV_LDOUBLE,         waiting for 1 long double and a dimension
+  ITV_LDOUBLE2,        waiting for 2 long double and a dimension
+  ITV_MPFR,            waiting for 1 mpfr_t and a dimension
+  ITV_MPFR2,           waiting for 2 mpfr_t double and a dimension
   ITV_END
 } itvcoefftag_t;
 */
@@ -219,9 +195,73 @@ bool itv_linexpr_set_list(numinternal_t intern, itv_linexpr_t expr, ...);
 	 false;								\
        (_p_i)++)
 
-/* ====================================================================== */
-/* V. Change of dimensions and permutations */
-/* ====================================================================== */
+/* ********************************************************************** */
+/* IV. Arithmetic */
+/* ********************************************************************** */
+
+void itv_linexpr_neg(itv_linexpr_t res, itv_linexpr_t expr);
+  /* Negate an expression */
+void itv_linexpr_scale(itv_internal_t* intern,
+		       itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff);
+void itv_linexpr_div(itv_internal_t* intern,
+		     itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff);
+  /* Scale an expression by an interval */
+
+void itv_linexpr_add(itv_internal_t* intern,
+		     itv_linexpr_t expr,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB);
+void itv_linexpr_sub(itv_internal_t* intern,
+		     itv_linexpr_t expr,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB);
+  /* Resp. add and substract two linear epxression.
+     (Substraction temporarily negates exprB, and then restores it */
+
+/* ********************************************************************** */
+/* V. Evaluation and Quasilinearisation of interval linear expressions */
+/* ********************************************************************** */
+
+bool itv_linexpr_eval(itv_internal_t* intern,
+		      itv_t res, itv_linexpr_t expr, itv_t* env);
+  /* Evaluate an interval linear expression. Return true if no
+     approximations. */
+
+size_t itv_linexpr_supportinterval(itv_linexpr_t expr, ap_dim_t* tdim);
+/* Fills the array tdim with the dimensions associated with intervals in the
+   linear expression, in increasing order, and return the number of such
+   dimensions.
+
+   tdim is supposed to be of size at least the maximum dimension + 1 in the
+   expression.
+ */
+size_t itv_linexpr_array_supportinterval(itv_linexpr_t* texpr, size_t size, ap_dim_t* tdim, size_t maxdim1);
+  /* Idem for arrays.
+
+     For the parameter maxdim1: corresponds to the maximal possible dimension
+     + 1 */
+
+/* These functions quasilinearize in-place expressions and constraints.  They
+   optimize (sets of) constraints when the parameter meet is true, by
+   deducing things. If constraints are quasilinearized for testing
+   satisfaction, meet should be set to false.
+*/
+bool itv_linexpr_quasilinearize(itv_internal_t* intern,
+				itv_linexpr_t linexpr,
+				itv_t* env,
+				bool for_meet_inequality);
+  /* Quasilinearize in-place linexpr using the bounding box itv. Return true
+     if no approximations. */
+
+bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
+				      itv_linexpr_t* linexpr, size_t size,
+				      itv_t* env,
+				      bool for_meet_inequality);
+  /* Same for an array */
+
+/* ********************************************************************** */
+/* VI. Change of dimensions and permutations */
+/* ********************************************************************** */
 
 /* These two functions add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
@@ -229,16 +269,16 @@ void itv_linexpr_add_dimension(itv_linexpr_t res,
 			       itv_linexpr_t expr,
 			       ap_dimchange_t* dimchange);
 
-/* These two functions apply the given permutation to the dimensions. 
+/* These two functions apply the given permutation to the dimensions.
    The dimensions present in the expression should just be less
    than the size of the permutation. */
 void itv_linexpr_permute_dimensions(itv_linexpr_t res,
 				    itv_linexpr_t expr,
 				    ap_dimperm_t* perm);
 
-/* ====================================================================== */
-/* VI. Hashing, comparison */
-/* ====================================================================== */
+/* ********************************************************************** */
+/* VII. Hashing, comparison */
+/* ********************************************************************** */
 
 int itv_linexpr_hash(itv_linexpr_t expr);
 static inline bool itv_linexpr_equal(itv_linexpr_t expr1,itv_linexpr_t expr2);
@@ -261,10 +301,10 @@ static inline void itv_linterm_clear(itv_linterm_t term)
 static inline void itv_linterm_swap(itv_linterm_t a, itv_linterm_t b)
 { if (a!=b){ itv_linterm_struct t=*a; *a=*b; *b=t; } }
 
-static inline void tv_linexpr_print(itv_linexpr_t expr, char** name)
+static inline void itv_linexpr_print(itv_linexpr_t expr, char** name)
 { itv_linexpr_fprint(stdout,expr,name); }
-static inline void tv_linexpr_array_print(itv_linexpr_array_t tab, char** name)
-{ itv_linexpr_array_fprint(stdout,tab,name); }
+static inline void itv_linexpr_array_print(itv_linexpr_t* tab, size_t size, char** name)
+{ itv_linexpr_array_fprint(stdout,tab,size,name); }
 
 static inline bool itv_linexpr_is_linear(itv_linexpr_t expr)
 { return eitv_is_point(expr->cst) && itv_linexpr_is_quasilinear(expr); }
@@ -288,6 +328,9 @@ static inline void itv_linexpr_set_eitv(itv_linexpr_t expr, ap_dim_t dim, eitv_t
 }
 static inline bool itv_linexpr_equal(itv_linexpr_t expr1,itv_linexpr_t expr2)
 { return itv_linexpr_compare(expr1,expr2)==0; }
+
+/* Internal function */
+void itv_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 
 #ifdef __cplusplus
 }

@@ -66,9 +66,8 @@ void itv_internal_init(itv_internal_t* intern)
   itv_init(intern->eval_itv);
   itv_init(intern->eval_itv2);
   itv_init(intern->eval_itv3);
-  eitv_init(intern->eval_eitv);
   num_init(intern->quasi_num);
-  itv_init(intern->boxize_lincons_itv);
+  eitv_init(intern->boxize_lincons_eitv);
   itv_init(intern->boxize_lincons_eval);
   bound_init(intern->boxize_lincons_bound);
   mpz_init(intern->reduce_lincons_gcd);
@@ -98,9 +97,8 @@ void itv_internal_clear(itv_internal_t* intern)
   itv_clear(intern->eval_itv);
   itv_clear(intern->eval_itv2);
   itv_clear(intern->eval_itv3);
-  eitv_clear(intern->eval_eitv);
   num_clear(intern->quasi_num);
-  itv_clear(intern->boxize_lincons_itv);
+  eitv_clear(intern->boxize_lincons_eitv);
   itv_clear(intern->boxize_lincons_eval);
   bound_clear(intern->boxize_lincons_bound);
   mpz_clear(intern->reduce_lincons_gcd);

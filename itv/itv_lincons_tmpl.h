@@ -7,6 +7,7 @@
 
 #include "eitv.h"
 #include "itv_linexpr.h"
+#include "itv_lincons.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,17 +65,28 @@ static inline void itv_lincons_array_print(itv_lincons_array_t array, char** nam
 /* II. Tests and Simplifications */
 /* ********************************************************************** */
 
-bool itv_lincons_is_linear(itv_lincons_t expr);
-bool itv_lincons_is_quasilinear(itv_lincons_t expr);
-bool itv_lincons_array_is_linear(itv_lincons_array_t array);
-bool itv_lincons_array_is_quasilinear(itv_lincons_array_t array);
 static inline bool itv_lincons_is_integer(itv_lincons_t cons, size_t intdim);
 
-tbool_t itv_eval_cstlincons(itv_internal_t* intern,
+static inline bool itv_lincons_is_linear(itv_lincons_t cons);
+  /* Return true iff all involved coefficients are scalars */
+static inline bool itv_lincons_is_quasilinear(itv_lincons_t cons);
+  /* Return true iff all involved coefficients but the constant are scalars. */
+static inline itvlinexpr_type_t itv_lincons_type(itv_lincons_t cons);
+  /* Classify a constraint */
+
+bool itv_lincons_array_is_linear(itv_lincons_array_t array);
+bool itv_lincons_array_is_quasilinear(itv_lincons_array_t array);
+itvlinexpr_type_t itv_lincons_array_type(itv_lincons_array_t array);
+
+/* ********************************************************************** */
+/* III. Evaluation, simplification and linearisation */
+/* ********************************************************************** */
+
+tbool_t itv_lincons_evalcst(itv_internal_t* intern,
 			    itv_lincons_t lincons);
   /* Is the assumed constant constraint satisfied ? */
 
-bool itv_sat_lincons_is_false(itv_internal_t* intern,
+bool itv_lincons_sat_is_false(itv_internal_t* intern,
 			      itv_lincons_t lincons);
   /* Return true if the constraint is not satisfiable
      *for all* deterministic expressions contained in it
@@ -106,7 +118,7 @@ tbool_t itv_lincons_array_reduce(itv_internal_t* intern,
      - if a constraint is trivially false, reduce the array to the constraint
        1=0
      Return
-     - tbool_true if rmpty array
+     - tbool_true if empty array
      - tbool_false if trivially false
      - tbool_top otherwise
   */
@@ -115,6 +127,97 @@ tbool_t itv_lincons_array_reduce_integer(itv_internal_t* intern,
 					 size_t intdim);
   /* Apply first itv_lincons_reduce_integer, and then
      itv_lincons_array_reduce(.,.,true) */
+
+static inline
+size_t itv_lincons_supportinterval(itv_lincons_t cons, ap_dim_t* tdim);
+  /* Fills the array tdim with the dimensions associated with intervals in
+     the constraint, in increasing order, and return the number of such
+     dimensions.
+
+     tdim is supposed to be of size at least the maximum dimension + 1 in the
+     expression.
+ */
+size_t itv_lincons_array_supportinterval(itv_lincons_array_t array, ap_dim_t* tdim, size_t maxdim1);
+  /* Idem, with maxdim1 indicating the maximum possible dimension plus 1 */
+
+/* These functions quasilinearize in-place expressions and constraints.  They
+   optimize (sets of) constraints when the parameter meet is true, by
+   deducing things. If constraints are quasilinearized for testing
+   satisfaction, meet should be set to false.
+*/
+static inline
+bool itv_lincons_quasilinearize(itv_internal_t* intern,
+				itv_lincons_t lincons,
+				itv_t* env,
+				bool for_meet_inequality);
+  /* Quasilinearize in-place lincons using the bounding box itv. Return true
+     if no approximations. */
+
+bool itv_lincons_array_quasilinearize(itv_internal_t* intern,
+				      itv_lincons_array_t array,
+				      itv_t* env,
+				      bool for_meet_inequality);
+  /* Same for an array */
+
+
+/* ********************************************************************** */
+/* IV. Boxization of interval linear expressions */
+/* ********************************************************************** */
+
+bool itv_boxize_lincons_array(itv_internal_t* intern,
+			      itv_t* res,
+			      bool* tchange,
+			      itv_lincons_array_t array,
+			      itv_t* env,size_t intdim,
+			      size_t kmax,
+			      bool intervalonly);
+  /* Deduce interval constraints from a set of interval linear constraints.
+
+     Return true if some bounds have been inferred.
+
+     - The inferred bounds are stored in res (which may be equal to env)
+     - If tchange!=NULL, tchange[2dim] (resp. 2dim+1) set to true indicates
+       that the inf (resp. sup) bound of dimension dim has been improved.
+     - env is the current bounds for variables
+     - kmax specifies the maximum number of iterations
+     - if intervalonly is true, deduces bounds from a constraint only when the
+       coefficient associated to the current dimension is an interval.
+  */
+
+/* ********************************************************************** */
+/* V. Change of dimensions and permutations */
+/* ********************************************************************** */
+
+/* These two functions add dimensions to the expressions, following the
+   semantics of dimchange (see the type definition of dimchange).  */
+static inline
+void itv_lincons_add_dimension(itv_lincons_t res,
+			       itv_lincons_t cons,
+			       ap_dimchange_t* dimchange);
+void itv_lincons_array_add_dimension(itv_lincons_array_t res,
+				     itv_lincons_array_t array,
+				     ap_dimchange_t* dimchange);
+
+/* These two functions apply the given permutation to the dimensions.
+   The dimensions present in the consession should just be less
+   than the size of the permutation. */
+static inline
+void itv_lincons_permute_dimensions(itv_lincons_t res,
+				    itv_lincons_t cons,
+				    ap_dimperm_t* perm);
+void itv_lincons_array_permute_dimensions(itv_lincons_array_t res,
+					  itv_lincons_array_t array,
+					  ap_dimperm_t* dimchange);
+
+/* ********************************************************************** */
+/* VI. Hashing, comparison */
+/* ********************************************************************** */
+
+static inline int itv_lincons_hash(itv_lincons_t cons);
+bool itv_lincons_equal(itv_lincons_t cons1,itv_lincons_t cons2);
+
+/* Lexicographic ordering, terminating by constant coefficients */
+int itv_lincons_compare(itv_lincons_t cons1, itv_lincons_t cons2);
 
 /* ********************************************************************** */
 /* Definition of inline functions */
@@ -133,9 +236,50 @@ static inline void itv_lincons_swap(itv_lincons_t a, itv_lincons_t b)
 static inline void itv_lincons_array_print(itv_lincons_array_t array, char** name)
 { itv_lincons_array_fprint(stdout,array,name); }
 
-bool itv_lincons_is_integer(itv_lincons_t cons, size_t intdim)
+static inline bool itv_lincons_is_integer(itv_lincons_t cons, size_t intdim)
 {
   return itv_linexpr_is_integer(cons->linexpr,intdim);
+}
+static inline bool itv_lincons_is_linear(itv_lincons_t cons)
+{
+  return itv_linexpr_is_linear(cons->linexpr);
+}
+static inline bool itv_lincons_is_quasilinear(itv_lincons_t cons)
+{
+  return itv_linexpr_is_quasilinear(cons->linexpr);
+}
+static inline itvlinexpr_type_t itv_lincons_type(itv_lincons_t cons)
+{
+  return itv_linexpr_type(cons->linexpr);
+}
+static inline size_t itv_lincons_supportinterval(itv_lincons_t cons, ap_dim_t* tdim)
+{
+  return itv_linexpr_supportinterval(cons->linexpr,tdim);
+}
+static inline
+bool itv_lincons_quasilinearize(itv_internal_t* intern,
+				itv_lincons_t lincons,
+				itv_t* env,
+				bool for_meet_inequality)
+{
+  return itv_linexpr_quasilinearize(intern,lincons->linexpr,env,for_meet_inequality);
+}
+static inline
+void itv_lincons_add_dimension(itv_lincons_t res,
+			       itv_lincons_t cons,
+			       ap_dimchange_t* dimchange)
+{ itv_linexpr_add_dimension(res->linexpr,cons->linexpr,dimchange); }
+
+static inline
+void itv_lincons_permute_dimensions(itv_lincons_t res,
+				    itv_lincons_t cons,
+				    ap_dimperm_t* dimperm)
+{ itv_linexpr_permute_dimensions(res->linexpr,cons->linexpr,dimperm); }
+
+static inline
+int itv_lincons_hash(itv_lincons_t cons)
+{
+  return (int)cons->constyp + itv_linexpr_hash(cons->linexpr);
 }
 
 #ifdef __cplusplus
