@@ -62,9 +62,8 @@ typedef struct itv_internal_t {
   itv_t eval_itv;
   itv_t eval_itv2;
   itv_t eval_itv3;
-  eitv_t eval_eitv;
   num_t quasi_num;
-  itv_t boxize_lincons_itv;
+  eitv_t boxize_lincons_eitv;
   itv_t boxize_lincons_eval;
   bound_t boxize_lincons_bound;
   itv_float_const cst_half, cst_single, cst_double, cst_extended, cst_quad;
