@@ -34,7 +34,7 @@ void itv_linexpr_set(itv_linexpr_t res, itv_linexpr_t expr)
   size_t i,esize,size;
 
   if (res==expr) return;
-  
+
   eitv_set(res->cst,expr->cst);
   for  (i=expr->size; i<res->size; i++){
     itv_linterm_clear(res->linterm[i]);
@@ -85,14 +85,12 @@ void itv_linexpr_minimize(itv_linexpr_t e)
   nsize = 0;
   for (i=0; i<e->size; i++){
     itv_linterm_ptr lin = e->linterm[i];
-    if (lin->dim != AP_DIM_MAX){
-      if (!eitv_is_zero(lin->eitv))
-	nsize++;
-      else
-	lin->dim = AP_DIM_MAX;
-    }
-    else
+    if (lin->dim == AP_DIM_MAX)
       break;
+    if (!eitv_is_zero(lin->eitv))
+      nsize++;
+    else
+      lin->dim = AP_DIM_MAX;
   }
   if (nsize!=e->size){
     itv_linterm_t* linterm = malloc(nsize*sizeof(itv_linterm_t));
@@ -128,165 +126,42 @@ void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name)
   fflush(stream);
 }
 
-/* ********************************************************************** */
-/* II. Arithmetic */
-/* ********************************************************************** */
-
-void itv_linexpr_neg(itv_linexpr_t res, itv_linexpr_t expr)
+void itv_linexpr_array_init(itv_linexpr_t* tab, size_t size)
 {
   size_t i;
-  ap_dim_t dim;
-  bool* peq;
-  eitv_ptr pitv;
-
-  if (res!=expr){
-    itv_linexpr_set(res,expr);
+  for (i=0; i<size; i++){
+    itv_linexpr_init(tab[i],0);
   }
-  eitv_neg(res->cst, expr->cst);
-  itv_linexpr_ForeachLinterm(res,i,dim,pitv){
-    eitv_neg(pitv,pitv);
-  }
-  return;
 }
-void itv_linexpr_scale(itv_internal_t* intern,
-		       itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
+void itv_linexpr_array_clear(itv_linexpr_t* tab, size_t size)
 {
   size_t i;
-  ap_dim_t dim;
-  bool* peq;
-  eitv_ptr pitv;
-
-  eitv_is_point(coeff);
-  if (eitv_is_zero(coeff)){
-    eitv_set(expr->cst,coeff);
-    itv_linexpr_reinit(expr,0);
-    return;
+  for (i=0; i<size; i++){
+    itv_linexpr_clear(tab[i]);
   }
-  if (res!=expr){
-    itv_linexpr_set(res,expr);
-  }
-  eitv_mul(intern,res->cst,res->cst,coeff);
-  if (eitv_is_top(res->cst)){
-    itv_linexpr_reinit(res,0);
-    return;
-  }
-  else {
-    itv_linexpr_ForeachLinterm(res,i,dim,pitv){
-      eitv_mul(intern,pitv,pitv,coeff);
-    }
-  }
-  return;
 }
-void itv_linexpr_div(itv_internal_t* intern,
-		     itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
+itv_linexpr_t* itv_linexpr_array_alloc(size_t size)
+{
+  itv_linexpr_t* res = (itv_linexpr_t*)malloc(size*sizeof(itv_linexpr_t));
+  itv_linexpr_array_init(res,size);
+  return res;
+}
+void itv_linexpr_array_free(itv_linexpr_t* tab, size_t size)
+{
+  itv_linexpr_array_clear(tab,size);
+  free(tab);
+}
+void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_t* tab, size_t size, char** name)
 {
   size_t i;
-  ap_dim_t dim;
-  eitv_ptr pitv;
-
-  if (res!=expr){
-    itv_linexpr_set(res,expr);
-  }
-  eitv_div(intern,res->cst,res->cst,coeff);
-  itv_linexpr_ForeachLinterm(expr,i,dim,pitv){
-    eitv_div(intern,pitv,pitv,coeff);
-  }
-  return;
-}
-
-void itv_linexpr_add(itv_internal_t* intern,
-		     itv_linexpr_t res,
-		     itv_linexpr_t exprA,
-		     itv_linexpr_t exprB)
-{
-  size_t i,j,k;
-  itv_linexpr_t expr;
-  bool endA,endB;
-
-  if (res==exprA || res==exprB){
-    itv_linexpr_init(expr,exprA->size+exprB->size);
-  }
-  else {
-    *expr = *res;
-    itv_linexpr_reinit(expr,exprA->size+exprB->size);
-  }
-  i = j = k = 0;
-  endA = endB = false;
-  eitv_add(expr->cst,exprA->cst,exprB->cst);
-  if (eitv_is_top(expr->cst))
-    goto _itv_linexpr_add_return;
-  while (true){
-    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == AP_DIM_MAX;
-    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == AP_DIM_MAX;
-    if (endA && endB)
-      break;
-    if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
-      itv_linterm_set(expr->linterm[k], exprB->linterm[j]);
-      k++; j++;
-    }
-    else if (endB || (!endA && exprA->linterm[i]->dim < exprB->linterm[j]->dim)){
-      itv_linterm_set(expr->linterm[k], exprA->linterm[i]);
-      k++; i++;
-    }
-    else {
-      eitv_add(expr->linterm[k]->eitv, exprA->linterm[i]->eitv,exprB->linterm[j]->eitv);
-      expr->linterm[k]->dim = exprA->linterm[i]->dim;
-      if (!eitv_is_zero(expr->linterm[k]->eitv)){
-	k++;
-      }
-      i++; j++;
-    }
-  }
- _itv_linexpr_add_return:
-  itv_linexpr_reinit(expr,k);
-  if (res==exprA || res==exprB){
-    itv_linexpr_clear(res);
-  }
-  *res = *expr;
-  return;
-}
-void itv_linexpr_sub(itv_internal_t* intern,
-		     itv_linexpr_t res,
-		     itv_linexpr_t exprA,
-		     itv_linexpr_t exprB)
-{
-  if (exprA==exprB){
-    itv_linexpr_t expr;
-    itv_linexpr_init(expr,0);
-    itv_linexpr_neg(expr,exprB);
-    itv_linexpr_add(intern,res,exprA,expr);
-    itv_linexpr_clear(expr);
-  }
-  else {
-    itv_linexpr_neg(exprB,exprB);
-    itv_linexpr_add(intern,res,exprA,exprB);
-    if (exprB!=res){
-      itv_linexpr_neg(exprB,exprB);
-    }
-  }
-}
-
-/* Evaluate an interval linear expression */
-void itv_linexpr_eval(itv_internal_t* intern,
-		      eitv_t res, itv_linexpr_t expr, eitv_t* env)
-{
-  size_t i;
-  ap_dim_t dim;
-  eitv_ptr eitv;
-  assert(env);
-
-  eitv_set(res, expr->cst);
-  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
-    eitv_mul(intern,
-	     intern->eval_eitv,env[dim],eitv);
-    eitv_add(res,res,intern->eval_eitv);
-    if (eitv_is_top(res))
-      break;
+  for (i=0; i<size; i++){
+    itv_linexpr_fprint(stream,tab[i],name);
+    fprintf(stream,"\n");
   }
 }
 
 /* ********************************************************************** */
-/* III. Tests */
+/* II. Tests */
 /* ********************************************************************** */
 
 bool itv_linexpr_is_integer(itv_linexpr_t expr, size_t intdim)
@@ -323,6 +198,19 @@ bool itv_linexpr_is_real(itv_linexpr_t expr, size_t intdim)
   }
   return res;
 }
+bool itv_linexpr_is_quasilinear(itv_linexpr_t expr)
+{
+  size_t i,dim;
+  eitv_ptr eitv;
+  bool res;
+
+  res = true;
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    res = eitv_is_point(eitv);
+    if (!res) break;
+  }
+  return res;
+}
 itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a)
 {
   if (itv_linexpr_is_quasilinear(a)){
@@ -334,15 +222,14 @@ itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a)
   else
     return ITV_LINEXPR_INTLINEAR;
 }
-bool itv_linexpr_is_quasilinear(itv_linexpr_t expr)
+bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size)
 {
-  size_t i,dim;
-  eitv_ptr eitv;
+  size_t i;
   bool res;
 
   res = true;
-  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
-    res = eitv->eq;
+  for (i=0;i<size;i++){
+    res = itv_linexpr_is_quasilinear(texpr[i]);
     if (!res) break;
   }
   return res;
@@ -375,21 +262,9 @@ bool itv_linexpr_array_is_linear(itv_linexpr_t* texpr, size_t size)
   }
   return res;
 }
-bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size)
-{
-  size_t i;
-  bool res;
-
-  res = true;
-  for (i=0;i<size;i++){
-    res = itv_linexpr_is_quasilinear(texpr[i]);
-    if (!res) break;
-  }
-  return res;
-}
 
 /* ====================================================================== */
-/* IV. Access */
+/* III. Access */
 /* ====================================================================== */
 
 static size_t index_of_or_after_dim(ap_dim_t dim, itv_linterm_t* linterm, size_t size)
@@ -648,8 +523,444 @@ bool itv_linexpr_set_list(numinternal_t intern, itv_linexpr_t expr, ...)
   return res;
 }
 
+/* ********************************************************************** */
+/* IV. Arithmetic */
+/* ********************************************************************** */
+
+void itv_linexpr_neg(itv_linexpr_t res, itv_linexpr_t expr)
+{
+  size_t i;
+  ap_dim_t dim;
+  bool* peq;
+  eitv_ptr pitv;
+
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_neg(res->cst, expr->cst);
+  itv_linexpr_ForeachLinterm(res,i,dim,pitv){
+    eitv_neg(pitv,pitv);
+  }
+  return;
+}
+void itv_linexpr_scale(itv_internal_t* intern,
+		       itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
+{
+  size_t i;
+  ap_dim_t dim;
+  bool* peq;
+  eitv_ptr pitv;
+
+  eitv_is_point(coeff);
+  if (eitv_is_zero(coeff)){
+    eitv_set(expr->cst,coeff);
+    itv_linexpr_reinit(expr,0);
+    return;
+  }
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_mul(intern,res->cst,res->cst,coeff);
+  if (eitv_is_top(res->cst)){
+    itv_linexpr_reinit(res,0);
+    return;
+  }
+  else {
+    itv_linexpr_ForeachLinterm(res,i,dim,pitv){
+      eitv_mul(intern,pitv,pitv,coeff);
+    }
+  }
+  return;
+}
+void itv_linexpr_div(itv_internal_t* intern,
+		     itv_linexpr_t res, itv_linexpr_t expr, eitv_t coeff)
+{
+  size_t i;
+  ap_dim_t dim;
+  eitv_ptr pitv;
+
+  if (res!=expr){
+    itv_linexpr_set(res,expr);
+  }
+  eitv_div(intern,res->cst,res->cst,coeff);
+  itv_linexpr_ForeachLinterm(expr,i,dim,pitv){
+    eitv_div(intern,pitv,pitv,coeff);
+  }
+  return;
+}
+
+void itv_linexpr_add(itv_internal_t* intern,
+		     itv_linexpr_t res,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB)
+{
+  size_t i,j,k;
+  itv_linexpr_t expr;
+  bool endA,endB;
+
+  if (res==exprA || res==exprB){
+    itv_linexpr_init(expr,exprA->size+exprB->size);
+  }
+  else {
+    *expr = *res;
+    itv_linexpr_reinit(expr,exprA->size+exprB->size);
+  }
+  i = j = k = 0;
+  endA = endB = false;
+  eitv_add(expr->cst,exprA->cst,exprB->cst);
+  if (eitv_is_top(expr->cst))
+    goto _itv_linexpr_add_return;
+  while (true){
+    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == AP_DIM_MAX;
+    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == AP_DIM_MAX;
+    if (endA && endB)
+      break;
+    if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
+      itv_linterm_set(expr->linterm[k], exprB->linterm[j]);
+      k++; j++;
+    }
+    else if (endB || (!endA && exprA->linterm[i]->dim < exprB->linterm[j]->dim)){
+      itv_linterm_set(expr->linterm[k], exprA->linterm[i]);
+      k++; i++;
+    }
+    else {
+      eitv_add(expr->linterm[k]->eitv, exprA->linterm[i]->eitv,exprB->linterm[j]->eitv);
+      expr->linterm[k]->dim = exprA->linterm[i]->dim;
+      if (!eitv_is_zero(expr->linterm[k]->eitv)){
+	k++;
+      }
+      i++; j++;
+    }
+  }
+ _itv_linexpr_add_return:
+  itv_linexpr_reinit(expr,k);
+  if (res==exprA || res==exprB){
+    itv_linexpr_clear(res);
+  }
+  *res = *expr;
+  return;
+}
+void itv_linexpr_sub(itv_internal_t* intern,
+		     itv_linexpr_t res,
+		     itv_linexpr_t exprA,
+		     itv_linexpr_t exprB)
+{
+  if (exprA==exprB){
+    itv_linexpr_t expr;
+    itv_linexpr_init(expr,0);
+    itv_linexpr_neg(expr,exprB);
+    itv_linexpr_add(intern,res,exprA,expr);
+    itv_linexpr_clear(expr);
+  }
+  else {
+    itv_linexpr_neg(exprB,exprB);
+    itv_linexpr_add(intern,res,exprA,exprB);
+    if (exprB!=res){
+      itv_linexpr_neg(exprB,exprB);
+    }
+  }
+}
+
+/* ********************************************************************** */
+/* V. Evaluation and Quasilinearisation of interval linear expressions */
+/* ********************************************************************** */
+
+/* Evaluate an interval linear expression */
+bool itv_linexpr_eval(itv_internal_t* intern,
+		      itv_t res, itv_linexpr_t expr, itv_t* env)
+{
+  size_t i;
+  ap_dim_t dim;
+  eitv_ptr eitv;
+
+  assert(env);
+
+  itv_set(res, expr->cst->itv);
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    itv_mul(intern,
+	    intern->eval_itv,env[dim],eitv->itv);
+    itv_add(res,res,intern->eval_itv);
+    if (itv_is_top(res))
+      break;
+  }
+#if NUM_EXACT
+  return true;
+#else
+  return false;
+#endif
+}
+
 /* ====================================================================== */
-/* V. Change of dimensions and permutations */
+/* V.1 Support */
+/* ====================================================================== */
+
+/* Merge buffers k0 and k1, and return the new buffer in *pk (normally,
+   k2) */
+void itv_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk)
+{
+  size_t k0 = *pk;
+  size_t k1 = (k0+1)%3;
+  size_t k2 = (k0+2)%3;
+  if (k0==0)
+    *pk = k1;
+  else if (k1==0)
+    *pk = k0;
+  else {
+    size_t i0,i1,i2;
+    bool end0, end1;
+
+    i0 = i1 = i2 = 0;
+    end0 = end1 = false;
+    while (true){
+      end0 = end0 || i0>=tnb[k0];
+      end1 = end1 || i1>=tnb[k1];
+      if (end0 && end1)
+	break;
+      else if (end0 || (!end1 && ttdim[k1][i1] < ttdim[k0][i0])){
+	ttdim[k2][i2] = ttdim[k1][i1];
+	i2++; i1++;
+      }
+      else if (end1 || (!end0 && ttdim[k1][i1] > ttdim[k0][i0])){
+	ttdim[k2][i2] = ttdim[k0][i0];
+	i2++; i0++;
+      }
+      else {
+	ttdim[k2][i2] = ttdim[k0][i0];
+	i2++; i0++; i1++;
+      }
+    }
+    tnb[k2] = i2;
+    *pk = k2;
+  }
+}
+
+size_t itv_linexpr_supportinterval(itv_linexpr_t expr, ap_dim_t* tdim)
+{
+  size_t i,dim;
+  eitv_ptr eitv;
+  size_t nb;
+
+  nb = 0;
+  itv_linexpr_ForeachLinterm(expr,i,dim,eitv){
+    if (!eitv_is_point(eitv)){
+      tdim[nb] = dim;
+      nb++;
+    }
+  }
+  return nb;
+}
+size_t itv_linexpr_array_supportinterval(itv_linexpr_t* texpr, size_t size,
+					 ap_dim_t* tdim, size_t maxdim1)
+{
+  if (size==0){
+    return 0;
+  }
+  else if (size==1){
+    return itv_linexpr_supportinterval(texpr[0],tdim);
+  }
+  else {
+    size_t i,k,nb;
+    ap_dim_t* buffer;
+    ap_dim_t* ttdim[3];
+    size_t tnb[3];
+
+    buffer = (ap_dim_t*)malloc(3*maxdim1*sizeof(ap_dim_t));
+    for (i=0; i<3; i++){
+      ttdim[i] = &buffer[i*maxdim1];
+      tnb[i] = 0;
+    }
+    k = 0;
+    for (i=0; i<size; i++){
+      size_t k1 = (k+1)%3 ;
+      tnb[k1] = itv_linexpr_supportinterval(texpr[i],ttdim[k1]);
+      itv_support_merge(ttdim,tnb,&k);
+    }
+    nb = tnb[k];
+    memcpy(tdim,&ttdim[k],nb*sizeof(ap_dim_t));
+    free(buffer);
+    return nb;
+  }
+}
+
+/* ====================================================================== */
+/* V.2 Quasilinearisation */
+/* ====================================================================== */
+
+/* These functions quasilinearize in-place expressions and constraints.  They
+   optimize (sets of) constraints when the parameter meet is true, by
+   deducing things. If constraints are quasilinearized for testing
+   satisfaction, meet should be set to false.
+*/
+
+
+/* Choose the middle of interval coefficient coeff for quasilinearisation */
+/* Applies the following choice:
+
+   if coeff=[-oo,+oo], choose 0
+   if coeff=[-oo,x], choose x
+   if coeff=[x,+oo], choose x
+   if coeff = [inf,sup]
+   if for_meet_inequality,
+   (* always choose in favour of a finite sup bound in the constant
+   of the quasilinear expression *)
+   if var=[-oo,a]
+   choose inf,
+   because it gives inf.var + [0,sup-inf].[-oo,a] = inf.var + [-oo,b]
+   if var=[a,+oo]
+   choose sup,
+   because it gives sup.var + [inf-sup,0].[a,+oo] = sup.var + [-oo,b]
+   if var=[a,b], choose middle
+   else
+   (* always choose in favour of at least a finite bound in the evaluation
+   of the quasilinear expression *)
+   if var=[-oo,a]
+   if inf >= 0, choose inf,
+   because inf.var + [0,sup-inf][-oo,a] evaluates to a finite sup bound
+   if sup<=0, choose sup
+   because sup.var + [inf-sup,0][-oo,a] evaluates to a finite inf bound
+   otherwise arbitrary choice (middle)
+   if var=[a,+oo]
+   if inf >= 0, choose inf,
+   because inf.var + [0,sup-inf][a,+oo] evaluates to a finite inf bound
+   if sup <= 0, choose sup,
+   because sup.var + [inf-sup,0][a,+oo] evaluates to a finite sup bound
+   otherwise arbitrary choice (middle)
+   if var=[a,b], choose middle
+*/
+
+static void
+itv_quasilinearize_choose_middle(num_t middle, /* the result */
+				 itv_t coeff,    /* the coefficient in which
+						    middle is to be picked */
+				 itv_t var,      /* the variable interval */
+				 bool for_meet_inequality /* is it for the
+							     linearisation of
+							     an inequality ? */
+				 )
+{
+  if (bound_infty(coeff->neginf)){
+    if (bound_infty(coeff->sup))
+      num_set_int(middle,0);
+    else
+      num_set(middle,
+	      bound_numref(coeff->sup));
+  }
+  else if (bound_infty(coeff->sup))
+    num_neg(middle,
+	    bound_numref(coeff->neginf));
+  else {
+    /* if coeff = [inf,sup] */
+    if (for_meet_inequality){
+      if (bound_infty(var->neginf))
+	num_neg(middle,
+		bound_numref(coeff->neginf));
+      else if (bound_infty(var->sup))
+	num_set(middle,
+		bound_numref(coeff->sup));
+      else /* Arbitrary choice: we take the middle */
+	goto itv_quasilinearize_choose_middle_default;
+    }
+    else {
+      if (bound_infty(var->neginf) ?
+	  !bound_infty(var->sup) :
+	  bound_infty(var->sup)){
+	if (bound_sgn(coeff->neginf)<=0)
+	  num_neg(middle,
+		  bound_numref(coeff->neginf));
+	else if (bound_sgn(coeff->sup)<=0)
+	  num_set(middle,
+		  bound_numref(coeff->sup));
+	else /* Arbitrary choice: we take the middle */
+	  goto itv_quasilinearize_choose_middle_default;
+      }
+      else {
+      itv_quasilinearize_choose_middle_default:
+	num_sub(middle,
+		bound_numref(coeff->sup),
+		bound_numref(coeff->neginf));
+	num_div_2(middle,
+		  middle);
+      }
+    }
+  }
+}
+
+bool itv_linexpr_quasilinearize(itv_internal_t* intern,
+				itv_linexpr_t linexpr, itv_t* env,
+				bool for_meet_inequality)
+{
+  ap_dim_t size,i,dim;
+  eitv_ptr eitv;
+  bool top,zero;
+
+#if LOGDEBUG
+  printf("itv_linexpr_quasilinearize:\n");
+  itv_linexpr_print(linexpr,0); printf("\n");
+#endif
+  top = false; zero = false;
+  itv_linexpr_ForeachLinterm(linexpr,i,dim,eitv){
+    if (itv_is_point(env[dim])){
+      /* If a variable has a constant value, simplification */
+      eitv_mul_num(eitv,eitv,bound_numref(env[dim]->sup));
+      eitv_add(linexpr->cst,linexpr->cst,eitv);
+      eitv_set_int(eitv,0);
+      zero = true;
+    }
+    else if (!eitv_is_point(eitv)){
+      itv_ptr itv = eitv->itv;
+      /* Compute the middle of the interval */
+      itv_quasilinearize_choose_middle(intern->quasi_num,
+				       itv,env[dim],for_meet_inequality);
+      /* Residue (interval-middle) */
+      itv_sub_num(intern->eval_itv2,itv,intern->quasi_num);
+      /* Multiplication of residue by variable range */
+      itv_mul(intern,
+	      intern->eval_itv,
+	      intern->eval_itv2,
+	      env[dim]);
+      /* Addition to the constant coefficient */
+      linexpr->cst->eq = false;
+      itv_add(linexpr->cst->itv,linexpr->cst->itv,intern->eval_itv);
+      if (eitv_is_top(linexpr->cst)){
+	top = true;
+	break;
+      }
+    }
+  }
+  if (top)
+    itv_linexpr_reinit(linexpr,0);
+  else if (zero)
+    itv_linexpr_minimize(linexpr);
+
+#if LOGDEBUG
+  itv_linexpr_print(linexpr,NULL); printf("\n");
+#endif
+#if NUM_EXACT
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
+				      itv_linexpr_t* linexpr, size_t size, itv_t* env,
+				      bool for_meet_inequality)
+{
+  size_t i;
+  bool res;
+  res = true;
+  for (i=0; i<size; i++) {
+    itv_linexpr_quasilinearize(intern,linexpr[i],env,for_meet_inequality);
+  }
+#if NUM_EXACT
+  return true;
+#else
+  return false;
+#endif
+}
+
+/* ====================================================================== */
+/* VI. Change of dimensions and permutations */
 /* ====================================================================== */
 
 /* This function adds dimensions to the expressions, following the
@@ -708,7 +1019,7 @@ void itv_linexpr_permute_dimensions(itv_linexpr_t res,
 }
 
 /* ====================================================================== */
-/* VI. Hashing, comparison */
+/* VII. Hashing, comparison */
 /* ====================================================================== */
 
 /* Induces reduction of the coefficients */
