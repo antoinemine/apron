@@ -21,10 +21,13 @@ box_t* box_assign_linexpr_array(ap_manager_t* man,
 				size_t size,
 				box_t* dest)
 {
+  typedef void* (*boxfunction_meet_ptr)(ap_manager_t* standard_manager, bool destructive, box_t* a1, box_t* a2);
+
   bool exact;
   size_t i;
   box_t* res;
   box_internal_t* intern = man->internal;
+  boxfunction_meet_ptr funmeet_ptr = (boxfunction_meet_ptr) man->funptr[AP_FUNID_MEET];
   
   exact = true;
   if (a->p==NULL || (dest && dest->p==NULL)){
@@ -46,7 +49,7 @@ box_t* box_assign_linexpr_array(ap_manager_t* man,
     if (destructive) box_free(man,a);
   }
   if (dest)
-    res = box_meet(man,true,res,dest);
+    res = (*funmeet_ptr)(man,true,res,dest); /* box_meet except for policy iteration */
   man->result.flag_best = size==1 && exact;
   man->result.flag_exact = false;
   return res;
@@ -71,9 +74,11 @@ box_t* box_assign_texpr(ap_manager_t* man,
 			ap_dim_t dim, ap_texpr0_t* texpr,
 			box_t* dest)
 {
+  typedef void* (*boxfunction_meet_ptr)(ap_manager_t* standard_manager, bool destructive, box_t* a1, box_t* a2);
   bool exact;
   box_t* res;
   box_internal_t* intern = man->internal;
+  boxfunction_meet_ptr funmeet_ptr = (boxfunction_meet_ptr) man->funptr[AP_FUNID_MEET];
 
   res = destructive ? a : box_copy(man,a);
   if (a->p==NULL || (dest!=NULL && dest->p==NULL)){
@@ -83,7 +88,7 @@ box_t* box_assign_texpr(ap_manager_t* man,
   }
   itv_eval_ap_texpr0(intern->itv,res->p[dim],texpr,a->p);
   if (dest)
-    res = box_meet(man,true,res,dest);
+    res = (*funmeet_ptr)(man,true,res,dest); /* box_meet except for policy iteration */
   man->result.flag_best = false;
   man->result.flag_exact = false;
   return res;
@@ -97,9 +102,11 @@ box_t* box_assign_texpr_array(ap_manager_t* man,
 			      size_t size,
 			      box_t* dest)
 {
+  typedef void* (*boxfunction_meet_ptr)(ap_manager_t* standard_manager, bool destructive, box_t* a1, box_t* a2);
   size_t i;
   box_t* res;
   box_internal_t* intern = man->internal;
+  boxfunction_meet_ptr funmeet_ptr = (boxfunction_meet_ptr) man->funptr[AP_FUNID_MEET];
   
   if (a->p==NULL || (dest && dest->p==NULL)){
     man->result.flag_best = true;
@@ -118,7 +125,7 @@ box_t* box_assign_texpr_array(ap_manager_t* man,
     if (destructive) box_free(man,a);
   }
   if (dest)
-    res = box_meet(man,true,res,dest);
+    res = (*funmeet_ptr)(man,true,res,dest); /* box_meet except for policy iteration */
   man->result.flag_best = false;
   man->result.flag_exact = false;
   return res;

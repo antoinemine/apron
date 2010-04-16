@@ -226,6 +226,7 @@ ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, ap_abst
 /* ============================================================ */
 
 ap_abstract1_t ap_abstract1_meet(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2);
+ap_abstract1_t ap_abstract1_policy_meet(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2);
 ap_abstract1_t ap_abstract1_join(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2);
   /* Meet and Join of 2 abstract values
      - The environment of the result is the lce of the arguments
@@ -233,6 +234,7 @@ ap_abstract1_t ap_abstract1_join(ap_manager_t* man, bool destructive, ap_abstrac
   */
 
 ap_abstract1_t ap_abstract1_meet_array(ap_manager_t* man, ap_abstract1_t* tab, size_t size);
+ap_abstract1_t ap_abstract1_policy_meet_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy, ap_abstract1_t* tab, size_t size);
 ap_abstract1_t ap_abstract1_join_array(ap_manager_t* man, ap_abstract1_t* tab, size_t size);
   /* Meet and Join of an array of abstract values.
      - Raises an [[exc_invalid_argument]] exception if [[size==0]]
@@ -245,8 +247,15 @@ ap_abstract1_t ap_abstract1_meet_lincons_array(ap_manager_t* man,
 					       bool destructive,
 					       ap_abstract1_t* a,
 					       ap_lincons1_array_t* array);
+ap_abstract1_t ap_abstract1_policy_meet_lincons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+					       bool destructive,
+					       ap_abstract1_t* a,
+					       ap_lincons1_array_t* array);
 ap_abstract1_t
 ap_abstract1_meet_tcons_array(ap_manager_t* man,
+			      bool destructive, ap_abstract1_t* a, ap_tcons1_array_t* array);
+ap_abstract1_t
+ap_abstract1_policy_meet_tcons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 			      bool destructive, ap_abstract1_t* a, ap_tcons1_array_t* array);
   /* Meet of an abstract value with a set of constraints. */
 
@@ -268,12 +277,22 @@ ap_abstract1_assign_linexpr_array(ap_manager_t* man,
 				  ap_var_t* tvar, ap_linexpr1_t* texpr, size_t size,
 				  ap_abstract1_t* dest);
 ap_abstract1_t 
+ap_abstract1_policy_assign_linexpr_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+				  bool destructive, ap_abstract1_t* a,
+				  ap_var_t* tvar, ap_linexpr1_t* texpr, size_t size,
+				  ap_abstract1_t* dest);
+ap_abstract1_t 
 ap_abstract1_substitute_linexpr_array(ap_manager_t* man,
 				      bool destructive, ap_abstract1_t* a,
 				      ap_var_t* tvar, ap_linexpr1_t* texpr, size_t size,
 				      ap_abstract1_t* dest);
  ap_abstract1_t 
 ap_abstract1_assign_texpr_array(ap_manager_t* man,
+				bool destructive, ap_abstract1_t* a,
+				ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
+				ap_abstract1_t* dest);
+ ap_abstract1_t 
+ap_abstract1_policy_assign_texpr_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 				bool destructive, ap_abstract1_t* a,
 				ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
 				ap_abstract1_t* dest);
@@ -373,10 +392,20 @@ ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
 ap_abstract1_t ap_abstract1_of_tcons_array(ap_manager_t* man,
 					   ap_environment_t* env,
 					   ap_tcons1_array_t* array);
+ap_abstract1_t ap_abstract1_policy_of_lincons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+					     ap_environment_t* env,
+					     ap_lincons1_array_t* array);
+ap_abstract1_t ap_abstract1_policy_of_tcons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+					   ap_environment_t* env,
+					   ap_tcons1_array_t* array);
   /* Abstract a conjunction of constraints and return an abstract value 
      defined on the given environment. */
 
 ap_abstract1_t ap_abstract1_assign_linexpr(ap_manager_t* man,
+					   bool destructive, ap_abstract1_t* a,
+					   ap_var_t var, ap_linexpr1_t* expr,
+					   ap_abstract1_t* dest);
+ap_abstract1_t ap_abstract1_policy_assign_linexpr(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 					   bool destructive, ap_abstract1_t* a,
 					   ap_var_t var, ap_linexpr1_t* expr,
 					   ap_abstract1_t* dest);
@@ -385,6 +414,10 @@ ap_abstract1_t ap_abstract1_substitute_linexpr(ap_manager_t* man,
 					       ap_var_t var, ap_linexpr1_t* expr,
 					       ap_abstract1_t* dest);
 ap_abstract1_t ap_abstract1_assign_texpr(ap_manager_t* man,
+					 bool destructive, ap_abstract1_t* a,
+					 ap_var_t var, ap_texpr1_t* expr,
+					 ap_abstract1_t* dest);
+ap_abstract1_t ap_abstract1_policy_assign_texpr(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 					 bool destructive, ap_abstract1_t* a,
 					 ap_var_t var, ap_texpr1_t* expr,
 					 ap_abstract1_t* dest);
