@@ -11,6 +11,7 @@
 typedef struct ap_abstract0_t ap_abstract0_t;
 
 #include "ap_manager.h"
+#include "ap_policy.h"
 #include "ap_expr0.h"
 
 #ifdef __cplusplus
@@ -227,6 +228,8 @@ ap_generator0_array_t ap_abstract0_to_generator_array(ap_manager_t* man, ap_abst
 
 ap_abstract0_t* ap_abstract0_meet(ap_manager_t* man,
 				  bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
+ap_abstract0_t* ap_abstract0_policy_meet(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+				  bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
 
 ap_abstract0_t* ap_abstract0_join(ap_manager_t* man,
 				  bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
@@ -234,6 +237,8 @@ ap_abstract0_t* ap_abstract0_join(ap_manager_t* man,
 
 
 ap_abstract0_t* ap_abstract0_meet_array(ap_manager_t* man,
+					ap_abstract0_t** tab, size_t size);
+ap_abstract0_t* ap_abstract0_policy_meet_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 					ap_abstract0_t** tab, size_t size);
 
 ap_abstract0_t* ap_abstract0_join_array(ap_manager_t* man,
@@ -247,7 +252,13 @@ ap_abstract0_t*
 ap_abstract0_meet_lincons_array(ap_manager_t* man,
 				bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array);
 ap_abstract0_t*
+ap_abstract0_policy_meet_lincons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+				bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array);
+ap_abstract0_t*
 ap_abstract0_meet_tcons_array(ap_manager_t* man,
+				bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array);
+ap_abstract0_t*
+ap_abstract0_policy_meet_tcons_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 				bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array);
   /* Meet of an abstract value with a set of constraints */
 
@@ -267,7 +278,19 @@ ap_abstract0_assign_linexpr_array(ap_manager_t* man,
 				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
+ap_abstract0_policy_assign_linexpr_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+				  bool destructive,
+				  ap_abstract0_t* org,
+				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
+				  ap_abstract0_t* dest);
+ap_abstract0_t*
 ap_abstract0_assign_texpr_array(ap_manager_t* man,
+				bool destructive,
+				ap_abstract0_t* org,
+				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
+				ap_abstract0_t* dest);
+ap_abstract0_t*
+ap_abstract0_policy_assign_texpr_array(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 				bool destructive,
 				ap_abstract0_t* org,
 				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
@@ -391,7 +414,17 @@ ap_abstract0_t* ap_abstract0_assign_linexpr(ap_manager_t* man,
 					    ap_abstract0_t* org,
 					    ap_dim_t dim, ap_linexpr0_t* expr,
 					    ap_abstract0_t* dest);
+ap_abstract0_t* ap_abstract0_policy_assign_linexpr(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+					    bool destructive,
+					    ap_abstract0_t* org,
+					    ap_dim_t dim, ap_linexpr0_t* expr,
+					    ap_abstract0_t* dest);
 ap_abstract0_t* ap_abstract0_assign_texpr(ap_manager_t* man,
+					  bool destructive,
+					  ap_abstract0_t* org,
+					  ap_dim_t dim, ap_texpr0_t* expr,
+					  ap_abstract0_t* dest);
+ap_abstract0_t* ap_abstract0_policy_assign_texpr(ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 					  bool destructive,
 					  ap_abstract0_t* org,
 					  ap_dim_t dim, ap_texpr0_t* expr,
@@ -441,9 +474,22 @@ ap_abstract0_meetjoin(ap_funid_t funid,
 		      ap_manager_t* man, bool destructive,
 		      ap_abstract0_t* a1, ap_abstract0_t* a2);
 ap_abstract0_t*
+ap_abstract0_policy_meetjoin(ap_funpolicyid_t funid,
+		      /* either meet or join */
+		      ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy, bool destructive,
+		      ap_abstract0_t* a1, ap_abstract0_t* a2);
+ap_abstract0_t*
 ap_abstract0_asssub_linexpr(ap_funid_t funid,
 			    /* either assign or substitute */
 			    ap_manager_t* man,
+			    bool destructive,
+			    ap_abstract0_t* a,
+			    ap_dim_t dim, ap_linexpr0_t* expr,
+			    ap_abstract0_t* dest);
+ap_abstract0_t*
+ap_abstract0_policy_asssub_linexpr(ap_funpolicyid_t funid,
+			    /* either assign or substitute */
+			    ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 			    bool destructive,
 			    ap_abstract0_t* a,
 			    ap_dim_t dim, ap_linexpr0_t* expr,
@@ -457,6 +503,14 @@ ap_abstract0_asssub_linexpr_array(ap_funid_t funid,
 				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
+ap_abstract0_policy_asssub_linexpr_array(ap_funpolicyid_t funid,
+				  /* either assign or substitute */
+				  ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+				  bool destructive,
+				  ap_abstract0_t* a,
+				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
+				  ap_abstract0_t* dest);
+ap_abstract0_t*
 ap_abstract0_asssub_texpr(ap_funid_t funid,
 			    /* either assign or substitute */
 			  ap_manager_t* man,
@@ -465,9 +519,25 @@ ap_abstract0_asssub_texpr(ap_funid_t funid,
 			  ap_dim_t dim, ap_texpr0_t* expr,
 			  ap_abstract0_t* dest);
 ap_abstract0_t*
+ap_abstract0_policy_asssub_texpr(ap_funpolicyid_t funid,
+			    /* either assign or substitute */
+			  ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
+			  bool destructive,
+			  ap_abstract0_t* a,
+			  ap_dim_t dim, ap_texpr0_t* expr,
+			  ap_abstract0_t* dest);
+ap_abstract0_t*
 ap_abstract0_asssub_texpr_array(ap_funid_t funid,
 				/* either assign or substitute */
 				ap_manager_t* man,
+				bool destructive,
+				ap_abstract0_t* a,
+				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
+				ap_abstract0_t* dest);
+ap_abstract0_t*
+ap_abstract0_policy_asssub_texpr_array(ap_funpolicyid_t funid,
+				/* either assign or substitute */
+				ap_manager_t* man, ap_policy_manager_t* policy_man, ap_current_policy_t* policy,
 				bool destructive,
 				ap_abstract0_t* a,
 				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
