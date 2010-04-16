@@ -29,7 +29,7 @@ OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 # Files
 #---------------------------------------
 
-CCMODULES = box_internal box_representation box_constructor box_meetjoin box_assign box_resize box_otherops
+CCMODULES = box_internal box_representation box_constructor box_meetjoin box_assign box_resize box_otherops box_policy
 CCSRC = box_config.h box.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = box.h
