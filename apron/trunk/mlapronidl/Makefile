@@ -136,9 +136,9 @@ libapron_caml_debug.so: $(CCMODULES:%=%_debug.o) ../apron/libapron_debug.so
 	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) $(LIBS_DEBUG)
 
 dllapron_caml.so: libapron_caml.so
-	ln -s $^ $@
+	ln -sf $^ $@
 dllapron_caml_debug.so: libapron_caml_debug.so
-	ln -s $^ $@
+	ln -sf $^ $@
 
 #---------------------------------------
 # CAML rules
@@ -197,9 +197,9 @@ html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODU
 #---------------------------------------
 
 mpz.idl: $(MLGMPIDL_PREFIX)/lib/mpz.idl
-	ln -s $^ $@
+	ln -sf $^ $@
 mpq.idl: $(MLGMPIDL_PREFIX)/lib/mpq.idl
-	ln -s $^ $@
+	ln -sf $^ $@
 
 # Generate for each %.idl: %i.ml, %i.mli, %_caml.c
 rebuild: mpz.idl mpq.idl
