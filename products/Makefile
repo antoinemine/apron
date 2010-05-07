@@ -155,31 +155,31 @@ polkaGrid.cmxa polkaGrid.a: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
 #---------------------------------------
 
 scalar.idl: ../mlapronidl/scalar.idl
-	ln -s $< $@
+	ln -sf $< $@
 interval.idl: ../mlapronidl/interval.idl
-	ln -s $< $@
+	ln -sf $< $@
 coeff.idl: ../mlapronidl/coeff.idl
-	ln -s $< $@
+	ln -sf $< $@
 dim.idl: ../mlapronidl/dim.idl
-	ln -s $< $@
+	ln -sf $< $@
 linexpr0.idl: ../mlapronidl/linexpr0.idl
-	ln -s $< $@
+	ln -sf $< $@
 lincons0.idl: ../mlapronidl/lincons0.idl
-	ln -s $< $@
+	ln -sf $< $@
 generator0.idl: ../mlapronidl/generator0.idl
-	ln -s $< $@
+	ln -sf $< $@
 texpr0.idl: ../mlapronidl/texpr0.idl
-	ln -s $< $@
+	ln -sf $< $@
 tcons0.idl: ../mlapronidl/tcons0.idl
-	ln -s $< $@
+	ln -sf $< $@
 manager.idl: ../mlapronidl/manager.idl
-	ln -s $< $@
+	ln -sf $< $@
 abstract0.idl: ../mlapronidl/abstract0.idl
-	ln -s $< $@
+	ln -sf $< $@
 macros.m4: ../mlapronidl/macros.m4
-	ln -s $< $@
+	ln -sf $< $@
 sedscript_c: ../mlapronidl/sedscript_c
-	ln -s $< $@
+	ln -sf $< $@
 
 # generates polkaGrid.ml, polkaGrid.mli, polkaGrid_caml.c from polkaGrid.idl
 rebuild: polkaGrid.idl macros.m4 sedscript_c scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
