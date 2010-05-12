@@ -3,13 +3,18 @@ include ../Makefile.config
 ICFLAGS = \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
--I$(APRON_PREFIX)/include \
+-I$(APRON_PREFIX) \
 -I$(PPL_PREFIX)/include 
 
 LCFLAGS = \
 -L$(GMP_PREFIX)/lib \
 -L$(MPFR_PREFIX)/lib \
--L$(APRON_PREFIX)/lib \
+-L$(APRON_PREFIX) \
+-L$(APRON_PREFIX)/../products \
+-L$(APRON_PREFIX)/../ppl \
+-L$(APRON_PREFIX)/../newpolka \
+-L$(APRON_PREFIX)/../octagons \
+-L$(APRON_PREFIX)/../box \
 -L$(PPL_PREFIX)/lib \
 -L$(CAMLIDL_PREFIX)/lib/ocaml
 
@@ -29,9 +34,12 @@ all: C
 # C examples
 .PRECIOUS: %.o %_debug.o
 
-C: ctest1
+C: ctest1_debug ctest2_debug
 
-%: %.o
+ctest1: ctest1.o
+	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
+	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
+ctest2: ctest2.o
 	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
 	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
 
@@ -52,11 +60,11 @@ C: ctest1
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -o $@ $<
 
 clean:
-	rm -f ctest1 ctest1_debug *.o *.cm[xoia] *.opt *.byte
+	rm -f ctest1 ctest1_debug ctest2 ctest2_debug *.o *.cm[xoia] *.opt *.byte
 
 distclean: clean
 
 mostlyclean: clean
 
-dist: ctest1.c Makefile README
+dist: ctest1.c ctest2.c Makefile README
 	(cd ..; tar zcvf test.tgz $(^:%=test/%))
