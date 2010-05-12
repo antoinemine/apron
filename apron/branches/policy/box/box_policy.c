@@ -403,10 +403,10 @@ box_t* box_meet_array_policy(ap_manager_t* man, ap_policy_manager_t* policy_man,
     /* policy1.p = &policy->p[i];*/
     box_meet_policy(man,policy_man,current_policy /* mode, &policy1*/,true,res,tab[i]);
     if (res->p==NULL) break;
-    if (i < size)
-       current_policy->index = index;
+    /* if (i < size)
+          current_policy->index = index; */
   }
-  ++current_policy->index;
+  /* ++current_policy->index; */
   man->result.flag_best = true;
   man->result.flag_exact = true;
   return res;
