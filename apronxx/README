@@ -1,0 +1,227 @@
+README
+
+C++ binding for APRON Library
+
+Copyright (C) Antoine Mine' 2007
+
+------------------------------------------------------------------------
+
+This file is part of the APRON Library, released under LGPL license.
+
+Please read the COPYING file packaged in the distribution
+
+------------------------------------------------------------------------
+
+
+WHAT'S THIS?
+------------
+
+The apronxx directory provides a C++ binding for the APRON library.
+
+It adds the following features:
+- use classes, overloading and a namespace to simplify function names
+- use class methods and default arguments to simplify function calls
+- use operator overloading to ease function calls
+- object management (through constructors, destructors and copy assignments)
+- report errors through C++ exceptions
+- some extra run-time checks that map to exceptions
+- interface with gmpxx
+- ability to mix C++ and native C calls to APRON
+- Doxygen documentation
+
+In most cases, C++ calls should not have much overhead. 
+Almost all functions are inline. Also, we try and avoid constructing
+temporary objects as much as possible.
+
+As for every language binding, knowing the native API is definitively a plus.
+The C++ binding may be less documented. 
+It may also lag behind the native API in terms of functionality.
+
+
+
+REQUIREMENTS
+------------
+
+- GMPXX
+- Doxygen and LaTeX to build the documentation
+
+Apronxx is known to compile well with gcc 4.1.2, but may not work with other
+versions.
+
+
+
+INSTALLATION
+------------
+
+The apronxx binding should be compiled and installed from the main APRON
+Makefile. It is compiled last: after both APRON and all abstract domains have
+been compiled.
+
+You need to set HAS_CPP to 1 in the toplevel Makefile.configure to enable the 
+compilation of apronxx.
+
+The following other variables from Makefile.configure are used:
+  . GMP_PREFIX: where to find GMP and GMPXX
+  . APRON_PREFIX: where to install apronxx
+  . HAS_PPL: whether to build support for the PPL library
+  . PPL_PREFIX: where to find the PPL library (if HAS_PPL=1)
+
+
+"make install" will install the following
+- lib/libapronxx.a        apronxx library (optimized compilation)
+- lib/libapronxx_debug.a  apronxx library (debug compilation)
+- include/apronxx/*.hh    apronxx headers        
+
+
+"make doc" will build the Doxygen documentation in doc/html and 
+doc/latex/refman.pdf .
+
+
+"make test" will build the "apronxx_test" test-suite that tries to call every
+function in the apronxx library. It tests the box, NewPolka, octagons and, if 
+available, the PPL libraries.
+Compare the result on your computer with the expected output: 
+apronxx_test_result.txt .
+
+
+
+USAGE
+-----
+
+When writing an apronxx application, you should first include the core
+APRON C++ classes:
+- #include <apronxx.hh>
+- compile with -I apronxx
+- link with -lapronxx_debug (or -lapronxx), -lgmpxx, -lmpfr, -lgmp and -lm .
+
+Then, for each numerical abstract domain you wish to use:
+
+- #include the header containing the manager factory for the domain:
+  . apxx_box.hh for box
+  . apxx_polka.hh for NewPolka
+  . apxx_oct.hh for the octagons,
+  . apxx_ppl.hh for the PPL, 
+  . apxx_ppl_product.hh for reduced products involving NewPolka and the PPL
+
+- link with the appropriate APRON C library, for instance,
+  . -lpolkaMPQ_debug for NewPolka polyhedra over MPQ
+  . -loctMPQ_debug for octagons over MPQ
+  . etc.
+
+Note that there is no additional C++ library for each domain.
+Manager creation (as most of apronxx) is done through inline functions
+#included with the .hh file.
+
+Caution: do not include files of the form _inline.hh directly. These files 
+contain actual function definitions which are included automatically by the
+regular .hh files.
+
+The apronxx_test.cc file is a good example on how to use some of apronxx's
+functionality.
+
+
+
+INTERNALS
+---------
+
+
+Classes.
+
+Most C++ classes simply wrap around a corresponding C structure
+(exceptions are abstract0 and manager).
+For type ap_XXX_t, we would have a one-field class XXX:
+
+class XXX {
+protected:
+   ap_XXX_t l;
+};
+
+This make it easy to:
+1) pass the ap_XXX_t to an APRON function
+2) interpret an ap_XXX_t returned by APRON as an object of type XXX
+   (reinterpret_cast is overused here)
+3) get a reference to a field of type ap_YYY_t as an object of type YYY
+   (e.g., an ap_interval_t contains two ap_scalar_t; so you can get 
+   two scalar& object from an interval object; some more reinterpret_cast here).
+
+Actually, 3) was a major reason to choose wrapping structures directly instead
+of wrapping structures pointers.
+
+In order to get 2) working correctly and allow the caller to delete an
+object created by the APRON C library, new/delete are mapped to malloc/free
+(class use_malloc).
+
+
+
+Memory Management.
+
+Constructors automatically ap_XXX_init the object while destructors 
+ap_XXX_clear the object (init/clear functions have been added for those C
+types that did not support it).
+
+Objects are functional: copy constructors and assignments will perform a 
+full copy. The copy can then be manipulated without affecting the original.
+
+This is also the case for expression trees.
+Each texpr0/1 object manages the memory of all its nodes and nodes cannot
+be shared among trees. When a tree is destroyed, all its nodes are destroyed;
+they are all copied when the tree is copied; etc.
+However, there is a little trick. When constructing a tree using nested
+functions and operator calls (e.g., dim(0)+dim(1)*2/sqrt(dim(3))), we do not
+want to make all these temporary trees creations and destructions. It would be
+a waste of time and memory. Thus, a helper 'builder' class is provided to hold
+temporary trees. Unlike texpr0/1, builder objects may alias nodes, and all
+builder copies are shallow. This is OK as a full copy will be performed when 
+transferring a temporary tree into a texpr0/1 object before the end of a 
+full expression (in the C++ sense).
+
+
+
+Accessing and mutating.
+
+Whenever an object directly embeds one or several sub-object(s)
+(e.g., two scalars in an interval), they can be directly accessed through 
+references. In this case two get functions are provided: one for constant 
+objects and one for non-constant ones.
+
+When embedded objects are optional (e.g., extra scalar in constraints),
+both a get and a set function are provided. The get returns a (modifiable)
+reference to the embedded object but fails (std::invalid_argument)
+if it does not exist.
+The set function always succeeds by allocating the optional object if it 
+does not exist.
+
+Watch for the (very rare) cases where there is no way to get a reference to 
+an embedded object. There, the get function will return a full copy and
+cannot be used to mutate the object. Use the provided set function to
+mutate the object.
+
+When array-like objects are provided with both [] and get accessors, then
+get performs bound-checking while [] does not. For more complex indexing
+(using, e.g., variable name), this distinction does not exist: index domain 
+checking is mandatory and the accessor is simply named [].
+
+In more complex cases (e.g., sparse linear expressions or expression trees), 
+two helper iterator classes are provided: one to access constant objects and
+another to access and mutate non-constant objects.
+Iterators are only valid until the (part of the) object they reference
+are destroyed.
+
+
+
+Disjunctive types.
+
+Several Apron C types are disjunctive, implanted as unions with a discriminant
+For those, the C++ class provides a get_discr constant member, as well as
+get_YYY accessors providing references to union fields YYY.
+This allows reading and modifying  the object, but not change its type.
+Moreover, each accessor perform run-time checks and throws a bad_discriminant 
+exception if the discriminant mismatches.
+
+
+
+ISSUES
+------
+
+- C++ and C boolean type may be different
+

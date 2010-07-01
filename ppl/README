@@ -1,0 +1,60 @@
+# README
+#
+# APRON Library / Parma Polyhedra Library
+#
+# Copyright (C) Antoine Mine' 2006-2009
+
+# This file is part of the APRON Library, released under GPL license.
+# Please read the COPYING file packaged in the distribution
+
+This package is a wrapper for the the Parma Polyhedra Library.
+(http://www.cs.unipr.it/ppl/)
+
+Requirements:
+- APRON
+- ITV
+- PPL library version 0.9 or 0.10, with GMP support
+- GMPXX (normally installed with GMP)
+- for apron_ppl_test: NewPolka APRON module
+
+If HAS_PPL is defined in ../Makefile.config, then the main APRON Makefile
+will automatically build and install this module.
+
+
+9/2/2009 changes
+- the wrapper has been updated to compile PPL version 0.10
+- it should still compile with version 0.9 of PPL provided that you apply
+the provided patch
+   1. go to the directoy containing the ppl-0.9 directory
+   2. type 'patch -p0 <PREFIX/apron/ppl/ppl.patch'
+   and then compile ppl
+- you can also compile with version 0.10 of PPL _without applying any patch_
+- calls to depreciated _and_minimize functions have been removed
+
+
+What is provided:
+- a manager to access the C_Polyhedron and NCC_Polyhedron classes
+- a manager to access the Grid class
+- C++ exceptions are mapped back to APRON exceptions
+- flag_exact and flag_best are correcty sets
+- all the widenings are available through the algorithm parameter
+- functions not availble in PPL are emulated (e.g., _array and _parallel 
+  functions)
+- a unit testing program apron_ppl_test for regression testing; it works by
+  comparing the result of PPL and NewPolka on random polyhedra
+
+Limitations:
+- Polyhedra and grids are experimental but tested
+- semantics of assign and subst on grids with integer variables is not
+  fully aggreed upon and may change
+- no support for other domains in PPL (BD_Shape, Octagonal_Shape, Powerset)
+- not implemented: fprintfdiff, (de)serialize_raw
+- precision could be improved for:
+  . sat_lincons
+
+How to install:
+- setup in ../Makefile.config (PPL_PREFIX, APRON_PPL_PREFIX)
+- compile and optionally install APRON with NewPolka
+- make         => C libary
+- make ml      => OCaml library
+- make install => install C and (if compiled) OCaml libraries

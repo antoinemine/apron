@@ -1,0 +1,43 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "
+#include \"apron_caml.h\"
+")
+
+typedef [abstract,
+	 ml2c(camlidl_apron_var_ptr_ml2c),
+	 c2ml(camlidl_apron_var_ptr_c2ml)]
+struct apron_var_ptr ap_var_t;
+
+quote(MLMLI,"(** APRON Variables *)\n")
+
+quote(MLI,"(** Constructor *)")
+ap_var_t ap_var_of_string([string]char* name);
+
+quote(MLI,"(** Comparison function *)")
+int ap_var_compare(ap_var_t var1, ap_var_t var2);
+
+quote(MLI,"(** Conversion to string *)")
+[string]char* ap_var_to_string(ap_var_t var)
+  quote(call,"_res = ((apron_var_ptr)var)->name;");
+
+quote(MLI,"(** Hash function *)")
+int ap_var_hash(ap_var_t var);
+
+quote(MLI,"
+(** Printing function *)
+val print : Format.formatter -> t -> unit
+")
+quote(ML,"
+let print fmt v = Format.pp_print_string fmt (to_string v)
+")
+
+quote(MLMLI,"
+(** Initialisation of abstract type operations in C library *)
+external set_var_operations : unit -> unit = \"camlidl_apron_set_var_operations\"");
+quote(ML,"
+let _ = set_var_operations ()
+")

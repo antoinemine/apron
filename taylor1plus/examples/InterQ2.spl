@@ -1,0 +1,14 @@
+var x : real, y : real; 
+begin 
+assume x >= -1 and x <= 1; 
+if (x>=0) then 
+y = 10*x*x; 
+else
+if (x>=-1/2) then 
+  y = -5.000000*x*x; 
+  else 
+  y = -10*x*x + 1.25;
+endif;
+endif;
+assume y == 1;
+end

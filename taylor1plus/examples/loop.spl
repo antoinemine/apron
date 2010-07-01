@@ -1,0 +1,11 @@
+var a:int,b:int,c:int;
+begin
+  a = 2;
+  b = 0;
+  c = 1;
+  while (c>0) do
+    b = b+a;
+    c = c-1;
+  done;
+end
+

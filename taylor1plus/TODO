@@ -1,0 +1,14 @@
+- le [u] se perd après un meet_lincons_array
+- optimise findposdim
+
+réunion de travail Bertrand 03 février 2010
+ - mainweb.ml/mainwebf.ml
+ - temps de calcul dans interproc
+ - affichage de la concretisation intervalle (en double) des variable à la fin du programme
+ - affichage de l'objet abstrait
+ - tests ctest.c
+ - branches avec le domaine T1+
+ - critère d'arrêt dans les boucles
+ - mailing list pour les bugs/ameliortaions APRON
+ - ap_abstract0_size (peut-être dire à quoi set cette routine)
+

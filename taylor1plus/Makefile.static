@@ -1,0 +1,218 @@
+APRON_DIR = /home/donquijote/apron
+
+include $(APRON_DIR)/Makefile.config
+
+include Makefile.config
+
+ifneq ($(CSDP_PATH),)
+CSDP_CFLAGS = -ansi -Wall -DNOSHORTS -DUSEGETTIME -I$(CSDP_PATH)/include -D_USE_SDP
+CSDP_LIBS = -L/usr/lib/sse2 -L$(CSDP_PATH)/lib -lsdp -llapack -lf77blas -lcblas -latlas -lgfortran -lm
+endif
+
+SDPA = /home/donquijote/dev/sdpa/sdpa.7.3.0
+
+PREFIX = $(APRON_PREFIX)
+
+SRCDIR = $(shell pwd)
+
+CFLAGS_T1P = $(CSDP_CFLAGS) $(CFLAGS)
+CFLAGS_DEBUG_T1P = $(CSDP_CFLAGS) $(CFLAGS_DEBUG) -D_GET_CPU_TIME -D_T1P_DEBUG #-pg -D_CALL_DEBUG
+
+LCFLAGS = \
+-L$(APRON_PREFIX)/lib \
+-L$(GMP_PREFIX)/lib \
+-L$(MPFR_PREFIX)/lib \
+-L$(PPL_PREFIX)/lib \
+-L$(CSDP_PATH)/lib
+
+# Use ICFLAGS to specify machine-independent compilation flags.
+ICFLAGS = \
+-I$(APRON_DIR)/num \
+-I$(APRON_DIR)/itv \
+-I$(APRON_DIR)/apron \
+-I$(MLGMPIDL_PREFIX)/include \
+-I$(APRON_DIR)/mlapronidl \
+-I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
+-I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml \
+-I$(CSDP_PATH)/include
+
+# Caml
+OCAMLINC = -I $(APRON_DIR)/mlgmpidl -I $(APRON_DIR)/mlapronidl
+
+#---------------------------------------
+# Files
+#---------------------------------------
+
+CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
+CCSRC = t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
+
+CCINC_TO_INSTALL = t1p.h
+CCBIN_TO_INSTALL =
+CCLIB_TO_INSTALL = libt1p.a libt1p_debug.a libt1pD.a libt1pD_debug.a 
+#libt1pDl.a libt1pDl_debug.a
+CAML_TO_INSTALL = t1p.idl t1p.ml t1p.mli t1p.cmi t1p.cmx t1p.cma t1p.cmxa t1p.a libt1p_caml.a libt1p_caml_debug.a
+
+#---------------------------------------
+# Rules
+#---------------------------------------
+
+# Possible goals:
+# depend doc install
+# and the following one
+
+all: libt1p.a libt1p_debug.a allD 
+#allDl
+
+allD: libt1pD.a libt1pD_debug.a
+allDl: libt1pDl.a libt1pDl_debug.a
+
+
+ml: t1p.mli t1p.ml t1p.cmi t1p.cmx t1p.cma t1p.cmxa libt1p_caml.a libt1p_caml_debug.a
+
+clean:
+	/bin/rm -f *.[ao] *.cm[ioax] *.cmxa testg test*_caml* code2latex
+	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
+	/bin/rm -fr tmp
+
+mostlyclean: clean
+	/bin/rm -fr manager.idl
+	/bin/rm -f t1p.ml t1p.mli t1p_caml.c
+
+install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
+	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
+	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+	done
+#	for i in $(CCBIN_TO_INSTALL); do \
+#		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
+#	done
+	for i in $(CAML_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+	done
+
+distclean:
+	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
+	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
+#	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
+	for i in $(CAML_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
+	/bin/rm -f Makefile.depend
+
+#dist: $(CCSRC) Makefile sedscript_caml box.texi box.idl box.ml box.mli box_caml.c COPYING README
+#	(cd ..; tar zcvf box.tgz $(^:%=box/%))
+
+#---------------------------------------
+# IMPLICIT RULES AND DEPENDENCIES
+#---------------------------------------
+
+.SUFFIXES: .tex .c .h .a .o
+
+#-----------------------------------
+# C part
+#-----------------------------------
+
+libt1p.a: $(CCMODULES:%=%D.o) 
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libt1p_debug.a: $(CCMODULES:%=%D_debug.o) 
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+
+libt1pD.a: $(CCMODULES:%=%D.o) 
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libt1pD_debug.a: $(CCMODULES:%=%D_debug.o)
+	$(AR) rcs $@ $(SDP) $^
+	$(RANLIB) $@
+
+libt1pDl.a: $(CCMODULES:%=%Dl.o)
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libt1pDl_debug.a: $(CCMODULES:%=%Dl_debug.o)
+	$(AR) rcs $@ $(SDP) $^
+	$(RANLIB) $@
+
+#vSDP.o: vSDP.cpp
+#	g++ -c -I$(SDPA)/include -I$(SDPA)/mumps/build/include $<
+
+%D.o: %.c
+	$(CC) $(CFLAGS_T1P) $(ICFLAGS) $(SDP_CFLAGS) $(T1P_DEBUG_FLAGS) -DNUM_DOUBLE -c -o $@ $<
+%D_debug.o: %.c
+	$(CC) $(CFLAGS_DEBUG_T1P) $(ICFLAGS) $(SDP_CFLAGS) $(T1P_DEBUG_FLAGS) -DNUM_DOUBLE -c -o $@ $<
+
+%Dl.o: %.c
+	$(CC) $(CFLAGS_T1P) $(ICFLAGS) $(SDP_CFLAGS) $(T1P_DEBUG_FLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
+%Dl_debug.o: %.c
+	$(CC) $(CFLAGS_DEBUG_T1P) $(ICFLAGS) $(SDP_CFLAGS) $(T1P_DEBUG_FLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
+
+t1p_testD: t1p_testD_debug.o
+	$(CC) $(CFLAGS_DEBUG_T1P) $(LCFLAGS) -pg -o $@ $< -lt1p_debug -lapron_debug -lmpfr -lgmp $(CSDP_LIBS) -lm
+#---------------------------------------
+# C rules
+#---------------------------------------
+
+libt1p_caml.a: t1p_caml.o
+	$(AR) rcs $@ $^
+#	$(RANLIB) $@
+libt1p_caml_debug.a: t1p_caml_debug.o
+	$(AR) rcs $@ $^
+#	$(RANLIB) $@
+
+#---------------------------------------
+# ML rules
+#---------------------------------------
+
+t1p.cma: t1p.cmo libt1p_caml.a libt1p.a
+	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -a -o $@ t1p.cmo \
+	-ccopt "-L$(APRON_PREFIX)/lib" -cclib "-lt1p_caml -lt1p"
+
+t1p.cmxa: t1p.cmx libt1p_caml.a libt1p.a 
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -a -o $@ t1p.cmx \
+	-ccopt "$(SDP_CFLAGS) -L$(APRON_PREFIX)/lib" -cclib "-lt1p_caml -lt1p"
+	$(RANLIB) t1p.a
+#t1p.cmxa: t1p.cmx libt1p_caml.a libt1p.a
+	#$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -a -o $@ t1p.cmx libt1p_caml.a libt1p.a $(SDP)
+	#$(RANLIB) t1p.a
+
+
+#---------------------------------------
+# IDL rules
+#---------------------------------------
+
+manager.idl: ../../../mlapronidl/manager.idl
+	ln -sf $< $@
+
+# generates t1p.ml, t1p.mli, t1p_caml.c from t1p.idl
+rebuild: manager.idl t1p.idl 
+	mkdir -p tmp
+	cp t1p.idl tmp/t1p.idl
+	$(CAMLIDL) -no-include -nocpp tmp/t1p.idl
+	cp tmp/t1p_stubs.c t1p_caml.c
+	$(SED) -f sedscript_caml tmp/t1p.ml > t1p.ml
+	$(SED) -f sedscript_caml tmp/t1p.mli > t1p.mli
+
+#---------------------------------------
+# ML generic rules
+#---------------------------------------
+
+%.cmi: %.mli
+	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c $<
+
+%.cmo: %.ml %.cmi
+	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c $<
+
+%.cmx: %.ml %.cmi
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+#---------------------------------------
+# C generic rules
+#---------------------------------------
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+%_debug.o: %.c
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+
+#-----------------------------------
+# DEPENDENCIES
+#-----------------------------------

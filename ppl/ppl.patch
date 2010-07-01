@@ -1,0 +1,33 @@
+diff -ru ppl-0.9-org/src/Grid_Generator.defs.hh ppl-0.9/src/Grid_Generator.defs.hh
+--- ppl-0.9-org/src/Grid_Generator.defs.hh	2006-02-26 21:24:05.000000000 +0100
++++ ppl-0.9/src/Grid_Generator.defs.hh	2007-02-14 18:31:16.000000000 +0100
+@@ -223,10 +223,12 @@
+   the notion of <EM>coefficient</EM> with the notion of <EM>coordinate</EM>:
+   these are equivalent only when the divisor is 1.
+ */
+-class Parma_Polyhedra_Library::Grid_Generator : private Generator {
++class Parma_Polyhedra_Library::Grid_Generator : protected Generator {
+ public:
+   // FIXME: Add wrappers of any other public Generator methods.
+ 
++  Coefficient_traits::const_reference coefficient(Variable v) const;
++
+   //! Returns the dimension of the vector space enclosing \p *this.
+   dimension_type space_dimension() const;
+ 
+Seulement dans ppl-0.9/src: Grid_Generator.defs.hh~
+diff -ru ppl-0.9-org/src/Grid_Generator.inlines.hh ppl-0.9/src/Grid_Generator.inlines.hh
+--- ppl-0.9-org/src/Grid_Generator.inlines.hh	2006-01-27 14:50:36.000000000 +0100
++++ ppl-0.9/src/Grid_Generator.inlines.hh	2007-02-14 18:25:56.000000000 +0100
+@@ -27,6 +27,11 @@
+ 
+ namespace Parma_Polyhedra_Library {
+ 
++inline Coefficient_traits::const_reference
++Grid_Generator::coefficient(const Variable v) const {
++  return Generator::coefficient(v);
++}
++
+ inline
+ Grid_Generator::Grid_Generator(Generator g)
+   : Generator(Generator::point()) {

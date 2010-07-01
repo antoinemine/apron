@@ -1,0 +1,222 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_tcons1.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+import "texpr0.idl";
+import "tcons0.idl";
+import "environment.idl";
+import "texpr1.idl";
+
+struct ap_tcons1_t {
+  [mlname(mutable_tcons0)] ap_tcons0_t tcons0;
+  [mlname(mutable_env)] ap_environment_ptr env;
+};
+struct ap_tcons1_array_t {
+  [mlname(mutable_tcons0_array)] struct ap_tcons0_array_t tcons0_array;
+  [mlname(mutable_array_env)] ap_environment_ptr env;
+};
+
+quote(MLMLI,"(** APRON tree constraints and array of tree constraints of level 1 *)")
+
+quote(MLMLI,"\n\
+type typ = Lincons0.typ =\n\
+  | EQ\n\
+  | SUPEQ\n\
+  | SUP\n\
+  | DISEQ\n\
+  | EQMOD of Scalar.t\n\
+")
+quote(MLI,"\n\
+(** Make a tree expression constraint. Modifying later the linear expression ({e not\n\
+  advisable}) modifies correspondingly the tree expression constraint and conversely,\n\
+  except for changes of environements *)\n\
+val make: Texpr1.t -> typ -> t\n\
+\n\
+(** Copy (deep copy) *)\n\
+val copy: t -> t\n\
+\n\
+(** Convert a constraint type to a string ([=],[>=], or [>]) *)\n\
+val string_of_typ : typ -> string\n\
+\n\
+(** Print the tree expression constraint *)\n\
+val print : Format.formatter -> t -> unit\n\
+\n\
+(** Get the constraint type *)\n\
+val get_typ: t -> typ\n\
+\n\
+(** Set the constraint type *)\n\
+val set_typ: t -> typ -> unit\n\
+\n\
+")
+
+quote(MLI,"(** Change the environement of the constraint for a super-environement. Raise [Failure] if it is not the case *)")
+struct ap_tcons1_t ap_tcons1_extend_environment(const struct ap_tcons1_t tcons,
+					        ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_tcons1_extend_environment(&_res,&tcons,env);\n\
+  if (b) caml_failwith(\"Tcons1.extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_tcons1_extend_environment_with(struct ap_tcons1_t tcons,
+				       ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (tcons.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(tcons.env); /* to protect it */ \n\
+    b = ap_tcons1_extend_environment_with(&tcons,env);\n\
+    if (b){ \n\
+      ap_environment_free(tcons.env); \n\
+      caml_failwith(\"Tcons1.extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_tcons,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(MLI,"\n\
+(** Get the environement of the tree expression constraint *)\n\
+val get_env: t -> Environment.t\n\
+\n\
+(** Get the underlying linear expression. Modifying the linear expression ({e\n\
+  not advisable}) modifies correspondingly the tree expression constraint and\n\
+  conversely, except for changes of environements *)\n\
+val get_texpr1: t -> Texpr1.t\n\
+\n\
+(** Get the underlying tree expression constraint of level 0. Modifying the constraint\n\
+   of level 0 ({e not advisable}) modifies correspondingly the tree expression constraint\n\
+   and conversely, except for changes of environements*)\n\
+val get_tcons0: t -> Tcons0.t\n\
+\n\
+")
+
+quote(ML,"\n\
+let make texpr1 typ = {\n\
+  tcons0 = {\n\
+    Tcons0.texpr0 = texpr1.Texpr1.texpr0;\n\
+    Tcons0.typ = typ;\n\
+  };\n\
+  env = texpr1.Texpr1.env;\n\
+}\n\
+let copy cons = {\n\
+  tcons0 = Tcons0.copy cons.tcons0;\n\
+  env = cons.env;\n\
+}\n\
+let string_of_typ = Tcons0.string_of_typ\n\
+\n\
+let print fmt cons = \n\
+  Tcons0.print\n\
+   (fun dim -> Var.to_string (Environment.var_of_dim cons.env dim)) fmt cons.tcons0;\n \
+  ()\n\
+let get_typ cons = cons.tcons0.Tcons0.typ\n\
+let set_typ cons typ = cons.tcons0.Tcons0.typ <- typ\n\
+let get_tcons0 cons = cons.tcons0\n\
+let get_env cons = cons.env\n\
+let get_texpr1 cons = {\n\
+  Texpr1.texpr0 = cons.tcons0.Tcons0.texpr0;\n\
+  Texpr1.env = cons.env;\n\
+}")
+
+quote(MLMLI,"(* ====================================================================== *)")
+quote(MLMLI,"(** {2 Type array} *)")
+quote(MLMLI,"(* ====================================================================== *)")
+quote(MLI,"\n\
+(** Make an array of tree expression constraints with the given size and defined on the\n\
+  given environement. The elements are initialized with the constraint 0=0. *)\n\
+val array_make : Environment.t -> int -> earray\n\
+\n\
+(** Print an array of constraints *)\n\
+val array_print :\n\
+  ?first:(unit, Format.formatter, unit) format ->\n\
+  ?sep:(unit, Format.formatter, unit) format ->\n\
+  ?last:(unit, Format.formatter, unit) format ->\n\
+  Format.formatter -> earray -> unit\n\
+\n\
+(** Get the size of the array *)\n\
+val array_length : earray -> int\n\
+\n\
+(** Get the environment of the array *)\n\
+val array_get_env : earray -> Environment.t\n\
+\n\
+(** Get the element of the given index (which is not a copy) *)\n\
+val array_get : earray -> int -> t\n\
+\n\
+(** Set the element of the given index (without any copy). The array and the\n\
+  constraint should be defined on the same environement; otherwise a [Failure]\n\
+  exception is raised.*)\n\
+val array_set : earray -> int -> t -> unit\n\
+")
+
+quote(MLI,"(** Change the environement of the array of constraints for a super-environement. Raise [Failure] if it is not the case*)")
+struct ap_tcons1_array_t ap_tcons1_array_extend_environment(const struct ap_tcons1_array_t array,
+							    ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_tcons1_array_extend_environment(&_res,&array,env);\n\
+  if (b) caml_failwith(\"Tcons1.array_extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_tcons1_array_extend_environment_with(struct ap_tcons1_array_t array,
+				      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (array.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(array.env); /* to protect it */ \n\
+    b = ap_tcons1_array_extend_environment_with(&array,env);\n\
+    if (b){ \n\
+      ap_environment_free(array.env); \n\
+      caml_failwith(\"Tcons1.array_extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_array,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(ML,"\n\
+let array_make env size =\n\
+  let cons = Tcons0.make (Texpr0.cst (Coeff.s_of_int 0)) Tcons0.EQ in\n	\
+  {\n\
+    tcons0_array = Array.make size cons;\n\
+    array_env = env\n\
+  }\n\
+let array_print\n\
+  ?(first=(\"[|@[<hov>\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  fmt array \n\
+  = \n\
+  Abstract0.print_array ~first ~sep ~last\n\
+    (Tcons0.print\n\
+     (fun dim -> Var.to_string (Environment.var_of_dim array.array_env dim)))\n	\
+    fmt array.tcons0_array;\n\
+  ()\n\
+let array_length array = Array.length (array.tcons0_array)\n\
+let array_get_env array = array.array_env\n\
+let array_get array index =\n\
+  let cons0 = array.tcons0_array.(index) in\n\
+  { tcons0 = cons0; env = array.array_env; }\n\
+let array_set array index cons1 =\n\
+  if not (Environment.equal array.array_env cons1.env) then\n\
+    failwith \"Tcons1.array_set: environments are not the same\"\n\
+  else\n\
+    array.tcons0_array.(index) <- cons1.tcons0;\n\
+ ")

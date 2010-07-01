@@ -1,0 +1,50 @@
+# $Id$
+
+This small package, only composed of header files, is used to offer a generic
+interface to different numbers representation. It took its inspiration from
+pk_int (integers in Newpolka library from Bertrand Jeannet) and oct_num
+(integers in Octagon Abstract Domain library from Antoine Miné).
+
+It requires the GMP and MPFR libraries. If bounds are used, it also requires
+the APRON library.
+
+It may be freely distributed and/or modified under the conditions of the LGPL
+license.
+
+Numbers
+=======
+
+The main file is num.h. Its inclusion should be done after one of the following
+macros has been defined:
+
+- NUM_LONGINT		long int
+- NUM_LONGLONGINT	long long int
+- NUM_MPZ		mpz_t (GMP library)
+	Defines num_t, numint_t.
+	Possible operations are num_XXX and numint_XXX 
+	(signatures in num.h and numint.h)
+
+- NUM_LONGRAT		rationals using long int
+- NUM_LONGLONGRAT	rationals using long long int
+- NUM_MPQ		rationals using mpq_t (GMP library)
+	Defines num_t, numrat_t
+	Possibles operations are num_XXX and numrat_XXX
+	(signatures in num.h and numrat.h)
+	Also defines numint_t (the underlying integer types).
+
+- NUM_DOUBLE		double
+- NUM_LONGDOUBLE	long double
+- NUM_MPFR              floating-point of arbitrary precision (MPFR library)
+	Defines num num_t, numflt_t
+	Possibles operations are num_XXX and numflt_XXX
+	(signatures in num.h and numflt.h)
+	
+Bounds
+======
+
+Bounds are *superior* bounds defined on top of num_t. They add +oo to num_t.
+First include properly num.h with the right macro, and then include bound.h.
+Signatures of operations in bound.h
+
+It requires the APRON library (more precisely, the module ap_scalar, for
+conversion functions).

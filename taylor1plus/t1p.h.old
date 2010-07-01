@@ -1,0 +1,189 @@
+#ifndef _T1P_H_
+#define _T1P_H_
+
+#include "ap_manager.h"
+#include "ap_dimension.h"
+#include "ap_texpr0.h"
+#include "ap_lincons0.h"
+#include "ap_tcons0.h"
+#include "ap_generator0.h"
+
+#include "ap_var.h"
+#include "ap_abstract1.h"
+
+//typedef struct _t1p_t t1p_t;
+
+/* ********************************************************************** */
+/* 1. Manager allocation */
+/* ********************************************************************** */
+ap_manager_t* t1p_manager_alloc(ap_manager_t* manNS);
+//ap_manager_t* t1p_manager_alloc(void);
+
+/* ********************************************************************** */
+/* 1. Memory */
+/* ********************************************************************** */
+t1p_t* t1p_alloc(size_t intdim, size_t realdim);
+/* Return a copy of an abstract value, on
+ * which destructive update does not affect the initial value. */
+t1p_t* t1p_copy(ap_manager_t* man, t1p_t* t1p);
+
+/* free all the memory used by abstract value */
+void t1p_free(ap_manager_t* man, t1p_t* t1p);
+
+size_t t1p_size(ap_manager_t* man, t1p_t* a);
+
+/* ********************************************************************** */
+/* 2. Control of internal representation */
+/* ********************************************************************** */
+void t1p_minimize(ap_manager_t* man, t1p_t* a);
+
+void t1p_canonicalize(ap_manager_t* man, t1p_t* a);
+
+void t1p_approximate(ap_manager_t* man, t1p_t* a, int algorithm);
+
+/* ********************************************************************** */
+/* 3. Printing */
+/* ********************************************************************** */
+void t1p_fprint(FILE* stream,
+		ap_manager_t* man,
+		t1p_t* t1p,
+		char** name_of_dim);
+
+void t1p_fprintdiff(FILE* stream,
+		ap_manager_t* man,
+		t1p_t* a1, t1p_t* a2,
+		char** name_of_dim);
+
+void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a);
+
+/* ********************************************************************** */
+/* 4. Serialisation */
+/* ********************************************************************** */
+void t1p_serialize_raw(ap_manager_t* man, t1p_t* a);
+
+void t1p_deserialize_raw(ap_manager_t* man, t1p_t* a);
+
+/****************/
+/* Constructors */
+/****************/
+/* 1.Basic constructors */
+t1p_t* t1p_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+t1p_t* t1p_top(ap_manager_t* man, size_t intdim, size_t realdim);
+t1p_t* t1p_of_box(ap_manager_t* man, size_t intdim, size_t realdim, ap_interval_t** tinterval);
+
+/* 2.Accessors */
+ap_dimension_t t1p_dimension(ap_manager_t* man, t1p_t* a);
+
+/* 3.Tests */
+tbool_t t1p_is_bottom(ap_manager_t* man, t1p_t* a);
+tbool_t t1p_is_top(ap_manager_t* man, t1p_t* a);
+
+tbool_t t1p_is_leq(ap_manager_t* man, t1p_t* a, t1p_t* b);
+tbool_t t1p_is_eq(ap_manager_t* man, t1p_t* a, t1p_t* b);
+tbool_t t1p_is_dimension_unconstrained(ap_manager_t* man, t1p_t* a, ap_dim_t dim);
+tbool_t t1p_sat_lincons(ap_manager_t* man, t1p_t* a, ap_lincons0_t* lincons);
+tbool_t t1p_sat_interval(ap_manager_t* man, t1p_t* a, ap_interval_t* interval);
+tbool_t t1p_sat_tcons(ap_manager_t* man, t1p_t* a, ap_tcons0_t* tcons);
+
+/* 4.Extraction of properties */
+ap_interval_t* t1p_bound_texpr(ap_manager_t* man, t1p_t* a, ap_texpr0_t* expr);
+ap_interval_t* t1p_bound_dimension(ap_manager_t* man, t1p_t* a, ap_dim_t dim);
+ap_interval_t* t1p_bound_linexpr(ap_manager_t* man, t1p_t* a, ap_linexpr0_t* expr);
+
+ap_interval_t** t1p_to_box(ap_manager_t* man, t1p_t* a);
+
+ap_tcons0_array_t t1p_to_tcons_array(ap_manager_t* man, t1p_t* a);
+ap_lincons0_array_t t1p_to_lincons_array(ap_manager_t* man, t1p_t* a);
+ap_generator0_array_t t1p_to_generator_array(ap_manager_t* man, t1p_t* a);
+
+/* Meet and Join */
+/*****************/
+/* 1.Meet */
+t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2);
+t1p_t* t1p_meet_array(ap_manager_t* man, t1p_t** tab, size_t size);
+t1p_t* t1p_meet_lincons_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* a,
+		ap_lincons0_array_t* array);
+t1p_t* t1p_meet_tcons_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* a,
+		ap_tcons0_array_t* array);
+
+/* 2.Join */
+t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2);
+t1p_t* t1p_join_array(ap_manager_t* man, t1p_t** tab, size_t size);
+t1p_t* t1p_add_ray_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* a, ap_generator0_array_t* array);
+
+
+/* Assign and Substitute */
+/*************************/
+t1p_t* t1p_assign_linexpr_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* org,
+		ap_dim_t* tdim, ap_linexpr0_t** lexpr,
+		size_t size,
+		t1p_t* dest);
+
+t1p_t* t1p_substitute_linexpr_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* org,
+		ap_dim_t* tdim, ap_linexpr0_t** lexpr, 
+		size_t size,
+		t1p_t* dest);
+
+t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* a,
+		ap_dim_t* tdim,
+		ap_texpr0_t** texpr,
+		size_t size,
+		t1p_t* dest);
+
+t1p_t* t1p_substitute_texpr_array(ap_manager_t* man,
+		bool destructive,
+		t1p_t* org,
+		ap_dim_t* tdim, ap_texpr0_t** texpr,
+		size_t size,
+		t1p_t* dest);
+
+
+/* Resize dimensions */
+/*********************/
+t1p_t* t1p_add_dimensions(ap_manager_t* man,
+		bool destructive, t1p_t* a,
+		ap_dimchange_t* dimchange,
+		bool project);
+
+t1p_t* t1p_remove_dimensions(ap_manager_t* man,
+		bool destructive, t1p_t* a,
+		ap_dimchange_t* dimchange);
+
+t1p_t* t1p_permute_dimensions(ap_manager_t* man,
+		bool destructive,
+		t1p_t* a,
+		ap_dimperm_t* permutation);
+
+/* Other functions */
+/*******************/
+void t1p_forget_array(void);
+void t1p_expand(void);
+void t1p_fold(void);
+void t1p_widening(void);
+void t1p_closure(void);
+
+//typedef struct _ap_abstract1_t ap_abstract1_t;
+//typedef struct _ap_var_t ap_var_t;
+int ap_manager_t1p_get_nsym(ap_manager_t* man);
+void ap_abstract1_aff_build(ap_manager_t* man, ap_abstract1_t *abstract, ap_var_t var, unsigned int index, ap_interval_t *itv, bool isunion);
+void ap_abstract1_ns_meet_lincons_array(ap_manager_t* man, ap_abstract1_t* abstract1, ap_lincons0_array_t* lincons);
+void ap_abstract1_ns_meet_box_array(ap_manager_t* man, ap_abstract1_t* abstract1, ap_interval_t** box, size_t size);
+
+/* retourne [0,+oo] */
+/* for internal use */
+/* pour test */
+ap_interval_t* t1p_create_pos(ap_manager_t* man);
+
+#endif

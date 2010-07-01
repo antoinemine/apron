@@ -1,0 +1,8 @@
+var i:int ;
+begin
+i = 0;
+while i<100 do
+ i = i +1 ;
+done;
+
+end
