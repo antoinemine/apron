@@ -1,0 +1,108 @@
+@c This file is part of the APRON Library, released under LGPL
+@c license. Please read the COPYING file packaged in the distribution
+
+@c to be included from apron.texi
+
+The @sc{APRON PPL} library is an APRON wrapper around the
+@uref{http://www.cs.unipr.it/ppl/, Parma Polyhedra Library (PPL)}. The
+wrapper offers the convex polyhedra and linear congruences abstract
+domains.
+
+@menu
+* Use of APRON PPL::
+* Allocating APRON PPL managers::
+* APRON PPL standard options::
+@end menu
+
+@c ===================================================================
+@node Use of APRON PPL, Allocating APRON PPL managers,,PPL
+@subsection Use of APRON PPL
+@c ===================================================================
+
+To use APRON PPL in C, you need of course to install PPL, @emph{after
+having patched it} following the recommendations of the @file{README}
+file.  You need also to add
+@example
+#include "apron_ppl.h"
+@end example
+in your source file(s) and add @samp{-I$(APRON_PREFIX)/include} in the
+command line in your Makefile.
+
+You should also link your object files with the APRON PPL library to
+produce an executable, @emph{using} @samp{g++} (instead of @samp{gcc},
+because @file{libppl.a} is a C++ library), and adding something like
+@samp{-L$(APRON_PREFIX)/lib -lapron_ppl -L$(PPL_PREFIX)/lib -lppl
+-L$(GMP_PREFIX)/lib -lgmpxx} in the command line in your Makefile
+(followed by the standard @samp{-lapron -litvmpq -litvdbl
+-L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp}). The
+@file{libgmpxx.a} library is the C++ wrapper on top of the GMP
+library. Ensure that your GMP installation contains it, as it is not
+always installed by default.
+
+All scalars of type @code{double} are converted to scalars of type
+@code{mpq_t} inside APRON PPL, as APRON PPL works internally with exact
+rational arithmetics. So when possible it is better for the user (in
+term of efficiency) to convert already @code{double} scalars to
+@code{mpq_t} scalars.
+
+The wrapper library is available in debug mode
+(@samp{libapron_ppl_debug.a}).
+
+@c ===================================================================
+@node Allocating APRON PPL managers, APRON PPL standard options, Use of APRON PPL, PPL
+@subsection Allocating APRON PPL managers
+@c ===================================================================
+
+@deftypefun ap_manager_t* ap_ppl_poly_manager_alloc (bool @var{strict})
+Allocate a APRON manager for convex polyhedra, linked to the PPL
+library.
+
+The @var{strict} option, when true, enables strict constraints in polyhedra
+(like @code{x>0}). Managers in strict mode or in loose mode
+(strict constraints disabled) are not compatible, and so are
+corresponding abstract values.
+@end deftypefun
+
+@deftypefun ap_manager_t* ap_ppl_grid_manager_alloc ()
+Allocate an APRON manager for linear equalities, linked to the PPL
+library.
+@end deftypefun
+
+@c ===================================================================
+@node APRON PPL standard options,  , Allocating APRON PPL managers, PPL
+@subsection APRON PPL standard options
+@c ===================================================================
+
+Currently, the only options available are related to the widening
+operators. 
+
+@multitable @columnfractions .2 .06 .74
+
+@item Function              @tab algo      @tab Comments
+@item
+@item widening
+@tab <=0 
+@tab CH78 standard widening (Cousot & Halbwachs, POPL'1978).
+@item
+@tab >0
+@tab BHRZ03 widening (Bagnara, Hill, Ricci & Zafanella, SAS'2003)
+@item
+@item widening_threshold
+@tab <=0
+@tab standard widening with threshold
+@item
+@tab =1
+@tab standard widening with threshold, intersected by the bounding box of the convex hull pof the two arguments
+@item
+@tab <=0
+@tab standard widening with threshold
+@item
+@tab =1
+@tab standard widening with threshold, intersected by the bounding box of the convex hull of the second argument. This is actually an extrapolation rather than a widening (termination is not guaranteed)
+@item
+@tab =2
+@tab BHRZ03 widening with threshold
+@item
+@tab =3
+@tab BHRZ03 widening with threshold, intersected by the bounding box of the convex hull of the second argument. This is actually an extrapolation rather than a widening (termination is not guaranteed)
+@end multitable

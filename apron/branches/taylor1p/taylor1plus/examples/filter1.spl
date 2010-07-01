@@ -1,0 +1,53 @@
+var xnp1:real, xn:real, xnm1:real, en:real, enm1:real, enp1:real;
+begin
+enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+
+xnm1 = 0;
+xn = 0;
+en = 0;
+
+while true do
+ enm1 = en;
+ en = enp1;
+ enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+ xnp1 = (7/10)*enp1 - (13/10)*en + (11/10)*enm1 + (14/10)*xn - (7/10)*xnm1;
+ xnm1 = xn;
+ xn = xnp1;
+
+ enm1 = en;
+ en = enp1;
+ enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+ xnp1 = (7/10)*enp1 - (13/10)*en + (11/10)*enm1 + (14/10)*xn - (7/10)*xnm1;
+ xnm1 = xn;
+ xn = xnp1;
+
+ enm1 = en;
+ en = enp1;
+ enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+ xnp1 = (7/10)*enp1 - (13/10)*en + (11/10)*enm1 + (14/10)*xn - (7/10)*xnm1;
+ xnm1 = xn;
+ xn = xnp1;
+
+ enm1 = en;
+ en = enp1;
+ enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+ xnp1 = (7/10)*enp1 - (13/10)*en + (11/10)*enm1 + (14/10)*xn - (7/10)*xnm1;
+ xnm1 = xn;
+ xn = xnp1;
+
+ enm1 = en;
+ en = enp1;
+ enp1 = random;
+assume enp1 <= 1 and -enp1 <= 0;
+ xnp1 = (7/10)*enp1 - (13/10)*en + (11/10)*enm1 + (14/10)*xn - (7/10)*xnm1;
+ xnm1 = xn;
+ xn = xnp1;
+done;
+
+end
+

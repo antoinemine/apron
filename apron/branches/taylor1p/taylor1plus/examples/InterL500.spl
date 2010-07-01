@@ -1,0 +1,2005 @@
+var x : real, y : real; 
+begin 
+assume x >= -1 and x <= 1; 
+if (x>=0) then 
+y = 10*x; 
+else
+if (x>=-1/500) then 
+	y = 10.002000*x; 
+	else 
+	if (x>=-2/500) then 
+	y = 10.004000*x; 
+	else 
+	if (x>=-3/500) then 
+	y = 10.006000*x; 
+	else 
+	if (x>=-4/500) then 
+	y = 10.008000*x; 
+	else 
+	if (x>=-5/500) then 
+	y = 10.010000*x; 
+	else 
+	if (x>=-6/500) then 
+	y = 10.012000*x; 
+	else 
+	if (x>=-7/500) then 
+	y = 10.014000*x; 
+	else 
+	if (x>=-8/500) then 
+	y = 10.016000*x; 
+	else 
+	if (x>=-9/500) then 
+	y = 10.018000*x; 
+	else 
+	if (x>=-10/500) then 
+	y = 10.020000*x; 
+	else 
+	if (x>=-11/500) then 
+	y = 10.022000*x; 
+	else 
+	if (x>=-12/500) then 
+	y = 10.024000*x; 
+	else 
+	if (x>=-13/500) then 
+	y = 10.026000*x; 
+	else 
+	if (x>=-14/500) then 
+	y = 10.028000*x; 
+	else 
+	if (x>=-15/500) then 
+	y = 10.030000*x; 
+	else 
+	if (x>=-16/500) then 
+	y = 10.032000*x; 
+	else 
+	if (x>=-17/500) then 
+	y = 10.034000*x; 
+	else 
+	if (x>=-18/500) then 
+	y = 10.036000*x; 
+	else 
+	if (x>=-19/500) then 
+	y = 10.038000*x; 
+	else 
+	if (x>=-20/500) then 
+	y = 10.040000*x; 
+	else 
+	if (x>=-21/500) then 
+	y = 10.042000*x; 
+	else 
+	if (x>=-22/500) then 
+	y = 10.044000*x; 
+	else 
+	if (x>=-23/500) then 
+	y = 10.046000*x; 
+	else 
+	if (x>=-24/500) then 
+	y = 10.048000*x; 
+	else 
+	if (x>=-25/500) then 
+	y = 10.050000*x; 
+	else 
+	if (x>=-26/500) then 
+	y = 10.052000*x; 
+	else 
+	if (x>=-27/500) then 
+	y = 10.054000*x; 
+	else 
+	if (x>=-28/500) then 
+	y = 10.056000*x; 
+	else 
+	if (x>=-29/500) then 
+	y = 10.058000*x; 
+	else 
+	if (x>=-30/500) then 
+	y = 10.060000*x; 
+	else 
+	if (x>=-31/500) then 
+	y = 10.062000*x; 
+	else 
+	if (x>=-32/500) then 
+	y = 10.064000*x; 
+	else 
+	if (x>=-33/500) then 
+	y = 10.066000*x; 
+	else 
+	if (x>=-34/500) then 
+	y = 10.068000*x; 
+	else 
+	if (x>=-35/500) then 
+	y = 10.070000*x; 
+	else 
+	if (x>=-36/500) then 
+	y = 10.072000*x; 
+	else 
+	if (x>=-37/500) then 
+	y = 10.074000*x; 
+	else 
+	if (x>=-38/500) then 
+	y = 10.076000*x; 
+	else 
+	if (x>=-39/500) then 
+	y = 10.078000*x; 
+	else 
+	if (x>=-40/500) then 
+	y = 10.080000*x; 
+	else 
+	if (x>=-41/500) then 
+	y = 10.082000*x; 
+	else 
+	if (x>=-42/500) then 
+	y = 10.084000*x; 
+	else 
+	if (x>=-43/500) then 
+	y = 10.086000*x; 
+	else 
+	if (x>=-44/500) then 
+	y = 10.088000*x; 
+	else 
+	if (x>=-45/500) then 
+	y = 10.090000*x; 
+	else 
+	if (x>=-46/500) then 
+	y = 10.092000*x; 
+	else 
+	if (x>=-47/500) then 
+	y = 10.094000*x; 
+	else 
+	if (x>=-48/500) then 
+	y = 10.096000*x; 
+	else 
+	if (x>=-49/500) then 
+	y = 10.098000*x; 
+	else 
+	if (x>=-50/500) then 
+	y = 10.100000*x; 
+	else 
+	if (x>=-51/500) then 
+	y = 10.102000*x; 
+	else 
+	if (x>=-52/500) then 
+	y = 10.104000*x; 
+	else 
+	if (x>=-53/500) then 
+	y = 10.106000*x; 
+	else 
+	if (x>=-54/500) then 
+	y = 10.108000*x; 
+	else 
+	if (x>=-55/500) then 
+	y = 10.110000*x; 
+	else 
+	if (x>=-56/500) then 
+	y = 10.112000*x; 
+	else 
+	if (x>=-57/500) then 
+	y = 10.114000*x; 
+	else 
+	if (x>=-58/500) then 
+	y = 10.116000*x; 
+	else 
+	if (x>=-59/500) then 
+	y = 10.118000*x; 
+	else 
+	if (x>=-60/500) then 
+	y = 10.120000*x; 
+	else 
+	if (x>=-61/500) then 
+	y = 10.122000*x; 
+	else 
+	if (x>=-62/500) then 
+	y = 10.124000*x; 
+	else 
+	if (x>=-63/500) then 
+	y = 10.126000*x; 
+	else 
+	if (x>=-64/500) then 
+	y = 10.128000*x; 
+	else 
+	if (x>=-65/500) then 
+	y = 10.130000*x; 
+	else 
+	if (x>=-66/500) then 
+	y = 10.132000*x; 
+	else 
+	if (x>=-67/500) then 
+	y = 10.134000*x; 
+	else 
+	if (x>=-68/500) then 
+	y = 10.136000*x; 
+	else 
+	if (x>=-69/500) then 
+	y = 10.138000*x; 
+	else 
+	if (x>=-70/500) then 
+	y = 10.140000*x; 
+	else 
+	if (x>=-71/500) then 
+	y = 10.142000*x; 
+	else 
+	if (x>=-72/500) then 
+	y = 10.144000*x; 
+	else 
+	if (x>=-73/500) then 
+	y = 10.146000*x; 
+	else 
+	if (x>=-74/500) then 
+	y = 10.148000*x; 
+	else 
+	if (x>=-75/500) then 
+	y = 10.150000*x; 
+	else 
+	if (x>=-76/500) then 
+	y = 10.152000*x; 
+	else 
+	if (x>=-77/500) then 
+	y = 10.154000*x; 
+	else 
+	if (x>=-78/500) then 
+	y = 10.156000*x; 
+	else 
+	if (x>=-79/500) then 
+	y = 10.158000*x; 
+	else 
+	if (x>=-80/500) then 
+	y = 10.160000*x; 
+	else 
+	if (x>=-81/500) then 
+	y = 10.162000*x; 
+	else 
+	if (x>=-82/500) then 
+	y = 10.164000*x; 
+	else 
+	if (x>=-83/500) then 
+	y = 10.166000*x; 
+	else 
+	if (x>=-84/500) then 
+	y = 10.168000*x; 
+	else 
+	if (x>=-85/500) then 
+	y = 10.170000*x; 
+	else 
+	if (x>=-86/500) then 
+	y = 10.172000*x; 
+	else 
+	if (x>=-87/500) then 
+	y = 10.174000*x; 
+	else 
+	if (x>=-88/500) then 
+	y = 10.176000*x; 
+	else 
+	if (x>=-89/500) then 
+	y = 10.178000*x; 
+	else 
+	if (x>=-90/500) then 
+	y = 10.180000*x; 
+	else 
+	if (x>=-91/500) then 
+	y = 10.182000*x; 
+	else 
+	if (x>=-92/500) then 
+	y = 10.184000*x; 
+	else 
+	if (x>=-93/500) then 
+	y = 10.186000*x; 
+	else 
+	if (x>=-94/500) then 
+	y = 10.188000*x; 
+	else 
+	if (x>=-95/500) then 
+	y = 10.190000*x; 
+	else 
+	if (x>=-96/500) then 
+	y = 10.192000*x; 
+	else 
+	if (x>=-97/500) then 
+	y = 10.194000*x; 
+	else 
+	if (x>=-98/500) then 
+	y = 10.196000*x; 
+	else 
+	if (x>=-99/500) then 
+	y = 10.198000*x; 
+	else 
+	if (x>=-100/500) then 
+	y = 10.200000*x; 
+	else 
+	if (x>=-101/500) then 
+	y = 10.202000*x; 
+	else 
+	if (x>=-102/500) then 
+	y = 10.204000*x; 
+	else 
+	if (x>=-103/500) then 
+	y = 10.206000*x; 
+	else 
+	if (x>=-104/500) then 
+	y = 10.208000*x; 
+	else 
+	if (x>=-105/500) then 
+	y = 10.210000*x; 
+	else 
+	if (x>=-106/500) then 
+	y = 10.212000*x; 
+	else 
+	if (x>=-107/500) then 
+	y = 10.214000*x; 
+	else 
+	if (x>=-108/500) then 
+	y = 10.216000*x; 
+	else 
+	if (x>=-109/500) then 
+	y = 10.218000*x; 
+	else 
+	if (x>=-110/500) then 
+	y = 10.220000*x; 
+	else 
+	if (x>=-111/500) then 
+	y = 10.222000*x; 
+	else 
+	if (x>=-112/500) then 
+	y = 10.224000*x; 
+	else 
+	if (x>=-113/500) then 
+	y = 10.226000*x; 
+	else 
+	if (x>=-114/500) then 
+	y = 10.228000*x; 
+	else 
+	if (x>=-115/500) then 
+	y = 10.230000*x; 
+	else 
+	if (x>=-116/500) then 
+	y = 10.232000*x; 
+	else 
+	if (x>=-117/500) then 
+	y = 10.234000*x; 
+	else 
+	if (x>=-118/500) then 
+	y = 10.236000*x; 
+	else 
+	if (x>=-119/500) then 
+	y = 10.238000*x; 
+	else 
+	if (x>=-120/500) then 
+	y = 10.240000*x; 
+	else 
+	if (x>=-121/500) then 
+	y = 10.242000*x; 
+	else 
+	if (x>=-122/500) then 
+	y = 10.244000*x; 
+	else 
+	if (x>=-123/500) then 
+	y = 10.246000*x; 
+	else 
+	if (x>=-124/500) then 
+	y = 10.248000*x; 
+	else 
+	if (x>=-125/500) then 
+	y = 10.250000*x; 
+	else 
+	if (x>=-126/500) then 
+	y = 10.252000*x; 
+	else 
+	if (x>=-127/500) then 
+	y = 10.254000*x; 
+	else 
+	if (x>=-128/500) then 
+	y = 10.256000*x; 
+	else 
+	if (x>=-129/500) then 
+	y = 10.258000*x; 
+	else 
+	if (x>=-130/500) then 
+	y = 10.260000*x; 
+	else 
+	if (x>=-131/500) then 
+	y = 10.262000*x; 
+	else 
+	if (x>=-132/500) then 
+	y = 10.264000*x; 
+	else 
+	if (x>=-133/500) then 
+	y = 10.266000*x; 
+	else 
+	if (x>=-134/500) then 
+	y = 10.268000*x; 
+	else 
+	if (x>=-135/500) then 
+	y = 10.270000*x; 
+	else 
+	if (x>=-136/500) then 
+	y = 10.272000*x; 
+	else 
+	if (x>=-137/500) then 
+	y = 10.274000*x; 
+	else 
+	if (x>=-138/500) then 
+	y = 10.276000*x; 
+	else 
+	if (x>=-139/500) then 
+	y = 10.278000*x; 
+	else 
+	if (x>=-140/500) then 
+	y = 10.280000*x; 
+	else 
+	if (x>=-141/500) then 
+	y = 10.282000*x; 
+	else 
+	if (x>=-142/500) then 
+	y = 10.284000*x; 
+	else 
+	if (x>=-143/500) then 
+	y = 10.286000*x; 
+	else 
+	if (x>=-144/500) then 
+	y = 10.288000*x; 
+	else 
+	if (x>=-145/500) then 
+	y = 10.290000*x; 
+	else 
+	if (x>=-146/500) then 
+	y = 10.292000*x; 
+	else 
+	if (x>=-147/500) then 
+	y = 10.294000*x; 
+	else 
+	if (x>=-148/500) then 
+	y = 10.296000*x; 
+	else 
+	if (x>=-149/500) then 
+	y = 10.298000*x; 
+	else 
+	if (x>=-150/500) then 
+	y = 10.300000*x; 
+	else 
+	if (x>=-151/500) then 
+	y = 10.302000*x; 
+	else 
+	if (x>=-152/500) then 
+	y = 10.304000*x; 
+	else 
+	if (x>=-153/500) then 
+	y = 10.306000*x; 
+	else 
+	if (x>=-154/500) then 
+	y = 10.308000*x; 
+	else 
+	if (x>=-155/500) then 
+	y = 10.310000*x; 
+	else 
+	if (x>=-156/500) then 
+	y = 10.312000*x; 
+	else 
+	if (x>=-157/500) then 
+	y = 10.314000*x; 
+	else 
+	if (x>=-158/500) then 
+	y = 10.316000*x; 
+	else 
+	if (x>=-159/500) then 
+	y = 10.318000*x; 
+	else 
+	if (x>=-160/500) then 
+	y = 10.320000*x; 
+	else 
+	if (x>=-161/500) then 
+	y = 10.322000*x; 
+	else 
+	if (x>=-162/500) then 
+	y = 10.324000*x; 
+	else 
+	if (x>=-163/500) then 
+	y = 10.326000*x; 
+	else 
+	if (x>=-164/500) then 
+	y = 10.328000*x; 
+	else 
+	if (x>=-165/500) then 
+	y = 10.330000*x; 
+	else 
+	if (x>=-166/500) then 
+	y = 10.332000*x; 
+	else 
+	if (x>=-167/500) then 
+	y = 10.334000*x; 
+	else 
+	if (x>=-168/500) then 
+	y = 10.336000*x; 
+	else 
+	if (x>=-169/500) then 
+	y = 10.338000*x; 
+	else 
+	if (x>=-170/500) then 
+	y = 10.340000*x; 
+	else 
+	if (x>=-171/500) then 
+	y = 10.342000*x; 
+	else 
+	if (x>=-172/500) then 
+	y = 10.344000*x; 
+	else 
+	if (x>=-173/500) then 
+	y = 10.346000*x; 
+	else 
+	if (x>=-174/500) then 
+	y = 10.348000*x; 
+	else 
+	if (x>=-175/500) then 
+	y = 10.350000*x; 
+	else 
+	if (x>=-176/500) then 
+	y = 10.352000*x; 
+	else 
+	if (x>=-177/500) then 
+	y = 10.354000*x; 
+	else 
+	if (x>=-178/500) then 
+	y = 10.356000*x; 
+	else 
+	if (x>=-179/500) then 
+	y = 10.358000*x; 
+	else 
+	if (x>=-180/500) then 
+	y = 10.360000*x; 
+	else 
+	if (x>=-181/500) then 
+	y = 10.362000*x; 
+	else 
+	if (x>=-182/500) then 
+	y = 10.364000*x; 
+	else 
+	if (x>=-183/500) then 
+	y = 10.366000*x; 
+	else 
+	if (x>=-184/500) then 
+	y = 10.368000*x; 
+	else 
+	if (x>=-185/500) then 
+	y = 10.370000*x; 
+	else 
+	if (x>=-186/500) then 
+	y = 10.372000*x; 
+	else 
+	if (x>=-187/500) then 
+	y = 10.374000*x; 
+	else 
+	if (x>=-188/500) then 
+	y = 10.376000*x; 
+	else 
+	if (x>=-189/500) then 
+	y = 10.378000*x; 
+	else 
+	if (x>=-190/500) then 
+	y = 10.380000*x; 
+	else 
+	if (x>=-191/500) then 
+	y = 10.382000*x; 
+	else 
+	if (x>=-192/500) then 
+	y = 10.384000*x; 
+	else 
+	if (x>=-193/500) then 
+	y = 10.386000*x; 
+	else 
+	if (x>=-194/500) then 
+	y = 10.388000*x; 
+	else 
+	if (x>=-195/500) then 
+	y = 10.390000*x; 
+	else 
+	if (x>=-196/500) then 
+	y = 10.392000*x; 
+	else 
+	if (x>=-197/500) then 
+	y = 10.394000*x; 
+	else 
+	if (x>=-198/500) then 
+	y = 10.396000*x; 
+	else 
+	if (x>=-199/500) then 
+	y = 10.398000*x; 
+	else 
+	if (x>=-200/500) then 
+	y = 10.400000*x; 
+	else 
+	if (x>=-201/500) then 
+	y = 10.402000*x; 
+	else 
+	if (x>=-202/500) then 
+	y = 10.404000*x; 
+	else 
+	if (x>=-203/500) then 
+	y = 10.406000*x; 
+	else 
+	if (x>=-204/500) then 
+	y = 10.408000*x; 
+	else 
+	if (x>=-205/500) then 
+	y = 10.410000*x; 
+	else 
+	if (x>=-206/500) then 
+	y = 10.412000*x; 
+	else 
+	if (x>=-207/500) then 
+	y = 10.414000*x; 
+	else 
+	if (x>=-208/500) then 
+	y = 10.416000*x; 
+	else 
+	if (x>=-209/500) then 
+	y = 10.418000*x; 
+	else 
+	if (x>=-210/500) then 
+	y = 10.420000*x; 
+	else 
+	if (x>=-211/500) then 
+	y = 10.422000*x; 
+	else 
+	if (x>=-212/500) then 
+	y = 10.424000*x; 
+	else 
+	if (x>=-213/500) then 
+	y = 10.426000*x; 
+	else 
+	if (x>=-214/500) then 
+	y = 10.428000*x; 
+	else 
+	if (x>=-215/500) then 
+	y = 10.430000*x; 
+	else 
+	if (x>=-216/500) then 
+	y = 10.432000*x; 
+	else 
+	if (x>=-217/500) then 
+	y = 10.434000*x; 
+	else 
+	if (x>=-218/500) then 
+	y = 10.436000*x; 
+	else 
+	if (x>=-219/500) then 
+	y = 10.438000*x; 
+	else 
+	if (x>=-220/500) then 
+	y = 10.440000*x; 
+	else 
+	if (x>=-221/500) then 
+	y = 10.442000*x; 
+	else 
+	if (x>=-222/500) then 
+	y = 10.444000*x; 
+	else 
+	if (x>=-223/500) then 
+	y = 10.446000*x; 
+	else 
+	if (x>=-224/500) then 
+	y = 10.448000*x; 
+	else 
+	if (x>=-225/500) then 
+	y = 10.450000*x; 
+	else 
+	if (x>=-226/500) then 
+	y = 10.452000*x; 
+	else 
+	if (x>=-227/500) then 
+	y = 10.454000*x; 
+	else 
+	if (x>=-228/500) then 
+	y = 10.456000*x; 
+	else 
+	if (x>=-229/500) then 
+	y = 10.458000*x; 
+	else 
+	if (x>=-230/500) then 
+	y = 10.460000*x; 
+	else 
+	if (x>=-231/500) then 
+	y = 10.462000*x; 
+	else 
+	if (x>=-232/500) then 
+	y = 10.464000*x; 
+	else 
+	if (x>=-233/500) then 
+	y = 10.466000*x; 
+	else 
+	if (x>=-234/500) then 
+	y = 10.468000*x; 
+	else 
+	if (x>=-235/500) then 
+	y = 10.470000*x; 
+	else 
+	if (x>=-236/500) then 
+	y = 10.472000*x; 
+	else 
+	if (x>=-237/500) then 
+	y = 10.474000*x; 
+	else 
+	if (x>=-238/500) then 
+	y = 10.476000*x; 
+	else 
+	if (x>=-239/500) then 
+	y = 10.478000*x; 
+	else 
+	if (x>=-240/500) then 
+	y = 10.480000*x; 
+	else 
+	if (x>=-241/500) then 
+	y = 10.482000*x; 
+	else 
+	if (x>=-242/500) then 
+	y = 10.484000*x; 
+	else 
+	if (x>=-243/500) then 
+	y = 10.486000*x; 
+	else 
+	if (x>=-244/500) then 
+	y = 10.488000*x; 
+	else 
+	if (x>=-245/500) then 
+	y = 10.490000*x; 
+	else 
+	if (x>=-246/500) then 
+	y = 10.492000*x; 
+	else 
+	if (x>=-247/500) then 
+	y = 10.494000*x; 
+	else 
+	if (x>=-248/500) then 
+	y = 10.496000*x; 
+	else 
+	if (x>=-249/500) then 
+	y = 10.498000*x; 
+	else 
+	if (x>=-250/500) then 
+	y = 10.500000*x; 
+	else 
+	if (x>=-251/500) then 
+	y = 10.502000*x; 
+	else 
+	if (x>=-252/500) then 
+	y = 10.504000*x; 
+	else 
+	if (x>=-253/500) then 
+	y = 10.506000*x; 
+	else 
+	if (x>=-254/500) then 
+	y = 10.508000*x; 
+	else 
+	if (x>=-255/500) then 
+	y = 10.510000*x; 
+	else 
+	if (x>=-256/500) then 
+	y = 10.512000*x; 
+	else 
+	if (x>=-257/500) then 
+	y = 10.514000*x; 
+	else 
+	if (x>=-258/500) then 
+	y = 10.516000*x; 
+	else 
+	if (x>=-259/500) then 
+	y = 10.518000*x; 
+	else 
+	if (x>=-260/500) then 
+	y = 10.520000*x; 
+	else 
+	if (x>=-261/500) then 
+	y = 10.522000*x; 
+	else 
+	if (x>=-262/500) then 
+	y = 10.524000*x; 
+	else 
+	if (x>=-263/500) then 
+	y = 10.526000*x; 
+	else 
+	if (x>=-264/500) then 
+	y = 10.528000*x; 
+	else 
+	if (x>=-265/500) then 
+	y = 10.530000*x; 
+	else 
+	if (x>=-266/500) then 
+	y = 10.532000*x; 
+	else 
+	if (x>=-267/500) then 
+	y = 10.534000*x; 
+	else 
+	if (x>=-268/500) then 
+	y = 10.536000*x; 
+	else 
+	if (x>=-269/500) then 
+	y = 10.538000*x; 
+	else 
+	if (x>=-270/500) then 
+	y = 10.540000*x; 
+	else 
+	if (x>=-271/500) then 
+	y = 10.542000*x; 
+	else 
+	if (x>=-272/500) then 
+	y = 10.544000*x; 
+	else 
+	if (x>=-273/500) then 
+	y = 10.546000*x; 
+	else 
+	if (x>=-274/500) then 
+	y = 10.548000*x; 
+	else 
+	if (x>=-275/500) then 
+	y = 10.550000*x; 
+	else 
+	if (x>=-276/500) then 
+	y = 10.552000*x; 
+	else 
+	if (x>=-277/500) then 
+	y = 10.554000*x; 
+	else 
+	if (x>=-278/500) then 
+	y = 10.556000*x; 
+	else 
+	if (x>=-279/500) then 
+	y = 10.558000*x; 
+	else 
+	if (x>=-280/500) then 
+	y = 10.560000*x; 
+	else 
+	if (x>=-281/500) then 
+	y = 10.562000*x; 
+	else 
+	if (x>=-282/500) then 
+	y = 10.564000*x; 
+	else 
+	if (x>=-283/500) then 
+	y = 10.566000*x; 
+	else 
+	if (x>=-284/500) then 
+	y = 10.568000*x; 
+	else 
+	if (x>=-285/500) then 
+	y = 10.570000*x; 
+	else 
+	if (x>=-286/500) then 
+	y = 10.572000*x; 
+	else 
+	if (x>=-287/500) then 
+	y = 10.574000*x; 
+	else 
+	if (x>=-288/500) then 
+	y = 10.576000*x; 
+	else 
+	if (x>=-289/500) then 
+	y = 10.578000*x; 
+	else 
+	if (x>=-290/500) then 
+	y = 10.580000*x; 
+	else 
+	if (x>=-291/500) then 
+	y = 10.582000*x; 
+	else 
+	if (x>=-292/500) then 
+	y = 10.584000*x; 
+	else 
+	if (x>=-293/500) then 
+	y = 10.586000*x; 
+	else 
+	if (x>=-294/500) then 
+	y = 10.588000*x; 
+	else 
+	if (x>=-295/500) then 
+	y = 10.590000*x; 
+	else 
+	if (x>=-296/500) then 
+	y = 10.592000*x; 
+	else 
+	if (x>=-297/500) then 
+	y = 10.594000*x; 
+	else 
+	if (x>=-298/500) then 
+	y = 10.596000*x; 
+	else 
+	if (x>=-299/500) then 
+	y = 10.598000*x; 
+	else 
+	if (x>=-300/500) then 
+	y = 10.600000*x; 
+	else 
+	if (x>=-301/500) then 
+	y = 10.602000*x; 
+	else 
+	if (x>=-302/500) then 
+	y = 10.604000*x; 
+	else 
+	if (x>=-303/500) then 
+	y = 10.606000*x; 
+	else 
+	if (x>=-304/500) then 
+	y = 10.608000*x; 
+	else 
+	if (x>=-305/500) then 
+	y = 10.610000*x; 
+	else 
+	if (x>=-306/500) then 
+	y = 10.612000*x; 
+	else 
+	if (x>=-307/500) then 
+	y = 10.614000*x; 
+	else 
+	if (x>=-308/500) then 
+	y = 10.616000*x; 
+	else 
+	if (x>=-309/500) then 
+	y = 10.618000*x; 
+	else 
+	if (x>=-310/500) then 
+	y = 10.620000*x; 
+	else 
+	if (x>=-311/500) then 
+	y = 10.622000*x; 
+	else 
+	if (x>=-312/500) then 
+	y = 10.624000*x; 
+	else 
+	if (x>=-313/500) then 
+	y = 10.626000*x; 
+	else 
+	if (x>=-314/500) then 
+	y = 10.628000*x; 
+	else 
+	if (x>=-315/500) then 
+	y = 10.630000*x; 
+	else 
+	if (x>=-316/500) then 
+	y = 10.632000*x; 
+	else 
+	if (x>=-317/500) then 
+	y = 10.634000*x; 
+	else 
+	if (x>=-318/500) then 
+	y = 10.636000*x; 
+	else 
+	if (x>=-319/500) then 
+	y = 10.638000*x; 
+	else 
+	if (x>=-320/500) then 
+	y = 10.640000*x; 
+	else 
+	if (x>=-321/500) then 
+	y = 10.642000*x; 
+	else 
+	if (x>=-322/500) then 
+	y = 10.644000*x; 
+	else 
+	if (x>=-323/500) then 
+	y = 10.646000*x; 
+	else 
+	if (x>=-324/500) then 
+	y = 10.648000*x; 
+	else 
+	if (x>=-325/500) then 
+	y = 10.650000*x; 
+	else 
+	if (x>=-326/500) then 
+	y = 10.652000*x; 
+	else 
+	if (x>=-327/500) then 
+	y = 10.654000*x; 
+	else 
+	if (x>=-328/500) then 
+	y = 10.656000*x; 
+	else 
+	if (x>=-329/500) then 
+	y = 10.658000*x; 
+	else 
+	if (x>=-330/500) then 
+	y = 10.660000*x; 
+	else 
+	if (x>=-331/500) then 
+	y = 10.662000*x; 
+	else 
+	if (x>=-332/500) then 
+	y = 10.664000*x; 
+	else 
+	if (x>=-333/500) then 
+	y = 10.666000*x; 
+	else 
+	if (x>=-334/500) then 
+	y = 10.668000*x; 
+	else 
+	if (x>=-335/500) then 
+	y = 10.670000*x; 
+	else 
+	if (x>=-336/500) then 
+	y = 10.672000*x; 
+	else 
+	if (x>=-337/500) then 
+	y = 10.674000*x; 
+	else 
+	if (x>=-338/500) then 
+	y = 10.676000*x; 
+	else 
+	if (x>=-339/500) then 
+	y = 10.678000*x; 
+	else 
+	if (x>=-340/500) then 
+	y = 10.680000*x; 
+	else 
+	if (x>=-341/500) then 
+	y = 10.682000*x; 
+	else 
+	if (x>=-342/500) then 
+	y = 10.684000*x; 
+	else 
+	if (x>=-343/500) then 
+	y = 10.686000*x; 
+	else 
+	if (x>=-344/500) then 
+	y = 10.688000*x; 
+	else 
+	if (x>=-345/500) then 
+	y = 10.690000*x; 
+	else 
+	if (x>=-346/500) then 
+	y = 10.692000*x; 
+	else 
+	if (x>=-347/500) then 
+	y = 10.694000*x; 
+	else 
+	if (x>=-348/500) then 
+	y = 10.696000*x; 
+	else 
+	if (x>=-349/500) then 
+	y = 10.698000*x; 
+	else 
+	if (x>=-350/500) then 
+	y = 10.700000*x; 
+	else 
+	if (x>=-351/500) then 
+	y = 10.702000*x; 
+	else 
+	if (x>=-352/500) then 
+	y = 10.704000*x; 
+	else 
+	if (x>=-353/500) then 
+	y = 10.706000*x; 
+	else 
+	if (x>=-354/500) then 
+	y = 10.708000*x; 
+	else 
+	if (x>=-355/500) then 
+	y = 10.710000*x; 
+	else 
+	if (x>=-356/500) then 
+	y = 10.712000*x; 
+	else 
+	if (x>=-357/500) then 
+	y = 10.714000*x; 
+	else 
+	if (x>=-358/500) then 
+	y = 10.716000*x; 
+	else 
+	if (x>=-359/500) then 
+	y = 10.718000*x; 
+	else 
+	if (x>=-360/500) then 
+	y = 10.720000*x; 
+	else 
+	if (x>=-361/500) then 
+	y = 10.722000*x; 
+	else 
+	if (x>=-362/500) then 
+	y = 10.724000*x; 
+	else 
+	if (x>=-363/500) then 
+	y = 10.726000*x; 
+	else 
+	if (x>=-364/500) then 
+	y = 10.728000*x; 
+	else 
+	if (x>=-365/500) then 
+	y = 10.730000*x; 
+	else 
+	if (x>=-366/500) then 
+	y = 10.732000*x; 
+	else 
+	if (x>=-367/500) then 
+	y = 10.734000*x; 
+	else 
+	if (x>=-368/500) then 
+	y = 10.736000*x; 
+	else 
+	if (x>=-369/500) then 
+	y = 10.738000*x; 
+	else 
+	if (x>=-370/500) then 
+	y = 10.740000*x; 
+	else 
+	if (x>=-371/500) then 
+	y = 10.742000*x; 
+	else 
+	if (x>=-372/500) then 
+	y = 10.744000*x; 
+	else 
+	if (x>=-373/500) then 
+	y = 10.746000*x; 
+	else 
+	if (x>=-374/500) then 
+	y = 10.748000*x; 
+	else 
+	if (x>=-375/500) then 
+	y = 10.750000*x; 
+	else 
+	if (x>=-376/500) then 
+	y = 10.752000*x; 
+	else 
+	if (x>=-377/500) then 
+	y = 10.754000*x; 
+	else 
+	if (x>=-378/500) then 
+	y = 10.756000*x; 
+	else 
+	if (x>=-379/500) then 
+	y = 10.758000*x; 
+	else 
+	if (x>=-380/500) then 
+	y = 10.760000*x; 
+	else 
+	if (x>=-381/500) then 
+	y = 10.762000*x; 
+	else 
+	if (x>=-382/500) then 
+	y = 10.764000*x; 
+	else 
+	if (x>=-383/500) then 
+	y = 10.766000*x; 
+	else 
+	if (x>=-384/500) then 
+	y = 10.768000*x; 
+	else 
+	if (x>=-385/500) then 
+	y = 10.770000*x; 
+	else 
+	if (x>=-386/500) then 
+	y = 10.772000*x; 
+	else 
+	if (x>=-387/500) then 
+	y = 10.774000*x; 
+	else 
+	if (x>=-388/500) then 
+	y = 10.776000*x; 
+	else 
+	if (x>=-389/500) then 
+	y = 10.778000*x; 
+	else 
+	if (x>=-390/500) then 
+	y = 10.780000*x; 
+	else 
+	if (x>=-391/500) then 
+	y = 10.782000*x; 
+	else 
+	if (x>=-392/500) then 
+	y = 10.784000*x; 
+	else 
+	if (x>=-393/500) then 
+	y = 10.786000*x; 
+	else 
+	if (x>=-394/500) then 
+	y = 10.788000*x; 
+	else 
+	if (x>=-395/500) then 
+	y = 10.790000*x; 
+	else 
+	if (x>=-396/500) then 
+	y = 10.792000*x; 
+	else 
+	if (x>=-397/500) then 
+	y = 10.794000*x; 
+	else 
+	if (x>=-398/500) then 
+	y = 10.796000*x; 
+	else 
+	if (x>=-399/500) then 
+	y = 10.798000*x; 
+	else 
+	if (x>=-400/500) then 
+	y = 10.800000*x; 
+	else 
+	if (x>=-401/500) then 
+	y = 10.802000*x; 
+	else 
+	if (x>=-402/500) then 
+	y = 10.804000*x; 
+	else 
+	if (x>=-403/500) then 
+	y = 10.806000*x; 
+	else 
+	if (x>=-404/500) then 
+	y = 10.808000*x; 
+	else 
+	if (x>=-405/500) then 
+	y = 10.810000*x; 
+	else 
+	if (x>=-406/500) then 
+	y = 10.812000*x; 
+	else 
+	if (x>=-407/500) then 
+	y = 10.814000*x; 
+	else 
+	if (x>=-408/500) then 
+	y = 10.816000*x; 
+	else 
+	if (x>=-409/500) then 
+	y = 10.818000*x; 
+	else 
+	if (x>=-410/500) then 
+	y = 10.820000*x; 
+	else 
+	if (x>=-411/500) then 
+	y = 10.822000*x; 
+	else 
+	if (x>=-412/500) then 
+	y = 10.824000*x; 
+	else 
+	if (x>=-413/500) then 
+	y = 10.826000*x; 
+	else 
+	if (x>=-414/500) then 
+	y = 10.828000*x; 
+	else 
+	if (x>=-415/500) then 
+	y = 10.830000*x; 
+	else 
+	if (x>=-416/500) then 
+	y = 10.832000*x; 
+	else 
+	if (x>=-417/500) then 
+	y = 10.834000*x; 
+	else 
+	if (x>=-418/500) then 
+	y = 10.836000*x; 
+	else 
+	if (x>=-419/500) then 
+	y = 10.838000*x; 
+	else 
+	if (x>=-420/500) then 
+	y = 10.840000*x; 
+	else 
+	if (x>=-421/500) then 
+	y = 10.842000*x; 
+	else 
+	if (x>=-422/500) then 
+	y = 10.844000*x; 
+	else 
+	if (x>=-423/500) then 
+	y = 10.846000*x; 
+	else 
+	if (x>=-424/500) then 
+	y = 10.848000*x; 
+	else 
+	if (x>=-425/500) then 
+	y = 10.850000*x; 
+	else 
+	if (x>=-426/500) then 
+	y = 10.852000*x; 
+	else 
+	if (x>=-427/500) then 
+	y = 10.854000*x; 
+	else 
+	if (x>=-428/500) then 
+	y = 10.856000*x; 
+	else 
+	if (x>=-429/500) then 
+	y = 10.858000*x; 
+	else 
+	if (x>=-430/500) then 
+	y = 10.860000*x; 
+	else 
+	if (x>=-431/500) then 
+	y = 10.862000*x; 
+	else 
+	if (x>=-432/500) then 
+	y = 10.864000*x; 
+	else 
+	if (x>=-433/500) then 
+	y = 10.866000*x; 
+	else 
+	if (x>=-434/500) then 
+	y = 10.868000*x; 
+	else 
+	if (x>=-435/500) then 
+	y = 10.870000*x; 
+	else 
+	if (x>=-436/500) then 
+	y = 10.872000*x; 
+	else 
+	if (x>=-437/500) then 
+	y = 10.874000*x; 
+	else 
+	if (x>=-438/500) then 
+	y = 10.876000*x; 
+	else 
+	if (x>=-439/500) then 
+	y = 10.878000*x; 
+	else 
+	if (x>=-440/500) then 
+	y = 10.880000*x; 
+	else 
+	if (x>=-441/500) then 
+	y = 10.882000*x; 
+	else 
+	if (x>=-442/500) then 
+	y = 10.884000*x; 
+	else 
+	if (x>=-443/500) then 
+	y = 10.886000*x; 
+	else 
+	if (x>=-444/500) then 
+	y = 10.888000*x; 
+	else 
+	if (x>=-445/500) then 
+	y = 10.890000*x; 
+	else 
+	if (x>=-446/500) then 
+	y = 10.892000*x; 
+	else 
+	if (x>=-447/500) then 
+	y = 10.894000*x; 
+	else 
+	if (x>=-448/500) then 
+	y = 10.896000*x; 
+	else 
+	if (x>=-449/500) then 
+	y = 10.898000*x; 
+	else 
+	if (x>=-450/500) then 
+	y = 10.900000*x; 
+	else 
+	if (x>=-451/500) then 
+	y = 10.902000*x; 
+	else 
+	if (x>=-452/500) then 
+	y = 10.904000*x; 
+	else 
+	if (x>=-453/500) then 
+	y = 10.906000*x; 
+	else 
+	if (x>=-454/500) then 
+	y = 10.908000*x; 
+	else 
+	if (x>=-455/500) then 
+	y = 10.910000*x; 
+	else 
+	if (x>=-456/500) then 
+	y = 10.912000*x; 
+	else 
+	if (x>=-457/500) then 
+	y = 10.914000*x; 
+	else 
+	if (x>=-458/500) then 
+	y = 10.916000*x; 
+	else 
+	if (x>=-459/500) then 
+	y = 10.918000*x; 
+	else 
+	if (x>=-460/500) then 
+	y = 10.920000*x; 
+	else 
+	if (x>=-461/500) then 
+	y = 10.922000*x; 
+	else 
+	if (x>=-462/500) then 
+	y = 10.924000*x; 
+	else 
+	if (x>=-463/500) then 
+	y = 10.926000*x; 
+	else 
+	if (x>=-464/500) then 
+	y = 10.928000*x; 
+	else 
+	if (x>=-465/500) then 
+	y = 10.930000*x; 
+	else 
+	if (x>=-466/500) then 
+	y = 10.932000*x; 
+	else 
+	if (x>=-467/500) then 
+	y = 10.934000*x; 
+	else 
+	if (x>=-468/500) then 
+	y = 10.936000*x; 
+	else 
+	if (x>=-469/500) then 
+	y = 10.938000*x; 
+	else 
+	if (x>=-470/500) then 
+	y = 10.940000*x; 
+	else 
+	if (x>=-471/500) then 
+	y = 10.942000*x; 
+	else 
+	if (x>=-472/500) then 
+	y = 10.944000*x; 
+	else 
+	if (x>=-473/500) then 
+	y = 10.946000*x; 
+	else 
+	if (x>=-474/500) then 
+	y = 10.948000*x; 
+	else 
+	if (x>=-475/500) then 
+	y = 10.950000*x; 
+	else 
+	if (x>=-476/500) then 
+	y = 10.952000*x; 
+	else 
+	if (x>=-477/500) then 
+	y = 10.954000*x; 
+	else 
+	if (x>=-478/500) then 
+	y = 10.956000*x; 
+	else 
+	if (x>=-479/500) then 
+	y = 10.958000*x; 
+	else 
+	if (x>=-480/500) then 
+	y = 10.960000*x; 
+	else 
+	if (x>=-481/500) then 
+	y = 10.962000*x; 
+	else 
+	if (x>=-482/500) then 
+	y = 10.964000*x; 
+	else 
+	if (x>=-483/500) then 
+	y = 10.966000*x; 
+	else 
+	if (x>=-484/500) then 
+	y = 10.968000*x; 
+	else 
+	if (x>=-485/500) then 
+	y = 10.970000*x; 
+	else 
+	if (x>=-486/500) then 
+	y = 10.972000*x; 
+	else 
+	if (x>=-487/500) then 
+	y = 10.974000*x; 
+	else 
+	if (x>=-488/500) then 
+	y = 10.976000*x; 
+	else 
+	if (x>=-489/500) then 
+	y = 10.978000*x; 
+	else 
+	if (x>=-490/500) then 
+	y = 10.980000*x; 
+	else 
+	if (x>=-491/500) then 
+	y = 10.982000*x; 
+	else 
+	if (x>=-492/500) then 
+	y = 10.984000*x; 
+	else 
+	if (x>=-493/500) then 
+	y = 10.986000*x; 
+	else 
+	if (x>=-494/500) then 
+	y = 10.988000*x; 
+	else 
+	if (x>=-495/500) then 
+	y = 10.990000*x; 
+	else 
+	if (x>=-496/500) then 
+	y = 10.992000*x; 
+	else 
+	if (x>=-497/500) then 
+	y = 10.994000*x; 
+	else 
+	if (x>=-498/500) then 
+	y = 10.996000*x; 
+	else 
+	if (x>=-499/500) then 
+	y = 10.998000*x; 
+	else 
+	y = 20*x;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+assume y == 1;end

@@ -1,0 +1,160 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_coeff.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+
+/* For ap_interval_t, 
+
+- the conversion from ML to C may use allocation, but it is automatically freed 
+  by Camlidl mechanisms
+- the conversion from C to ML duplicate the C allocated memory.
+  Hence, the C type should be explicitly deallocated
+  (if allocated from the underlying C function)
+*/
+
+struct ap_interval_t {
+  [ref,mlname(mutable_inf)] ap_scalar_t* inf;
+  [ref,mlname(mutable_sup)] ap_scalar_t* sup;
+};
+typedef [ref]struct ap_interval_t* ap_interval_ptr;
+struct ap_interval_array_t {
+  [size_is(size)]ap_interval_ptr* p;
+  int size;
+};
+quote(MLMLI,"(** APRON Intervals on scalars *)\n\n")
+
+quote(MLI,"\n\
+val of_scalar : Scalar.t -> Scalar.t -> t\n\
+  (** Build an interval from a lower and an upper bound *)\n\
+val of_infsup : Scalar.t -> Scalar.t -> t\n\
+  (** depreciated *)\n\
+\n\
+val of_mpq : Mpq.t -> Mpq.t -> t\n\
+val of_mpqf : Mpqf.t -> Mpqf.t -> t\n\
+val of_int : int -> int -> t\n\
+val of_frac : int -> int -> int -> int -> t\n\
+val of_float : float -> float -> t\n\
+val of_mpfr : Mpfr.t -> Mpfr.t -> t\n\
+  (** Create an interval from resp. two\n\
+    - multi-precision rationals [Mpq.t] \n\
+    - multi-precision rationals [Mpqf.t] \n\
+    - integers \n\
+    - fractions [x/y] and [z/w]\n\
+    - machine floats\n\
+    - Mpfr floats\n\
+  *)\n\
+\n\
+val is_top : t -> bool\n\
+  (** Does the interval represent the universe ([[-oo,+oo]]) ? *)\n\
+\n\
+val is_bottom : t -> bool\n\
+  (** Does the interval contain no value ([[a,b]] with a>b) ? *)\n\
+\n\
+val is_leq : t -> t -> bool\n\
+  (** Inclusion test. [is_leq x y] returns [true] if [x] is included in [y] *)\n\
+\n\
+val cmp : t -> t -> int\n\
+  (** Non Total Comparison:\n\
+     0: equality\n\
+     -1: i1 included in i2\n\
+     +1: i2 included in i1\n\
+     -2: i1.inf less than or equal to i2.inf\n\
+     +2: i1.inf greater than i2.inf\n\
+  *)\n\
+val equal : t -> t -> bool\n\
+  (** Equality test *)\n\
+val is_zero : t -> bool\n\
+  (** Is the interval equal to [0,0] ? *)\n\
+val equal_int : t -> int -> bool\n\
+  (** Is the interval equal to [i,i] ? *)\n\
+val neg : t -> t\n\
+  (** Negation *)\n\
+val top : t\n\
+val bottom : t\n\
+  (** Top and bottom intervals (using [DOUBLE] coefficients) *)\n\
+\n\
+val set_infsup : t -> Scalar.t -> Scalar.t -> unit\n\
+  (** Fill the interval with the given lower and upper bouunds *)\n\
+\n\
+val set_top : t -> unit\n\
+val set_bottom : t -> unit\n\
+  (** Fill the interval with top (resp. bottom) value *)\n\
+  \n\
+val print : Format.formatter -> t -> unit\n\
+  (** Print an interval, under the format [[inf,sup]] *)\n\
+")
+
+quote(ML,"\n\
+let of_scalar inf sup = { inf = inf; sup = sup }\n\
+let of_infsup = of_scalar\n\
+let of_mpq x y = { \n\
+  inf = Scalar.of_mpq x;\n\
+  sup = Scalar.of_mpq y\n\
+}\n\
+let of_mpqf x y = {\n\
+  inf = Scalar.of_mpqf x;\n\
+  sup = Scalar.of_mpqf y\n\
+}\n\
+let of_int x y = {\n\
+  inf = Scalar.of_int x;\n\
+  sup = Scalar.of_int y\n\
+}\n\
+let of_frac x y z w = {\n\
+  inf = Scalar.of_frac x y;\n\
+  sup = Scalar.of_frac z w\n\
+}\n\
+let of_float x y = {\n\
+  inf = Scalar.of_float x;\n\
+  sup = Scalar.of_float y\n\
+}\n\
+let of_mpfr x y = {\n\
+  inf = Scalar.of_mpfr x;\n\
+  sup = Scalar.of_mpfr y\n\
+}\n\
+let is_top itv =\n\
+  Scalar.is_infty itv.inf < 0 && Scalar.is_infty itv.sup > 0\n\
+let is_bottom itv =\n\
+  Scalar.cmp itv.inf itv.sup > 0\n\
+let is_leq itv1 itv2 =\n\
+  Scalar.cmp itv1.inf itv2.inf >= 0 &&\n\
+  Scalar.cmp itv1.sup itv2.sup <= 0\n\
+let cmp itv1 itv2 =\n\
+  let s1 = Scalar.cmp itv1.inf itv2.inf in\n\
+  let s2 = Scalar.cmp itv1.sup itv2.sup in\n\
+  if s1=0 && s2=0 then 0\n\
+  else if s1>=0 && s2<=0 then -1\n\
+  else if s1<=0 && s2>=0 then 1\n\
+  else if s1<=0 then -2\n\
+  else 2\n\
+let equal itv1 itv2 =\n\
+  Scalar.equal itv1.inf itv2.inf &&\n\
+  Scalar.equal itv1.sup itv2.sup \n\
+let is_zero itv =\n\
+  Scalar.sgn itv.inf=0 && Scalar.sgn itv.sup = 0\n\
+let equal_int itv b = \n\
+  Scalar.equal_int itv.inf b && Scalar.equal_int itv.sup b\n\
+let neg itv = \n\
+  { inf = Scalar.neg itv.sup; sup = Scalar.neg itv.inf }\n\
+let top = { inf = Scalar.Float neg_infinity; sup = Scalar.Float infinity }\n\
+let bottom = { inf = Scalar.Float infinity; sup = Scalar.Float neg_infinity }\n\
+let set_infsup itv inf sup =\n\
+  itv.inf <- inf;\n\
+  itv.sup <- sup\n\
+let set_top itv =\n\
+  itv.inf <- Scalar.Float neg_infinity;\n\
+  itv.sup <- Scalar.Float infinity\n\
+let set_bottom itv =\n\
+  itv.inf <- Scalar.Float infinity;\n\
+  itv.sup <- Scalar.Float neg_infinity\n\
+let print fmt itv =\n\
+  Format.fprintf fmt \"[@[<hv>%a;@ %a@]]\"\n\
+    Scalar.print itv.inf Scalar.print itv.sup\n\
+")

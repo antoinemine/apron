@@ -1,0 +1,57 @@
+
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+This package contains various products built upon APRON base
+abstract domains. It contais currently:
+- the reduced product of NewPolka convex polyhedra and PPL linear
+  congruences
+
+  It includes both the C interface and the OCaml interface to
+  APRON.
+
+REQUIREMENTS
+============
+For the C interface:
+
+GMP library (tested with version 4.0 and up)
+MPFR library (tested with version 2.2.0 and up)
+NUM "library" (a set of header files)
+ITV library 
+APRON library
+
+For the OCaml interface, in addition:
+OCaml 3.0 or up (tested with 3.09)
+Camlidl (tested with 1.05)
+MLGMPIDL package
+MLAPRONIDL package
+
+INSTALLATION
+============
+
+1. C Library
+----------
+
+type 'make', and then 'make install' 
+
+The library is named libap_pkgrid.a (and
+libap_pkgrid_debug.a). 
+
+For use via APRON, the include files to consider is ap_pkgrid.h.
+
+2. OCaml Library
+----------------
+
+type 'make ml', and then 'make install' 
+
+The C part of the library is named libpolkaGrid_caml.a or
+libpolkaGrid_caml.so/dllpolkaGrid_caml.so (and libpolkaGrid_caml_debug.a or ...).
+
+The OCaml part is named polkaGrid.cma (polkaGrid.cmxa)
+
+3. Miscellaneous
+----------------
+
+'make clean' and 'make distclean' have the usual behaviour.

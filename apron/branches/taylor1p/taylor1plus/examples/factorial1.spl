@@ -1,0 +1,26 @@
+/* Multiplication with a loop */
+proc fact1 (a:int) returns (b:int) 
+var c:int;
+begin
+if (a<=1) then
+  b = 1;
+else
+  c = a - 1;
+  c = fact1(c);
+  b = 0;
+  while (c>0) do
+    b = b+a;
+    c = c-1;
+  done;
+endif;
+end
+
+var y:int,z:int;
+begin
+z = 1;
+while true do
+  y = fact1(z);
+  z = z+1;
+done;
+end
+

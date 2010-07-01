@@ -1,0 +1,26 @@
+/* SubPoly */
+/* res >= 0 */
+
+var wb : int, count : int, len: int, C : int, res : real;
+begin
+
+/*
+assume C >= -2147483648 and C <= 2147483647;
+assume count >= -2147483648 and count <= 2147483647;
+assume len >= -2147483648 and len <= 2147483647;
+assume wb >= -2147483648 and wb <= 2147483647;
+*/
+
+assume C >= -10 and C <= 10;
+assume count >= -10 and count <= 10;
+assume len >= -10 and len <= 10;
+assume wb >= -10 and wb <= 10;
+
+if (wb >= 2*count) then
+ if (count + C >= len) then
+   res = wb - 2*(len - C);
+ endif;
+endif;
+
+end
+

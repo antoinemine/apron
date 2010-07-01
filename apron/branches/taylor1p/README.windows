@@ -1,0 +1,44 @@
+
+This document tries to explain how to compile Apron under Windows.
+For the moment, only 32-bit compilation using the Cygwin environment is
+supported.
+
+Note that this is work-in-progress.
+
+
+PREREQUISITES
+-------------
+
+Get Cygwin at http://www.cygwin.com/
+
+The following Cygwin package are required:
+- gcc (Devel)
+- make (Devel)
+- gmp, mpfr (Math)
+- doxygen (Devel)
+- tetex-base (Publishing)
+
+Additionally, you'll need to install manually the following
+
+- OCaml 3.09 or better, from http://caml.inria.fr/ocaml/release.fr.html
+  (the 3.08 version, in CygWin, at the time of writing is too old)
+
+- CamlIDL, from http://caml.inria.fr/pub/old_caml_site/camlidl/
+
+
+CONFIGURATION
+-------------
+
+Copy Makefile.config.model into Makefile.config and edit the _PREFIX paths to
+suit your installation (you might want to set APRON_PREFIX, CAMLIDL_PREFIX
+and CAML_PREFIX to /usr/local instead of the default /usr).
+
+The following options should be disabled:
+- HAS_CPP (Cygwin's gcc is too old)
+- HAS_PPL (Apron with PPL compilation untested under Windows)
+- HAS_LONG_DOUBLE (long double not supported by math library under Windows)
+
+Do the same with mlgmpidl/Makefile.config.model
+
+Now, (make rebuild), make and make install in the apron top-level directory
+should work.

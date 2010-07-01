@@ -1,0 +1,491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+oct_doc.html
+APRON Library / Octagonal Domain
+Documentation
+Copyright (C) Antoine Mine' 2006-2007
+-->
+<!--
+This file is part of the APRON Library, released under LGPL license.  
+Please read the COPYING file packaged in the distribution.
+-->
+<html>
+<head>
+<title>APRON Library - Octagon Domain Implementation</title>
+<meta name="author" content="Antoine Mine">
+<style>
+<!--
+h1 { text-align: center; color: #46c; background: #ddf; margin-bottom: 1em; }
+code { color: #d03; font-size:110%; }
+-->
+</style>
+</head>
+
+<h1>APRON Library - Octagon Domain Implementation</h1>
+
+<h2>Table of Contents</h2>
+
+<ol>
+<li><a href="#intro">Introduction</a>
+<li><a href="#install">Installation</a>
+<li><a href="#c">Access to the Library from C and C++</a>
+<li><a href="#numeric">Underlying Numeric Set</a>
+<li><a href="#transfer">Precision of the Transfer Functions</a>
+<li><a href="#predicate">Precision of the Predicates</a>
+<li><a href="#algorithm">The algorithm parameter</a>
+<li><a href="#widening">Widenings and Narrowing</a>
+<li><a href="#extra">Additional Transfer Functions</a>
+<li><a href="#unimplemented">Unimplemented Features</a>
+<li><a href="#poly">Conversion with Polyhedra</a>
+<li><a href="#tools">Tools</a>
+<li><a href="#low">Low-level Access</a>
+<li><a href="#ocaml">Access to the Library from OCaml</a>
+<li><a href="#links">Links</a></a>
+<li><a href="#contact">Contact</a>
+</ol>
+
+<h2><a name="intro">Introduction</h2>
+
+<p>
+The <a href="http://apron.cri.ensmp.fr//">APRON</a> project provides a
+common interface for various numerical abstract domains with various
+expressiveness and cost versus precision trade-offs.
+This document describes the octagon domain implementation available
+within APRON.
+The octagon domain allows manipulating and representing conjunctions
+of invariants of the form
+&plusmn;<i>x</i> &plusmn;<i>y</i> &le; <i>c</i>, where <i>x</i> and
+<i>y</i> range among a finite set of numerical program variables.
+In two dimensions, such invariants have an octagonal shape, hence the name.
+
+<p>
+Familiarity is assumed with the generic APRON framework as well as
+the octagon abstract domain (see <a href="#links">external links</a>).
+
+<h2><a name="install">Installation</a></h2>
+
+<p>
+Please see the <code>README</code> file included in the
+distribution for installation instructions.
+
+
+<h2><a name="c">Access to the Library from C and C++</a></h2>
+
+<p>
+Your C or C++ program must be linked with the following libraries:
+<ul>
+<li> the octagon library <code>-loctX</code>
+(where <code>X</code> denotes the chosen numeric set;
+<code>MPQ</code> for instance);
+<li> the APRON library <code>-lapron</code>;
+<li> the GMP library <code>-lgmp</code>;
+<li> the MPFR library <code>-lmpfr</code>;
+<li> the standard mathematical library <code>-lm</code>.
+</ul>
+It is possible to use additional libraries, such as the POLKA module
+<code>-lpolkaMPQ</code>.
+
+<p>
+The standard way to access to the octagon library is through an
+APRON manager. The manager is created as follows:
+<ul>
+<li>include the <code>oct.h</code> file,
+<li>create an octagon manager 
+<code>ap_manager_t* man = oct_manager_alloc();</code>
+</ul>
+All standard APRON functions from <code>ap_abstract0.h</code>
+are available on octagons through <code>man</code>.
+
+<p>
+Note that, when using a floating-point implementation of the octagon library,
+creating a manager will automatically put the floating-point unit into
+<i>rounding towards +oo</i> mode
+(using <code>ap_fpu_init</code> provided by APRON), 
+as it is required to ensure the soundness of the transfer functions.
+Beware that this setting is global: it affects all the computations of the
+process, not only those occurring in the octagon library.
+
+
+<h2><a name="numeric">Underlying Numeric Set</a></h2>
+
+<p>
+The octagon library is compiled with a variety of underlying numeric set,
+distinguished using a suffix:
+<ul>
+<li> <code>I</code>: integers with a plain "long int" representation;
+<li> <code>Ill</code>: integers with a "long long int" representation;
+<li> <code>MPZ</code>: arbitrary precision integers using GMP;
+<li> <code>Rl</code>: rationals with a "long int" representation;
+<li> <code>Rll</code>: rationals with a "long long int" representation;
+<li> <code>MPQ</code>: arbitrary precision rationals using GMP;
+<li> <code>D</code>: reals with a "double" representation;
+<li> <code>Dl</code>:   reals with a "long double" representation.
+</ul>
+
+<p>
+The choice of this numeric set affects the soundness, precision, and
+efficiency of the analysis:
+<ul>
+<li> <code>int</code> and <code>long</code> types are subject to overflows,
+which may result in unsound results 
+(no overflow checking is performed for efficiency reasons),
+<li> <code>double</code> and <code>long double</code> types are subject to 
+rounding, which may result in some loss of precision; 
+rounding is always performed towards +oo, which ensures soundness;
+<li> abstract transfer functions are inherently incomplete in
+<code>Z</code>, which results in some loss of precision;
+<li> constraints on reals are soundly approximated when
+using numbers in <code>Z</code>,
+<li> <code>GMP</code> types are much slower than native types.
+</ul>
+For best precision, <code>MPQ</code> is recommended.
+For a fast and versatile yet sound analysis, <code>D</code> 
+is recommended.
+
+<p>
+Note that the underlying numeric set chosen for octagons is not
+related to the choice of <code>double</code> or <code>GMP</code> for
+<code>ap_scalar_t</code> types used as arguments in transfer functions.
+Type mismatches may result in extra over-approximation (but always in a
+sound way).
+
+
+
+<h2><a name="transfer">Precision of the Transfer Functions</a></h2>
+
+<p>
+Exact transfer functions are provided for the class of operations that
+are closed under octagons.
+These include:
+<ul>
+<li> conjunctions with or conversions from constraints of the form
+&plusmn;<i>x</i> &plusmn;<i>y</i> &le; <i>c</i> 
+or
+&plusmn;<i>x</i> &le; <i>c</i>,
+<li> (possibly parallel)
+assignments and substitutions of expressions of the form
+&plusmn;<i>x</i> + <i>[a,b]</i> or <i>[a,b]</i>,
+<li> meets (<i>i.e.</i>, intersections) of octagons,
+<li> getting the bound of a dimension or an expression of the form
+&plusmn;<i>x</i> &plusmn;<i>y</i> + <i>[a,b]</i>,
+&plusmn;<i>x</i> + <i>[a,b]</i>, or <i>[a,b]</i>,
+<li> conversions to constraint sets,
+<li> conversions from boxes,
+<li> variable additions, deletions, projections, permutations, and expansions,
+<li> topological closures (always identity),
+<li> serializations and de-serializations.
+</ul>
+
+<p>
+Best transfer functions are provided in the following cases:
+<ul> 
+<li> join (<i>i.e.</i>, union) of octagons,
+<li> addition of rays,
+<li> conversions from generator sets,
+<li> conversions to boxes,
+<li> variable folding.
+</ul>
+
+<p>
+The following transfer functions use some approximate polynomial algorithms
+and have no precision guarantees:
+<ul>
+<li> conversions from or conjunctions with arbitrary constraints
+(a weakly relational approximation is used),
+<li> (possibly parallel) assignments and substitutions of arbitrary expressions
+(a weakly relational approximation is used),
+<li> conversions to generator sets (the whole universe is always returned),
+<li> getting the bound of arbitrary expressions
+(interval arithmetics is used).
+</ul>
+
+<p>
+Additionally, the exactness or best-precision feature of an abstract transfer
+function is often lost when the <code>MPQ</code> underlying numeric set
+is not used, or the arguments have integer dimensions, or the user sets
+the <code>algorithm</code> parameter to a strictly negative value.
+Finally, the exactness or best-precision feature can be lost due to
+conversion between the underlying numeric type and 
+user-provided <code>ap_scalar_t</code> types.
+The octagon library will set the <code>flag_exact</code> and
+<code>flag_best</code> manager flags accordingly in all cases.
+
+<p>
+Note that, due to interval coefficients, expressions may be non-deterministic, 
+that is, correspond to a bunch of expressions.
+In case of assignments, substitutions, or bound determinations of 
+non-deterministic 
+expressions, or conjunctions with non-deterministic constraints, 
+we considers the <i>join</i> of all results, when ranging over the 
+non-deterministic set.
+
+
+
+<h2><a name="predicate">Precision of the Predicates</a></h2>
+
+<p>
+The following predicates are exact, <i>i.e.</i>, they always return
+either <code>tbool_true</code> or <code>tbool_false</code> 
+(provided that <code>algorithm</code> is greater than or equal to 0,
+that the octagon has no integer dimension, and that the 
+<code>MPQ</code> underlying domain is selected):
+<ul>
+<li> testing for inclusion, equality, emptiness, or universality,
+<li> testing whether a dimension is unbounded or saturated by a
+given interval,
+<li> testing for saturation by an expression of the form
+&plusmn;<i>x</i> &plusmn;<i>y</i> + <i>[a,b]</i>,
+&plusmn;<i>x</i> + <i>[a,b]</i>, or <i>[a,b]</i>.
+</ul>
+
+<p>
+Note that, for non-deterministic expressions, <code>tbool_false</code> is 
+returned as long as the saturation is not satisfied for at least one expression.
+
+<p>
+Testing for the saturation by an arbitrary expression is very imprecise.
+It always return <code>tbool_top</code>.
+
+<p>
+When <code>algorithm</code> is set to a strictly negative value, the
+octagon has an integer dimension, the <code>MPQ</code> underlying domain is 
+selected, or the conversion from user-specified <code>ap_scalar_t</code> types
+to internal types resulted in an over-approximation, the predicate is sound
+but not exact: it is a <i>semi-test</i>.
+That is, it mainly returns either
+<code>tbool_true</code> or <code>tbool_top</code>.
+It can conclude that the predicate is definitively <code>tbool_false</code>
+only in very rare cases.
+The octagon library will set the <code>flag_exact</code> and
+<code>flag_best</code> manager flags accordingly in all cases.
+
+
+
+
+
+<h2><a name="algorithm">The algorithm parameter</a></h2>
+
+<p>
+The <code>algorithm</code> field in the manager provides an 
+implementation-specific parameter to set the required level of precision
+for transfer functions.
+
+<p>
+In the octagon domain, only two precision levels are recognised.
+They correspond to (with the exception of the widening):
+<ul>
+<li> <code>algorithm &ge; 0</code> is the normal precision:
+a transitive closure algorithm is used pervasively to achieve
+best precision transfer functions and results in transfer functions that
+have a cubic worst-case cost (in the number of variables),
+<li> <code>algorithm < 0</code> is the low precision: the transitive closure
+algorithm is not used, the best precision feature is not guaranteed, and
+transfer functions have a quadratic worst-case cost
+(many actually have a linear cost).
+</ul>
+
+
+<h2><a name="widening">Widenings and Narrowing</a></h2>
+
+<p>
+Depending on the <code>algorithm</code> flag, one of the following widening
+algorithm is used:
+<ul>
+<li> <code>algorithm = 0</code>:
+the right argument is closed, the standard widening is used: unstable 
+constraints are forgotten.
+Thus, it converges in a quadratic number of steps, at worse.
+<li> <code>algorithm &lt; 0</code>:
+the standard widening algorithm is used but the right argument is not closed.
+<li> <code>algorithm = oct_pre_widening</code>:
+this special value corresponds to a <i>pre-widening</i>.
+It does not enforce the convergence by itself but can be safely intermixed
+with a regular widening to improve the precision of the sequence, without
+jeopardizing the overall convergence. As long as a regular widening is
+applied infinitely often, the sequence will converge in finite time.
+(Note that intermixing a regular widening with a join operator will result
+in a diverging sequence. Thus, the join is not a pre-widening.
+Our pre-widening is actually a join without the closure application.)
+Use with care!
+</ul>
+
+<p>
+The <code>ap_abstract0_oct_widening_thresholds</code> provides a widening
+with scalar thresholds. 
+For each constraint of the form
+&plusmn;<i>x</i> &plusmn;<i>y</i> &le; <i>c</i> or 
+&plusmn;<i>x</i> &le; <i>c</i> where the bound <i>c</i> is not stable,
+the widening replaces <i>c</i> with the scalar immediately greater in
+the user-supplied list, or +oo if it is greater than the greatest supplied
+scalar.
+The list must be sorted in strictly increasing order.
+(Note that this operator is not exactly the same as the generic
+<code>ap_abstract0_widening_threshold</code> function which is synthesized
+from <code>ap_abstract0_sat_lincons</code> and
+<code>ap_abstract0_meet_lincons_array</code>.)
+
+<p>
+The <code>ap_abstract0_oct_narrowing</code> function implements the
+standard narrowing: it refines only those constraints that have
+no finite bound.
+Thus, it converges in a quadratic number of steps, at worse.
+
+
+<h2><a name="extra">Additional Transfer Functions</a></h2>
+
+<p>
+The octagon library provides a few functions not generic enough to be
+included in the APRON library.
+They share the <code>ap_abstract0_oct_</code> prefix.
+
+<p>
+Additionally to the widening with thresholds and narrowing functions
+described in the preceding section, the octagon domain provides the following
+extra function:
+<ul>
+<li> <code>ap_abstract0_oct_of_generator_array</code> converts a
+generator set to an octagon, with best-precision.
+<li> <code>ap_abstract0_oct_add_epsilon</code> enlarges each constraint bound
+by a user-specified factor of the maximum finite bound present in the
+octagon.
+</ul>
+
+
+
+<h2><a name="unimplemented">Unimplemented Features</a></h2>
+
+<p>
+The following are not implemented and will raise an
+exception:
+<ul>
+<li> all the functions related to minimal and canonical forms,
+<li> <code>ap_abstract0_approximate</code>.
+</ul>
+
+
+<h2><a name="poly">Conversion with Polyhedra</a></h2>
+
+<p>
+In order to ensure the best precision, the following conversion procedures
+are recommended:
+<ul>
+<li> To convert a polyhedron to an octagon, call
+<code>ap_abstract0_to_generator_array</code> on the polyhedra and then
+<code>ap_abstract0_oct_of_generator_array</code> on the result.
+<li> To convert an octagon to a polyhedron, call
+<code>ap_abstract0_to_lincons_array</code> on the octagon and then
+<code>ap_abstract0_of_lincons_array</code> on the result.
+</ul>
+
+<p>
+Do not extract the generators of an octagon or build an octagon from
+arbitrary linear constraints as these are not best-precision operators.
+
+
+<h2><a name="tools">Tools</a></h2>
+
+<p>
+The distribution provides a fully automatic test suite with
+<code>octtest</code>.
+It compares the result of all transfer functions in the octagon and polyhedron
+domains, checking for soundness, best-precision and exactness properties.
+
+
+
+<h2><a name="low">Low-level Access</a></h2>
+
+<p>
+The file <code>oct/oct_fun.h</code> provides a direct access to all the
+octagon functions, without the abstraction provided by the manager.
+Note that these functions perform less sanity checks, and so, may not be
+as safe.
+Wrapping and unwrapping a <code>oct_t*</code> pointer within a
+generic <code>ap_abstract0_t*</code> is done using the
+<code>abstract0_of_oct</code> and <code>oct_of_abstract0</code> functions.
+
+<p>
+The file <code>oct/oct_internal.h</code> must be included to access to the
+low-level representation of octagons 
+<code>struct oct_t</code> and manager-specific data
+<code>struct _oct_internal_t</code>.
+Direct access to private fields is not recommended.
+
+
+<h2><a name="ocaml">Access to the Library from OCaml</a></h2>
+
+<p>
+Your OCaml program must be linked with the following modules, in order:
+<ul>
+<li> the GMP OCaml wrapper: <code>gmp.cmxa</code>
+(or <code>gmp.cma</code> for byte-code);
+<li> the APRON OCaml wrapper: <code>apron.cmxa</code>
+(or <code>apron.cma</code> for byte-code);
+<li> the octagon OCaml wrapper: <code>oct.cmxa</code>
+(or <code>oct.cma</code> for byte-code);
+<li> the C octagon library for the chosen numerical type, <i>e.g.</i>,
+<code>-cclib -loctMPQ</code>;
+<li> the C apron library: <code>-cclib -lapron</code>.
+</ul>
+You may need the specify the include path with <code>-I</code>, depending
+on your installation.
+
+<p>
+Examples:
+<ul>
+<li>
+<code>ocamlc -I $HOME/lib gmp.cma apron.cma oct.cma mltest.ml -cclib -loctMPQ -cclib -lapron</code>
+<li>
+<code>ocamlopt -I $HOME/lib gmp.cmxa apron.cmxa oct.cmxa mltest.ml -cclib -loctMPQ -cclib -lapron</code>
+</ul>
+
+
+<p>
+The octagon library provides an <code>Oct</code> OCaml module
+There is no numeric suffix here: the OCaml wrapper is independent from the
+chosen numerical type.
+The <code>Oct.manager_alloc</code> function returns a new manager that can 
+then be used with the standard <code>Apron.Abstract0</code> module provided by 
+APRON.
+
+<p>
+The <code>Oct</code> module also provides some implementation-specific functions:
+<ul>
+<li> <code>of_generator_array</code> to convert from a set of generators to
+an octagon, with best abstraction,
+<li> the <code>widening_thresholds</code> widening,
+<li> the <code>narrowing</code> standard narrowing,
+<li> the <code>add_epsilon</code> perturbation function.
+</ul>
+
+
+
+<h2><a name="links">Links</a></h2>
+
+<p>APRON
+<ul>
+<li> Web-page for the <a href="http://apron.cri.ensmp.fr//">APRON project</a>.
+</ul>
+
+<p>The octagon abstract domain:
+<ul>
+<li> Main 
+<a href="http://www.di.ens.fr/~mine/publi/article-mine-HOSC06.pdf">journal
+article</a> describing the octagon domain:
+<b>The Octagon Abstract Domain</b>
+in Higher-Order and Symbolic Computation, 2006.
+<li> The <a href="http://www.di.ens.fr/~mine/these/index.html">Ph.D. Thesis</a>
+that gave rise to the octagon domain.
+<li> Former <a href="http://www.di.ens.fr/~mine/oct/">implementation</a> 
+the APRON implementation is based on.
+</ul>
+
+
+
+
+<h2><a name="contact">Contact</a></h2>
+
+Main developer: Antoine Min&eacute;
+<a href="mailto:mine@di.ens.fr"><code>mine@di.ens.fr</code></a>.
+
+
+</html>

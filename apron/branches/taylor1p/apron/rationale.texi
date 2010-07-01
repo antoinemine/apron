@@ -1,0 +1,647 @@
+
+@menu
+* General choices::             
+* Functionalities of the interface at level 0::  
+* Functionalities of the interface at level 1::  
+@end menu
+
+@c ===================================================================
+@node General choices, Functionalities of the interface at level 0, APRON Rationale and Functionalities, APRON Rationale and Functionalities
+@section General choices
+@c ===================================================================
+
+@menu
+* Interface levels::            
+* Programming language::        
+* Compatibility with threads::  
+* Interruptions::               
+* Memory management::           
+* Programming style::           
+* Number representation::       
+@end menu
+
+@c -------------------------------------------------------------------
+@node Interface levels, Programming language, General choices, General choices
+@subsubheading Interface levels
+
+There are two main goals for the APRON interface: efficiency of the
+implementations, and ease of use for the user. In addition, code
+duplication between libraries should be avoided. As a consequence, two
+levels were identified:
+@table @emph
+@item Level 0 
+Choices are guided by the efficiency and the precision of the operations;
+@item Level 1
+Choices are guided by ease of use, and code factorization.
+@end table
+
+The level 0 is directly connected to the underlying (existing)
+library. It includes all the operations that are specific to an
+abstract domain and whose code cannot be shared. The interface should
+be minimal, @emph{unless} there is a strong algorithmical advantage to
+include a combination of more basic operations.
+
+The higher levels offers additional functionalities that are shared by
+all the library connected to the level 0. For instance:
+
+@itemize
+@item
+managing correspondance between numerical dimensions and names
+(characters strings or more generally references);
+@item
+abstraction of non linear expressions in interval linear expressions;
+@item
+automatic call to redimensioning and permutation operations for
+computing
+@iftex 
+@tex
+$P(x,y)\sqcap Q(y,z)$
+@end tex 
+@end iftex
+@ifnottex
+P(x,y)/\Q(y,z).
+@end ifnottex
+@end itemize
+
+Combination of abstract domain is possible at the level 0. One can
+implement for instance the cartesian or reduced product of two
+different abstract domains, the decomposition of abstract values into
+a product of values of smaller dimensionality, ...
+
+@c -------------------------------------------------------------------
+@node Programming language, Compatibility with threads, Interface levels, General choices
+@subsubheading Programming language
+
+The reference version of the interface is the C version of the interface:
+
+@itemize
+@item
+C can be easily interfaced with most programming languages;
+@item
+Most of the existing libraries implementing abstract domains for
+numerical variables are programmed in C or C++.
+@end itemize
+
+An @sc{OCaml} version is already available. The interface between
+OCaml and C is even generic and any libraries can benefit from it by
+providing the glue for just one function (see XX).
+
+@c -------------------------------------------------------------------
+@node Compatibility with threads, Interruptions, Programming language, General choices
+@subsubheading Compatibility with threads
+
+In order to ensure compatibility with multithreading programming, a
+context is explicitly passed to functions in order to ensure the
+following points:
+
+@itemize
+@item
+the transmission of data specific to each library (non-standard
+options, workspace, ...);
+@item
+the transmission of standard options (selection of algorithms and their
+precision inside a library);
+@item
+the management of exceptions (implemented as error codes in the C
+interface) (@code{not_implemented}, @code{invalid_argument},
+@code{overflow}, @code{timeout}, @code{out_of_space}).
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Interruptions, Memory management, Compatibility with threads, General choices
+@subsubheading Interruptions
+
+Interruptions mechanism is have possible for different cases:
+@table @code
+@item timeout
+if the execution time for an operation exceeds some bound;
+@item out_of_space
+if the space consumption for an operation exceeds some bound;
+@item overflow
+if the magnitude or the space usage of manipulated numbers exceeds some bound;
+@item not_implemented
+if the operation is actually not implemented by the underlying library;
+@item invalid_argument
+if the arguments do not follow the requirements of an operation.
+@end table
+
+@quotation 
+For instance, in a convex polyhedra library, the @code{out_of_space}
+exception allows to abort an operation is the result appears to have
+too many constraints and/or generators. If this happens, one can redo
+the operation with another (less precise) algorithm. The
+@code{overflow} may be useful when effective overflows are encountered
+with machine integers or when multiprecision rational numbers have too
+large numerators and denominators. The @code{not_implemented}
+exception allows for a library to be linked to the interface even if
+it does not provide some operation of the interface.
+@end quotation
+
+When an interruption occurs, the function should still return a
+correct result, in the abstract interpretation sense: it should be a
+correct approximation, usable for next operations in the program. The
+top value is always a correct approximation.
+
+@c -------------------------------------------------------------------
+@node Memory management, Programming style, Interruptions, General choices
+@subsubheading Memory management
+
+Memory is managed differently depending on the programming language. Currently:
+
+@itemize
+@item
+No automatic garbage collection in the C interface
+@item
+Use of the @sc{OCaml} runtime garbage collector in the @sc{OCaml} interface
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Programming style, Number representation, Memory management, General choices
+@subsubheading Programming style
+
+Both functional and imperative (i.e., side-effect) signatures are
+supported for operations. This allows to optimize the memory
+allocation and to use whichever version is more convenient for an user
+and the used programming language.
+
+@c -------------------------------------------------------------------
+@node Number representation,  , Programming style, General choices
+@subsubheading Number representation
+
+Inside a specific library, any number representation may be used
+(floating-point numbers, machine integers, multiprecision
+integers/rationals, ...). Existing libraries often offers the
+possibility to select different representations.
+
+However, in the interface, this representation should be normalized
+and independent of underlying libraries, without being restrictive
+either. As a consequence, the interface offers the choiced between
+
+@itemize
+@item GMP multiprecision rationals (which implements exact arithmetic);
+@item and machine floating-point numbers (@code{double}).
+@end itemize
+
+@c ===================================================================
+@node Functionalities of the interface at level 0, Functionalities of the interface at level 1, General choices, APRON Rationale and Functionalities
+@section Functionalities of the interface at level 0
+@c ===================================================================
+
+@menu
+* Representation of an abstract value::  
+* Semantics of an abstract value::  
+* Dimensions::                  
+* Other datatypes::             
+* Control of internal representation::  
+* Printing::                    
+* Serializaton/Deserialization::  
+* Constructors::                
+* Tests::                       
+* Property extraction::         
+* Lattice operations::          
+* Assignement and Substitutions::  
+* Operations on dimensions::    
+* Other operations::            
+@end menu
+
+
+@c -------------------------------------------------------------------
+@node Representation of an abstract value, Semantics of an abstract value, Functionalities of the interface at level 0, Functionalities of the interface at level 0
+@subsubheading Representation of an abstract value
+
+At the level 0 of the interface, an abstract value is a structure
+@verbatim
+struct ap_abstract0_t {
+  ap_manager_t *manager; /* Explicit context */
+  void         *value;   /* Abstract value representation
+			    (only known by the underlying library) */
+}
+@end verbatim
+The context is allocated by the underlying library, and contains an
+array of function pointers pointing to the function of the underlying
+library. Hence, it indicates the effective type of an abstract value.
+
+The validity of the arguments of the functions called through the
+interface is checked before the call to effective functions. In case
+of problem, an @code{invalid_argument} exception is raised.
+
+@c -------------------------------------------------------------------
+@node Semantics of an abstract value, Dimensions, Representation of an abstract value, Functionalities of the interface at level 0
+@subsubheading Semantics of an abstract value
+
+The semantics of an abstract value is a subset
+@iftex 
+@tex
+$$X\subseteq {\cal N}^p\times{\cal R}^q$$
+@end tex 
+@end iftex
+@ifnottex
+@quotation
+X of N^p x R^q
+@end quotation
+@end ifnottex
+
+@noindent Abstract values are typed according to their dimensionality
+(p,q).
+
+@c -------------------------------------------------------------------
+@node Dimensions, Other datatypes, Semantics of an abstract value, Functionalities of the interface at level 0
+@subsubheading Dimensions
+Dimensions are numbered from 0 to p+q-1 and are typed either as
+integer or real, depending on their rank w.r.t. the dimensionality of
+the abstract value.
+
+@quotation Note
+Taking into account or not the fact that some dimensions are integers
+is left to underlying libraries. Treating them as real is still a
+correct approximation. The behaviour of the libraries in this regard
+may also depend on some options.
+@end quotation
+
+@c -------------------------------------------------------------------
+@node Other datatypes, Control of internal representation, Dimensions, Functionalities of the interface at level 0
+@subsubheading Other datatypes
+
+In addition to abstract values, the interface also manipulates the
+following main datatypes:
+@table @emph
+@item scalar (number)
+Either GMP multiprecision rationals or C @code{double}.
+@item interval
+composed of 2 scalar numbers. With rationals, plus (resp minus) infinity is represented by 1/0 (resp -1/0). With @code{double}, the IEEE754 is assumed and the corresponding standard representation is used.
+@item coefficient
+which is either a scalar or an interval.
+@item (interval) linear expression
+The term linear is used even if the proper term should rather be
+affine.  A linear expression is a linear expression in the common
+sense, using only scalar numbers. A quasi-linear expression is a
+linear expression where the constant coefficient is an interval. An
+interval linear expression is a linear expression where any
+coefficient may be an interval. In order to have a unique datatype for
+these variations, we introduced the notion of coefficient described
+above.
+@item ``linear'' constraints 
+``Linear'' constraints includes proper linear constraints, linear
+constraints in which the expression can be possibly an interval linear
+expression, linear equalities modulo a number, and linear disequalities.
+@item generators
+A generator system for a subset of @math{X\subseteq R^n} is a finite
+set of vectors, among which one distinguishes @emph{points}
+@math{p_0,\ldots,p_m} and @emph{rays} @math{r_0,\ldots,r_n}, that
+generates @math{X}:
+@iftex 
+@tex
+$$X=\{ \lambda_0 \vec{p_0} + \ldots \lambda_m \vec{p_m} + \mu_0 \vec{r_0} +\ldots + \mu_n \vec{r_n} ~|~ \sum_i \lambda_i = 1 ~\wedge~ \forall j: \mu_j\geq 0 \}$$
+@end tex 
+@end iftex
+@ifnottex
+@quotation
+X = @{ lambda0 p0 +...+ lambdaM pM + mu0 r0 +...+ muN rN | lambda0 +...+ lambdaN = 1 and forall J : muJ >= 0 @}
+@end quotation
+@end ifnottex
+The APRON datatype for generators distinguishes points (sum of
+coefficients equal to one), rays (positive coefficients), lines (or
+bidirectional rays, with unconstrainted coefficients), integer rays
+(integer positive coefficients) and integer lines (integer
+coefficients).
+@end table
+
+@c -------------------------------------------------------------------
+@node Control of internal representation, Printing, Other datatypes, Functionalities of the interface at level 0
+@subsubheading Control of internal representation
+
+We identified several notions:
+
+@itemize
+@item
+Canonical form
+@item
+Minimal form (in term of space)
+@item
+Approximation notion left to the underlying library (taking into
+account integers or not, ...).
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Printing, Serializaton/Deserialization, Control of internal representation, Functionalities of the interface at level 0
+@subsubheading Printing
+
+There are two printing operations:
+
+@itemize
+@item
+Printing of an abstract value;
+@item
+Printing the difference between two abstract values.
+@end itemize
+
+@noindent The printing format is library dependent. However, the conversion of
+abstract values to constraints (see below) allows a form of
+standardized printing for abstract values.
+
+@c -------------------------------------------------------------------
+@node Serializaton/Deserialization, Constructors, Printing, Functionalities of the interface at level 0
+@subsubheading Serializaton/Deserialization
+
+Serialization and deserialization of abstract values to a memory
+buffer is offered. It is entirely managed by the underlying
+library. In particular, it is up to it to check that a value read from
+the memory buffer has the right format and has not been written by a
+different library.
+
+Serialization is done to a memory buffer instead of to a file
+descriptor because this mechanism is more general and is needed for
+interfacing with languages like @sc{OCaml}.
+
+@c -------------------------------------------------------------------
+@node Constructors, Tests, Serializaton/Deserialization, Functionalities of the interface at level 0
+@subsubheading Constructors
+
+Four basic constructors are offered:
+
+@itemize
+@item
+bottom (empty) and top (universe) values (with a specified dimensionality);
+@item
+abstraction of a bounding box;
+@item
+abstraction of conjunction of linear constraints (in the broad sense).
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Tests, Property extraction, Constructors, Functionalities of the interface at level 0
+@subsubheading Tests
+
+Predicates are offered for testing
+@itemize
+@item
+emptiness and universality of an abstract value:
+@item
+inclusion and equality of two abstract values;
+@item
+inclusion of a dimension into an interval given an abstract value;
+@iftex
+@tex
+$${\it abs}(\vec{x}) \models x_i \in I ~~ ?$$
+@end tex
+@end iftex
+@item
+satisfaction of a linear constraint by the abstract value.
+@iftex
+@tex
+$${\it abs}(\vec{x}) \models {\it cons}(\vec{x}) ~~ {\tt or} ~~ {\it abs}(\vec{x}) \Rightarrow {\it cons}(\vec{x}) ~~ ?$$
+@end tex
+@end iftex
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Property extraction, Lattice operations, Tests, Functionalities of the interface at level 0
+@subsubheading Property extraction
+
+Some properties may be inferred given an abstract values:
+
+@itemize
+@item Interval of variation of a dimension in an abstract value;
+@iftex
+@tex
+$$\bigcap\{ I ~|~ {\it abs}(\vec{x}) \models x_i\in I\}$$
+@end tex
+@end iftex
+
+@item Interval of variation of a linear expression in an abstract value;
+@iftex
+@tex
+$$\bigcap\{ I ~|~ {\it abs}(\vec{x}) \models {\it expr}(\vec{x})\in I\}$$
+@end tex
+@end iftex
+@item Conversion to a bounding box
+@iftex
+@tex
+$$\bigcap\{ B ~|~ {\it abs}(\vec{x}) \subseteq B \}$$
+@end tex
+@end iftex
+@item Conversion to a set of linear constraints (in the broad sense).
+@end itemize
+
+@noindent Notice that the second operation implements linear programming if it
+is exact. The third operation is not minimal, as it can be implemented
+using the first one, but it was convenient to include it. But the
+fourth operation is minimal and cannot be implemented using the second
+one, as the number of linear expression is infinite.
+
+@c -------------------------------------------------------------------
+@node Lattice operations, Assignement and Substitutions, Property extraction, Functionalities of the interface at level 0
+@subsubheading Lattice operations
+
+@itemize
+@item
+Least upper bound and greatest lower bound of two abstract values, and of arrays of abstract values;
+@item
+Intersection with one or several linear constraints;
+@iftex
+@tex
+$$\alpha\left(\gamma({\it abs}(\vec{x})) \cap \bigcap_i {\it cons}_i(\vec{x})\right)$$
+@end tex
+@end iftex
+@item
+Addition of rays (for instance for implement generalized time elapse
+operator in linear hybrid systems).
+@iftex
+@tex
+$$\alpha\left(\left\{ \vec{x} + \sum_i \lambda_i \vec{r}_i ~|~ \vec{x}\in\gamma({\it abs}), \lambda_i\geq 0\right\}\right)$$
+@end tex
+@end iftex
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Assignement and Substitutions, Operations on dimensions, Lattice operations, Functionalities of the interface at level 0
+@subsubheading Assignement and Substitutions
+
+@itemize
+@item
+of a dimension by a (interval) linear expression
+@iftex
+@tex
+
+Assignement:
+$$\alpha\left(\biggl(
+\exists x_i: \Bigl(\gamma({\it abs}(\vec{x})) \cap x_i'={\it expr}(\vec{x})\Bigr)\biggr)[x_i\leftarrow x_i']\right)$$
+Substitution:
+$$\alpha\biggl(
+\exists x_i': \Bigl(\gamma({\it abs}(\vec{x}))[x_i'\leftarrow x_i] \cap x_i'={\it expr}(\vec{x})\Bigr)\biggr)$$
+
+@end tex
+@end iftex
+@item
+in parallel of several dimensions by several (interval) linear expressions
+@iftex
+@tex
+
+Assignement:
+$$\alpha\left(\biggl(
+\exists \vec{x}: \Bigl(\gamma({\it abs}(\vec{x})) \cap \bigcap_i x_i'={\it expr}_i(\vec{x})\Bigr)\biggr)[\vec{x}\leftarrow \vec{x'}]\right)$$
+Substitution:
+$$\alpha\biggl(
+\exists \vec{x'}: \Bigl(\gamma({\it abs}(\vec{x'})) \cap \bigcap_i x_i'={\it expr}(\vec{x})\Bigr)\biggr)$$
+
+@end tex
+@end iftex
+@end itemize
+
+@noindent Parallel assignement and substitution ar enot minimal operations, but
+for some abstract domains implementing them directly results in more
+efficient or more precise operations.
+
+@c -------------------------------------------------------------------
+@node Operations on dimensions, Other operations, Assignement and Substitutions, Functionalities of the interface at level 0
+@subsubheading Operations on dimensions
+
+@itemize
+@item
+Projection/Elimination of one or several dimensions with constant
+dimensionality;
+@iftex
+@tex
+
+Elimination: $$\exists x_i:{\it abs}(\vec{x})$$
+
+Projection: $$(\exists x_i:{\it abs}(\vec{x}))\cap x_i=0$$
+@end tex
+@end iftex
+@item
+Addition/Removal/Permutation of dimensions with corresponding change
+of dimensionality (with the exception of permutation). These
+operations allows to resize abstract values, and reorganize
+dimensions.
+@item
+Expansion and folding of dimensions. This is useful for the
+abstraction of arrays, where a dimension may represent several
+variables.
+@iftex
+@tex
+
+Expansion of $i$ into $i$, $j_1$, $j_2$ assuming $x_{j_1}$, $x_{j_2}$ are new dimensions:
+$${\it abs}(\vec{x}) \sqcap {\it abs}(\vec{x})[x_{j_1}\leftarrow x_i] \sqcap {\it abs}(\vec{x})[x_{j_2}\leftarrow x_i] ...
+$$
+Folding of $j_0$ and $j_1$ into $j_0$:
+$$(\exists x_{j_1}:{\it abs}(\vec{x})) \sqcup (\exists x_{j_0}:{\it abs}(\vec{x})[x_{j_0}\leftarrow x_{j_1}] 
+$$
+@end tex
+@end iftex
+
+
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Other operations,  , Operations on dimensions, Functionalities of the interface at level 0
+@subsubheading Other operations
+
+Widening, either simple or with threshold, is offered. A generic
+widening with threshold function is offered in the interface.
+
+Topological closure (i.e., relaxation of strict inequalities) is
+offered.
+
+@c ===================================================================
+@node Functionalities of the interface at level 1,  , Functionalities of the interface at level 0, APRON Rationale and Functionalities
+@section Functionalities of the interface at level 1
+@c ===================================================================
+
+We focus on the changes brought by the level 1 w.r.t. the level 0.
+
+@menu
+* Variables and Environments::  
+* Semantics and Representation of an abstract value::  
+* Operations on environments::  
+* Dynamic typing w.r.t. environments::  
+* Operations on variables in abstract values::  
+@end menu
+
+@c -------------------------------------------------------------------
+@node Variables and Environments, Semantics and Representation of an abstract value, Functionalities of the interface at level 1, Functionalities of the interface at level 1
+@subsubheading Variables
+
+Dimensions are replaced by @emph{variables}.
+
+In the C interface, variables are defined by a generic type
+(@code{char*}, structured type, ...), equipped with the operations
+@code{compare}, @code{copy}, @code{free}, @code{to_string}. In the
+@sc{OCaml}, for technical reasons, the type is just the @code{string}
+type.
+
+@emph{Environments} manages the correspondance between the numerical
+dimensions of level 0 and the variables of level 1.
+
+@c -------------------------------------------------------------------
+@node Semantics and Representation of an abstract value, Operations on environments, Variables and Environments, Functionalities of the interface at level 1
+@subsubheading Semantics and Representation of an abstract value
+
+The semantics of an abstract value is a subset
+@iftex 
+@tex
+$$X\subseteq V\rightarrow ({\cal N}\cup{\cal R})$$
+@end tex 
+@end iftex
+@ifnottex
+@quotation
+X -> (N+R).
+@end quotation
+@end ifnottex
+where @math{X} is a set of variables.
+@noindent
+Abstract values are typed according to their environment.
+
+It is represented by a structure
+@verbatim
+struct ap_abstract1_t {
+  ap_abstract0_t    *abstract0;
+  ap_environment_t  *env;
+};
+@end verbatim
+Other datatypes of level 0 are extend in the same way. For instance,
+@verbatim
+struct ap_linexpr1_t {
+  ap_linexpr0_t    *linexpr0;
+  ap_environment_t *env;
+};
+@end verbatim
+
+@c -------------------------------------------------------------------
+@node Operations on environments, Dynamic typing w.r.t. environments, Semantics and Representation of an abstract value, Functionalities of the interface at level 1
+@subsubheading Operations on environments
+
+@itemize
+@item creation, merging, destruction
+@item addition/removal/renaming of variables
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Dynamic typing w.r.t. environments, Operations on variables in abstract values, Operations on environments, Functionalities of the interface at level 1
+@subsubheading Dynamic typing w.r.t. environments
+
+For binary operations on abstract values, the environments should be
+the same.
+
+For operations involving an abstract value and an other datatype
+(expression, constraint, ...), one checks that the environment of
+the expression is a subenvironment of the environment of the abstract
+value, and one resize if necessary.
+
+@c -------------------------------------------------------------------
+@node Operations on variables in abstract values,  , Dynamic typing w.r.t. environments, Functionalities of the interface at level 1
+@subsubheading Operations on variables in abstract values
+
+Operations on dimensions are lifted to operations on variables:
+
+@itemize
+@item
+Projection/Elimination of one or several variables with constant
+environment;
+@item
+Addition/Removal/Renaming of variables with corresponding change
+of environment;
+@item
+Change of environment (possibly combining removal and addition of variables);
+@item
+Expansion and folding of variables. 
+@end itemize

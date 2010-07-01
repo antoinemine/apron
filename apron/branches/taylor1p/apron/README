@@ -1,0 +1,64 @@
+# $Id$
+
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+Source for APRON commoninterface files.
+
+  To compile and/or to generate the doc, you need:
+  * the GMP and MPFR libraries, for multiprecision arithmetic)
+  * the ITV library (included)
+
+  You need to generate a Makefile.config file from the
+  Makefile.config.model in the parent directory of this file.
+
+Most useful make targets:
+
+  all: 
+    C library (libapron.a libapron_debug.a, libapron.so)
+	(note: they include libitv.a)
+  apron.ps
+  apron.info:
+  apron.html:
+    the documentation
+
+  clean:
+  distclean:
+
+Header files associated to C files and considered as modules:
+  ap_scalar.h     : scalars (numbers)     
+  ap_interval.h   : intervals on scalars 
+  ap_coeff.h      : coefficients (either scalars or intervals)
+  ap_dimension.h  : dimensions and related operations
+  ap_linexpr0.h   : (interval) linear expressions, level 0
+  ap_lincons0.h   : (interval) linear constraints, level 0
+  ap_generator0.h : generators, level 0
+  ap_texpr0.h     : tree expressions, level 0
+  ap_tcons0.h     : tree constraints, level 0
+  ap_manager.h    : managers
+  ap_abstract0.h: : abstract values, level 0
+  ap_var.h        : variables 
+  ap_environment.h: environment binding variables to dimensions
+  ap_linexpr1.h   : (interval) linear expressions, level 1
+  ap_lincons1.h   : (interval) linear constraints, level 1
+  ap_generator1.h : generators, level 1
+  ap_texpr0.h     : tree expressions, level 1
+  ap_tcons0.h     : tree constraints, level 1
+  ap_abstract1.h  : abstract values, level 1
+  ap_generic.h    : generic functions for library adaptors/implementors
+  ap_linearize.h  : generic functions for (quasi)linearisation of interval
+                    expressions and tree expressions.
+
+Additional header files:
+  ap_config.h  : miscellaneous stuff (booleans, ...)
+  ap_expr0.h   : expressions, constraints, .. at level 0
+  ap_expr1.h   : expressions, constraints, .. at level 1
+  ap_global0.h : all stuff relevant for level 0
+  ap_global1.h : all stuff relevant for level 1
+
+* When linking objects against APRON, APRON requires:
+  libmpfr(.a) and libgmp(.a) libraries.
+
+  It already include libitv(.a)
