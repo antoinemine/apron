@@ -17,7 +17,7 @@ BINDIR = $(PREFIX)/bin
 #---------------------------------------
 # C part
 #---------------------------------------
-ICFLAGS = -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICFLAGS = -I. -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
 # Files
@@ -26,13 +26,13 @@ ICFLAGS = -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 H_FILES = \
 ap_config.h \
 ap_coeff.h ap_dimension.h \
-ap_linexpr0.h 
-
-#ap_lincons0.h ap_generator0.h \
+ap_linexpr0.h ap_lincons0.h ap_lincons0_array.h \
+ap_manager.h \
+ap_var.h ap_environment.h
+#ap_generator0.h
 #ap_texpr0.h ap_tcons0.h ap_expr0.h \
 #ap_manager.h ap_abstract0.h ap_generic.h \
-#ap_var.h ap_environment.h \
-#ap_linexpr1.h ap_lincons1.h ap_generator1.h \
+#ap_lincons1.h ap_generator1.h \
 #ap_texpr1.h ap_tcons1.h ap_expr1.h \
 #ap_abstract1.h \
 #ap_global0.h ap_global1.h \
@@ -41,11 +41,12 @@ ap_linexpr0.h
 
 C_FILES = \
 ap_coeff.c ap_dimension.c \
-ap_linexpr0.c 
-#ap_lincons0.c ap_generator0.c \
+ap_linexpr0.c ap_lincons0.c ap_lincons0_array.c \
+ap_manager.c \
+ap_var.c ap_environment.c 
+#ap_generator0.c
 #ap_texpr0.c ap_tcons0.c \
 #ap_manager.c ap_abstract0.c ap_generic.c \
-#ap_var.c ap_environment.c \
 #ap_linexpr1.c ap_lincons1.c ap_generator1.c \
 #ap_texpr1.c ap_tcons1.c \
 #ap_abstract1.c \
@@ -160,6 +161,9 @@ dep: $(H_FILES)
 #---------------------------------------
 # C generic rules
 #---------------------------------------
+
+%.c: %.m4 macros.m4
+	$(M4) macros.m4 $< >$@
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(ICFLAGS)  -I../num -I../itv -c $<

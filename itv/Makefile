@@ -119,7 +119,7 @@ dist: $(CCSRC) Makefile COPYING README
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-itv%.sed: ../num/num%.sed Makefile
+itv%.sed: ../num/num%.sed
 	cp $< $@
 	echo "s/_ITV_/_ITV\\U$*_/;" >>$@
 	echo "s/_EITV_/_EITV\\U$*_/;" >>$@
@@ -191,43 +191,6 @@ libitv%_debug.a: itv%_debug.o itv%_conv_debug.o eitv%_debug.o eitv%_conv_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-itv%.o: itv%.c itv%.h eitv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_debug.o: itv%.c itv%.h eitv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_conv.o: itv%_conv.c itv%_conv.h itv%.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_conv_debug.o: itv%_conv.c itv%_conv.h itv%.sed itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-eitv%.o: eitv%.c eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-eitv%_debug.o: eitv%.c eitv%.h itv%.sed
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-eitv%_conv.o: eitv%_conv.c eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-eitv%_conv_debug.o: eitv%_conv.c eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_linexpr.o: itv%_linexpr.c itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_linexpr_debug.o: itv%_linexpr.c itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_linexpr_conv.o: itv%_linexpr_conv.c itv%_linexpr_conv.h itv%_linexpr.h eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed itvMPQ_linexpr.h itvD_linexpr.h itvMPFR_linexpr.h eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_linexpr_conv_debug.o: itv%_linexpr_conv.c itv%_linexpr_conv.h itv%_linexpr.h eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed itvMPQ_linexpr.h itvD_linexpr.h itvMPFR_linexpr.h eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_lincons.o: itv%_lincons.c itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_lincons_debug.o: itv%_lincons.c itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_lincons_conv.o: itv%_lincons_conv.c itv%_lincons_conv.h itv%_lincons.h itv%_linexpr.h eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed itvMPQ_linexpr.h itvD_linexpr.h itvMPFR_linexpr.h eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_lincons_conv_debug.o: itv%_lincons_conv.c itv%_lincons_conv.h itv%_lincons.h itv%_linexpr.h eitv%_conv.h eitv%.h itv%_conv.h itv%.h itv%.sed itvMPQ_linexpr.h itvD_linexpr.h itvMPFR_linexpr.h eitvMPQ.h eitvD.h eitvMPFR.h itvMPQ.h itvD.h itvMPFR.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-itv%_linearize.o: itv%_linearize.c itv%_linearize.h itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-itv%_linearize_debug.o: itv%_linearize.c itv%_linearize.h itv%_lincons.h itv%_linexpr.h eitv%.h itv%.h itv%.sed
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 %_debug.o: %.c %.h
@@ -260,3 +223,7 @@ out: tests
 	./testD > out.D
 	./test2D > out2.D
 
+depend: $(CCMODULES:%=%.c) $(CCMODULES:%=%.h)
+	$(CC) $(ICFLAGS) -E -MM $(CCMODULES:%=%.c) >Makefile.depend
+
+-include Makefile.depend

@@ -21,23 +21,9 @@ extern "C" {
 /* ********************************************************************** */
 /* I. Types */
 /* ********************************************************************** */
-
 /* ====================================================================== */
 /* I.O General usage */
 /* ====================================================================== */
-
-/* Boolean with a third value */
-typedef enum tbool_t {
-  tbool_false=0,
-  tbool_true=1,
-  tbool_top=2,   /* don't know */
-} tbool_t;
-
-static inline tbool_t tbool_of_bool(bool a);
-static inline tbool_t tbool_of_int(int n);
-static inline tbool_t tbool_or(tbool_t a, tbool_t b);
-static inline tbool_t tbool_and(tbool_t a, tbool_t b);
-static inline tbool_t tbool_not(tbool_t a);
 
 /* For serialization */
 typedef struct ap_membuf_t {
@@ -257,31 +243,6 @@ void ap_exclog_free(ap_exclog_t* head);
 /* ********************************************************************** */
 /* IV. Definition of previously declared inline functions */
 /* ********************************************************************** */
-
-static inline tbool_t tbool_of_int(int n)
-{ return ((n) ? tbool_true : tbool_false); }
-static inline tbool_t tbool_of_bool(bool a)
-  { return ((a) ? tbool_true : tbool_false); }
-static inline tbool_t tbool_or(tbool_t a, tbool_t b)
-{
-  return
-    ( (a==tbool_true || b==tbool_true) ? tbool_true :
-      ( (a==tbool_top || b==tbool_top) ? tbool_top :
-	tbool_false ) );
-}
-static inline tbool_t tbool_and(tbool_t a, tbool_t b)
-{
-  return
-    ( (a==tbool_false || b==tbool_false) ? tbool_false :
-      ( (a==tbool_top || b==tbool_top) ? tbool_top :
-	tbool_true ) );
-}
-static inline tbool_t tbool_not(tbool_t a)
-{
-  return
-    a==tbool_false ? tbool_true :
-    a==tbool_true  ? tbool_false : a;
-}
 static inline
 ap_manager_t* ap_manager_copy(ap_manager_t* man)
 { man->count++; return man; }

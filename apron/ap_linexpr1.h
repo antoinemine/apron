@@ -28,7 +28,7 @@ extern "C" {
 
 /* Linear expressions */
 typedef struct ap_linexpr1_t {
-  ap_linexpr0_t* linexpr0;
+  ap_linexpr0_t linexpr0;
   ap_environment_t* env;
 } ap_linexpr1_t;
 
@@ -48,15 +48,7 @@ ap_linexpr1_t ap_linexpr1_of_linexpr0(ap_environment_t* env, ap_linexpr0_t* line
 }
 
 ap_linexpr1_t ap_linexpr1_make(ap_environment_t* env,
-			       ap_linexpr_discr_t lin_discr, size_t size);
-  /* Build a linear expressions with by default coefficients
-     of type SCALAR and DOUBLE.
-
-     - If lin_discr selects a dense representation, the size of
-       the expression is the size of the environment.
-
-     - Otherwise, the initial size is given by size and the
-       expression may be resized lazily.  */
+			       ap_scalar_discr_t discr);
 
 static inline
 void ap_linexpr1_minimize(ap_linexpr1_t* e);
@@ -129,39 +121,6 @@ void ap_linexpr1_get_cst(ap_coeff_t* coeff, ap_linexpr1_t* expr);
    Return true if var is unknown in the environment */
 bool ap_linexpr1_get_coeff(ap_coeff_t* coeff, ap_linexpr1_t* expr, ap_var_t var);
 
-/* Set the constant of the linear expression */
-static inline void ap_linexpr1_set_cst(ap_linexpr1_t* expr, ap_coeff_t* cst);
-static inline void ap_linexpr1_set_cst_scalar(ap_linexpr1_t* expr, ap_scalar_t* scalar);
-static inline void ap_linexpr1_set_cst_scalar_int(ap_linexpr1_t* expr, int num);
-static inline void ap_linexpr1_set_cst_scalar_frac(ap_linexpr1_t* expr, int num, unsigned int den);
-static inline void ap_linexpr1_set_cst_scalar_double(ap_linexpr1_t* expr, double num);
-static inline void ap_linexpr1_set_cst_interval(ap_linexpr1_t* expr, ap_interval_t* itv);
-static inline void ap_linexpr1_set_cst_interval_scalar(ap_linexpr1_t* expr, ap_scalar_t* inf, ap_scalar_t* sup);
-static inline void ap_linexpr1_set_cst_interval_int(ap_linexpr1_t* expr, int inf, int sup);
-static inline void ap_linexpr1_set_cst_interval_frac(ap_linexpr1_t* expr,
-							 int numinf, unsigned int deninf,
-							 int numsup, unsigned int densup);
-static inline void ap_linexpr1_set_cst_interval_double(ap_linexpr1_t* expr, double inf, double sup);
-
-/* Set the coefficient of variable var in the expression.
-   Return true if var is unknown in the environment */
-static inline bool ap_linexpr1_set_coeff(ap_linexpr1_t* expr, ap_var_t var, ap_coeff_t* coeff);
-static inline bool ap_linexpr1_set_coeff_scalar(ap_linexpr1_t* expr, ap_var_t var, ap_scalar_t* scalar);
-static inline bool ap_linexpr1_set_coeff_scalar_int(ap_linexpr1_t* expr, ap_var_t var, int num);
-static inline bool ap_linexpr1_set_coeff_scalar_frac(ap_linexpr1_t* expr, ap_var_t var, int num, unsigned int den);
-static inline bool ap_linexpr1_set_coeff_scalar_double(ap_linexpr1_t* expr, ap_var_t var, double num);
-static inline bool ap_linexpr1_set_coeff_interval(ap_linexpr1_t* expr, ap_var_t var, ap_interval_t* itv);
-static inline bool ap_linexpr1_set_coeff_interval_scalar(ap_linexpr1_t* expr, ap_var_t var, ap_scalar_t* inf, ap_scalar_t* sup);
-static inline bool ap_linexpr1_set_coeff_interval_int(ap_linexpr1_t* expr, ap_var_t var, int inf, int sup);
-static inline bool ap_linexpr1_set_coeff_interval_frac(ap_linexpr1_t* expr, ap_var_t var,
-							   int numinf, unsigned int deninf,
-							   int numsup, unsigned int densup);
-static inline bool ap_linexpr1_set_coeff_interval_double(ap_linexpr1_t* expr, ap_var_t var, double inf, double sup);
-
-/*
-bool ap_linexpr1_set_format(ap_linexpr1_t* expr, char* fmt, ...);
-*/
-
 bool ap_linexpr1_set_list(ap_linexpr1_t* expr, ...);
 
 
@@ -196,18 +155,14 @@ bool ap_linexpr1_set_list(ap_linexpr1_t* expr, ...);
 /* Change current environment with a super-environment.
    Return true if nenv is not a superenvironment  */
 bool ap_linexpr1_extend_environment(ap_linexpr1_t* nexpr,
-				 ap_linexpr1_t* expr,
-				 ap_environment_t* nenv);
+				    ap_linexpr1_t* expr,
+				    ap_environment_t* nenv);
 bool ap_linexpr1_extend_environment_with(ap_linexpr1_t* expr,
-				      ap_environment_t* nenv);
+					 ap_environment_t* nenv);
 
 /* ====================================================================== */
 /* V. Inline function definitions */
 /* ====================================================================== */
-
-static inline
-void ap_linexpr1_minimize(ap_linexpr1_t* e){
-  ap_linexpr0_minimize(e->linexpr0);
 }
 static inline
 bool ap_linexpr1_is_integer(ap_linexpr1_t* e){
