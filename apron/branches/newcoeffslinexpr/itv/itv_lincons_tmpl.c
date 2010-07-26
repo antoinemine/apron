@@ -8,10 +8,34 @@
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
+itv_lincons_ptr itv_lincons_alloc(size_t size)
+{
+  itv_lincons_ptr res = (itv_lincons_ptr)malloc(sizeof(itv_lincons_struct));
+  itv_lincons_init(res,size);
+  return res;
+}
+itv_lincons_ptr itv_lincons_alloc_set(itv_lincons_t cons)
+{
+  itv_lincons_ptr res = (itv_lincons_ptr)malloc(sizeof(itv_lincons_struct));
+  itv_lincons_init_set(res,cons);
+  return res;
+}
+itv_lincons_ptr itv_lincons_alloc_set_linexpr(itv_linexpr_t expr, itvconstyp_t constyp, mpq_ptr mpq)
+{
+  itv_lincons_ptr res = (itv_lincons_ptr)malloc(sizeof(itv_lincons_struct));
+  itv_lincons_init_set_linexpr(res,expr,constyp,mpq);
+  return res;
+}
+void itv_lincons_free(itv_lincons_ptr e)
+{
+  itv_lincons_clear(e);
+  free(e);
+}
+
 void itv_lincons_set_bool(itv_lincons_t lincons, bool value)
 {
   /* constraint 0=0 if value, 1=0 otherwise */
-  itv_linexpr_reinit(lincons->linexpr,0);
+  itv_linexpr_resize(lincons->linexpr,0);
   eitv_set_int(lincons->linexpr->cst,value ? 0 : 1);
   lincons->constyp = ITV_CONS_EQ;
 }
@@ -28,19 +52,44 @@ void itv_lincons_fprint(FILE* stream, itv_lincons_t cons, char** name)
 	     "\"ERROR in itv_lincons_fprint\"")));
   if (cons->constyp == ITV_CONS_EQMOD){
     fprintf(stream," mod ");
-    num_fprint(stream,cons->num);
+    mpq_out_str(stream,10,cons->mpq);
   }
   fflush(stream);
 }
 
+itv_lincons_array_ptr itv_lincons_array_alloc(size_t size)
+{
+  itv_lincons_array_ptr res = (itv_lincons_array_ptr)malloc(sizeof(itv_lincons_array_struct));
+  itv_lincons_array_init(res,size);
+  return res;
+}
+itv_lincons_array_ptr itv_lincons_array_alloc_set(itv_lincons_array_t a)
+{
+  itv_lincons_array_ptr res = (itv_lincons_array_ptr)malloc(sizeof(itv_lincons_array_struct));
+  itv_lincons_array_init_set(res,a);
+  return res;
+}
 void itv_lincons_array_init(itv_lincons_array_t array, size_t size)
 {
   size_t i;
   array->size = size;
   array->p = malloc(size*sizeof(itv_lincons_t));
-  for (i=0; i<size; i++) itv_lincons_init(array->p[i]);
+  for (i=0; i<size; i++) itv_lincons_init(array->p[i],0);
 }
-void itv_lincons_array_reinit(itv_lincons_array_t array, size_t size)
+void itv_lincons_array_init_set(itv_lincons_array_t res, itv_lincons_array_t array)
+{
+  size_t i;
+  res->size = array->size;
+  res->p = malloc(array->size*sizeof(itv_lincons_t));
+  for (i=0; i<res->size; i++) itv_lincons_init_set(res->p[i],array->p[i]);
+}
+void itv_lincons_array_set(itv_lincons_array_t res, itv_lincons_array_t array)
+{
+  size_t i;
+  itv_lincons_array_resize(res,array->size);  
+  for (i=0; i<res->size; i++) itv_lincons_set(res->p[i],array->p[i]);
+}
+void itv_lincons_array_resize(itv_lincons_array_t array, size_t size)
 {
   size_t i;
   if (size == array->size) return;
@@ -53,7 +102,7 @@ void itv_lincons_array_reinit(itv_lincons_array_t array, size_t size)
   else { /* size > array->size */
     array->p = realloc(array->p,size*sizeof(itv_lincons_t));
     for (i=array->size; i<size; i++){
-      itv_lincons_init(array->p[i]);
+      itv_lincons_init(array->p[i],0);
     }
   }
   array->size = size;
@@ -66,6 +115,11 @@ void itv_lincons_array_clear(itv_lincons_array_t array)
   free(array->p);
   array->size = 0;
   array->p = NULL;
+}
+void itv_lincons_array_minimize(itv_lincons_array_t array)
+{
+  size_t i;
+  for (i=0; i<array->size; i++) itv_linexpr_minimize(array->p[i]->linexpr);
 }
 void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t array, char** name)
 {
@@ -212,7 +266,8 @@ tbool_t itv_lincons_evalcst(itv_internal_t* intern,
 #if NUM_NUMRAT
 	numrat_t numrat;
 	numrat_init(numrat);
-	numrat_div(numrat,bound_numref(cst->itv->sup),lincons->num);
+	num_set_mpq(numrat,lincons->mpq,intern->num);
+	numrat_div(numrat,bound_numref(cst->itv->sup),numrat);
 	if (numint_cmp_int(numrat_denref(numrat),1)==0){
 	  res = tbool_true;
 	}
@@ -222,15 +277,21 @@ tbool_t itv_lincons_evalcst(itv_internal_t* intern,
 	numrat_clear(numrat);
 #elif NUM_NUMINT
 	numint_t numint;
-	numint_init(numint);
-	numint_mod(numint,bound_numref(cst->itv->sup),lincons->num);
-	if (numint_sgn(numint)==0){
-	  res = tbool_true;
+	if (mpz_cmp_ui(mpq_denref(lincons->mpq),1)!=0){
+	  res = tbool_top;
 	}
 	else {
-	  res = tbool_false;
+	  numint_init(numint);
+	  num_set_mpz(numint,mpq_numref(lincons->mpq),intern->num);
+	  numint_mod(numint,bound_numref(cst->itv->sup),numint);
+	  if (numint_sgn(numint)==0){
+	    res = tbool_true;
+	  }
+	  else {
+	    res = tbool_false;
+	  }
+	  numint_clear(numint);
 	}
-	numint_clear(numint);
 #else
 	res = tbool_top;
 #endif
@@ -471,7 +532,7 @@ tbool_t itv_lincons_array_reduce(itv_internal_t* intern,
       }
       else if (sat==tbool_false){
       itv_lincons_array_reduce_false:
-	itv_lincons_array_reinit(array,1);
+	itv_lincons_array_resize(array,1);
 	itv_lincons_set_bool(array->p[0],false);
 	return tbool_false;
       }
@@ -484,7 +545,7 @@ tbool_t itv_lincons_array_reduce(itv_internal_t* intern,
       i++;
     }
   }
-  itv_lincons_array_reinit(array,size);
+  itv_lincons_array_resize(array,size);
   if (size==0)
     res = tbool_true;
   else if (size==1 && array->p[0]->linexpr->size==0)
@@ -801,7 +862,7 @@ static bool itv_lincons_boxize(itv_internal_t* intern,
    - if intervalonly is true, deduces bounds from a constraint only when the
    coefficient associated to the current dimension is an interval.
 */
-bool itv_lincons_boxize_array(itv_internal_t* intern,
+bool itv_lincons_array_boxize(itv_internal_t* intern,
 			      itv_t* res,
 			      bool* tchange,
 			      itv_lincons_array_t array,
@@ -845,13 +906,14 @@ bool itv_lincons_boxize_array(itv_internal_t* intern,
 
 /* These two functions add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
-void itv_lincons_array_add_dimension(itv_lincons_array_t res,
+void itv_lincons_array_add_dimensions(itv_lincons_array_t res,
 				     itv_lincons_array_t array,
 				     ap_dimchange_t* dimchange)
 {
   size_t i;
+  itv_lincons_array_resize(res,array->size);
   for (i=0; i<array->size; i++){
-    itv_lincons_add_dimension(res->p[i],array->p[i],dimchange);
+    itv_lincons_add_dimensions(res->p[i],array->p[i],dimchange);
   }
 }
 
@@ -863,6 +925,7 @@ void itv_lincons_array_permute_dimensions(itv_lincons_array_t res,
 					  ap_dimperm_t* dimperm)
 {
   size_t i;
+  itv_lincons_array_resize(res,array->size);
   for (i=0; i<array->size; i++){
     itv_lincons_permute_dimensions(res->p[i],array->p[i],dimperm);
   }
@@ -875,7 +938,7 @@ void itv_lincons_array_permute_dimensions(itv_lincons_array_t res,
 bool itv_lincons_equal(itv_lincons_t cons1,itv_lincons_t cons2)
 {
   return cons1->constyp==cons2->constyp &&
-    (cons1->constyp==ITV_CONS_EQMOD ? num_equal(cons1->num,cons2->num) : true) &&
+    (cons1->constyp==ITV_CONS_EQMOD ? mpq_equal(cons1->mpq,cons2->mpq) : true) &&
     itv_linexpr_equal(cons1->linexpr,cons2->linexpr);
 }
 
@@ -889,7 +952,7 @@ int itv_lincons_compare(itv_lincons_t cons1, itv_lincons_t cons2)
   if (!res){
     res = itv_linexpr_compare(cons1->linexpr,cons2->linexpr);
     if (!res && cons1->constyp==ITV_CONS_EQMOD){
-      res = num_cmp(cons1->num,cons2->num);
+      res = mpq_cmp(cons1->mpq,cons2->mpq);
     }
   }
   return res;
