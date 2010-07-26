@@ -12,6 +12,7 @@ SRCDIR = $(shell pwd)
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
 -I../num \
+-I../itv \
 -I../apron \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include
@@ -72,7 +73,9 @@ OFILES = $(CCMODULES:%=%.o)
 # depend doc install
 # and the following one
 
-all: allIl allIll allMPZ allRl allRll allMPQ allD allDl allMPFR 
+all: src allIl allIll allMPZ allRl allRll allMPQ allD allDl allMPFR 
+
+src: $(CCMODULES:%=%.c) $(CCMODULES:%=%.h) 
 
 allIl: itvIl.sed libitvIl.a libitvIl_debug.a
 allIll: itvIll.sed libitvIll.a libitvIll_debug.a

@@ -27,6 +27,7 @@ typedef enum itvlinexpr_type_t {
 } itvlinexpr_type_t;
 
 typedef enum itvcoefftag_t {
+  ITV_COEFF,          /* waiting for 1 ap_coeff_t* and a dimension */
   ITV_EITV,           /* waiting for 1 eitv_t and a dimension */
   ITV_NUM,            /* waiting for 1 num_t and a dimension */
   ITV_NUM2,           /* waiting for 2 num_t and a dimension */
@@ -50,6 +51,15 @@ typedef enum itvcoefftag_t {
   ITV_MPFR2,          /* waiting for 2 mpfr_t double and a dimension */
   ITV_END
 } itvcoefftag_t;
+
+/* Datatype for type of constraints */
+typedef enum itvconstyp_t {
+  ITV_CONS_EQ,    /* equality constraint */
+  ITV_CONS_SUPEQ, /* >= constraint */
+  ITV_CONS_SUP,   /* > constraint */
+  ITV_CONS_EQMOD, /* congruence equality constraint */
+  ITV_CONS_DISEQ  /* disequality constraint */
+} itvconstyp_t;
 
 static inline tbool_t tbool_of_int(int a)
 { return ((a) ? tbool_true : tbool_false); }
