@@ -101,7 +101,7 @@ void ap_option_init(ap_option_t* opt)
   for (exn=0; exn<AP_EXC_SIZE; exn++){
     opt->abort_if_exception[exn] = true;
   }
-  opt->scalar_discr = AP_SCALAR_DOUBLE;
+  opt->scalar_discr = AP_SCALAR_D;
 }
 
 /* ********************************************************************** */

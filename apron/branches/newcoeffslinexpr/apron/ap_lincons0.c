@@ -1,3 +1,5 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
 /* ap_lincons0.c: linear constraints and arrays */
 /* ************************************************************************* */
@@ -6,237 +8,376 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_lincons0.h"
+#include "itvD_lincons_conv.h"
+#include "itvMPQ_lincons_conv.h"
+#include "itvMPFR_lincons_conv.h"
 
-/* ********************************************************************** */
-/* I. Linear constraints */
-/* ********************************************************************** */
+/* ====================================================================== */
+/* I. Memory management and printing */
+/* ====================================================================== */
 
-void ap_lincons0_fprint(FILE* stream, ap_lincons0_t* cons, char** name_of_dim)
+void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size)
 {
-  ap_linexpr0_fprint(stream,cons->linexpr0,name_of_dim);
-  fprintf(stream,
-	  cons->constyp == AP_CONS_EQ || cons->constyp == AP_CONS_EQMOD ?
-	  " = 0" :
-	  ( cons->constyp == AP_CONS_SUPEQ ?
-	    " >= 0" :
-	    (cons->constyp == AP_CONS_SUP ?
-	     " > 0" :
-	     (cons->constyp == AP_CONS_DISEQ ?
-	      " != 0" :
-	      "\"ERROR in ap_lincons0_fprint\""))));
-  if (cons->constyp == AP_CONS_EQMOD){
-    assert(cons->scalar!=NULL);
-    fprintf(stream," mod ");
-    ap_scalar_fprint(stream,cons->scalar);
+  res->ref = false;
+  res->discr = discr;
+  switch (discr){
+  case AP_SCALAR_D:
+    res->lincons.D = itvD_lincons_alloc(size);
+    break;
+  case AP_SCALAR_MPQ:
+    res->lincons.MPQ = itvMPQ_lincons_alloc(size);
+    break;
+  case AP_SCALAR_MPFR:
+    res->lincons.MPFR = itvMPFR_lincons_alloc(size);
+    break;
+  default:
+    abort();
   }
 }
-
-ap_lincons0_t ap_lincons0_make_unsat()
+void ap_lincons0_init_set(ap_lincons0_t res,ap_lincons0_t e)
 {
-  ap_linexpr0_t* expr;
-
-  expr = ap_linexpr0_alloc(AP_LINEXPR_DENSE,0);
-  ap_coeff_set_scalar_double(&expr->cst,-1.0);
-  return ap_lincons0_make(AP_CONS_SUPEQ,expr,NULL);
-}
-
-bool ap_lincons0_is_unsat(ap_lincons0_t* cons)
-{
-  size_t i,nbcoeffs;
-  ap_dim_t dim;
-  ap_coeff_t* coeff;
-  int sgn;
-  ap_linexpr0_t* expr = cons->linexpr0;
-
-  nbcoeffs = 0;
-  ap_linexpr0_ForeachLinterm(expr,i,dim,coeff){
-    if (!ap_coeff_zero(coeff)){
-      nbcoeffs++;
-      if (nbcoeffs>0) break;
-    }
-  }
-  if (nbcoeffs==0){
-    switch (expr->cst.discr){
-    case AP_COEFF_SCALAR:
-      sgn = ap_scalar_sgn(expr->cst.val.scalar);
-      switch(cons->constyp){
-      case AP_CONS_EQ:
-      case AP_CONS_EQMOD:
-	return (sgn!=0);
-      case AP_CONS_DISEQ:
-	return (sgn==0);
-      case AP_CONS_SUPEQ:
-	return (sgn<0);
-      case AP_CONS_SUP:
-	return (sgn<=0);
-      }
-    case AP_COEFF_INTERVAL:
-      sgn = ap_scalar_sgn(expr->cst.val.interval->sup);
-      switch(cons->constyp){
-      case AP_CONS_EQ:
-      case AP_CONS_EQMOD:
-	return
-	  sgn < 0 ||
-	  ap_scalar_sgn(expr->cst.val.interval->inf)>0;
-      case AP_CONS_DISEQ:
-	return
-	  sgn>=0 &&
-	  ap_scalar_sgn(expr->cst.val.interval->inf)<=0;
-      case AP_CONS_SUPEQ:
-	return sgn<0;
-      case AP_CONS_SUP:
-	return (sgn<=0);
-      }
-    default:
-      abort();
-    }
-  }
-  else
-    return false;
-}
-
-/* ********************************************************************** */
-/* II. Array of linear constraints */
-/* ********************************************************************** */
-
-ap_lincons0_array_t ap_lincons0_array_make(size_t size)
-{
-  ap_lincons0_array_t array;
-  size_t i;
-  array.size = size;
-  array.p = (size==0) ? NULL : (ap_lincons0_t*)malloc(size*sizeof(ap_lincons0_t));
-  for (i=0; i<size; i++){
-    array.p[i].linexpr0 = NULL;
-    array.p[i].scalar = NULL;
-  }
-  return array;
-}
-void ap_lincons0_array_resize(ap_lincons0_array_t* array, size_t size)
-{
-  size_t i;
-  for (i=size; i<array->size; i++){
-    ap_lincons0_clear(&array->p[i]);
-  }
-  array->p = (ap_lincons0_t*)realloc(array->p,size*sizeof(ap_lincons0_t));
-   for (i=array->size; i<size; i++){
-    array->p[i].linexpr0 = NULL;
-    array->p[i].scalar = NULL;
-  }
-   array->size = size;
-}
-
-void ap_lincons0_array_clear(ap_lincons0_array_t* array)
-{
-  size_t i;
-
-  if (array->p!=NULL){
-    for (i=0; i<array->size; i++)
-      ap_lincons0_clear(&array->p[i]);
-    free(array->p);
-    array->p=NULL;
+  res->ref = false;
+  res->discr = e->discr;
+  switch (e->discr){
+  case AP_SCALAR_D:
+    res->lincons.D = itvD_lincons_alloc_set(e->lincons.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res->lincons.MPQ = itvMPQ_lincons_alloc_set(e->lincons.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res->lincons.MPFR = itvMPFR_lincons_alloc_set(e->lincons.MPFR);
+    break;
+  default:
+    abort();
   }
 }
-
-void ap_lincons0_array_fprint(FILE* stream,
-			      ap_lincons0_array_t* array,
-			      char** name_of_dim)
+void ap_lincons0_init_set_D(ap_lincons0_t res, itvD_lincons_t e)
 {
-  size_t i;
-
-  if (array->size==0){
-    fprintf(stream,"empty array of constraints\n");
-  } else {
-    fprintf(stream,"array of constraints of size %lu\n",
-	    (unsigned long)array->size);
-    for (i=0; i<array->size; i++){
-      fprintf(stream,"%2lu: ",(unsigned long)i);
-      ap_lincons0_fprint(stream,&array->p[i],name_of_dim);
-      fprintf(stream,"\n");
-    }
+  ap_lincons0_init(res,AP_SCALAR_D,e->linexpr->size);
+  itvD_lincons_set(res->lincons.D,e);
+}
+void ap_lincons0_init_set_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e)
+{
+  ap_lincons0_init(res,AP_SCALAR_MPQ,e->linexpr->size);
+  itvMPQ_lincons_set(res->lincons.MPQ,e);
+}
+void ap_lincons0_init_set_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e)
+{
+  ap_lincons0_init(res,AP_SCALAR_MPFR,e->linexpr->size);
+  itvMPFR_lincons_set(res->lincons.MPFR,e);
+}
+void ap_lincons0_clear(ap_lincons0_t e)
+{
+  if (e->ref==false){
+    switch (e->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_clear(e->lincons.D);
+    break;
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_clear(e->lincons.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_clear(e->lincons.MPFR);
+    break;
+  };
   }
 }
-
-ap_linexpr_type_t ap_lincons0_array_type(ap_lincons0_array_t* array)
+void ap_lincons0_fprint(FILE* stream, ap_lincons0_t e, char** name_of_dim)
 {
-  size_t i;
-  ap_linexpr_type_t res = AP_LINEXPR_LINEAR;
-  for (i=0; i<array->size; i++){
-    ap_linexpr_type_t type = ap_linexpr0_type(array->p[i].linexpr0);
-    if (type < res) 
-      type = res;
-    if (res==AP_LINEXPR_INTLINEAR)
-      break;
+  switch (e->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_fprint(stream,e->lincons.D,name_of_dim);
+    break;
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_fprint(stream,e->lincons.MPQ,name_of_dim);
+    break;
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_fprint(stream,e->lincons.MPFR,name_of_dim);
+    break;
+  default:
+    abort();
   }
-  return res;
 }
-bool ap_lincons0_array_is_quasilinear(ap_lincons0_array_t* array)
+void ap_lincons0_minimize(ap_lincons0_t a)
 {
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    if (!ap_linexpr0_is_quasilinear(array->p[i].linexpr0)){
-      res = false;
-      break;
-    }
-  }
-  return res;
-}
-bool ap_lincons0_array_is_linear(ap_lincons0_array_t* array)
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    if (!ap_linexpr0_is_linear(array->p[i].linexpr0)){
-      res = false;
-      break;
-    }
-  }
-  return res;
+  switch (a->discr){
+  case AP_SCALAR_D:
+    itvD_linexpr_minimize(a->lincons.D->linexpr);
+    break;
+  case AP_SCALAR_MPQ:
+    itvMPQ_linexpr_minimize(a->lincons.MPQ->linexpr);
+    break;
+  case AP_SCALAR_MPFR:
+    itvMPFR_linexpr_minimize(a->lincons.MPFR->linexpr);
+    break;
+  };
 }
 
 /* ====================================================================== */
-/* II.1 Change of dimensions and permutations */
+/* Conversions */
 /* ====================================================================== */
-void ap_lincons0_array_add_dimensions_with(ap_lincons0_array_t* array,
-					   ap_dimchange_t* dimchange)
+
+bool ap_lincons0_set_itvD_lincons(ap_lincons0_t a, itvD_lincons_t b, numinternal_t intern)
 {
-  size_t i;
-  for(i=0; i<array->size; i++){
-    ap_linexpr0_t* expr = array->p[i].linexpr0;
-    if (expr) ap_linexpr0_add_dimensions_with(expr,dimchange);
+  switch (a->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_set(a->lincons.D,b);
+    return true;
+  case AP_SCALAR_MPQ:
+    return itvMPQ_lincons_set_itvD_lincons(a->lincons.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return itvMPFR_lincons_set_itvD_lincons(a->lincons.MPFR,b,intern);
+  default:
+    abort();
   }
 }
-ap_lincons0_array_t ap_lincons0_array_add_dimensions(ap_lincons0_array_t* array,
-						     ap_dimchange_t* dimchange)
+bool ap_lincons0_set_itvMPQ_lincons(ap_lincons0_t a, itvMPQ_lincons_t b, numinternal_t intern)
 {
-  size_t i;
-  ap_lincons0_array_t narray;
-
-  narray = ap_lincons0_array_make(array->size);
-  for(i=0; i<array->size; i++){
-    narray.p[i] =  ap_lincons0_add_dimensions(&array->p[i],dimchange);
-  }
-  return narray;
-}
-
-void ap_lincons0_array_permute_dimensions_with(ap_lincons0_array_t* array,
-					       ap_dimperm_t* perm)
-{
-  size_t i;
-  for(i=0; i<array->size; i++){
-    ap_linexpr0_t* expr = array->p[i].linexpr0;
-    if (expr) ap_linexpr0_permute_dimensions_with(expr,perm);
+  switch (a->discr){
+  case AP_SCALAR_D:
+    return itvD_lincons_set_itvMPQ_lincons(a->lincons.D,b,intern);
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_set(a->lincons.MPQ,b);
+    return true;
+  case AP_SCALAR_MPFR:
+    return itvMPFR_lincons_set_itvMPQ_lincons(a->lincons.MPFR,b,intern);
+  default:
+    abort();
   }
 }
-ap_lincons0_array_t ap_lincons0_array_permute_dimensions(ap_lincons0_array_t* array,
-							 ap_dimperm_t* perm)
+bool ap_lincons0_set_itvMPFR_lincons(ap_lincons0_t a, itvMPFR_lincons_t b, numinternal_t intern)
 {
-  size_t i;
-  ap_lincons0_array_t narray;
-
-  narray = ap_lincons0_array_make(array->size);
-  for(i=0; i<array->size; i++){
-    narray.p[i] =  ap_lincons0_permute_dimensions(&array->p[i],perm);
+  switch (a->discr){
+  case AP_SCALAR_D:
+    return itvD_lincons_set_itvMPFR_lincons(a->lincons.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return itvMPQ_lincons_set_itvMPFR_lincons(a->lincons.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_set(a->lincons.MPFR,b);
+    return true;
+  default:
+    abort();
   }
-  return narray;
+}
+
+bool itvMPQ_lincons_set_ap_lincons0(itvMPQ_lincons_t a, ap_lincons0_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return itvMPQ_lincons_set_itvD_lincons(a,b->lincons.D,intern);
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_set(a,b->lincons.MPQ);
+    return true;
+  case AP_SCALAR_MPFR:
+    return itvMPQ_lincons_set_itvMPFR_lincons(a,b->lincons.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool itvD_lincons_set_ap_lincons0(itvD_lincons_t a, ap_lincons0_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_set(a,b->lincons.D);
+    return true;
+  case AP_SCALAR_MPQ:
+    return itvD_lincons_set_itvMPQ_lincons(a,b->lincons.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return itvD_lincons_set_itvMPFR_lincons(a,b->lincons.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool itvMPFR_lincons_set_ap_lincons0(itvMPFR_lincons_t a, ap_lincons0_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return itvMPFR_lincons_set_itvD_lincons(a,b->lincons.D,intern);
+  case AP_SCALAR_MPQ:
+    return itvMPFR_lincons_set_itvMPQ_lincons(a,b->lincons.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_set(a,b->lincons.MPFR);
+    return true;
+  default:
+    abort();
+  }
+}
+
+/* ====================================================================== */
+/* III Access */
+/* ====================================================================== */
+
+void ap_lincons0_linexpr0ref(ap_linexpr0_t e, ap_lincons0_t c)
+{
+  e->ref = true;
+  e->discr = c->discr;
+  switch (e->discr){
+  case AP_SCALAR_D:
+    e->linexpr.D = c->lincons.D->linexpr;
+    break;
+  case AP_SCALAR_MPQ:
+    e->linexpr.MPQ = c->lincons.MPQ->linexpr;
+    break;
+  case AP_SCALAR_MPFR:
+    e->linexpr.MPFR = c->lincons.MPFR->linexpr;
+    break;
+  default:
+    abort();
+  }
+}
+itvconstyp_t* ap_lincons0_constypref(ap_lincons0_t c)
+{
+  itvconstyp_t* p;
+  switch (c->discr){
+  case AP_SCALAR_D:
+    p = &c->lincons.D->constyp;
+    break;
+  case AP_SCALAR_MPQ:
+    p = &c->lincons.MPQ->constyp;
+    break;
+  case AP_SCALAR_MPFR:
+    p = &c->lincons.MPFR->constyp;
+    break;
+  default:
+    abort();
+  }
+  return p;
+}
+mpq_ptr ap_lincons0_mpqref(ap_lincons0_t c)
+{
+  mpq_ptr p;
+  switch (c->discr){
+  case AP_SCALAR_D:
+    p = c->lincons.D->mpq;
+    break;
+  case AP_SCALAR_MPQ:
+    p = c->lincons.MPQ->mpq;
+    break;
+  case AP_SCALAR_MPFR:
+    p = c->lincons.MPFR->mpq;
+    break;
+  default:
+    abort();
+  }
+  return p;
+}
+
+/* ====================================================================== */
+/* IV. Change of dimensions and permutations */
+/* ====================================================================== */
+
+void ap_lincons0_add_dimensions(ap_lincons0_t res,
+				ap_lincons0_t expr,
+				ap_dimchange_t* dimchange)
+{
+  if (res->discr!=expr->discr)
+    abort();
+  switch (expr->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_add_dimensions(res->lincons.D,expr->lincons.D,dimchange);
+    break;
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_add_dimensions(res->lincons.MPQ,expr->lincons.MPQ,dimchange);
+    break;
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_add_dimensions(res->lincons.MPFR,expr->lincons.MPFR,dimchange);
+    break;
+  default:
+    abort();
+  };
+}
+void ap_lincons0_permute_dimensions(ap_lincons0_t res,
+				    ap_lincons0_t expr,
+				    ap_dimperm_t* perm)
+{
+  if (res->discr!=expr->discr)
+    abort();
+  switch (expr->discr){
+  case AP_SCALAR_D:
+    itvD_lincons_permute_dimensions(res->lincons.D,expr->lincons.D,perm);
+    break;
+  case AP_SCALAR_MPQ:
+    itvMPQ_lincons_permute_dimensions(res->lincons.MPQ,expr->lincons.MPQ,perm);
+    break;
+  case AP_SCALAR_MPFR:
+    itvMPFR_lincons_permute_dimensions(res->lincons.MPFR,expr->lincons.MPFR,perm);
+    break;
+  default:
+    abort();
+  }
+}
+
+/* ====================================================================== */
+/* V. Hashing, comparison */
+/* ====================================================================== */
+
+/* Induces reduction of the coefficients */
+
+int ap_lincons0_hash(ap_lincons0_t expr)
+{
+  int res;
+  switch (expr->discr){
+  case AP_SCALAR_D:
+    res = itvD_lincons_hash(expr->lincons.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = itvMPQ_lincons_hash(expr->lincons.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = itvMPFR_lincons_hash(expr->lincons.MPFR);
+    break;
+  default:
+    abort();
+  };
+  return res;
+}
+bool ap_lincons0_equal(ap_lincons0_t expr1,
+		       ap_lincons0_t expr2)
+{
+  bool res;
+  if (expr1->discr != expr2->discr)
+    res = false;
+  else {
+    switch (expr1->discr){
+  case AP_SCALAR_D:
+    res = itvD_lincons_equal(expr1->lincons.D,expr2->lincons.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = itvMPQ_lincons_equal(expr1->lincons.MPQ,expr2->lincons.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = itvMPFR_lincons_equal(expr1->lincons.MPFR,expr2->lincons.MPFR);
+    break;
+  default:
+    abort();
+  }
+      }
+  return res;
+}
+/* Lexicographic ordering, terminating by constant coefficients */
+int ap_lincons0_compare(ap_lincons0_t expr1,
+			ap_lincons0_t expr2)
+{
+  int res;
+  if (expr1->discr != expr2->discr){
+    res = (expr1->discr - expr2->discr);
+    res = res>0 ? 3 : -3;
+  }
+  else {
+    switch (expr1->discr){
+  case AP_SCALAR_D:
+    res = itvD_lincons_compare(expr1->lincons.D,expr2->lincons.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = itvMPQ_lincons_compare(expr1->lincons.MPQ,expr2->lincons.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = itvMPFR_lincons_compare(expr1->lincons.MPFR,expr2->lincons.MPFR);
+    break;
+  default:
+    abort();
+  }
+  }
+  return res;
 }

@@ -1,3 +1,5 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
 /* ap_coeff.c: coefficients, that are either scalars or intervals */
 /* ************************************************************************* */
@@ -11,70 +13,94 @@
 #include <assert.h>
 
 #include "ap_coeff.h"
-#include "eitvD_conv.h"
+#include "eitvIl_conv.h"
+#include "eitvIll_conv.h"
+#include "eitvMPZ_conv.h"
+#include "eitvRl_conv.h"
+#include "eitvRll_conv.h"
 #include "eitvMPQ_conv.h"
+#include "eitvD_conv.h"
+#include "eitvDl_conv.h"
 #include "eitvMPFR_conv.h"
 
 /* ====================================================================== */
 /* Basics */
 /* ====================================================================== */
 
-void ap_coeff_init_set(ap_coeff_t* a, ap_coeff_t* b)
+void ap_coeff_init(ap_coeff_t a, ap_scalar_discr_t discr)
 {
-  a->discr = b->discr;
-  switch (b->discr){
-  case AP_SCALAR_MPQ:
-    eitvMPQ_init_set(a->eitv.MPQ,b->eitv.MPQ);
-    break;
+  a->ref = false;
+  a->discr = discr;
+  switch (discr){
   case AP_SCALAR_D:
-    eitvD_init_set(a->eitv.D,b->eitv.D);
+    a->eitv.D = eitvD_alloc();
     break;
-  case AP_SCALAR_MPFR:
-    eitvMPFR_init_set(a->eitv.MPFR,b->eitv.MPFR);
-    break;
-  }
-}
-
-inline void ap_coeff_clear(ap_coeff_t* coeff)
-{
-  switch (coeff->discr){
   case AP_SCALAR_MPQ:
-    eitvMPQ_clear(coeff->eitv.MPQ);
+    a->eitv.MPQ = eitvMPQ_alloc();
     break;
   case AP_SCALAR_MPFR:
-    eitvMPFR_clear(coeff->eitv.MPFR);
+    a->eitv.MPFR = eitvMPFR_alloc();
     break;
   default:
+    abort();
+  };
+}
+
+void ap_coeff_init_set(ap_coeff_t a, ap_coeff_t b)
+{
+  a->ref = false;
+  a->discr = b->discr;
+  switch (b->discr){
+  case AP_SCALAR_D:
+    a->eitv.D = eitvD_alloc_set(b->eitv.D);
     break;
+  case AP_SCALAR_MPQ:
+    a->eitv.MPQ = eitvMPQ_alloc_set(b->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    a->eitv.MPFR = eitvMPFR_alloc_set(b->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+}
+void ap_coeff_init_set_D(ap_coeff_t a, eitvD_t eitv)
+{
+  a->ref = false;
+  a->discr = AP_SCALAR_D;
+  eitvD_init_set(a->eitv.D,eitv);
+} 
+void ap_coeff_init_set_MPQ(ap_coeff_t a, eitvMPQ_t eitv)
+{
+  a->ref = false;
+  a->discr = AP_SCALAR_MPQ;
+  eitvMPQ_init_set(a->eitv.MPQ,eitv);
+} 
+void ap_coeff_init_set_MPFR(ap_coeff_t a, eitvMPFR_t eitv)
+{
+  a->ref = false;
+  a->discr = AP_SCALAR_MPFR;
+  eitvMPFR_init_set(a->eitv.MPFR,eitv);
+} 
+void ap_coeff_clear(ap_coeff_t a)
+{
+  if (a->ref==false){
+    switch (a->discr){
+  case AP_SCALAR_D:
+    eitvD_clear(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    eitvMPQ_clear(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    eitvMPFR_clear(a->eitv.MPFR);
+    break;
+  };
   }
 }
-
-ap_coeff_t* ap_coeff_alloc(ap_scalar_discr_t discr)
+void ap_coeff_fprint(FILE* stream, ap_coeff_t a)
 {
-  ap_coeff_t* coeff = malloc(sizeof(ap_coeff_t));
-  ap_coeff_init(coeff,discr);
-  return coeff;
-}
-void ap_coeff_reinit(ap_coeff_t* coeff, ap_scalar_discr_t discr)
-{
-  if (coeff->discr != discr){
-    ap_coeff_clear(coeff);
-    ap_coeff_init(coeff,discr);
-  }
-  else {
-    ap_coeff_set_int(coeff,1);
-  }
-}
-
-void ap_coeff_free(ap_coeff_t* coeff)
-{
-  ap_coeff_clear(coeff);
-  free(coeff);
-}
-
-void ap_coeff_fprint(FILE* stream, ap_coeff_t* a)
-{
-  switch(a->discr){
+  switch (a->discr){
   case AP_SCALAR_D:
     eitvD_fprint(stream,a->eitv.D);
     break;
@@ -84,129 +110,11 @@ void ap_coeff_fprint(FILE* stream, ap_coeff_t* a)
   case AP_SCALAR_MPFR:
     eitvMPFR_fprint(stream,a->eitv.MPFR);
     break;
-  }
+  };
 }
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-void ap_coeff_set_numMPQ(ap_coeff_t* a, numMPQ_t b)
+void ap_coeff_set_int(ap_coeff_t a, int b)
 {
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_numMPQ(a->eitv.MPQ,b);
-}
-void ap_coeff_set_numD(ap_coeff_t* a, numD_t b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_D);
-  eitvD_set_numD(a->eitv.D,b);
-}
-void ap_coeff_set_numMPFR(ap_coeff_t* a, numMPFR_t b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPFR);
-  eitvMPFR_set_numMPFR(a->eitv.MPFR,b);
-}
-void ap_coeff_set_eitvMPQ(ap_coeff_t* a, eitvMPQ_t b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set(a->eitv.MPQ,b);
-}
-void ap_coeff_set_eitvD(ap_coeff_t* a, eitvD_t b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_D);
-  eitvD_set(a->eitv.D,b);
-}
-void ap_coeff_set_eitvMPFR(ap_coeff_t* a, eitvMPFR_t b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPFR);
-  eitvMPFR_set(a->eitv.MPFR,b);
-}
-
-void ap_coeff_set(ap_coeff_t* a, ap_coeff_t* b)
-{
-  if(a->discr != b->discr){
-    ap_coeff_reinit(a,b->discr);
-  }
-  switch(b->discr){
-  case AP_SCALAR_D:
-    eitvD_set(a->eitv.D, b->eitv.D);
-    break;
-  case AP_SCALAR_MPQ:
-    eitvMPQ_set(a->eitv.MPQ, b->eitv.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    eitvMPFR_set(a->eitv.MPFR, b->eitv.MPFR);
-    break;
-  }
-}
-void ap_coeff_set_lint(ap_coeff_t* a, long int b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lint(a->eitv.MPQ,b,NULL);
-}
-void ap_coeff_set_lint2(ap_coeff_t* a, long int b, long int c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lint2(a->eitv.MPQ,b,c,NULL);
-}
-void ap_coeff_set_lfrac(ap_coeff_t* a, long int b, long int c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lfrac(a->eitv.MPQ,b,c,NULL);
-}
-void ap_coeff_set_lfrac2(ap_coeff_t* a,
-			long int b, long int c,
-			long int d, long int e)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lfrac2(a->eitv.MPQ,b,c,d,e,NULL);
-}
-void ap_coeff_set_llfrac(ap_coeff_t* a, long long int b, long long int c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lfrac(a->eitv.MPQ,b,c,NULL);
-}
-void ap_coeff_set_llfrac2(ap_coeff_t* a,
-			long long int b, long long int c,
-			long long int d, long long int e)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_lfrac2(a->eitv.MPQ,b,c,d,e,NULL);
-}
-void ap_coeff_set_mpq(ap_coeff_t* a, mpq_t b)
-{ ap_coeff_set_numMPQ(a,b); }
-void ap_coeff_set_mpq2(ap_coeff_t* a, mpq_t b, mpq_t c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPQ);
-  eitvMPQ_set_numMPQ2(a->eitv.MPQ,b,c);
-}
-void ap_coeff_set_double(ap_coeff_t* a, double b)
-{ ap_coeff_set_numD(a,&b); }
-void ap_coeff_set_double2(ap_coeff_t* a, double b, double c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_D);
-  eitvD_set_numD2(a->eitv.D,&b,&c);
-}
-void ap_coeff_set_ldouble(ap_coeff_t* a, long double b)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPFR);
-  eitvMPFR_set_ldouble(a->eitv.MPFR,b,NULL);
-}
-void ap_coeff_set_ldouble2(ap_coeff_t* a, long double b, long double c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPFR);
-  eitvMPFR_set_ldouble2(a->eitv.MPFR,b,c,NULL);
-}
-void ap_coeff_set_mpfr(ap_coeff_t* a, mpfr_t b)
-{ ap_coeff_set_numMPFR(a,b); }
-void ap_coeff_set_mpfr2(ap_coeff_t* a, mpfr_t b, mpfr_t c)
-{
-  ap_coeff_reinit(a,AP_SCALAR_MPFR);
-  eitvMPFR_set_numMPFR2(a->eitv.MPFR,b,c);
-}
-void ap_coeff_set_int(ap_coeff_t* a, int b)
-{
-  switch(a->discr){
+  switch (a->discr){
   case AP_SCALAR_D:
     eitvD_set_int(a->eitv.D,b);
     break;
@@ -216,25 +124,49 @@ void ap_coeff_set_int(ap_coeff_t* a, int b)
   case AP_SCALAR_MPFR:
     eitvMPFR_set_int(a->eitv.MPFR,b);
     break;
-  }
+  default:
+    abort();
+  };
 }
-void ap_coeff_set_int2(ap_coeff_t* a, int b, int c)
+bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, numinternal_t intern)
 {
-  switch(a->discr){
+  bool res;
+  if (a->discr==b->discr){
+    switch (a->discr){
   case AP_SCALAR_D:
-    eitvD_set_int2(a->eitv.D,b,c);
+    eitvD_set(a->eitv.D,b->eitv.D);
     break;
   case AP_SCALAR_MPQ:
-    eitvMPQ_set_int2(a->eitv.MPQ,b,c);
+    eitvMPQ_set(a->eitv.MPQ,b->eitv.MPQ);
     break;
   case AP_SCALAR_MPFR:
-    eitvMPFR_set_int2(a->eitv.MPFR,b,c);
+    eitvMPFR_set(a->eitv.MPFR,b->eitv.MPFR);
     break;
+  default:
+    abort();
+  };
+    return true;
+  }
+  else {
+    switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_set_ap_coeff(a->eitv.D,b,intern);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_set_ap_coeff(a->eitv.MPQ,b,intern);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_set_ap_coeff(a->eitv.MPFR,b,intern);
+    break;
+  default:
+    abort();
+  };
+    return res;
   }
 }
-void ap_coeff_set_top(ap_coeff_t* a)
+void ap_coeff_set_top(ap_coeff_t a)
 {
-  switch(a->discr){
+  switch (a->discr){
   case AP_SCALAR_D:
     eitvD_set_top(a->eitv.D);
     break;
@@ -244,9 +176,231 @@ void ap_coeff_set_top(ap_coeff_t* a)
   case AP_SCALAR_MPFR:
     eitvMPFR_set_top(a->eitv.MPFR);
     break;
+  };
+}
+void ap_coeff_set_bottom(ap_coeff_t a)
+{
+  switch (a->discr){
+  case AP_SCALAR_D:
+    eitvD_set_bottom(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    eitvMPQ_set_bottom(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    eitvMPFR_set_bottom(a->eitv.MPFR);
+    break;
+  };
+}
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+
+bool ap_coeff_set_eitvIl(ap_coeff_t a, eitvIl_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvIl(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvIl(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvIl(a->eitv.MPFR,b,intern);
+  default:
+    abort();
   }
 }
-bool eitvMPQ_set_ap_coeff(eitvMPQ_t a, ap_coeff_t* b, numinternal_t intern)
+bool ap_coeff_set_eitvIll(ap_coeff_t a, eitvIll_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvIll(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvIll(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvIll(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvMPZ(ap_coeff_t a, eitvMPZ_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvMPZ(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvMPZ(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvMPZ(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvRl(ap_coeff_t a, eitvRl_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvRl(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvRl(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvRl(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvRll(ap_coeff_t a, eitvRll_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvRll(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvRll(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvRll(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvDl(ap_coeff_t a, eitvDl_t b, numinternal_t intern)
+{
+  switch(a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvDl(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvDl(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvDl(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+
+bool ap_coeff_set_eitvD(ap_coeff_t a, eitvD_t b, numinternal_t intern)
+{
+  switch (a->discr){
+  case AP_SCALAR_D:
+    eitvD_set(a->eitv.D,b);
+    return true;
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvD(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvD(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvMPQ(ap_coeff_t a, eitvMPQ_t b, numinternal_t intern)
+{
+  switch (a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvMPQ(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    eitvMPQ_set(a->eitv.MPQ,b);
+    return true;
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvMPQ(a->eitv.MPFR,b,intern);
+  default:
+    abort();
+  }
+}
+bool ap_coeff_set_eitvMPFR(ap_coeff_t a, eitvMPFR_t b, numinternal_t intern)
+{
+  switch (a->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvMPFR(a->eitv.D,b,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvMPFR(a->eitv.MPQ,b,intern);
+  case AP_SCALAR_MPFR:
+    eitvMPFR_set(a->eitv.MPFR,b);
+    return true;
+  default:
+    abort();
+  }
+}
+
+
+bool eitvIl_set_ap_coeff(eitvIl_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvIl_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvIl_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvIl_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool eitvIll_set_ap_coeff(eitvIll_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvIll_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvIll_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvIll_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool eitvMPZ_set_ap_coeff(eitvMPZ_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvMPZ_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPZ_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPZ_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool eitvRl_set_ap_coeff(eitvRl_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvRl_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvRl_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvRl_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool eitvRll_set_ap_coeff(eitvRll_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvRll_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvRll_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvRll_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+bool eitvDl_set_ap_coeff(eitvDl_t a, ap_coeff_t b, numinternal_t intern)
+{
+  switch(b->discr){
+  case AP_SCALAR_D:
+    return eitvDl_set_eitvD(a,b->eitv.D,intern);
+  case AP_SCALAR_MPQ:
+    return eitvDl_set_eitvMPQ(a,b->eitv.MPQ,intern);
+  case AP_SCALAR_MPFR:
+    return eitvDl_set_eitvMPFR(a,b->eitv.MPFR,intern);
+  default:
+    abort();
+  }
+}
+
+bool eitvMPQ_set_ap_coeff(eitvMPQ_t a, ap_coeff_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
@@ -260,7 +414,7 @@ bool eitvMPQ_set_ap_coeff(eitvMPQ_t a, ap_coeff_t* b, numinternal_t intern)
     abort();
   }
 }
-bool eitvD_set_ap_coeff(eitvD_t a, ap_coeff_t* b, numinternal_t intern)
+bool eitvD_set_ap_coeff(eitvD_t a, ap_coeff_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
@@ -274,7 +428,7 @@ bool eitvD_set_ap_coeff(eitvD_t a, ap_coeff_t* b, numinternal_t intern)
     abort();
   }
 }
-bool eitvMPFR_set_ap_coeff(eitvMPFR_t a, ap_coeff_t* b, numinternal_t intern)
+bool eitvMPFR_set_ap_coeff(eitvMPFR_t a, ap_coeff_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
@@ -289,41 +443,122 @@ bool eitvMPFR_set_ap_coeff(eitvMPFR_t a, ap_coeff_t* b, numinternal_t intern)
   }
 }
 
-
 /* ====================================================================== */
 /* Tests */
 /* ====================================================================== */
 
-bool ap_coeff_zero(ap_coeff_t* a)
+bool ap_coeff_is_point(ap_coeff_t a)
 {
-  switch(a->discr){
+  bool res;
+  switch (a->discr){
   case AP_SCALAR_D:
-    return eitvD_is_zero(a->eitv.D);
+    res = eitvD_is_point(a->eitv.D);
+    break;
   case AP_SCALAR_MPQ:
-    return eitvMPQ_is_zero(a->eitv.MPQ);
+    res = eitvMPQ_is_point(a->eitv.MPQ);
+    break;
   case AP_SCALAR_MPFR:
-    return eitvMPFR_is_zero(a->eitv.MPFR);
+    res = eitvMPFR_is_point(a->eitv.MPFR);
+    break;
   default:
     abort();
-  }
+  };
+  return res;
 }
-
-bool ap_coeff_equal(ap_coeff_t* a, ap_coeff_t* b)
+bool ap_coeff_is_zero(ap_coeff_t a)
 {
-  if (a->discr==b->discr){
-    switch(a->discr){
-    case AP_SCALAR_D:
-      return eitvD_is_eq(a->eitv.D,b->eitv.D);
-    case AP_SCALAR_MPQ:
-      return eitvMPQ_is_eq(a->eitv.MPQ,b->eitv.MPQ);
-    case AP_SCALAR_MPFR:
-      return eitvMPFR_is_eq(a->eitv.MPFR,b->eitv.MPFR);
-    default:
-      abort();
-    }
+  bool res;
+  switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_is_zero(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_is_zero(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_is_zero(a->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+  return res;
+}
+bool ap_coeff_is_pos(ap_coeff_t a)
+{
+  bool res;
+  switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_is_pos(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_is_pos(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_is_pos(a->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+  return res;
+}
+bool ap_coeff_is_neg(ap_coeff_t a)
+{
+  bool res;
+  switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_is_neg(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_is_neg(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_is_neg(a->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+  return res;
+}
+bool ap_coeff_is_top(ap_coeff_t a)
+{
+  bool res;
+  switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_is_top(a->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_is_top(a->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_is_top(a->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+  return res;
+}
+bool ap_coeff_equal(ap_coeff_t a, ap_coeff_t b)
+{
+  bool res;
+   if (a->discr==b->discr){
+    switch (a->discr){
+  case AP_SCALAR_D:
+    res = eitvD_is_eq(a->eitv.D,b->eitv.D);
+    break;
+  case AP_SCALAR_MPQ:
+    res = eitvMPQ_is_eq(a->eitv.MPQ,b->eitv.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    res = eitvMPFR_is_eq(a->eitv.MPFR,b->eitv.MPFR);
+    break;
+  default:
+    abort();
+  };
+    return res;
   }
-  else
+  else {
     return false;
+  }
 }
 
 /* ====================================================================== */
@@ -331,16 +566,21 @@ bool ap_coeff_equal(ap_coeff_t* a, ap_coeff_t* b)
 /* ====================================================================== */
 
 /* Hash */
-long ap_coeff_hash(ap_coeff_t* a)
+long ap_coeff_hash(ap_coeff_t a)
 {
-  switch(a->discr){
+  long res;
+  switch (a->discr){
   case AP_SCALAR_D:
-    return eitvD_hash(a->eitv.D);
+    res = eitvD_hash(a->eitv.D);
+    break;
   case AP_SCALAR_MPQ:
-    return eitvMPQ_hash(a->eitv.MPQ);
+    res = eitvMPQ_hash(a->eitv.MPQ);
+    break;
   case AP_SCALAR_MPFR:
-    return eitvMPFR_hash(a->eitv.MPFR);
+    res = eitvMPFR_hash(a->eitv.MPFR);
+    break;
   default:
     abort();
-  }
+  };
+  return res;
 }

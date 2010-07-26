@@ -14,7 +14,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ap_coeff.h"
+#include "ap_dimension.h"
 #include "ap_linexpr0.h"
+#include "itvD_lincons.h"
+#include "itvMPQ_lincons.h"
+#include "itvMPFR_lincons.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,181 +28,114 @@ extern "C" {
 /* Datatypes */
 /* ====================================================================== */
 
-/* Datatype for type of constraints */
-typedef enum ap_constyp_t {
-  AP_CONS_EQ,    /* equality constraint */
-  AP_CONS_SUPEQ, /* >= constraint */
-  AP_CONS_SUP,   /* > constraint */
-  AP_CONS_EQMOD, /* congruence equality constraint */
-  AP_CONS_DISEQ  /* disequality constraint */
-} ap_constyp_t;
-
-/* Represents the constraint "expr constyp 0" */
-typedef struct ap_lincons0_t {
-  ap_linexpr0_t* linexpr0;  /* expression */
-  ap_constyp_t constyp;     /* type of constraint */
-  ap_scalar_t* scalar;      /* maybe NULL.  
-
-			       For EQMOD constraint, indicates the
-			       modulo */
-} ap_lincons0_t;
-
-/* Array of constraints */
-typedef struct ap_lincons0_array_t {
-  ap_lincons0_t* p;
-  size_t size;
-} ap_lincons0_array_t;
-
-/* ********************************************************************** */
-/* I. ap_lincons0_t */
-/* ********************************************************************** */
-
-/* ====================================================================== */
-/* I.1 Memory management and printing */
-/* ====================================================================== */
-
-static inline
-ap_lincons0_t ap_lincons0_make(ap_constyp_t constyp, 
-			       ap_linexpr0_t* linexpr,
-			       ap_scalar_t* scalar);
-  /* Create a constraint of given type with the given expression.
-     The expression and the coefficient are not duplicated, just pointed to */
-
-ap_lincons0_t ap_lincons0_make_unsat(void);
-  /* Create the constraint -1>=0 */
-
-static inline
-ap_lincons0_t ap_lincons0_copy(ap_lincons0_t* cons);
-  /* Duplication */
-
-static inline
-void ap_lincons0_clear(ap_lincons0_t* cons);
-  /* Free the linear expression of the constraint and set pointer to NULL */
-
-void ap_lincons0_fprint(FILE* stream,
-			ap_lincons0_t* cons, char** name_of_dim);
-  /* Printing a linear constraint */
-
-/* ====================================================================== */
-/* I.2 Tests */
-/* ====================================================================== */
-
-bool ap_lincons0_is_unsat(ap_lincons0_t* cons);
-  /* True if the constraint is b>=0 or [a,b]>=0 with b negative */
+typedef struct ap_lincons0_struct {
+  bool ref;
+  ap_scalar_discr_t discr;
+  union {
+    itvD_lincons_ptr    D;
+    itvMPQ_lincons_ptr  MPQ;
+    itvMPFR_lincons_ptr MPFR;
+  } lincons;
+} ap_lincons0_struct;
+typedef ap_lincons0_struct ap_lincons0_t[1];
+typedef ap_lincons0_struct* ap_lincons0_ptr;
 
 
 /* ====================================================================== */
-/* I.3 Change of dimensions and permutations */
+/* I. Memory management and printing */
 /* ====================================================================== */
 
-static inline
-void ap_lincons0_add_dimensions_with(ap_lincons0_t* cons,
-				     ap_dimchange_t* dimchange);
-static inline
-ap_lincons0_t ap_lincons0_add_dimensions(ap_lincons0_t* cons,
-					 ap_dimchange_t* dimchange);
+void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size);
+void ap_lincons0_init_set(ap_lincons0_t res, ap_lincons0_t e);
+void ap_lincons0_init_set_D(ap_lincons0_t res, itvD_lincons_t e);
+void ap_lincons0_init_set_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
+void ap_lincons0_init_set_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
+static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, itvD_lincons_t e);
+static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
+static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
 
-static inline
-void ap_lincons0_permute_dimensions_with(ap_lincons0_t* cons,
-					 ap_dimperm_t* perm);
-static inline
-ap_lincons0_t ap_lincons0_permute_dimensions(ap_lincons0_t* cons,
-					     ap_dimperm_t* perm);
+void ap_lincons0_minimize(ap_lincons0_t a);
+void ap_lincons0_clear(ap_lincons0_t e);
+void ap_lincons0_fprint(FILE* stream, ap_lincons0_t e, char** name_of_dim);
+  /* Printing a linear expression */
 
-/* ********************************************************************** */
-/* II. Array of linear constraints */
-/* ********************************************************************** */
-
-ap_lincons0_array_t ap_lincons0_array_make(size_t size);
-  /* Allocate an array of size constraints.
-     The constraints are initialized with NULL pointers, */
-
-void ap_lincons0_array_resize(ap_lincons0_array_t* array, size_t size);
-  /* Resize an array of size constraints.
-     New constraints are initialized with NULL pointers,
-     Removed constraints with non-NULL pointers are deallocated */
-
-void ap_lincons0_array_clear(ap_lincons0_array_t* array);
-  /* Clear the constraints of the array, and then the array itself */
-
-void ap_lincons0_array_fprint(FILE* stream,
-			      ap_lincons0_array_t* ap_lincons0_array,
-			      char** name_of_dim);
-  /* Printing */
-
-ap_linexpr_type_t ap_lincons0_array_type(ap_lincons0_array_t* array);
-bool ap_lincons0_array_is_linear(ap_lincons0_array_t* array);
-bool ap_lincons0_array_is_quasilinear(ap_lincons0_array_t* array);
-  /* Are all the expressions involved linear (resp. quasilinear) */
+static inline void ap_lincons0_ref_D(ap_lincons0_t res, itvD_lincons_t e);
+static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
+static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
+  /* Returns a reference on the argument under the form of ap_lincons0_ref.
+     INTERNAL USE.
+     BE CAUTIOUS: memory is shared between the result and the argument, and
+     memory should be managed through the argument. */
 
 /* ====================================================================== */
-/* II.1 Change of dimensions and permutations */
+/* II. Conversions */
 /* ====================================================================== */
-void ap_lincons0_array_add_dimensions_with(ap_lincons0_array_t* array,
-					   ap_dimchange_t* dimchange);
-ap_lincons0_array_t ap_lincons0_array_add_dimensions(ap_lincons0_array_t* array,
-						     ap_dimchange_t* dimchange);
 
-void ap_lincons0_array_permute_dimensions_with(ap_lincons0_array_t* array,
-					       ap_dimperm_t* perm);
-ap_lincons0_array_t ap_lincons0_array_permute_dimensions(ap_lincons0_array_t* array,
-							 ap_dimperm_t* perm);
+bool ap_lincons0_set(ap_lincons0_t res, ap_lincons0_t e, numinternal_t intern);
 
-/* ********************************************************************** */
-/* III. Inline functions definitions */
-/* ********************************************************************** */
+bool ap_lincons0_set_itvD_lincons(ap_lincons0_t a, itvD_lincons_t b, numinternal_t intern);
+bool ap_lincons0_set_itvMPQ_lincons(ap_lincons0_t a, itvMPQ_lincons_t b, numinternal_t intern);
+bool ap_lincons0_set_itvMPFR_lincons(ap_lincons0_t a, itvMPFR_lincons_t b, numinternal_t intern);
 
-static inline ap_lincons0_t ap_lincons0_make(ap_constyp_t constyp, ap_linexpr0_t* linexpr, ap_scalar_t* scalar)
-{
-  ap_lincons0_t cons;
-  cons.constyp = constyp;
-  cons.linexpr0 = linexpr;
-  cons.scalar = scalar;
-  return cons;
-}
-static inline ap_lincons0_t ap_lincons0_copy(ap_lincons0_t* cons)
-{
-  return ap_lincons0_make(cons->constyp, 
-			  cons->linexpr0 ? ap_linexpr0_copy(cons->linexpr0) : NULL,
-			  cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
-}
-static inline void ap_lincons0_clear(ap_lincons0_t* lincons)
-{
-  if (lincons->linexpr0){
-    ap_linexpr0_free(lincons->linexpr0);
-  }
-  lincons->linexpr0 = NULL;
-  if (lincons->scalar){
-    ap_scalar_free(lincons->scalar);
-  }
-  lincons->scalar = NULL;
-}
+bool itvD_lincons_set_ap_lincons0(itvD_lincons_t a, ap_lincons0_t b, numinternal_t intern);
+bool itvDMPQ_lincons_set_ap_lincons0(itvMPQ_lincons_t a, ap_lincons0_t b, numinternal_t intern);
+bool itvMPFR_lincons_set_ap_lincons0(itvMPFR_lincons_t a, ap_lincons0_t b, numinternal_t intern);
 
-static inline
-void ap_lincons0_add_dimensions_with(ap_lincons0_t* cons,
-				     ap_dimchange_t* dimchange)
-{ ap_linexpr0_add_dimensions_with(cons->linexpr0,dimchange); }
-static inline
-ap_lincons0_t ap_lincons0_add_dimensions(ap_lincons0_t* cons,
-					 ap_dimchange_t* dimchange)
-{
-  return ap_lincons0_make(cons->constyp,
-			  ap_linexpr0_add_dimensions(cons->linexpr0,dimchange),
-			  cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
-}
-static inline
-void ap_lincons0_permute_dimensions_with(ap_lincons0_t* cons,
-					 ap_dimperm_t* perm)
-{ ap_linexpr0_permute_dimensions_with(cons->linexpr0,perm); }
-static inline
-ap_lincons0_t ap_lincons0_permute_dimensions(ap_lincons0_t* cons,
-					     ap_dimperm_t* perm)
-{
-  return ap_lincons0_make(cons->constyp,
-			  ap_linexpr0_permute_dimensions(cons->linexpr0,perm),
-			  cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
-}
-  
+/* ====================================================================== */
+/* III. Access */
+/* ====================================================================== */
+
+void ap_lincons0_linexpr0ref(ap_linexpr0_t e, ap_lincons0_t c);
+itvconstyp_t* ap_lincons0_constypref(ap_lincons0_t c);
+mpq_ptr ap_lincons0_mpqref(ap_lincons0_t c);
+
+
+/* ====================================================================== */
+/* IV. Change of dimensions and permutations */
+/* ====================================================================== */
+
+/* This function add dimensions to the expressions, following the
+   semantics of dimchange (see the type definition of dimchange).  */
+void ap_lincons0_add_dimensions(ap_lincons0_t a,
+				ap_lincons0_t b,
+				ap_dimchange_t* dimchange);
+
+/* This function apply the given permutation to the dimensions. If dense
+   representation, the size of the permutation should be expr->size. If sparse
+   representation, the dimensions present in the expression should just be less
+   than the size of the permutation. */
+void ap_lincons0_permute_dimensions(ap_lincons0_t a,
+				    ap_lincons0_t b,
+				    ap_dimperm_t* perm);
+
+/* ====================================================================== */
+/* V. Hashing, comparison */
+/* ====================================================================== */
+
+/* Induces reduction of the coefficients */
+
+int ap_lincons0_hash(ap_lincons0_t expr);
+bool ap_lincons0_equal(ap_lincons0_t expr1,
+		       ap_lincons0_t expr2);
+
+/* Lexicographic ordering, terminating by constant coefficients */
+int ap_lincons0_compare(ap_lincons0_t expr1,
+			ap_lincons0_t expr2);
+
+static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, itvD_lincons_t e)
+{ res->ref = false; res->discr = AP_SCALAR_D; res->lincons.D = e; };
+static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e)
+{ res->ref = false; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
+static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e)
+{ res->ref = false; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
+
+static inline void ap_lincons0_ref_D(ap_lincons0_t res, itvD_lincons_t e)
+{ res->ref = true; res->discr = AP_SCALAR_D; res->lincons.D = e; };
+static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e)
+{ res->ref = true; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
+static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e)
+{ res->ref = true; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
+
 #ifdef __cplusplus
 }
 #endif
