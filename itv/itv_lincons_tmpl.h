@@ -17,20 +17,11 @@ extern "C" {
 /* Dataypes */
 /* ********************************************************************** */
 
-/* Datatype for type of constraints */
-typedef enum itv_constyp_t {
-  ITV_CONS_EQ,    /* equality constraint */
-  ITV_CONS_SUPEQ, /* >= constraint */
-  ITV_CONS_SUP,   /* > constraint */
-  ITV_CONS_EQMOD, /* congruence equality constraint */
-  ITV_CONS_DISEQ  /* disequality constraint */
-} itv_constyp_t;
-
 /* Interval linear constraint */
 typedef struct itv_lincons_struct {
   itv_linexpr_t linexpr;
-  itv_constyp_t constyp;
-  num_t num;
+  itvconstyp_t constyp;
+  mpq_t mpq;
 } itv_lincons_struct;
 typedef itv_lincons_struct itv_lincons_t[1];
 typedef itv_lincons_struct* itv_lincons_ptr;
@@ -47,17 +38,28 @@ typedef itv_lincons_array_struct* itv_lincons_array_ptr;
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
-static inline void itv_lincons_init(itv_lincons_t cons);
-static inline void itv_lincons_set(itv_lincons_t res, itv_lincons_t expr);
+static inline void itv_lincons_init(itv_lincons_t cons,size_t size);
+static inline void itv_lincons_set(itv_lincons_t res, itv_lincons_t cons);
+static inline void itv_lincons_init_set(itv_lincons_t res, itv_lincons_t cons);
+static inline void itv_lincons_init_set_linexpr(itv_lincons_t res, itv_linexpr_t expr, itvconstyp_t constyp, mpq_ptr mpq);
 void itv_lincons_set_bool(itv_lincons_t res, bool value);
 static inline void itv_lincons_clear(itv_lincons_t cons);
+itv_lincons_ptr itv_lincons_alloc(size_t size);
+itv_lincons_ptr itv_lincons_alloc_set(itv_lincons_t cons);
+itv_lincons_ptr itv_lincons_alloc_set_linexpr(itv_linexpr_t expr, itvconstyp_t constyp, mpq_ptr mpq);
+void itv_lincons_free(itv_lincons_ptr cons);
 void itv_lincons_fprint(FILE* stream, itv_lincons_t cons, char** name);
 static inline void itv_lincons_print(itv_lincons_t cons, char** name);
 static inline void itv_lincons_swap(itv_lincons_t a, itv_lincons_t b);
 
 void itv_lincons_array_init(itv_lincons_array_t array, size_t size);
-void itv_lincons_array_reinit(itv_lincons_array_t array, size_t size);
+void itv_lincons_array_init_set(itv_lincons_array_t res, itv_lincons_array_t array);
+void itv_lincons_array_set(itv_lincons_array_t res, itv_lincons_array_t array);
+void itv_lincons_array_resize(itv_lincons_array_t array, size_t size);
+void itv_lincons_array_minimize(itv_lincons_array_t array);
 void itv_lincons_array_clear(itv_lincons_array_t array);
+itv_lincons_array_ptr itv_lincons_array_alloc(size_t size);
+itv_lincons_array_ptr itv_lincons_array_alloc_set(itv_lincons_array_t a);
 void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t array, char** name);
 static inline void itv_lincons_array_print(itv_lincons_array_t array, char** name);
 
@@ -66,7 +68,6 @@ static inline void itv_lincons_array_print(itv_lincons_array_t array, char** nam
 /* ********************************************************************** */
 
 static inline bool itv_lincons_is_integer(itv_lincons_t cons, size_t intdim);
-
 static inline bool itv_lincons_is_linear(itv_lincons_t cons);
   /* Return true iff all involved coefficients are scalars */
 static inline bool itv_lincons_is_quasilinear(itv_lincons_t cons);
@@ -164,7 +165,7 @@ bool itv_lincons_array_quasilinearize(itv_internal_t* intern,
 /* IV. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-bool itv_boxize_lincons_array(itv_internal_t* intern,
+bool itv_lincons_array_boxize(itv_internal_t* intern,
 			      itv_t* res,
 			      bool* tchange,
 			      itv_lincons_array_t array,
@@ -191,12 +192,12 @@ bool itv_boxize_lincons_array(itv_internal_t* intern,
 /* These two functions add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
 static inline
-void itv_lincons_add_dimension(itv_lincons_t res,
-			       itv_lincons_t cons,
-			       ap_dimchange_t* dimchange);
-void itv_lincons_array_add_dimension(itv_lincons_array_t res,
-				     itv_lincons_array_t array,
-				     ap_dimchange_t* dimchange);
+void itv_lincons_add_dimensions(itv_lincons_t res,
+				itv_lincons_t cons,
+				ap_dimchange_t* dimchange);
+void itv_lincons_array_add_dimensions(itv_lincons_array_t res,
+				      itv_lincons_array_t array,
+				      ap_dimchange_t* dimchange);
 
 /* These two functions apply the given permutation to the dimensions.
    The dimensions present in the consession should just be less
@@ -223,12 +224,20 @@ int itv_lincons_compare(itv_lincons_t cons1, itv_lincons_t cons2);
 /* Definition of inline functions */
 /* ********************************************************************** */
 
-static inline void itv_lincons_init(itv_lincons_t cons)
-{ itv_linexpr_init(cons->linexpr,0); num_init(cons->num); }
+static inline void itv_lincons_init(itv_lincons_t cons,size_t size)
+{ itv_linexpr_init(cons->linexpr,size); cons->constyp = ITV_CONS_EQ; mpq_init(cons->mpq); }
 static inline void itv_lincons_set(itv_lincons_t a, itv_lincons_t b)
-{ if (a!=b){ itv_linexpr_set(a->linexpr,b->linexpr); num_set(a->num,b->num); a->constyp = b->constyp; } }
+{ if (a!=b){ itv_linexpr_set(a->linexpr,b->linexpr); mpq_set(a->mpq,b->mpq); a->constyp = b->constyp; } }
+static inline void itv_lincons_init_set(itv_lincons_t a, itv_lincons_t b)
+{ assert(a!=b); itv_linexpr_init_set(a->linexpr,b->linexpr); a->constyp = b->constyp; mpq_init(a->mpq); mpq_set(a->mpq,b->mpq); }
+static inline void itv_lincons_init_set_linexpr(itv_lincons_t res, itv_linexpr_t expr, itvconstyp_t constyp, mpq_ptr mpq)
+{ 
+  itv_linexpr_init_set(res->linexpr,expr); res->constyp = constyp; 
+  mpq_init(res->mpq);
+  if (mpq) mpq_set(res->mpq,mpq);
+}
 static inline void itv_lincons_clear(itv_lincons_t cons)
-{ itv_linexpr_clear(cons->linexpr); num_clear(cons->num); }
+{ itv_linexpr_clear(cons->linexpr); mpq_clear(cons->mpq); }
 static inline void itv_lincons_print(itv_lincons_t cons, char** name)
 { itv_lincons_fprint(stdout,cons,name); }
 static inline void itv_lincons_swap(itv_lincons_t a, itv_lincons_t b)
@@ -265,10 +274,10 @@ bool itv_lincons_quasilinearize(itv_internal_t* intern,
   return itv_linexpr_quasilinearize(intern,lincons->linexpr,env,for_meet_inequality);
 }
 static inline
-void itv_lincons_add_dimension(itv_lincons_t res,
-			       itv_lincons_t cons,
-			       ap_dimchange_t* dimchange)
-{ itv_linexpr_add_dimension(res->linexpr,cons->linexpr,dimchange); }
+void itv_lincons_add_dimensions(itv_lincons_t res,
+				itv_lincons_t cons,
+				ap_dimchange_t* dimchange)
+{ itv_linexpr_add_dimensions(res->linexpr,cons->linexpr,dimchange); }
 
 static inline
 void itv_lincons_permute_dimensions(itv_lincons_t res,

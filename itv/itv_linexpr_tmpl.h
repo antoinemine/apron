@@ -7,6 +7,7 @@
 
 #include "eitv.h"
 #include "ap_dimension.h"
+#include "ap_coeff.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,9 +64,13 @@ static inline void itv_linterm_swap(itv_linterm_t a, itv_linterm_t b);
 void itv_linexpr_init(itv_linexpr_t expr, size_t size);
 void itv_linexpr_init_set(itv_linexpr_t res, itv_linexpr_t expr);
 void itv_linexpr_set(itv_linexpr_t res, itv_linexpr_t expr);
-void itv_linexpr_reinit(itv_linexpr_t expr, size_t size);
-void itv_linexpr_clear(itv_linexpr_t expr);
+void itv_linexpr_resize(itv_linexpr_t expr, size_t size);
 void itv_linexpr_minimize(itv_linexpr_t e);
+void itv_linexpr_clear(itv_linexpr_t expr);
+itv_linexpr_ptr itv_linexpr_alloc(size_t size);
+itv_linexpr_ptr itv_linexpr_alloc_set(itv_linexpr_t expr);
+void itv_linexpr_free(itv_linexpr_ptr expr);
+
 void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name);
 static inline void itv_linexpr_print(itv_linexpr_t expr, char** name);
 
@@ -108,12 +113,11 @@ static inline
 size_t itv_linexpr_size(itv_linexpr_t expr);
   /* Get the size of the linear expression */
 
-eitv_ptr itv_linexpr_eitvref(itv_linexpr_t expr, ap_dim_t dim);
-  /* Get a reference to the coefficient associated to the dimension.
-     Do not free it.
-     In case of sparse representation,
-     possibly induce the addition of a new linear term.
-     Return NULL if dim==AP_DIM_MAX.
+eitv_ptr itv_linexpr_eitvref(itv_linexpr_t expr, ap_dim_t dim, bool create);
+  /* Get a (possibly NULL) reference to the coefficient associated to the
+     dimension.
+     If create==false, returns NULL if the corresponding dimension does not exist.
+     If create==true, a new coefficient may be added.
  */
 
 /* Set the coefficient of dimension dim in the expression */
@@ -122,6 +126,7 @@ static inline void itv_linexpr_set_eitv(itv_linexpr_t expr, ap_dim_t dim, eitv_t
 /* Defined in itvConfig.h for avoiding multiple definitions */
 /*
 typedef enum itv_coefftag_t {
+  ITV_COEFF,           waiting for 1 ap_coeff_t* and a dimension
   ITV_EITV,            waiting for 1 eitv_t and a dimension
   ITV_NUM,             waiting for 1 num_t and a dimension
   ITV_NUM2,            waiting for 2 num_t and a dimension
@@ -147,9 +152,11 @@ typedef enum itv_coefftag_t {
 } itvcoefftag_t;
 */
 
-bool itv_linexpr_set_list_generic(eitv_ptr (*get_eitv)(void* expr, va_list* va),
+bool itv_linexpr_set_list_generic(eitv_ptr (*get_eitv_of_dimvar)(void* env, void* expr, va_list* va),
+				  void* env,   
 				  numinternal_t intern,
 				  void* expr, va_list* va);
+eitv_ptr itv_linexpr_set_list_get_eitv_of_dim(void* env, void* expr, va_list* va);
 
 bool itv_linexpr_set_list(numinternal_t intern, itv_linexpr_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
@@ -265,7 +272,7 @@ bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
 
 /* These two functions add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
-void itv_linexpr_add_dimension(itv_linexpr_t res,
+void itv_linexpr_add_dimensions(itv_linexpr_t res,
 			       itv_linexpr_t expr,
 			       ap_dimchange_t* dimchange);
 
@@ -323,7 +330,7 @@ static inline size_t itv_linexpr_size(itv_linexpr_t expr)
 
 static inline void itv_linexpr_set_eitv(itv_linexpr_t expr, ap_dim_t dim, eitv_t eitv)
 {
-  eitv_ptr r = itv_linexpr_eitvref(expr,dim);
+  eitv_ptr r = itv_linexpr_eitvref(expr,dim,true);
   eitv_set(r,eitv);
 }
 static inline bool itv_linexpr_equal(itv_linexpr_t expr1,itv_linexpr_t expr2)

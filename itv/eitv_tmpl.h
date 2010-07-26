@@ -32,6 +32,9 @@ static inline void eitv_init_array(eitv_t* a, size_t size);
 static inline void eitv_init_set(eitv_t a, eitv_t b);
 static inline void eitv_clear(eitv_t a);
 static inline void eitv_clear_array(eitv_t* a, size_t size);
+static inline eitv_ptr eitv_alloc(void);
+static inline eitv_ptr eitv_alloc_set(eitv_t a);
+static inline void eitv_free(eitv_ptr a);
 static inline eitv_t* eitv_array_alloc(size_t size);
 static inline void eitv_array_free(eitv_t* a, size_t size);
 
@@ -207,6 +210,20 @@ static inline void eitv_clear_array(eitv_t* a, size_t size)
   for (i=0; i<size; i++) eitv_clear(a[i]);
 #endif
 }
+static inline eitv_ptr eitv_alloc()
+{
+  eitv_ptr res = (eitv_ptr)malloc(sizeof(eitv_t));
+  eitv_init(res);
+  return res;
+}
+static inline eitv_ptr eitv_alloc_set(eitv_t a)
+{
+  eitv_ptr res = (eitv_ptr)malloc(sizeof(eitv_t));
+  eitv_init_set(res,a);
+  return res;
+}
+static inline void eitv_free(eitv_ptr a)
+{ eitv_clear(a); free(a); }
 static inline eitv_t* eitv_array_alloc(size_t size)
 {
   eitv_t* res = (eitv_t*)malloc(size*sizeof(eitv_t));
