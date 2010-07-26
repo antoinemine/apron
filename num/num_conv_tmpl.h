@@ -316,9 +316,15 @@ static inline bool num_set_mpz(num_t a, mpz_t b, numinternal_t intern)
     res = true;
   }
   else {
+    const int dec = 
+      (sizeof(long int) == sizeof(long long int)) ? 
+      0 : 
+      sizeof(long int)*8;
+
     *a = tab[0];
     if (count==2){
-      *a = *a << (sizeof(long int)*8);
+      assert(dec!=0);
+      *a = *a << dec;
       *a = *a + (long long int)(tab[1]);
       assert(*a>=0LL);
       count = mpz_sizeinbase(b,2);
@@ -378,11 +384,21 @@ static inline bool mpz_set_num(mpz_t a, num_t b, numinternal_t intern)
 {
   unsigned long long int n;
   unsigned long int rep[2];
-
+  const int dec = 
+    (sizeof(long int) == sizeof(long long int)) ? 
+    0 : 
+    sizeof(long int)*8;
+  
   n = llabs(*b);
-  rep[1] = n & ULONG_MAX;
-  rep[0] = n >> (sizeof(long int)*8);
-  mpz_import(a,2,1,sizeof(unsigned long int),0,0,rep);
+  if (dec==0){
+    rep[0] = n & ULONG_MAX;
+    mpz_import(a,1,1,sizeof(unsigned long int),0,0,rep);
+  }
+  else {
+    rep[1] = n & ULONG_MAX;
+    rep[0] = n >> dec;
+    mpz_import(a,2,1,sizeof(unsigned long int),0,0,rep);
+  }
   if (*b<0)
     mpz_neg(a,a);
   return true;

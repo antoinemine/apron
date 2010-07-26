@@ -29,81 +29,76 @@ extern "C" {
 /* ====================================================================== */
 
 /* A linear expression. */
-typedef struct ap_linexpr0_t {
+typedef struct ap_linexpr0_struct {
+  bool ref;
   ap_scalar_discr_t discr;
   union {
-    itvD_linexpr_t    D;
-    itvMPQ_linexpr_t  MPQ;
-    itvMPFR_linexpr_t MPFR;
+    itvD_linexpr_ptr    D;
+    itvMPQ_linexpr_ptr  MPQ;
+    itvMPFR_linexpr_ptr MPFR;
   } linexpr;
-} ap_linexpr0_t;
-
-/* Important invariant:
-   - linear terms are sorted in increasing order wrt their dimension.
-
-   - AP_DIM_MAX dimensions are meaningless: they serve as free linterm when a new dimension
-     is needed (this avoids to permanently reallocating the array.
-     They should be ignored.
-*/
-
-/* Array of linear expressions */
-typedef struct ap_linexpr0_array_t {
-  ap_scalar_discr_t discr;
-  union {
-    itvD_linexpr_t*    D;
-    itvMPQ_linexpr_t*  MPQ;
-    itvMPFR_linexpr_t* MPFR;
-  } p;
-  size_t size;
-} ap_linexpr0_array_t;
+} ap_linexpr0_struct;
+typedef ap_linexpr0_struct ap_linexpr0_t[1];
+typedef ap_linexpr0_struct* ap_linexpr0_ptr;
 
 /* ====================================================================== */
 /* I. Memory management and printing */
 /* ====================================================================== */
 
-ap_linexpr0_t* ap_linexpr0_alloc(ap_scalar_discr_t discr, size_t size);
-  /* Allocates a linear expressions with the given number of linterms */
+void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size);
+void ap_linexpr0_init_set(ap_linexpr0_t res, ap_linexpr0_t e);
+void ap_linexpr0_init_set_D(ap_linexpr0_t res, itvD_linexpr_t e);
+void ap_linexpr0_init_set_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
+void ap_linexpr0_init_set_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
+static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, itvD_linexpr_t e);
+static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
+static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
 
-void ap_linexpr0_minimize(ap_linexpr0_t* e);
-  /* Reduce the coefficients (transform intervals into scalars when possible).
-     In case of sparse representation, also remove zero coefficients */
-
-void ap_linexpr0_free(ap_linexpr0_t* linexpr);
-  /* Free the linear expression */
-
-ap_linexpr0_t* ap_linexpr0_copy(ap_linexpr0_t* a);
-  /* Duplication */
-
-void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t* a, char** name_of_dim);
+void ap_linexpr0_clear(ap_linexpr0_t e);
+void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim);
   /* Printing a linear expression */
-  /* Idem for arrays */
+void ap_linexpr0_minimize(ap_linexpr0_t a);
+
+static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, itvD_linexpr_t e);
+static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
+static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
+  /* Returns a reference on the argument under the form of ap_linexpr0_ref.
+     INTERNAL USE.
+     BE CAUTIOUS: memory is shared between the result and the argument, and
+     memory should be managed through the argument. */
+
+/* ====================================================================== */
+/* II. Conversions */
+/* ====================================================================== */
+
+bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, numinternal_t intern);
+
+bool ap_linexpr0_set_itvD_linexpr(ap_linexpr0_t a, itvD_linexpr_t b, numinternal_t intern);
+bool ap_linexpr0_set_itvMPQ_linexpr(ap_linexpr0_t a, itvMPQ_linexpr_t b, numinternal_t intern);
+bool ap_linexpr0_set_itvMPFR_linexpr(ap_linexpr0_t a, itvMPFR_linexpr_t b, numinternal_t intern);
+
+bool itvD_linexpr_set_ap_linexpr0(itvD_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
+bool itvDMPQ_linexpr_set_ap_linexpr0(itvMPQ_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
+bool itvMPFR_linexpr_set_ap_linexpr0(itvMPFR_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
 
 /* ====================================================================== */
 /* III. Access */
 /* ====================================================================== */
 
-ap_coeff_t ap_linexpr0_cstref(ap_linexpr0_t* expr, ap_dim_t dim);
-  /* Get a reference to the constant coefficient.
-     Do not clear it.
-     possibly induce the addition of a new linear term.
- */
-ap_coeff_t ap_linexpr0_coeffref(ap_linexpr0_t* expr, ap_dim_t dim);
-  /* Get a reference to the coefficient associated to the dimension.
-     Do not clear it.
-     possibly induce the addition of a new linear term.
- */
+bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, numinternal_t intern);
+  /* Get the constant and assign it to coeff with possible conversion */
 
-void ap_linexpr0_get_cst(ap_coeff_t* coeff, ap_linexpr0_t* expr);
-  /* Get the constant and assign it to coeff */
-
-bool ap_linexpr0_get_coeff(ap_coeff_t* coeff, ap_linexpr0_t* expr, ap_dim_t dim);
+bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, numinternal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to coeff
      Return true in case ap_linexpr0_coeffref returns NULL */
 
-bool ap_linexpr0_set_list(ap_linexpr0_t* expr, ...);
+void ap_linexpr0_cstref(ap_coeff_t coeff, ap_linexpr0_t expr);
+void ap_linexpr0_coeffref(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim);
+
+bool ap_linexpr0_set_list(numinternal_t intern, ap_linexpr0_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
-     the definition of the type ap_coefftag_t, and ended by the tag ITV_END;
+     the definition of the type itvcoefftag_t, and ended by the tag ITV_END;
 
      - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
@@ -127,21 +122,19 @@ bool ap_linexpr0_set_list(ap_linexpr0_t* expr, ...);
 /* IV. Change of dimensions and permutations */
 /* ====================================================================== */
 
-/* These two functions add dimensions to the expressions, following the
+/* This function add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
-void ap_linexpr0_add_dimensions_with(ap_linexpr0_t* expr,
-				  ap_dimchange_t* dimchange);
-ap_linexpr0_t* ap_linexpr0_add_dimensions(ap_linexpr0_t* expr,
-					  ap_dimchange_t* dimchange);
+void ap_linexpr0_add_dimensions(ap_linexpr0_t a,
+				ap_linexpr0_t b,
+				ap_dimchange_t* dimchange);
 
-/* These two functions apply the given permutation to the dimensions. If dense
+/* This function apply the given permutation to the dimensions. If dense
    representation, the size of the permutation should be expr->size. If sparse
    representation, the dimensions present in the expression should just be less
    than the size of the permutation. */
-void ap_linexpr0_permute_dimensions_with(ap_linexpr0_t* expr,
-					 ap_dimperm_t* perm);
-ap_linexpr0_t* ap_linexpr0_permute_dimensions(ap_linexpr0_t* expr,
-					      ap_dimperm_t* perm);
+void ap_linexpr0_permute_dimensions(ap_linexpr0_t a,
+				    ap_linexpr0_t b,
+				    ap_dimperm_t* perm);
 
 /* ====================================================================== */
 /* V. Hashing, comparison */
@@ -149,13 +142,27 @@ ap_linexpr0_t* ap_linexpr0_permute_dimensions(ap_linexpr0_t* expr,
 
 /* Induces reduction of the coefficients */
 
-long ap_linexpr0_hash(ap_linexpr0_t* expr);
-bool ap_linexpr0_equal(ap_linexpr0_t* expr1,
-		    ap_linexpr0_t* expr2);
+int ap_linexpr0_hash(ap_linexpr0_t expr);
+bool ap_linexpr0_equal(ap_linexpr0_t expr1,
+		       ap_linexpr0_t expr2);
 
 /* Lexicographic ordering, terminating by constant coefficients */
-int ap_linexpr0_compare(ap_linexpr0_t* expr1,
-			ap_linexpr0_t* expr2);
+int ap_linexpr0_compare(ap_linexpr0_t expr1,
+			ap_linexpr0_t expr2);
+
+static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, itvD_linexpr_t e)
+{ res->ref = false; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
+static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e)
+{ res->ref = false; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
+static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e)
+{ res->ref = false; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
+
+static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, itvD_linexpr_t e)
+{ res->ref = true; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
+static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e)
+{ res->ref = true; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
+static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e)
+{ res->ref = true; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
 
 #ifdef __cplusplus
 }

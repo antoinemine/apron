@@ -122,18 +122,16 @@ ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* ptr, size_
 /* We assume that dimensions [0..intdim-1] correspond to integer variables, and
    dimensions [intdim..intdim+realdim-1] to real variables */
 
-ap_abstract0_t* ap_abstract0_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+ap_abstract0_t* ap_abstract0_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */
 
-
-ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, size_t intdim, size_t realdim);
+ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
 ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
-				    size_t intdim, size_t realdim,
-				    ap_interval_t** tinterval);
-  /* Abstract an hypercube defined by the array of intervals
-     of size intdim+realdim */
+				    ap_dimension_t dim,
+				    ap_coeff_array_t tinterval);
+  /* Abstract an hypercube defined by the array of coefficients (actually intervals) */
 
 /* ============================================================ */
 /* II.2 Accessors */
@@ -160,18 +158,17 @@ ap_dimension_t ap_abstract0_dimension(ap_manager_t* man, ap_abstract0_t* a);
 bool ap_abstract0_is_bottom(ap_manager_t* man, ap_abstract0_t* a);
 bool ap_abstract0_is_top(ap_manager_t* man, ap_abstract0_t* a);
 
-
 bool ap_abstract0_is_leq(ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a2);
   /* inclusion check */
 bool ap_abstract0_is_eq(ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a2);
   /* equality check */
 
-bool ap_abstract0_sat_lincons(ap_manager_t* man, ap_abstract0_t* a, ap_lincons0_t* lincons);
+bool ap_abstract0_sat_interval(ap_manager_t* man, ap_abstract0_t* a,
+			      ap_dim_t dim, ap_coeff_t interval);
+  /* is the dimension included in the interval in the abstract value ? */
+bool ap_abstract0_sat_lincons(ap_manager_t* man, ap_abstract0_t* a, ap_lincons0_t lincons);
 bool ap_abstract0_sat_tcons(ap_manager_t* man, ap_abstract0_t* a, ap_tcons0_t* tcons);
   /* does the abstract value satisfy the constraint ? */
-bool ap_abstract0_sat_interval(ap_manager_t* man, ap_abstract0_t* a,
-			      ap_dim_t dim, ap_interval_t* interval);
-  /* is the dimension included in the interval in the abstract value ? */
 
 bool ap_abstract0_is_dimension_unconstrained(ap_manager_t* man,
 					     ap_abstract0_t* a, ap_dim_t dim);
@@ -182,21 +179,20 @@ bool ap_abstract0_is_dimension_unconstrained(ap_manager_t* man,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* ap_abstract0_bound_linexpr(ap_manager_t* man,
-					  ap_abstract0_t* a, ap_linexpr0_t* expr);
-ap_interval_t* ap_abstract0_bound_texpr(ap_manager_t* man,
-					ap_abstract0_t* a, ap_texpr0_t* expr);
-  /* Returns the interval taken by the expression
+void ap_abstract0_bound_dimension(ap_manager_t* man,
+				  ap_coeff_t interval,
+				  ap_abstract0_t* a, ap_dim_t dim);
+  /* Sets the argument interval to the interval taken by the dimension */
+void ap_abstract0_bound_linexpr(ap_manager_t* man,
+				ap_coeff_t interval,
+				ap_abstract0_t* a, ap_linexpr0_t expr);
+void ap_abstract0_bound_texpr(ap_manager_t* man,
+			      ap_coeff_t interval,
+			      ap_abstract0_t* a, ap_texpr0_t* expr);
+  /* Sets the argument interval to the interval taken by the expression
      over the abstract value */
 
-
-ap_interval_t* ap_abstract0_bound_dimension(ap_manager_t* man,
-					    ap_abstract0_t* a, ap_dim_t dim);
-  /* Returns the interval taken by the dimension
-     over the abstract value */
-
-
-ap_lincons0_array_t ap_abstract0_to_lincons_array(ap_manager_t* man, ap_abstract0_t* a);
+void ap_abstract0_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, ap_abstract0_t* a);
   /* Converts an abstract value to a polyhedra
      (conjunction of linear constraints).
 
@@ -207,7 +203,7 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
 
      The constraints are normally guaranteed to be scalar (without intervals) */
 
-ap_interval_t** ap_abstract0_to_box(ap_manager_t* man, ap_abstract0_t* a);
+void ap_abstract0_to_box(ap_manager_t* man, ap_coeff_array_t box, ap_abstract0_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is ap_abstract0_dimension(man,a).  This
      function can be reimplemented by using ap_abstract0_bound_linexpr */
