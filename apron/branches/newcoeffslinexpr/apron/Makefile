@@ -168,26 +168,8 @@ dep: $(H_FILES)
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(ICFLAGS)  -I../num -I../itv -c $<
 
-%MPQ.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -I../num -I../itv -I. -c $< -o $@
-%D.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -I../num -I../itv -I. -c $< -o $@
-%Dl.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -I../num -I../itv -I. -c $< -o $@
-%MPFR.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -I../num -I../itv -I. -c $< -o $@
-
 %_debug.o: %.c %.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS)  -I../itv -c -o $@ $<
-
-%MPQ_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -I../num -I../itv -I. -c -o $@ $< -o $@
-%D_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_DOUBLE -I../num -I../itv -I. -c -o $@ $< -o $@
-%Dl_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGDOUBLE -I../num -I../itv -I. -c -o $@ $< -o $@
-%MPFR_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -I../num -I../itv -I. -c -o $@ $< -o $@
 
 #---------------------------------------
 # dependencies (generated with make dep)

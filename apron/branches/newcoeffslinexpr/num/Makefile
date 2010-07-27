@@ -67,7 +67,8 @@ CLIBS = -lmpfr -lgmp -lm
 tests: testIl testIll testRl testRll testMPZ testMPQ testD testDl testMPFR
 
 test%.c: num%.sed test.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/test.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */\"" >$@
+	echo "#line 1 \"$(SRCDIR)/test.c\"" >>$@
 	$(SED) -f $< test.c >>$@
 
 test%: test%.c num%.sed $(H_FILES)
@@ -85,37 +86,48 @@ out: tests
 	./testMPFR > out.MPFR
 
 numint%.h: num%.sed numint_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numint_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/numint_tmpl.h\"" >>$@
 	$(SED) -f $< numint_tmpl.h >>$@
 numratRl_def.h: numRl.sed numrat_native_def_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numrat_native_def_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/numrat_native_def_tmpl.h\"" >>$@
 	$(SED) -f $< numrat_native_def_tmpl.h >>$@
 numratRll_def.h: numRll.sed numrat_native_def_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numrat_native_def_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/numrat_native_def_tmpl.h\"" >>$@
 	$(SED) -f $< numrat_native_def_tmpl.h >>$@
 numrat%.h: num%.sed numrat_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numrat_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/numrat_tmpl.h\"" >>$@
 	$(SED) -f $< numrat_tmpl.h >>$@
 numflt%.h: num%.sed numflt_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/numflt_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/numflt_tmpl.h\"" >>$@
 	$(SED) -f $< numflt_tmpl.h >>$@
 num%_def.h: num%.sed num_def_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_def_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/num_def_tmpl.h\"" >>$@
 	$(SED) -f $< num_def_tmpl.h >>$@
 num%.h: num%.sed num_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/num_tmpl.h\"" >>$@
 	$(SED) -f $< num_tmpl.h >>$@
 num%_conv.h: num%.sed num_conv_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/num_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/num_conv_tmpl.h\"" >>$@
 	$(SED) -f $< num_conv_tmpl.h >>$@
 bound%.h: num%.sed bound_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/bound_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/bound_tmpl.h\"" >>$@
 	$(SED) -f $< bound_tmpl.h >>$@
 bound%_def.h: num%.sed bound_def_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/bound_def_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/bound_def_tmpl.h\"" >>$@
 	$(SED) -f $< bound_def_tmpl.h >>$@
 bound%_conv.h: num%.sed bound_conv_tmpl.h 
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"$(SRCDIR)/bound_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/bound_conv_tmpl.h\"" >>$@
 	$(SED) -f $< bound_conv_tmpl.h >>$@
 
 .PHONY: tags TAGS
