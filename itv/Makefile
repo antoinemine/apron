@@ -126,52 +126,68 @@ itv%.sed: ../num/num%.sed
 	echo "s/itv\(_\|(\|[.]h\)/itv$*\1/g;" >>$@
 
 itv%.h: itv%.sed itv_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_tmpl.h\"" >>$@
 	$(SED) -f $< itv_tmpl.h >>$@
 itv%.c: itv%.sed itv_tmpl.c itv%.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_tmpl.c\"" >>$@
 	$(SED) -f $< itv_tmpl.c >>$@
 eitv%.h: itv%.sed eitv_tmpl.h itv%.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"eitv_tmpl.h\"" >>$@
 	$(SED) -f $< eitv_tmpl.h >>$@
 eitv%.c: itv%.sed eitv_tmpl.c eitv%.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"eitv_tmpl.c\"" >>$@
 	$(SED) -f $< eitv_tmpl.c >>$@
 itv%_linexpr.h: itv%.sed itv_linexpr_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_linexpr_tmpl.h\"" >>$@
 	$(SED) -f $< itv_linexpr_tmpl.h >>$@
 itv%_linexpr.c: itv%.sed itv_linexpr_tmpl.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_linexpr_tmpl.c\"" >>$@
 	$(SED) -f $< itv_linexpr_tmpl.c >>$@
 itv%_lincons.h: itv%.sed itv_lincons_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_lincons_tmpl.h\"" >>$@
 	$(SED) -f $< itv_lincons_tmpl.h >>$@
 itv%_lincons.c: itv%.sed itv_lincons_tmpl.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_lincons_tmpl.c\"" >>$@
 	$(SED) -f $< itv_lincons_tmpl.c >>$@
 itv%_conv.h: itv%.sed itv_conv_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_conv_tmpl.h\"" >>$@
 	$(SED) -f $< itv_conv_tmpl.h >>$@
 itv%_conv.c: itv%.sed itv_conv_tmpl.c itv%_conv.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_conv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_conv_tmpl.c\"" >>$@
 	$(SED) -f $< itv_conv_tmpl.c >>$@
 eitv%_conv.h: itv%.sed eitv_conv_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"eitv_conv_tmpl.h\"" >>$@
 	$(SED) -f $< eitv_conv_tmpl.h >>$@
 eitv%_conv.c: itv%.sed eitv_conv_tmpl.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"eitv_conv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"eitv_conv_tmpl.c\"" >>$@
 	$(SED) -f $< eitv_conv_tmpl.c >>$@
 itv%_linexpr_conv.h: itv%.sed itv_linexpr_conv_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_linexpr_conv_tmpl.h\"" >>$@
 	$(SED) -f $< itv_linexpr_conv_tmpl.h >>$@
 itv%_linexpr_conv.c: itv%.sed itv_linexpr_conv_tmpl.c itv%_linexpr_conv.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_linexpr_conv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_linexpr_conv_tmpl.c\"" >>$@
 	$(SED) -f $< itv_linexpr_conv_tmpl.c >>$@
 itv%_lincons_conv.h: itv%.sed itv_lincons_conv_tmpl.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_conv_tmpl.h\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_lincons_conv_tmpl.h\"" >>$@
 	$(SED) -f $< itv_lincons_conv_tmpl.h >>$@
 itv%_lincons_conv.c: itv%.sed itv_lincons_conv_tmpl.c itv%_lincons_conv.h
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"itv_lincons_conv_tmpl.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"itv_lincons_conv_tmpl.c\"" >>$@
 	$(SED) -f $< itv_lincons_conv_tmpl.c >>$@
 
 .PRECIOUS: $(CCMODULES:%=%.c) $(CCMODULES:%=%.h) \
@@ -201,10 +217,12 @@ libitv%_debug.a: itv%_debug.o itv%_conv_debug.o eitv%_debug.o eitv%_conv_debug.o
 #-----------------------------------
 
 test%.c: itv%.sed test.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"test.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"test.c\"" >>$@
 	$(SED) -f $< test.c >>$@
 test2%.c: itv%.sed test2.c
-	echo "/* GENERATED, DO NOT MODIFY */\n#line 1 \"test2.c\"" >$@
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"test2.c\"" >>$@
 	$(SED) -f $< test2.c >>$@
 
 test%: test%.c itv%.sed libitv%_debug.a
