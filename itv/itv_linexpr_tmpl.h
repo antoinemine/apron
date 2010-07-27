@@ -5,6 +5,7 @@
 #ifndef _ITV_LINEXPR_H_
 #define _ITV_LINEXPR_H_
 
+#include <stdarg.h>
 #include "eitv.h"
 #include "ap_dimension.h"
 #include "ap_coeff.h"
