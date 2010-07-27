@@ -21,37 +21,13 @@ void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size)
 {
   res->ref = false;
   res->discr = discr;
-  switch (discr){
-  case AP_SCALAR_D:
-    res->linexpr.D = itvD_linexpr_alloc(size);
-    break;
-  case AP_SCALAR_MPQ:
-    res->linexpr.MPQ = itvMPQ_linexpr_alloc(size);
-    break;
-  case AP_SCALAR_MPFR:
-    res->linexpr.MPFR = itvMPFR_linexpr_alloc(size);
-    break;
-  default:
-    abort();
-  }
+  DISPATCH_D_N(discr,res->linexpr,linexpr_alloc,size)
 }
 void ap_linexpr0_init_set(ap_linexpr0_t res,ap_linexpr0_t e)
 {
   res->ref = false;
   res->discr = e->discr;
-  switch (e->discr){
-  case AP_SCALAR_D:
-    res->linexpr.D = itvD_linexpr_alloc_set(e->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    res->linexpr.MPQ = itvMPQ_linexpr_alloc_set(e->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    res->linexpr.MPFR = itvMPFR_linexpr_alloc_set(e->linexpr.MPFR);
-    break;
-  default:
-    abort();
-  }
+  DISPATCH_D_D(e->discr,res->linexpr,linexpr_alloc_set,e->linexpr)
 }
 void ap_linexpr0_init_set_D(ap_linexpr0_t res, itvD_linexpr_t e)
 {
@@ -71,48 +47,16 @@ void ap_linexpr0_init_set_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e)
 void ap_linexpr0_clear(ap_linexpr0_t e)
 {
   if (e->ref==false){
-    switch (e->discr){
-  case AP_SCALAR_D:
-    itvD_linexpr_clear(e->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    itvMPQ_linexpr_clear(e->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    itvMPFR_linexpr_clear(e->linexpr.MPFR);
-    break;
-  };
+    DISPATCH_0_D(e->discr,linexpr_clear,e->linexpr);
   }
 }
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim)
 {
-  switch (e->discr){
-  case AP_SCALAR_D:
-    itvD_linexpr_fprint(stream,e->linexpr.D,name_of_dim);
-    break;
-  case AP_SCALAR_MPQ:
-    itvMPQ_linexpr_fprint(stream,e->linexpr.MPQ,name_of_dim);
-    break;
-  case AP_SCALAR_MPFR:
-    itvMPFR_linexpr_fprint(stream,e->linexpr.MPFR,name_of_dim);
-    break;
-  default:
-    abort();
-  }
+  DISPATCH_0_NDN(e->discr,linexpr_fprint,stream,e->linexpr,name_of_dim)
 }
 void ap_linexpr0_minimize(ap_linexpr0_t a)
 {
-  switch (a->discr){
-  case AP_SCALAR_D:
-    itvD_linexpr_minimize(a->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    itvMPQ_linexpr_minimize(a->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    itvMPFR_linexpr_minimize(a->linexpr.MPFR);
-    break;
-  };
+  DISPATCH_0_D(a->discr,linexpr_minimize,a->linexpr);
 }
 
 /* ====================================================================== */
@@ -316,19 +260,7 @@ void ap_linexpr0_add_dimensions(ap_linexpr0_t res,
 {
   if (res->discr!=expr->discr)
     abort();
-  switch (expr->discr){
-  case AP_SCALAR_D:
-    itvD_linexpr_add_dimensions(res->linexpr.D,expr->linexpr.D,dimchange);
-    break;
-  case AP_SCALAR_MPQ:
-    itvMPQ_linexpr_add_dimensions(res->linexpr.MPQ,expr->linexpr.MPQ,dimchange);
-    break;
-  case AP_SCALAR_MPFR:
-    itvMPFR_linexpr_add_dimensions(res->linexpr.MPFR,expr->linexpr.MPFR,dimchange);
-    break;
-  default:
-    abort();
-  };
+  DISPATCH_0_DDN(expr->discr,linexpr_add_dimensions,res->linexpr,expr->linexpr,dimchange);
 }
 void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
 				    ap_linexpr0_t expr,
@@ -336,19 +268,7 @@ void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
 {
   if (res->discr!=expr->discr)
     abort();
-  switch (expr->discr){
-  case AP_SCALAR_D:
-    itvD_linexpr_permute_dimensions(res->linexpr.D,expr->linexpr.D,perm);
-    break;
-  case AP_SCALAR_MPQ:
-    itvMPQ_linexpr_permute_dimensions(res->linexpr.MPQ,expr->linexpr.MPQ,perm);
-    break;
-  case AP_SCALAR_MPFR:
-    itvMPFR_linexpr_permute_dimensions(res->linexpr.MPFR,expr->linexpr.MPFR,perm);
-    break;
-  default:
-    abort();
-  }
+  DISPATCH_0_DDN(expr->discr,linexpr_permute_dimensions,res->linexpr,expr->linexpr,perm)
 }
 
 /* ====================================================================== */
@@ -360,19 +280,7 @@ void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
 int ap_linexpr0_hash(ap_linexpr0_t expr)
 {
   int res;
-  switch (expr->discr){
-  case AP_SCALAR_D:
-    res = itvD_linexpr_hash(expr->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    res = itvMPQ_linexpr_hash(expr->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    res = itvMPFR_linexpr_hash(expr->linexpr.MPFR);
-    break;
-  default:
-    abort();
-  };
+  DISPATCH_N_D(expr->discr,res,linexpr_hash,expr->linexpr);
   return res;
 }
 bool ap_linexpr0_equal(ap_linexpr0_t expr1,
@@ -382,19 +290,7 @@ bool ap_linexpr0_equal(ap_linexpr0_t expr1,
   if (expr1->discr != expr2->discr)
     res = false;
   else {
-    switch (expr1->discr){
-  case AP_SCALAR_D:
-    res = itvD_linexpr_equal(expr1->linexpr.D,expr2->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    res = itvMPQ_linexpr_equal(expr1->linexpr.MPQ,expr2->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    res = itvMPFR_linexpr_equal(expr1->linexpr.MPFR,expr2->linexpr.MPFR);
-    break;
-  default:
-    abort();
-  }
+    DISPATCH_N_DD(expr1->discr,res,linexpr_equal,expr1->linexpr,expr2->linexpr)
       }
   return res;
 }
@@ -408,19 +304,7 @@ int ap_linexpr0_compare(ap_linexpr0_t expr1,
     res = res>0 ? 3 : -3;
   }
   else {
-    switch (expr1->discr){
-  case AP_SCALAR_D:
-    res = itvD_linexpr_compare(expr1->linexpr.D,expr2->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    res = itvMPQ_linexpr_compare(expr1->linexpr.MPQ,expr2->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    res = itvMPFR_linexpr_compare(expr1->linexpr.MPFR,expr2->linexpr.MPFR);
-    break;
-  default:
-    abort();
-  }
+    DISPATCH_N_DD(expr1->discr,res,linexpr_compare,expr1->linexpr,expr2->linexpr)
   }
   return res;
 }
