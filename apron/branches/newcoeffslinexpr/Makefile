@@ -17,7 +17,7 @@ endif
 
 c:
 	(cd num; make all)
-	(cd itv; make all)
+	(cd itv; make depend all)
 	(cd apron; make all)
 	(cd newpolka; make all)
 	(cd box; make all)
