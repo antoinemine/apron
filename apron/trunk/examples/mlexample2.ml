@@ -10,10 +10,11 @@ apronppltop -I $MLGMPIDL_INSTALL/lib -I $APRON_INSTALL/lib
 #load "bigarray.cma";;
 #load "gmp.cma";;
 #load "apron.cma";;
-#load "box.cma";;
-#load "oct.cma";;
-#load "polka.cma";;
+#load "boxMPQ.cma";;
+#load "octMPQ.cma";;
+#load "polkaMPQ.cma";;
 #load "ppl.cma";;
+#load "polkaGrid.cma";;
 
 #install_printer Apron.Linexpr1.print;;
 #install_printer Apron.Lincons1.print;;

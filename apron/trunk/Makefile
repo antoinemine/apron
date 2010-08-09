@@ -49,7 +49,7 @@ java: c
 .PHONY: aprontop apronppltop
 
 aprontop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
+	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX)/lib -I $(APRON_PREFIX)/lib -verbose -o $@ \
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma
 
 apronppltop:
