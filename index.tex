@@ -129,17 +129,24 @@ PPL library.
 \item \xlink{Tar-gzipped sources of both APRON and
     MLGMPIDL}{http://apron.cri.ensmp.fr/library/apron-dist-0.9.10.tgz}
 \item \xlink{Changes}{http://apron.cri.ensmp.fr/library/Changes}
-\item You can also access to the \xlink{SUBVERSION
-    REPOSITORY}{http://svn.cri.ensmp.fr/svn/apron/}, by typing
-  something like
+
+\item You can also access to the (new) \xlink{SUBVERSION
+    REPOSITORY}{https://gforge.inria.fr/scm/viewvc.php/?root=apron},
+  by typing something like
   \begin{quote}
-  \kbd{svn list http://svn.cri.ensmp.fr/svn/apron/apron/trunk}.
+  \kbd{svn list scm.gforge.inria.fr/svnroot/apron}.
   \end{quote}
-  
+  If you want to download to the last committed version:
+  \begin{quote}
+  \kbd{svn co scm.gforge.inria.fr/svnroot/apron/apron/trunk apron}.
+  \end{quote}
   If you want to access the distribution which references both APRON and MLGMPIDL (using subversion external links):
   \begin{quote}
-    \kbd{svn list http://svn.cri.ensmp.fr/svn/apron/apron-dist/trunk}.
+    \kbd{svn co scm.gforge.inria.fr/svnroot/apron/apron-dist/trunk apron-dist}.
   \end{quote}
+
+  (the old repository \kbd{http://svn.cri.ensmp.fr/svn/apron/} is
+  obsolete)
 \end{itemize}
 As the library may still contain subtle bugs, we strongly suggest
 to be up-to-date with the most recent version.
