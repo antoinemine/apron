@@ -31,6 +31,30 @@
     return res;								\
   }
 
+#define linexprarray_set_XXXlinexprarray(XXX) \
+  bool itv_linexpr_array_set_itv##XXX##_linexpr_array(itv_linexpr_array_t a, itv##XXX##_linexpr_array_t b, numinternal_t intern) \
+  {									\
+    size_t i;								\
+    bool res = true;							\
+    itv_linexpr_array_resize(a,b->size);				\
+    for (i=0; i<b->size; i++){						\
+      res = itv_linexpr_set_itv##XXX##_linexpr(a->p[i],b->p[i],intern) && res; \
+    }									\
+    return res;								\
+  }
+
+#define XXXlinexprarray_set_linexprarray(XXX) \
+  bool itv##XXX##_linexpr_array_set_itv_linexpr_array(itv##XXX##_linexpr_array_t a, itv_linexpr_array_t b, numinternal_t intern) \
+  {									\
+    size_t i;								\
+    bool res = true;							\
+    itv##XXX##_linexpr_array_resize(a,b->size);				\
+    for (i=0; i<b->size; i++){						\
+      res = itv##XXX##_linexpr_set_itv_linexpr(a->p[i],b->p[i],intern) && res; \
+    }									\
+    return res;								\
+  }
+
 itvlinexpr_set_itvXXXlinexpr(MPQ)
 #if !NUM_NUMMPQ
 itvXXXlinexpr_set_itvlinexpr(MPQ)
@@ -44,4 +68,19 @@ itvXXXlinexpr_set_itvlinexpr(D)
 itvlinexpr_set_itvXXXlinexpr(MPFR)
 #if !NUM_NUMMPFR
 itvXXXlinexpr_set_itvlinexpr(MPFR)
+#endif
+
+linexprarray_set_XXXlinexprarray(D)
+#if !NUM_NUMD
+XXXlinexprarray_set_linexprarray(D)
+#endif
+
+linexprarray_set_XXXlinexprarray(MPQ)
+#if !NUM_NUMMPQ
+XXXlinexprarray_set_linexprarray(MPQ)
+#endif
+
+linexprarray_set_XXXlinexprarray(MPFR)
+#if !NUM_NUMMPFR
+XXXlinexprarray_set_linexprarray(MPFR)
 #endif

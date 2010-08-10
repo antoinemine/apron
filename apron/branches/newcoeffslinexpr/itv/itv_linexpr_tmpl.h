@@ -35,6 +35,14 @@ typedef struct itv_linexpr_struct {
 typedef itv_linexpr_struct itv_linexpr_t[1];
 typedef itv_linexpr_struct* itv_linexpr_ptr;
 
+/* Array of interval linear expressions */
+typedef struct itv_linexpr_array_struct {
+  itv_linexpr_t* p;
+  size_t size;
+} itv_linexpr_array_struct;
+typedef itv_linexpr_array_struct itv_linexpr_array_t[1];
+typedef itv_linexpr_array_struct* itv_linexpr_array_ptr;
+
 /*
   Defined in itvConfig.h for avoiding multiple definitions
 
@@ -75,13 +83,16 @@ void itv_linexpr_free(itv_linexpr_ptr expr);
 void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name);
 static inline void itv_linexpr_print(itv_linexpr_t expr, char** name);
 
-void itv_linexpr_array_init(itv_linexpr_t* tab, size_t size);
-void itv_linexpr_array_clear(itv_linexpr_t* tab, size_t size);
-itv_linexpr_t* itv_linexpr_array_alloc(size_t size);
-void itv_linexpr_array_free(itv_linexpr_t* tab, size_t size);
-
-void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_t* tab, size_t size, char** name);
-static inline void itv_linexpr_array_print(itv_linexpr_t* tab, size_t size, char** name);
+void itv_linexpr_array_init(itv_linexpr_array_t array, size_t size);
+void itv_linexpr_array_init_set(itv_linexpr_array_t res, itv_linexpr_array_t array);
+void itv_linexpr_array_set(itv_linexpr_array_t res, itv_linexpr_array_t array);
+void itv_linexpr_array_resize(itv_linexpr_array_t array, size_t size);
+void itv_linexpr_array_minimize(itv_linexpr_array_t array);
+void itv_linexpr_array_clear(itv_linexpr_array_t array);
+itv_linexpr_array_ptr itv_linexpr_array_alloc(size_t size);
+itv_linexpr_array_ptr itv_linexpr_array_alloc_set(itv_linexpr_array_t a);
+void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_array_t array, char** name);
+static inline void itv_linexpr_array_print(itv_linexpr_array_t array, char** name);
 
 /* ********************************************************************** */
 /* II. Tests */
@@ -102,9 +113,11 @@ bool itv_linexpr_is_quasilinear(itv_linexpr_t expr);
   /* Return true iff all involved coefficients but the constant are scalars. */
 itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a);
   /* Classify an expression */
-bool itv_linexpr_array_is_linear(itv_linexpr_t* texpr, size_t size);
-bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size);
-itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size);
+
+bool itv_linexpr_array_is_linear(itv_linexpr_array_t array);
+bool itv_linexpr_array_is_quasilinear(itv_linexpr_array_t array);
+itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_array_t array);
+
 
 /* ********************************************************************** */
 /* III. Access */
@@ -243,7 +256,7 @@ size_t itv_linexpr_supportinterval(itv_linexpr_t expr, ap_dim_t* tdim);
    tdim is supposed to be of size at least the maximum dimension + 1 in the
    expression.
  */
-size_t itv_linexpr_array_supportinterval(itv_linexpr_t* texpr, size_t size, ap_dim_t* tdim, size_t maxdim1);
+size_t itv_linexpr_array_supportinterval(itv_linexpr_array_t array, ap_dim_t* tdim, size_t maxdim1);
   /* Idem for arrays.
 
      For the parameter maxdim1: corresponds to the maximal possible dimension
@@ -262,9 +275,8 @@ bool itv_linexpr_quasilinearize(itv_internal_t* intern,
      if no approximations. */
 
 bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
-				      itv_linexpr_t* linexpr, size_t size,
-				      itv_t* env,
-				      bool for_meet_inequality);
+				      itv_linexpr_array_t array,
+				      itv_t* env);
   /* Same for an array */
 
 /* ********************************************************************** */
@@ -276,6 +288,9 @@ bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
 void itv_linexpr_add_dimensions(itv_linexpr_t res,
 			       itv_linexpr_t expr,
 			       ap_dimchange_t* dimchange);
+void itv_linexpr_array_add_dimensions(itv_linexpr_array_t res,
+				      itv_linexpr_array_t array,
+				      ap_dimchange_t* dimchange);
 
 /* These two functions apply the given permutation to the dimensions.
    The dimensions present in the expression should just be less
@@ -283,6 +298,9 @@ void itv_linexpr_add_dimensions(itv_linexpr_t res,
 void itv_linexpr_permute_dimensions(itv_linexpr_t res,
 				    itv_linexpr_t expr,
 				    ap_dimperm_t* perm);
+void itv_linexpr_array_permute_dimensions(itv_linexpr_array_t res,
+					  itv_linexpr_array_t array,
+					  ap_dimperm_t* dimchange);
 
 /* ********************************************************************** */
 /* VII. Hashing, comparison */
@@ -311,8 +329,8 @@ static inline void itv_linterm_swap(itv_linterm_t a, itv_linterm_t b)
 
 static inline void itv_linexpr_print(itv_linexpr_t expr, char** name)
 { itv_linexpr_fprint(stdout,expr,name); }
-static inline void itv_linexpr_array_print(itv_linexpr_t* tab, size_t size, char** name)
-{ itv_linexpr_array_fprint(stdout,tab,size,name); }
+static inline void itv_linexpr_array_print(itv_linexpr_array_t array, char** name)
+{ itv_linexpr_array_fprint(stdout,array,name); }
 
 static inline bool itv_linexpr_is_linear(itv_linexpr_t expr)
 { return eitv_is_point(expr->cst) && itv_linexpr_is_quasilinear(expr); }

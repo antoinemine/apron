@@ -20,26 +20,36 @@ void ap_lincons0_array_init(ap_lincons0_array_t a, ap_scalar_discr_t discr, size
 {
   a->ref = false;
   a->discr = discr;
-  DISPATCH_D_N(discr,a->lincons_array,lincons_array_alloc,size)
+  SWITCH(discr)
+    a->lincons_array.XXX = itvXXX_lincons_array_alloc(size);
+  ENDSWITCH
 }
 void ap_lincons0_array_init_set(ap_lincons0_array_t a,ap_lincons0_array_t b)
 {
   a->ref = false;
   a->discr = b->discr;
-  DISPATCH_D_D(a->discr,a->lincons_array,lincons_array_alloc_set,b->lincons_array)
+  SWITCH(a->discr)
+    a->lincons_array.XXX = itvXXX_lincons_array_alloc_set(b->lincons_array.XXX);
+  ENDSWITCH
 }
 void ap_lincons0_array_minimize(ap_lincons0_array_t a)
 {
-  DISPATCH_0_D(a->discr,lincons_array_minimize,a->lincons_array)
+  SWITCH(a->discr)
+    itvXXX_lincons_array_minimize(a->lincons_array.XXX);
+  ENDSWITCH
 }
 void ap_lincons0_array_clear(ap_lincons0_array_t a)
 {
-  DISPATCH_0_D(a->discr,lincons_array_clear,a->lincons_array)
+  SWITCH(a->discr)
+    itvXXX_lincons_array_clear(a->lincons_array.XXX);
+  ENDSWITCH
 }
 
 void ap_lincons0_array_fprint(FILE* stream, ap_lincons0_array_t e, char** name_of_dim)
 {
-  DISPATCH_0_NDN(e->discr,lincons_array_fprint,stream,e->lincons_array,name_of_dim)
+  SWITCH(e->discr)
+    itvXXX_lincons_array_fprint(stream,e->lincons_array.XXX,name_of_dim);
+  ENDSWITCH
 }
 
 /* ====================================================================== */
@@ -136,38 +146,45 @@ bool itvMPFR_lincons_array_set_ap_lincons0_array(itvMPFR_lincons_array_t a, ap_l
 /* III. Access */
 /* ====================================================================== */
 
+size_t ap_lincons0_array_size(ap_lincons0_array_t p)
+{
+  size_t res;
+  SWITCH(p->discr)
+    res = p->lincons_array.XXX->size;
+  ENDSWITCH
+  return res;
+}
+
 itvlinexpr_type_t ap_lincons0_array_type(ap_lincons0_array_t p)
 {
   itvlinexpr_type_t res;
-  DISPATCH_N_D(p->discr,res,lincons_array_type,p->lincons_array);
+  SWITCH(p->discr)
+    res = itvXXX_lincons_array_type(p->lincons_array.XXX);
+  ENDSWITCH
   return res;
 }
 bool ap_lincons0_array_is_linear(ap_lincons0_array_t p)
 {
   bool res;
-  DISPATCH_N_D(p->discr,res,lincons_array_is_linear,p->lincons_array);
+  SWITCH(p->discr)
+    res = itvXXX_lincons_array_is_linear(p->lincons_array.XXX);
+  ENDSWITCH
   return res;
 }
 bool ap_lincons0_array_is_quasilinear(ap_lincons0_array_t p)
 {
   bool res;
-  DISPATCH_N_D(p->discr,res,lincons_array_is_quasilinear,p->lincons_array);
+  SWITCH(p->discr)
+    res = itvXXX_lincons_array_is_quasilinear(p->lincons_array.XXX);
+  ENDSWITCH
   return res;
 }
 
 void ap_lincons0_array_ref_index(ap_lincons0_t a, ap_lincons0_array_t p, size_t i)
 {
-  switch (p->discr){
-  case AP_SCALAR_D:
-    ap_lincons0_ref_D(a,p->lincons_array.D->p[i]);
-    break;
-  case AP_SCALAR_MPQ:
-    ap_lincons0_ref_MPQ(a,p->lincons_array.MPQ->p[i]);
-    break;
-  case AP_SCALAR_MPFR:
-    ap_lincons0_ref_MPFR(a,p->lincons_array.MPFR->p[i]);
-    break;
-  }
+  SWITCH (p->discr)
+    ap_lincons0_ref_XXX(a,p->lincons_array.XXX->p[i]);
+  ENDSWITCH
 }
 
 bool ap_lincons0_array_get_index(ap_lincons0_t a, ap_lincons0_array_t p, size_t i, numinternal_t intern)
@@ -182,6 +199,7 @@ bool ap_lincons0_array_set_index(ap_lincons0_array_t p, size_t i, ap_lincons0_t 
   ap_lincons0_array_ref_index(ref,p,i);
   return ap_lincons0_set(ref,a,intern);
 }
+
 /* ====================================================================== */
 /* IV. Change of dimensions and permutations */
 /* ====================================================================== */
@@ -190,15 +208,23 @@ void ap_lincons0_array_add_dimensions(ap_lincons0_array_t res,
 				ap_lincons0_array_t expr,
 				ap_dimchange_t* dimchange)
 {
-  if (res->discr!=expr->discr)
+  if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
-  DISPATCH_0_DDN(expr->discr,lincons_array_add_dimensions,res->lincons_array,expr->lincons_array,dimchange);
+  SWITCH(expr->discr)
+    itvXXX_lincons_array_add_dimensions(res->lincons_array.XXX,
+					expr->lincons_array.XXX,
+					dimchange);
+  ENDSWITCH
 }
 void ap_lincons0_array_permute_dimensions(ap_lincons0_array_t res,
 				    ap_lincons0_array_t expr,
 				    ap_dimperm_t* perm)
 {
-  if (res->discr!=expr->discr)
+  if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
-  DISPATCH_0_DDN(expr->discr,lincons_array_permute_dimensions,res->lincons_array,expr->lincons_array,perm)
+  SWITCH(expr->discr)
+    itvXXX_lincons_array_permute_dimensions(res->lincons_array.XXX,
+					    expr->lincons_array.XXX,
+					    perm);
+  ENDSWITCH
 }

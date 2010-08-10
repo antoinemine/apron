@@ -89,7 +89,6 @@ void ap_lincons0_linexpr0ref(ap_linexpr0_t e, ap_lincons0_t c);
 itvconstyp_t* ap_lincons0_constypref(ap_lincons0_t c);
 mpq_ptr ap_lincons0_mpqref(ap_lincons0_t c);
 
-
 /* ====================================================================== */
 /* IV. Change of dimensions and permutations */
 /* ====================================================================== */
