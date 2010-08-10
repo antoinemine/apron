@@ -472,7 +472,7 @@ static inline void eitvXXX_neg(eitvXXX_t a, eitvXXX_t b)
 static inline bool eitvXXX_sqrt(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b)
 {
   bool exact = itvXXX_sqrt(intern,a->itv,b->itv);
-  a->eq = NUMXXX_EXACT && b->eq && exact;
+  a->eq = b->eq && exact;
   return exact;
 }
 
