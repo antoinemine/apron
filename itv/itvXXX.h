@@ -1,76 +1,18 @@
 /* ********************************************************************** */
-/* itv.h: (unidimensional) intervals */
+/* itvXXX.h: (unidimensional) intervals */
 /* ********************************************************************** */
 
-#ifndef _ITV_H_
-#define _ITV_H_
+#ifndef _ITVXXX_H_
+#define _ITVXXX_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "assert.h"
-#include "bound_def.h"
-#include "itvConfig.h"
+#include "itvXXX_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Intervals.
-
-   Be cautious: interval [a,b] is represented by [-a,b].  This is because
-   bound quantities are always rounded toward +infty */
-typedef struct itv_struct {
-  bound_t neginf; /* negation of the inf bound */
-  bound_t sup; /* sup bound */
-} itv_struct;
-typedef itv_struct itv_t[1];
-typedef itv_struct* itv_ptr;
-
-/* Intervals with equality flag (defined here because of itv_internal_t
-   datatype below: functions available in eitvXXX.h)
-*/
-typedef struct eitv_struct {
-  itv_t itv;
-  bool eq;
-} eitv_struct;
-typedef eitv_struct eitv_t[1];
-typedef eitv_struct* eitv_ptr;
-
-/* Workspace to avoid temporary allocation and deallocation when num_t and
-   bound_t are multiprecision numbers */
-
-/* some useful local constant for linearization */
-typedef struct {
-  itv_t ulp;        /* [-1;1] * unit in the least place */
-  itv_t min;        /* [-1;1] * minimum positive denormal */
-  itv_t min_normal; /* [-1;1] * minimum positive normal */
-  itv_t max;        /* [-1;1] * maximum non +oo  */
-  itv_t max_exact;  /* [-1;1] * maximum exactly representable integer */
-} itv_float_const;
-
-typedef struct itv_internal_t {
-  numinternal_t num;
-  num_t canonicalize_num;
-  bound_t muldiv_bound;
-  bound_t mul_bound;
-  bound_t sqrt_bound;
-  bound_t linear_bound;
-  bound_t linear_bound2;
-  bound_t linear_bound3;
-  itv_t mul_itv;
-  itv_t mul_itv2;
-  itv_t eval_itv;
-  itv_t eval_itv2;
-  itv_t eval_itv3;
-  num_t quasi_num;
-  eitv_t boxize_lincons_eitv;
-  itv_t boxize_lincons_eval;
-  bound_t boxize_lincons_bound;
-  itv_float_const cst_half, cst_single, cst_double, cst_extended, cst_quad;
-  itv_t itv_half; /* [-0.5,0.5] */
-  mpz_t reduce_lincons_gcd;
-  mpz_t reduce_lincons_mpz;
-} itv_internal_t;
 
 /* ********************************************************************** */
 /* itv_internal */
@@ -270,7 +212,7 @@ static inline void itv_clear(itv_t a)
 }
 static inline void itv_clear_array(itv_t* a, size_t size)
 {
-#if !NUM_NATIVE
+#if !NUMXXX_NATIVE
   size_t i;
   for (i=0; i<size; i++) itv_clear(a[i]);
 #endif
