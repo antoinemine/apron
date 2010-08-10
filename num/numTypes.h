@@ -104,20 +104,20 @@ typedef mpfr_t numMPFR_t;
 
 /*
 
-/* ********************************************************************** */
-/* Prototypes of common functions */
-/* ********************************************************************** */
+**********************************************************************
+Prototypes of common functions
+**********************************************************************
 
-/* ====================================================================== */
-/* Assignement */
-/* ====================================================================== */
+======================================================================
+Assignement
+======================================================================
 static inline void numXXX_set(numXXX_t a, numXXX_t b);
 static inline void numXXX_set_array(numXXX_t* a, numXXX_t* b, size_t size);
 static inline void numXXX_set_int(numXXX_t a, long int i);
 
-/* ====================================================================== */
-/* Constructors and Destructors */
-/* ====================================================================== */
+======================================================================
+Constructors and Destructors
+======================================================================
 
 static inline void numXXX_init(numXXX_t a);
 static inline void numXXX_init_array(numXXX_t* a, size_t size);
@@ -129,9 +129,9 @@ static inline void numXXX_clear_array(numXXX_t* a, size_t size);
 
 static inline void numXXX_swap(numXXX_t a, numXXX_t b);
 
-/* ====================================================================== */
-/* Arithmetic Operations */
-/* ====================================================================== */
+======================================================================
+Arithmetic Operations
+======================================================================
 
 static inline void numXXX_neg(numXXX_t a, numXXX_t b);
 static inline void numXXX_abs(numXXX_t a, numXXX_t b);
@@ -147,19 +147,19 @@ static inline void numXXX_min(numXXX_t a, numXXX_t b, numXXX_t c);
 static inline void numXXX_max(numXXX_t a, numXXX_t b, numXXX_t c);
 
 static inline void numXXX_mul_2exp(numXXX_t a, numXXX_t b, int c);
-  /* multiplies b by 2^c (c can be positive or negative) */
+  multiplies b by 2^c (c can be positive or negative)
 
 static inline void numXXX_floor(numXXX_t a, numXXX_t b);
 static inline void numXXX_ceil(numXXX_t a, numXXX_t b);
 static inline void numXXX_trunc(numXXX_t a, numXXX_t b);
-  /* Approximate to the nearest integer toward resp. -infty, +infty */
+  Approximate to the nearest integer toward resp. -infty, +infty
 
 static inline void numXXX_sqrt(numXXX_t up, numXXX_t down, numXXX_t b);
-  /* Compute both an upper bound and a lower bound */
+  Compute both an upper bound and a lower bound
 
-/* ====================================================================== */
-/* Arithmetic Tests */
-/* ====================================================================== */
+======================================================================
+Arithmetic Tests
+======================================================================
 
 static inline int numXXX_sgn(numXXX_t a);
 static inline int numXXX_cmp(numXXX_t a, numXXX_t b);
@@ -168,19 +168,18 @@ static inline bool numXXX_equal(numXXX_t a, numXXX_t b);
 static inline bool numXXX_integer(numXXX_t a);
 static inline int numXXX_hash(numXXX_t a);
 
-/* ====================================================================== */
-/* Printing */
-/* ====================================================================== */
+======================================================================
+Printing
+======================================================================
 
 static inline void numXXX_print(numXXX_t a);
 static inline void numXXX_fprint(FILE* stream, numXXX_t a);
 static inline int numXXX_snprint(char* s, size_t size, numXXX_t a);
 
-/* ====================================================================== */
-/* Serialization */
-/* ====================================================================== */
+======================================================================
+Serialization
+======================================================================
 
-/*
   Notes:
    - call _serialized_size to get the minimal size of the buffer to allocate
    - _serialize then returns the actual size of the serialized data (may be 
@@ -194,7 +193,7 @@ static inline int numXXX_snprint(char* s, size_t size, numXXX_t a);
    returns the same value as when the data was serialized. (This id is not
    stored systematically with each serialized number to save state, so, the
    checking is up to you.)
-*/
+
 static inline unsigned char numXXX_serialize_id(void);
 static inline size_t numXXX_serialize(void* dst, numXXX_t src);
 static inline size_t numXXX_deserialize(numXXX_t dst, const void* src);
@@ -204,9 +203,9 @@ static inline size_t numXXX_serialize_array(void* dst, numXXX_t* src, size_t siz
 static inline size_t numXXX_deserialize_array(numXXX_t* dst, const void* src, size_t size);
 static inline size_t numXXX_serialized_size_array(numXXX_t* src, size_t size);
 
-/* ====================================================================== */
-/* Fits */
-/* ====================================================================== */
+======================================================================
+Fits
+======================================================================
 
 static inline bool lint_fits_numXXX(long int a);
 static inline bool llint_fits_numXXX(long long int a);
@@ -227,9 +226,9 @@ static inline bool numXXX_fits_double(numXXX_t a);
 static inline bool numXXX_fits_ldouble(numXXX_t a);
 static inline bool numXXX_fits_mpfr(numXXX_t a);
 
-/* ====================================================================== */
-/* Conversions  */
-/* ====================================================================== */
+======================================================================
+Conversions 
+======================================================================
 
 static inline bool numXXX_set_lint(numXXX_t a, long int b, numinternal_t intern);
 static inline bool numXXX_set_llint(numXXX_t a, long long int b, numinternal_t intern);
@@ -260,9 +259,9 @@ static inline bool numXXX_set_numD(numXXX_t a, numD_t b, numinternal_t internal)
 static inline bool numXXX_set_numDl(numXXX_t a, numDl_t b, numinternal_t internal);
 static inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, numinternal_t internal);
 
-/* ********************************************************************** */
-/* Integer functions */
-/* ********************************************************************** */
+**********************************************************************
+Integer functions
+**********************************************************************
 
 static inline void numXXX_fdiv_q(numXXX_t a, numXXX_t b, numXXX_t c);
 static inline void numXXX_cdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
@@ -272,18 +271,18 @@ static inline void numXXX_cdiv_2(numXXX_t a, numXXX_t b);
 static inline void numXXX_cdiv_q_2exp(numXXX_t a, numXXX_t b, unsigned long int c);
 static inline void numXXX_fdiv_q_2exp(numXXX_t a, numXXX_t b, unsigned long int c);
 
-/* ********************************************************************** */
-/* Rational functions */
-/* ********************************************************************** */
+**********************************************************************
+Rational functions
+**********************************************************************
 
 static inline void numXXX_canonicalize(numXXX_t a);
 static inline bool numRl_set_numIl2(numRl_t a, numIl_t b, numIl_t c);
 static inline bool numRll_set_numIll2(numRll_t a, numIll_t b, numIll_t c);
 static inline bool numMPQ_set_numMPZ2(numMPQ_t a, numMPZ_t b, numMPZ_t c);
 
-/* ********************************************************************** */
-/* Floating-point functions */
-/* ********************************************************************** */
+**********************************************************************
+Floating-point functions
+**********************************************************************
 static inline bool numXXX_infty(numXXX_t a);
 static inline void numXXX_set_infty(numXXX_t a, int sgn);
 

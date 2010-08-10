@@ -128,7 +128,7 @@ static inline void boundXXX_init_array(boundXXX_t* a, size_t size)
 static inline void boundXXX_init_set(boundXXX_t a, boundXXX_t b)
 { numXXX_init_set(a,b); }
 static inline void boundXXX_clear_array(boundXXX_t* a, size_t size)
-if "XXX"=="MPQ" || "XXX"="MPFR"
+#if "XXX"=="MPQ" || "XXX"="MPFR"
 { numXXX_clear_array(a,size); }
 #else
 {}
