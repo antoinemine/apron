@@ -17,49 +17,6 @@ extern "C" {
 /* ********************************************************************** */
 /* Dataypes */
 /* ********************************************************************** */
-
-/* Interval linear term */
-typedef struct itv_linterm_struct {
-  eitv_t eitv;
-  ap_dim_t dim;
-} itv_linterm_struct;
-typedef itv_linterm_struct* itv_linterm_ptr;
-typedef itv_linterm_struct itv_linterm_t[1];
-
-/* Interval linear expression */
-typedef struct itv_linexpr_struct {
-  itv_linterm_t* linterm;
-  size_t size;
-  eitv_t cst;
-} itv_linexpr_struct;
-typedef itv_linexpr_struct itv_linexpr_t[1];
-typedef itv_linexpr_struct* itv_linexpr_ptr;
-
-/* Array of interval linear expressions */
-typedef struct itv_linexpr_array_struct {
-  itv_linexpr_t* p;
-  size_t size;
-} itv_linexpr_array_struct;
-typedef itv_linexpr_array_struct itv_linexpr_array_t[1];
-typedef itv_linexpr_array_struct* itv_linexpr_array_ptr;
-
-/*
-  Defined in itvConfig.h for avoiding multiple definitions
-
- - An interval linear expression is the more general form.
-   - A quasilinear expression is such that the only non-scalar
-     coefficient is the constant coefficient.
-   - A linear expression contains no non-scalar coefficients
-
-   Be cautious, order of labels matters in some functions
-*/
-/*
-typedef enum itvlinexpr_type_t {
-  ITV_LINEXPR_INTLINEAR,
-  ITV_LINEXPR_QUASILINEAR,
-  ITV_LINEXPR_LINEAR
-} itvlinexpr_type_t;
-*/
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
