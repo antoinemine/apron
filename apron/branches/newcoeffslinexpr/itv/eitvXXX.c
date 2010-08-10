@@ -88,7 +88,7 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
   boundXXX_div_num(a->itv->sup,b->itv->sup,c);
-  if (NUMXXX_EXACT && b->eq){
+  if (NUMXXX_DIVEXACT && b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
@@ -106,7 +106,7 @@ void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   assert (c!=a->itv->neginf && c!=a->itv->sup && c!=b->itv->neginf && c!=b->itv->sup);
   boundXXX_div(a->itv->sup,b->itv->sup,c);
-  if (NUMXXX_EXACT && b->eq){
+  if (NUMXXX_DIVEXACT && b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }

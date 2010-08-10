@@ -1,8 +1,10 @@
+/* -*- mode: c -*- */
+
 /* ********************************************************************** */
-/* itv_lincons.c: */
+/* itvXXX_lincons.c: */
 /* ********************************************************************** */
 
-#include "itv_lincons.h"
+#include "itvXXX_lincons.h"
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -57,157 +59,13 @@ void itv_lincons_fprint(FILE* stream, itv_lincons_t cons, char** name)
   fflush(stream);
 }
 
-itv_lincons_array_ptr itv_lincons_array_alloc(size_t size)
-{
-  itv_lincons_array_ptr res = (itv_lincons_array_ptr)malloc(sizeof(itv_lincons_array_struct));
-  itv_lincons_array_init(res,size);
-  return res;
-}
-itv_lincons_array_ptr itv_lincons_array_alloc_set(itv_lincons_array_t a)
-{
-  itv_lincons_array_ptr res = (itv_lincons_array_ptr)malloc(sizeof(itv_lincons_array_struct));
-  itv_lincons_array_init_set(res,a);
-  return res;
-}
-void itv_lincons_array_init(itv_lincons_array_t array, size_t size)
-{
-  size_t i;
-  array->size = size;
-  array->p = malloc(size*sizeof(itv_lincons_t));
-  for (i=0; i<size; i++) itv_lincons_init(array->p[i],0);
-}
-void itv_lincons_array_init_set(itv_lincons_array_t res, itv_lincons_array_t array)
-{
-  size_t i;
-  res->size = array->size;
-  res->p = malloc(array->size*sizeof(itv_lincons_t));
-  for (i=0; i<res->size; i++) itv_lincons_init_set(res->p[i],array->p[i]);
-}
-void itv_lincons_array_set(itv_lincons_array_t res, itv_lincons_array_t array)
-{
-  size_t i;
-  itv_lincons_array_resize(res,array->size);  
-  for (i=0; i<res->size; i++) itv_lincons_set(res->p[i],array->p[i]);
-}
-void itv_lincons_array_resize(itv_lincons_array_t array, size_t size)
-{
-  size_t i;
-  if (size == array->size) return;
-  if (size < array->size){
-    for (i=size; i<array->size; i++){
-      itv_lincons_clear(array->p[i]);
-    }
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
-  }
-  else { /* size > array->size */
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
-    for (i=array->size; i<size; i++){
-      itv_lincons_init(array->p[i],0);
-    }
-  }
-  array->size = size;
-  return;
-}
-void itv_lincons_array_clear(itv_lincons_array_t array)
-{
-  size_t i;
-  for (i=0; i<array->size; i++) itv_lincons_clear(array->p[i]);
-  free(array->p);
-  array->size = 0;
-  array->p = NULL;
-}
-void itv_lincons_array_minimize(itv_lincons_array_t array)
-{
-  size_t i;
-  for (i=0; i<array->size; i++) itv_linexpr_minimize(array->p[i]->linexpr);
-}
-void itv_lincons_array_fprint(FILE* stream, itv_lincons_array_t array, char** name)
-{
-  size_t i;
-  fprintf(stream,"array of size %d\n",(int)array->size);
-  for (i=0; i<array->size; i++){
-    itv_lincons_fprint(stream,array->p[i],name);
-    fprintf(stream,"\n");
-  }
-}
-
 /* ********************************************************************** */
 /* II. Tests */
 /* ********************************************************************** */
 
-bool itv_lincons_array_is_linear(itv_lincons_array_t array)
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    res = itv_lincons_is_linear(array->p[i]);
-    if (!res) break;
-  }
-  return res;
-}
-bool itv_lincons_array_is_quasilinear(itv_lincons_array_t array)
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    res = itv_lincons_is_quasilinear(array->p[i]);
-    if (!res) break;
-  }
-  return res;
-}
-itvlinexpr_type_t itv_lincons_array_type(itv_lincons_array_t array)
-{
-  size_t i;
-  itvlinexpr_type_t type;
-
-  type = ITV_LINEXPR_LINEAR;
-  for (i=0; i<array->size; i++){
-    itvlinexpr_type_t t = itv_lincons_type(array->p[i]);
-    if (t<type){
-      type = t;
-      if (type==ITV_LINEXPR_INTLINEAR)
-	break;
-    }
-  }
-  return type;
-}
-
 /* ********************************************************************** */
 /* III. Evaluation, simplification and linearisation */
 /* ********************************************************************** */
-
-size_t itv_lincons_array_supportinterval(itv_lincons_array_t array,
-					 ap_dim_t* tdim, size_t maxdim1)
-{
-  if (array->size==0){
-    return 0;
-  }
-  if (array->size==1){
-    return itv_lincons_supportinterval(array->p[0],tdim);
-  }
-  else {
-    size_t i,k,nb;
-    ap_dim_t* buffer;
-    ap_dim_t* ttdim[3];
-    size_t tnb[3];
-
-    buffer = (ap_dim_t*)malloc(3*maxdim1*sizeof(ap_dim_t));
-    for (i=0; i<3; i++){
-      ttdim[i] = &buffer[i*maxdim1];
-      tnb[i] = 0;
-    }
-    k = 0;
-    for (i=0; i<array->size; i++){
-      size_t k1 = (k+1)%3 ;
-      tnb[k1] = itv_lincons_supportinterval(array->p[i],ttdim[k1]);
-      itv_support_merge(ttdim,tnb,&k);
-    }
-    nb = tnb[k];
-    memcpy(tdim,&ttdim[k],nb*sizeof(ap_dim_t));
-    free(buffer);
-    return nb;
-  }
-}
 
 /* Evaluate a constraint, composed of a constant (interval) expression */
 tbool_t itv_lincons_evalcst(itv_internal_t* intern,
@@ -564,19 +422,6 @@ tbool_t itv_lincons_array_reduce_integer(itv_internal_t* intern,
   return itv_lincons_array_reduce(intern,array,true);
 }
 
-bool itv_lincons_array_quasilinearize(itv_internal_t* intern,
-				      itv_lincons_array_t array, itv_t* env,
-				      bool for_meet_inequality)
-{
-  size_t i;
-  bool res;
-  res = true;
-  for (i=0; i<array->size; i++) {
-    res = itv_lincons_quasilinearize(intern,array->p[i],env,for_meet_inequality) && res;
-  }
-  return res;
-}
-
 /* ********************************************************************** */
 /* IV. Boxization of interval linear expressions */
 /* ********************************************************************** */
@@ -903,33 +748,6 @@ bool itv_lincons_array_boxize(itv_internal_t* intern,
 /* ********************************************************************** */
 /* V. Change of dimensions and permutations */
 /* ********************************************************************** */
-
-/* These two functions add dimensions to the expressions, following the
-   semantics of dimchange (see the type definition of dimchange).  */
-void itv_lincons_array_add_dimensions(itv_lincons_array_t res,
-				     itv_lincons_array_t array,
-				     ap_dimchange_t* dimchange)
-{
-  size_t i;
-  itv_lincons_array_resize(res,array->size);
-  for (i=0; i<array->size; i++){
-    itv_lincons_add_dimensions(res->p[i],array->p[i],dimchange);
-  }
-}
-
-/* These two functions apply the given permutation to the dimensions.
-   The dimensions present in the consession should just be less
-   than the size of the permutation. */
-void itv_lincons_array_permute_dimensions(itv_lincons_array_t res,
-					  itv_lincons_array_t array,
-					  ap_dimperm_t* dimperm)
-{
-  size_t i;
-  itv_lincons_array_resize(res,array->size);
-  for (i=0; i<array->size; i++){
-    itv_lincons_permute_dimensions(res->p[i],array->p[i],dimperm);
-  }
-}
 
 /* ********************************************************************** */
 /* VI. Hashing, comparison */
