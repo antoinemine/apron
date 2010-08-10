@@ -1,13 +1,10 @@
 /* ********************************************************************** */
-/* itv.c: (unidimensional) intervals */
+/* itvXXX.c: (unidimensional) intervals */
 /* ********************************************************************** */
 
 #include "itv.h"
 #include "eitv.h"
 #include "math.h"
-
-/* The macro itv_name (defined in itv.h) expands name
-   with itvNUM_SUFFIX_ */
 
 static void make_itv_float_const(int frac_bits, int exp_bits, int exp_bias,
 				 itv_float_const* cst)
