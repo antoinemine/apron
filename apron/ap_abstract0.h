@@ -209,7 +209,7 @@ void ap_abstract0_to_box(ap_manager_t* man, ap_coeff_array_t box, ap_abstract0_t
      function can be reimplemented by using ap_abstract0_bound_linexpr */
 
 
-ap_generator0_array_t ap_abstract0_to_generator_array(ap_manager_t* man, ap_abstract0_t* a);
+void ap_abstract0_to_generator_array(ap_manager_t* man, ap_generator0_array_t array, ap_abstract0_t* a);
   /* Converts an abstract value to a system of generators. */
 
 
@@ -242,7 +242,7 @@ ap_abstract0_t* ap_abstract0_join_array(ap_manager_t* man,
 
 ap_abstract0_t*
 ap_abstract0_meet_lincons_array(ap_manager_t* man,
-				bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array);
+				bool destructive, ap_abstract0_t* a, ap_lincons0_array_t array);
 ap_abstract0_t*
 ap_abstract0_meet_tcons_array(ap_manager_t* man,
 				bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array);
@@ -250,7 +250,7 @@ ap_abstract0_meet_tcons_array(ap_manager_t* man,
 
 ap_abstract0_t*
 ap_abstract0_add_ray_array(ap_manager_t* man,
-			   bool destructive, ap_abstract0_t* a, ap_generator0_array_t* array);
+			   bool destructive, ap_abstract0_t* a, ap_generator0_array_t array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */
@@ -261,7 +261,7 @@ ap_abstract0_t*
 ap_abstract0_assign_linexpr_array(ap_manager_t* man,
 				  bool destructive,
 				  ap_abstract0_t* org,
-				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
+				  ap_dim_t* tdim, ap_linexpr0_array_t texpr, size_t size,
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_assign_texpr_array(ap_manager_t* man,

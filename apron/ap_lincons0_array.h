@@ -32,7 +32,6 @@ typedef struct ap_lincons0_array_struct {
 typedef ap_lincons0_array_struct ap_lincons0_array_t[1];
 typedef ap_lincons0_array_struct* ap_lincons0_array_ptr;
 
-
 /* ====================================================================== */
 /* I. Memory management and printing */
 /* ====================================================================== */
@@ -73,6 +72,7 @@ bool itvMPFR_lincons_array_set_ap_lincons0_array(itvMPFR_lincons_array_t a, ap_l
 /* III. Access */
 /* ====================================================================== */
 
+size_t ap_lincons0_array_size(ap_lincons0_array_t p);
 itvlinexpr_type_t ap_lincons0_array_type(ap_lincons0_array_t array);
 bool ap_lincons0_array_is_linear(ap_lincons0_array_t array);
 bool ap_lincons0_array_is_quasilinear(ap_lincons0_array_t array);
@@ -100,7 +100,6 @@ void ap_lincons0_array_add_dimensions(ap_lincons0_array_t a,
 void ap_lincons0_array_permute_dimensions(ap_lincons0_array_t a,
 					  ap_lincons0_array_t b,
 					  ap_dimperm_t* perm);
-
 
 static inline void ap_lincons0_array_init_cons_D(ap_lincons0_array_t res, itvD_lincons_array_t e)
 { res->ref = false; res->discr = AP_SCALAR_D; res->lincons_array.D = e; };

@@ -26,7 +26,8 @@ ICFLAGS = -I. -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 H_FILES = \
 ap_config.h \
 ap_coeff.h ap_dimension.h \
-ap_linexpr0.h ap_lincons0.h ap_lincons0_array.h \
+ap_linexpr0.h ap_linexpr0_array.h \
+ap_lincons0.h ap_lincons0_array.h \
 ap_manager.h \
 ap_var.h ap_environment.h
 #ap_generator0.h
@@ -41,7 +42,8 @@ ap_var.h ap_environment.h
 
 C_FILES = \
 ap_coeff.c ap_dimension.c \
-ap_linexpr0.c ap_lincons0.c ap_lincons0_array.c \
+ap_linexpr0.c ap_linexpr0_array.c \
+ap_lincons0.c ap_lincons0_array.c \
 ap_manager.c \
 ap_var.c ap_environment.c 
 #ap_generator0.c
@@ -162,8 +164,8 @@ dep: $(H_FILES)
 # C generic rules
 #---------------------------------------
 
-%.c: %.m4 macros.m4
-	$(M4) macros.m4 $< >$@
+%.c: %.tmpl macros.pl
+	macros.pl $< >$@
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(ICFLAGS)  -I../num -I../itv -c $<
