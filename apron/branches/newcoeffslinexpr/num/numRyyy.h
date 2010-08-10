@@ -2,8 +2,8 @@
 /* numRyyy.h */
 /* ********************************************************************** */
 
-#ifndef _NUMRYYY_H_
-#define _NUMRYYY_H_
+#ifndef _NUMRyyy_H_
+#define _NUMRyyy_H_
 
 #include <stdio.h>
 #include <limits.h>
@@ -26,7 +26,7 @@ static inline void numRyyy_canonicalize(numRyyy_t r)
   if (r->d){
     numIyyy_t pgcd;
     numIyyy_gcd(pgcd,r->n,r->d);
-    if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMIYYY_MIN || *r->n==NUMIYYY_MIN))) {
+    if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMIyyy_MIN || *r->n==NUMIyyy_MIN))) {
       fprintf(stderr,"overflow in numRyyy_canonicalize\n");
       return;
     }
@@ -326,6 +326,30 @@ static inline size_t numRyyy_serialized_size(numRyyy_t a)
 	 numIyyy_serialized_size(numRyyy_denref(a));
 }
 
+static inline size_t numRyyy_serialize_array(void* dst, numRyyy_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numRyyy_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numRyyy_deserialize_array(numRyyy_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numRyyy_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numRyyy_serialized_size_array(numRyyy_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numRyyy_serialized_size(src[i]);
+  return n;
+}
+
 /* ====================================================================== */
 /* Fits */
 /* ====================================================================== */
@@ -448,8 +472,8 @@ static inline bool numRyyy_set_double(numRyyy_t a, double k, numinternal_t inter
   k = frexp(k,&e);
   if (e < -size){
     if (k>0.0){
-      *a->n = NUMIYYY_ONE;
-      *a->d = NUMIYYY_MAX;
+      *a->n = NUMIyyy_ONE;
+      *a->d = NUMIyyy_MAX;
     }
     else {
       numRyyy_set_int(a,0);
@@ -460,7 +484,7 @@ static inline bool numRyyy_set_double(numRyyy_t a, double k, numinternal_t inter
     l = (e>=0) ? size : (size + e);
     k = ldexp(k,l);
     res = numIyyy_set_double(a->n,k,intern);
-    *a->d = NUMIYYY_ONE << (l-e);
+    *a->d = NUMIyyy_ONE << (l-e);
     numRyyy_canonicalize(a);
     return res;
   }
@@ -483,8 +507,8 @@ static inline bool numRyyy_set_ldouble(numRyyy_t a, long double k, numinternal_t
   k = frexpl(k,&e);
   if (e < -size){
     if (k>0.0){
-      *a->n = NUMIYYY_ONE;
-      *a->d = NUMIYYY_MAX;
+      *a->n = NUMIyyy_ONE;
+      *a->d = NUMIyyy_MAX;
     }
     else {
       numRyyy_set_int(a,0);
@@ -495,7 +519,7 @@ static inline bool numRyyy_set_ldouble(numRyyy_t a, long double k, numinternal_t
     l = (e>=0) ? size : (size + e);
     k = ldexpl(k,l);
     res = numIyyy_set_ldouble(a->n,k,intern);
-    *a->d = NUMIYYY_ONE << (l-e);
+    *a->d = NUMIyyy_ONE << (l-e);
     numRyyy_canonicalize(a);
     return res;
   }
@@ -561,6 +585,150 @@ static inline bool mpfr_set_numRyyy(mpfr_t a, numRyyy_t b, numinternal_t intern)
   int r = mpfr_set_si(a,*numRyyy_numref(b),GMP_RNDU);
   return !mpfr_div_si(a,a,*numRyyy_denref(b),GMP_RNDU) && !r;
 }
+
+/* ********************************************************************** */
+/* Underlying integer */
+/* ********************************************************************** */
+
+/* ====================================================================== */
+/* Assignement */
+/* ====================================================================== */
+
+static inline void numintRyyy_set(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_set(a,b); }
+static inline void numintRyyy_set_array(numintRyyy_t* a, numintRyyy_t* b, size_t size)
+	      { numIyyy_set_array(a,b,size); }
+static inline void numintRyyy_set_int(numintRyyy_t a, long int i)
+	      { numIyyy_set_int(a,i); }
+
+/* ====================================================================== */
+/* Constructors and Destructors */
+/* ====================================================================== */
+
+static inline void numintRyyy_init(numintRyyy_t a)
+	      { numIyyy_init(a); }
+static inline void numintRyyy_init_array(numintRyyy_t* a, size_t size)
+	      { numIyyy_init_array(a,size); }
+static inline void numintRyyy_init_set(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_init_set(a,b); }
+static inline void numintRyyy_init_set_int(numintRyyy_t a, long int i)
+	      { numIyyy_init_set_int(a,i); }
+
+static inline void numintRyyy_clear(numintRyyy_t a)
+	      { numIyyy_clear(a); }
+static inline void numintRyyy_clear_array(numintRyyy_t* a, size_t size)
+	      { numIyyy_clear_array(a,size); }
+
+static inline void numintRyyy_swap(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_swap(a,b); }
+
+/* ====================================================================== */
+/* Arithmetic Operations */
+/* ====================================================================== */
+
+static inline void numintRyyy_neg(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_neg(a,b); }
+static inline void numintRyyy_abs(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_abs(a,b); }
+static inline void numintRyyy_add(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_add(a,b,c); }
+static inline void numintRyyy_add_uint(numintRyyy_t a, numintRyyy_t b, unsigned long int c)
+	      { numIyyy_add_uint(a,b,c); }
+static inline void numintRyyy_sub(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_sub(a,b,c); }
+static inline void numintRyyy_sub_uint(numintRyyy_t a, numintRyyy_t b, unsigned long int c)
+	      { numIyyy_sub_uint(a,b,c); }
+static inline void numintRyyy_mul(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_mul(a,b,c); }
+static inline void numintRyyy_mul_2(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_mul_2(a,b); }
+static inline void numintRyyy_div(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_cdiv_q(a,b,c); }
+static inline void numintRyyy_div_2(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_cdiv_2(a,b); }
+static inline void numintRyyy_min(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_min(a,b,c); }
+static inline void numintRyyy_max(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+	      { numIyyy_max(a,b,c); }
+static inline void numintRyyy_mul_2exp(numintRyyy_t a, numintRyyy_t b, int c)
+	      { numIyyy_mul_2exp(a,b,c); }
+
+static inline void numintRyyy_floor(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_set(a,b); }
+static inline void numintRyyy_ceil(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_set(a,b); }
+static inline void numintRyyy_trunc(numintRyyy_t a, numintRyyy_t b)
+	      { numIyyy_set(a,b); }
+static inline void numintRyyy_sqrt(numintRyyy_t up, numintRyyy_t down, numintRyyy_t b)
+	      { numIyyy_sqrt(up,down,b); }
+
+static inline void numintRyyy_fdiv_q(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+              { numIyyy_fdiv_q(a,b,c); }
+static inline void numintRyyy_cdiv_q(numintRyyy_t q, numintRyyy_t a, numintRyyy_t b)
+              { numIyyy_cdiv_q(q,a,b); }
+static inline void numintRyyy_tdiv_q(numintRyyy_t q, numintRyyy_t a, numintRyyy_t b)
+              { numIyyy_tdiv_q(q,a,b); }
+static inline void numintRyyy_cdiv_qr(numintRyyy_t q, numintRyyy_t r, numintRyyy_t a, numintRyyy_t b)
+              { numIyyy_cdiv_qr(q,r,a,b); }
+static inline void numintRyyy_cdiv_2(numintRyyy_t a, numintRyyy_t b)
+              { numIyyy_cdiv_2(a,b); }
+static inline void numintRyyy_cdiv_q_2exp(numintRyyy_t a, numintRyyy_t b, unsigned long int c)
+              { numIyyy_cdiv_q_2exp(a,b,c); }
+static inline void numintRyyy_fdiv_q_2exp(numintRyyy_t a, numintRyyy_t b, unsigned long int c)
+              { numIyyy_fdiv_q_2exp(a,b,c); }
+
+/* ====================================================================== */
+/* Arithmetic Tests */
+/* ====================================================================== */
+
+static inline int numintRyyy_sgn(numintRyyy_t a)
+	 { return numIyyy_sgn(a); }
+static inline int numintRyyy_cmp(numintRyyy_t a, numintRyyy_t b)
+      { return numIyyy_cmp(a,b); }
+static inline int numintRyyy_cmp_int(numintRyyy_t a, long int b)
+      { return numIyyy_cmp_int(a,b); }
+static inline bool numintRyyy_equal(numintRyyy_t a, numintRyyy_t b)
+      { return numIyyy_equal(a,b); }
+static inline bool numintRyyy_integer(numintRyyy_t a)
+      { return true; }
+static inline int numintRyyy_hash(numintRyyy_t a)
+      { return numIyyy_hash(a); }
+
+/* ====================================================================== */
+/* Printing */
+/* ====================================================================== */
+
+static inline void numintRyyy_print(numintRyyy_t a)
+	      { numIyyy_print(a); }
+static inline void numintRyyy_fprint(FILE* stream, numintRyyy_t a)
+	      { numIyyy_fprint(stream, a); }
+static inline int numintRyyy_snprint(char* s, size_t size, numintRyyy_t a)
+      { return numIyyy_snprint(s,size,a); }
+
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+static inline unsigned char numintRyyy_serialize_id(void)
+{ return numIyyy_serialize_id(); }
+
+static inline size_t numintRyyy_serialize(void* dst, numintRyyy_t src)
+{ return numIyyy_serialize(dst,src); }
+
+static inline size_t numintRyyy_deserialize(numintRyyy_t dst, const void* src)
+{ return numIyyy_deserialize(dst,src); }
+
+static inline size_t numintRyyy_serialized_size(numintRyyy_t src)
+{ return numIyyy_serialized_size(src); }
+
+static inline size_t numintRyyy_serialize_array(void* dst, numintRyyy_t* src, size_t size)
+{ return numIyyy_serialize_array(dst,src,size); }
+
+static inline size_t numintRyyy_deserialize_array(numintRyyy_t* dst, const void* src, size_t size)
+{ return numIyyy_deserialize_array(dst,src,size); }
+
+static inline size_t numintRyyy_serialized_size_array(numintRyyy_t* src, size_t size)
+{ return numIyyy_serialized_size_array(src,size); }
 
 #ifdef __cplusplus
 }

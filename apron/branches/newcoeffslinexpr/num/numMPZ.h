@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include "numTypes.h"
+#include "numIll.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,6 +115,16 @@ static inline void numMPZ_mul_2exp(numMPZ_t a, numMPZ_t b, int c)
   else mpz_cdiv_q_2exp(a,b,-c);
 }
 
+static inline void numMPZ_trunc(numMPZ_t a, numMPZ_t b)
+{ numMPZ_set(a,b); }
+static inline void numMPZ_floor(numMPZ_t a, numMPZ_t b)
+{ numMPZ_set(a,b); }
+static inline void numMPZ_ceil(numMPZ_t a, numMPZ_t b)
+{ numMPZ_set(a,b); }
+static inline void numMPZ_div(numMPZ_t a, numMPZ_t b, numMPZ_t c)
+{ numMPZ_cdiv_q(a,b,c); }
+static inline void numMPZ_div_2(numMPZ_t a, numMPZ_t b)
+{ numMPZ_cdiv_2(a,b); }
 
 /* ====================================================================== */
 /* Arithmetic Integer Operations */
@@ -194,6 +205,30 @@ static inline size_t numMPZ_deserialize(numMPZ_t dst, const void* src)
 /* not the exact size of serialized data, but a sound overapproximation */
 static inline size_t numMPZ_serialized_size(numMPZ_t a)
 { return mpz_sizeinbase(a,2)/8+5+sizeof(mp_limb_t); }
+
+static inline size_t numMPZ_serialize_array(void* dst, numMPZ_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPZ_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numMPZ_deserialize_array(numMPZ_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPZ_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numMPZ_serialized_size_array(numMPZ_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPZ_serialized_size(src[i]);
+  return n;
+}
 
 /* ====================================================================== */
 /* Fits */

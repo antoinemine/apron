@@ -2,6 +2,8 @@ include ../Makefile.config
 
 SRCDIR=$(shell pwd)
 
+TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
+
 H_ORIG_FILES = \
 numConfig.h numTypes.h \
 numIl.h numIll.h numMPZ.h \
@@ -14,9 +16,7 @@ numRyyy.h boundXXX.h
 
 H_GENERATED_FILES = \
 numRl.h numRll.h \
-boundIl.h boundIll.h boundMPZ.h \
-boundRl.h boundRll.h boundMPQ.h \
-boundD.h boundDl.h boundMPFR.h
+$(TMPL:%=bound%.h)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 
@@ -41,9 +41,9 @@ ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -
 
 CLIBS = -lmpfr -lgmp -lm
 
-tests: testIl testIll testRl testRll testMPZ testMPQ testD testDl testMPFR
+tests: $(TMPL:%=test%)
 
-test%: test%.c $(H_FILES)
+$(TMPL:%=test%): test%: test%.c $(H_FILES)
 	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< $(CLIBS)
 
 out: tests
@@ -67,13 +67,13 @@ numRll.h: numRyyy.h
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/yyy/ll/g; s/YYY/LL/g" $< >>$@
 
-bound%.h: boundXXX.h num%.h
+$(TMPL:%=bound%.h): bound%.h: boundXXX.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/XXX/$*/g" $< >>$@
 
-test%.c: testXXX.c
-	echo "/* GENERATED, DO NOT MODIFY */\"" >$@
+$(TMPL:%=test%.c): test%.c: testXXX.c
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/XXX/$*/g" $< >>$@
 

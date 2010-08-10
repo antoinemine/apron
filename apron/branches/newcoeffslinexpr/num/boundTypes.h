@@ -1,147 +1,99 @@
-/* GENERATED, DO NOT MODIFY */
-#line 1 "/Users/bjeannet/dev/newcoeffslinexpr/num/boundXXX.h"
 /* ********************************************************************** */
-/* boundTypes.h: numbers used for bounds */
+/* bound.h: numbers used for bounds */
 /* ********************************************************************** */
 
-#ifndef _BOUNDTypes_H_
-#define _BOUNDTypes_H_
+#ifndef _BOUND_H_
+#define _BOUND_H_
 
-#include "boundTypes.h"
 #include "numTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define NUM_NUMFLT ("Types"=="D" || "Types"=="Dl" || "Types"=="MPFR")
-#define NUM_NUMRAT ("Types"=="Rl" || "Types"=="Rll" || "Types"=="MPQ")
+/* ********************************************************************** */
+/* Types */
+/* ********************************************************************** */
 
-/* ---------------------------------------------------------------------- */
-static inline bool boundTypes_infty(boundTypes_t a)
-#if NUM_NUMFLT
-{ return numTypes_infty(a); }
-#elif NUM_NUMRAT
-{ return numTypes_sgn(numTypes_denref(a))==0; }
-#elif "Types"=="MPZ"
-{ return (bool)a->inf; }
-#else
-{ return (*a>=NUMTypes_MAX || *a<=-NUMTypes_MAX); }
-#endif
+typedef numIl_t boundIl_t;
+#define boundIl_numref(a) a
+#define _boundIl_inf(a)
 
-/* ---------------------------------------------------------------------- */
-static inline void boundTypes_set_infty(boundTypes_t a, int sgn)
-#if NUM_NUMFLT
-{ assert(sgn); numTypes_set_infty(a,sgn); }
-#elif NUM_NUMRAT
-{
-  assert(sgn);
-  numTypes_set_int(numTypes_numref(a),sgn>0 ? 1 : -1);
-  numTypes_set_int(numTypes_denref(a),0);
-}
-#elif "Types"=="MPZ"
-{
-  assert(sgn);
-  numTypes_set_int(a->num,sgn>0 ? 1 : -1);
-  a->inf = 1;
-}
-#else
-{ assert(sgn); *a = sgn>0 ? NUMTypes_MAX : -NUMTypes_MAX; }
-#endif
+typedef numIll_t boundIll_t;
+#define boundIll_numref(a) a
+#define _boundIll_inf(a)
 
-/* ---------------------------------------------------------------------- */
-static inline void boundTypes_init_set_infty(boundTypes_t a, int sgn)
-{
-  numTypes_init(boundTypes_numref(a));
-  boundTypes_set_infty(a,sgn);
-}
-static inline void boundTypes_swap(boundTypes_t a, boundTypes_t b)
-{
-#ifdef "Types"=="MPZ"
-  int t = a->inf; a->inf = b->inf; b->inf = t;
-#endif
-  numTypes_swap(boundTypes_numref(a),boundTypes_numref(b));
-}
+typedef struct _boundMPZ_struct {
+  numMPZ_t num; /* always allocated, even if inf=1 */
+  char inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
+		0 => >-oo, <+oo */
+} boundMPZ_t[1];
+#define boundMPZ_numref(a) a->num
+#define _boundMPZ_inf(a) a->inf = 0
 
-static inline int boundTypes_sgn(boundTypes_t a)
-{ return numTypes_sgn(boundTypes_numref(a)); }
+typedef numRl_t boundRl_t;
+#define boundRl_numref(a) a
+#define _boundRl_inf(a)
 
-/* ====================================================================== */
-/* Assignement */
-/* ====================================================================== */
+typedef numRll_t boundRll_t;
+#define boundRll_numref(a) a
+#define _boundRll_inf(a)
 
-#if "Types"=="MPZ"
-static inline void boundTypes_set(boundTypes_t a, boundTypes_t b)
-{ numTypes_set(a->num,b->num); a->inf = b->inf; }
-static inline void boundTypes_set_array(boundTypes_t* a, boundTypes_t* b, size_t size)
-{
-  size_t i;
-  for (i=0; i<size; i++) boundTypes_set(a[i],b[i]);
-}
-#else
-static inline void boundTypes_set(boundTypes_t a, boundTypes_t b)
-{ numTypes_set(a,b); }
-static inline void boundTypes_set_array(boundTypes_t* a, boundTypes_t* b, size_t size)
-{ numTypes_set_array(a,b,size); }
-#endif
+typedef numMPQ_t boundMPQ_t;
+#define boundMPQ_numref(a) a
+#define _boundMPQ_inf(a)
 
-static inline void boundTypes_set_int(boundTypes_t a, long int i)
-{  numTypes_set_int(boundTypes_numref(a),i); _boundTypes_inf(a); }
+typedef numD_t boundD_t;
+#define boundD_numref(a) a
+#define _boundD_inf(a)
 
-static inline void boundTypes_set_num(boundTypes_t a, numTypes_t b)
-{ numTypes_set(boundTypes_numref(a),b); _boundTypes_inf(a); }
+typedef numDl_t boundDl_t;
+#define boundDl_numref(a) a
+#define _boundDl_inf(a)
 
-/* ====================================================================== */
-/* Constructors and Destructors */
-/* ====================================================================== */
+typedef numMPFR_t boundMPFR_t;
+#define boundMPFR_numref(a) a
+#define _boundMPFR_inf(a)
 
-static inline void boundTypes_init(boundTypes_t a)
-{ numTypes_init(boundTypes_numref(a)); _boundTypes_inf(a); }
-static inline void boundTypes_init_set_int(boundTypes_t a, long int i)
-{ numTypes_init_set_int(boundTypes_numref(a),i); _boundTypes_inf(a); }
-static inline void boundTypes_clear(boundTypes_t a)
-{ numTypes_clear(boundTypes_numref(a)); }
+/*
 
-#if "Types"=="MPZ"
-static inline void boundTypes_init_array(boundTypes_t* a, size_t size)
-{
-  size_t i;
-  for (i=0;i<size;i++) boundTypes_init(a[i]);
-}
-static inline void boundTypes_init_set(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)){
-    boundTypes_init_set_infty(a,boundTypes_sgn(b));
-  } else {
-    numTypes_init_set(boundTypes_numref(a),boundTypes_numref(b));
-    _boundTypes_inf(a);
-  }
-}
-static inline void boundTypes_clear_array(boundTypes_t* a, size_t size)
-{
-  size_t i;
-  for (i=0;i<size;i++) boundTypes_clear(a[i]);
-}
+**********************************************************************
+Functions
+**********************************************************************
 
-#else
+static inline bool boundXXX_infty(boundXXX_t a);
+Macro:
+static inline numXXX_t boundXXX_numref(boundXXX_t a);
 
-static inline void boundTypes_init_array(boundTypes_t* a, size_t size)
-{ numTypes_init_array(a,size); }
-static inline void boundTypes_init_set(boundTypes_t a, boundTypes_t b)
-{ numTypes_init_set(a,b); }
-static inline void boundTypes_clear_array(boundTypes_t* a, size_t size)
-#if "Types"=="MPQ" || "Types"="MPFR"
-{ numTypes_clear_array(a,size); }
-#else
-{}
-#endif
-#endif
+======================================================================
+Assignement
+======================================================================
+static inline void boundXXX_set(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_set_array(boundXXX_t* a, boundXXX_t* b, size_t size);
+static inline void boundXXX_set_int(boundXXX_t a, long int i);
+static inline void boundXXX_set_infty(boundXXX_t a, int sgn);
+static inline void boundXXX_swap(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_set_num(boundXXX_t a, numXXX_t b);
 
-/* ====================================================================== */
-/* Arithmetic Operations */
-/* ====================================================================== */
+======================================================================
+Constructors and Destructors
+======================================================================
 
-/* +oo + -oo  \
+static inline void boundXXX_init(boundXXX_t a);
+static inline void boundXXX_init_array(boundXXX_t* a, size_t size);
+
+static inline void boundXXX_init_set(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_init_set_int(boundXXX_t a, long int i);
+static inline void boundXXX_init_set_infty(boundXXX_t a, int sgn);
+
+static inline void boundXXX_clear(boundXXX_t a);
+static inline void boundXXX_clear_array(boundXXX_t* a, size_t size);
+
+======================================================================
+Arithmetic Operations
+======================================================================
+
+   +oo + -oo  \
    -oo + +oo  | undefined
    +oo - +oo  |
    -oo - -oo  /
@@ -158,470 +110,94 @@ static inline void boundTypes_clear_array(boundTypes_t* a, size_t size)
    +oo / x =  sign(x) * oo  if x!=0,+oo,-oo
    -oo / x = -sign(x) * oo  if x!=0,+oo,-oo
 
+static inline void boundXXX_neg(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_abs(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_add(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_add_uint(boundXXX_t a, boundXXX_t b, unsigned long int c);
+static inline void boundXXX_add_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+static inline void boundXXX_sub(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_sub_uint(boundXXX_t a, boundXXX_t b, unsigned long int c);
+static inline void boundXXX_sub_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+static inline void boundXXX_mul(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+static inline void boundXXX_mul_2(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_div(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_div_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+static inline void boundXXX_div_2(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_min(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_max(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+static inline void boundXXX_mul_2exp(boundXXX_t a, boundXXX_t b, int c);
+static inline void boundXXX_floor(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_ceil(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_trunc(boundXXX_t a, boundXXX_t b);
+static inline void boundXXX_sqrt(boundXXX_t up, boundXXX_t down, boundXXX_t b);
+static inline void boundXXX_widening(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+
+======================================================================
+Floating-point casts
+======================================================================
+
+always rounds toward +oo
+static inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, numinternal_t intern);
+static inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, numinternal_t intern);
+
+======================================================================
+Arithmetic Tests
+======================================================================
+
+static inline int boundXXX_sgn(boundXXX_t a);
+static inline int boundXXX_cmp(boundXXX_t a, boundXXX_t b);
+static inline int boundXXX_cmp_int(boundXXX_t a, long int b);
+static inline int boundXXX_cmp_num(boundXXX_t a, numXXX_t b);
+static inline bool boundXXX_equal(boundXXX_t a, boundXXX_t b);
+static inline int boundXXX_hash(boundXXX_t a);
+
+======================================================================
+Conversions
+======================================================================
+
+static inline bool boundXXX_set_lint(boundXXX_t a, long int b, numinternal_t intern);
+static inline bool boundXXX_set_llint(boundXXX_t a, long long int b, numinternal_t intern);
+static inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, numinternal_t intern);
+static inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, numinternal_t intern);
+static inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, numinternal_t intern);
+static inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, numinternal_t intern);
+static inline bool boundXXX_set_double(boundXXX_t a, double b, numinternal_t intern);
+static inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, numinternal_t intern);
+static inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, numinternal_t intern);
+
+static inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, numinternal_t internal);
+static inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, numinternal_t internal);
+static inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, numinternal_t internal);
+static inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, numinternal_t internal);
+static inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, numinternal_t internal);
+static inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, numinternal_t internal);
+static inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, numinternal_t internal);
+static inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, numinternal_t internal);
+
+======================================================================
+Printing
+======================================================================
+
+static inline void boundXXX_print(boundXXX_t a);
+static inline void boundXXX_fprint(FILE* stream, boundXXX_t a);
+static inline int boundXXX_snprint(char* s, size_t size, boundXXX_t a);
+
+======================================================================
+Serialization
+======================================================================
+
+Note: call _init before _deserialize
+
+static inline size_t boundXXX_serialize(void* dst, boundXXX_t src);
+static inline size_t boundXXX_deserialize(boundXXX_t dst, const void* src);
+static inline size_t boundXXX_serialized_size(boundXXX_t a);
+
+static inline size_t boundXXX_serialize_array(void* dst, boundXXX_t* src, size_t size);
+static inline size_t boundXXX_deserialize_array(boundXXX_t* dst, const void* src, size_t size);
+static inline size_t boundXXX_serialized_size_array(boundXXX_t* src, size_t size);
+
 */
-
-#if NUM_NUMFLT
-static inline void boundTypes_neg(boundTypes_t a, boundTypes_t b)
-{ numTypes_neg(a,b); }
-static inline void boundTypes_abs(boundTypes_t a, boundTypes_t b)
-{ numTypes_abs(a,b); }
-static inline void boundTypes_add(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{ numTypes_add(a,b,c); }
-static inline void boundTypes_add_uint(boundTypes_t a, boundTypes_t b, unsigned long int c)
-{ numTypes_add_uint(a,b,c); }
-static inline void boundTypes_add_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{ numTypes_add(a,b,c); }
-static inline void boundTypes_sub(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{ numTypes_sub(a,b,c); }
-static inline void boundTypes_sub_uint(boundTypes_t a, boundTypes_t b, unsigned long int c)
-{ numTypes_sub_uint(a,b,c); }
-static inline void boundTypes_sub_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{ numTypes_sub(a,b,c); }
-static inline void boundTypes_mul(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{ if (!boundTypes_sgn(b) || !boundTypes_sgn(c)) numTypes_set_int(a,0); else numTypes_mul(a,b,c); }
-static inline void boundTypes_mul_numTypes(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{ if (!boundTypes_sgn(b) || !numTypes_sgn(c)) numTypes_set_int(a,0); else numTypes_mul(a,b,c); }
-static inline void boundTypes_mul_2(boundTypes_t a, boundTypes_t b)
-{ numTypes_mul_2(a,b); }
-static inline void boundTypes_div(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (!boundTypes_sgn(b) || boundTypes_infty(c)) boundTypes_set_int(a,0);
-  else if (!boundTypes_sgn(c)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else numTypes_div(a,b,c);
-}
-static inline void boundTypes_div_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{
-  if (!boundTypes_sgn(b)) boundTypes_set_int(a,0);
-  else if (!numTypes_sgn(c)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else numTypes_div(a,b,c);
-}
-static inline void boundTypes_div_2(boundTypes_t a, boundTypes_t b)
-{ numTypes_div_2(a,b); }
-
-#else
-
-static inline void boundTypes_neg(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,-boundTypes_sgn(b));
-  else { numTypes_neg(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_abs(boundTypes_t a, boundTypes_t b)
-{ numTypes_abs(boundTypes_numref(a),boundTypes_numref(b)); }
-static inline void boundTypes_add(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else if (boundTypes_infty(c)) boundTypes_set_infty(a,boundTypes_sgn(c));
-  else { numTypes_add(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_add_uint(boundTypes_t a, boundTypes_t b, unsigned long int c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_add_uint(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-static inline void boundTypes_add_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_add(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-static inline void boundTypes_sub(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else if (boundTypes_infty(c)) boundTypes_set_infty(a,-boundTypes_sgn(c));
-  else { numTypes_sub(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_sub_uint(boundTypes_t a, boundTypes_t b, unsigned long int c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_sub_uint(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-static inline void boundTypes_sub_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_sub(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-
-static inline void boundTypes_mul(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (!boundTypes_sgn(b) || !boundTypes_sgn(c)) boundTypes_set_int(a,0);
-  else if (boundTypes_infty(b) || boundTypes_infty(c)) boundTypes_set_infty(a,boundTypes_sgn(b)*boundTypes_sgn(c));
-  else { numTypes_mul(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_mul_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{
-  if (!boundTypes_sgn(b) || !numTypes_sgn(c)) boundTypes_set_int(a,0);
-  else if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b)*numTypes_sgn(c));
-  else { numTypes_mul(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-static inline void boundTypes_mul_2(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_mul_2(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_div(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (!boundTypes_sgn(b) || boundTypes_infty(c)) boundTypes_set_int(a,0);
-  else if (!boundTypes_sgn(c)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else if (boundTypes_infty(b))  boundTypes_set_infty(a,boundTypes_sgn(b)*boundTypes_sgn(c));
-  else { numTypes_div(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_div_num(boundTypes_t a, boundTypes_t b, numTypes_t c)
-{
-  if (!boundTypes_sgn(b)) boundTypes_set_int(a,0);
-  else if (!numTypes_sgn(c)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else if (boundTypes_infty(b))  boundTypes_set_infty(a,boundTypes_sgn(b)*numTypes_sgn(c));
-  else { numTypes_div(boundTypes_numref(a),boundTypes_numref(b),c); _boundTypes_inf(a); }
-}
-static inline void boundTypes_div_2(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_div_2(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-#endif
-
-
-#if NUM_NUMFLT || "Types"=="Il" || "Types"=="Ill"
-
-static inline void boundTypes_min(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{ numTypes_min(a,b,c); }
-static inline void boundTypes_max(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{ numTypes_max(a,b,c); }
-
-#else
-
-static inline void boundTypes_min(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (boundTypes_infty(b)) if (boundTypes_sgn(b)>0) boundTypes_set(a,c); else boundTypes_set(a,b);
-  else if (boundTypes_infty(c)) if (boundTypes_sgn(c)>0) boundTypes_set(a,b); else boundTypes_set(a,c);
-  else { numTypes_min(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_max(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (boundTypes_infty(b)) if (boundTypes_sgn(b)>0) boundTypes_set(a,b); else boundTypes_set(a,c);
-  else if (boundTypes_infty(c)) if (boundTypes_sgn(c)>0) boundTypes_set(a,c); else boundTypes_set(a,b);
-  else { numTypes_max(boundTypes_numref(a),boundTypes_numref(b),boundTypes_numref(c)); _boundTypes_inf(a); }
-}
-
-#endif
-
-static inline void boundTypes_floor(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_floor(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_ceil(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_ceil(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_trunc(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_trunc(boundTypes_numref(a),boundTypes_numref(b)); _boundTypes_inf(a); }
-}
-static inline void boundTypes_sqrt(boundTypes_t up, boundTypes_t down, boundTypes_t b)
-{
-  if (boundTypes_infty(b)) {
-    boundTypes_set_infty(up,1);
-    boundTypes_set_infty(down,1);
-  }
-  else {
-    numTypes_sqrt(boundTypes_numref(up),boundTypes_numref(down),boundTypes_numref(b));
-    _boundTypes_inf(up);
-    _boundTypes_inf(down);
-  }
-}
-static inline void boundTypes_to_float(boundTypes_t a, boundTypes_t b, numinternal_t intern)
-{
-  if (boundTypes_infty(b) || !numTypes_fits_float(boundTypes_numref(b)))
-    boundTypes_set_infty(a,boundTypes_sgn(b));
-  else {
-    double d;
-    double_set_numTypes(&d,boundTypes_numref(b),intern);
-    numTypes_set_double(boundTypes_numref(a),(double)((float)d),intern);
-    _boundTypes_inf(a);
-  }
-}
-static inline void boundTypes_to_double(boundTypes_t a, boundTypes_t b, numinternal_t intern)
-{
-  if (boundTypes_infty(b) || !numTypes_fits_double(boundTypes_numref(b)))
-    boundTypes_set_infty(a,boundTypes_sgn(b));
-  else {
-    double d;
-    double_set_numTypes(&d,boundTypes_numref(b),intern);
-    numTypes_set_double(boundTypes_numref(a),d,intern);
-    _boundTypes_inf(a);
-  }
-}
-
-static inline void boundTypes_mul_2exp(boundTypes_t a, boundTypes_t b, int c)
-{
-  if (boundTypes_infty(b)) boundTypes_set_infty(a,boundTypes_sgn(b));
-  else { numTypes_mul_2exp(boundTypes_numref(a),boundTypes_numref(b),c); }
-}
-
-
-/* ====================================================================== */
-/* Arithmetic Tests */
-/* ====================================================================== */
-
-#if NUM_NUMFLT || "Types"=="Il" || "Types"=="Ill"
-
-static inline int boundTypes_cmp(boundTypes_t a, boundTypes_t b)
-{ return numTypes_cmp(a,b); }
-static inline int boundTypes_cmp_int(boundTypes_t a, long int b)
-{ return numTypes_cmp_int(a,b); }
-static inline int boundTypes_cmp_num(boundTypes_t a, numTypes_t b)
-{ return numTypes_cmp(a,b); }
-static inline bool boundTypes_equal(boundTypes_t a, boundTypes_t b)
-{ return numTypes_equal(a,b); }
-
-#else
-
-static inline int boundTypes_cmp(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(a)){
-    if (boundTypes_infty(b)) return (boundTypes_sgn(a)-boundTypes_sgn(b))/2;
-    else return boundTypes_sgn(a);
-  } else {
-    if (boundTypes_infty(b)) return -boundTypes_sgn(b);
-    else return numTypes_cmp(boundTypes_numref(a),boundTypes_numref(b));
-  }
-}
-static inline int boundTypes_cmp_int(boundTypes_t a, long int b)
-{
-  if (boundTypes_infty(a)) return boundTypes_sgn(a);
-  else return numTypes_cmp_int(boundTypes_numref(a),b);
-}
-static inline int boundTypes_cmp_num(boundTypes_t a, numTypes_t b)
-{
-  if (boundTypes_infty(a)) return boundTypes_sgn(a);
-  else return numTypes_cmp(boundTypes_numref(a),b);
-}
-static inline bool boundTypes_equal(boundTypes_t a, boundTypes_t b)
-{
-  if (boundTypes_infty(a)){
-    return boundTypes_infty(b) && boundTypes_sgn(a)==boundTypes_sgn(b);
-  } else {
-    if (boundTypes_infty(b)) return false;
-    else return numTypes_equal(boundTypes_numref(a),boundTypes_numref(b));
-  }
-}
-#endif
-
-static inline int boundTypes_hash(boundTypes_t a)
-{ 
-  if (boundTypes_infty(a))
-    return boundTypes_sgn(a)>0 ? INT_MAX : -INT_MAX;
-  else {
-    return numTypes_hash(boundTypes_numref(a));
-  }
-}
-
-static inline void boundTypes_widening(boundTypes_t a, boundTypes_t b, boundTypes_t c)
-{
-  if (boundTypes_cmp(b,c)<0)
-    boundTypes_set_infty(a,1);
-  else
-    boundTypes_set(a,b);
-}
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-static inline bool boundTypes_set_lint(boundTypes_t a, long int b, numinternal_t intern)
-{
-  if (lint_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_lint(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_llint(boundTypes_t a, long long int b, numinternal_t intern)
-{
-  if (llint_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_llint(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_mpz(boundTypes_t a, mpz_t b, numinternal_t intern)
-{
-  if (mpz_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_mpz(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_lfrac(boundTypes_t a, long int i, long int j, numinternal_t intern)
-{
-  if (lfrac_fits_numTypes(i,j)){
-    _boundTypes_inf(a); 
-    return numTypes_set_lfrac(boundTypes_numref(a),i,j,intern); 
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_llfrac(boundTypes_t a, long long int i, long long int j, numinternal_t intern)
-{
-  if (llfrac_fits_numTypes(i,j)){
-    _boundTypes_inf(a); 
-    return numTypes_set_lfrac(boundTypes_numref(a),i,j,intern); 
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_mpq(boundTypes_t a, mpq_t b, numinternal_t intern)
-{
-  if (mpq_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_mpq(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_double(boundTypes_t a, double b, numinternal_t intern)
-{
-  if (double_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_double(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_ldouble(boundTypes_t a, long double b, numinternal_t intern)
-{
-  if (ldouble_fits_numTypes(b)){
-    _boundTypes_inf(a);
-    return numTypes_set_ldouble(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_mpfr(boundTypes_t a, mpfr_t b, numinternal_t intern)
-{
-  if (mpfr_fits_numTypes(b,intern)){
-    _boundTypes_inf(a);
-    return numTypes_set_mpfr(boundTypes_numref(a),b,intern);
-  }
-  else {
-    boundTypes_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundTypes_set_numIl(boundTypes_t a, numIl_t b, numinternal_t intern)
-{ return boundTypes_set_lint(a,*b,intern); }
-static inline bool boundTypes_set_numIll(boundTypes_t a, numIll_t b, numinternal_t intern)
-{ return boundTypes_set_llint(a,*b,intern); }
-static inline bool boundTypes_set_numMPZ(boundTypes_t a, numMPZ_t b, numinternal_t intern)
-{ return boundTypes_set_mpz(a,b,intern); }
-static inline bool boundTypes_set_numRl(boundTypes_t a, numRl_t b, numinternal_t intern)
-{ return boundTypes_set_lfrac(a,*b->n,*b->d,intern); }
-static inline bool boundTypes_set_numRll(boundTypes_t a, numRll_t b, numinternal_t intern)
-{ return boundTypes_set_llfrac(a,*b->n,*b->d,intern); }
-static inline bool boundTypes_set_numMPQ(boundTypes_t a, numMPQ_t b, numinternal_t intern)
-{ return boundTypes_set_mpq(a,b,intern); }
-static inline bool boundTypes_set_numD(boundTypes_t a, numD_t b, numinternal_t intern)
-{ return boundTypes_set_double(a,*b,intern); }
-static inline bool boundTypes_set_numDl(boundTypes_t a, numDl_t b, numinternal_t intern)
-{ return boundTypes_set_ldouble(a,*b,intern); }
-static inline bool boundTypes_set_numMPFR(boundTypes_t a, numMPFR_t b, numinternal_t intern)
-{ return boundTypes_set_mpfr(a,b,intern); }
-
-/* ====================================================================== */
-/* Printing */
-/* ====================================================================== */
-
-static inline void boundTypes_fprint(FILE* stream, boundTypes_t a)
-{
-  if (boundTypes_infty(a)) fprintf(stream,"%coo",boundTypes_sgn(a)>0 ? '+' : '-');
-  else numTypes_fprint(stream,boundTypes_numref(a));
-}
-static inline void boundTypes_print(boundTypes_t a)
-{
-  boundTypes_fprint(stdout,a);
-}
-static inline int boundTypes_snprint(char* s, size_t size, boundTypes_t a)
-{
-  if (boundTypes_infty(a)) return snprintf(s,size,"%coo",boundTypes_sgn(a)>0 ? '+' : '-');
-  else return numTypes_snprint(s,size,boundTypes_numref(a));
-}
-
-/* ====================================================================== */
-/* Serialization */
-/* ====================================================================== */
-
-static inline size_t boundTypes_serialize(void* dst, boundTypes_t src)
-{
-#if "Types"=="MPZ"
-  *(char*)dst = src->inf;
-  return numTypes_serialize((char*)dst+1,boundTypes_numref(src))+1;
-#else
-  return numTypes_serialize(dst,src);
-#endif
-}
-
-static inline size_t boundTypes_deserialize(boundTypes_t dst, const void* src)
-{
-#if "Types"=="MPZ"
-  dst->inf = *(const char*)src;
-  return numTypes_deserialize(boundTypes_numref(dst),(const char*)src+1)+1;
-#else
-  return numTypes_deserialize(dst,src);
-#endif
-}
-
-static inline size_t boundTypes_serialized_size(boundTypes_t a)
-{
-#if "Types"=="MPZ"
-  return numTypes_serialized_size(boundTypes_numref(a))+1;
-#else
-  return numTypes_serialized_size(a);
-#endif
-}
-
-static inline size_t boundTypes_serialize_array(void* dst, boundTypes_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += boundTypes_serialize((char*)dst+n,src[i]);
-  return n;
-}
-
-static inline size_t boundTypes_deserialize_array(boundTypes_t* dst, const void* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += boundTypes_deserialize(dst[i],(const char*)src+n);
-  return n;
-}
-
-static inline size_t boundTypes_serialized_size_array(boundTypes_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += boundTypes_serialized_size(src[i]);
-  return n;
-}
 
 #ifdef __cplusplus
 }
