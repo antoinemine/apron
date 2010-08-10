@@ -12,16 +12,19 @@
 extern "C" {
 #endif
 
-#define NUM_NUMFLT ("XXX"=="D" || "XXX"=="Dl" || "XXX"=="MPFR")
-#define NUM_NUMRAT ("XXX"=="Rl" || "XXX"=="Rll" || "XXX"=="MPQ")
+#define _NUMXXX_MARK_NUMXXX_
+  /* Undefined at the end */
+
+#define NUM_NUMFLT (defined(_NUMD_MARK_NUMD_) || defined(_NUMDl_MARK_NUMDl_) || defined(_NUMMPFR_MARK_NUMMPFR_))
+#define NUM_NUMRAT (defined(_NUMRl_MARK_NUMRl_) || defined(_NUMRll_MARK_NUMRll_) || defined(_NUMMPQ_MARK_NUMMPQ_))
 
 /* ---------------------------------------------------------------------- */
 static inline bool boundXXX_infty(boundXXX_t a)
 #if NUM_NUMFLT
 { return numXXX_infty(a); }
 #elif NUM_NUMRAT
-{ return numXXX_sgn(numXXX_denref(a))==0; }
-#elif "XXX"=="MPZ"
+{ return numintXXX_sgn(numXXX_denref(a))==0; }
+#elif defined(_NUMMPZ_MARK_NUMMPZ_)
 { return (bool)a->inf; }
 #else
 { return (*a>=NUMXXX_MAX || *a<=-NUMXXX_MAX); }
@@ -34,10 +37,10 @@ static inline void boundXXX_set_infty(boundXXX_t a, int sgn)
 #elif NUM_NUMRAT
 {
   assert(sgn);
-  numXXX_set_int(numXXX_numref(a),sgn>0 ? 1 : -1);
-  numXXX_set_int(numXXX_denref(a),0);
+  numintXXX_set_int(numXXX_numref(a),sgn>0 ? 1 : -1);
+  numintXXX_set_int(numXXX_denref(a),0);
 }
-#elif "XXX"=="MPZ"
+#elif defined(_NUMMPZ_MARK_NUMMPZ_)
 {
   assert(sgn);
   numXXX_set_int(a->num,sgn>0 ? 1 : -1);
@@ -55,7 +58,7 @@ static inline void boundXXX_init_set_infty(boundXXX_t a, int sgn)
 }
 static inline void boundXXX_swap(boundXXX_t a, boundXXX_t b)
 {
-#ifdef "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
   int t = a->inf; a->inf = b->inf; b->inf = t;
 #endif
   numXXX_swap(boundXXX_numref(a),boundXXX_numref(b));
@@ -68,7 +71,7 @@ static inline int boundXXX_sgn(boundXXX_t a)
 /* Assignement */
 /* ====================================================================== */
 
-#if "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
 static inline void boundXXX_set(boundXXX_t a, boundXXX_t b)
 { numXXX_set(a->num,b->num); a->inf = b->inf; }
 static inline void boundXXX_set_array(boundXXX_t* a, boundXXX_t* b, size_t size)
@@ -100,7 +103,7 @@ static inline void boundXXX_init_set_int(boundXXX_t a, long int i)
 static inline void boundXXX_clear(boundXXX_t a)
 { numXXX_clear(boundXXX_numref(a)); }
 
-#if "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
 static inline void boundXXX_init_array(boundXXX_t* a, size_t size)
 {
   size_t i;
@@ -128,7 +131,7 @@ static inline void boundXXX_init_array(boundXXX_t* a, size_t size)
 static inline void boundXXX_init_set(boundXXX_t a, boundXXX_t b)
 { numXXX_init_set(a,b); }
 static inline void boundXXX_clear_array(boundXXX_t* a, size_t size)
-#if "XXX"=="MPQ" || "XXX"="MPFR"
+#if defined(_NUMMPQ_MARK_NUMMPQ_) || defined(_NUMMPFR_MARK_NUMMPFR_) 
 { numXXX_clear_array(a,size); }
 #else
 {}
@@ -177,7 +180,7 @@ static inline void boundXXX_sub_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 { numXXX_sub(a,b,c); }
 static inline void boundXXX_mul(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 { if (!boundXXX_sgn(b) || !boundXXX_sgn(c)) numXXX_set_int(a,0); else numXXX_mul(a,b,c); }
-static inline void boundXXX_mul_numXXX(boundXXX_t a, boundXXX_t b, numXXX_t c)
+static inline void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 { if (!boundXXX_sgn(b) || !numXXX_sgn(c)) numXXX_set_int(a,0); else numXXX_mul(a,b,c); }
 static inline void boundXXX_mul_2(boundXXX_t a, boundXXX_t b)
 { numXXX_mul_2(a,b); }
@@ -277,7 +280,7 @@ static inline void boundXXX_div_2(boundXXX_t a, boundXXX_t b)
 #endif
 
 
-#if NUM_NUMFLT || "XXX"=="Il" || "XXX"=="Ill"
+#if NUM_NUMFLT || defined(_NUMIl_MARK_NUMIl_) || defined(_NUMIll_MARK_NUMIll_)
 
 static inline void boundXXX_min(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 { numXXX_min(a,b,c); }
@@ -362,7 +365,7 @@ static inline void boundXXX_mul_2exp(boundXXX_t a, boundXXX_t b, int c)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-#if NUM_NUMFLT || "XXX"=="Il" || "XXX"=="Ill"
+#if NUM_NUMFLT || defined(_NUMIl_MARK_NUMIl_) || defined(_NUMIll_MARK_NUMIll_)
 
 static inline int boundXXX_cmp(boundXXX_t a, boundXXX_t b)
 { return numXXX_cmp(a,b); }
@@ -570,7 +573,7 @@ static inline int boundXXX_snprint(char* s, size_t size, boundXXX_t a)
 
 static inline size_t boundXXX_serialize(void* dst, boundXXX_t src)
 {
-#if "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
   *(char*)dst = src->inf;
   return numXXX_serialize((char*)dst+1,boundXXX_numref(src))+1;
 #else
@@ -580,7 +583,7 @@ static inline size_t boundXXX_serialize(void* dst, boundXXX_t src)
 
 static inline size_t boundXXX_deserialize(boundXXX_t dst, const void* src)
 {
-#if "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
   dst->inf = *(const char*)src;
   return numXXX_deserialize(boundXXX_numref(dst),(const char*)src+1)+1;
 #else
@@ -590,7 +593,7 @@ static inline size_t boundXXX_deserialize(boundXXX_t dst, const void* src)
 
 static inline size_t boundXXX_serialized_size(boundXXX_t a)
 {
-#if "XXX"=="MPZ"
+#if defined(_NUMMPZ_MARK_NUMMPZ_)
   return numXXX_serialized_size(boundXXX_numref(a))+1;
 #else
   return numXXX_serialized_size(a);
@@ -624,5 +627,7 @@ static inline size_t boundXXX_serialized_size_array(boundXXX_t* src, size_t size
 #ifdef __cplusplus
 }
 #endif
+
+#undef _NUMXXX_MARK_NUMXXX_
 
 #endif

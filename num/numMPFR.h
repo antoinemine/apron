@@ -143,13 +143,13 @@ static inline int numMPFR_snprint(char* s, size_t size, numMPFR_t a)
   if (mpfr_inf_p(a)) return snprintf(s,size,"%coo",mpfr_sgn(a)>0?'+':'-');
   if (mpfr_zero_p(a)) return snprintf(s,size,"0");
   d = mpfr_get_d(a,GMP_RNDU);
-  if (!mpfr_cmp_d(a,d)) return snprintf(s,size,"%.*g",NUMMPFR_PRINT_PREC,d);
+  if (!mpfr_cmp_d(a,d)) return snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,d);
   else {
     /* general case */
     char* tmp;
     mp_exp_t e;
     int x,i;
-    tmp = mpfr_get_str(NULL,&e,10,NUMMPFR_PRINT_PREC,a,GMP_RNDU);
+    tmp = mpfr_get_str(NULL,&e,10,NUMFLT_PRINT_PREC,a,GMP_RNDU);
     if (!tmp) { *s = 0; return 0; }
     if (tmp[0]=='-' || tmp[0]=='+')
       x=snprintf(s,size,"%c.%se+%ld",tmp[0],tmp+1,(long int)e);
@@ -235,6 +235,30 @@ static inline size_t numMPFR_deserialize(numMPFR_t dst, const void* src)
 static inline size_t numMPFR_serialized_size(numMPFR_t a)
 { return mpfr_get_prec(a)/8+9+sizeof(mp_limb_t); }
 
+static inline size_t numMPFR_serialize_array(void* dst, numMPFR_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPFR_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numMPFR_deserialize_array(numMPFR_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPFR_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numMPFR_serialized_size_array(numMPFR_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numMPFR_serialized_size(src[i]);
+  return n;
+}
+
 /* ====================================================================== */
 /* Fits */
 /* ====================================================================== */
@@ -247,14 +271,14 @@ static inline bool mpz_fits_numMPFR(mpz_t a)
 { return numMPZ_fits_mpfr(a); }
 static inline bool lfrac_fits_numMPFR(long int i, long int j)
 {
-  numratRl_native s;
+  numRl_native s;
   *s.n = i;
   *s.n = j;
   return j>0 && numRl_fits_mpfr(&s);
 }
 static inline bool llfrac_fits_numMPFR(long long int i, long long int j)
 {
-  numratRll_native s;
+  numRll_native s;
   *s.n = i;
   *s.n = j;
   return j>0 && numRll_fits_mpfr(&s);
@@ -302,7 +326,7 @@ static inline bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, numinternal_t intern)
 static inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, numinternal_t intern)
 {
   assert(j>0);
-  numratRl_native s;
+  numRl_native s;
   *s.n = i;
   *s.d = j;
   return mpfr_set_numRl(a,&s,intern);
@@ -310,7 +334,7 @@ static inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, numint
 static inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, numinternal_t intern)
 {
   assert(j>0);
-  numratRll_native s;
+  numRll_native s;
   *s.n = i;
   *s.d = j;
   return mpfr_set_numRll(a,&s,intern);
@@ -331,7 +355,7 @@ static inline bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, numinternal_t intern)
 { return numMPZ_set_mpfr(a,b,intern); }
 static inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, numinternal_t intern)
 {
-  numratRl_native s;
+  numRl_native s;
   bool res = numRl_set_mpfr(&s,b,intern);
   *i = *s.n;
   *j = *s.d;
@@ -339,7 +363,7 @@ static inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, numi
 }
 static inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, numinternal_t intern)
 {
-  numratRll_native s;
+  numRll_native s;
   bool res = numRll_set_mpfr(&s,b,intern);
   *i = *s.n;
   *j = *s.d;
@@ -353,8 +377,6 @@ static inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, numinternal_
 { return numDl_set_mpfr(a,b,intern); }
 static inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, numinternal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
-
-#endif
 
 /* ********************************************************************** */
 /* Inline definitions */

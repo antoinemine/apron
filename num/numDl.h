@@ -2,10 +2,9 @@
 /* numDl.h */
 /* ********************************************************************** */
 
-#ifndef _NUMDL_H_
-#define _NUMDL_H_
+#ifndef _NUMDl_H_
+#define _NUMDl_H_
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
@@ -40,11 +39,11 @@ static inline void numDl_set_int(numDl_t a, long int i)
 /* ====================================================================== */
 
 static inline void numDl_init(numDl_t a)
-{ *a = NUMDL_ZERO; }
+{ *a = NUMDl_ZERO; }
 static inline void numDl_init_array(numDl_t* a, size_t size)
 {
   size_t i;
-  for (i=0; i<size; i++) *(a[i]) = NUMDL_ZERO;
+  for (i=0; i<size; i++) *(a[i]) = NUMDl_ZERO;
 }
 static inline void numDl_init_set(numDl_t a, numDl_t b)
 { numDl_set(a,b); }
@@ -111,7 +110,7 @@ static inline void numDl_mul_2exp(numDl_t a, numDl_t b, int c)
 /* ====================================================================== */
 
 static inline int numDl_sgn(numDl_t a)
-{ return (*a==NUMDL_ZERO ? 0 : (*a>NUMDL_ZERO ? 1 : -1)); }
+{ return (*a==NUMDl_ZERO ? 0 : (*a>NUMDl_ZERO ? 1 : -1)); }
 static inline int numDl_cmp(numDl_t a, numDl_t b)
 { return (*a==*b ? 0 : (*a>*b ? 1 : -1)); }
 static inline int numDl_cmp_int(numDl_t a, long int b)
@@ -139,11 +138,11 @@ static inline int numDl_hash(numDl_t a)
 /* ====================================================================== */
 
 static inline void numDl_print(numDl_t a)
-{ printf("%.*Lg",NUMDL_PRINT_PREC,*a+NUMDL_ZERO); }
+{ printf("%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
 static inline void numDl_fprint(FILE* stream, numDl_t a)
-{ fprintf(stream,"%.*Lg",NUMDL_PRINT_PREC,*a+NUMDL_ZERO); }
+{ fprintf(stream,"%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
 static inline int numDl_snprint(char* s, size_t size, numDl_t a)
-{ return snprintf(s,size,"%.*Lg",NUMDL_PRINT_PREC,*a+NUMDL_ZERO); }
+{ return snprintf(s,size,"%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
 
 /* ====================================================================== */
 /* Only for floating point */
@@ -152,7 +151,7 @@ static inline int numDl_snprint(char* s, size_t size, numDl_t a)
 static inline bool numDl_infty(numDl_t a)
 { return !isfinite(*a); }
 static inline void numDl_set_infty(numDl_t a, int sgn)
-{ *a = sgn>0 ? NUMDL_MAX : -NUMDL_MAX; }
+{ *a = sgn>0 ? NUMDl_MAX : -NUMDl_MAX; }
 
 /* ====================================================================== */
 /* Serialization */
@@ -172,6 +171,30 @@ static inline size_t numDl_deserialize(numDl_t dst, const void* src)
 
 static inline size_t numDl_serialized_size(numDl_t a)
 { return sizeof(numDl_t); }
+
+static inline size_t numDl_serialize_array(void* dst, numDl_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numDl_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numDl_deserialize_array(numDl_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numDl_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numDl_serialized_size_array(numDl_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numDl_serialized_size(src[i]);
+  return n;
+}
 
 /* ====================================================================== */
 /* Fits */
@@ -248,14 +271,14 @@ static inline bool numDl_set_mpz(numDl_t a, mpz_t b, numinternal_t intern)
 static inline bool numDl_set_lfrac(numDl_t a, long int i, long int j, numinternal_t intern)
 {
   assert(j>0);
-  *a = (numflt_native)i/(numflt_native)j;
-  return (-*a==(numflt_native)(-i)/(numflt_native)j);
+  *a = (numDl_native)i/(numDl_native)j;
+  return (-*a==(numDl_native)(-i)/(numDl_native)j);
 }
 static inline bool numDl_set_llfrac(numDl_t a, long long int i, long long int j, numinternal_t intern)
 {
   assert(j>0);
-  *a = (numflt_native)i/(numflt_native)j;
-  return (-*a==(numflt_native)(-i)/(numflt_native)j);
+  *a = (numDl_native)i/(numDl_native)j;
+  return (-*a==(numDl_native)(-i)/(numDl_native)j);
 }
 static inline bool numDl_set_mpq(numDl_t a, mpq_t b, numinternal_t intern)
 { return ldouble_set_numMPQ(a,b,intern); }
@@ -276,7 +299,7 @@ static inline bool mpz_set_numDl(mpz_t a, numDl_t b, numinternal_t intern)
 { return numMPZ_set_ldouble(a,*b,intern); }
 static inline bool lfrac_set_numDl(long int* i, long int* j, numDl_t b, numinternal_t intern)
 {
-  numratRl_native s;
+  numRl_native s;
   bool res = numRl_set_ldouble(&s,*b,intern);
   *i = *s.n;
   *j = *s.d;
@@ -284,7 +307,7 @@ static inline bool lfrac_set_numDl(long int* i, long int* j, numDl_t b, numinter
 }
 static inline bool llfrac_set_numDl(long long int* i, long long int* j, numDl_t b, numinternal_t intern)
 {
-  numratRll_native s;
+  numRll_native s;
   bool res = numRll_set_ldouble(&s,*b,intern);
   *i = *s.n;
   *j = *s.d;
