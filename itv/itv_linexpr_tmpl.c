@@ -141,36 +141,76 @@ void itv_linexpr_fprint(FILE* stream, itv_linexpr_t expr, char** name)
   fflush(stream);
 }
 
-void itv_linexpr_array_init(itv_linexpr_t* tab, size_t size)
+itv_linexpr_array_ptr itv_linexpr_array_alloc(size_t size)
 {
-  size_t i;
-  for (i=0; i<size; i++){
-    itv_linexpr_init(tab[i],0);
-  }
-}
-void itv_linexpr_array_clear(itv_linexpr_t* tab, size_t size)
-{
-  size_t i;
-  for (i=0; i<size; i++){
-    itv_linexpr_clear(tab[i]);
-  }
-}
-itv_linexpr_t* itv_linexpr_array_alloc(size_t size)
-{
-  itv_linexpr_t* res = (itv_linexpr_t*)malloc(size*sizeof(itv_linexpr_t));
+  itv_linexpr_array_ptr res = (itv_linexpr_array_ptr)malloc(sizeof(itv_linexpr_array_struct));
   itv_linexpr_array_init(res,size);
   return res;
 }
-void itv_linexpr_array_free(itv_linexpr_t* tab, size_t size)
+itv_linexpr_array_ptr itv_linexpr_array_alloc_set(itv_linexpr_array_t a)
 {
-  itv_linexpr_array_clear(tab,size);
-  free(tab);
+  itv_linexpr_array_ptr res = (itv_linexpr_array_ptr)malloc(sizeof(itv_linexpr_array_struct));
+  itv_linexpr_array_init_set(res,a);
+  return res;
 }
-void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_t* tab, size_t size, char** name)
+void itv_linexpr_array_init(itv_linexpr_array_t array, size_t size)
 {
   size_t i;
-  for (i=0; i<size; i++){
-    itv_linexpr_fprint(stream,tab[i],name);
+  array->size = size;
+  array->p = malloc(size*sizeof(itv_linexpr_t));
+  for (i=0; i<size; i++) itv_linexpr_init(array->p[i],0);
+}
+void itv_linexpr_array_init_set(itv_linexpr_array_t res, itv_linexpr_array_t array)
+{
+  size_t i;
+  res->size = array->size;
+  res->p = malloc(array->size*sizeof(itv_linexpr_t));
+  for (i=0; i<res->size; i++) itv_linexpr_init_set(res->p[i],array->p[i]);
+}
+void itv_linexpr_array_set(itv_linexpr_array_t res, itv_linexpr_array_t array)
+{
+  size_t i;
+  itv_linexpr_array_resize(res,array->size);  
+  for (i=0; i<res->size; i++) itv_linexpr_set(res->p[i],array->p[i]);
+}
+void itv_linexpr_array_resize(itv_linexpr_array_t array, size_t size)
+{
+  size_t i;
+  if (size == array->size) return;
+  if (size < array->size){
+    for (i=size; i<array->size; i++){
+      itv_linexpr_clear(array->p[i]);
+    }
+    array->p = realloc(array->p,size*sizeof(itv_linexpr_t));
+  }
+  else { /* size > array->size */
+    array->p = realloc(array->p,size*sizeof(itv_linexpr_t));
+    for (i=array->size; i<size; i++){
+      itv_linexpr_init(array->p[i],0);
+    }
+  }
+  array->size = size;
+  return;
+}
+void itv_linexpr_array_clear(itv_linexpr_array_t array)
+{
+  size_t i;
+  for (i=0; i<array->size; i++) itv_linexpr_clear(array->p[i]);
+  free(array->p);
+  array->size = 0;
+  array->p = NULL;
+}
+void itv_linexpr_array_minimize(itv_linexpr_array_t array)
+{
+  size_t i;
+  for (i=0; i<array->size; i++) itv_linexpr_minimize(array->p[i]);
+}
+void itv_linexpr_array_fprint(FILE* stream, itv_linexpr_array_t array, char** name)
+{
+  size_t i;
+  fprintf(stream,"array of size %d\n",(int)array->size);
+  for (i=0; i<array->size; i++){
+    itv_linexpr_fprint(stream,array->p[i],name);
     fprintf(stream,"\n");
   }
 }
@@ -237,26 +277,35 @@ itvlinexpr_type_t itv_linexpr_type(itv_linexpr_t a)
   else
     return ITV_LINEXPR_INTLINEAR;
 }
-bool itv_linexpr_array_is_quasilinear(itv_linexpr_t* texpr, size_t size)
+
+bool itv_linexpr_array_is_linear(itv_linexpr_array_t array)
 {
   size_t i;
-  bool res;
-
-  res = true;
-  for (i=0;i<size;i++){
-    res = itv_linexpr_is_quasilinear(texpr[i]);
+  bool res = true;
+  for (i=0; i<array->size; i++){
+    res = itv_linexpr_is_linear(array->p[i]);
     if (!res) break;
   }
   return res;
 }
-itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size)
+bool itv_linexpr_array_is_quasilinear(itv_linexpr_array_t array)
+{
+  size_t i;
+  bool res = true;
+  for (i=0; i<array->size; i++){
+    res = itv_linexpr_is_quasilinear(array->p[i]);
+    if (!res) break;
+  }
+  return res;
+}
+itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_array_t array)
 {
   size_t i;
   itvlinexpr_type_t type;
 
   type = ITV_LINEXPR_LINEAR;
-  for (i=0; i<size; i++){
-    itvlinexpr_type_t t = itv_linexpr_type(texpr[i]);
+  for (i=0; i<array->size; i++){
+    itvlinexpr_type_t t = itv_linexpr_type(array->p[i]);
     if (t<type){
       type = t;
       if (type==ITV_LINEXPR_INTLINEAR)
@@ -264,18 +313,6 @@ itvlinexpr_type_t itv_linexpr_array_type(itv_linexpr_t* texpr, size_t size)
     }
   }
   return type;
-}
-bool itv_linexpr_array_is_linear(itv_linexpr_t* texpr, size_t size)
-{
-  size_t i;
-  bool res;
-
-  res = true;
-  for (i=0;i<size;i++){
-    res = itv_linexpr_is_linear(texpr[i]);
-    if (!res) break;
-  }
-  return res;
 }
 
 /* ====================================================================== */
@@ -779,14 +816,14 @@ size_t itv_linexpr_supportinterval(itv_linexpr_t expr, ap_dim_t* tdim)
   }
   return nb;
 }
-size_t itv_linexpr_array_supportinterval(itv_linexpr_t* texpr, size_t size,
+size_t itv_linexpr_array_supportinterval(itv_linexpr_array_t array,
 					 ap_dim_t* tdim, size_t maxdim1)
 {
-  if (size==0){
+  if (array->size==0){
     return 0;
   }
-  else if (size==1){
-    return itv_linexpr_supportinterval(texpr[0],tdim);
+  else if (array->size==1){
+    return itv_linexpr_supportinterval(array->p[0],tdim);
   }
   else {
     size_t i,k,nb;
@@ -800,9 +837,9 @@ size_t itv_linexpr_array_supportinterval(itv_linexpr_t* texpr, size_t size,
       tnb[i] = 0;
     }
     k = 0;
-    for (i=0; i<size; i++){
+    for (i=0; i<array->size; i++){
       size_t k1 = (k+1)%3 ;
-      tnb[k1] = itv_linexpr_supportinterval(texpr[i],ttdim[k1]);
+      tnb[k1] = itv_linexpr_supportinterval(array->p[i],ttdim[k1]);
       itv_support_merge(ttdim,tnb,&k);
     }
     nb = tnb[k];
@@ -973,14 +1010,13 @@ bool itv_linexpr_quasilinearize(itv_internal_t* intern,
 }
 
 bool itv_linexpr_array_quasilinearize(itv_internal_t* intern,
-				      itv_linexpr_t* linexpr, size_t size, itv_t* env,
-				      bool for_meet_inequality)
+				      itv_linexpr_array_t array, itv_t* env)
 {
   size_t i;
   bool res;
   res = true;
-  for (i=0; i<size; i++) {
-    itv_linexpr_quasilinearize(intern,linexpr[i],env,for_meet_inequality);
+  for (i=0; i<array->size; i++) {
+    itv_linexpr_quasilinearize(intern,array->p[i],env,false);
   }
 #if NUM_EXACT
   return true;
@@ -1046,6 +1082,26 @@ void itv_linexpr_permute_dimensions(itv_linexpr_t res,
 	res->size,
 	sizeof(itv_linterm_t),
 	&itv_linterm_cmp);
+}
+void itv_linexpr_array_add_dimensions(itv_linexpr_array_t res,
+				     itv_linexpr_array_t array,
+				     ap_dimchange_t* dimchange)
+{
+  size_t i;
+  itv_linexpr_array_resize(res,array->size);
+  for (i=0; i<array->size; i++){
+    itv_linexpr_add_dimensions(res->p[i],array->p[i],dimchange);
+  }
+}
+void itv_linexpr_array_permute_dimensions(itv_linexpr_array_t res,
+					  itv_linexpr_array_t array,
+					  ap_dimperm_t* dimperm)
+{
+  size_t i;
+  itv_linexpr_array_resize(res,array->size);
+  for (i=0; i<array->size; i++){
+    itv_linexpr_permute_dimensions(res->p[i],array->p[i],dimperm);
+  }
 }
 
 /* ====================================================================== */
