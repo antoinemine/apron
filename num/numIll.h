@@ -2,8 +2,8 @@
 /* numIll.h */
 /* ********************************************************************** */
 
-#ifndef _NUMILL_H_
-#define _NUMILL_H_
+#ifndef _NUMIll_H_
+#define _NUMIll_H_
 
 #include <stdio.h>
 #include <limits.h>
@@ -34,11 +34,11 @@ static inline void numIll_set_int(numIll_t a, long int i)
 /* ====================================================================== */
 
 static inline void numIll_init(numIll_t a)
-{ *a = NUMILL_ZERO; }
+{ *a = NUMIll_ZERO; }
 static inline void numIll_init_array(numIll_t* a, size_t size)
 {
   size_t i;
-  for (i=0; i<size; i++) *(a[i]) = NUMILL_ZERO;
+  for (i=0; i<size; i++) *(a[i]) = NUMIll_ZERO;
 }
 static inline void numIll_init_set(numIll_t a, numIll_t b)
 { numIll_set(a,b); }
@@ -77,7 +77,7 @@ static inline void numIll_tdiv_q(numIll_t q, numIll_t a, numIll_t b)
 { *q = *a / *b; }
 
 static inline int numIll_sgn(numIll_t a)
-{ return (*a==NUMILL_ZERO ? 0 : (*a>NUMILL_ZERO ? 1 : -1)); }
+{ return (*a==NUMIll_ZERO ? 0 : (*a>NUMIll_ZERO ? 1 : -1)); }
 
 static inline void numIll_fdiv_q(numIll_t q, numIll_t a, numIll_t b)
 {
@@ -105,9 +105,9 @@ static inline void numIll_cdiv_qr(numIll_t q, numIll_t r, numIll_t a, numIll_t b
 }
 
 static inline void numIll_cdiv_2(numIll_t a, numIll_t b)
-{ *a = (*b>=NUMILL_ZERO) ? (*b+1)/2 : *b/2; }
+{ *a = (*b>=NUMIll_ZERO) ? (*b+1)/2 : *b/2; }
 static inline void numIll_cdiv_q_2exp(numIll_t a, numIll_t b, unsigned long int c)
-{ *a = (*b >> c)+(*b & ((NUMILL_ONE<<c)-NUMILL_ONE) ? 1 : 0); }
+{ *a = (*b >> c)+(*b & ((NUMIll_ONE<<c)-NUMIll_ONE) ? 1 : 0); }
 static inline void numIll_fdiv_q_2exp(numIll_t a, numIll_t b, unsigned long int c)
 { *a = (*b >> c); }
 static inline void numIll_min(numIll_t a, numIll_t b, numIll_t c)
@@ -139,6 +139,16 @@ static inline void numIll_mul_2exp(numIll_t a, numIll_t b, int c)
   else numIll_cdiv_q_2exp(a,b,-c);
 }
 
+static inline void numIll_trunc(numIll_t a, numIll_t b)
+{ numIll_set(a,b); }
+static inline void numIll_floor(numIll_t a, numIll_t b)
+{ numIll_set(a,b); }
+static inline void numIll_ceil(numIll_t a, numIll_t b)
+{ numIll_set(a,b); }
+static inline void numIll_div(numIll_t a, numIll_t b, numIll_t c)
+{ numIll_cdiv_q(a,b,c); }
+static inline void numIll_div_2(numIll_t a, numIll_t b)
+{ numIll_cdiv_2(a,b); }
 
 /* ====================================================================== */
 /* Arithmetic Integer Operations */
@@ -157,7 +167,7 @@ static inline numIll_native _gcd_auxIll(numIll_native a, numIll_native b)
     numIll_native t=a; a=b; b=t;
   }
   /* a is supposed to be greater than b */
-  while (b!=NUMILL_ZERO && a!=b) {
+  while (b!=NUMIll_ZERO && a!=b) {
     t = b;
     b = a % b;
     a = t;
@@ -224,6 +234,30 @@ static inline size_t numIll_deserialize(numIll_t dst, const void* src)
 static inline size_t numIll_serialized_size(numIll_t a)
 { return sizeof(numIll_t); }
 
+static inline size_t numIll_serialize_array(void* dst, numIll_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numIll_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numIll_deserialize_array(numIll_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numIll_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numIll_serialized_size_array(numIll_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numIll_serialized_size(src[i]);
+  return n;
+}
+
 /* ====================================================================== */
 /* Fits */
 /* ====================================================================== */
@@ -249,11 +283,11 @@ static inline bool mpq_fits_numIll(mpq_t a)
 }
 static inline bool double_fits_numIll(double a)
 {
-  return isfinite(a) && a>=(double)(-NUMILL_MAX) && a<=(double)NUMILL_MAX;
+  return isfinite(a) && a>=(double)(-NUMIll_MAX) && a<=(double)NUMIll_MAX;
 }
 static inline bool ldouble_fits_numIll(long double a)
 {
-  return isfinite(a) && a>=(long double)(-NUMILL_MAX) && a<=(long double)NUMILL_MAX;
+  return isfinite(a) && a>=(long double)(-NUMIll_MAX) && a<=(long double)NUMIll_MAX;
 }
 static inline bool mpfr_fits_numIll(mpfr_t a, numinternal_t intern)
 {

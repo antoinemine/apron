@@ -140,11 +140,11 @@ static inline int numD_hash(numD_t a)
 /* ====================================================================== */
 
 static inline void numD_print(numD_t a)
-{ printf("%.*g",NUMD_PRINT_PREC,*a+NUMD_ZERO); }
+{ printf("%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
 static inline void numD_fprint(FILE* stream, numD_t a)
-{ fprintf(stream,"%.*g",NUMD_PRINT_PREC,*a+NUMD_ZERO); }
+{ fprintf(stream,"%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
 static inline int numD_snprint(char* s, size_t size, numD_t a)
-{ return snprintf(s,size,"%.*g",NUMD_PRINT_PREC,*a+NUMD_ZERO); }
+{ return snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
 
 /* ====================================================================== */
 /* Only for floating point */
@@ -173,6 +173,30 @@ static inline size_t numD_deserialize(numD_t dst, const void* src)
 
 static inline size_t numD_serialized_size(numD_t a)
 { return sizeof(numD_t); }
+
+static inline size_t numD_serialize_array(void* dst, numD_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numD_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+static inline size_t numD_deserialize_array(numD_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numD_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+static inline size_t numD_serialized_size_array(numD_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += numD_serialized_size(src[i]);
+  return n;
+}
 
 /* ====================================================================== */
 /* Fits */
@@ -244,14 +268,14 @@ static inline bool numD_set_mpz(numD_t a, mpz_t b, numinternal_t intern)
 static inline bool numD_set_lfrac(numD_t a, long int i, long int j, numinternal_t intern)
 {
   assert(j>0);
-  *a = (numflt_native)i/(numflt_native)j;
-  return (-*a==(numflt_native)(-i)/(numflt_native)j);
+  *a = (numD_native)i/(numD_native)j;
+  return (-*a==(numD_native)(-i)/(numD_native)j);
 }
 static inline bool numD_set_llfrac(numD_t a, long long int i, long long int j, numinternal_t intern)
 {
   assert(j>0);
-  *a = (numflt_native)i/(numflt_native)j;
-  return (-*a==(numflt_native)(-i)/(numflt_native)j);
+  *a = (numD_native)i/(numD_native)j;
+  return (-*a==(numD_native)(-i)/(numD_native)j);
 }
 static inline bool numD_set_mpq(numD_t a, mpq_t b, numinternal_t intern)
 { return double_set_numMPQ(a,b,intern); }
@@ -272,7 +296,7 @@ static inline bool mpz_set_numD(mpz_t a, numD_t b, numinternal_t intern)
 { return numMPZ_set_double(a,*b,intern); }
 static inline bool lfrac_set_numD(long int* i, long int* j, numD_t b, numinternal_t intern)
 {
-  numratRl_native s;
+  numRl_native s;
   bool res = numRl_set_double(&s,*b,intern);
   *i = *s.n;
   *j = *s.d;
@@ -280,7 +304,7 @@ static inline bool lfrac_set_numD(long int* i, long int* j, numD_t b, numinterna
 }
 static inline bool llfrac_set_numD(long long int* i, long long int* j, numD_t b, numinternal_t intern)
 {
-  numratRll_native s;
+  numRll_native s;
   bool res = numRll_set_double(&s,*b,intern);
   *i = *s.n;
   *j = *s.d;

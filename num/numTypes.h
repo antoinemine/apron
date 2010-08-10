@@ -18,18 +18,18 @@ extern "C" {
 typedef long int numIl_native;
 typedef numIl_native* numIl_ptr;
 typedef numIl_native numIl_t[1];
-#define NUMIL_ZERO 0L
-#define NUMIL_ONE 1L
-#define NUMIL_MAX LONG_MAX
-#define NUMIL_MIN LONG_MIN
+#define NUMIl_ZERO 0L
+#define NUMIl_ONE 1L
+#define NUMIl_MAX LONG_MAX
+#define NUMIl_MIN LONG_MIN
 
 typedef long long int numIll_native;
 typedef numIll_native* numIll_ptr;
 typedef numIll_native numIll_t[1];
-#define NUMILL_ZERO 0LL
-#define NUMILL_ONE 1LL
-#define NUMILL_MAX LLONG_MAX
-#define NUMILL_MIN LLONG_MIN
+#define NUMIll_ZERO 0LL
+#define NUMIll_ONE 1LL
+#define NUMIll_MAX LLONG_MAX
+#define NUMIll_MIN LLONG_MIN
 
 typedef mpz_ptr numMPZ_ptr;
 typedef mpz_t numMPZ_t;
@@ -49,8 +49,9 @@ typedef struct numRl_native {
 } numRl_native;
 typedef numRl_native* numRl_ptr;
 typedef numRl_native numRl_t[1];
-#define numRl_numref(a) (a)->n
-#define numRl_denref(a) (a)->d
+#define numRl_numref(a) ((a)->n)
+#define numRl_denref(a) ((a)->d)
+typedef numIl_t numintRl_t;
 
 typedef struct numRll_native {
   numIll_t n; /* numerator */
@@ -58,20 +59,22 @@ typedef struct numRll_native {
 } numRll_native;
 typedef numRll_native* numRll_ptr;
 typedef numRll_native numRll_t[1];
-#define numRll_numref(a) (a)->n
-#define numRll_denref(a) (a)->d
+#define numRll_numref(a) ((a)->n)
+#define numRll_denref(a) ((a)->d)
+typedef numIll_t numintRll_t;
 
-typedef mpq_ptr numrat_ptr;
-typedef mpq_t numrat_t;
-#define numrat_numref(a) mpq_numref(a)
-#define numrat_denref(a) mpq_denref(a)
+typedef mpq_ptr numMPQ_ptr;
+typedef mpq_t numMPQ_t;
+#define numMPQ_numref(a) mpq_numref(a)
+#define numMPQ_denref(a) mpq_denref(a)
+typedef numMPZ_t numintMPQ_t;
 
 /* ********************************************************************** */
 /* Floating-points */
 /* ********************************************************************** */
 
-#ifndef NUMFLTD_PRINT_PREC
-#define NUMFLTD_PRINT_PREC 20
+#ifndef NUMFLT_PRINT_PREC
+#define NUMFLT_PRINT_PREC 20
 #endif
 /* Number of significant digits used for printing.
    Defaults to 20, but you can override NUMFLTD_PRINT_PREC to be any other
@@ -89,10 +92,10 @@ typedef numD_native numD_t[1];
 typedef long double numDl_native;
 typedef numDl_native* numDl_ptr;
 typedef numDl_native numDl_t[1];
-#define NUMDL_ZERO 0.0L
-#define NUMDL_ONE 1.0L
-#define NUMDL_MANT_DIG LDBL_MANT_DIG
-#define NUMDL_MAX NUMDL_ONE/NUMDL_ZERO
+#define NUMDl_ZERO 0.0L
+#define NUMDl_ONE 1.0L
+#define NUMDl_MANT_DIG LDBL_MANT_DIG
+#define NUMDl_MAX NUMDl_ONE/NUMDl_ZERO
 
 typedef mpfr_ptr numMPFR_ptr;
 typedef mpfr_t numMPFR_t;
@@ -265,7 +268,7 @@ Integer functions
 
 static inline void numXXX_fdiv_q(numXXX_t a, numXXX_t b, numXXX_t c);
 static inline void numXXX_cdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
-static inline void numXXX_cdiv_t(numXXX_t q, numXXX_t a, numXXX_t b);
+static inline void numXXX_tdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
 static inline void numXXX_cdiv_qr(numXXX_t q, numXXX_t r, numXXX_t a, numXXX_t b);
 static inline void numXXX_cdiv_2(numXXX_t a, numXXX_t b);
 static inline void numXXX_cdiv_q_2exp(numXXX_t a, numXXX_t b, unsigned long int c);
@@ -288,8 +291,6 @@ static inline void numXXX_set_infty(numXXX_t a, int sgn);
 
 
 */
-
-
 
 #ifdef __cplusplus
 }
