@@ -85,7 +85,7 @@ bool itvXXX_linexpr_set_ap_linexpr0(itvXXX_linexpr_t a, ap_linexpr0_t b, numinte
   case AP_SCALAR_D:
     return itvXXX_linexpr_set_itvD_linexpr(a,b->linexpr.D,intern);
   case AP_SCALAR_MPQ:
-    return itvXXX_linexpr_set_itvMPQ(a,b->linexpr.MPQ);
+    return itvXXX_linexpr_set_itvMPQ_linexpr(a,b->linexpr.MPQ,intern);
   case AP_SCALAR_MPFR:
     return itvXXX_linexpr_set_itvMPFR_linexpr(a,b->linexpr.MPFR,intern);
   default:

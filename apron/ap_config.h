@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "itvConfig.h"
 
 #ifdef __cplusplus
 #define HAS_BOOL

@@ -1,3 +1,5 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
 /* ap_coeff.h: coefficients, that are either scalars or intervals */
 /* ************************************************************************* */
@@ -13,9 +15,16 @@
 #include <stdio.h>
 
 #include "ap_config.h"
-#include "eitvMPQ.h"
-#include "eitvD.h"
-#include "eitvMPFR.h"
+#include "itvMPQ_types.h"
+#include "itvD_types.h"
+#include "itvMPFR_types.h"
+
+#include "itvIl_types.h"
+#include "itvIll_types.h"
+#include "itvMPZ_types.h"
+#include "itvRl_types.h"
+#include "itvRll_types.h"
+#include "itvDl_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,15 +46,8 @@ typedef struct ap_coeff_struct {
   } eitv;
 } ap_coeff_struct;
 
-typedef ap_coeff_struct ap_coeff_t[1];
 typedef ap_coeff_struct* ap_coeff_ptr;
-
-struct eitvIl_struct;
-struct eitvIll_struct;
-struct eitvMPZ_struct;
-struct eitvRl_struct;
-struct eitvRll_struct;
-struct eitvDl_struct;
+typedef ap_coeff_struct ap_coeff_t[1];
 
 /* ====================================================================== */
 /* Basics */
@@ -53,9 +55,9 @@ struct eitvDl_struct;
 
 void ap_coeff_init(ap_coeff_t coeff, ap_scalar_discr_t discr);
 void ap_coeff_init_set(ap_coeff_t coeff, ap_coeff_t coeff2);
-void ap_coeff_init_set_D(ap_coeff_t coeff, eitvD_t eitv);
-void ap_coeff_init_set_MPQ(ap_coeff_t coeff, eitvMPQ_t eitv);
-void ap_coeff_init_set_MPFR(ap_coeff_t coeff, eitvMPFR_t eitv);
+MACROX
+void ap_coeff_init_set_XXX(ap_coeff_t coeff, eitvXXX_t eitv);
+ENDMACRO
 void ap_coeff_clear(ap_coeff_t coeff);
 void ap_coeff_fprint(FILE* stream, ap_coeff_t a);
 static inline void ap_coeff_print(ap_coeff_t a);
@@ -65,41 +67,22 @@ void ap_coeff_set_int(ap_coeff_t a, int b);
 void ap_coeff_set_bottom(ap_coeff_t coeff);
 void ap_coeff_set_top(ap_coeff_t coeff);
 
-
 static inline void ap_coeff_swap(ap_coeff_t a, ap_coeff_t b)
 { ap_coeff_struct t = *a; *a = *b; *b = t; }
   /* Exchange */
 
-static inline void ap_coeff_ref_D(ap_coeff_t res, eitvD_t e);
-static inline void ap_coeff_ref_MPQ(ap_coeff_t res, eitvMPQ_t e);
-static inline void ap_coeff_ref_MPFR(ap_coeff_t res, eitvMPFR_t e);
+MACROX
+static inline void ap_coeff_ref_XXX(ap_coeff_t res, eitvXXX_t e);
+ENDMACRO
 
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
 
-bool ap_coeff_set_eitvD(ap_coeff_t coeff, eitvD_t eitv, numinternal_t intern);
-bool ap_coeff_set_eitvMPQ(ap_coeff_t coeff, eitvMPQ_t eitv, numinternal_t intern);
-bool ap_coeff_set_eitvMPFR(ap_coeff_t coeff, eitvMPFR_t, numinternal_t intern);
-
-bool eitvD_set_ap_coeff(eitvD_t eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvMPQ_set_ap_coeff(eitvMPQ_t eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvMPFR_set_ap_coeff(eitvMPFR_t eitv, ap_coeff_t coeff, numinternal_t intern);
-
-bool ap_coeff_set_eitvIl(ap_coeff_t coeff, struct eitvIl_struct* eitv, numinternal_t intern);
-bool ap_coeff_set_eitvIll(ap_coeff_t coeff, struct eitvIll_struct* eitv, numinternal_t intern);
-bool ap_coeff_set_eitvMPZ(ap_coeff_t coeff, struct eitvMPZ_struct* eitv, numinternal_t intern);
-bool ap_coeff_set_eitvRl(ap_coeff_t coeff, struct eitvRl_struct* eitv, numinternal_t intern);
-bool ap_coeff_set_eitvRll(ap_coeff_t coeff, struct eitvRll_struct* eitv, numinternal_t intern);
-bool ap_coeff_set_eitvDl(ap_coeff_t coeff, struct eitvDl_struct* eitv, numinternal_t intern);
-
-bool eitvIl_set_ap_coeff(struct eitvIl_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvIll_set_ap_coeff(struct eitvIll_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvMPZ_set_ap_coeff(struct eitvMPZ_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvRl_set_ap_coeff(struct eitvRl_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvRll_set_ap_coeff(struct eitvRll_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvDl_set_ap_coeff(struct eitvDl_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
-
+MACROZ
+bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern);
+bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, numinternal_t intern);
+ENDMACRO
   /* Return true if conversion is exact */
 
 /* ====================================================================== */
@@ -131,12 +114,10 @@ static inline void ap_coeff_print(ap_coeff_t a)
 { ap_coeff_fprint(stdout,a); }
   /* Printing */
 
-static inline void ap_coeff_ref_D(ap_coeff_t res, eitvD_t e)
-{ res->discr = AP_SCALAR_D; res->ref = true; res->eitv.D = e; };
-static inline void ap_coeff_ref_MPQ(ap_coeff_t res, eitvMPQ_t e)
-{ res->discr = AP_SCALAR_MPQ; res->ref = true; res->eitv.MPQ = e; };
-static inline void ap_coeff_ref_MPFR(ap_coeff_t res, eitvMPFR_t e)
-{ res->discr = AP_SCALAR_MPFR; res->ref = true; res->eitv.MPFR = e; };
+MACROX
+static inline void ap_coeff_ref_XXX(ap_coeff_t res, eitvXXX_t e)
+{ res->discr = AP_SCALAR_XXX; res->ref = true; res->eitv.XXX = e; };
+ENDMACRO
 
 #ifdef __cplusplus
 }
