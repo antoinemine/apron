@@ -49,6 +49,21 @@ static inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, numinternal
 #undef _NUMZZZ_MARK_Z_
 ENDMACRO
 
+#if !defined(_BOUNDD_CONV_H_) && !defined(_BOUNDMPQ_CONV_H_) && !defined(_BOUNDMPFR_CONV_H_)
+static inline bool numXXX_fits_numD(numXXX_t a)
+{ return numXXX_fits_double(a); }
+static inline bool numXXX_fits_numMPQ(numXXX_t a)
+{ return numXXX_fits_mpq(a); }
+static inline bool numXXX_fits_numMPFR(numXXX_t a)
+{ return numXXX_fits_mpfr(a); }
+static inline bool numD_set_numXXX(numD_t a, numXXX_t b, numinternal_t intern)
+{ return double_set_numXXX(a,b,intern); }
+static inline bool numMPQ_set_numXXX(numMPQ_t a, numXXX_t b, numinternal_t intern)
+{ return mpq_set_numXXX(a,b,intern); }
+static inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, numinternal_t intern)
+{ return mpfr_set_numXXX(a,b,intern); }
+#endif
+
 #undef _NUMXXX_MARK_X_
 
 #ifdef __cplusplus
