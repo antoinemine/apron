@@ -23,13 +23,21 @@ ICFLAGS = -I. -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 # Files
 #---------------------------------------
 
-H_FILES = \
-ap_config.h \
-ap_coeff.h ap_dimension.h \
-ap_linexpr0.h ap_linexpr0_array.h \
-ap_lincons0.h ap_lincons0_array.h \
+H_TMPL_FILES = \
+ap_coeff.h.tmpl \
+ap_linexpr0.h.tmpl ap_lincons0.h.tmpl \
+ap_yyy0_array.h
+C_TMPL_FILES = \
+ap_coeff.c.tmpl \
+ap_linexpr0.c.tmpl ap_lincons0.c.tmpl \
+ap_yyy0_array.c
+
+H_ORIG_FILES = \
+ap_config.h ap_dimension.h \
 ap_manager.h \
-ap_var.h ap_environment.h
+ap_var.h ap_environment.h 
+#ap_linexpr0_array.h \
+#ap_lincons0_array.h \
 #ap_generator0.h
 #ap_texpr0.h ap_tcons0.h ap_expr0.h \
 #ap_manager.h ap_abstract0.h ap_generic.h \
@@ -39,25 +47,25 @@ ap_var.h ap_environment.h
 #ap_global0.h ap_global1.h \
 #ap_linearize.h ap_linearize_aux.h \
 #ap_reducedproduct.h
-
-C_FILES = \
-ap_coeff.c ap_dimension.c \
-ap_linexpr0.c ap_linexpr0_array.c \
-ap_lincons0.c ap_lincons0_array.c \
+C_ORIG_FILES = \
+ap_dimension.c \
 ap_manager.c \
-ap_var.c ap_environment.c 
-#ap_generator0.c
-#ap_texpr0.c ap_tcons0.c \
-#ap_manager.c ap_abstract0.c ap_generic.c \
-#ap_linexpr1.c ap_lincons1.c ap_generator1.c \
-#ap_texpr1.c ap_tcons1.c \
-#ap_abstract1.c \
-#ap_linearize.c \
-#ap_reducedproduct.c
+ap_var.c ap_environment.c
 
-C_FILES_AUX = ap_linearize_aux.c
-H_FILES_AUX = ap_linearize_aux.h
-CH_FILES_AUX = $(H_FILES_AUX) $(C_FILES_AUX)
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
+
+H_GENERATED_FILES = \
+ap_coeff.h \
+ap_linexpr0.h ap_lincons0.h \
+ap_linexpr0_array.h ap_lincons0_array.h
+C_GENERATED_FILES = \
+ap_coeff.c \
+ap_linexpr0.c ap_lincons0.c \
+ap_linexpr0_array.c ap_lincons0_array.c
+
+H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
+C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
 #---------------------------------------
 # Rules
@@ -72,15 +80,16 @@ endif
 # Misc rules
 #---------------------------------------
 
-tar: $(H_FILES) $(C_FILES) $(CH_FILES_AUX) apron.texi Makefile COPYING README
+tar: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl apron.texi Makefile COPYING README
 	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
 
-dist: $(H_FILES) $(C_FILES) $(CH_FILES_AUX) apron.texi Makefile COPYING README apron.info apron.pdf html
+dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl apron.texi Makefile COPYING README apron.info apron.pdf html
 	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
 
 clean:
 	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info*
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmxa *.cma *.so
+	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -fr html
 
 install: all
@@ -127,29 +136,27 @@ html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.tex
 # C rules
 #---------------------------------------
 
-libapron.a: $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o)  $(C_FILES_AUX:%.c=%MPFR.o) ../itv/libitv.a
+libapron.a: $(C_FILES:%.c=%.o) ../itv/libitv.a
 	cp ../itv/libitv.a $@
-	$(AR) rs $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o)
+	$(AR) rs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libapron_debug.a: $(C_FILES:%.c=%_debug.o) $(C_FILES_AUX:%.c=%MPQ_debug.o) $(C_FILES_AUX:%.c=%D_debug.o) $(C_FILES_AUX:%.c=%MPFR_debug.o) ../itv/libitv_debug.a
+libapron_debug.a: $(C_FILES:%.c=%_debug.o) ../itv/libitv_debug.a
 	cp ../itv/libitv_debug.a $@
-	$(AR) rs $@ $(C_FILES:%.c=%_debug.o) $(C_FILES_AUX:%.c=%MPQ_debug.o) $(C_FILES_AUX:%.c=%D_debug.o) $(C_FILES_AUX:%.c=%MPFR_debug.o)
+	$(AR) rs $@ $(C_FILES:%.c=%_debug.o)
 	$(RANLIB) $@
 
-libapron.so: $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o)  $(C_FILES_AUX:%.c=%MPFR.o) ../itv/libitv.a
-	for i in `$(AR) t ../itv/libitv.a`; do ln -s ../itv/$$i $$i; done
-	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) `$(AR) t ../itv/libitv.a`
-	for i in `$(AR) t ../itv/libitv.a`; do $(RM) $$i; done
+libapron.so: $(C_FILES:%.c=%.o) ../itv/libitv.a
+	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) \
+	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv.a))) 
 
-libapron_debug.so: $(C_FILES:%.c=%_debug.o) $(C_FILES_AUX:%.c=%MPQ_debug.o) $(C_FILES_AUX:%.c=%D_debug.o) $(C_FILES_AUX:%.c=%MPFR_debug.o) ../itv/libitv_debug.a
-	for i in `$(AR) t ../itv/libitv_debug.a`; do ln -s ../itv/$$i $$i; done
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%.o) $(C_FILES_AUX:%.c=%MPQ.o) $(C_FILES_AUX:%.c=%D.o) $(C_FILES_AUX:%.c=%MPFR.o) `$(AR) t ../itv/libitv_debug.a`
-	for i in `$(AR) t ../itv/libitv_debug.a`; do $(RM) $$i; done
+libapron_debug.so: $(C_FILES:%.c=%_debug.o) ../itv/libitv_debug.a
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%_debug.o)
+	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv_debug.a))) 
 
 .PHONY : dep
 
-dep: $(H_FILES)
+dep: $(H_FILES) $(C_FILES)
 	for i in $(C_FILES); do		\
 		cpp $(ICFLAGS) -I../itv -MM $$i;	\
 	done
@@ -164,8 +171,16 @@ dep: $(H_FILES)
 # C generic rules
 #---------------------------------------
 
-%.c: %.tmpl macros.pl
-	macros.pl $< >$@
+$(H_GENERATED_FILES) $(C_GENERATED_FILES): %: %.tmpl
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	macros.pl $(SRCDIR)/$< >>$@
+
+ap_linexpr0_array.%: ap_yyy0_array.%
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr/g" >>$@
+ap_lincons0_array.%: ap_yyy0_array.%
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons/g" >>$@
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(ICFLAGS)  -I../num -I../itv -c $<
@@ -176,3 +191,14 @@ dep: $(H_FILES)
 #---------------------------------------
 # dependencies (generated with make dep)
 #---------------------------------------
+
+depend: $(C_FILES) $(H_FILES)
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
+
+-include Makefile.depend
+
+.PHONY: tags TAGS
+tags: TAGS
+TAGS: $(H_SRC_FILES) $(C_SRC_FILES)
+	etags $^
+	etags -a macros.pl
