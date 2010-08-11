@@ -233,13 +233,13 @@ static inline bool numDl_fits_lint(numDl_t a)
 { return ldouble_fits_numIl(*a); }
 static inline bool numDl_fits_llint(numDl_t a)
 { return ldouble_fits_numIll(*a); }
-static inline bool numDl_fits_mpz(numIl_t a)
+static inline bool numDl_fits_mpz(numDl_t a)
 { return true; }
 static inline bool numDl_fits_lfrac(numDl_t a)
 { return ldouble_fits_numRl(*a); }
 static inline bool numDl_fits_llfrac(numDl_t a)
 { return ldouble_fits_numRll(*a); }
-static inline bool numDl_fits_mpq(numIl_t a)
+static inline bool numDl_fits_mpq(numDl_t a)
 { return true; }
 static inline bool numDl_fits_float(numDl_t a)
 {
