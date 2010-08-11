@@ -8,6 +8,17 @@
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
+inline void itvXXX_linterm_init(itvXXX_linterm_t term)
+{ eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
+inline void itvXXX_linterm_init_set(itvXXX_linterm_t res, itvXXX_linterm_t term)
+{ eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
+inline void itvXXX_linterm_set(itvXXX_linterm_t res, itvXXX_linterm_t term)
+{ eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
+inline void itvXXX_linterm_clear(itvXXX_linterm_t term)
+{ eitvXXX_clear(term->eitv); }
+inline void itvXXX_linterm_swap(itvXXX_linterm_t a, itvXXX_linterm_t b)
+{ if (a!=b){ itvXXX_linterm_struct t=*a; *a=*b; *b=t; } }
+
 void itvXXX_linexpr_init(itvXXX_linexpr_t expr, size_t size)
 {
   expr->linterm = NULL;
@@ -178,6 +189,10 @@ bool itvXXX_linexpr_is_real(itvXXX_linexpr_t expr, size_t intdim)
   }
   return res;
 }
+bool itvXXX_linexpr_is_linear(itvXXX_linexpr_t expr)
+{
+  return eitvXXX_is_point(expr->cst) && itvXXX_linexpr_is_quasilinear(expr); 
+}
 bool itvXXX_linexpr_is_quasilinear(itvXXX_linexpr_t expr)
 {
   size_t i,dim;
@@ -195,12 +210,12 @@ itvlinexpr_type_t itvXXX_linexpr_type(itvXXX_linexpr_t a)
 {
   if (itvXXX_linexpr_is_quasilinear(a)){
     if (eitvXXX_is_point(a->cst))
-      return ITVXXX_LINEXPR_LINEAR;
+      return ITV_LINEXPR_LINEAR;
     else
-      return ITVXXX_LINEXPR_QUASILINEAR;
+      return ITV_LINEXPR_QUASILINEAR;
   }
   else
-    return ITVXXX_LINEXPR_INTLINEAR;
+    return ITV_LINEXPR_INTLINEAR;
 }
 
 /* ====================================================================== */
@@ -293,15 +308,15 @@ bool itvXXX_linexpr_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* 
       break;
     case ITV_NUM:
       {
-	num_ptr b = va_arg(*va,num_ptr);
+	numXXX_ptr b = va_arg(*va,numXXX_ptr);
 	a = get_eitvXXX_of_dimvar(env,expr,va);
 	eitvXXX_set_num(a,b);
       }
       break;
     case ITV_NUM2:
       {
-	num_ptr b = va_arg(*va,num_ptr);
-	num_ptr c = va_arg(*va,num_ptr);
+	numXXX_ptr b = va_arg(*va,numXXX_ptr);
+	numXXX_ptr c = va_arg(*va,numXXX_ptr);
 	a = get_eitvXXX_of_dimvar(env,expr,va);
 	eitvXXX_set_num2(a,b,c);
       }
@@ -498,7 +513,7 @@ void itvXXX_linexpr_neg(itvXXX_linexpr_t res, itvXXX_linexpr_t expr)
   }
   return;
 }
-void itvXXX_linexpr_scale(itvXXX_internal_t* intern,
+void itvXXX_linexpr_scale(itvXXX_internal_t intern,
 			  itvXXX_linexpr_t res, itvXXX_linexpr_t expr, eitvXXX_t coeff)
 {
   size_t i;
@@ -527,7 +542,7 @@ void itvXXX_linexpr_scale(itvXXX_internal_t* intern,
   }
   return;
 }
-void itvXXX_linexpr_div(itvXXX_internal_t* intern,
+void itvXXX_linexpr_div(itvXXX_internal_t intern,
 			itvXXX_linexpr_t res, itvXXX_linexpr_t expr, eitvXXX_t coeff)
 {
   size_t i;
@@ -544,7 +559,7 @@ void itvXXX_linexpr_div(itvXXX_internal_t* intern,
   return;
 }
 
-void itvXXX_linexpr_add(itvXXX_internal_t* intern,
+void itvXXX_linexpr_add(itvXXX_internal_t intern,
 			itvXXX_linexpr_t res,
 			itvXXX_linexpr_t exprA,
 			itvXXX_linexpr_t exprB)
@@ -595,7 +610,7 @@ void itvXXX_linexpr_add(itvXXX_internal_t* intern,
   *res = *expr;
   return;
 }
-void itvXXX_linexpr_sub(itvXXX_internal_t* intern,
+void itvXXX_linexpr_sub(itvXXX_internal_t intern,
 		     itvXXX_linexpr_t res,
 		     itvXXX_linexpr_t exprA,
 		     itvXXX_linexpr_t exprB)
@@ -621,7 +636,7 @@ void itvXXX_linexpr_sub(itvXXX_internal_t* intern,
 /* ********************************************************************** */
 
 /* Evaluate an interval linear expression */
-bool itvXXX_linexpr_eval(itvXXX_internal_t* intern,
+bool itvXXX_linexpr_eval(itvXXX_internal_t intern,
 			 itvXXX_t res, itvXXX_linexpr_t expr, itvXXX_t* env)
 {
   size_t i;
@@ -638,7 +653,7 @@ bool itvXXX_linexpr_eval(itvXXX_internal_t* intern,
     if (itvXXX_is_top(res))
       break;
   }
-#if NUM_EXACT
+#if NUMXXX_EXACT
   return true;
 #else
   return false;
@@ -752,7 +767,7 @@ size_t itvXXX_linexpr_supportinterval(itvXXX_linexpr_t expr, ap_dim_t* tdim)
 */
 
 static void
-itvXXX_quasilinearize_choose_middle(num_t middle, /* the result */
+itvXXX_quasilinearize_choose_middle(numXXX_t middle, /* the result */
 				    itvXXX_t coeff,    /* the coefficient in which
 							  middle is to be picked */
 				    itvXXX_t var,      /* the variable interval */
@@ -761,54 +776,54 @@ itvXXX_quasilinearize_choose_middle(num_t middle, /* the result */
 								an inequality ? */
 				    )
 {
-  if (bound_infty(coeff->neginf)){
-    if (bound_infty(coeff->sup))
-      num_set_int(middle,0);
+  if (boundXXX_infty(coeff->neginf)){
+    if (boundXXX_infty(coeff->sup))
+      numXXX_set_int(middle,0);
     else
-      num_set(middle,
-	      bound_numref(coeff->sup));
+      numXXX_set(middle,
+		 boundXXX_numref(coeff->sup));
   }
-  else if (bound_infty(coeff->sup))
-    num_neg(middle,
-	    bound_numref(coeff->neginf));
+  else if (boundXXX_infty(coeff->sup))
+    numXXX_neg(middle,
+	       boundXXX_numref(coeff->neginf));
   else {
     /* if coeff = [inf,sup] */
     if (for_meet_inequality){
-      if (bound_infty(var->neginf))
-	num_neg(middle,
-		bound_numref(coeff->neginf));
-      else if (bound_infty(var->sup))
-	num_set(middle,
-		bound_numref(coeff->sup));
+      if (boundXXX_infty(var->neginf))
+	numXXX_neg(middle,
+		   boundXXX_numref(coeff->neginf));
+      else if (boundXXX_infty(var->sup))
+	numXXX_set(middle,
+		   boundXXX_numref(coeff->sup));
       else /* Arbitrary choice: we take the middle */
 	goto itvXXX_quasilinearize_choose_middle_default;
     }
     else {
-      if (bound_infty(var->neginf) ?
-	  !bound_infty(var->sup) :
-	  bound_infty(var->sup)){
-	if (bound_sgn(coeff->neginf)<=0)
-	  num_neg(middle,
-		  bound_numref(coeff->neginf));
-	else if (bound_sgn(coeff->sup)<=0)
-	  num_set(middle,
-		  bound_numref(coeff->sup));
+      if (boundXXX_infty(var->neginf) ?
+	  !boundXXX_infty(var->sup) :
+	  boundXXX_infty(var->sup)){
+	if (boundXXX_sgn(coeff->neginf)<=0)
+	  numXXX_neg(middle,
+		     boundXXX_numref(coeff->neginf));
+	else if (boundXXX_sgn(coeff->sup)<=0)
+	  numXXX_set(middle,
+		     boundXXX_numref(coeff->sup));
 	else /* Arbitrary choice: we take the middle */
 	  goto itvXXX_quasilinearize_choose_middle_default;
       }
       else {
       itvXXX_quasilinearize_choose_middle_default:
-	num_sub(middle,
-		bound_numref(coeff->sup),
-		bound_numref(coeff->neginf));
-	num_div_2(middle,
-		  middle);
+	numXXX_sub(middle,
+		   boundXXX_numref(coeff->sup),
+		   boundXXX_numref(coeff->neginf));
+	numXXX_div_2(middle,
+		     middle);
       }
     }
   }
 }
 
-bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t intern,
 				   itvXXX_linexpr_t linexpr, itvXXX_t* env,
 				   bool for_meet_inequality)
 {
@@ -824,7 +839,7 @@ bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t* intern,
   itvXXX_linexpr_ForeachLinterm(linexpr,i,dim,eitv){
     if (itvXXX_is_point(env[dim])){
       /* If a variable has a constant value, simplification */
-      eitvXXX_mul_num(eitv,eitv,bound_numref(env[dim]->sup));
+      eitvXXX_mul_num(eitv,eitv,boundXXX_numref(env[dim]->sup));
       eitvXXX_add(linexpr->cst,linexpr->cst,eitv);
       eitvXXX_set_int(eitv,0);
       zero = true;
@@ -858,13 +873,28 @@ bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t* intern,
 #ifdef LOGDEBUG
   itvXXX_linexpr_print(linexpr,NULL); printf("\n");
 #endif
-#if NUM_EXACT
+#if NUMXXX_EXACT
   return true;
 #else
   return false;
 #endif
 }
 
+bool itvXXX_linexpr_array_quasilinearize(itvXXX_internal_t intern,
+					 itvXXX_linexpr_array_t array, itvXXX_t* env)
+{
+  size_t i;
+  bool res;
+  res = true;
+  for (i=0; i<array->size; i++) {
+    itvXXX_linexpr_quasilinearize(intern,array->p[i],env,false);
+  }
+#if NUMXXX_EXACT
+  return true;
+#else
+  return false;
+#endif
+}
 
 /* ====================================================================== */
 /* VI. Change of dimensions and permutations */

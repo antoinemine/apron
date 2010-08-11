@@ -12,7 +12,7 @@
 /* If integer is true, narrow the interval to integer bounds.
    In any case, return true if the interval is bottom
 */
-bool eitvXXX_canonicalize(itvXXX_internal_t* intern,
+bool eitvXXX_canonicalize(itvXXX_internal_t intern,
 		      eitvXXX_t a, bool integer)
 {
   bool exc,cmp;
@@ -157,7 +157,7 @@ void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
 /* Multiplication */
 /* ====================================================================== */
 
-void eitvXXX_mul(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
+void eitvXXX_mul(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   if (b->eq)
     eitvXXX_mul_bound(a,c,b->itv->sup);
@@ -174,7 +174,7 @@ void eitvXXX_mul(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t 
 /* Division */
 /* ====================================================================== */
 
-void eitvXXX_div(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
+void eitvXXX_div(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   if (b->eq)
     eitvXXX_div_bound(a,c,b->itv->sup);

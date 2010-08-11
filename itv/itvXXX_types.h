@@ -54,7 +54,7 @@ typedef struct {
   itvXXX_t max_exact;  /* [-1;1] * maximum exactly representable integer */
 } itvXXX_float_const;
 
-typedef struct itvXXX_internal_t {
+typedef struct __itvXXX_internal_struct {
   numinternal_t num;
   numXXX_t canonicalize_num;
   boundXXX_t muldiv_bound;
@@ -76,7 +76,9 @@ typedef struct itvXXX_internal_t {
   itvXXX_t itvXXX_half; /* [-0.5,0.5] */
   mpz_t reduce_lincons_gcd;
   mpz_t reduce_lincons_mpz;
-} itvXXX_internal_t;
+} __itvXXX_internal_struct;
+typedef __itvXXX_internal_struct* itvXXX_internal_ptr;
+typedef __itvXXX_internal_struct itvXXX_internal_t[1];
 
 /* ********************************************************************** */
 /* Interval linear expressions */
