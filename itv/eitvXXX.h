@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "itvXXX_types.h"
+#include "itvXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,13 +53,13 @@ static inline void eitvXXX_enlarge_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 /* ====================================================================== */
 /* Normalization and tests */
 /* ====================================================================== */
-bool eitvXXX_canonicalize(itvXXX_internal_t* intern, eitvXXX_t a, bool integer);
+bool eitvXXX_canonicalize(itvXXX_internal_t intern, eitvXXX_t a, bool integer);
   /* Canonicalize an interval:
      - if integer is true, narrows bound to integers
      - return true if the interval is bottom
      - return false otherwise
   */
-static inline bool eitvXXX_is_int(itvXXX_internal_t* intern, eitvXXX_t a);
+static inline bool eitvXXX_is_int(itvXXX_internal_t intern, eitvXXX_t a);
   /* has integer bounds */
 static inline bool eitvXXX_is_point(eitvXXX_t a);
   /* Return true iff the interval is a single point */
@@ -68,7 +69,7 @@ static inline bool eitvXXX_is_pos(eitvXXX_t a);
 static inline bool eitvXXX_is_neg(eitvXXX_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
 static inline bool eitvXXX_is_top(eitvXXX_t a);
-static inline bool eitvXXX_is_bottom(itvXXX_internal_t* intern, eitvXXX_t a);
+static inline bool eitvXXX_is_bottom(itvXXX_internal_t intern, eitvXXX_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
 static inline bool eitvXXX_is_leq(eitvXXX_t a, eitvXXX_t b);
   /* Inclusion test */
@@ -88,13 +89,13 @@ static inline int eitvXXX_cmp_zero(eitvXXX_t a);
   */
 static inline void eitvXXX_range_abs(boundXXX_t a, eitvXXX_t b);
   /* a=(max b - min b) */
-static inline void eitvXXX_range_rel(itvXXX_internal_t* intern, boundXXX_t a, eitvXXX_t b);
+static inline void eitvXXX_range_rel(itvXXX_internal_t intern, boundXXX_t a, eitvXXX_t b);
   /* a=(max b - min b) / (|a+b|/2) */
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-static inline bool eitvXXX_meet(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
+static inline bool eitvXXX_meet(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
   /* Assign a with the intersection of b and c */
 static inline void eitvXXX_join(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
   /* Assign a with the union of b and c */
@@ -107,8 +108,8 @@ static inline void eitvXXX_widening(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
 static inline void eitvXXX_add(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
 void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
 static inline void eitvXXX_neg(eitvXXX_t a, eitvXXX_t b);
-void eitvXXX_mul(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
-void eitvXXX_div(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
+void eitvXXX_mul(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
+void eitvXXX_div(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
 static inline void eitvXXX_add_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
 static inline void eitvXXX_sub_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
 void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
@@ -117,14 +118,14 @@ static inline void eitvXXX_add_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 static inline void eitvXXX_sub_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
-static inline bool eitvXXX_sqrt(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b);
+static inline bool eitvXXX_sqrt(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
 void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b);
 static inline void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c);
 
 static inline void eitvXXX_magnitude(boundXXX_t a, eitvXXX_t b);
   /* get the absolute value of maximal bound */
 
-static inline void eitvXXX_mod(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, bool is_int);
+static inline void eitvXXX_mod(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, bool is_int);
   /* x mod y = x - y*trunc(x/y) */
 
 /* ====================================================================== */
@@ -137,8 +138,8 @@ static inline void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b);
 static inline void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b);
 
 /* Floating-point casts (worst cases) */
-static inline void eitvXXX_to_float(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b);
-static inline void eitvXXX_to_double(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b);
+static inline void eitvXXX_to_float(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
+static inline void eitvXXX_to_double(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
 
 /* ====================================================================== */
 /* Conversions */
@@ -290,7 +291,7 @@ static inline void eitvXXX_enlarge_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 /* Normalization and tests */
 /* ====================================================================== */
 
-static inline bool eitvXXX_is_int(itvXXX_internal_t* intern, eitvXXX_t a)
+static inline bool eitvXXX_is_int(itvXXX_internal_t intern, eitvXXX_t a)
 {
   boundXXX_trunc(intern->muldiv_bound,a->itv->sup);
   if (boundXXX_cmp(intern->muldiv_bound,a->itv->sup)) return false;
@@ -318,7 +319,7 @@ static inline bool eitvXXX_is_top(eitvXXX_t a)
 {
   return !a->eq && itvXXX_is_top(a->itv);
 }
-static inline bool eitvXXX_is_bottom(itvXXX_internal_t* intern, eitvXXX_t a)
+static inline bool eitvXXX_is_bottom(itvXXX_internal_t intern, eitvXXX_t a)
 {
   return !a->eq && eitvXXX_canonicalize(intern, a, false);
 }
@@ -352,14 +353,14 @@ static inline int eitvXXX_cmp_zero(eitvXXX_t a)
 static inline void eitvXXX_range_abs(boundXXX_t a, eitvXXX_t b)
 { itvXXX_range_abs(a,b->itv); }
 
-static inline void eitvXXX_range_rel(itvXXX_internal_t* intern, boundXXX_t a, eitvXXX_t b)
+static inline void eitvXXX_range_rel(itvXXX_internal_t intern, boundXXX_t a, eitvXXX_t b)
 { itvXXX_range_rel(intern,a,b->itv); }
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
 
-static inline bool eitvXXX_meet(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
+static inline bool eitvXXX_meet(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   boundXXX_min(a->itv->sup,b->itv->sup,c->itv->sup);
   boundXXX_min(a->itv->neginf,b->itv->neginf,c->itv->neginf);
@@ -469,14 +470,14 @@ static inline void eitvXXX_neg(eitvXXX_t a, eitvXXX_t b)
   a->eq = b->eq;
 }
 
-static inline bool eitvXXX_sqrt(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b)
+static inline bool eitvXXX_sqrt(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b)
 {
   bool exact = itvXXX_sqrt(intern,a->itv,b->itv);
   a->eq = b->eq && exact;
   return exact;
 }
 
-static inline void eitvXXX_mod(itvXXX_internal_t* intern,
+static inline void eitvXXX_mod(itvXXX_internal_t intern,
 			    eitvXXX_t a, eitvXXX_t b, eitvXXX_t c,
 			    bool is_int)
 {
@@ -525,12 +526,12 @@ static inline void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
   a->eq = itvXXX_is_point(a->itv);
 }
 
-static inline void eitvXXX_to_float(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b)
+static inline void eitvXXX_to_float(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b)
 {
   itvXXX_to_float(intern,a->itv,b->itv);
   a->eq = itvXXX_is_point(a->itv);
 }
-static inline void eitvXXX_to_double(itvXXX_internal_t* intern, eitvXXX_t a, eitvXXX_t b)
+static inline void eitvXXX_to_double(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b)
 {
   itvXXX_to_double(intern,a->itv,b->itv);
   a->eq = itvXXX_is_point(a->itv);

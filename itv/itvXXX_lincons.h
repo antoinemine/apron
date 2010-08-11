@@ -6,6 +6,7 @@
 #define _ITVXXX_LINCONS_H_
 
 #include "itvXXX_types.h"
+#include "itvXXX_linexpr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,11 +64,11 @@ itvlinexpr_type_t itvXXX_lincons_array_type(itvXXX_lincons_array_t array);
 /* III. Evaluation, simplification and linearisation */
 /* ********************************************************************** */
 
-tbool_t itvXXX_lincons_evalcst(itvXXX_internal_t* intern,
+tbool_t itvXXX_lincons_evalcst(itvXXX_internal_t intern,
 			    itvXXX_lincons_t lincons);
   /* Is the assumed constant constraint satisfied ? */
 
-bool itvXXX_lincons_sat_is_false(itvXXX_internal_t* intern,
+bool itvXXX_lincons_sat_is_false(itvXXX_internal_t intern,
 			      itvXXX_lincons_t lincons);
   /* Return true if the constraint is not satisfiable
      *for all* deterministic expressions contained in it
@@ -78,7 +79,7 @@ bool itvXXX_lincons_sat_is_false(itvXXX_internal_t* intern,
      - the cases where itvXXX_eval_cstlincons returns tbool_false
   */
 
-void itvXXX_lincons_reduce_integer(itvXXX_internal_t* intern,
+void itvXXX_lincons_reduce_integer(itvXXX_internal_t intern,
 				itvXXX_lincons_t cons, size_t intdim);
   /* Transform a constraint involving only integer variables and only scalar
      coefficients (with the exception of the constant) as follows:
@@ -92,7 +93,7 @@ void itvXXX_lincons_reduce_integer(itvXXX_internal_t* intern,
      - expr + [min,sup] = 0   ==>  expr + [ceil(min),floor(sup)] = 0
   */
 
-tbool_t itvXXX_lincons_array_reduce(itvXXX_internal_t* intern,
+tbool_t itvXXX_lincons_array_reduce(itvXXX_internal_t intern,
 				 itvXXX_lincons_array_t array, bool meet);
   /* Simplify the array as follows:
      - remove trivially true constraints (like 1>=0)
@@ -103,7 +104,7 @@ tbool_t itvXXX_lincons_array_reduce(itvXXX_internal_t* intern,
      - tbool_false if trivially false
      - tbool_top otherwise
   */
-tbool_t itvXXX_lincons_array_reduce_integer(itvXXX_internal_t* intern,
+tbool_t itvXXX_lincons_array_reduce_integer(itvXXX_internal_t intern,
 					 itvXXX_lincons_array_t array,
 					 size_t intdim);
   /* Apply first itvXXX_lincons_reduce_integer, and then
@@ -127,14 +128,14 @@ size_t itvXXX_lincons_array_supportinterval(itvXXX_lincons_array_t array, ap_dim
    satisfaction, meet should be set to false.
 */
 static inline
-bool itvXXX_lincons_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_lincons_quasilinearize(itvXXX_internal_t intern,
 				itvXXX_lincons_t lincons,
 				itvXXX_t* env,
 				bool for_meet_inequality);
   /* Quasilinearize in-place lincons using the bounding box itv. Return true
      if no approximations. */
 
-bool itvXXX_lincons_array_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_lincons_array_quasilinearize(itvXXX_internal_t intern,
 				      itvXXX_lincons_array_t array,
 				      itvXXX_t* env,
 				      bool for_meet_inequality);
@@ -145,7 +146,7 @@ bool itvXXX_lincons_array_quasilinearize(itvXXX_internal_t* intern,
 /* IV. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-bool itvXXX_lincons_array_boxize(itvXXX_internal_t* intern,
+bool itvXXX_lincons_array_boxize(itvXXX_internal_t intern,
 			      itvXXX_t* res,
 			      bool* tchange,
 			      itvXXX_lincons_array_t array,
@@ -205,7 +206,7 @@ int itvXXX_lincons_compare(itvXXX_lincons_t cons1, itvXXX_lincons_t cons2);
 /* ********************************************************************** */
 
 static inline void itvXXX_lincons_init(itvXXX_lincons_t cons,size_t size)
-{ itvXXX_linexpr_init(cons->linexpr,size); cons->constyp = ITVXXX_CONS_EQ; mpq_init(cons->mpq); }
+{ itvXXX_linexpr_init(cons->linexpr,size); cons->constyp = ITV_CONS_EQ; mpq_init(cons->mpq); }
 static inline void itvXXX_lincons_set(itvXXX_lincons_t a, itvXXX_lincons_t b)
 { if (a!=b){ itvXXX_linexpr_set(a->linexpr,b->linexpr); mpq_set(a->mpq,b->mpq); a->constyp = b->constyp; } }
 static inline void itvXXX_lincons_init_set(itvXXX_lincons_t a, itvXXX_lincons_t b)
@@ -250,7 +251,7 @@ static inline size_t itvXXX_lincons_supportinterval(itvXXX_lincons_t cons, ap_di
   return itvXXX_linexpr_supportinterval(cons->linexpr,tdim);
 }
 static inline
-bool itvXXX_lincons_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_lincons_quasilinearize(itvXXX_internal_t intern,
 				itvXXX_lincons_t lincons,
 				itvXXX_t* env,
 				bool for_meet_inequality)

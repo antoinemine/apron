@@ -7,6 +7,7 @@
 
 #include <stdarg.h>
 #include "itvXXX_types.h"
+#include "eitvXXX.h"
 #include "ap_dimension.h"
 #include "ap_coeff.h"
 
@@ -18,11 +19,11 @@ extern "C" {
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
-static inline void itvXXX_linterm_init(itvXXX_linterm_t term);
-static inline void itvXXX_linterm_init_set(itvXXX_linterm_t res, itvXXX_linterm_t term);
-static inline void itvXXX_linterm_set(itvXXX_linterm_t res, itvXXX_linterm_t term);
-static inline void itvXXX_linterm_clear(itvXXX_linterm_t term);
-static inline void itvXXX_linterm_swap(itvXXX_linterm_t a, itvXXX_linterm_t b);
+void itvXXX_linterm_init(itvXXX_linterm_t term);
+void itvXXX_linterm_init_set(itvXXX_linterm_t res, itvXXX_linterm_t term);
+void itvXXX_linterm_set(itvXXX_linterm_t res, itvXXX_linterm_t term);
+void itvXXX_linterm_clear(itvXXX_linterm_t term);
+void itvXXX_linterm_swap(itvXXX_linterm_t a, itvXXX_linterm_t b);
 
 void itvXXX_linexpr_init(itvXXX_linexpr_t expr, size_t size);
 void itvXXX_linexpr_init_set(itvXXX_linexpr_t res, itvXXX_linexpr_t expr);
@@ -65,7 +66,7 @@ bool itvXXX_linexpr_is_real(itvXXX_linexpr_t expr, size_t intdim);
 
   /* Expression classification */
 
-static inline bool itvXXX_linexpr_is_linear(itvXXX_linexpr_t expr);
+bool itvXXX_linexpr_is_linear(itvXXX_linexpr_t expr);
   /* Return true iff all involved coefficients are scalars */
 bool itvXXX_linexpr_is_quasilinear(itvXXX_linexpr_t expr);
   /* Return true iff all involved coefficients but the constant are scalars. */
@@ -180,17 +181,17 @@ bool itvXXX_linexpr_set_list(numinternal_t intern, itvXXX_linexpr_t expr, ...);
 
 void itvXXX_linexpr_neg(itvXXX_linexpr_t res, itvXXX_linexpr_t expr);
   /* Negate an expression */
-void itvXXX_linexpr_scale(itvXXX_internal_t* intern,
+void itvXXX_linexpr_scale(itvXXX_internal_t intern,
 			  itvXXX_linexpr_t res, itvXXX_linexpr_t expr, eitvXXX_t coeff);
-void itvXXX_linexpr_div(itvXXX_internal_t* intern,
+void itvXXX_linexpr_div(itvXXX_internal_t intern,
 			itvXXX_linexpr_t res, itvXXX_linexpr_t expr, eitvXXX_t coeff);
   /* Scale an expression by an interval */
 
-void itvXXX_linexpr_add(itvXXX_internal_t* intern,
+void itvXXX_linexpr_add(itvXXX_internal_t intern,
 			itvXXX_linexpr_t expr,
 			itvXXX_linexpr_t exprA,
 			itvXXX_linexpr_t exprB);
-void itvXXX_linexpr_sub(itvXXX_internal_t* intern,
+void itvXXX_linexpr_sub(itvXXX_internal_t intern,
 			itvXXX_linexpr_t expr,
 			itvXXX_linexpr_t exprA,
 			itvXXX_linexpr_t exprB);
@@ -201,7 +202,7 @@ void itvXXX_linexpr_sub(itvXXX_internal_t* intern,
 /* V. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
-bool itvXXX_linexpr_eval(itvXXX_internal_t* intern,
+bool itvXXX_linexpr_eval(itvXXX_internal_t intern,
 			 itvXXX_t res, itvXXX_linexpr_t expr, itvXXX_t* env);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
@@ -225,14 +226,14 @@ size_t itvXXX_linexpr_array_supportinterval(itvXXX_linexpr_array_t array, ap_dim
    deducing things. If constraints are quasilinearized for testing
    satisfaction, meet should be set to false.
 */
-bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_linexpr_quasilinearize(itvXXX_internal_t intern,
 				   itvXXX_linexpr_t linexpr,
 				   itvXXX_t* env,
 				   bool for_meet_inequality);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
-bool itvXXX_linexpr_array_quasilinearize(itvXXX_internal_t* intern,
+bool itvXXX_linexpr_array_quasilinearize(itvXXX_internal_t intern,
 					 itvXXX_linexpr_array_t array,
 					 itvXXX_t* env);
   /* Same for an array */
@@ -274,25 +275,10 @@ int itvXXX_linexpr_compare(itvXXX_linexpr_t expr1, itvXXX_linexpr_t expr2);
 /* Definition of inline functions */
 /* ********************************************************************** */
 
-static inline void itvXXX_linterm_init(itvXXX_linterm_t term)
-{ eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
-static inline void itvXXX_linterm_init_set(itvXXX_linterm_t res, itvXXX_linterm_t term)
-{ eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
-static inline void itvXXX_linterm_set(itvXXX_linterm_t res, itvXXX_linterm_t term)
-{ eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
-static inline void itvXXX_linterm_clear(itvXXX_linterm_t term)
-{ eitvXXX_clear(term->eitv); }
-static inline void itvXXX_linterm_swap(itvXXX_linterm_t a, itvXXX_linterm_t b)
-{ if (a!=b){ itvXXX_linterm_struct t=*a; *a=*b; *b=t; } }
-
 static inline void itvXXX_linexpr_print(itvXXX_linexpr_t expr, char** name)
 { itvXXX_linexpr_fprint(stdout,expr,name); }
 static inline void itvXXX_linexpr_array_print(itvXXX_linexpr_array_t array, char** name)
 { itvXXX_linexpr_array_fprint(stdout,array,name); }
-
-static inline bool itvXXX_linexpr_is_linear(itvXXX_linexpr_t expr)
-{ return eitvXXX_is_point(expr->cst) && itvXXX_linexpr_is_quasilinear(expr); }
-
 static inline size_t itvXXX_linexpr_size(itvXXX_linexpr_t expr)
 {
   size_t i,dim,size;
