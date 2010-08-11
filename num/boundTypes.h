@@ -2,8 +2,8 @@
 /* bound.h: numbers used for bounds */
 /* ********************************************************************** */
 
-#ifndef _BOUND_H_
-#define _BOUND_H_
+#ifndef _BOUNDTYPES_H_
+#define _BOUNDTYPES_H_
 
 #include "numTypes.h"
 

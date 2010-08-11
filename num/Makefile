@@ -4,19 +4,20 @@ SRCDIR=$(shell pwd)
 
 TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 
+H_TMPL_FILES = \
+numRyyy.h boundXXX.h boundXXX_conv.h
+
 H_ORIG_FILES = \
 numConfig.h numTypes.h \
 numIl.h numIll.h numMPZ.h \
 numMPQ.h \
 numD.h numDl.h numMPFR.h \
-boundTypes.h
-
-H_TMPL_FILES = \
-numRyyy.h boundXXX.h
+boundTypes.h \
+$(H_TMPL_FILES)
 
 H_GENERATED_FILES = \
 numRl.h numRll.h \
-$(TMPL:%=bound%.h)
+$(TMPL:%=bound%.h) $(TMPL:%=bound%_conv.h)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 
@@ -31,7 +32,7 @@ install:
 distclean:
 	(cd $(APRON_PREFIX)/include; /bin/rm -f $(H_FILES))
 
-dist: $(H_ORIG_FILES) $(H_TMPL_FILES) Makefile README
+dist: $(H_ORIG_FILES) Makefile README
 	(cd ..; tar zcvf num.tgz $(^:%=num/%))
 
 clean: 
@@ -72,6 +73,11 @@ $(TMPL:%=bound%.h): bound%.h: boundXXX.h
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/XXX/$*/g" $< >>$@
 
+$(TMPL:%=bound%_conv.h): bound%_conv.h: boundXXX_conv.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $< | $(SED) -e "s/XXX/$*/g" >>$@
+
 $(TMPL:%=test%.c): test%.c: testXXX.c
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
@@ -79,6 +85,6 @@ $(TMPL:%=test%.c): test%.c: testXXX.c
 
 .PHONY: tags TAGS
 tags: TAGS
-TAGS: $(H_ORIG_FILES) $(H_TMPL_FILES)
+TAGS: $(H_ORIG_FILES)
 	etags $^
 	etags -a $(SEDSCRIPT_FILES)

@@ -22,6 +22,9 @@ typedef numIl_native numIl_t[1];
 #define NUMIl_ONE 1L
 #define NUMIl_MAX LONG_MAX
 #define NUMIl_MIN LONG_MIN
+#define NUMIl_EXACT 1
+#define NUMIl_DIVEXACT 0
+#define NUMIl_NATIVE 1
 
 typedef long long int numIll_native;
 typedef numIll_native* numIll_ptr;
@@ -30,6 +33,9 @@ typedef numIll_native numIll_t[1];
 #define NUMIll_ONE 1LL
 #define NUMIll_MAX LLONG_MAX
 #define NUMIll_MIN LLONG_MIN
+#define NUMIll_EXACT 1
+#define NUMIll_DIVEXACT 0
+#define NUMIll_NATIVE 1
 
 typedef mpz_ptr numMPZ_ptr;
 typedef mpz_t numMPZ_t;
@@ -38,6 +44,9 @@ typedef mpz_t numMPZ_t;
 #undef NUMMPZ_MAX
 #undef NUMMPZ_MAX
 #undef NUMMPZ_MIN
+#define NUMMPZ_EXACT 1
+#define NUMMPZ_DIVEXACT 1
+#define NUMMPZ_NATIVE 0
 
 /* ********************************************************************** */
 /* Rationals */
@@ -52,6 +61,9 @@ typedef numRl_native numRl_t[1];
 #define numRl_numref(a) ((a)->n)
 #define numRl_denref(a) ((a)->d)
 typedef numIl_t numintRl_t;
+#define NUMRl_EXACT 1
+#define NUMRl_DIVEXACT 1
+#define NUMRl_NATIVE 1
 
 typedef struct numRll_native {
   numIll_t n; /* numerator */
@@ -62,12 +74,18 @@ typedef numRll_native numRll_t[1];
 #define numRll_numref(a) ((a)->n)
 #define numRll_denref(a) ((a)->d)
 typedef numIll_t numintRll_t;
+#define NUMRll_EXACT 1
+#define NUMRll_DIVEXACT 1
+#define NUMRll_NATIVE 1
 
 typedef mpq_ptr numMPQ_ptr;
 typedef mpq_t numMPQ_t;
 #define numMPQ_numref(a) mpq_numref(a)
 #define numMPQ_denref(a) mpq_denref(a)
 typedef numMPZ_t numintMPQ_t;
+#define NUMMPQ_EXACT 1
+#define NUMMPQ_DIVEXACT 1
+#define NUMMPQ_NATIVE 0
 
 /* ********************************************************************** */
 /* Floating-points */
@@ -88,6 +106,9 @@ typedef numD_native numD_t[1];
 #define NUMD_ONE 1.0
 #define NUMD_MANT_DIG DBL_MANT_DIG
 #define NUMD_MAX NUMD_ONE/NUMD_ZERO
+#define NUMD_EXACT 0
+#define NUMD_DIVEXACT 0
+#define NUMD_NATIVE 1
 
 typedef long double numDl_native;
 typedef numDl_native* numDl_ptr;
@@ -96,6 +117,9 @@ typedef numDl_native numDl_t[1];
 #define NUMDl_ONE 1.0L
 #define NUMDl_MANT_DIG LDBL_MANT_DIG
 #define NUMDl_MAX NUMDl_ONE/NUMDl_ZERO
+#define NUMDl_EXACT 0
+#define NUMDl_DIVEXACT 0
+#define NUMDl_NATIVE 1
 
 typedef mpfr_ptr numMPFR_ptr;
 typedef mpfr_t numMPFR_t;
@@ -104,6 +128,9 @@ typedef mpfr_t numMPFR_t;
 #undef NUMMPFR_ZERO
 #undef NUMMPFR_ONE
 #undef NUMMPFR_MANT_DIG
+#define NUMMPFR_EXACT 0
+#define NUMMPFR_DIVEXACT 0
+#define NUMMPFR_NATIVE 0
 
 /*
 
@@ -222,8 +249,10 @@ static inline bool mpfr_fits_numXXX(mpfr_t a, numinternal_t intern);
 
 static inline bool numXXX_fits_lint(numXXX_t a);
 static inline bool numXXX_fits_llint(numXXX_t a);
+static inline bool numXXX_fits_mpz(numXXX_t a);
 static inline bool numXXX_fits_lfrac(numXXX_t a);
 static inline bool numXXX_fits_llfrac(numXXX_t a);
+static inline bool numXXX_fits_mpq(numXXX_t a);
 static inline bool numXXX_fits_float(numXXX_t a);
 static inline bool numXXX_fits_double(numXXX_t a);
 static inline bool numXXX_fits_ldouble(numXXX_t a);
@@ -253,19 +282,11 @@ static inline bool double_set_numXXX(double* a, numXXX_t b, numinternal_t intern
 static inline bool ldouble_set_numXXX(long double* a, numXXX_t b, numinternal_t intern);
 static inline bool mpfr_set_numXXX(mpfr_t a, numXXX_t b, numinternal_t intern);
 
-static inline bool numXXX_set_numIl(numXXX_t a, numIl_t b, numinternal_t internal);
-static inline bool numXXX_set_numIll(numXXX_t a, numIll_t b, numinternal_t internal);
-static inline bool numXXX_set_numMPZ(numXXX_t a, numMPZ_t b, numinternal_t internal);
-static inline bool numXXX_set_numRl(numXXX_t a, numRl_t b, numinternal_t internal);
-static inline bool numXXX_set_numRll(numXXX_t a, numRll_t b, numinternal_t internal);
-static inline bool numXXX_set_numD(numXXX_t a, numD_t b, numinternal_t internal);
-static inline bool numXXX_set_numDl(numXXX_t a, numDl_t b, numinternal_t internal);
-static inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, numinternal_t internal);
-
 **********************************************************************
 Integer functions
 **********************************************************************
-
+static inline void numXXX_gcd(numXXX_t a, numXXX_t b, numXXX_t c);
+static inline void numXXX_lcm(numXXX_t a, numXXX_t b, numXXX_t c);
 static inline void numXXX_fdiv_q(numXXX_t a, numXXX_t b, numXXX_t c);
 static inline void numXXX_cdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
 static inline void numXXX_tdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);

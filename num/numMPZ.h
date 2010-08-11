@@ -2,8 +2,8 @@
 /* numMPZ.h */
 /* ********************************************************************** */
 
-#ifndef _NUMMPZ_DEF_H_
-#define _NUMMPZ_DEF_H_
+#ifndef _NUMMPZ_H_
+#define _NUMMPZ_H_
 
 #include <stdio.h>
 #include <limits.h>
@@ -257,10 +257,14 @@ static inline bool numMPZ_fits_lint(numMPZ_t a)
 { return mpz_fits_slong_p(a); }
 static inline bool numMPZ_fits_llint(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<sizeof(long long int)*8-1); }
+static inline bool numMPZ_fits_mpz(numMPZ_t a)
+{ return true; }
 static inline bool numMPZ_fits_lfrac(numMPZ_t a)
 { return mpz_fits_slong_p(a); }
 static inline bool numMPZ_fits_llfrac(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<sizeof(long long int)*8-1); }
+static inline bool numMPZ_fits_mpq(numMPZ_t a)
+{ return true; }
 static inline bool numMPZ_fits_float(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<FLT_MAX_EXP-1); }
 static inline bool numMPZ_fits_double(numMPZ_t a)
@@ -351,7 +355,6 @@ static inline bool ldouble_set_numMPZ(long double* a, numMPZ_t b, numinternal_t 
 }
 static inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, numinternal_t intern)
 { return !mpfr_set_z(a,b,GMP_RNDU); }
-
 
 #ifdef __cplusplus
 }
