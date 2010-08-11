@@ -13,15 +13,15 @@
 #include <assert.h>
 
 #include "ap_coeff.h"
-#include "eitvIl_conv.h"
-#include "eitvIll_conv.h"
-#include "eitvMPZ_conv.h"
-#include "eitvRl_conv.h"
-#include "eitvRll_conv.h"
-#include "eitvMPQ_conv.h"
-#include "eitvD_conv.h"
-#include "eitvDl_conv.h"
-#include "eitvMPFR_conv.h"
+#include "itvIl_conv.h"
+#include "itvIll_conv.h"
+#include "itvMPZ_conv.h"
+#include "itvRl_conv.h"
+#include "itvRll_conv.h"
+#include "itvMPQ_conv.h"
+#include "itvD_conv.h"
+#include "itvDl_conv.h"
+#include "itvMPFR_conv.h"
 
 /* ====================================================================== */
 /* Basics */
@@ -105,7 +105,7 @@ void ap_coeff_set_bottom(ap_coeff_t a)
 /* Conversions */
 /* ====================================================================== */
 
-MACROY
+MACROZ
 bool ap_coeff_set_eitvYYY(ap_coeff_t a, eitvYYY_t b, numinternal_t intern)
 {
   switch (a->discr){
@@ -119,52 +119,6 @@ bool ap_coeff_set_eitvYYY(ap_coeff_t a, eitvYYY_t b, numinternal_t intern)
     abort();
   }
 }
-ENDMACRO
-
-bool ap_coeff_set_eitvD(ap_coeff_t a, eitvD_t b, numinternal_t intern)
-{
-  switch (a->discr){
-  case AP_SCALAR_D:
-    eitvD_set(a->eitv.D,b);
-    return true;
-  case AP_SCALAR_MPQ:
-    return eitvMPQ_set_eitvD(a->eitv.MPQ,b,intern);
-  case AP_SCALAR_MPFR:
-    return eitvMPFR_set_eitvD(a->eitv.MPFR,b,intern);
-  default:
-    abort();
-  }
-}
-bool ap_coeff_set_eitvMPQ(ap_coeff_t a, eitvMPQ_t b, numinternal_t intern)
-{
-  switch (a->discr){
-  case AP_SCALAR_D:
-    return eitvD_set_eitvMPQ(a->eitv.D,b,intern);
-  case AP_SCALAR_MPQ:
-    eitvMPQ_set(a->eitv.MPQ,b);
-    return true;
-  case AP_SCALAR_MPFR:
-    return eitvMPFR_set_eitvMPQ(a->eitv.MPFR,b,intern);
-  default:
-    abort();
-  }
-}
-bool ap_coeff_set_eitvMPFR(ap_coeff_t a, eitvMPFR_t b, numinternal_t intern)
-{
-  switch (a->discr){
-  case AP_SCALAR_D:
-    return eitvD_set_eitvMPFR(a->eitv.D,b,intern);
-  case AP_SCALAR_MPQ:
-    return eitvMPQ_set_eitvMPFR(a->eitv.MPQ,b,intern);
-  case AP_SCALAR_MPFR:
-    eitvMPFR_set(a->eitv.MPFR,b);
-    return true;
-  default:
-    abort();
-  }
-}
-
-MACROY
 bool eitvYYY_set_ap_coeff(eitvYYY_t a, ap_coeff_t b, numinternal_t intern)
 {
   switch(b->discr){
@@ -179,49 +133,6 @@ bool eitvYYY_set_ap_coeff(eitvYYY_t a, ap_coeff_t b, numinternal_t intern)
   }
 }
 ENDMACRO
-
-bool eitvMPQ_set_ap_coeff(eitvMPQ_t a, ap_coeff_t b, numinternal_t intern)
-{
-  switch(b->discr){
-  case AP_SCALAR_D:
-    return eitvMPQ_set_eitvD(a,b->eitv.D,intern);
-  case AP_SCALAR_MPQ:
-    eitvMPQ_set(a,b->eitv.MPQ);
-    return true;
-  case AP_SCALAR_MPFR:
-    return eitvMPQ_set_eitvMPFR(a,b->eitv.MPFR,intern);
-  default:
-    abort();
-  }
-}
-bool eitvD_set_ap_coeff(eitvD_t a, ap_coeff_t b, numinternal_t intern)
-{
-  switch(b->discr){
-  case AP_SCALAR_D:
-    eitvD_set(a,b->eitv.D);
-    return true;
-  case AP_SCALAR_MPQ:
-    return eitvD_set_eitvMPQ(a,b->eitv.MPQ,intern);
-  case AP_SCALAR_MPFR:
-    return eitvD_set_eitvMPFR(a,b->eitv.MPFR,intern);
-  default:
-    abort();
-  }
-}
-bool eitvMPFR_set_ap_coeff(eitvMPFR_t a, ap_coeff_t b, numinternal_t intern)
-{
-  switch(b->discr){
-  case AP_SCALAR_D:
-    return eitvMPFR_set_eitvD(a,b->eitv.D,intern);
-  case AP_SCALAR_MPQ:
-    return eitvMPFR_set_eitvMPQ(a,b->eitv.MPQ,intern);
-  case AP_SCALAR_MPFR:
-    eitvMPFR_set(a,b->eitv.MPFR);
-    return true;
-  default:
-    abort();
-  }
-}
 
 /* ====================================================================== */
 /* Tests */

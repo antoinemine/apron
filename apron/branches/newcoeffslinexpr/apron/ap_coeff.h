@@ -78,16 +78,20 @@ static inline void ap_coeff_ref_MPFR(ap_coeff_t res, eitvMPFR_t e);
 /* Conversions */
 /* ====================================================================== */
 
+bool ap_coeff_set_eitvD(ap_coeff_t coeff, eitvD_t eitv, numinternal_t intern);
+bool ap_coeff_set_eitvMPQ(ap_coeff_t coeff, eitvMPQ_t eitv, numinternal_t intern);
+bool ap_coeff_set_eitvMPFR(ap_coeff_t coeff, eitvMPFR_t, numinternal_t intern);
+
+bool eitvD_set_ap_coeff(eitvD_t eitv, ap_coeff_t coeff, numinternal_t intern);
+bool eitvMPQ_set_ap_coeff(eitvMPQ_t eitv, ap_coeff_t coeff, numinternal_t intern);
+bool eitvMPFR_set_ap_coeff(eitvMPFR_t eitv, ap_coeff_t coeff, numinternal_t intern);
+
 bool ap_coeff_set_eitvIl(ap_coeff_t coeff, struct eitvIl_struct* eitv, numinternal_t intern);
 bool ap_coeff_set_eitvIll(ap_coeff_t coeff, struct eitvIll_struct* eitv, numinternal_t intern);
 bool ap_coeff_set_eitvMPZ(ap_coeff_t coeff, struct eitvMPZ_struct* eitv, numinternal_t intern);
 bool ap_coeff_set_eitvRl(ap_coeff_t coeff, struct eitvRl_struct* eitv, numinternal_t intern);
 bool ap_coeff_set_eitvRll(ap_coeff_t coeff, struct eitvRll_struct* eitv, numinternal_t intern);
 bool ap_coeff_set_eitvDl(ap_coeff_t coeff, struct eitvDl_struct* eitv, numinternal_t intern);
-
-bool ap_coeff_set_eitvD(ap_coeff_t coeff, eitvD_t eitv, numinternal_t intern);
-bool ap_coeff_set_eitvMPQ(ap_coeff_t coeff, eitvMPQ_t eitv, numinternal_t intern);
-bool ap_coeff_set_eitvMPFR(ap_coeff_t coeff, eitvMPFR_t, numinternal_t intern);
 
 bool eitvIl_set_ap_coeff(struct eitvIl_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
 bool eitvIll_set_ap_coeff(struct eitvIll_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
@@ -96,9 +100,6 @@ bool eitvRl_set_ap_coeff(struct eitvRl_struct* eitv, ap_coeff_t coeff, numintern
 bool eitvRll_set_ap_coeff(struct eitvRll_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
 bool eitvDl_set_ap_coeff(struct eitvDl_struct* eitv, ap_coeff_t coeff, numinternal_t intern);
 
-bool eitvD_set_ap_coeff(eitvD_t eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvMPQ_set_ap_coeff(eitvMPQ_t eitv, ap_coeff_t coeff, numinternal_t intern);
-bool eitvMPFR_set_ap_coeff(eitvMPFR_t eitv, ap_coeff_t coeff, numinternal_t intern);
   /* Return true if conversion is exact */
 
 /* ====================================================================== */
