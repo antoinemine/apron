@@ -1,19 +1,33 @@
-
 /* ********************************************************************** */
 /* itvXXX_conv.c: conversion between itvs */
 /* ********************************************************************** */
 
-#include "itvXXX_conv.h"
 #include "boundXXX.h"
+#include "boundXXX_conv.h"
+#include "itvXXX.h"
+#include "eitvXXX.h"
+#include "itvXXX_linexpr.h"
+#include "itvXXX_lincons.h"
+#include "itvXXX_conv.h"
+
+#include "boundD_conv.h"
+#include "itvD_linexpr.h"
+#include "itvD_lincons.h"
+#include "boundMPQ_conv.h"
+#include "itvMPQ_linexpr.h"
+#include "itvMPQ_lincons.h"
+#include "boundMPFR_conv.h"
+#include "itvMPFR_linexpr.h"
+#include "itvMPFR_lincons.h"
 
 #define _ITVXXX_MARK_
 
 MACROZ
 
-inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvMPQ_t b, numinternal_t intern)
+inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, numinternal_t intern)
 {
-  bool exact = boundXXX_set_boundMPQ(a->neginf,b->neginf,intern);
-  return boundXXX_set_boundMPQ(a->sup,b->sup,intern) && exact;
+  bool exact = boundXXX_set_boundZZZ(a->neginf,b->neginf,intern);
+  return boundXXX_set_boundZZZ(a->sup,b->sup,intern) && exact;
 }
 inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, numinternal_t intern)
 {

@@ -113,17 +113,17 @@ bool itvXXX_YYY_array_is_quasilinear(itvXXX_YYY_array_t array)
   }
   return res;
 }
-itvYYY_type_t itvXXX_YYY_array_type(itvXXX_YYY_array_t array)
+itvlinexpr_type_t itvXXX_YYY_array_type(itvXXX_YYY_array_t array)
 {
   size_t i;
-  itvYYY_type_t type;
+  itvlinexpr_type_t type;
 
-  type = ITV_YYY_LINEAR;
+  type = ITV_LINEXPR_LINEAR;
   for (i=0; i<array->size; i++){
-    itvYYY_type_t t = itvXXX_YYY_type(array->p[i]);
+    itvlinexpr_type_t t = itvXXX_YYY_type(array->p[i]);
     if (t<type){
       type = t;
-      if (type==ITV_YYY_INTLINEAR)
+      if (type==ITV_LINEXPR_INTLINEAR)
 	break;
     }
   }
@@ -165,21 +165,6 @@ size_t itvXXX_YYY_array_supportinterval(itvXXX_YYY_array_t array,
     free(buffer);
     return nb;
   }
-}
-bool itvXXX_YYY_array_quasilinearize(itvXXX_internal_t* intern,
-					 itvXXX_YYY_array_t array, itvXXX_t* env)
-{
-  size_t i;
-  bool res;
-  res = true;
-  for (i=0; i<array->size; i++) {
-    itvXXX_YYY_quasilinearize(intern,array->p[i],env,false);
-  }
-#if NUMXXX_EXACT
-  return true;
-#else
-  return false;
-#endif
 }
 
 /* ====================================================================== */
