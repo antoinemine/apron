@@ -1,6 +1,13 @@
 #ifndef _NUMCONFIG_H_
 #define _NUMCONFIG_H_
 
+#include <string.h>
+#include <float.h>
+#include <stdint.h>
+#include "stdio.h"
+#include "gmp.h"
+#include "mpfr.h"
+
 #ifdef __cplusplus
 #define HAS_BOOL
 extern "C" {
@@ -13,11 +20,6 @@ static const bool false = 0;
 static const bool true  = 1;
 #endif
 
-#include <string.h>
-#include <float.h>
-#include <stdint.h>
-#include "gmp.h"
-#include "mpfr.h"
 
 /* prints attempts to convert NaN and infinities to non floating-point types */
 #define DEBUG_SPECIAL fprintf(stderr,"invalid floating-point in %s\n",__func__)
