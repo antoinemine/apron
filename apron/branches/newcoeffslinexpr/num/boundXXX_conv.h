@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#define _NUMXXX_MARK_X_
+#define _NUMXXX_MARK_
 
 static inline bool numD_fits_numXXX(numD_t a)
 { return double_fits_numXXX(*a); }
@@ -30,8 +30,7 @@ static inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, numinternal_t int
 { return numXXX_set_mpfr(a,b,intern); }
 
 MACROZ
-#define _NUMZZZ_MARK_Z_
-#if defined(_NUMXXX_MARK_X_) && defined(_NUMXXX_MARK_Z_)
+#if defined(_NUMZZZ_MARK_) 
 static inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, numinternal_t intern)
 { boundXXX_set(a,b); return true; }
 #else
@@ -46,7 +45,6 @@ static inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, numinternal
   }
 }
 #endif
-#undef _NUMZZZ_MARK_Z_
 ENDMACRO
 
 #if !defined(_BOUNDD_CONV_H_) && !defined(_BOUNDMPQ_CONV_H_) && !defined(_BOUNDMPFR_CONV_H_)
@@ -62,9 +60,25 @@ static inline bool numMPQ_set_numXXX(numMPQ_t a, numXXX_t b, numinternal_t inter
 { return mpq_set_numXXX(a,b,intern); }
 static inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, numinternal_t intern)
 { return mpfr_set_numXXX(a,b,intern); }
+
+MACROZ
+#if !defined(_NUMZZZ_MARK_) 
+static inline bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, numinternal_t intern)
+{
+  if (boundXXX_infty(b)){
+    boundZZZ_set_infty(a,boundXXX_sgn(b));
+    return true;
+  }
+  else {
+    return boundZZZ_set_numXXX(a,boundXXX_numref(b),intern);
+  }
+}
+#endif
+ENDMACRO
+
 #endif
 
-#undef _NUMXXX_MARK_X_
+#undef _NUMXXX_MARK_
 
 #ifdef __cplusplus
 }
