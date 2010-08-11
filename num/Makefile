@@ -75,7 +75,7 @@ $(TMPL:%=bound%.h): bound%.h: boundXXX.h
 
 $(TMPL:%=bound%_conv.h): bound%_conv.h: boundXXX_conv.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+#	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $< | $(SED) -e "s/XXX/$*/g" >>$@
 
 $(TMPL:%=test%.c): test%.c: testXXX.c
@@ -87,4 +87,4 @@ $(TMPL:%=test%.c): test%.c: testXXX.c
 tags: TAGS
 TAGS: $(H_ORIG_FILES)
 	etags $^
-	etags -a $(SEDSCRIPT_FILES)
+	etags -a macros.pl
