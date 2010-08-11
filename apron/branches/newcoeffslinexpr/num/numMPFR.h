@@ -296,10 +296,14 @@ static inline bool numMPFR_fits_lint(numMPFR_t a)
 { return mpfr_fits_slong_p(a,GMP_RNDU); }
 static inline bool numMPFR_fits_llint(numMPFR_t a)
 { return mpfr_fits_intmax_p(a,GMP_RNDU); }
+static inline bool numMPFR_fits_mpz(numMPFR_t a)
+{ return true; }
 static inline bool numMPFR_fits_lfrac(numMPFR_t a)
 { return mpfr_fits_numRl(a,NULL); }
 static inline bool numMPFR_fits_llfrac(numMPFR_t a)
 { return mpfr_fits_numRll(a,NULL); }
+static inline bool numMPFR_fits_mpq(numMPFR_t a)
+{ return true; }
 static inline bool numMPFR_fits_float(numMPFR_t a)
 {
   int e;
@@ -377,27 +381,6 @@ static inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, numinternal_
 { return numDl_set_mpfr(a,b,intern); }
 static inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, numinternal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
-
-/* ********************************************************************** */
-/* Inline definitions */
-/* ********************************************************************** */
-
-static inline bool numMPFR_set_numIl(numMPFR_t a, numIl_t b, numinternal_t internal)
-{ return numMPFR_set_lint(a,*b,internal); }
-static inline bool numMPFR_set_numIll(numMPFR_t a, numIll_t b, numinternal_t internal)
-{ return numMPFR_set_llint(a,*b,internal); }
-static inline bool numMPFR_set_numMPZ(numMPFR_t a, numMPZ_t b, numinternal_t internal)
-{ return numMPFR_set_mpz(a,b,internal); }
-static inline bool numMPFR_set_numRl(numMPFR_t a, numRl_t b, numinternal_t internal)
-{ return numMPFR_set_lfrac(a,*b->n,*b->d,internal); }
-static inline bool numMPFR_set_numRll(numMPFR_t a, numRll_t b, numinternal_t internal)
-{ return numMPFR_set_llfrac(a,*b->n,*b->d,internal); }
-static inline bool numMPFR_set_numD(numMPFR_t a, numD_t b, numinternal_t internal)
-{ return numMPFR_set_double(a,*b,internal); }
-static inline bool numMPFR_set_numDl(numMPFR_t a, numDl_t b, numinternal_t internal)
-{ return numMPFR_set_ldouble(a,*b,internal); }
-static inline bool numMPFR_set_numMPFR(numMPFR_t a, numMPFR_t b, numinternal_t internal)
-{ return numMPFR_set_mpfr(a,b,internal); }
 
 #ifdef __cplusplus
 }

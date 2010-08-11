@@ -297,9 +297,13 @@ static inline bool numIl_fits_lint(numIl_t a)
 { return true; }
 static inline bool numIl_fits_llint(numIl_t a)
 { return true; }
+static inline bool numIl_fits_mpz(numIl_t a)
+{ return true; }
 static inline bool numIl_fits_lfrac(numIl_t a)
 { return true; }
 static inline bool numIl_fits_llfrac(numIl_t a)
+{ return true; }
+static inline bool numIl_fits_mpq(numIl_t a)
 { return true; }
 static inline bool numIl_fits_float(numIl_t a)
 { return true; }

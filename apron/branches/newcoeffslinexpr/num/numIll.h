@@ -298,9 +298,13 @@ static inline bool numIll_fits_lint(numIll_t a)
 { return (*a>=-LONG_MAX && *a<=LONG_MAX); }
 static inline bool numIll_fits_llint(numIll_t a)
 { return true; }
+static inline bool numIll_fits_mpz(numIll_t a)
+{ return true; }
 static inline bool numIll_fits_lfrac(numIll_t a)
 { return (*a>=-LONG_MAX && *a<=LONG_MAX); }
 static inline bool numIll_fits_llfrac(numIll_t a)
+{ return true; }
+static inline bool numIll_fits_mpq(numIll_t a)
 { return true; }
 static inline bool numIll_fits_float(numIll_t a)
 { return true; }

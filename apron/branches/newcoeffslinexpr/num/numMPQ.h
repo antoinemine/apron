@@ -306,10 +306,14 @@ static inline bool numMPQ_fits_lint(numMPQ_t a)
 { return mpq_fits_numIl(a); }
 static inline bool numMPQ_fits_llint(numMPQ_t a)
 { return mpq_fits_numIll(a); }
+static inline bool numMPQ_fits_mpz(numMPQ_t a)
+{ return true; }
 static inline bool numMPQ_fits_lfrac(numMPQ_t a)
 { return mpq_fits_numRl(a); }
 static inline bool numMPQ_fits_llfrac(numMPQ_t a)
 { return mpq_fits_numRll(a); }
+static inline bool numMPQ_fits_mpq(numMPQ_t a)
+{ return true; }
 static inline bool numMPQ_fits_float(numMPQ_t a)
 {
   return ((int)mpz_sizeinbase(numMPQ_numref(a),2)-
@@ -413,7 +417,6 @@ static inline bool ldouble_set_numMPQ(long double* a, numMPQ_t b, numinternal_t 
 static inline bool mpfr_set_numMPQ(mpfr_t a, numMPQ_t b, numinternal_t intern)
 { return !mpfr_set_q(a,b,GMP_RNDU); }
 
-
 /* ********************************************************************** */
 /* Underlying integer */
 /* ********************************************************************** */
@@ -490,6 +493,12 @@ static inline void numintMPQ_trunc(numintMPQ_t a, numintMPQ_t b)
 static inline void numintMPQ_sqrt(numintMPQ_t up, numintMPQ_t down, numintMPQ_t b)
 	      { numMPZ_sqrt(up,down,b); }
 
+static inline void numintMPQ_divexact(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
+              { numMPZ_divexact(a,b,c); }
+static inline void numintMPQ_gcd(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
+              { numMPZ_gcd(a,b,c); }
+static inline void numintMPQ_lcm(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
+              { numMPZ_lcm(a,b,c); }
 static inline void numintMPQ_fdiv_q(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
               { numMPZ_fdiv_q(a,b,c); }
 static inline void numintMPQ_cdiv_q(numintMPQ_t q, numintMPQ_t a, numintMPQ_t b)

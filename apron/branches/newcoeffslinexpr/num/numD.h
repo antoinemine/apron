@@ -234,10 +234,14 @@ static inline bool numD_fits_lint(numD_t a)
 { return double_fits_numIl(*a); }
 static inline bool numD_fits_llint(numD_t a)
 { return double_fits_numIll(*a); }
+static inline bool numD_fits_mpz(numD_t a)
+{ return true; }
 static inline bool numD_fits_lfrac(numD_t a)
 { return double_fits_numRl(*a); }
 static inline bool numD_fits_llfrac(numD_t a)
 { return double_fits_numRll(*a); }
+static inline bool numD_fits_mpq(numD_t a)
+{ return true; }
 static inline bool numD_fits_float(numD_t a)
 {
   int e;

@@ -398,6 +398,8 @@ static inline bool numRyyy_fits_lint(numRyyy_t a)
 }
 static inline bool numRyyy_fits_llint(numRyyy_t a)
 { return true; }
+static inline bool numRyyy_fits_mpz(numRyyy_t a)
+{ return true; }
 static inline bool numRyyy_fits_lfrac(numRyyy_t a)
 { return numIyyy_fits_lint(numRyyy_numref(a)) && numIyyy_fits_lint(numRyyy_denref(a)); }
 static inline bool numRyyy_fits_llfrac(numRyyy_t a)
@@ -662,6 +664,12 @@ static inline void numintRyyy_trunc(numintRyyy_t a, numintRyyy_t b)
 static inline void numintRyyy_sqrt(numintRyyy_t up, numintRyyy_t down, numintRyyy_t b)
 	      { numIyyy_sqrt(up,down,b); }
 
+static inline void numintRyyy_divexact(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+              { numIyyy_divexact(a,b,c); }
+static inline void numintRyyy_gcd(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+              { numIyyy_gcd(a,b,c); }
+static inline void numintRyyy_lcm(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+              { numIyyy_lcm(a,b,c); }
 static inline void numintRyyy_fdiv_q(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
               { numIyyy_fdiv_q(a,b,c); }
 static inline void numintRyyy_cdiv_q(numintRyyy_t q, numintRyyy_t a, numintRyyy_t b)
