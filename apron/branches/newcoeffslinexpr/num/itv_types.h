@@ -29,15 +29,15 @@ extern "C" {
 typedef struct __itv_internal_struct {
   num_internal_t num;
   itvIl_internal_t Il;
-  itvIl_internal_t Ill;
-  itvIl_internal_t MPZ;
-  itvIl_internal_t Rl;
-  itvIl_internal_t Rll;
-  itvIl_internal_t MPQ;
-  itvIl_internal_t D;
-  itvIl_internal_t Dl;
-  itvIl_internal_t MPFR;
-}
+  itvIll_internal_t Ill;
+  itvMPZ_internal_t MPZ;
+  itvRl_internal_t Rl;
+  itvRll_internal_t Rll;
+  itvMPQ_internal_t MPQ;
+  itvD_internal_t D;
+  itvDl_internal_t Dl;
+  itvMPFR_internal_t MPFR;
+} __itv_internal_struct;
 typedef __itv_internal_struct* itv_internal_ptr;
 typedef __itv_internal_struct itv_internal_t[1];
 

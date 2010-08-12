@@ -19,7 +19,7 @@ TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 
 H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
-boundXXX.h boundXXX_conv.h \
+boundXXX.h \
 itvXXX_types.h itvXXX.h eitvXXX.h \
 numbounditvXXX_conv.h
 
@@ -43,7 +43,7 @@ H_GENERATED_FILES = \
 numIl.h numIll.h \
 numRl.h numRll.h \
 numD.h numDl.h \
-$(TMPL:%=bound%.h) $(TMPL:%=bound%_conv.h) \
+$(TMPL:%=bound%.h) \
 $(TMPL:%=itv%_types.h) $(TMPL:%=itv%.h) $(TMPL:%=eitv%.h) \
 $(TMPL:%=numbounditv%_conv.h)
 C_GENERATED_FILES = \
@@ -89,6 +89,113 @@ dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl Makefile README
 
 ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
 
+#---------------------------------------
+# IMPLICIT RULES AND DEPENDENCIES
+#---------------------------------------
+
+numIl.h: numIyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
+
+numIll.h: numIyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/ll/g" $< >>$@
+
+numRl.h: numRyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
+
+numRll.h: numRyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/ll/g" $< >>$@
+
+numD.h: numDyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy//g" $< >>$@
+
+numDl.h: numDyyy.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
+
+$(TMPL:%=bound%.h): bound%.h: boundXXX.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+
+$(TMPL:%=itv%_types.h): itv%_types.h: itvXXX_types.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+
+$(TMPL:%=itv%_types.c): itv%_types.c: itvXXX_types.c
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+
+$(TMPL:%=itv%.h): itv%.h: itvXXX.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=itv%.c): itv%.c: itvXXX.c
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=eitv%.h): eitv%.h: eitvXXX.h
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=eitv%.c): eitv%.c: eitvXXX.c
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=numbounditv%_conv.h): numbounditv%_conv.h: numbounditvXXX_conv.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=numbounditv%_conv.c): numbounditv%_conv.c: numbounditvXXX_conv.c
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=test%.c): test%.c: testXXX.c
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+
+.PRECIOUS: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
+.PRECIOUS: $(C_GENERATED_FILES:%.c=%.o) $(C_GENERATED_FILES:%.c=%_debug.o) 
+.PRECIOUS: $(TMPL:%=testnb%.c) $(TMPL:%=testi1%.c) $(TMPL:%=testi2%.c)
+
+#-----------------------------------
+# C part
+#-----------------------------------
+
+libitv.a: $(C_FILES:%.c=%.o)
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libitv_debug.a: $(C_FILES:%.c=%_debug.o)
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+%_debug.o: %.c
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+
+#-----------------------------------
+# Test
+#-----------------------------------
 tests: $(TMPL:%=testnb%) $(TMPL:%=testitv1%) $(TMPL:%=testitv2%)
 
 out: tests
@@ -98,86 +205,8 @@ out: tests
 		./testi2$$i >> out.$$i; \
 	done
 
-$(TMPL:%=testnb%): testnb%: testnb%.c libitv_debug.a
-	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< -litv_debug $(CLIBS)
-$(TMPL:%=testi1%): testi1%: testi1%.c libitv_debug.a
-	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< -litv_debug $(CLIBS)
-$(TMPL:%=testi2%): testi2%: testi2%.c libitv_debug.a
-	$(CC) -g $(CFLAGS) $(ICFLAGS) $(XCFLAGS) -o $@ $< -litv_debug $(CLIBS)
-
-#---------------------------------------
-# IMPLICIT RULES AND DEPENDENCIES
-#---------------------------------------
-
-numIl.h: numIyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
-
-numIll.h: numIyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/ll/g" $< >>$@
-
-numRl.h: numRyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
-
-numRll.h: numRyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/ll/g" $< >>$@
-
-numD.h: numDyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy//g" $< >>$@
-
-numDl.h: numDyyy.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
-
-$(TMPL:%=bound%.h): bound%.h: boundXXX.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=bound%_conv.h): bound%_conv.h: boundXXX_conv.h
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $< | $(SED) -e "s/XXX/$*/g" >>$@
-
-$(TMPL:%=itv%_types.h): itv%_types.h: itvXXX_types.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=itv%.h): itv%.h: itvXXX.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=itv%.c): itv%.c: itvXXX.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=eitv%.h): eitv%.h: eitvXXX.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=eitv%.c): eitv%.c: eitvXXX.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
-
-$(TMPL:%=test%.c): test%.c: testXXX.c
-	echo "/* GENERATED, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/XXX/$*/g" $< >>$@
+$(TMPL:%=testnb%) $(TMPL:%=testi1%) $(TMPL:%=testi2%): %: %_debug.o libitv_debug.a
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -o $@ $< -litv_debug $(CLIBS)
 
 .PHONY: tags TAGS
 tags: TAGS

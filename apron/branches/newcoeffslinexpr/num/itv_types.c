@@ -50,9 +50,3 @@ void itv_internal_free(itv_internal_ptr intern)
   itv_internal_clear(intern);
   free(intern);
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

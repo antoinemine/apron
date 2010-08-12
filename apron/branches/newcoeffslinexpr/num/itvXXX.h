@@ -8,8 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "assert.h"
-#include "itvXXX_types.h"
 #include "boundXXX.h"
+#include "itv_types.h"
+
+#include "numIl.h"
+#include "numIll.h"
+#include "numMPZ.h"
+#include "numRl.h"
+#include "numRll.h"
+#include "numMPQ.h"
+#include "numD.h"
+#include "numDl.h"
+#include "numMPFR.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -288,10 +298,10 @@ static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 
 static inline bool itvXXX_is_int(itv_internal_t intern, itvXXX_t a)
 {
-  boundXXX_trunc(intern->muldiv_bound,a->sup);
-  if (boundXXX_cmp(intern->muldiv_bound,a->sup)) return false;
-  boundXXX_trunc(intern->muldiv_bound,a->neginf);
-  return !boundXXX_cmp(intern->muldiv_bound,a->neginf);
+  boundXXX_trunc(intern->XXX->muldiv_bound,a->sup);
+  if (boundXXX_cmp(intern->XXX->muldiv_bound,a->sup)) return false;
+  boundXXX_trunc(intern->XXX->muldiv_bound,a->neginf);
+  return !boundXXX_cmp(intern->XXX->muldiv_bound,a->neginf);
 }
 static inline bool itvXXX_is_point(itvXXX_t a)
 {
@@ -342,9 +352,9 @@ static inline void itvXXX_range_rel(itv_internal_t intern, boundXXX_t a, itvXXX_
 {
   boundXXX_add(a,b->sup,b->neginf);
   if (!boundXXX_infty(a)) {
-    itvXXX_magnitude(intern->muldiv_bound,b);
-    boundXXX_div_2(intern->muldiv_bound,intern->muldiv_bound);
-    boundXXX_div(a,a,intern->muldiv_bound);
+    itvXXX_magnitude(intern->XXX->muldiv_bound,b);
+    boundXXX_div_2(intern->XXX->muldiv_bound,intern->XXX->muldiv_bound);
+    boundXXX_div(a,a,intern->XXX->muldiv_bound);
   }
 }
 
@@ -510,14 +520,13 @@ static inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal
 MACRO_ALLZ
 static inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
 {
-  bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
-  bound_neg(b,b);
-  return boundXXX_set_numZZZ(a->sup,b,intern) && res;
+  return itvXXX_set_numZZZ2(a,b,b,intern);
 }
 static inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
 {
+  numZZZ_neg(b,b);
   bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
-  bound_neg(b,b);
+  numZZZ_neg(b,b);
   return boundXXX_set_numZZZ(a->sup,c,intern) && res;
 }
 ENDMACRO
