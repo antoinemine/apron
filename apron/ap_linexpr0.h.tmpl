@@ -71,31 +71,31 @@ static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
 /* II. Conversions */
 /* ====================================================================== */
 
-bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, numinternal_t intern);
+bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, num_internal_t intern);
 
-bool ap_linexpr0_set_ap_linexprD(ap_linexpr0_t a, ap_linexprD_t b, numinternal_t intern);
-bool ap_linexpr0_set_ap_linexprMPQ(ap_linexpr0_t a, ap_linexprMPQ_t b, numinternal_t intern);
-bool ap_linexpr0_set_ap_linexprMPFR(ap_linexpr0_t a, ap_linexprMPFR_t b, numinternal_t intern);
+bool ap_linexpr0_set_ap_linexprD(ap_linexpr0_t a, ap_linexprD_t b, num_internal_t intern);
+bool ap_linexpr0_set_ap_linexprMPQ(ap_linexpr0_t a, ap_linexprMPQ_t b, num_internal_t intern);
+bool ap_linexpr0_set_ap_linexprMPFR(ap_linexpr0_t a, ap_linexprMPFR_t b, num_internal_t intern);
 
-bool ap_linexprD_set_ap_linexpr0(ap_linexprD_t a, ap_linexpr0_t b, numinternal_t intern);
-bool ap_linexprDMPQ_set_ap_linexpr0(ap_linexprMPQ_t a, ap_linexpr0_t b, numinternal_t intern);
-bool ap_linexprMPFR_set_ap_linexpr0(ap_linexprMPFR_t a, ap_linexpr0_t b, numinternal_t intern);
+bool ap_linexprD_set_ap_linexpr0(ap_linexprD_t a, ap_linexpr0_t b, num_internal_t intern);
+bool ap_linexprDMPQ_set_ap_linexpr0(ap_linexprMPQ_t a, ap_linexpr0_t b, num_internal_t intern);
+bool ap_linexprMPFR_set_ap_linexpr0(ap_linexprMPFR_t a, ap_linexpr0_t b, num_internal_t intern);
 
 /* ====================================================================== */
 /* III. Access */
 /* ====================================================================== */
 
-bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, numinternal_t intern);
+bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
 
-bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, numinternal_t intern);
+bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, num_internal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to coeff
      Return true in case ap_linexpr0_coeffref returns NULL */
 
 void ap_linexpr0_cstref(ap_coeff_t coeff, ap_linexpr0_t expr);
 void ap_linexpr0_coeffref(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim);
 
-bool ap_linexpr0_set_list(numinternal_t intern, ap_linexpr0_t expr, ...);
+bool ap_linexpr0_set_list(num_internal_t intern, ap_linexpr0_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
      the definition of the type itvcoefftag_t, and ended by the tag ITV_END;

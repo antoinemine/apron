@@ -283,7 +283,7 @@ eitvXXX_ptr ap_linexprXXX_eitvref(ap_linexprXXX_t expr, ap_dim_t dim, bool creat
 
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* env,void* expr, va_list* va),
 				  void* env,
-				  numinternal_t intern,
+				  num_internal_t intern,
 				  void* expr, va_list* va)
 {
   itvcoefftag_t tag;
@@ -531,7 +531,7 @@ eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(void* env, void* expr, va_
   return ptr;
 }
 
-bool ap_linexprXXX_set_list(numinternal_t intern, ap_linexprXXX_t expr, ...)
+bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...)
 {
   bool res;
   va_list va;

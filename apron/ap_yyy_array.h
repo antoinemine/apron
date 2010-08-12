@@ -62,11 +62,11 @@ ENDMACRO
 /* II. Conversions */
 /* ====================================================================== */
 
-bool ap_yyy_array_set(ap_yyy_array_t res, ap_yyy_array_t e, numinternal_t intern);
+bool ap_yyy_array_set(ap_yyy_array_t res, ap_yyy_array_t e, num_internal_t intern);
 
 MACRO_MAINZ
-bool ap_yyy_array_set_itvZZZ_zzz(ap_yyy_array_t a, itvZZZ_zzz_array_t b, numinternal_t intern);
-bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, numinternal_t intern);
+bool ap_yyy_array_set_itvZZZ_zzz(ap_yyy_array_t a, itvZZZ_zzz_array_t b, num_internal_t intern);
+bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -81,8 +81,8 @@ bool ap_yyy_array_is_quasilinear(ap_yyy_array_t array);
 
 void ap_yyy_array_ref_index(ap_yyy_t a, ap_yyy_array_t p, size_t i);
 
-bool ap_yyy_array_get_index(ap_yyy_t a, ap_yyy_array_t p, size_t i, numinternal_t intern);
-bool ap_yyy_array_set_index(ap_yyy_array_t p, size_t i, ap_yyy_t a, numinternal_t intern);
+bool ap_yyy_array_get_index(ap_yyy_t a, ap_yyy_array_t p, size_t i, num_internal_t intern);
+bool ap_yyy_array_set_index(ap_yyy_array_t p, size_t i, ap_yyy_t a, num_internal_t intern);
 
 /* ====================================================================== */
 /* IV. Change of dimensions and permutations */

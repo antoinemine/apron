@@ -77,7 +77,7 @@ void ap_coeff_set_int(ap_coeff_t a, int b)
     eitvXXX_set_int(a->eitv.XXX,b);
   ENDSWITCH
 }
-bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, numinternal_t intern)
+bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, num_internal_t intern)
 {
   bool res;
   if (a->discr==b->discr){
@@ -111,7 +111,7 @@ void ap_coeff_set_bottom(ap_coeff_t a)
 /* ====================================================================== */
 
 MACRO_ALLZ
-bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern)
+bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
@@ -124,7 +124,7 @@ bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern)
     abort();
   }
 }
-bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, numinternal_t intern)
+bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:

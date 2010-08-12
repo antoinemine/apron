@@ -24,16 +24,16 @@ typedef enum ap_linexpr_type_t {
 #endif
 
 /* Interval linear term */
-typedef struct itvXXX_linterm_struct {
+typedef struct ap_lintermXXX_struct {
   eitvXXX_t eitv;
   ap_dim_t dim;
-} itvXXX_linterm_struct;
-typedef itvXXX_linterm_struct* itvXXX_linterm_ptr;
-typedef itvXXX_linterm_struct itvXXX_linterm_t[1];
+} ap_lintermXXX_struct;
+typedef ap_lintermXXX_struct* ap_lintermXXX_ptr;
+typedef ap_lintermXXX_struct ap_lintermXXX_t[1];
 
 /* Interval linear expression */
 typedef struct ap_linexprXXX_struct {
-  itvXXX_linterm_t* linterm;
+  ap_lintermXXX_t* linterm;
   size_t size;
   eitvXXX_t cst;
 } ap_linexprXXX_struct;
@@ -160,11 +160,11 @@ typedef enum itv_coefftag_t {
 
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* env, void* expr, va_list* va),
 				     void* env,
-				     numinternal_t intern,
+				     num_internal_t intern,
 				     void* expr, va_list* va);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(void* env, void* expr, va_list* va);
 
-bool ap_linexprXXX_set_list(numinternal_t intern, ap_linexprXXX_t expr, ...);
+bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
      the definition of the type ap_coefftag_t, and ended by the tag ITV_END;

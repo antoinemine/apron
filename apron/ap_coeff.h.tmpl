@@ -15,16 +15,7 @@
 #include <stdio.h>
 
 #include "ap_config.h"
-#include "itvMPQ_types.h"
-#include "itvD_types.h"
-#include "itvMPFR_types.h"
-
-#include "itvIl_types.h"
-#include "itvIll_types.h"
-#include "itvMPZ_types.h"
-#include "itvRl_types.h"
-#include "itvRll_types.h"
-#include "itvDl_types.h"
+#include "itv_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,7 +53,7 @@ void ap_coeff_clear(ap_coeff_t coeff);
 void ap_coeff_fprint(FILE* stream, ap_coeff_t a);
 static inline void ap_coeff_print(ap_coeff_t a);
 
-bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, numinternal_t intern);
+bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, num_internal_t intern);
 void ap_coeff_set_int(ap_coeff_t a, int b);
 void ap_coeff_set_bottom(ap_coeff_t coeff);
 void ap_coeff_set_top(ap_coeff_t coeff);
@@ -80,8 +71,8 @@ ENDMACRO
 /* ====================================================================== */
 
 MACRO_ALLZ
-bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern);
-bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, numinternal_t intern);
+bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, num_internal_t intern);
+bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern);
 ENDMACRO
   /* Return true if conversion is exact */
 
