@@ -28,9 +28,9 @@ static inline bool numD_fits_numXXX(numD_t a);
 static inline bool numMPQ_fits_numXXX(numMPQ_t a);
 static inline bool numMPFR_fits_numXXX(numMPFR_t a, num_internal_t intern);
 
+#if !defined(_NUMMPFR_MARK_) 
 static inline bool numXXX_fits_numD(numXXX_t a);
 static inline bool numXXX_fits_numMPQ(numXXX_t a);
-#if !defined(_NUMMPFR_MARK_) 
 static inline bool numXXX_fits_numMPFR(numXXX_t a);
 #endif
 
