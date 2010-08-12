@@ -12,8 +12,9 @@ numConfig.h numTypes.h \
 numIl.h numIll.h numMPZ.h \
 numMPQ.h \
 numD.h numDl.h numMPFR.h \
-boundTypes.h \
-$(H_TMPL_FILES)
+boundTypes.h
+
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 
 H_GENERATED_FILES = \
 numRl.h numRll.h \
@@ -32,7 +33,7 @@ install:
 distclean:
 	(cd $(APRON_PREFIX)/include; /bin/rm -f $(H_FILES))
 
-dist: $(H_ORIG_FILES) Makefile README
+dist: $(H_SRC_FILES) Makefile README
 	(cd ..; tar zcvf num.tgz $(^:%=num/%))
 
 clean: 
@@ -75,7 +76,7 @@ $(TMPL:%=bound%.h): bound%.h: boundXXX.h
 
 $(TMPL:%=bound%_conv.h): bound%_conv.h: boundXXX_conv.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
-#	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $< | $(SED) -e "s/XXX/$*/g" >>$@
 
 $(TMPL:%=test%.c): test%.c: testXXX.c
@@ -85,6 +86,6 @@ $(TMPL:%=test%.c): test%.c: testXXX.c
 
 .PHONY: tags TAGS
 tags: TAGS
-TAGS: $(H_ORIG_FILES)
+TAGS: $(H_SRC_FILES)
 	etags $^
 	etags -a macros.pl
