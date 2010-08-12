@@ -1,6 +1,8 @@
 #ifndef _ITVCONFIG_H_
 #define _ITVCONFIG_H_
 
+#include "numConfig.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,28 +29,34 @@ typedef enum itvlinexpr_type_t {
 } itvlinexpr_type_t;
 
 typedef enum itvcoefftag_t {
-  ITV_COEFF,          /* waiting for 1 ap_coeff_t* and a dimension */
-  ITV_EITV,           /* waiting for 1 eitv_t and a dimension */
-  ITV_NUM,            /* waiting for 1 num_t and a dimension */
-  ITV_NUM2,           /* waiting for 2 num_t and a dimension */
-  ITV_LINT,           /* waiting for 1 long int and a dimension */
-  ITV_LINT2,          /* waiting for 2 long int and a dimension */
-  ITV_LLINT,          /* waiting for 1 long long int and a dimension */
-  ITV_LLINT2,         /* waiting for 2 long long int and a dimension */
-  ITV_MPZ,            /* waiting for 1 mpz_t and a dimension */
-  ITV_MPZ2,           /* waiting for 2 mpz_t and a dimension */
-  ITV_LFRAC,          /* waiting for 2 long int and a dimension */
-  ITV_LFRAC2,         /* waiting for 4 long int and a dimension */
-  ITV_LLFRAC,         /* waiting for 2 long long int and a dimension */
-  ITV_LLFRAC2,        /* waiting for 4 long long int and a dimension */
-  ITV_MPQ,            /* waiting for 1 mpq_t and a dimension */
-  ITV_MPQ2,           /* waiting for 2 mpq_t and a dimension */
-  ITV_DOUBLE,         /* waiting for 1 double and a dimension */
-  ITV_DOUBLE2,        /* waiting for 2 double and a dimension */
-  ITV_LDOUBLE,        /* waiting for 1 long double and a dimension */
-  ITV_LDOUBLE2,       /* waiting for 2 long double and a dimension */
-  ITV_MPFR,           /* waiting for 1 mpfr_t and a dimension */
-  ITV_MPFR2,          /* waiting for 2 mpfr_t double and a dimension */
+  ITV_COEFF,    /* waiting for 1 ap_coeff_t* and a dimension */
+  ITV_EITVD,    /* waiting for 1 eitvD_t and a dimension */
+  ITV_EITVMPQ,  /* waiting for 1 eitvMPQ_t and a dimension */
+  ITV_EITVMPFR, /* waiting for 1 eitvMPFR_t and a dimension */
+  ITV_NUMD,     /* waiting for 1 numD_t and a dimension */
+  ITV_NUMMPQ,   /* waiting for 1 numMPQ_t and a dimension */
+  ITV_NUMMPFR,  /* waiting for 1 numMPFR_t and a dimension */
+  ITV_NUMD2,    /* waiting for 2 numD_t and a dimension */
+  ITV_NUMMPQ2,  /* waiting for 2 numMPQ_t and a dimension */
+  ITV_NUMMPFR2, /* waiting for 2 numMPFR_t and a dimension */
+  ITV_LINT,     /* waiting for 1 long int and a dimension */
+  ITV_LINT2,    /* waiting for 2 long int and a dimension */
+  ITV_LLINT,    /* waiting for 1 long long int and a dimension */
+  ITV_LLINT2,   /* waiting for 2 long long int and a dimension */
+  ITV_MPZ,      /* waiting for 1 mpz_t and a dimension */
+  ITV_MPZ2,     /* waiting for 2 mpz_t and a dimension */
+  ITV_LFRAC,    /* waiting for 2 long int and a dimension */
+  ITV_LFRAC2,   /* waiting for 4 long int and a dimension */
+  ITV_LLFRAC,   /* waiting for 2 long long int and a dimension */
+  ITV_LLFRAC2,  /* waiting for 4 long long int and a dimension */
+  ITV_MPQ,      /* waiting for 1 mpq_t and a dimension */
+  ITV_MPQ2,     /* waiting for 2 mpq_t and a dimension */
+  ITV_DOUBLE,   /* waiting for 1 double and a dimension */
+  ITV_DOUBLE2,  /* waiting for 2 double and a dimension */
+  ITV_LDOUBLE,  /* waiting for 1 long double and a dimension */
+  ITV_LDOUBLE2, /* waiting for 2 long double and a dimension */
+  ITV_MPFR,     /* waiting for 1 mpfr_t and a dimension */
+  ITV_MPFR2,    /* waiting for 2 mpfr_t double and a dimension */
   ITV_END
 } itvcoefftag_t;
 

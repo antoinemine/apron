@@ -16,6 +16,11 @@ extern "C" {
 
 MACROZ
 
+bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, numinternal_t intern);
+bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, numinternal_t intern);
+bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, numinternal_t intern);
+bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, numinternal_t intern);
+
 bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, numinternal_t intern);
 bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, numinternal_t intern);
 bool itvXXX_linexpr_set_itvZZZ_linexpr(itvXXX_linexpr_t a, itvZZZ_linexpr_t b, numinternal_t intern);
