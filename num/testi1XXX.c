@@ -65,7 +65,7 @@ static bool numXXX_fpu_init(void)
 
 #endif
 
-void arith(itvXXX_internal_t intern,
+void arith(itv_internal_t intern,
 	   itvXXX_t a, itvXXX_t b, itvXXX_t c, boundXXX_t bound)
 {
   itvXXX_t bb,cc;
@@ -95,7 +95,7 @@ void arith(itvXXX_internal_t intern,
   printf("itvXXX_sub(b,c)="); itvXXX_print(a); printf("\n");
 
   itvXXX_set(b,bb); itvXXX_set(c,cc);
-  itvXXX_mul(intern,a,b,c);
+  itvXXX_mul(a,b,c, intern);
   printf("itvXXX_mul(b,c)="); itvXXX_print(a); printf("\n");
 
   itvXXX_set(b,bb); itvXXX_set(c,cc);
@@ -126,12 +126,12 @@ int main(int argc, char**argv)
 {
   itvXXX_t a,b,c;
   boundXXX_t bound;
-  itvXXX_internal_t intern;
+  itv_internal_ptr intern;
 
   numXXX_fpu_init();
   mpfr_set_default_prec(4046);
 
-  intern = itvXXX_internal_alloc();
+  intern = itv_internal_alloc();
   itvXXX_init(a); itvXXX_init(b); itvXXX_init(c); boundXXX_init(bound);
 
   /* Positive or negative intervals */
@@ -165,5 +165,5 @@ int main(int argc, char**argv)
   itvXXX_clear(b);
   itvXXX_clear(c);
   boundXXX_clear(bound);
-  itvXXX_internal_free(intern);
+  itv_internal_free(intern);
 }
