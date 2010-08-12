@@ -11,7 +11,7 @@
 #include <float.h>
 #include <assert.h>
 
-#include "numTypes.h"
+#include "num_types.h"
 #include "numIll.h"
 
 #ifdef __cplusplus

@@ -10,7 +10,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include "numTypes.h"
+#include "num_types.h"
 #include "numIl.h"
 #include "numIll.h"
 #include "numMPZ.h"
