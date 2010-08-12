@@ -1,5 +1,5 @@
 /* ********************************************************************** */
-/* ap_linexprconsXXX.c: conversion between linear expressions and constraints */
+/* ap_linexprconsXXX_conv.c: conversion between linear expressions and constraints */
 /* ********************************************************************** */
 
 #include "boundXXX.h"

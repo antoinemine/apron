@@ -65,7 +65,7 @@ void ap_lincons0_minimize(ap_lincons0_t e)
 /* ====================================================================== */
 
 MACRO_MAINZ
-bool ap_lincons0_set_ap_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, numinternal_t intern)
+bool ap_lincons0_set_ap_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
@@ -78,7 +78,7 @@ bool ap_lincons0_set_ap_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, numintern
     abort();
   }
 }
-bool ap_linconsZZZ_set_ap_lincons0(ap_linconsZZZ_t a, ap_lincons0_t b, numinternal_t intern)
+bool ap_linconsZZZ_set_ap_lincons0(ap_linconsZZZ_t a, ap_lincons0_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
