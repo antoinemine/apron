@@ -31,6 +31,7 @@ typedef struct __numinternal_struct {
   mpfr_t dbl;
   mpfr_t ldbl;
 } __numinternal_struct;
+typedef __numinternal_struct* numinternal_ptr;
 typedef __numinternal_struct numinternal_t[1];
 
 static inline void numinternal_init(numinternal_t intern)
