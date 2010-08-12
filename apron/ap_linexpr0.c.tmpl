@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_linexpr0.h"
-#include "itvD_conv.h"
-#include "itvMPQ_conv.h"
-#include "itvMPFR_conv.h"
+#include "ap_linexprconsD.h"
+#include "ap_linexprconsMPQ.h"
+#include "ap_linexprconsMPFR.h"
 #include <stdarg.h>
 
 /* ====================================================================== */
@@ -22,7 +22,7 @@ void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size)
   res->ref = false;
   res->discr = discr;
   SWITCH(discr)
-    res->linexpr.XXX = itvXXX_linexpr_alloc(size);
+    res->linexpr.XXX = ap_linexprXXX_alloc(size);
   ENDSWITCH
 }
 void ap_linexpr0_init_set(ap_linexpr0_t res,ap_linexpr0_t e)
@@ -30,34 +30,34 @@ void ap_linexpr0_init_set(ap_linexpr0_t res,ap_linexpr0_t e)
   res->ref = false;
   res->discr = e->discr;
   SWITCH(e->discr)
-    res->linexpr.XXX = itvXXX_linexpr_alloc_set(e->linexpr.XXX);
+    res->linexpr.XXX = ap_linexprXXX_alloc_set(e->linexpr.XXX);
   ENDSWITCH
 }
-MACROX
-void ap_linexpr0_init_set_XXX(ap_linexpr0_t res, itvXXX_linexpr_t e)
+MACRO_MAINZ
+void ap_linexpr0_init_set_ZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e)
 {
-  ap_linexpr0_init(res,AP_SCALAR_XXX,e->size);
-  itvXXX_linexpr_set(res->linexpr.XXX,e);
+  ap_linexpr0_init(res,AP_SCALAR_ZZZ,e->size);
+  ap_linexprZZZ_set(res->linexpr.ZZZ,e);
 }
 ENDMACRO
 void ap_linexpr0_clear(ap_linexpr0_t e)
 {
   if (e->ref==false){
     SWITCH(e->discr)
-      itvXXX_linexpr_clear(e->linexpr.XXX);
+      ap_linexprXXX_clear(e->linexpr.XXX);
     ENDSWITCH
   }
 }
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim)
 {
   SWITCH(e->discr){
-    itvXXX_linexpr_fprint(stream,e->linexpr.XXX,name_of_dim);
+    ap_linexprXXX_fprint(stream,e->linexpr.XXX,name_of_dim);
   ENDSWITCH
 }
 void ap_linexpr0_minimize(ap_linexpr0_t e)
 {
   SWITCH(e->discr){
-    itvXXX_linexpr_minimize(e->linexpr.XXX);
+    ap_linexprXXX_minimize(e->linexpr.XXX);
   ENDSWITCH
 }
 
@@ -65,29 +65,29 @@ void ap_linexpr0_minimize(ap_linexpr0_t e)
 /* Conversions */
 /* ====================================================================== */
 
-MACROX
-bool ap_linexpr0_set_itvXXX_linexpr(ap_linexpr0_t a, itvXXX_linexpr_t b, numinternal_t intern)
+MACRO_MAINZ
+bool ap_linexpr0_set_ap_linexprZZZ(ap_linexpr0_t a, ap_linexprZZZ_t b, numinternal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return itvD_linexpr_set_itvXXX_linexpr(a->linexpr.D,b,intern);
+    return itvD_linexpr_set_ap_linexprZZZ(a->linexpr.D,b,intern);
   case AP_SCALAR_MPQ:
-    return itvMPQ_linexpr_set_itvXXX_linexpr(a->linexpr.MPQ,b,intern);
+    return itvMPQ_linexpr_set_ap_linexprZZZ(a->linexpr.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return itvMPFR_linexpr_set_itvXXX_linexpr(a->linexpr.MPFR,b,intern);
+    return itvMPFR_linexpr_set_ap_linexprZZZ(a->linexpr.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool itvXXX_linexpr_set_ap_linexpr0(itvXXX_linexpr_t a, ap_linexpr0_t b, numinternal_t intern)
+bool ap_linexprZZZ_set_ap_linexpr0(ap_linexprZZZ_t a, ap_linexpr0_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return itvXXX_linexpr_set_itvD_linexpr(a,b->linexpr.D,intern);
+    return ap_linexprZZZ_set_itvD_linexpr(a,b->linexpr.D,intern);
   case AP_SCALAR_MPQ:
-    return itvXXX_linexpr_set_itvMPQ_linexpr(a,b->linexpr.MPQ,intern);
+    return ap_linexprZZZ_set_itvMPQ_linexpr(a,b->linexpr.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return itvXXX_linexpr_set_itvMPFR_linexpr(a,b->linexpr.MPFR,intern);
+    return ap_linexprZZZ_set_itvMPFR_linexpr(a,b->linexpr.MPFR,intern);
   default:
     abort();
   }
@@ -108,7 +108,7 @@ bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, numinternal_t int
 bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, numinternal_t intern)
 {
   SWITCH (expr->discr)
-    eitvXXX_ptr eitv = itvXXX_linexpr_eitvref(expr->linexpr.XXX,dim,false);
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref(expr->linexpr.XXX,dim,false);
     if (eitv==NULL) break; else return ap_coeff_set_eitvXXX(coeff,eitv,intern);
   ENDSWITCH
   ap_coeff_set_int(coeff,0);
@@ -123,7 +123,7 @@ void ap_linexpr0_cstref(ap_coeff_t res, ap_linexpr0_t expr)
 void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 {
   SWITCH (expr->discr)
-    eitvXXX_ptr eitv = itvXXX_linexpr_eitvref(expr->linexpr.XXX,dim,true);
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref(expr->linexpr.XXX,dim,true);
     ap_coeff_ref_XXX(res,eitv);
   ENDSWITCH
 }
@@ -135,7 +135,7 @@ bool ap_linexpr0_set_list(numinternal_t intern,
   va_list va;
   va_start(va,expr);
   SWITCH (expr->discr)
-    res = itvXXX_linexpr_set_list_generic(itvXXX_linexpr_set_list_get_eitvXXX_of_dim,
+    res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
 					  NULL,
 					  intern,expr->linexpr.XXX,&va);
   ENDSWITCH
@@ -154,7 +154,7 @@ void ap_linexpr0_add_dimensions(ap_linexpr0_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH (expr->discr)
-    itvXXX_linexpr_add_dimensions(res->linexpr.XXX,expr->linexpr.XXX,dimchange);
+    ap_linexprXXX_add_dimensions(res->linexpr.XXX,expr->linexpr.XXX,dimchange);
   ENDSWITCH
 }
 void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
@@ -164,7 +164,7 @@ void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH (expr->discr)
-    itvXXX_linexpr_permute_dimensions(res->linexpr.XXX,expr->linexpr.XXX,perm);
+    ap_linexprXXX_permute_dimensions(res->linexpr.XXX,expr->linexpr.XXX,perm);
   ENDSWITCH
 }
 
@@ -178,7 +178,7 @@ int ap_linexpr0_hash(ap_linexpr0_t expr)
 {
   int res;
   SWITCH(expr->discr)
-    res = itvXXX_linexpr_hash(expr->linexpr.XXX);
+    res = ap_linexprXXX_hash(expr->linexpr.XXX);
   ENDSWITCH
   return res;
 }
@@ -190,7 +190,7 @@ bool ap_linexpr0_equal(ap_linexpr0_t expr1,
     res = false;
   else {
     SWITCH(expr1->discr)
-      res = itvXXX_linexpr_equal(expr1->linexpr.XXX,expr2->linexpr.XXX);
+      res = ap_linexprXXX_equal(expr1->linexpr.XXX,expr2->linexpr.XXX);
     ENDSWITCH
   }
   return res;
@@ -206,7 +206,7 @@ int ap_linexpr0_compare(ap_linexpr0_t expr1,
   }
   else {
     SWITCH(expr1->discr)
-      res = itvXXX_linexpr_compare(expr1->linexpr.XXX,expr2->linexpr.XXX);
+      res = ap_linexprXXX_compare(expr1->linexpr.XXX,expr2->linexpr.XXX);
     ENDSWITCH
   }
   return res;

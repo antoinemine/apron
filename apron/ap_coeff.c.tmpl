@@ -13,19 +13,19 @@
 #include <assert.h>
 
 #include "ap_coeff.h"
-#include "itvMPQ_conv.h"
-#include "itvD_conv.h"
-#include "itvMPFR_conv.h"
-#include "eitvMPQ.h"
+#include "ap_linexprconsMPQ.h"
+#include "ap_linexprconsD.h"
+#include "ap_linexprconsMPFR.h"
+#include "eap_linexprconsMPQ.h"
 #include "eitvD.h"
 #include "eitvMPFR.h"
 
-#include "itvIl_conv.h"
-#include "itvIll_conv.h"
-#include "itvMPZ_conv.h"
-#include "itvRl_conv.h"
-#include "itvRll_conv.h"
-#include "itvDl_conv.h"
+#include "itvIl.h"
+#include "ap_linexprconsIll.h"
+#include "ap_linexprconsMPZ.h"
+#include "ap_linexprconsRl.h"
+#include "ap_linexprconsRll.h"
+#include "ap_linexprconsDl.h"
 
 
 /* ====================================================================== */
@@ -49,12 +49,12 @@ void ap_coeff_init_set(ap_coeff_t a, ap_coeff_t b)
     a->eitv.XXX = eitvXXX_alloc_set(b->eitv.XXX);
   ENDSWITCH
 }
-MACROX
-void ap_coeff_init_set_XXX(ap_coeff_t a, eitvXXX_t eitv)
+MACRO_MAINZ
+void ap_coeff_init_set_ZZZ(ap_coeff_t a, eitvZZZ_t eitv)
 {
   a->ref = false;
-  a->discr = AP_SCALAR_XXX;
-  eitvXXX_init_set(a->eitv.XXX,eitv);
+  a->discr = AP_SCALAR_ZZZ;
+  eitvZZZ_init_set(a->eitv.ZZZ,eitv);
 }
 ENDMACRO
 void ap_coeff_clear(ap_coeff_t a)
@@ -110,7 +110,7 @@ void ap_coeff_set_bottom(ap_coeff_t a)
 /* Conversions */
 /* ====================================================================== */
 
-MACROZ
+MACRO_ALLZ
 bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern)
 {
   switch (a->discr){

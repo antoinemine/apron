@@ -29,10 +29,10 @@ typedef struct ap_yyy_array_struct {
   bool ref;
   ap_scalar_discr_t discr;
   union {
-    itvD_linexpr_array_ptr    D;
-    itvMPQ_linexpr_array_ptr  MPQ;
-    itvMPFR_linexpr_array_ptr MPFR;
-  } linexpr_array;
+    itvD_zzz_array_ptr    D;
+    itvMPQ_zzz_array_ptr  MPQ;
+    itvMPFR_zzz_array_ptr MPFR;
+  } zzz_array;
 } ap_yyy_array_struct;
 typedef ap_yyy_array_struct* ap_yyy_array_ptr;
 typedef ap_yyy_array_struct ap_yyy_array_t[1];
@@ -43,15 +43,15 @@ typedef ap_yyy_array_struct ap_yyy_array_t[1];
 
 void ap_yyy_array_init(ap_yyy_array_t e, ap_scalar_discr_t discr, size_t size);
 void ap_yyy_array_init_set(ap_yyy_array_t res, ap_yyy_array_t e);
-MACROX
-static inline void ap_yyy_array_init_cons_XXX(ap_yyy_array_t res, itvXXX_linexpr_array_t e);
+MACRO_MAINZ
+static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e);
 ENDMACRO
 void ap_yyy_array_minimize(ap_yyy_array_t a);
 void ap_yyy_array_clear(ap_yyy_array_t e);
 void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim);
 
-MACROX
-static inline void ap_yyy_array_ref_XXX(ap_yyy_array_t res, itvXXX_linexpr_array_t e);
+MACRO_MAINZ
+static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e);
 ENDMACRO
   /* Returns a reference on the argument under the form of ap_yyy_ref.
      INTERNAL USE.
@@ -64,9 +64,9 @@ ENDMACRO
 
 bool ap_yyy_array_set(ap_yyy_array_t res, ap_yyy_array_t e, numinternal_t intern);
 
-MACROX
-bool ap_yyy_array_set_itvXXX_linexpr(ap_yyy_array_t a, itvXXX_linexpr_array_t b, numinternal_t intern);
-bool itvXXX_linexpr_array_set_ap_yyy_array(itvXXX_linexpr_array_t a, ap_yyy_array_t b, numinternal_t intern);
+MACRO_MAINZ
+bool ap_yyy_array_set_itvZZZ_zzz(ap_yyy_array_t a, itvZZZ_zzz_array_t b, numinternal_t intern);
+bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, numinternal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -74,7 +74,7 @@ ENDMACRO
 /* ====================================================================== */
 
 size_t ap_yyy_array_size(ap_yyy_array_t p);
-itvlinexpr_type_t ap_yyy_array_type(ap_yyy_array_t array);
+ap_linexpr_type_t ap_yyy_array_type(ap_yyy_array_t array);
 bool ap_yyy_array_is_linear(ap_yyy_array_t array);
 bool ap_yyy_array_is_quasilinear(ap_yyy_array_t array);
   /* Are all the constraints involved linear (resp. quasilinear) */
@@ -102,12 +102,12 @@ void ap_yyy_array_permute_dimensions(ap_yyy_array_t a,
 					  ap_yyy_array_t b,
 					  ap_dimperm_t* perm);
 
-MACROX
-static inline void ap_yyy_array_init_cons_XXX(ap_yyy_array_t res, itvXXX_linexpr_array_t e)
-{ res->ref = false; res->discr = AP_SCALAR_XXX; res->linexpr_array.XXX = e; };
+MACRO_MAINZ
+static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e)
+{ res->ref = false; res->discr = AP_SCALAR_ZZZ; res->zzz_array.ZZZ = e; };
 
-static inline void ap_yyy_array_ref_XXX(ap_yyy_array_t res, itvXXX_linexpr_array_t e)
-{ res->ref = true; res->discr = AP_SCALAR_XXX; res->linexpr_array.XXX = e; };
+static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e)
+{ res->ref = true; res->discr = AP_SCALAR_ZZZ; res->zzz_array.ZZZ = e; };
 ENDMACRO
 
 #ifdef __cplusplus
