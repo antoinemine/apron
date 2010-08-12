@@ -289,7 +289,7 @@ static inline bool double_fits_numMPFR(double k)
 { return numD_fits_mpfr(&k); }
 static inline bool ldouble_fits_numMPFR(long double k)
 { return numDl_fits_mpfr(&k); }
-static inline bool mpfr_fits_numMPFR(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numMPFR(mpfr_t a, num_internal_t intern)
 { return true; }
 
 static inline bool numMPFR_fits_lint(numMPFR_t a)
@@ -321,13 +321,13 @@ static inline bool numMPFR_fits_mpfr(numMPFR_t a)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numMPFR_set_lint(numMPFR_t a, long int i, numinternal_t intern)
+static inline bool numMPFR_set_lint(numMPFR_t a, long int i, num_internal_t intern)
 { return mpfr_set_numIl(a,&i,intern); }
-static inline bool numMPFR_set_llint(numMPFR_t a, long long int i, numinternal_t intern)
+static inline bool numMPFR_set_llint(numMPFR_t a, long long int i, num_internal_t intern)
 { return mpfr_set_numIll(a,&i,intern); }
-static inline bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, numinternal_t intern)
+static inline bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, num_internal_t intern)
 { return mpfr_set_numMPZ(a,b,intern); }
-static inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, numinternal_t intern)
+static inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   numRl_native s;
@@ -335,7 +335,7 @@ static inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, numint
   *s.d = j;
   return mpfr_set_numRl(a,&s,intern);
 }
-static inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   numRll_native s;
@@ -343,21 +343,21 @@ static inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long in
   *s.d = j;
   return mpfr_set_numRll(a,&s,intern);
 }
-static inline bool numMPFR_set_mpq(numMPFR_t a, mpq_t b, numinternal_t intern)
+static inline bool numMPFR_set_mpq(numMPFR_t a, mpq_t b, num_internal_t intern)
 { return mpfr_set_numMPQ(a,b,intern); }
-static inline bool numMPFR_set_double(numMPFR_t a, double k, numinternal_t intern)
+static inline bool numMPFR_set_double(numMPFR_t a, double k, num_internal_t intern)
 { return mpfr_set_numD(a,&k,intern); }
-static inline bool numMPFR_set_ldouble(numMPFR_t a, long double k, numinternal_t intern)
+static inline bool numMPFR_set_ldouble(numMPFR_t a, long double k, num_internal_t intern)
 { return mpfr_set_numDl(a,&k,intern); }
-static inline bool numMPFR_set_mpfr(numMPFR_t a, mpfr_t b, numinternal_t intern)
+static inline bool numMPFR_set_mpfr(numMPFR_t a, mpfr_t b, num_internal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
-static inline bool lint_set_numMPFR(long int* a, numMPFR_t b, numinternal_t intern)
+static inline bool lint_set_numMPFR(long int* a, numMPFR_t b, num_internal_t intern)
 { return numIl_set_mpfr(a,b,intern); }
-static inline bool llint_set_numMPFR(long long int* a, numMPFR_t b, numinternal_t intern)
+static inline bool llint_set_numMPFR(long long int* a, numMPFR_t b, num_internal_t intern)
 { return numIll_set_mpfr(a,b,intern); }
-static inline bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, numinternal_t intern)
+static inline bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, num_internal_t intern)
 { return numMPZ_set_mpfr(a,b,intern); }
-static inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, numinternal_t intern)
+static inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, num_internal_t intern)
 {
   numRl_native s;
   bool res = numRl_set_mpfr(&s,b,intern);
@@ -365,7 +365,7 @@ static inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, numi
   *j = *s.d;
   return res;
 }
-static inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, numinternal_t intern)
+static inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, num_internal_t intern)
 {
   numRll_native s;
   bool res = numRll_set_mpfr(&s,b,intern);
@@ -373,13 +373,13 @@ static inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPF
   *j = *s.d;
   return res;
 }
-static inline bool mpq_set_numMPFR(mpq_t a, numMPFR_t b, numinternal_t intern)
+static inline bool mpq_set_numMPFR(mpq_t a, numMPFR_t b, num_internal_t intern)
 { return numMPQ_set_mpfr(a,b,intern); }
-static inline bool double_set_numMPFR(double* a, numMPFR_t b, numinternal_t intern)
+static inline bool double_set_numMPFR(double* a, numMPFR_t b, num_internal_t intern)
 { return numD_set_mpfr(a,b,intern); }
-static inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, numinternal_t intern)
+static inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, num_internal_t intern)
 { return numDl_set_mpfr(a,b,intern); }
-static inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, numinternal_t intern)
+static inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
 
 #ifdef __cplusplus

@@ -292,7 +292,7 @@ static inline bool ldouble_fits_numIyyy(long double a)
 {
   return isfinite(a) && a>=(long double)(-NUMIyyy_MAX) && a<=(long double)NUMIyyy_MAX;
 }
-static inline bool mpfr_fits_numIyyy(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numIyyy(mpfr_t a, num_internal_t intern)
 {
   return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU);
 }
@@ -347,7 +347,7 @@ static inline bool ldouble_fits_numIll(long double a)
 {
   return isfinite(a) && a>=(long double)(-NUMIll_MAX) && a<=(long double)NUMIll_MAX;
 }
-static inline bool mpfr_fits_numIll(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numIll(mpfr_t a, num_internal_t intern)
 {
   return mpfr_number_p(a) && mpfr_fits_intmax_p(a,GMP_RNDU);
 }
@@ -383,112 +383,112 @@ static inline bool numIll_fits_mpfr(numIll_t a)
 
 #if defined(_NUMIl_MARK_)
 
-static inline bool numIl_set_lint(numIl_t a, long int b, numinternal_t intern)
+static inline bool numIl_set_lint(numIl_t a, long int b, num_internal_t intern)
 { *a = b; return true; }
-static inline bool numIl_set_llint(numIl_t a, long long int b, numinternal_t intern)
+static inline bool numIl_set_llint(numIl_t a, long long int b, num_internal_t intern)
 {
   *a = (long int)b;
   return true;
 }
-static inline bool numIl_set_mpz(numIl_t a, mpz_t b, numinternal_t intern)
+static inline bool numIl_set_mpz(numIl_t a, mpz_t b, num_internal_t intern)
 {
   *a = mpz_get_si(b);
   return true;
 }
-static inline bool numIl_set_lfrac(numIl_t a, long int i, long int j, numinternal_t intern)
+static inline bool numIl_set_lfrac(numIl_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
   else *a = i/j;
   return (i%j) ? false : true;
 }
-static inline bool numIl_set_llfrac(numIl_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numIl_set_llfrac(numIl_t a, long long int i, long long int j, num_internal_t intern)
 {
   long long int t;
   assert(j>0);
   t = i>=0 ? (i+j-1)/j : i/j;
   return numIl_set_llint(a,t,intern) && i%j==0;
 }
-static inline bool numIl_set_mpq(numIl_t a, mpq_t b, numinternal_t intern)
+static inline bool numIl_set_mpq(numIl_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(intern->q, intern->r, mpq_numref(b),mpq_denref(b));
   numIl_set_mpz(a,intern->q,intern);
   return mpz_sgn(intern->r)==0;
 }
-static inline bool numIl_set_double(numIl_t a, double b, numinternal_t intern)
+static inline bool numIl_set_double(numIl_t a, double b, num_internal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
   return b==c;
 }
-static inline bool numIl_set_ldouble(numIl_t a, long double b, numinternal_t intern)
+static inline bool numIl_set_ldouble(numIl_t a, long double b, num_internal_t intern)
 {
   long double c = ceill(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
   return b==c;
 }
-static inline bool numIl_set_mpfr(numIl_t a, mpfr_t b, numinternal_t intern)
+static inline bool numIl_set_mpfr(numIl_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numIl_set_int(a,0); return false; }
   *a = mpfr_get_si(b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
 
-static inline bool lint_set_numIl(long int* a, numIl_t b, numinternal_t intern)
+static inline bool lint_set_numIl(long int* a, numIl_t b, num_internal_t intern)
 { *a = *b; return true; }
-static inline bool llint_set_numIl(long long int* a, numIl_t b, numinternal_t intern)
+static inline bool llint_set_numIl(long long int* a, numIl_t b, num_internal_t intern)
 { *a = (long long int)(*b); return true; }
-static inline bool mpz_set_numIl(mpz_t a, numIl_t b, numinternal_t intern)
+static inline bool mpz_set_numIl(mpz_t a, numIl_t b, num_internal_t intern)
 { mpz_set_si(a,*b); return true; }
-static inline bool lfrac_set_numIl(long int *a, long int* b, numIl_t c, numinternal_t intern)
+static inline bool lfrac_set_numIl(long int *a, long int* b, numIl_t c, num_internal_t intern)
 {
   *a = *c;
   *b = 1L;
   return true;
 }
-static inline bool llfrac_set_numIl(long long int *a, long long int* b, numIl_t c, numinternal_t intern)
+static inline bool llfrac_set_numIl(long long int *a, long long int* b, numIl_t c, num_internal_t intern)
 {
   *a = (long long int)(*c);
   *b = 1LL;
   return true;
 }
-static inline bool mpq_set_numIl(mpq_t a, numIl_t b, numinternal_t intern)
+static inline bool mpq_set_numIl(mpq_t a, numIl_t b, num_internal_t intern)
 {
   mpq_set_si(a,*b,1);
   return true;
 }
-static inline bool double_set_numIl(double* a, numIl_t b, numinternal_t intern)
+static inline bool double_set_numIl(double* a, numIl_t b, num_internal_t intern)
 {
   *a = (double)(*b);
   double aa = -((double)(-(*b)));
   return (*a==aa);
 }
-static inline bool ldouble_set_numIl(long double* a, numIl_t b, numinternal_t intern)
+static inline bool ldouble_set_numIl(long double* a, numIl_t b, num_internal_t intern)
 {
   *a = (long double)(*b);
   long double aa = -((long double)(-(*b)));
   return (*a==aa);
 }
-static inline bool mpfr_set_numIl(mpfr_t a, numIl_t b, numinternal_t intern)
+static inline bool mpfr_set_numIl(mpfr_t a, numIl_t b, num_internal_t intern)
 {
   return !mpfr_set_si(a,*b,GMP_RNDU);
 }
 
 #elif defined(_NUMIll_MARK_)
 
-static inline bool numIll_set_lint(numIll_t a, long int b, numinternal_t intern)
+static inline bool numIll_set_lint(numIll_t a, long int b, num_internal_t intern)
 {
   *a = (long long int)b;
   return true;
 }
-static inline bool numIll_set_llint(numIll_t a, long long int b, numinternal_t intern)
+static inline bool numIll_set_llint(numIll_t a, long long int b, num_internal_t intern)
 {
   *a = b;
   return true;
 }
-static inline bool numIll_set_mpz(numIll_t a, mpz_t b, numinternal_t intern)
+static inline bool numIll_set_mpz(numIll_t a, mpz_t b, num_internal_t intern)
 {
   int sgn;
   size_t count;
@@ -523,50 +523,50 @@ static inline bool numIll_set_mpz(numIll_t a, mpz_t b, numinternal_t intern)
   }
   return res;
 }
-static inline bool numIll_set_lfrac(numIll_t a, long int i, long int j, numinternal_t intern)
+static inline bool numIll_set_lfrac(numIll_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
   else *a = i/j;
   return (i%j==0);
 }
-static inline bool numIll_set_llfrac(numIll_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numIll_set_llfrac(numIll_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
   else *a = i/j;
   return (i%j==0);
 }
-static inline bool numIll_set_mpq(numIll_t a, mpq_t b, numinternal_t intern)
+static inline bool numIll_set_mpq(numIll_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(intern->q,intern->r, mpq_numref(b),mpq_denref(b));
   return numIll_set_mpz(a,intern->q,intern) && (mpz_sgn(intern->r)==0);
 }
-static inline bool numIll_set_double(numIll_t a, double b, numinternal_t intern)
+static inline bool numIll_set_double(numIll_t a, double b, num_internal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
   return (b==c);
 }
-static inline bool numIll_set_ldouble(numIll_t a, long double b, numinternal_t intern)
+static inline bool numIll_set_ldouble(numIll_t a, long double b, num_internal_t intern)
 {
   long double c = ceill(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
   return (b==c);
 }
-static inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, numinternal_t intern)
+static inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numIll_set_int(a,0); return false; }
   *a = mpfr_get_sj(b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
-static inline bool lint_set_numIll(long int* a, numIll_t b, numinternal_t intern)
+static inline bool lint_set_numIll(long int* a, numIll_t b, num_internal_t intern)
 { *a = (long int)(*b); return true; }
-static inline bool llint_set_numIll(long long int* a, numIll_t b, numinternal_t intern)
+static inline bool llint_set_numIll(long long int* a, numIll_t b, num_internal_t intern)
 { *a = *b; return true; }
-static inline bool mpz_set_numIll(mpz_t a, numIll_t b, numinternal_t intern)
+static inline bool mpz_set_numIll(mpz_t a, numIll_t b, num_internal_t intern)
 {
   unsigned long long int n;
   unsigned long int rep[2];
@@ -589,36 +589,36 @@ static inline bool mpz_set_numIll(mpz_t a, numIll_t b, numinternal_t intern)
     mpz_neg(a,a);
   return true;
 }
-static inline bool lfrac_set_numIll(long int* a, long int* b, numIll_t c, numinternal_t intern)
+static inline bool lfrac_set_numIll(long int* a, long int* b, numIll_t c, num_internal_t intern)
 {
   *a = (long int)(*c);
   *b = 1L;
   return true;
 }
-static inline bool llfrac_set_numIll(long long int* a, long long int* b, numIll_t c, numinternal_t intern)
+static inline bool llfrac_set_numIll(long long int* a, long long int* b, numIll_t c, num_internal_t intern)
 {
   *a = *c;
   *b = 1LL;
   return true;
 }
-static inline bool mpq_set_numIll(mpq_t a, numIll_t b, numinternal_t intern)
+static inline bool mpq_set_numIll(mpq_t a, numIll_t b, num_internal_t intern)
 {
   mpz_set_ui(mpq_denref(a),1);
   return mpz_set_numIll(mpq_numref(a),b,intern);
 }
-static inline bool double_set_numIll(double* a, numIll_t b, numinternal_t intern)
+static inline bool double_set_numIll(double* a, numIll_t b, num_internal_t intern)
 {
   *a = (double)(*b);
   double aa = -((double)(-(*b)));
   return (*a==aa);
 }
-static inline bool ldouble_set_numIll(long double* a, numIll_t b, numinternal_t intern)
+static inline bool ldouble_set_numIll(long double* a, numIll_t b, num_internal_t intern)
 {
   *a = (long double)(*b);
   long double aa = -((long double)(-(*b)));
   return (*a==aa);
 }
-static inline bool mpfr_set_numIll(mpfr_t a, numIll_t b, numinternal_t intern)
+static inline bool mpfr_set_numIll(mpfr_t a, numIll_t b, num_internal_t intern)
 {
   return !mpfr_set_sj(a,*b,GMP_RNDU);
 }
