@@ -250,7 +250,7 @@ static inline bool double_fits_numMPZ(double a)
 { return isfinite(a); }
 static inline bool ldouble_fits_numMPZ(long double a)
 { return isfinite(a); }
-static inline bool mpfr_fits_numMPZ(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numMPZ(mpfr_t a, num_internal_t intern)
 { return mpfr_number_p(a); }
 
 static inline bool numMPZ_fits_lint(numMPZ_t a)
@@ -278,29 +278,29 @@ static inline bool numMPZ_fits_mpfr(numMPZ_t a)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numMPZ_set_lint(numMPZ_t a, long int b, numinternal_t intern)
+static inline bool numMPZ_set_lint(numMPZ_t a, long int b, num_internal_t intern)
 { mpz_set_si(a,b); return true; }
-static inline bool numMPZ_set_llint(numMPZ_t a, long long int b, numinternal_t intern)
+static inline bool numMPZ_set_llint(numMPZ_t a, long long int b, num_internal_t intern)
 { return mpz_set_numIll(a,&b,intern); }
-static inline bool numMPZ_set_mpz(numMPZ_t a, mpz_t b, numinternal_t intern)
+static inline bool numMPZ_set_mpz(numMPZ_t a, mpz_t b, num_internal_t intern)
 { mpz_set(a,b); return true; }
-static inline bool numMPZ_set_lfrac(numMPZ_t a, long int i, long int j, numinternal_t intern)
+static inline bool numMPZ_set_lfrac(numMPZ_t a, long int i, long int j, num_internal_t intern)
 { 
   long int q = (i>=0) ? (i+j-1)/j : i/j;
   mpz_set_si(a,q);
   return (i%j==0);
 }
-static inline bool numMPZ_set_llfrac(numMPZ_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numMPZ_set_llfrac(numMPZ_t a, long long int i, long long int j, num_internal_t intern)
 { 
   long long int q = (i>=0) ? (i+j-1)/j : i/j;
   return numMPZ_set_llint(a,q,intern) && (i%j==0);
 }
-static inline bool numMPZ_set_mpq(numMPZ_t a, mpq_t b, numinternal_t intern)
+static inline bool numMPZ_set_mpq(numMPZ_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(a, intern->r, mpq_numref(b),mpq_denref(b));
   return mpz_sgn(intern->r)==0;
 }
-static inline bool numMPZ_set_double(numMPZ_t a, double b, numinternal_t intern)
+static inline bool numMPZ_set_double(numMPZ_t a, double b, num_internal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
@@ -308,7 +308,7 @@ static inline bool numMPZ_set_double(numMPZ_t a, double b, numinternal_t intern)
   return (b==c);
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of NUMFLTDL_MANT_DIG bits */
-static inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, numinternal_t intern)
+static inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, num_internal_t intern)
 {
   long double c = ceill(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
@@ -316,44 +316,44 @@ static inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, numinternal_t i
   mpfr_get_z(a,intern->ldbl,GMP_RNDU);
   return (res==0) && (b==c);
 }
-static inline bool numMPZ_set_mpfr(numMPZ_t a, mpfr_t b, numinternal_t intern)
+static inline bool numMPZ_set_mpfr(numMPZ_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numMPZ_set_int(a,0); return false; }
   mpfr_get_z(a,b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
 
-static inline bool lint_set_numMPZ(long int* a, numMPZ_t b, numinternal_t intern)
+static inline bool lint_set_numMPZ(long int* a, numMPZ_t b, num_internal_t intern)
 { *a = mpz_get_si(b); return true; }
-static inline bool llint_set_numMPZ(long long int* a, numMPZ_t b, numinternal_t intern)
+static inline bool llint_set_numMPZ(long long int* a, numMPZ_t b, num_internal_t intern)
 { return numIll_set_mpz(a,b,intern); }
-static inline bool mpz_set_numMPZ(mpz_t a, numMPZ_t b, numinternal_t intern)
+static inline bool mpz_set_numMPZ(mpz_t a, numMPZ_t b, num_internal_t intern)
 { mpz_set(a,b); return true; }
-static inline bool lfrac_set_numMPZ(long int* i, long int* j, numMPZ_t b, numinternal_t intern)
+static inline bool lfrac_set_numMPZ(long int* i, long int* j, numMPZ_t b, num_internal_t intern)
 { *i = mpz_get_si(b); *j = 1L; return true; }
-static inline bool llfrac_set_numMPZ(long long int* i, long long int* j, numMPZ_t b, numinternal_t intern)
+static inline bool llfrac_set_numMPZ(long long int* i, long long int* j, numMPZ_t b, num_internal_t intern)
 { *j = 1LL; return llint_set_numMPZ(i,b,intern); }
-static inline bool mpq_set_numMPZ(mpq_t a, numMPZ_t b, numinternal_t intern)
+static inline bool mpq_set_numMPZ(mpq_t a, numMPZ_t b, num_internal_t intern)
 {
   mpz_set(mpq_numref(a),b);
   mpz_set_ui(mpq_denref(a),1);
   return true;
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of 53 bits */
-static inline bool double_set_numMPZ(double* a, numMPZ_t b, numinternal_t intern)
+static inline bool double_set_numMPZ(double* a, numMPZ_t b, num_internal_t intern)
 {
   int res = mpfr_set_z(intern->dbl,b,GMP_RNDU);
   *a = mpfr_get_d(intern->dbl,GMP_RNDU);/* Normally, exact conversion here (unless overflow) */
   return (res==0);
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of NUMFLTDL_MANT_DIG bits */
-static inline bool ldouble_set_numMPZ(long double* a, numMPZ_t b, numinternal_t intern)
+static inline bool ldouble_set_numMPZ(long double* a, numMPZ_t b, num_internal_t intern)
 {
   int res = mpfr_set_z(intern->ldbl,b,GMP_RNDU);
   *a = mpfr_get_ld(intern->ldbl,GMP_RNDU);/* Normally, exact conversion here (unless overflow) */
   return (res==0);
 }
-static inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, numinternal_t intern)
+static inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, num_internal_t intern)
 { return !mpfr_set_z(a,b,GMP_RNDU); }
 
 #ifdef __cplusplus

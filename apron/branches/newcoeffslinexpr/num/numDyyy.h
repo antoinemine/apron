@@ -229,7 +229,7 @@ static inline bool double_fits_numDyyy(double k)
 { return isfinite(k); }
 static inline bool ldouble_fits_numDyyy(long double k)
 { return isfinite(k); }
-static inline bool mpfr_fits_numDyyy(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numDyyy(mpfr_t a, num_internal_t intern)
 {
   if (mpfr_number_p(a)){
     if (mpfr_sgn(a)==0) return true;
@@ -284,53 +284,53 @@ static inline bool numDyyy_fits_mpfr(numDyyy_t a)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numDyyy_set_lint(numDyyy_t a, long int i, numinternal_t intern)
+static inline bool numDyyy_set_lint(numDyyy_t a, long int i, num_internal_t intern)
 { return yyydouble_set_numIl(a,&i,intern); }
-static inline bool numDyyy_set_llint(numDyyy_t a, long long int i, numinternal_t intern)
+static inline bool numDyyy_set_llint(numDyyy_t a, long long int i, num_internal_t intern)
 { return yyydouble_set_numIll(a,&i,intern); }
-static inline bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, numinternal_t intern)
+static inline bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, num_internal_t intern)
 { return yyydouble_set_numMPZ(a,b,intern); }
-static inline bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, numinternal_t intern)
+static inline bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   *a = (numDyyy_native)i/(numDyyy_native)j;
   return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
 }
-static inline bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   *a = (numDyyy_native)i/(numDyyy_native)j;
   return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
 }
-static inline bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, numinternal_t intern)
+static inline bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, num_internal_t intern)
 { return yyydouble_set_numMPQ(a,b,intern); }
 
 #if defined(_NUMD_MARK_)
-static inline bool numD_set_double(numD_t a, double k, numinternal_t intern)
+static inline bool numD_set_double(numD_t a, double k, num_internal_t intern)
 { *a = k; return true; }
-static inline bool numD_set_ldouble(numD_t a, long double k, numinternal_t intern)
+static inline bool numD_set_ldouble(numD_t a, long double k, num_internal_t intern)
 { *a = (double)k; return (long double)(*a)==k; }
 #elif defined(_NUMDl_MARK_)
-static inline bool numDl_set_double(numDl_t a, double k, numinternal_t intern)
+static inline bool numDl_set_double(numDl_t a, double k, num_internal_t intern)
 { *a = (long double)k; return true; }
-static inline bool numDl_set_ldouble(numDl_t a, long double k, numinternal_t intern)
+static inline bool numDl_set_ldouble(numDl_t a, long double k, num_internal_t intern)
 { *a = k; return true; }
 #else
 #error "HERE"
 #endif
 
-static inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, numinternal_t intern)
+static inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern)
 {
   *a = mpfr_get_yyyd(b,GMP_RNDU);
   return !mpfr_cmp_yyyd(b,*a);
 }
-static inline bool lint_set_numDyyy(long int* a, numDyyy_t b, numinternal_t intern)
+static inline bool lint_set_numDyyy(long int* a, numDyyy_t b, num_internal_t intern)
 { return numIl_set_yyydouble(a,*b,intern); }
-static inline bool llint_set_numDyyy(long long int* a, numDyyy_t b, numinternal_t intern)
+static inline bool llint_set_numDyyy(long long int* a, numDyyy_t b, num_internal_t intern)
 { return numIll_set_yyydouble(a,*b,intern); }
-static inline bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, numinternal_t intern)
+static inline bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, num_internal_t intern)
 { return numMPZ_set_yyydouble(a,*b,intern); }
-static inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, numinternal_t intern)
+static inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_internal_t intern)
 {
   numRl_native s;
   bool res = numRl_set_yyydouble(&s,*b,intern);
@@ -338,7 +338,7 @@ static inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, numi
   *j = *s.d;
   return res;
 }
-static inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, numinternal_t intern)
+static inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, num_internal_t intern)
 {
   numRll_native s;
   bool res = numRll_set_yyydouble(&s,*b,intern);
@@ -346,22 +346,22 @@ static inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyy
   *j = *s.d;
   return res;
 }
-static inline bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, numinternal_t intern)
+static inline bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, num_internal_t intern)
 { return numMPQ_set_yyydouble(a,*b,intern); }
 
 #if defined(_NUMD_MARK_)
-static inline bool double_set_numD(double* a, numD_t b, numinternal_t intern)
+static inline bool double_set_numD(double* a, numD_t b, num_internal_t intern)
 { *a = *b; return true; }
-static inline bool ldouble_set_numD(long double* a, numD_t b, numinternal_t intern)
+static inline bool ldouble_set_numD(long double* a, numD_t b, num_internal_t intern)
 { *a = (long double)*b; return true; }
 #elif defined(_NUMDl_MARK_)
-static inline bool double_set_numDl(double* a, numDl_t b, numinternal_t intern)
+static inline bool double_set_numDl(double* a, numDl_t b, num_internal_t intern)
 { *a = (double)*b; return (long double)(*a)==*b; }
-static inline bool ldouble_set_numDl(long double* a, numDl_t b, numinternal_t intern)
+static inline bool ldouble_set_numDl(long double* a, numDl_t b, num_internal_t intern)
 { *a = *b; return true; }
 #endif
 
-static inline bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, numinternal_t intern)
+static inline bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, num_internal_t intern)
 { return !mpfr_set_yyyd(a,*b,GMP_RNDU); }
 
 #undef _NUMDyyy_MARK_

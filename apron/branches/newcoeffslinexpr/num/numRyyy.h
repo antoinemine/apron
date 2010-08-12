@@ -382,7 +382,7 @@ static inline bool ldouble_fits_numRyyy(long double k)
   mant = frexpl(k,&e);
   return e < (int)sizeof(numIyyy_t)*8-1;
 }
-static inline bool mpfr_fits_numRyyy(mpfr_t a, numinternal_t intern)
+static inline bool mpfr_fits_numRyyy(mpfr_t a, num_internal_t intern)
 {
   mp_exp_t e;
   if (!mpfr_number_p(a)) return false;
@@ -419,25 +419,25 @@ static inline bool numRyyy_fits_mpfr(numRyyy_t a)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numRyyy_set_lint(numRyyy_t a, long int b, numinternal_t intern)
+static inline bool numRyyy_set_lint(numRyyy_t a, long int b, num_internal_t intern)
 {
   numIyyy_set_lint(a->n,b,intern);
   numIyyy_set_int(a->d,1L);
   return true;
 }
-static inline bool numRyyy_set_llint(numRyyy_t a, long long int b, numinternal_t intern)
+static inline bool numRyyy_set_llint(numRyyy_t a, long long int b, num_internal_t intern)
 {
   numIyyy_set_llint(a->n,b,intern);
   numIyyy_set_int(a->d,1);
   return true;
 }
-static inline bool numRyyy_set_mpz(numRyyy_t a, mpz_t b, numinternal_t intern)
+static inline bool numRyyy_set_mpz(numRyyy_t a, mpz_t b, num_internal_t intern)
 {
   numIyyy_set_mpz(a->n,b,intern);
   numIyyy_set_int(a->d,1);
   return true;
 }
-static inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, numinternal_t intern)
+static inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   numIyyy_set_lint(a->n,i,intern);
@@ -445,7 +445,7 @@ static inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, numint
   numRyyy_canonicalize(a);
   return true;
 }
-static inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long int j, numinternal_t intern)
+static inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   numIyyy_set_llint(a->n,i,intern);
@@ -453,14 +453,14 @@ static inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long in
   numRyyy_canonicalize(a);
   return true;
 }
-static inline bool numRyyy_set_mpq(numRyyy_t a, mpq_t b, numinternal_t intern)
+static inline bool numRyyy_set_mpq(numRyyy_t a, mpq_t b, num_internal_t intern)
 {
   numIyyy_set_mpz(a->n,mpq_numref(b),intern);
   numIyyy_set_mpz(a->d,mpq_denref(b),intern);
   numRyyy_canonicalize(a);
   return true;
 }
-static inline bool numRyyy_set_double(numRyyy_t a, double k, numinternal_t intern)
+static inline bool numRyyy_set_double(numRyyy_t a, double k, num_internal_t intern)
 {
   const int size = sizeof(numIyyy_t)*8-2;
   int e,l;
@@ -495,7 +495,7 @@ static inline bool numRyyy_set_double(numRyyy_t a, double k, numinternal_t inter
     return false;
   }
 }
-static inline bool numRyyy_set_ldouble(numRyyy_t a, long double k, numinternal_t intern)
+static inline bool numRyyy_set_ldouble(numRyyy_t a, long double k, num_internal_t intern)
 {
   const int size = sizeof(numIyyy_t)*8-2;
   int e,l;
@@ -530,59 +530,59 @@ static inline bool numRyyy_set_ldouble(numRyyy_t a, long double k, numinternal_t
     return false;
   }
 }
-static inline bool numRyyy_set_mpfr(numRyyy_t a, mpfr_t b, numinternal_t intern)
+static inline bool numRyyy_set_mpfr(numRyyy_t a, mpfr_t b, num_internal_t intern)
 {
   long double k = mpfr_get_ld(b, GMP_RNDU);
   return numRyyy_set_ldouble(a,k,intern) && (mpfr_cmp_ld(b,k)==0);
 }
-static inline bool lint_set_numRyyy(long int* a, numRyyy_t b, numinternal_t intern)
+static inline bool lint_set_numRyyy(long int* a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   return lint_set_numIyyy(a,q,intern) && (numIyyy_sgn(r)==0);
 }
-static inline bool llint_set_numRyyy(long long int* a, numRyyy_t b, numinternal_t intern)
+static inline bool llint_set_numRyyy(long long int* a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   return llint_set_numIyyy(a,q,intern) && (numIyyy_sgn(r)==0);
 }
-static inline bool mpz_set_numRyyy(mpz_t a, numRyyy_t b, numinternal_t intern)
+static inline bool mpz_set_numRyyy(mpz_t a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   mpz_set_numIyyy(a,q,intern);
   return (numIyyy_sgn(r)==0);
 }
-static inline bool lfrac_set_numRyyy(long int* i, long int* j, numRyyy_t b, numinternal_t intern)
+static inline bool lfrac_set_numRyyy(long int* i, long int* j, numRyyy_t b, num_internal_t intern)
 {
   lint_set_numIyyy(i,numRyyy_numref(b),intern);
   lint_set_numIyyy(j,numRyyy_denref(b),intern);
   return true;
 }
-static inline bool llfrac_set_numRyyy(long long int* i, long long int* j, numRyyy_t b, numinternal_t intern)
+static inline bool llfrac_set_numRyyy(long long int* i, long long int* j, numRyyy_t b, num_internal_t intern)
 {
   llint_set_numIyyy(i,numRyyy_numref(b),intern);
   llint_set_numIyyy(j,numRyyy_denref(b),intern);
   return true;
 }
-static inline bool mpq_set_numRyyy(mpq_t a, numRyyy_t b, numinternal_t intern)
+static inline bool mpq_set_numRyyy(mpq_t a, numRyyy_t b, num_internal_t intern)
 {
   mpz_set_numIyyy(mpq_numref(a), numRyyy_numref(b),intern);
   mpz_set_numIyyy(mpq_denref(a), numRyyy_denref(b),intern);
   return true;
 }
-static inline bool double_set_numRyyy(double* a, numRyyy_t b, numinternal_t intern)
+static inline bool double_set_numRyyy(double* a, numRyyy_t b, num_internal_t intern)
 {
   *a = (double)(*b->n)/(double)(*b->d);
   return (-*a==(double)(-*b->n)/(double)(*b->d));
 }
-static inline bool ldouble_set_numRyyy(long double* a, numRyyy_t b, numinternal_t intern)
+static inline bool ldouble_set_numRyyy(long double* a, numRyyy_t b, num_internal_t intern)
 {
   *a = (long double)(*b->n)/(long double)(*b->d);
   return (-*a==(long double)(-*b->n)/(long double)(*b->d));
 }
-static inline bool mpfr_set_numRyyy(mpfr_t a, numRyyy_t b, numinternal_t intern)
+static inline bool mpfr_set_numRyyy(mpfr_t a, numRyyy_t b, num_internal_t intern)
 {
   int r = mpfr_set_si(a,*numRyyy_numref(b),GMP_RNDU);
   return !mpfr_div_si(a,a,*numRyyy_denref(b),GMP_RNDU) && !r;
