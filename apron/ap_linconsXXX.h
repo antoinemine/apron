@@ -2,8 +2,8 @@
 /* ap_linconsXXX.h */
 /* ********************************************************************** */
 
-#ifndef _ITVXXX_LINCONS_H_
-#define _ITVXXX_LINCONS_H_
+#ifndef _AP_LINCONSXXX_H_
+#define _AP_LINCONSXXX_H_
 
 #include "itvXXX_types.h"
 #include "ap_linexprXXX.h"

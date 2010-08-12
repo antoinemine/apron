@@ -26,7 +26,7 @@ ICFLAGS = -I. -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 
 H_TMPL_FILES = \
-ap_linexprXXX.h ap_linconsXXX.h ap_YYYXXX_array.h \
+ap_linexprXXX.h ap_linconsXXX.h \
 ap_linexprconsXXX_conv.h \
 ap_coeff.h.tmpl \
 ap_linexpr0.h.tmpl ap_lincons0.h.tmpl \
@@ -62,13 +62,14 @@ H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
-$(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) $(TMPL:%=ap_YYY%_array.h) \
+$(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) \
 $(TMPL:%=ap_linexprcons%_conv.h) \
 ap_coeff.h \
 ap_linexpr0.h ap_lincons0.h \
 ap_coeff_array.h ap_linexpr0_array.h ap_lincons0_array.h
 C_GENERATED_FILES = \
-$(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) $(TMPL:%=ap_YYY%_array.c) \
+$(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) \
+$(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) \
 $(TMPL:%=ap_linexprcons%_conv.c) \
 ap_coeff.c \
 ap_linexpr0.c ap_lincons0.c \
@@ -212,17 +213,30 @@ $(TMPL:%=ap_linexprcons%_conv.c): ap_linexprcons%_conv.c: ap_linexprconsXXX_conv
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
+$(TMPL:%=ap_linexpr%_array.c): ap_linexpr%_array.c: ap_YYYXXX_array.c
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/linexpr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
+$(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_YYYXXX_array.c
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+
 ap_coeff_array.%: ap_yyy_array.%
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/coeff/g;s/zzz/eitv/g" >>$@
 ap_linexpr0_array.%: ap_yyy_array.%
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr0/g;s/zzz/linexpr/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr0/g;s/zzz/linexpr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 ap_lincons0_array.%: ap_yyy_array.%
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons0/g;s/zzz/lincons/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons0/g;s/zzz/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-%: %.tmpl
+%.h: %.h.tmpl
+	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	macros.pl $(SRCDIR)/$< >>$@
+%.c: %.c.tmpl
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	macros.pl $(SRCDIR)/$< >>$@
 

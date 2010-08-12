@@ -2,8 +2,8 @@
 /* ap_linexprXXX.h */
 /* ********************************************************************** */
 
-#ifndef _ITVXXX_LINEXPR_H_
-#define _ITVXXX_LINEXPR_H_
+#ifndef _AP_LINEXPRXXX_H_
+#define _AP_LINEXPRXXX_H_
 
 #include <stdarg.h>
 #include "eitvXXX.h"

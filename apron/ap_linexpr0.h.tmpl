@@ -17,9 +17,9 @@
 #include <string.h>
 #include "ap_coeff.h"
 #include "ap_dimension.h"
-#include "itvD_linexpr.h"
-#include "itvMPQ_linexpr.h"
-#include "itvMPFR_linexpr.h"
+#include "ap_linexprD.h"
+#include "ap_linexprMPQ.h"
+#include "ap_linexprMPFR.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,9 +33,9 @@ typedef struct ap_linexpr0_struct {
   bool ref;
   ap_scalar_discr_t discr;
   union {
-    itvD_linexpr_ptr    D;
-    itvMPQ_linexpr_ptr  MPQ;
-    itvMPFR_linexpr_ptr MPFR;
+    ap_linexprD_ptr    D;
+    ap_linexprMPQ_ptr  MPQ;
+    ap_linexprMPFR_ptr MPFR;
   } linexpr;
 } ap_linexpr0_struct;
 typedef ap_linexpr0_struct ap_linexpr0_t[1];
@@ -47,21 +47,21 @@ typedef ap_linexpr0_struct* ap_linexpr0_ptr;
 
 void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size);
 void ap_linexpr0_init_set(ap_linexpr0_t res, ap_linexpr0_t e);
-void ap_linexpr0_init_set_D(ap_linexpr0_t res, itvD_linexpr_t e);
-void ap_linexpr0_init_set_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
-void ap_linexpr0_init_set_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
-static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, itvD_linexpr_t e);
-static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
-static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
+void ap_linexpr0_init_set_D(ap_linexpr0_t res, ap_linexprD_t e);
+void ap_linexpr0_init_set_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
+void ap_linexpr0_init_set_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
+static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, ap_linexprD_t e);
+static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
+static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
 
 void ap_linexpr0_clear(ap_linexpr0_t e);
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim);
   /* Printing a linear expression */
 void ap_linexpr0_minimize(ap_linexpr0_t a);
 
-static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, itvD_linexpr_t e);
-static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e);
-static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
+static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, ap_linexprD_t e);
+static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
+static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
   /* Returns a reference on the argument under the form of ap_linexpr0_ref.
      INTERNAL USE.
      BE CAUTIOUS: memory is shared between the result and the argument, and
@@ -73,13 +73,13 @@ static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e);
 
 bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, numinternal_t intern);
 
-bool ap_linexpr0_set_itvD_linexpr(ap_linexpr0_t a, itvD_linexpr_t b, numinternal_t intern);
-bool ap_linexpr0_set_itvMPQ_linexpr(ap_linexpr0_t a, itvMPQ_linexpr_t b, numinternal_t intern);
-bool ap_linexpr0_set_itvMPFR_linexpr(ap_linexpr0_t a, itvMPFR_linexpr_t b, numinternal_t intern);
+bool ap_linexpr0_set_ap_linexprD(ap_linexpr0_t a, ap_linexprD_t b, numinternal_t intern);
+bool ap_linexpr0_set_ap_linexprMPQ(ap_linexpr0_t a, ap_linexprMPQ_t b, numinternal_t intern);
+bool ap_linexpr0_set_ap_linexprMPFR(ap_linexpr0_t a, ap_linexprMPFR_t b, numinternal_t intern);
 
-bool itvD_linexpr_set_ap_linexpr0(itvD_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
-bool itvDMPQ_linexpr_set_ap_linexpr0(itvMPQ_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
-bool itvMPFR_linexpr_set_ap_linexpr0(itvMPFR_linexpr_t a, ap_linexpr0_t b, numinternal_t intern);
+bool ap_linexprD_set_ap_linexpr0(ap_linexprD_t a, ap_linexpr0_t b, numinternal_t intern);
+bool ap_linexprDMPQ_set_ap_linexpr0(ap_linexprMPQ_t a, ap_linexpr0_t b, numinternal_t intern);
+bool ap_linexprMPFR_set_ap_linexpr0(ap_linexprMPFR_t a, ap_linexpr0_t b, numinternal_t intern);
 
 /* ====================================================================== */
 /* III. Access */
@@ -150,18 +150,18 @@ bool ap_linexpr0_equal(ap_linexpr0_t expr1,
 int ap_linexpr0_compare(ap_linexpr0_t expr1,
 			ap_linexpr0_t expr2);
 
-static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, itvD_linexpr_t e)
+static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, ap_linexprD_t e)
 { res->ref = false; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
-static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e)
+static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e)
 { res->ref = false; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
-static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e)
+static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e)
 { res->ref = false; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
 
-static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, itvD_linexpr_t e)
+static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, ap_linexprD_t e)
 { res->ref = true; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
-static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, itvMPQ_linexpr_t e)
+static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e)
 { res->ref = true; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
-static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, itvMPFR_linexpr_t e)
+static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e)
 { res->ref = true; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
 
 #ifdef __cplusplus
