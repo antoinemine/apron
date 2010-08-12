@@ -298,13 +298,13 @@ static inline void eitvXXX_enlarge_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 
 static inline bool eitvXXX_is_int(itv_internal_t intern, eitvXXX_t a)
 {
-  boundXXX_trunc(intern->muldiv_bound,a->itv->sup);
-  if (boundXXX_cmp(intern->muldiv_bound,a->itv->sup)) return false;
+  boundXXX_trunc(intern->XXX->muldiv_bound,a->itv->sup);
+  if (boundXXX_cmp(intern->XXX->muldiv_bound,a->itv->sup)) return false;
   if (a->eq)
     return true;
   else {
-    boundXXX_trunc(intern->muldiv_bound,a->itv->neginf);
-    return !boundXXX_cmp(intern->muldiv_bound,a->itv->neginf);
+    boundXXX_trunc(intern->XXX->muldiv_bound,a->itv->neginf);
+    return !boundXXX_cmp(intern->XXX->muldiv_bound,a->itv->neginf);
   }
 }
 static inline bool eitvXXX_is_point(eitvXXX_t a)

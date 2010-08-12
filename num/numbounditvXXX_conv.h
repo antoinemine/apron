@@ -22,14 +22,24 @@
 extern "C" {
 #endif
 
-MACROZ
-static inline bool numZZZ_fits_numXXX(numZZZ_t a);
+#define _NUMXXX_MARK_
+
+static inline bool numD_fits_numXXX(numD_t a);
+static inline bool numMPQ_fits_numXXX(numMPQ_t a);
+static inline bool numMPFR_fits_numXXX(numMPFR_t a, num_internal_t intern);
+
+static inline bool numXXX_fits_numD(numXXX_t a);
+static inline bool numXXX_fits_numMPQ(numXXX_t a);
+#if !defined(_NUMMPFR_MARK_) 
+static inline bool numXXX_fits_numMPFR(numXXX_t a);
+#endif
+
+MACRO_MAINZ
 static inline bool numXXX_set_numZZZ(numXXX_t a, numZZZ_t b, num_internal_t intern);
 static inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern);
 bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern);
 bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern);
 
-static inline bool numXXX_fits_numZZZ(numXXX_t a);
 static inline bool numZZZ_set_numXXX(numZZZ_t a, numXXX_t b, num_internal_t intern);
 static inline bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern);
 bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern);
@@ -39,8 +49,6 @@ ENDMACRO
 /* ********************************************************************** */
 /* Definitions */
 /* ********************************************************************** */
-
-#define _NUMXXX_MARK_
 
 static inline bool numD_fits_numXXX(numD_t a)
 { return double_fits_numXXX(*a); }
