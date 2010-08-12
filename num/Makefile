@@ -168,7 +168,15 @@ $(TMPL:%=numbounditv%_conv.c): numbounditv%_conv.c: numbounditvXXX_conv.c
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-$(TMPL:%=test%.c): test%.c: testXXX.c
+$(TMPL:%=testnb%.c): testnb%.c: testnbXXX.c
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+$(TMPL:%=testi1%.c): testi1%.c: testi1XXX.c
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/XXX/$*/g" $< >>$@
+$(TMPL:%=testi2%.c): testi2%.c: testi2XXX.c
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/XXX/$*/g" $< >>$@
@@ -206,7 +214,12 @@ out: tests
 	done
 
 $(TMPL:%=testnb%) $(TMPL:%=testi1%) $(TMPL:%=testi2%): %: %_debug.o libitv_debug.a
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -o $@ $< -litv_debug $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -o $@ $< -L. -litv_debug $(CLIBS)
+
+depend: $(C_FILES) $(TMPL:%=testnb%.c) $(TMPL:%=testi1%.c) $(TMPL:%=testi2%.c) $(H_FILES)
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
+
+-include Makefile.depend
 
 .PHONY: tags TAGS
 tags: TAGS
