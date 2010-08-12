@@ -3,11 +3,10 @@
 #include <limits.h>
 
 #include "boundXXX.h"
-#include "boundXXX_conv.h"
-
-#include "boundD_conv.h"
-#include "boundMPQ_conv.h"
-#include "boundMPFR_conv.h"
+#include "numbounditvXXX_conv.h"
+#include "numbounditvD_conv.h"
+#include "numbounditvMPQ_conv.h"
+#include "numbounditvMPFR_conv.h"
 
 /* ********************************************************************** */
 /* FPU init */
@@ -82,7 +81,7 @@ void numXXX(numXXX_t a, numXXX_t b, numXXX_t c,
 	 long double ld,
 	 mpfr_t mpfr)
 {
-  numinternal_t intern;
+  num_internal_t intern;
   numXXX_t bb,cc;
   unsigned long int uu;
   long int ll;
@@ -91,7 +90,7 @@ void numXXX(numXXX_t a, numXXX_t b, numXXX_t c,
   mpfr_t mpfrr;
   double dd;
 
-  numinternal_init(intern);
+  num_internal_init(intern);
 
   numXXX_init_set(bb,b);
   numXXX_init_set(cc,c);
@@ -245,7 +244,7 @@ void numXXX(numXXX_t a, numXXX_t b, numXXX_t c,
   mpq_clear(mpqq);
   mpfr_clear(mpfrr);
 
-  numinternal_clear(intern);
+  num_internal_clear(intern);
 }
 
 void boundXXX(boundXXX_t a, boundXXX_t b, boundXXX_t c,
@@ -255,14 +254,14 @@ void boundXXX(boundXXX_t a, boundXXX_t b, boundXXX_t c,
 	   double d,
 	   mpfr_t mpfr)
 {
-  numinternal_t intern;
+  num_internal_t intern;
 
   boundXXX_t bb,cc;
   unsigned long int uu;
   long int ll;
   double dd;
 
-  numinternal_init(intern);
+  num_internal_init(intern);
 
   boundXXX_init_set(bb,b);
   boundXXX_init_set(cc,c);
@@ -377,7 +376,7 @@ void boundXXX(boundXXX_t a, boundXXX_t b, boundXXX_t c,
   boundXXX_clear(bb);
   boundXXX_clear(cc);
 
-  numinternal_clear(intern);
+  num_internal_clear(intern);
 }
 
 
@@ -385,7 +384,7 @@ void boundXXX(boundXXX_t a, boundXXX_t b, boundXXX_t c,
 
 int main(int argc, char**argv)
 {
-  numinternal_t intern;
+  num_internal_t intern;
   unsigned long int u;
   long int l;
   unsigned long long int u2;
@@ -398,7 +397,7 @@ int main(int argc, char**argv)
 
   numXXX_fpu_init();
 
-  numinternal_init(intern);
+  num_internal_init(intern);
   mpz_init(mpz); mpq_init(mpq); mpq_init(mpq2); mpfr_init(mpfr);
 
   /* Extreme cases */
@@ -484,5 +483,5 @@ int main(int argc, char**argv)
   mpq_clear(mpq2);
   mpq_clear(mpq);
   mpfr_clear(mpfr);
-  numinternal_clear(intern);
+  num_internal_clear(intern);
 }
