@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_lincons0.h"
-#include "ap_linexprconsD.h"
-#include "ap_linexprconsMPQ.h"
-#include "ap_linexprconsMPFR.h"
+#include "ap_linexprconsD_conv.h"
+#include "ap_linexprconsMPQ_conv.h"
+#include "ap_linexprconsMPFR_conv.h"
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -64,91 +64,34 @@ void ap_lincons0_minimize(ap_lincons0_t e)
 /* Conversions */
 /* ====================================================================== */
 
-bool ap_lincons0_set_itvD_lincons(ap_lincons0_t a, itvD_lincons_t b, numinternal_t intern)
+MACRO_MAINZ
+bool ap_lincons0_set_ap_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, numinternal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    itvD_lincons_set(a->lincons.D,b);
-    return true;
+    return ap_linconsD_set_ap_linconsZZZ(a->lincons.D,b,intern);
   case AP_SCALAR_MPQ:
-    return itvMPQ_lincons_set_itvD_lincons(a->lincons.MPQ,b,intern);
+    return ap_linconsMPQ_set_ap_linconsZZZ(a->lincons.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return itvMPFR_lincons_set_itvD_lincons(a->lincons.MPFR,b,intern);
+    return ap_linconsMPFR_set_ap_linconsZZZ(a->lincons.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_lincons0_set_itvMPQ_lincons(ap_lincons0_t a, itvMPQ_lincons_t b, numinternal_t intern)
-{
-  switch (a->discr){
-  case AP_SCALAR_D:
-    return itvD_lincons_set_itvMPQ_lincons(a->lincons.D,b,intern);
-  case AP_SCALAR_MPQ:
-    itvMPQ_lincons_set(a->lincons.MPQ,b);
-    return true;
-  case AP_SCALAR_MPFR:
-    return itvMPFR_lincons_set_itvMPQ_lincons(a->lincons.MPFR,b,intern);
-  default:
-    abort();
-  }
-}
-bool ap_lincons0_set_itvMPFR_lincons(ap_lincons0_t a, itvMPFR_lincons_t b, numinternal_t intern)
-{
-  switch (a->discr){
-  case AP_SCALAR_D:
-    return itvD_lincons_set_itvMPFR_lincons(a->lincons.D,b,intern);
-  case AP_SCALAR_MPQ:
-    return itvMPQ_lincons_set_itvMPFR_lincons(a->lincons.MPQ,b,intern);
-  case AP_SCALAR_MPFR:
-    itvMPFR_lincons_set(a->lincons.MPFR,b);
-    return true;
-  default:
-    abort();
-  }
-}
-
-bool itvMPQ_lincons_set_ap_lincons0(itvMPQ_lincons_t a, ap_lincons0_t b, numinternal_t intern)
+bool ap_linconsZZZ_set_ap_lincons0(ap_linconsZZZ_t a, ap_lincons0_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return itvMPQ_lincons_set_itvD_lincons(a,b->lincons.D,intern);
+    return ap_linconsZZZ_set_ap_linconsD(a,b->lincons.D,intern);
   case AP_SCALAR_MPQ:
-    itvMPQ_lincons_set(a,b->lincons.MPQ);
-    return true;
+    return ap_linconsZZZ_set_ap_linconsMPQ(a,b->lincons.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return itvMPQ_lincons_set_itvMPFR_lincons(a,b->lincons.MPFR,intern);
+    return ap_linconsZZZ_set_ap_linconsMPFR(a,b->lincons.MPFR,intern);
   default:
     abort();
   }
 }
-bool itvD_lincons_set_ap_lincons0(itvD_lincons_t a, ap_lincons0_t b, numinternal_t intern)
-{
-  switch(b->discr){
-  case AP_SCALAR_D:
-    itvD_lincons_set(a,b->lincons.D);
-    return true;
-  case AP_SCALAR_MPQ:
-    return itvD_lincons_set_itvMPQ_lincons(a,b->lincons.MPQ,intern);
-  case AP_SCALAR_MPFR:
-    return itvD_lincons_set_itvMPFR_lincons(a,b->lincons.MPFR,intern);
-  default:
-    abort();
-  }
-}
-bool itvMPFR_lincons_set_ap_lincons0(itvMPFR_lincons_t a, ap_lincons0_t b, numinternal_t intern)
-{
-  switch(b->discr){
-  case AP_SCALAR_D:
-    return itvMPFR_lincons_set_itvD_lincons(a,b->lincons.D,intern);
-  case AP_SCALAR_MPQ:
-    return itvMPFR_lincons_set_itvMPQ_lincons(a,b->lincons.MPQ,intern);
-  case AP_SCALAR_MPFR:
-    itvMPFR_lincons_set(a,b->lincons.MPFR);
-    return true;
-  default:
-    abort();
-  }
-}
+ENDMACRO
 
 /* ====================================================================== */
 /* III Access */

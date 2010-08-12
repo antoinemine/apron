@@ -27,17 +27,17 @@ bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, numinternal_t inte
 
 bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, numinternal_t intern);
 bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, numinternal_t intern);
-bool itvXXX_linexpr_set_itvZZZ_linexpr(itvXXX_linexpr_t a, itvZZZ_linexpr_t b, numinternal_t intern);
-bool itvXXX_linexpr_array_set_itvZZZ_linexpr_array(itvXXX_linexpr_array_t a, itvZZZ_linexpr_array_t b, numinternal_t intern);
-bool itvXXX_lincons_set_itvZZZ_lincons(itvXXX_lincons_t a, itvZZZ_lincons_t b, numinternal_t intern);
-bool itvXXX_lincons_array_set_itvZZZ_lincons_array(itvXXX_lincons_array_t a, itvZZZ_lincons_array_t b, numinternal_t intern);
+bool ap_linexprXXX_set_ap_linexprZZZ(ap_linexprXXX_t a, ap_linexprZZZ_t b, numinternal_t intern);
+bool ap_linexprXXX_array_set_ap_linexprZZZ_array(ap_linexprXXX_array_t a, ap_linexprZZZ_array_t b, numinternal_t intern);
+bool ap_linconsXXX_set_ap_linconsZZZ(ap_linconsXXX_t a, ap_linconsZZZ_t b, numinternal_t intern);
+bool ap_linconsXXX_array_set_ap_linconsZZZ_array(ap_linconsXXX_array_t a, ap_linconsZZZ_array_t b, numinternal_t intern);
 
 bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, numinternal_t intern);
 bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, numinternal_t intern);
-bool itvZZZ_linexpr_set_itvXXX_linexpr(itvZZZ_linexpr_t a, itvXXX_linexpr_t b, numinternal_t intern);
-bool itvZZZ_linexpr_array_set_itvXXX_linexpr_array(itvZZZ_linexpr_array_t a, itvXXX_linexpr_array_t b, numinternal_t intern);
-bool itvZZZ_lincons_set_itvXXX_lincons(itvZZZ_lincons_t a, itvXXX_lincons_t b, numinternal_t intern);
-bool itvZZZ_lincons_array_set_itvXXX_lincons_array(itvZZZ_lincons_array_t a, itvXXX_lincons_array_t b, numinternal_t intern);
+bool ap_linexprZZZ_set_ap_linexprXXX(ap_linexprZZZ_t a, ap_linexprXXX_t b, numinternal_t intern);
+bool ap_linexprZZZ_array_set_ap_linexprXXX_array(ap_linexprZZZ_array_t a, ap_linexprXXX_array_t b, numinternal_t intern);
+bool ap_linconsZZZ_set_ap_linconsXXX(ap_linconsZZZ_t a, ap_linconsXXX_t b, numinternal_t intern);
+bool ap_linconsZZZ_array_set_ap_linconsXXX_array(ap_linconsZZZ_array_t a, ap_linconsXXX_array_t b, numinternal_t intern);
 
 ENDMACRO
 

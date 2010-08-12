@@ -7,9 +7,9 @@
 #include "eitvXXX.h"
 #include "numbounditvXXX_conv.h"
 
-#include "numitvboundD_conv.h"
-#include "numitvboundMPQ_conv.h"
-#include "numitvboundMPFR_conv.h"
+#include "numbounditvD_conv.h"
+#include "numbounditvMPQ_conv.h"
+#include "numbounditvMPFR_conv.h"
 
 #define _APXXX_MARK_
 

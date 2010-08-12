@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_linexpr0.h"
-#include "ap_linexprconsD.h"
-#include "ap_linexprconsMPQ.h"
-#include "ap_linexprconsMPFR.h"
+#include "ap_linexprconsD_conv.h"
+#include "ap_linexprconsMPQ_conv.h"
+#include "ap_linexprconsMPFR_conv.h"
 #include <stdarg.h>
 
 /* ====================================================================== */
@@ -70,11 +70,11 @@ bool ap_linexpr0_set_ap_linexprZZZ(ap_linexpr0_t a, ap_linexprZZZ_t b, numintern
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return itvD_linexpr_set_ap_linexprZZZ(a->linexpr.D,b,intern);
+    return ap_linexprD_set_ap_linexprZZZ(a->linexpr.D,b,intern);
   case AP_SCALAR_MPQ:
-    return itvMPQ_linexpr_set_ap_linexprZZZ(a->linexpr.MPQ,b,intern);
+    return ap_linexprMPQ_set_ap_linexprZZZ(a->linexpr.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return itvMPFR_linexpr_set_ap_linexprZZZ(a->linexpr.MPFR,b,intern);
+    return ap_linexprMPFR_set_ap_linexprZZZ(a->linexpr.MPFR,b,intern);
   default:
     abort();
   }
@@ -83,11 +83,11 @@ bool ap_linexprZZZ_set_ap_linexpr0(ap_linexprZZZ_t a, ap_linexpr0_t b, numintern
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_linexprZZZ_set_itvD_linexpr(a,b->linexpr.D,intern);
+    return ap_linexprZZZ_set_ap_linexprD(a,b->linexpr.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_linexprZZZ_set_itvMPQ_linexpr(a,b->linexpr.MPQ,intern);
+    return ap_linexprZZZ_set_ap_linexprMPQ(a,b->linexpr.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_linexprZZZ_set_itvMPFR_linexpr(a,b->linexpr.MPFR,intern);
+    return ap_linexprZZZ_set_ap_linexprMPFR(a,b->linexpr.MPFR,intern);
   default:
     abort();
   }
