@@ -22,7 +22,43 @@
 
 #define _ITVXXX_MARK_
 
+inline bool itvXXX_set_numD(itvXXX_t a, numD_t b, numinternal_t intern)
+{
+  return itvXXX_set_double(a,*b,intern);
+}
+inline bool itvXXX_set_numD2(itvXXX_t a, numD_t b, numD_t c, numinternal_t intern)
+{
+  return itvXXX_set_double2(a,*b,*c,intern);
+}
+inline bool itvXXX_set_numMPQ(itvXXX_t a, numMPQ_t b, numinternal_t intern)
+{
+  return itvXXX_set_mpq(a,b,intern);
+}
+inline bool itvXXX_set_numMPQ2(itvXXX_t a, numMPQ_t b, numMPQ_t c, numinternal_t intern)
+{
+  return itvXXX_set_mpq2(a,b,c,intern);
+}
+inline bool itvXXX_set_numMPFR(itvXXX_t a, numMPFR_t b, numinternal_t intern)
+{
+  return itvXXX_set_mpfr(a,b,intern);
+}
+inline bool itvXXX_set_numMPFR2(itvXXX_t a, numMPFR_t b, numMPFR_t c, numinternal_t intern)
+{
+  return itvXXX_set_mpfr2(a,b,c,intern);
+}
+
 MACROZ
+bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, numinternal_t intern)
+{
+  a->eq = itvXXX_set_numZZZ(a->itv,b,intern); 
+  return a->eq; 
+}
+bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, numinternal_t intern)
+{
+  bool exact = itvXXX_set_numZZZ2(a->itv,b,c,intern);
+  a->eq = exact && numZZZ_equal(b,c);
+  return exact;
+}
 
 inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, numinternal_t intern)
 {
@@ -76,7 +112,7 @@ bool itvXXX_lincons_array_set_itvZZZ_lincons_array(itvXXX_lincons_array_t a, itv
   return res;
 }
 
-#if !defined(_ITVZZZ_MARK_)
+#if !defined(_ITVZZZ_MARK_) && !defined(_ITVD_MARK_) && !defined(_ITVMPQ_MARK_) && !defined(_ITVMPFR_MARK_)
 inline bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, numinternal_t intern)
 {
   bool exact = boundZZZ_set_boundXXX(a->neginf,b->neginf,intern);

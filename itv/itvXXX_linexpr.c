@@ -2,7 +2,12 @@
 /* itvXXX_linexpr.c: */
 /* ********************************************************************** */
 
+#include "eitvXXX.h"
 #include "itvXXX_linexpr.h"
+#include "itvXXX_conv.h"
+#include "itvD_conv.h"
+#include "itvMPQ_conv.h"
+#include "itvMPFR_conv.h"
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -299,26 +304,70 @@ bool itvXXX_linexpr_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* 
 	eitvXXX_set_ap_coeff(a,b,intern);
       }
       break;
-    case ITV_EITV:
+    case ITV_EITVD:
       {
-	eitvXXX_ptr b = va_arg(*va,eitvXXX_ptr);
+	eitvD_ptr b = va_arg(*va,eitvD_ptr);
 	a = get_eitvXXX_of_dimvar(env,expr,va);
-	eitvXXX_set(a,b);
+	eitvXXX_set_eitvD(a,b,intern);
       }
       break;
-    case ITV_NUM:
+    case ITV_EITVMPQ:
       {
-	numXXX_ptr b = va_arg(*va,numXXX_ptr);
+	eitvD_ptr b = va_arg(*va,eitvD_ptr);
 	a = get_eitvXXX_of_dimvar(env,expr,va);
-	eitvXXX_set_num(a,b);
+	eitvXXX_set_eitvD(a,b,intern);
       }
       break;
-    case ITV_NUM2:
+    case ITV_EITVMPFR:
       {
-	numXXX_ptr b = va_arg(*va,numXXX_ptr);
-	numXXX_ptr c = va_arg(*va,numXXX_ptr);
+	eitvMPQ_ptr b = va_arg(*va,eitvMPQ_ptr);
 	a = get_eitvXXX_of_dimvar(env,expr,va);
-	eitvXXX_set_num2(a,b,c);
+	eitvXXX_set_eitvMPQ(a,b,intern);
+      }
+      break;
+    case ITV_NUMD:
+      {
+	numD_ptr b = va_arg(*va,numD_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numD(a,b,intern);
+      }
+      break;
+    case ITV_NUMMPQ:
+      {
+	numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numMPQ(a,b,intern);
+      }
+      break;
+    case ITV_NUMMPFR:
+      {
+	numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numMPFR(a,b,intern);
+      }
+      break;
+    case ITV_NUMD2:
+      {
+	numD_ptr b = va_arg(*va,numD_ptr);
+	numD_ptr c = va_arg(*va,numD_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numD2(a,b,c,intern);
+      }
+      break;
+    case ITV_NUMMPQ2:
+      {
+	numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
+	numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numMPQ2(a,b,c,intern);
+      }
+      break;
+    case ITV_NUMMPFR2:
+      {
+	numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
+	numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
+	a = get_eitvXXX_of_dimvar(env,expr,va);
+	eitvXXX_set_numMPFR2(a,b,c,intern);
       }
       break;
     case ITV_LINT:
