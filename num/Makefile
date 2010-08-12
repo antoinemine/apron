@@ -5,19 +5,20 @@ SRCDIR=$(shell pwd)
 TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 
 H_TMPL_FILES = \
-numRyyy.h boundXXX.h boundXXX_conv.h
+numIyyy.h numRyyy.h numDyyy.h \
+boundXXX.h boundXXX_conv.h
 
 H_ORIG_FILES = \
-numConfig.h numTypes.h \
-numIl.h numIll.h numMPZ.h \
-numMPQ.h \
-numD.h numDl.h numMPFR.h \
-boundTypes.h
+numConfig.h num_types.h \
+numMPZ.h numMPQ.h numMPFR.h \
+bound_types.h
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 
 H_GENERATED_FILES = \
+numIl.h numIll.h \
 numRl.h numRll.h \
+numD.h numDl.h \
 $(TMPL:%=bound%.h) $(TMPL:%=bound%_conv.h)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
@@ -59,15 +60,35 @@ out: tests
 	./testDl > out.Dl
 	./testMPFR > out.MPFR
 
+numIl.h: numIyyy.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
+
+numIll.h: numIyyy.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/ll/g" $< >>$@
+
 numRl.h: numRyyy.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g; s/YYY/L/g" $< >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
 
 numRll.h: numRyyy.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/ll/g; s/YYY/LL/g" $< >>$@
+	$(SED) -e "s/yyy/ll/g" $< >>$@
+
+numD.h: numDyyy.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy//g" $< >>$@
+
+numDl.h: numDyyy.h
+	echo "/* GENERATED, DO NOT MODIFY */" >$@
+	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	$(SED) -e "s/yyy/l/g" $< >>$@
 
 $(TMPL:%=bound%.h): bound%.h: boundXXX.h
 	echo "/* GENERATED, DO NOT MODIFY */" >$@

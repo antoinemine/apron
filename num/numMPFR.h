@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <float.h>
 
-#include "numTypes.h"
+#include "num_types.h"
 #include "numIl.h"
 #include "numIll.h"
 #include "numMPZ.h"

@@ -1,9 +1,9 @@
 /* ********************************************************************** */
-/* numTypes.h */
+/* num_types.h */
 /* ********************************************************************** */
 
-#ifndef _NUMTYPES_H_
-#define _NUMTYPES_H_
+#ifndef _NUM_TYPES_H_
+#define _NUM_TYPES_H_
 
 #include "numConfig.h"
 
@@ -105,6 +105,7 @@ typedef numD_native numD_t[1];
 #define NUMD_ZERO 0.0
 #define NUMD_ONE 1.0
 #define NUMD_MANT_DIG DBL_MANT_DIG
+#define NUMD_MAX_EXP DBL_MAX_EXP
 #define NUMD_MAX NUMD_ONE/NUMD_ZERO
 #define NUMD_EXACT 0
 #define NUMD_DIVEXACT 0
@@ -116,6 +117,7 @@ typedef numDl_native numDl_t[1];
 #define NUMDl_ZERO 0.0L
 #define NUMDl_ONE 1.0L
 #define NUMDl_MANT_DIG LDBL_MANT_DIG
+#define NUMDl_MAX_EXP LDBL_MAX_EXP
 #define NUMDl_MAX NUMDl_ONE/NUMDl_ZERO
 #define NUMDl_EXACT 0
 #define NUMDl_DIVEXACT 0
