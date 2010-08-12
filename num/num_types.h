@@ -154,24 +154,24 @@ typedef mpfr_t numMPFR_t;
 /* Workspace and misc */
 /* ********************************************************************** */
 
-typedef struct __numinternal_struct {
+typedef struct __num_internal_struct {
   mpz_t q;
   mpz_t r;
   mpq_t mpq;
   mpfr_t dbl;
   mpfr_t ldbl;
-} __numinternal_struct;
-typedef __numinternal_struct* numinternal_ptr;
-typedef __numinternal_struct numinternal_t[1];
+} __num_internal_struct;
+typedef __num_internal_struct* num_internal_ptr;
+typedef __num_internal_struct num_internal_t[1];
 
-static inline void numinternal_init(numinternal_t intern)
+static inline void num_internal_init(num_internal_t intern)
 {
   mpz_init(intern->q); mpz_init(intern->r);
   mpq_init(intern->mpq);
   mpfr_init2(intern->dbl,DBL_MANT_DIG);
   mpfr_init2(intern->ldbl,LDBL_MANT_DIG);
 }
-static inline void numinternal_clear(numinternal_t intern)
+static inline void num_internal_clear(num_internal_t intern)
 {
   mpz_clear(intern->q); mpz_clear(intern->r);
   mpq_clear(intern->mpq);
@@ -318,7 +318,7 @@ static inline bool llfrac_fits_numXXX(long long int i, long long int j);
 static inline bool mpq_fits_numXXX(mpq_t a);
 static inline bool double_fits_numXXX(double a);
 static inline bool ldouble_fits_numXXX(long double a);
-static inline bool mpfr_fits_numXXX(mpfr_t a, numinternal_t intern);
+static inline bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern);
 
 static inline bool numXXX_fits_lint(numXXX_t a);
 static inline bool numXXX_fits_llint(numXXX_t a);
@@ -335,25 +335,25 @@ static inline bool numXXX_fits_mpfr(numXXX_t a);
 Conversions 
 ======================================================================
 
-static inline bool numXXX_set_lint(numXXX_t a, long int b, numinternal_t intern);
-static inline bool numXXX_set_llint(numXXX_t a, long long int b, numinternal_t intern);
-static inline bool numXXX_set_mpz(numXXX_t a, mpz_t b, numinternal_t intern);
-static inline bool numXXX_set_lfrac(numXXX_t a, long int i, long int j, numinternal_t intern);
-static inline bool numXXX_set_llfrac(numXXX_t a, long long int i, long long int j, numinternal_t intern);
-static inline bool numXXX_set_mpq(numXXX_t a, mpq_t b, numinternal_t intern);
-static inline bool numXXX_set_double(numXXX_t a, double b, numinternal_t intern);
-static inline bool numXXX_set_ldouble(numXXX_t a, long double b, numinternal_t intern);
-static inline bool numXXX_set_mpfr(numXXX_t a, mpfr_t b, numinternal_t intern);
+static inline bool numXXX_set_lint(numXXX_t a, long int b, num_internal_t intern);
+static inline bool numXXX_set_llint(numXXX_t a, long long int b, num_internal_t intern);
+static inline bool numXXX_set_mpz(numXXX_t a, mpz_t b, num_internal_t intern);
+static inline bool numXXX_set_lfrac(numXXX_t a, long int i, long int j, num_internal_t intern);
+static inline bool numXXX_set_llfrac(numXXX_t a, long long int i, long long int j, num_internal_t intern);
+static inline bool numXXX_set_mpq(numXXX_t a, mpq_t b, num_internal_t intern);
+static inline bool numXXX_set_double(numXXX_t a, double b, num_internal_t intern);
+static inline bool numXXX_set_ldouble(numXXX_t a, long double b, num_internal_t intern);
+static inline bool numXXX_set_mpfr(numXXX_t a, mpfr_t b, num_internal_t intern);
 
-static inline bool lint_set_numXXX(long int* a, numXXX_t b, numinternal_t intern);
-static inline bool llint_set_numXXX(long long int* a, numXXX_t b, numinternal_t intern);
-static inline bool mpz_set_numXXX(mpz_t a, numXXX_t b, numinternal_t intern);
-static inline bool lfrac_set_numXXX(long int* i, long int* j, numXXX_t b, numinternal_t intern);
-static inline bool llfrac_set_numXXX(long long int* i, long long int* j, numXXX_t b, numinternal_t intern);
-static inline bool mpq_set_numXXX(mpq_t a, numXXX_t b, numinternal_t intern);
-static inline bool double_set_numXXX(double* a, numXXX_t b, numinternal_t intern);
-static inline bool ldouble_set_numXXX(long double* a, numXXX_t b, numinternal_t intern);
-static inline bool mpfr_set_numXXX(mpfr_t a, numXXX_t b, numinternal_t intern);
+static inline bool lint_set_numXXX(long int* a, numXXX_t b, num_internal_t intern);
+static inline bool llint_set_numXXX(long long int* a, numXXX_t b, num_internal_t intern);
+static inline bool mpz_set_numXXX(mpz_t a, numXXX_t b, num_internal_t intern);
+static inline bool lfrac_set_numXXX(long int* i, long int* j, numXXX_t b, num_internal_t intern);
+static inline bool llfrac_set_numXXX(long long int* i, long long int* j, numXXX_t b, num_internal_t intern);
+static inline bool mpq_set_numXXX(mpq_t a, numXXX_t b, num_internal_t intern);
+static inline bool double_set_numXXX(double* a, numXXX_t b, num_internal_t intern);
+static inline bool ldouble_set_numXXX(long double* a, numXXX_t b, num_internal_t intern);
+static inline bool mpfr_set_numXXX(mpfr_t a, numXXX_t b, num_internal_t intern);
 
 **********************************************************************
 Integer functions

@@ -138,8 +138,8 @@ Floating-point casts
 ======================================================================
 
 always rounds toward +oo
-static inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, numinternal_t intern);
-static inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, numinternal_t intern);
+static inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern);
+static inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern);
 
 ======================================================================
 Arithmetic Tests
@@ -156,24 +156,24 @@ static inline int boundXXX_hash(boundXXX_t a);
 Conversions
 ======================================================================
 
-static inline bool boundXXX_set_lint(boundXXX_t a, long int b, numinternal_t intern);
-static inline bool boundXXX_set_llint(boundXXX_t a, long long int b, numinternal_t intern);
-static inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, numinternal_t intern);
-static inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, numinternal_t intern);
-static inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, numinternal_t intern);
-static inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, numinternal_t intern);
-static inline bool boundXXX_set_double(boundXXX_t a, double b, numinternal_t intern);
-static inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, numinternal_t intern);
-static inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, numinternal_t intern);
+static inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern);
+static inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern);
+static inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern);
+static inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern);
+static inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern);
+static inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern);
+static inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
+static inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
+static inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
 
-static inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, numinternal_t internal);
-static inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, numinternal_t internal);
-static inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, numinternal_t internal);
-static inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, numinternal_t internal);
-static inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, numinternal_t internal);
-static inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, numinternal_t internal);
-static inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, numinternal_t internal);
-static inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, numinternal_t internal);
+static inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t internal);
+static inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t internal);
+static inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t internal);
+static inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t internal);
+static inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t internal);
+static inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t internal);
+static inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t internal);
+static inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t internal);
 
 ======================================================================
 Printing
