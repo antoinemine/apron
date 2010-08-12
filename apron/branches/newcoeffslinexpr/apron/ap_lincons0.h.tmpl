@@ -18,9 +18,9 @@
 #include "ap_coeff.h"
 #include "ap_dimension.h"
 #include "ap_linexpr0.h"
-#include "itvD_lincons.h"
-#include "itvMPQ_lincons.h"
-#include "itvMPFR_lincons.h"
+#include "ap_linconsD.h"
+#include "ap_linconsMPQ.h"
+#include "ap_linconsMPFR.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +34,9 @@ typedef struct ap_lincons0_struct {
   bool ref;
   ap_scalar_discr_t discr;
   union {
-    itvD_lincons_ptr    D;
-    itvMPQ_lincons_ptr  MPQ;
-    itvMPFR_lincons_ptr MPFR;
+    ap_linconsD_ptr    D;
+    ap_linconsMPQ_ptr  MPQ;
+    ap_linconsMPFR_ptr MPFR;
   } lincons;
 } ap_lincons0_struct;
 typedef ap_lincons0_struct ap_lincons0_t[1];
@@ -49,21 +49,21 @@ typedef ap_lincons0_struct* ap_lincons0_ptr;
 
 void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size);
 void ap_lincons0_init_set(ap_lincons0_t res, ap_lincons0_t e);
-void ap_lincons0_init_set_D(ap_lincons0_t res, itvD_lincons_t e);
-void ap_lincons0_init_set_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
-void ap_lincons0_init_set_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
-static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, itvD_lincons_t e);
-static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
-static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
+void ap_lincons0_init_set_D(ap_lincons0_t res, ap_linconsD_t e);
+void ap_lincons0_init_set_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e);
+void ap_lincons0_init_set_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e);
+static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, ap_linconsD_t e);
+static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e);
+static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e);
 
 void ap_lincons0_minimize(ap_lincons0_t a);
 void ap_lincons0_clear(ap_lincons0_t e);
 void ap_lincons0_fprint(FILE* stream, ap_lincons0_t e, char** name_of_dim);
   /* Printing a linear expression */
 
-static inline void ap_lincons0_ref_D(ap_lincons0_t res, itvD_lincons_t e);
-static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e);
-static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
+static inline void ap_lincons0_ref_D(ap_lincons0_t res, ap_linconsD_t e);
+static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e);
+static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e);
   /* Returns a reference on the argument under the form of ap_lincons0_ref.
      INTERNAL USE.
      BE CAUTIOUS: memory is shared between the result and the argument, and
@@ -75,13 +75,13 @@ static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e);
 
 bool ap_lincons0_set(ap_lincons0_t res, ap_lincons0_t e, numinternal_t intern);
 
-bool ap_lincons0_set_itvD_lincons(ap_lincons0_t a, itvD_lincons_t b, numinternal_t intern);
-bool ap_lincons0_set_itvMPQ_lincons(ap_lincons0_t a, itvMPQ_lincons_t b, numinternal_t intern);
-bool ap_lincons0_set_itvMPFR_lincons(ap_lincons0_t a, itvMPFR_lincons_t b, numinternal_t intern);
+bool ap_lincons0_set_ap_linconsD(ap_lincons0_t a, ap_linconsD_t b, numinternal_t intern);
+bool ap_lincons0_set_ap_linconsMPQ(ap_lincons0_t a, ap_linconsMPQ_t b, numinternal_t intern);
+bool ap_lincons0_set_ap_linconsMPFR(ap_lincons0_t a, ap_linconsMPFR_t b, numinternal_t intern);
 
-bool itvD_lincons_set_ap_lincons0(itvD_lincons_t a, ap_lincons0_t b, numinternal_t intern);
-bool itvDMPQ_lincons_set_ap_lincons0(itvMPQ_lincons_t a, ap_lincons0_t b, numinternal_t intern);
-bool itvMPFR_lincons_set_ap_lincons0(itvMPFR_lincons_t a, ap_lincons0_t b, numinternal_t intern);
+bool ap_linconsD_set_ap_lincons0(ap_linconsD_t a, ap_lincons0_t b, numinternal_t intern);
+bool ap_linconsDMPQ_set_ap_lincons0(ap_linconsMPQ_t a, ap_lincons0_t b, numinternal_t intern);
+bool ap_linconsMPFR_set_ap_lincons0(ap_linconsMPFR_t a, ap_lincons0_t b, numinternal_t intern);
 
 /* ====================================================================== */
 /* III. Access */
@@ -123,18 +123,18 @@ bool ap_lincons0_equal(ap_lincons0_t expr1,
 int ap_lincons0_compare(ap_lincons0_t expr1,
 			ap_lincons0_t expr2);
 
-static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, itvD_lincons_t e)
+static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, ap_linconsD_t e)
 { res->ref = false; res->discr = AP_SCALAR_D; res->lincons.D = e; };
-static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e)
+static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e)
 { res->ref = false; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
-static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e)
+static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e)
 { res->ref = false; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
 
-static inline void ap_lincons0_ref_D(ap_lincons0_t res, itvD_lincons_t e)
+static inline void ap_lincons0_ref_D(ap_lincons0_t res, ap_linconsD_t e)
 { res->ref = true; res->discr = AP_SCALAR_D; res->lincons.D = e; };
-static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, itvMPQ_lincons_t e)
+static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e)
 { res->ref = true; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
-static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, itvMPFR_lincons_t e)
+static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e)
 { res->ref = true; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
 
 #ifdef __cplusplus
