@@ -55,8 +55,8 @@ typedef ap_coeff_struct ap_coeff_t[1];
 
 void ap_coeff_init(ap_coeff_t coeff, ap_scalar_discr_t discr);
 void ap_coeff_init_set(ap_coeff_t coeff, ap_coeff_t coeff2);
-MACROX
-void ap_coeff_init_set_XXX(ap_coeff_t coeff, eitvXXX_t eitv);
+MACRO_MAINZ
+void ap_coeff_init_set_ZZZ(ap_coeff_t coeff, eitvZZZ_t eitv);
 ENDMACRO
 void ap_coeff_clear(ap_coeff_t coeff);
 void ap_coeff_fprint(FILE* stream, ap_coeff_t a);
@@ -71,15 +71,15 @@ static inline void ap_coeff_swap(ap_coeff_t a, ap_coeff_t b)
 { ap_coeff_struct t = *a; *a = *b; *b = t; }
   /* Exchange */
 
-MACROX
-static inline void ap_coeff_ref_XXX(ap_coeff_t res, eitvXXX_t e);
+MACRO_MAINZ
+static inline void ap_coeff_ref_ZZZ(ap_coeff_t res, eitvZZZ_t e);
 ENDMACRO
 
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
 
-MACROZ
+MACRO_ALLZ
 bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, numinternal_t intern);
 bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, numinternal_t intern);
 ENDMACRO
@@ -114,9 +114,9 @@ static inline void ap_coeff_print(ap_coeff_t a)
 { ap_coeff_fprint(stdout,a); }
   /* Printing */
 
-MACROX
-static inline void ap_coeff_ref_XXX(ap_coeff_t res, eitvXXX_t e)
-{ res->discr = AP_SCALAR_XXX; res->ref = true; res->eitv.XXX = e; };
+MACRO_MAINZ
+static inline void ap_coeff_ref_ZZZ(ap_coeff_t res, eitvZZZ_t e)
+{ res->discr = AP_SCALAR_ZZZ; res->ref = true; res->eitv.ZZZ = e; };
 ENDMACRO
 
 #ifdef __cplusplus

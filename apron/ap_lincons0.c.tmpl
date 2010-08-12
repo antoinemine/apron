@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_lincons0.h"
-#include "itvD_conv.h"
-#include "itvMPQ_conv.h"
-#include "itvMPFR_conv.h"
+#include "ap_linexprconsD.h"
+#include "ap_linexprconsMPQ.h"
+#include "ap_linexprconsMPFR.h"
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -21,7 +21,7 @@ void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size)
   res->ref = false;
   res->discr = discr;
   SWITCH(discr)
-    res->lincons.XXX = itvXXX_lincons_alloc(size);
+    res->lincons.XXX = ap_linconsXXX_alloc(size);
   ENDSWITCH
 }
 void ap_lincons0_init_set(ap_lincons0_t res,ap_lincons0_t e)
@@ -29,34 +29,34 @@ void ap_lincons0_init_set(ap_lincons0_t res,ap_lincons0_t e)
   res->ref = false;
   res->discr = e->discr;
   SWITCH(e->discr)
-    res->lincons.XXX = itvXXX_lincons_alloc_set(e->lincons.XXX);
+    res->lincons.XXX = ap_linconsXXX_alloc_set(e->lincons.XXX);
   ENDSWITCH
 }
-MACROX
-void ap_lincons0_init_set_XXX(ap_lincons0_t res, itvXXX_lincons_t e)
+MACRO_MAINZ
+void ap_lincons0_init_set_ZZZ(ap_lincons0_t res, ap_linconsZZZ_t e)
 {
-  ap_lincons0_init(res,AP_SCALAR_XXX,e->linexpr->size);
-  itvXXX_lincons_set(res->lincons.XXX,e);
+  ap_lincons0_init(res,AP_SCALAR_ZZZ,e->linexpr->size);
+  ap_linconsZZZ_set(res->lincons.ZZZ,e);
 }
 ENDMACRO
 void ap_lincons0_clear(ap_lincons0_t e)
 {
   if (e->ref==false){
     SWITCH(e->discr)
-      itvXXX_lincons_clear(e->lincons.XXX);
+      ap_linconsXXX_clear(e->lincons.XXX);
     ENDSWITCH
   }
 }
 void ap_lincons0_fprint(FILE* stream, ap_lincons0_t e, char** name_of_dim)
 {
   SWITCH(e->discr)
-    itvXXX_lincons_fprint(stream,e->lincons.XXX,name_of_dim);
+    ap_linconsXXX_fprint(stream,e->lincons.XXX,name_of_dim);
   ENDSWITCH
 }
 void ap_lincons0_minimize(ap_lincons0_t e)
 {
   SWITCH(e->discr)
-    itvXXX_linexpr_minimize(e->lincons.XXX->linexpr);
+    ap_linexprXXX_minimize(e->lincons.XXX->linexpr);
   ENDSWITCH
 }
 
@@ -162,9 +162,9 @@ void ap_lincons0_linexpr0ref(ap_linexpr0_t e, ap_lincons0_t c)
     e->linexpr.XXX = c->lincons.XXX->linexpr;
   ENDSWITCH
 }
-itvconstyp_t* ap_lincons0_constypref(ap_lincons0_t c)
+ap_constyp_t* ap_lincons0_constypref(ap_lincons0_t c)
 {
-  itvconstyp_t* p;
+  ap_constyp_t* p;
   SWITCH (c->discr)
     p = &c->lincons.XXX->constyp;
   ENDSWITCH
@@ -190,7 +190,7 @@ void ap_lincons0_add_dimensions(ap_lincons0_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH(expr->discr)
-    itvXXX_lincons_add_dimensions(res->lincons.XXX,expr->lincons.XXX,dimchange);
+    ap_linconsXXX_add_dimensions(res->lincons.XXX,expr->lincons.XXX,dimchange);
   ENDSWITCH
 }
 void ap_lincons0_permute_dimensions(ap_lincons0_t res,
@@ -200,7 +200,7 @@ void ap_lincons0_permute_dimensions(ap_lincons0_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH(expr->discr)
-    itvXXX_lincons_permute_dimensions(res->lincons.XXX,expr->lincons.XXX,dimperm);
+    ap_linconsXXX_permute_dimensions(res->lincons.XXX,expr->lincons.XXX,dimperm);
   ENDSWITCH
 }
 
@@ -214,7 +214,7 @@ int ap_lincons0_hash(ap_lincons0_t expr)
 {
   int res;
   SWITCH(expr->discr)
-    res = itvXXX_lincons_hash(expr->lincons.XXX);
+    res = ap_linconsXXX_hash(expr->lincons.XXX);
   ENDSWITCH
   return res;
 }
@@ -226,7 +226,7 @@ bool ap_lincons0_equal(ap_lincons0_t expr1,
     res = false;
   else {
     SWITCH(expr1->discr)
-      res = itvXXX_lincons_equal(expr1->lincons.XXX,expr2->lincons.XXX);
+      res = ap_linconsXXX_equal(expr1->lincons.XXX,expr2->lincons.XXX);
     ENDSWITCH
   }
   return res;
@@ -242,7 +242,7 @@ int ap_lincons0_compare(ap_lincons0_t expr1,
   }
   else {
     SWITCH(expr1->discr)
-      res = itvXXX_lincons_compare(expr1->lincons.XXX,expr2->lincons.XXX);
+      res = ap_linconsXXX_compare(expr1->lincons.XXX,expr2->lincons.XXX);
     ENDSWITCH
   }
   return res;

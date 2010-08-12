@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_yyy_array.h"
-#include "itvD_conv.h"
-#include "itvMPQ_conv.h"
-#include "itvMPFR_conv.h"
+#include "ap_linexprconsD.h"
+#include "ap_linexprconsMPQ.h"
+#include "ap_linexprconsMPFR.h"
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -21,7 +21,7 @@ void ap_yyy_array_init(ap_yyy_array_t a, ap_scalar_discr_t discr, size_t size)
   a->ref = false;
   a->discr = discr;
   SWITCH(discr)
-    a->yyy_array.XXX = itvXXX_yyy_array_alloc(size);
+    a->zzz_array.XXX = itvXXX_zzz_array_alloc(size);
   ENDSWITCH
 }
 void ap_yyy_array_init_set(ap_yyy_array_t a,ap_yyy_array_t b)
@@ -29,26 +29,26 @@ void ap_yyy_array_init_set(ap_yyy_array_t a,ap_yyy_array_t b)
   a->ref = false;
   a->discr = b->discr;
   SWITCH(a->discr)
-    a->yyy_array.XXX = itvXXX_yyy_array_alloc_set(b->yyy_array.XXX);
+    a->zzz_array.XXX = itvXXX_zzz_array_alloc_set(b->zzz_array.XXX);
   ENDSWITCH
 }
 void ap_yyy_array_minimize(ap_yyy_array_t a)
 {
   SWITCH(a->discr)
-    itvXXX_yyy_array_minimize(a->yyy_array.XXX);
+    itvXXX_zzz_array_minimize(a->zzz_array.XXX);
   ENDSWITCH
 }
 void ap_yyy_array_clear(ap_yyy_array_t a)
 {
   SWITCH(a->discr)
-    itvXXX_yyy_array_clear(a->yyy_array.XXX);
+    itvXXX_zzz_array_clear(a->zzz_array.XXX);
   ENDSWITCH
 }
 
 void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim)
 {
   SWITCH(e->discr)
-    itvXXX_yyy_array_fprint(stream,e->yyy_array.XXX,name_of_dim);
+    itvXXX_zzz_array_fprint(stream,e->zzz_array.XXX,name_of_dim);
   ENDSWITCH
 }
 
@@ -56,29 +56,29 @@ void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim)
 /* Conversions */
 /* ====================================================================== */
 
-MACROX
-bool ap_yyy_array_set_itvXXX_yyy_array(ap_yyy_array_t a, itvXXX_yyy_array_t b, numinternal_t intern)
+MACRO_MAINZ
+bool ap_yyy_array_set_itvZZZ_zzz_array(ap_yyy_array_t a, itvZZZ_zzz_array_t b, numinternal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return itvD_yyy_array_set_itvXXX_yyy_array(a->yyy_array.D,b,intern);
+    return itvD_zzz_array_set_itvZZZ_zzz_array(a->zzz_array.D,b,intern);
   case AP_SCALAR_MPQ:
-    return itvMPQ_yyy_array_set_itvXXX_yyy_array(a->yyy_array.MPQ,b,intern);
-  case AP_SCALAR_XXX:
-    return itvXXX_yyy_array_set(a->yyy_array.XXX,b,intern);
+    return itvMPQ_zzz_array_set_itvZZZ_zzz_array(a->zzz_array.MPQ,b,intern);
+  case AP_SCALAR_ZZZ:
+    return itvZZZ_zzz_array_set(a->zzz_array.ZZZ,b,intern);
   default:
     abort();
   }
 }
-bool itvXXX_yyy_array_set_ap_yyy_array(itvXXX_yyy_array_t a, ap_yyy_array_t b, numinternal_t intern)
+bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, numinternal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return itvXXX_yyy_array_set_itvD_yyy_array(a,b->yyy_array.D,intern);
+    return itvZZZ_zzz_array_set_itvD_zzz_array(a,b->zzz_array.D,intern);
   case AP_SCALAR_MPQ:
-    return itvXXX_yyy_array_set_itvMPQ_yyy_array(a,b->yyy_array.MPQ,intern);
-  case AP_SCALAR_XXX:
-    return itvXXX_yyy_array_set(a,b->yyy_array.XXX,intern);
+    return itvZZZ_zzz_array_set_itvMPQ_zzz_array(a,b->zzz_array.MPQ,intern);
+  case AP_SCALAR_ZZZ:
+    return itvZZZ_zzz_array_set(a,b->zzz_array.ZZZ,intern);
   default:
     abort();
   }
@@ -93,7 +93,7 @@ size_t ap_yyy_array_size(ap_yyy_array_t p)
 {
   size_t res;
   SWITCH(p->discr)
-    res = p->yyy_array.XXX->size;
+    res = p->zzz_array.XXX->size;
   ENDSWITCH
   return res;
 }
@@ -102,7 +102,7 @@ itvyyy_type_t ap_yyy_array_type(ap_yyy_array_t p)
 {
   itvyyy_type_t res;
   SWITCH(p->discr)
-    res = itvXXX_yyy_array_type(p->yyy_array.XXX);
+    res = itvXXX_zzz_array_type(p->zzz_array.XXX);
   ENDSWITCH
   return res;
 }
@@ -110,7 +110,7 @@ bool ap_yyy_array_is_linear(ap_yyy_array_t p)
 {
   bool res;
   SWITCH(p->discr)
-    res = itvXXX_yyy_array_is_linear(p->yyy_array.XXX);
+    res = itvXXX_zzz_array_is_linear(p->zzz_array.XXX);
   ENDSWITCH
   return res;
 }
@@ -118,7 +118,7 @@ bool ap_yyy_array_is_quasilinear(ap_yyy_array_t p)
 {
   bool res;
   SWITCH(p->discr)
-    res = itvXXX_yyy_array_is_quasilinear(p->yyy_array.XXX);
+    res = itvXXX_zzz_array_is_quasilinear(p->zzz_array.XXX);
   ENDSWITCH
   return res;
 }
@@ -126,7 +126,7 @@ bool ap_yyy_array_is_quasilinear(ap_yyy_array_t p)
 void ap_yyy_array_ref_index(ap_yyy_t a, ap_yyy_array_t p, size_t i)
 {
   SWITCH (p->discr)
-    ap_yyy_ref_XXX(a,p->yyy_array.XXX->p[i]);
+    ap_yyy_ref_XXX(a,p->zzz_array.XXX->p[i]);
   ENDSWITCH
 }
 
@@ -154,8 +154,8 @@ void ap_yyy_array_add_dimensions(ap_yyy_array_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH(expr->discr)
-    itvXXX_yyy_array_add_dimensions(res->yyy_array.XXX,
-					expr->yyy_array.XXX,
+    itvXXX_zzz_array_add_dimensions(res->zzz_array.XXX,
+					expr->zzz_array.XXX,
 					dimchange);
   ENDSWITCH
 }
@@ -166,8 +166,8 @@ void ap_yyy_array_permute_dimensions(ap_yyy_array_t res,
   if (res->discr!=expr->discr || (res==expr && expr->ref))
     abort();
   SWITCH(expr->discr)
-    itvXXX_yyy_array_permute_dimensions(res->yyy_array.XXX,
-					    expr->yyy_array.XXX,
-					    perm);
+    itvXXX_zzz_array_permute_dimensions(res->zzz_array.XXX,
+					expr->zzz_array.XXX,
+					perm);
   ENDSWITCH
 }
