@@ -9,12 +9,9 @@
 #include "itvD.h"
 #include "itvMPQ.h"
 #include "itvMPFR.h"
-#include "itvXXX_conv.h"
-#include "itvD_conv.h"
-#include "itvMPQ_conv.h"
-#include "itvMPFR_conv.h"
+#include "numbounditvXXX_conv.h"
 
-itvXXX_internal_t intern;
+itv_internal_t intern;
 
 /* ********************************************************************** */
 /* FPU init */
@@ -121,13 +118,13 @@ void testun(itvXXX_t a)
   printf("x = "); itvXXX_print(a); printf("\n");
   itvXXX_neg(b,a); printf("-x = "); itvXXX_print(b); printf("\n");
   itvXXX_abs(b,a); printf("abs(x) = "); itvXXX_print(b); printf("\n");
-  exact = itvXXX_sqrt(intern,b,a); printf("sqrt(x) = "); itvXXX_print(b); printf(" (%i)\n",exact);
+  exact = itvXXX_sqrt(b,a, intern); printf("sqrt(x) = "); itvXXX_print(b); printf(" (%i)\n",exact);
   itvXXX_ceil(b,a); printf("ceil(x) = "); itvXXX_print(b); printf("\n");
   itvXXX_floor(b,a); printf("floor(x) = "); itvXXX_print(b); printf("\n");
   itvXXX_trunc(b,a); printf("trunc(x) = "); itvXXX_print(b); printf("\n");
   itvXXX_to_int(b,a); printf("int(x) = "); itvXXX_print(b); printf("\n");
-  itvXXX_to_float(intern,b,a); printf("float(x) = "); itvXXX_print(b); printf("\n");
-  itvXXX_to_double(intern,b,a); printf("double(x) = "); itvXXX_print(b); printf("\n");
+  itvXXX_to_float(b,a, intern); printf("float(x) = "); itvXXX_print(b); printf("\n");
+  itvXXX_to_double(b,a, intern); printf("double(x) = "); itvXXX_print(b); printf("\n");
   itvXXX_mul_2exp(b,a,2); printf("x << 2 = "); itvXXX_print(b); printf("\n");
   itvXXX_mul_2exp(b,a,-2); printf("x >> 2 = "); itvXXX_print(b); printf("\n");
   printf("\n");
@@ -145,9 +142,9 @@ void testbin(itvXXX_t a, itvXXX_t b)
   printf("x + y = "); itvXXX_print(c); printf("\n");
   itvXXX_sub(c,a,b);
   printf("x - y = "); itvXXX_print(c); printf("\n");
-  itvXXX_mul(intern,c,a,b);
+  itvXXX_mul(c,a,b, intern);
   printf("x * y = "); itvXXX_print(c); printf("\n");
-  itvXXX_div(intern,c,a,b);
+  itvXXX_div(c,a,b, intern);
   printf("x / y = "); itvXXX_print(c); printf("\n");
   itvXXX_clear(c);
   printf("\n");
@@ -159,9 +156,9 @@ void testmod(itvXXX_t a, itvXXX_t b)
   itvXXX_init(c);
   printf("x = "); itvXXX_print(a); printf("\n");
   printf("y = "); itvXXX_print(b); printf("\n");
-  itvXXX_mod(intern,c,a,b,1);
+  itvXXX_mod(c,a,b,1, intern);
   printf("x mod_i y = "); itvXXX_print(c); printf("\n");
-  itvXXX_mod(intern,c,a,b,0);
+  itvXXX_mod(c,a,b,0, intern);
   printf("x mod_f y = "); itvXXX_print(c); printf("\n");
   printf("\n");
   itvXXX_clear(c);
@@ -196,7 +193,7 @@ int main(void)
   numXXX_fpu_init();
   mpfr_set_default_prec(4046);
 
-  itvXXX_internal_init(intern);
+  itv_internal_init(intern);
   itvXXX_init(a); itvXXX_init(b);
 
   set_double(a,2,9); testun(a);
@@ -233,6 +230,6 @@ int main(void)
 
 
   itvXXX_clear(a); itvXXX_clear(b);
-  itvXXX_internal_clear(intern);
+  itv_internal_clear(intern);
   return 0;
 }

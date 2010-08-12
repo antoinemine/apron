@@ -223,6 +223,6 @@ depend: $(C_FILES) $(TMPL:%=testnb%.c) $(TMPL:%=testi1%.c) $(TMPL:%=testi2%.c) $
 
 .PHONY: tags TAGS
 tags: TAGS
-TAGS: $(H_SRC_FILES) $(C_SRC_FILES)
+TAGS: $(H_SRC_FILES) $(C_SRC_FILES) testnbXXX.c testi1XXX.c testi2XXX.c
 	etags $^
 	etags -a macros.pl
