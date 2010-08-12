@@ -5,6 +5,7 @@ print "#line 1 \"$file\"\n";
 $nbline = 0;
 
 while ($l = <>) {
+    $nbline++;
     if ($l =~ /MACRO_MAINZ/) {
 	$nb = $nbline+1;
 	$r = "";
@@ -20,7 +21,7 @@ while ($l = <>) {
 	    print "$rr"
 	}
     }
-    elif ($l =~ /MACRO_ALLZ/) {
+    elsif ($l =~ /MACRO_ALLZ/) {
 	$nb = $nbline+1;
 	$r = "";
 	while ($l = <>) {

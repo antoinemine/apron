@@ -25,8 +25,8 @@ bool eitvXXX_canonicalize(itv_internal_t intern,
   if (boundXXX_infty(a->itv->neginf) || boundXXX_infty(a->itv->sup)) return false;
 
   /* Check that it is not bottom */
-  numXXX_neg(intern->canonicalize_num,boundXXX_numref(a->itv->neginf));
-  cmp = boundXXX_cmp_num(a->itv->sup,intern->canonicalize_num);
+  numXXX_neg(intern->XXX->canonicalize_num,boundXXX_numref(a->itv->neginf));
+  cmp = boundXXX_cmp_num(a->itv->sup,intern->XXX->canonicalize_num);
   if (cmp<0){
     a->eq = false;
     exc = true;
@@ -284,5 +284,5 @@ MACRO_ALLZ
 bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern)
 { a->eq = itvXXX_set_numZZZ(a->itv,b,intern); return a->eq; }
 bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
-{ bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
 ENDMACRO
