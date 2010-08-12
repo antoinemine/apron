@@ -225,7 +225,7 @@ $(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_YYYXXX_array.c
 
 ap_coeff_array.%: ap_yyy_array.%
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/coeff/g;s/zzz/eitv/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/coeff/g;s/zzz/eitv/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 ap_linexpr0_array.%: ap_yyy_array.%
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr0/g;s/zzz/linexpr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@

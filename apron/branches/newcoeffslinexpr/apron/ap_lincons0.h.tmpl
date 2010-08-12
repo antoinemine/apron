@@ -73,15 +73,15 @@ static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e);
 /* II. Conversions */
 /* ====================================================================== */
 
-bool ap_lincons0_set(ap_lincons0_t res, ap_lincons0_t e, numinternal_t intern);
+bool ap_lincons0_set(ap_lincons0_t res, ap_lincons0_t e, num_internal_t intern);
 
-bool ap_lincons0_set_ap_linconsD(ap_lincons0_t a, ap_linconsD_t b, numinternal_t intern);
-bool ap_lincons0_set_ap_linconsMPQ(ap_lincons0_t a, ap_linconsMPQ_t b, numinternal_t intern);
-bool ap_lincons0_set_ap_linconsMPFR(ap_lincons0_t a, ap_linconsMPFR_t b, numinternal_t intern);
+bool ap_lincons0_set_ap_linconsD(ap_lincons0_t a, ap_linconsD_t b, num_internal_t intern);
+bool ap_lincons0_set_ap_linconsMPQ(ap_lincons0_t a, ap_linconsMPQ_t b, num_internal_t intern);
+bool ap_lincons0_set_ap_linconsMPFR(ap_lincons0_t a, ap_linconsMPFR_t b, num_internal_t intern);
 
-bool ap_linconsD_set_ap_lincons0(ap_linconsD_t a, ap_lincons0_t b, numinternal_t intern);
-bool ap_linconsDMPQ_set_ap_lincons0(ap_linconsMPQ_t a, ap_lincons0_t b, numinternal_t intern);
-bool ap_linconsMPFR_set_ap_lincons0(ap_linconsMPFR_t a, ap_lincons0_t b, numinternal_t intern);
+bool ap_linconsD_set_ap_lincons0(ap_linconsD_t a, ap_lincons0_t b, num_internal_t intern);
+bool ap_linconsDMPQ_set_ap_lincons0(ap_linconsMPQ_t a, ap_lincons0_t b, num_internal_t intern);
+bool ap_linconsMPFR_set_ap_lincons0(ap_linconsMPFR_t a, ap_lincons0_t b, num_internal_t intern);
 
 /* ====================================================================== */
 /* III. Access */

@@ -8,9 +8,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_yyy_array.h"
-#include "ap_linexprconsD.h"
-#include "ap_linexprconsMPQ.h"
-#include "ap_linexprconsMPFR.h"
+#include "ap_linexprconsD_conv.h"
+#include "ap_linexprconsMPQ_conv.h"
+#include "ap_linexprconsMPFR_conv.h"
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -57,7 +57,7 @@ void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim)
 /* ====================================================================== */
 
 MACRO_MAINZ
-bool ap_yyy_array_set_itvZZZ_zzz_array(ap_yyy_array_t a, itvZZZ_zzz_array_t b, numinternal_t intern)
+bool ap_yyy_array_set_itvZZZ_zzz_array(ap_yyy_array_t a, itvZZZ_zzz_array_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
@@ -70,7 +70,7 @@ bool ap_yyy_array_set_itvZZZ_zzz_array(ap_yyy_array_t a, itvZZZ_zzz_array_t b, n
     abort();
   }
 }
-bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, numinternal_t intern)
+bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
@@ -130,13 +130,13 @@ void ap_yyy_array_ref_index(ap_yyy_t a, ap_yyy_array_t p, size_t i)
   ENDSWITCH
 }
 
-bool ap_yyy_array_get_index(ap_yyy_t a, ap_yyy_array_t p, size_t i, numinternal_t intern)
+bool ap_yyy_array_get_index(ap_yyy_t a, ap_yyy_array_t p, size_t i, num_internal_t intern)
 {
   ap_yyy_t ref;
   ap_yyy_array_ref_index(ref,p,i);
   return ap_yyy_set(a,ref,intern);
 }
-bool ap_yyy_array_set_index(ap_yyy_array_t p, size_t i, ap_yyy_t a, numinternal_t intern)
+bool ap_yyy_array_set_index(ap_yyy_array_t p, size_t i, ap_yyy_t a, num_internal_t intern)
 {
   ap_yyy_t ref;
   ap_yyy_array_ref_index(ref,p,i);
