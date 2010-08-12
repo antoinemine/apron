@@ -1,11 +1,11 @@
 /* ********************************************************************** */
-/* bound.h: numbers used for bounds */
+/* bound_types.h: numbers used for bounds */
 /* ********************************************************************** */
 
-#ifndef _BOUNDTYPES_H_
-#define _BOUNDTYPES_H_
+#ifndef _BOUND_TYPES_H_
+#define _BOUND_TYPES_H_
 
-#include "numTypes.h"
+#include "num_types.h"
 
 #ifdef __cplusplus
 extern "C" {
