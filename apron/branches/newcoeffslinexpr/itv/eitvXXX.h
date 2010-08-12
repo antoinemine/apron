@@ -132,37 +132,37 @@ static inline void eitvXXX_mod(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t 
 /* Casts */
 /* ====================================================================== */
 /* Integer casts (rounding towards +oo, -oo, 0, or worst-case) */
-static inline void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b);
-static inline void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b);
-static inline void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b);
-static inline void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b);
 
 /* Floating-point casts (worst cases) */
-static inline void eitvXXX_to_float(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
-static inline void eitvXXX_to_double(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_to_float(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
+void eitvXXX_to_double(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b);
 
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool eitvXXX_set_lint(eitvXXX_t a, long int b, numinternal_t intern);
-static inline bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, numinternal_t intern);
-static inline bool eitvXXX_set_llint(eitvXXX_t a, long long int b, numinternal_t intern);
-static inline bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, numinternal_t intern);
-static inline bool eitvXXX_set_mpz(eitvXXX_t a, mpz_t b, numinternal_t intern);
-static inline bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, numinternal_t intern);
-static inline bool eitvXXX_set_lfrac(eitvXXX_t a, long int i, long int j, numinternal_t intern);
-static inline bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, numinternal_t intern);
-static inline bool eitvXXX_set_llfrac(eitvXXX_t a, long long int i, long long int j, numinternal_t intern);
-static inline bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, numinternal_t intern);
-static inline bool eitvXXX_set_mpq(eitvXXX_t a, mpq_t b, numinternal_t intern);
-static inline bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, numinternal_t intern);
-static inline bool eitvXXX_set_double(eitvXXX_t a, double b, numinternal_t intern);
-static inline bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, numinternal_t intern);
-static inline bool eitvXXX_set_ldouble(eitvXXX_t a, long double b, numinternal_t intern);
-static inline bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, numinternal_t intern);
-static inline bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, numinternal_t intern);
-static inline bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, numinternal_t intern);
+bool eitvXXX_set_lint(eitvXXX_t a, long int b, numinternal_t intern);
+bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, numinternal_t intern);
+bool eitvXXX_set_llint(eitvXXX_t a, long long int b, numinternal_t intern);
+bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, numinternal_t intern);
+bool eitvXXX_set_mpz(eitvXXX_t a, mpz_t b, numinternal_t intern);
+bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, numinternal_t intern);
+bool eitvXXX_set_lfrac(eitvXXX_t a, long int i, long int j, numinternal_t intern);
+bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, numinternal_t intern);
+bool eitvXXX_set_llfrac(eitvXXX_t a, long long int i, long long int j, numinternal_t intern);
+bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, numinternal_t intern);
+bool eitvXXX_set_mpq(eitvXXX_t a, mpq_t b, numinternal_t intern);
+bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, numinternal_t intern);
+bool eitvXXX_set_double(eitvXXX_t a, double b, numinternal_t intern);
+bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, numinternal_t intern);
+bool eitvXXX_set_ldouble(eitvXXX_t a, long double b, numinternal_t intern);
+bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, numinternal_t intern);
+bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, numinternal_t intern);
+bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, numinternal_t intern);
 
 /* ====================================================================== */
 /* Printing */
@@ -478,108 +478,12 @@ static inline bool eitvXXX_sqrt(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t
 }
 
 static inline void eitvXXX_mod(itvXXX_internal_t intern,
-			    eitvXXX_t a, eitvXXX_t b, eitvXXX_t c,
-			    bool is_int)
+			       eitvXXX_t a, eitvXXX_t b, eitvXXX_t c,
+			       bool is_int)
 {
   itvXXX_mod(intern,a->itv,b->itv,c->itv,is_int);
   a->eq = false;
 }
-/* ====================================================================== */
-/* Casts */
-/* ====================================================================== */
-
-static inline void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
-{
-  boundXXX_ceil(a->itv->sup,b->itv->sup);
-  if (b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
-    a->eq = true;
-  }
-  else {
-    boundXXX_floor(a->itv->neginf,b->itv->sup);
-    a->eq = itvXXX_is_point(a->itv);
-  }
-}
-
-static inline void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
-{
-  boundXXX_floor(a->itv->sup,b->itv->sup);
-  if (b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
-    a->eq = true;
-  }
-  else {
-    boundXXX_ceil(a->itv->neginf,b->itv->sup);
-    a->eq = itvXXX_is_point(a->itv);
-  }
-}
-
-static inline void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
-{
-  itvXXX_trunc(a->itv,b->itv);
-  a->eq = itvXXX_is_point(a->itv);
-}
-
-static inline void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
-{
-  itvXXX_to_int(a->itv,b->itv);
-  a->eq = itvXXX_is_point(a->itv);
-}
-
-static inline void eitvXXX_to_float(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b)
-{
-  itvXXX_to_float(intern,a->itv,b->itv);
-  a->eq = itvXXX_is_point(a->itv);
-}
-static inline void eitvXXX_to_double(itvXXX_internal_t intern, eitvXXX_t a, eitvXXX_t b)
-{
-  itvXXX_to_double(intern,a->itv,b->itv);
-  a->eq = itvXXX_is_point(a->itv);
-}
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-static inline bool eitvXXX_set_lint(eitvXXX_t a, long int b, numinternal_t intern)
-{ a->eq = itvXXX_set_lint(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_llint(eitvXXX_t a, long long int b, numinternal_t intern)
-{ a->eq = itvXXX_set_llint(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_mpz(eitvXXX_t a, mpz_t b, numinternal_t intern)
-{ a->eq = itvXXX_set_mpz(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_lfrac(eitvXXX_t a, long int i, long int j, numinternal_t intern)
-{ a->eq = itvXXX_set_lfrac(a->itv,i,j,intern); return a->eq; }
-static inline bool eitvXXX_set_llfrac(eitvXXX_t a, long long int i, long long int j, numinternal_t intern)
-{ a->eq = itvXXX_set_llfrac(a->itv,i,j,intern); return a->eq; }
-static inline bool eitvXXX_set_mpq(eitvXXX_t a, mpq_t b, numinternal_t intern)
-{ a->eq = itvXXX_set_mpq(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_double(eitvXXX_t a, double b, numinternal_t intern)
-{ a->eq = itvXXX_set_double(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_ldouble(eitvXXX_t a, long double b, numinternal_t intern)
-{ a->eq = itvXXX_set_ldouble(a->itv,b,intern); return a->eq; }
-static inline bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, numinternal_t intern)
-{ a->eq = itvXXX_set_mpfr(a->itv,b,intern); return a->eq; }
-
-
-static inline bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, numinternal_t intern)
-{ bool res = itvXXX_set_lint2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, numinternal_t intern)
-{ bool res = itvXXX_set_llint2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, numinternal_t intern)
-{ bool res = itvXXX_set_mpz2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, numinternal_t intern)
-{ bool res = itvXXX_set_lfrac2(a->itv,i,j,k,l,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, numinternal_t intern)
-{ bool res = itvXXX_set_llfrac2(a->itv,i,j,k,l,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, numinternal_t intern)
-{ bool res = itvXXX_set_mpq2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, numinternal_t intern)
-{ bool res = itvXXX_set_double2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, numinternal_t intern)
-{ bool res = itvXXX_set_ldouble2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-static inline bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, numinternal_t intern)
-{ bool res = itvXXX_set_mpfr2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
-
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */

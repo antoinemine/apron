@@ -33,8 +33,11 @@ itvXXX.c eitvXXX.c \
 itvXXX_linexpr.c itvXXX_lincons.c itvXXX_YYY_array.c \
 itvXXX_conv.c 
 
-H_ORIG_FILES = itvConfig.h $(H_TMPL_FILES)
-C_ORIG_FILES = $(C_TMPL_FILES)
+H_ORIG_FILES = itvConfig.h
+C_ORIG_FILES = 
+
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
 $(TMPL:%=itv%_types.h) \
@@ -47,8 +50,8 @@ $(TMPL:%=itv%_linexpr.c) $(TMPL:%=itv%_lincons.c) \
 $(TMPL:%=itv%_linexpr_array.c) $(TMPL:%=itv%_lincons_array.c) \
 $(TMPL:%=itv%_conv.c)
 
-H_FILES = itvConfig.h $(H_GENERATED_FILES)
-C_FILES = $(C_GENERATED_FILES)
+H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
+C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
 CCINC_TO_INSTALL = $(H_TMPL_FILES) $(H_FILES)
 
@@ -91,7 +94,7 @@ distclean:
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
 	/bin/rm -f Makefile.depend
 
-dist: $(H_ORIG_FILES) $(C_ORIG_FILES) macros.pl Makefile COPYING README
+dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl Makefile COPYING README
 	(cd ..; tar zcvf itv.tgz $(^:%=itv/%))
 
 #---------------------------------------
@@ -127,6 +130,9 @@ $(TMPL:%=itv%_linexpr.h): itv%_linexpr.h: itvXXX_linexpr.h
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	$(SED) -e "s/XXX/$*/g" $< >>$@
+$(TMPL:%=itv%_linexpr.h): itv%_linexpr.h: ../apron/ap_coeff.h
+../apron/ap_coeff.h: ../apron/ap_coeff.h.tmpl
+	../apron/macros.pl $< >$@
 
 $(TMPL:%=itv%_linexpr.c): itv%_linexpr.c: itvXXX_linexpr.c
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
@@ -155,11 +161,11 @@ $(TMPL:%=itv%_lincons_array.c): itv%_lincons_array.c: itvXXX_YYY_array.c
 
 $(TMPL:%=itv%_conv.h): itv%_conv.h: itvXXX_conv.h
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g;s/$@/$</g" >>$@
 
 $(TMPL:%=itv%_conv.c): itv%_conv.c: itvXXX_conv.c
 	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g;s/$@/$</g" >>$@
 
 .PRECIOUS: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 .PRECIOUS: $(C_GENERATED_FILES:%.c=%.o) $(C_GENERATED_FILES:%.c=%_debug.o) 
@@ -218,6 +224,6 @@ depend: $(C_FILES) $(TMPL:%=test%.c) $(TMPL:%=test2%.c) $(H_FILES)
 
 .PHONY: tags TAGS
 tags: TAGS
-TAGS: $(H_ORIG_FILES) $(C_ORIG_FILES) testXXX.c test2XXX.c
+TAGS: $(H_SRC_FILES) $(C_SRC_FILES) testXXX.c test2XXX.c
 	etags $^
 	etags -a macros.pl
