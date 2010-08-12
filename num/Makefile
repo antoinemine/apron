@@ -9,7 +9,7 @@ numIyyy.h numRyyy.h numDyyy.h \
 boundXXX.h boundXXX_conv.h
 
 H_ORIG_FILES = \
-numConfig.h num_types.h \
+num_types.h \
 numMPZ.h numMPQ.h numMPFR.h \
 bound_types.h
 

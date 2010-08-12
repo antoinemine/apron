@@ -25,31 +25,27 @@ Look in the Makefile how test.c can be compiled with different number types.
 Numbers
 =======
 
-The main file to be included are numXXX.h and numXXX_conversion.h, where XXX can be:
+The main files to be included are numXXX.h. 
+
+They defines types numXXX_t and operations numXXX_op. 
+Generic signature is available in comments in num_types.h.
+XXX can be:
 - Il	 long int
 - Ill	 long long int
 - MPZ	 mpz_t (GMP library)
-     Defines types numXXX_t, numintXXX_t.
-     Possible operations are numXXX_op and numintXXX_op
-     (signatures in numXXX.h and numintXXX.h)
 
 - Rl     rationals using long int
 - Rll	 rationals using long long int
 - MPQ	 rationals using mpq_t (GMP library)
-     Defines types numXXX_t, numratXXX_t.
-     Possible operations are numXXX_op and numratXXX_op
-     (signatures in numXXX.h and numratXXX.h)
-     Also defines numintYYY_t (the underlying integer types).
+     Also defines type numintXXX_t (the underlying integer types).
 
 - D      double
 - Dl	 long double
 - MPFR   floating-point of arbitrary precision (MPFR library)
-     Defines types numXXX_t, numfltXXX_t
-     Possibles operations are numXXX_op and numfltXXX_op
-     (signatures in numXXX.h and numfltXXX.h)
 
 Bounds
 ======
 
 Bounds are *superior* bounds defined on top of num_t. They add +oo to num_t.
-Signatures of operations in boundXXX.h and boundXXX_conversion.h
+The main files to be included are boundXXX.h and boundXXX_conv.h
+Generic signature is available in comments in bound_types.h.
