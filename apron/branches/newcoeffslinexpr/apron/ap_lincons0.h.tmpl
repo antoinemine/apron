@@ -31,7 +31,6 @@ extern "C" {
 /* ====================================================================== */
 
 typedef struct ap_lincons0_struct {
-  bool ref;
   ap_scalar_discr_t discr;
   union {
     ap_linconsD_ptr    D;
@@ -123,19 +122,10 @@ bool ap_lincons0_equal(ap_lincons0_t expr1,
 int ap_lincons0_compare(ap_lincons0_t expr1,
 			ap_lincons0_t expr2);
 
-static inline void ap_lincons0_init_cons_D(ap_lincons0_t res, ap_linconsD_t e)
-{ res->ref = false; res->discr = AP_SCALAR_D; res->lincons.D = e; };
-static inline void ap_lincons0_init_cons_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e)
-{ res->ref = false; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
-static inline void ap_lincons0_init_cons_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e)
-{ res->ref = false; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
-
-static inline void ap_lincons0_ref_D(ap_lincons0_t res, ap_linconsD_t e)
-{ res->ref = true; res->discr = AP_SCALAR_D; res->lincons.D = e; };
-static inline void ap_lincons0_ref_MPQ(ap_lincons0_t res, ap_linconsMPQ_t e)
-{ res->ref = true; res->discr = AP_SCALAR_MPQ; res->lincons.MPQ = e; };
-static inline void ap_lincons0_ref_MPFR(ap_lincons0_t res, ap_linconsMPFR_t e)
-{ res->ref = true; res->discr = AP_SCALAR_MPFR; res->lincons.MPFR = e; };
+MACRO_MAINZ
+static inline void ap_lincons0_cons_ZZZ(ap_lincons0_t res, ap_linconsZZZ_t e)
+{ res->discr = AP_SCALAR_ZZZ; res->lincons.ZZZ = e; };
+ENDMACRO
 
 #ifdef __cplusplus
 }

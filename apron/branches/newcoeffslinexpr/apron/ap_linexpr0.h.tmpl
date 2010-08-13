@@ -1,3 +1,5 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
 /* ap_linexpr0.h: linear expressions */
 /* ************************************************************************* */
@@ -30,7 +32,6 @@ extern "C" {
 
 /* A linear expression. */
 typedef struct ap_linexpr0_struct {
-  bool ref;
   ap_scalar_discr_t discr;
   union {
     ap_linexprD_ptr    D;
@@ -98,7 +99,7 @@ void ap_linexpr0_coeffref(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim);
 bool ap_linexpr0_set_list(num_internal_t intern, ap_linexpr0_t expr, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
-     the definition of the type itvcoefftag_t, and ended by the tag ITV_END;
+     the definition of the type ap_coeff_tag_t_t, and ended by the tag ITV_END;
 
      - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
@@ -150,19 +151,10 @@ bool ap_linexpr0_equal(ap_linexpr0_t expr1,
 int ap_linexpr0_compare(ap_linexpr0_t expr1,
 			ap_linexpr0_t expr2);
 
-static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, ap_linexprD_t e)
-{ res->ref = false; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
-static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e)
-{ res->ref = false; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
-static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e)
-{ res->ref = false; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
-
-static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, ap_linexprD_t e)
-{ res->ref = true; res->discr = AP_SCALAR_D; res->linexpr.D = e; };
-static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e)
-{ res->ref = true; res->discr = AP_SCALAR_MPQ; res->linexpr.MPQ = e; };
-static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e)
-{ res->ref = true; res->discr = AP_SCALAR_MPFR; res->linexpr.MPFR = e; };
+MACRO_MAINZ
+static inline void ap_linexpr0_cons_ZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e)
+{ res->discr = AP_SCALAR_ZZZ; res->linexpr.ZZZ = e; };
+ENDMACRO
 
 #ifdef __cplusplus
 }

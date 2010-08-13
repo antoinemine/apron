@@ -22,13 +22,12 @@ extern "C" {
 #endif
 
 typedef enum ap_scalar_discr_t {
-  AP_SCALAR_MPQ,    /* GMP arbitrary precision rational */
   AP_SCALAR_D,      /* double-precision floating-point number */
+  AP_SCALAR_MPQ,    /* GMP arbitrary precision rational */
   AP_SCALAR_MPFR,   /* MPFR floating-point number */
 } ap_scalar_discr_t;
 
 typedef struct ap_coeff_struct {
-  bool ref;         /* If true, is only a reference */
   ap_scalar_discr_t discr; /* discriminant for coefficient */
   union {
     eitvD_ptr    D;
@@ -39,6 +38,38 @@ typedef struct ap_coeff_struct {
 
 typedef ap_coeff_struct* ap_coeff_ptr;
 typedef ap_coeff_struct ap_coeff_t[1];
+
+typedef enum ap_coeff_tag_t {
+  ITV_COEFF,    /* waiting for 1 ap_coeff_t* and a dimension */
+  ITV_EITVD,    /* waiting for 1 eitvD_t and a dimension */
+  ITV_EITVMPQ,  /* waiting for 1 eitvMPQ_t and a dimension */
+  ITV_EITVMPFR, /* waiting for 1 eitvMPFR_t and a dimension */
+  ITV_NUMD,     /* waiting for 1 numD_t and a dimension */
+  ITV_NUMMPQ,   /* waiting for 1 numMPQ_t and a dimension */
+  ITV_NUMMPFR,  /* waiting for 1 numMPFR_t and a dimension */
+  ITV_NUMD2,    /* waiting for 2 numD_t and a dimension */
+  ITV_NUMMPQ2,  /* waiting for 2 numMPQ_t and a dimension */
+  ITV_NUMMPFR2, /* waiting for 2 numMPFR_t and a dimension */
+  ITV_LINT,     /* waiting for 1 long int and a dimension */
+  ITV_LINT2,    /* waiting for 2 long int and a dimension */
+  ITV_LLINT,    /* waiting for 1 long long int and a dimension */
+  ITV_LLINT2,   /* waiting for 2 long long int and a dimension */
+  ITV_MPZ,      /* waiting for 1 mpz_t and a dimension */
+  ITV_MPZ2,     /* waiting for 2 mpz_t and a dimension */
+  ITV_LFRAC,    /* waiting for 2 long int and a dimension */
+  ITV_LFRAC2,   /* waiting for 4 long int and a dimension */
+  ITV_LLFRAC,   /* waiting for 2 long long int and a dimension */
+  ITV_LLFRAC2,  /* waiting for 4 long long int and a dimension */
+  ITV_MPQ,      /* waiting for 1 mpq_t and a dimension */
+  ITV_MPQ2,     /* waiting for 2 mpq_t and a dimension */
+  ITV_DOUBLE,   /* waiting for 1 double and a dimension */
+  ITV_DOUBLE2,  /* waiting for 2 double and a dimension */
+  ITV_LDOUBLE,  /* waiting for 1 long double and a dimension */
+  ITV_LDOUBLE2, /* waiting for 2 long double and a dimension */
+  ITV_MPFR,     /* waiting for 1 mpfr_t and a dimension */
+  ITV_MPFR2,    /* waiting for 2 mpfr_t double and a dimension */
+  ITV_END
+} ap_coeff_tag_t;
 
 /* ====================================================================== */
 /* Basics */
@@ -61,10 +92,6 @@ void ap_coeff_set_top(ap_coeff_t coeff);
 static inline void ap_coeff_swap(ap_coeff_t a, ap_coeff_t b)
 { ap_coeff_struct t = *a; *a = *b; *b = t; }
   /* Exchange */
-
-MACRO_MAINZ
-static inline void ap_coeff_ref_ZZZ(ap_coeff_t res, eitvZZZ_t e);
-ENDMACRO
 
 /* ====================================================================== */
 /* Conversions */
@@ -106,8 +133,8 @@ static inline void ap_coeff_print(ap_coeff_t a)
   /* Printing */
 
 MACRO_MAINZ
-static inline void ap_coeff_ref_ZZZ(ap_coeff_t res, eitvZZZ_t e)
-{ res->discr = AP_SCALAR_ZZZ; res->ref = true; res->eitv.ZZZ = e; };
+static inline void ap_coeff_cons_ZZZ(ap_coeff_t res, eitvZZZ_t e)
+{ res->discr = AP_SCALAR_ZZZ; res->eitv.ZZZ = e; };
 ENDMACRO
 
 #ifdef __cplusplus
