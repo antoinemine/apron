@@ -2,7 +2,7 @@
 /* numbounditvXXX_conv.c: conversion between itvs */
 /* ********************************************************************** */
 
-#include "numbounditvXXX_conv.h"
+#include "itvXXX_conv.h"
 #include "itvXXX.h"
 
 #include "itvD.h"
