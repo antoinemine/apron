@@ -8,10 +8,10 @@
 #include "itvXXX.h"
 #include "eitvXXX.h"
 
-#include "numbounditvXXX_conv.h"
-#include "numbounditvD_conv.h"
-#include "numbounditvMPQ_conv.h"
-#include "numbounditvMPFR_conv.h"
+#include "itvXXX_conv.h"
+#include "itvD_conv.h"
+#include "itvMPQ_conv.h"
+#include "itvMPFR_conv.h"
 
 
 #define _APXXX_MARK_
