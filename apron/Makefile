@@ -17,7 +17,7 @@ BINDIR = $(PREFIX)/bin
 #---------------------------------------
 # C part
 #---------------------------------------
-ICFLAGS = -I. -I../num -I../itv -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICFLAGS = -I. -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
 # Files
@@ -33,7 +33,7 @@ ap_linexpr0.h.tmpl ap_lincons0.h.tmpl \
 ap_yyy_array.h
 C_TMPL_FILES = \
 ap_linexprXXX.c ap_linconsXXX.c ap_YYYXXX_array.c \
-ap_linexprconsXXX_conv.h \
+ap_linexprconsXXX_conv.c \
 ap_coeff.c.tmpl \
 ap_linexpr0.c.tmpl ap_lincons0.c.tmpl \
 ap_yyy_array.c
@@ -66,14 +66,14 @@ $(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) \
 $(TMPL:%=ap_linexprcons%_conv.h) \
 ap_coeff.h \
 ap_linexpr0.h ap_lincons0.h \
-ap_coeff_array.h ap_linexpr0_array.h ap_lincons0_array.h
+ap_linexpr0_array.h ap_lincons0_array.h
 C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) \
 $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) \
 $(TMPL:%=ap_linexprcons%_conv.c) \
 ap_coeff.c \
 ap_linexpr0.c ap_lincons0.c \
-ap_coeff_array.c ap_linexpr0_array.c ap_lincons0_array.c
+ap_linexpr0_array.c ap_lincons0_array.c
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
@@ -148,23 +148,23 @@ html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.tex
 # C rules
 #---------------------------------------
 
-libapron.a: $(C_FILES:%.c=%.o) ../itv/libitv.a
-	cp ../itv/libitv.a $@
+libapron.a: $(C_FILES:%.c=%.o) ../num/libitv.a
+	cp ../num/libitv.a $@
 	$(AR) rs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libapron_debug.a: $(C_FILES:%.c=%_debug.o) ../itv/libitv_debug.a
-	cp ../itv/libitv_debug.a $@
+libapron_debug.a: $(C_FILES:%.c=%_debug.o) ../num/libitv_debug.a
+	cp ../num/libitv_debug.a $@
 	$(AR) rs $@ $(C_FILES:%.c=%_debug.o)
 	$(RANLIB) $@
 
-libapron.so: $(C_FILES:%.c=%.o) ../itv/libitv.a
+libapron.so: $(C_FILES:%.c=%.o) ../num/libitv.a
 	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) \
-	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv.a))) 
+	$(patsubst %,../num/%,$(filter %.o, $(shell $(AR) t ../num/libitv.a))) 
 
-libapron_debug.so: $(C_FILES:%.c=%_debug.o) ../itv/libitv_debug.a
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%_debug.o)
-	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv_debug.a))) 
+libapron_debug.so: $(C_FILES:%.c=%_debug.o) ../num/libitv_debug.a
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%_debug.o) \
+	$(patsubst %,../num/%,$(filter %.o, $(shell $(AR) t ../num/libitv_debug.a))) 
 
 .PHONY : dep
 
@@ -184,67 +184,71 @@ dep: $(H_FILES) $(C_FILES)
 #---------------------------------------
 
 $(TMPL:%=ap_linexpr%.h): ap_linexpr%.h: ap_linexprXXX.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_linexpr%.c): ap_linexpr%.c: ap_linexprXXX.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_lincons%.h): ap_lincons%.h: ap_linconsXXX.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_lincons%.c): ap_lincons%.c: ap_linconsXXX.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_linexprcons%_conv.h): ap_linexprcons%_conv.h: ap_linexprconsXXX_conv.h
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_linexprcons%_conv.c): ap_linexprcons%_conv.c: ap_linexprconsXXX_conv.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_linexpr%_array.c): ap_linexpr%_array.c: ap_YYYXXX_array.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/linexpr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 $(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_YYYXXX_array.c
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
-	echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 ap_coeff_array.%: ap_yyy_array.%
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/coeff/g;s/zzz/eitv/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 ap_linexpr0_array.%: ap_yyy_array.%
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr0/g;s/zzz/linexpr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 ap_lincons0_array.%: ap_yyy_array.%
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons0/g;s/zzz/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 %.h: %.h.tmpl
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
-	echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< >>$@
 
-%.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS)  -I../num -I../itv -c $<
-
-%_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS)  -I../itv -c -o $@ $<
+$(C_FILES:%.c=%.o): %.o: %.c
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+$(C_FILES:%.c=%_debug.o): %_debug.o: %.c
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------
 # dependencies (generated with make dep)

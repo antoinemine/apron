@@ -29,9 +29,9 @@ typedef struct ap_yyy_array_struct {
   bool ref;
   ap_scalar_discr_t discr;
   union {
-    itvD_zzz_array_ptr    D;
-    itvMPQ_zzz_array_ptr  MPQ;
-    itvMPFR_zzz_array_ptr MPFR;
+    ap_zzzD_array_ptr    D;
+    ap_zzzMPQ_array_ptr  MPQ;
+    ap_zzzMPFR_array_ptr MPFR;
   } zzz_array;
 } ap_yyy_array_struct;
 typedef ap_yyy_array_struct* ap_yyy_array_ptr;
@@ -44,14 +44,14 @@ typedef ap_yyy_array_struct ap_yyy_array_t[1];
 void ap_yyy_array_init(ap_yyy_array_t e, ap_scalar_discr_t discr, size_t size);
 void ap_yyy_array_init_set(ap_yyy_array_t res, ap_yyy_array_t e);
 MACRO_MAINZ
-static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e);
+static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, ap_zzzZZZ_array_t e);
 ENDMACRO
 void ap_yyy_array_minimize(ap_yyy_array_t a);
 void ap_yyy_array_clear(ap_yyy_array_t e);
 void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim);
 
 MACRO_MAINZ
-static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e);
+static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, ap_zzzZZZ_array_t e);
 ENDMACRO
   /* Returns a reference on the argument under the form of ap_yyy_ref.
      INTERNAL USE.
@@ -65,8 +65,8 @@ ENDMACRO
 bool ap_yyy_array_set(ap_yyy_array_t res, ap_yyy_array_t e, num_internal_t intern);
 
 MACRO_MAINZ
-bool ap_yyy_array_set_itvZZZ_zzz(ap_yyy_array_t a, itvZZZ_zzz_array_t b, num_internal_t intern);
-bool itvZZZ_zzz_array_set_ap_yyy_array(itvZZZ_zzz_array_t a, ap_yyy_array_t b, num_internal_t intern);
+bool ap_yyy_array_set_ap_zzzZZZ(ap_yyy_array_t a, ap_zzzZZZ_array_t b, num_internal_t intern);
+bool ap_zzzZZZ_array_set_ap_yyy_array(ap_zzzZZZ_array_t a, ap_yyy_array_t b, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -103,10 +103,10 @@ void ap_yyy_array_permute_dimensions(ap_yyy_array_t a,
 					  ap_dimperm_t* perm);
 
 MACRO_MAINZ
-static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e)
+static inline void ap_yyy_array_init_cons_ZZZ(ap_yyy_array_t res, ap_zzzZZZ_array_t e)
 { res->ref = false; res->discr = AP_SCALAR_ZZZ; res->zzz_array.ZZZ = e; };
 
-static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, itvZZZ_zzz_array_t e)
+static inline void ap_yyy_array_ref_ZZZ(ap_yyy_array_t res, ap_zzzZZZ_array_t e)
 { res->ref = true; res->discr = AP_SCALAR_ZZZ; res->zzz_array.ZZZ = e; };
 ENDMACRO
 
