@@ -261,27 +261,27 @@ bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, num_internal_t intern)
 { a->eq = itvXXX_set_mpfr(a->itv,b,intern); return a->eq; }
 
 bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, num_internal_t intern)
-{ bool res = itvXXX_set_lint2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_lint2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, num_internal_t intern)
-{ bool res = itvXXX_set_llint2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_llint2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
-{ bool res = itvXXX_set_mpz2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_mpz2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
-{ bool res = itvXXX_set_lfrac2(a->itv,i,j,k,l,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_lfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
-{ bool res = itvXXX_set_llfrac2(a->itv,i,j,k,l,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_llfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
-{ bool res = itvXXX_set_mpq2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_mpq2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, num_internal_t intern)
-{ bool res = itvXXX_set_double2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_double2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, num_internal_t intern)
-{ bool res = itvXXX_set_ldouble2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_ldouble2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
-{ bool res = itvXXX_set_mpfr2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_mpfr2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 
 MACRO_ALLZ
 bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern)
 { a->eq = itvXXX_set_numZZZ(a->itv,b,intern); return a->eq; }
 bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
-{ bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); a->eq = false; if (res) eitvXXX_is_point(a); return res; }
+{ bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 ENDMACRO
