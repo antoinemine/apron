@@ -169,8 +169,7 @@ tbool_t ap_linconsXXX_evalcst(
   return res;
 }
 
-bool ap_linconsXXX_sat_is_false(
-				 ap_linconsXXX_t lincons, itv_internal_t intern)
+bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, itv_internal_t intern)
 {
   bool res = false;
 
@@ -234,8 +233,7 @@ ap_linconsXXX_is_useless_for_meet(
   return res;
 }
 
-void ap_linconsXXX_reduce_integer(
-				   ap_linconsXXX_t cons,
+void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
 				   size_t intdim, itv_internal_t intern)
 {
   ap_linexprXXX_ptr expr;
@@ -257,7 +255,7 @@ void ap_linconsXXX_reduce_integer(
   if (!ap_linexprXXX_is_integer(expr,intdim))
     return;
   /* Check that there are only scalar coefficients for dimensions */
-  ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
     if (!eitvXXX_is_point(pitv))
       return;
   }
@@ -266,7 +264,7 @@ void ap_linconsXXX_reduce_integer(
     /* compute lcm of denominators and gcd of numerators */
     numintXXX_set_int(numXXX_denref(intern->XXX->quasi_num),1);
     numintXXX_set_int(numXXX_numref(intern->XXX->quasi_num),0);
-    ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+    ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       numintXXX_lcm(numXXX_denref(intern->XXX->quasi_num),
 		    numXXX_denref(intern->XXX->quasi_num),
 		    numXXX_denref(boundXXX_numref(pitv->itv->sup)));
@@ -276,7 +274,7 @@ void ap_linconsXXX_reduce_integer(
     }
     if (numintXXX_sgn(numXXX_numref(intern->XXX->quasi_num))==0)
       return;
-    ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+    ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       numintXXX_divexact(numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 			 numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 			 numXXX_numref(intern->XXX->quasi_num));
@@ -299,7 +297,7 @@ void ap_linconsXXX_reduce_integer(
     /* Assuming that all coefficients are either integer,
        compute the pgcd */
     mpz_set_si(intern->XXX->reduce_lincons_gcd,0);
-    ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+    ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       if (!numXXX_integer(pitv->itv->sup))
 	return;
       mpz_set_numXXX(intern->XXX->reduce_lincons_mpz,pitv->itv->sup,intern->num);
@@ -316,7 +314,7 @@ void ap_linconsXXX_reduce_integer(
 #elif defined(_ITVIl_MARK_) || defined(_ITVIll_MARK_) || defined(_ITVMPZ_MARK_)
   {
     numXXX_set_int(intern->XXX->quasi_num,0);
-    ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+    ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       numXXX_gcd(intern->XXX->quasi_num,
 		 intern->XXX->quasi_num,
 		 boundXXX_numref(pitv->itv->sup));
@@ -329,7 +327,7 @@ void ap_linconsXXX_reduce_integer(
 #error "HERE"
 #endif
   /* divide by gcd put in intern->XXX->quasi_num */
-  ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv) {
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
     eitvXXX_div_num(pitv,pitv,intern->XXX->quasi_num);
   }
   eitvXXX_div_num(expr->cst,expr->cst,intern->XXX->quasi_num);
@@ -471,7 +469,7 @@ static bool ap_linconsXXX_boxize(
 
   /* Iterates on coefficients */
   eitvXXX_set_int(intern->XXX->boxize_lincons_eitv,0);
-  ap_linexprXXX_ForeachLinterm(expr,i,dim,eitv){
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
     bool equality = eitv->eq;
     /* 1. We decompose the expression e = ax+e' */
     eitvXXX_swap(intern->XXX->boxize_lincons_eitv,eitv);
