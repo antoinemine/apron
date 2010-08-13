@@ -18,7 +18,6 @@
 
 void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size)
 {
-  res->ref = false;
   res->discr = discr;
   SWITCH(discr)
     res->lincons.XXX = ap_linconsXXX_alloc(size);
@@ -26,14 +25,13 @@ void ap_lincons0_init(ap_lincons0_t res, ap_scalar_discr_t discr, size_t size)
 }
 void ap_lincons0_init_set(ap_lincons0_t res,ap_lincons0_t e)
 {
-  res->ref = false;
   res->discr = e->discr;
   SWITCH(e->discr)
     res->lincons.XXX = ap_linconsXXX_alloc_set(e->lincons.XXX);
   ENDSWITCH
 }
 MACRO_MAINZ
-void ap_lincons0_init_set_ZZZ(ap_lincons0_t res, ap_linconsZZZ_t e)
+void ap_lincons0_init_set_linconsZZZ(ap_lincons0_t res, ap_linconsZZZ_t e)
 {
   ap_lincons0_init(res,AP_SCALAR_ZZZ,e->linexpr->size);
   ap_linconsZZZ_set(res->lincons.ZZZ,e);
@@ -41,11 +39,9 @@ void ap_lincons0_init_set_ZZZ(ap_lincons0_t res, ap_linconsZZZ_t e)
 ENDMACRO
 void ap_lincons0_clear(ap_lincons0_t e)
 {
-  if (e->ref==false){
-    SWITCH(e->discr)
-      ap_linconsXXX_clear(e->lincons.XXX);
-    ENDSWITCH
-  }
+  SWITCH(e->discr)
+    ap_linconsXXX_clear(e->lincons.XXX);
+  ENDSWITCH
 }
 void ap_lincons0_fprint(FILE* stream, ap_lincons0_t e, char** name_of_dim)
 {
@@ -64,29 +60,35 @@ void ap_lincons0_minimize(ap_lincons0_t e)
 /* Conversions */
 /* ====================================================================== */
 
+bool ap_lincons0_set(ap_lincons0_t res, ap_lincons0_t e, num_internal_t intern)
+{
+  SWITCH(e->discr)
+    return ap_lincons0_set_linconsXXX(res,e->lincons.XXX,intern);
+  ENDSWITCH
+}
 MACRO_MAINZ
-bool ap_lincons0_set_ap_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, num_internal_t intern)
+bool ap_lincons0_set_linconsZZZ(ap_lincons0_t a, ap_linconsZZZ_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return ap_linconsD_set_ap_linconsZZZ(a->lincons.D,b,intern);
+    return ap_linconsD_set_linconsZZZ(a->lincons.D,b,intern);
   case AP_SCALAR_MPQ:
-    return ap_linconsMPQ_set_ap_linconsZZZ(a->lincons.MPQ,b,intern);
+    return ap_linconsMPQ_set_linconsZZZ(a->lincons.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return ap_linconsMPFR_set_ap_linconsZZZ(a->lincons.MPFR,b,intern);
+    return ap_linconsMPFR_set_linconsZZZ(a->lincons.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_linconsZZZ_set_ap_lincons0(ap_linconsZZZ_t a, ap_lincons0_t b, num_internal_t intern)
+bool ap_linconsZZZ_set_lincons0(ap_linconsZZZ_t a, ap_lincons0_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_linconsZZZ_set_ap_linconsD(a,b->lincons.D,intern);
+    return ap_linconsZZZ_set_linconsD(a,b->lincons.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_linconsZZZ_set_ap_linconsMPQ(a,b->lincons.MPQ,intern);
+    return ap_linconsZZZ_set_linconsMPQ(a,b->lincons.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_linconsZZZ_set_ap_linconsMPFR(a,b->lincons.MPFR,intern);
+    return ap_linconsZZZ_set_linconsMPFR(a,b->lincons.MPFR,intern);
   default:
     abort();
   }
@@ -99,10 +101,8 @@ ENDMACRO
 
 void ap_lincons0_linexpr0ref(ap_linexpr0_t e, ap_lincons0_t c)
 {
-  e->ref = true;
-  e->discr = c->discr;
-  SWITCH (e->discr)
-    e->linexpr.XXX = c->lincons.XXX->linexpr;
+  SWITCH (c->discr)
+    ap_linexpr0_cons_XXX(e,c->lincons.XXX->linexpr);
   ENDSWITCH
 }
 ap_constyp_t* ap_lincons0_constypref(ap_lincons0_t c)
@@ -122,6 +122,40 @@ mpq_ptr ap_lincons0_mpqref(ap_lincons0_t c)
   return p;
 }
 
+bool ap_lincons0_get_linexpr0(ap_linexpr0_t e, ap_lincons0_t c, num_internal_t intern)
+{
+  ap_linexpr0_t ref;
+  ap_lincons0_linexpr0ref(ref,c);
+  return ap_linexpr0_set(e,ref,intern);
+}
+ap_constyp_t ap_lincons0_get_constyp(ap_lincons0_t c)
+{
+  ap_constyp_t* ref = ap_lincons0_constypref(c);
+  return *ref;
+}
+void ap_lincons0_get_mpq(mpq_t mpq, ap_lincons0_t c)
+{
+  mpq_ptr ref = ap_lincons0_mpqref(c);
+  mpq_set(mpq,ref);
+}
+
+bool ap_lincons0_set_linexpr0(ap_lincons0_t c, ap_linexpr0_t e, num_internal_t intern)
+{
+  ap_linexpr0_t ref;
+  ap_lincons0_linexpr0ref(ref,c);
+  return ap_linexpr0_set(ref,e,intern);
+}
+void ap_lincons0_set_constyp(ap_lincons0_t c, ap_constyp_t constyp)
+{
+  ap_constyp_t* ref = ap_lincons0_constypref(c);
+  *ref = constyp;
+}
+void ap_lincons0_set_mpq(ap_lincons0_t c, mpq_t mpq)
+{
+  mpq_ptr ref = ap_lincons0_mpqref(c);
+  mpq_set(ref,mpq);
+}
+
 /* ====================================================================== */
 /* IV. Change of dimensions and permutations */
 /* ====================================================================== */
@@ -130,7 +164,7 @@ void ap_lincons0_add_dimensions(ap_lincons0_t res,
 				ap_lincons0_t expr,
 				ap_dimchange_t* dimchange)
 {
-  if (res->discr!=expr->discr || (res==expr && expr->ref))
+  if (res->discr!=expr->discr)
     abort();
   SWITCH(expr->discr)
     ap_linconsXXX_add_dimensions(res->lincons.XXX,expr->lincons.XXX,dimchange);
@@ -140,7 +174,7 @@ void ap_lincons0_permute_dimensions(ap_lincons0_t res,
 				    ap_lincons0_t expr,
 				    ap_dimperm_t* dimperm)
 {
-  if (res->discr!=expr->discr || (res==expr && expr->ref))
+  if (res->discr!=expr->discr)
     abort();
   SWITCH(expr->discr)
     ap_linconsXXX_permute_dimensions(res->lincons.XXX,expr->lincons.XXX,dimperm);

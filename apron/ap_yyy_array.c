@@ -55,28 +55,28 @@ void ap_yyy_array_fprint(FILE* stream, ap_yyy_array_t e, char** name_of_dim)
 /* ====================================================================== */
 
 MACRO_MAINZ
-bool ap_yyy_array_set_ap_zzzZZZ_array(ap_yyy_array_t a, ap_zzzZZZ_array_t b, num_internal_t intern)
+bool ap_yyy_array_set_zzzZZZ_array(ap_yyy_array_t a, ap_zzzZZZ_array_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return ap_zzzD_array_set_ap_zzzZZZ_array(a->zzz_array.D,b,intern);
+    return ap_zzzD_array_set_zzzZZZ_array(a->zzz_array.D,b,intern);
   case AP_SCALAR_MPQ:
-    return ap_zzzMPQ_array_set_ap_zzzZZZ_array(a->zzz_array.MPQ,b,intern);
+    return ap_zzzMPQ_array_set_zzzZZZ_array(a->zzz_array.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return ap_zzzMPFR_array_set_ap_zzzZZZ_array(a->zzz_array.MPFR,b,intern);
+    return ap_zzzMPFR_array_set_zzzZZZ_array(a->zzz_array.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_zzzZZZ_array_set_ap_yyy_array(ap_zzzZZZ_array_t a, ap_yyy_array_t b, num_internal_t intern)
+bool ap_zzzZZZ_array_set_yyy_array(ap_zzzZZZ_array_t a, ap_yyy_array_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_zzzZZZ_array_set_ap_zzzD_array(a,b->zzz_array.D,intern);
+    return ap_zzzZZZ_array_set_zzzD_array(a,b->zzz_array.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_zzzZZZ_array_set_ap_zzzMPQ_array(a,b->zzz_array.MPQ,intern);
+    return ap_zzzZZZ_array_set_zzzMPQ_array(a,b->zzz_array.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_zzzZZZ_array_set_ap_zzzMPFR_array(a,b->zzz_array.MPFR,intern);
+    return ap_zzzZZZ_array_set_zzzMPFR_array(a,b->zzz_array.MPFR,intern);
   default:
     abort();
   }
@@ -124,7 +124,7 @@ bool ap_yyy_array_is_quasilinear(ap_yyy_array_t p)
 void ap_yyy_array_ref_index(ap_yyy_t a, ap_yyy_array_t p, size_t i)
 {
   SWITCH (p->discr)
-    ap_yyy_ref_XXX(a,p->zzz_array.XXX->p[i]);
+    ap_yyy_cons_XXX(a,p->zzz_array.XXX->p[i]);
   ENDSWITCH
 }
 

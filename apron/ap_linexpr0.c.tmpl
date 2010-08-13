@@ -32,7 +32,7 @@ void ap_linexpr0_init_set(ap_linexpr0_t res,ap_linexpr0_t e)
   ENDSWITCH
 }
 MACRO_MAINZ
-void ap_linexpr0_init_set_ZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e)
+void ap_linexpr0_init_set_linexprZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e)
 {
   ap_linexpr0_init(res,AP_SCALAR_ZZZ,e->size);
   ap_linexprZZZ_set(res->linexpr.ZZZ,e);
@@ -61,29 +61,36 @@ void ap_linexpr0_minimize(ap_linexpr0_t e)
 /* Conversions */
 /* ====================================================================== */
 
+bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, num_internal_t intern)
+{
+  SWITCH(e->discr)
+    return ap_linexpr0_set_linexprXXX(res,e->linexpr.XXX,intern);
+  ENDSWITCH
+}
+
 MACRO_MAINZ
-bool ap_linexpr0_set_ap_linexprZZZ(ap_linexpr0_t a, ap_linexprZZZ_t b, num_internal_t intern)
+bool ap_linexpr0_set_linexprZZZ(ap_linexpr0_t a, ap_linexprZZZ_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return ap_linexprD_set_ap_linexprZZZ(a->linexpr.D,b,intern);
+    return ap_linexprD_set_linexprZZZ(a->linexpr.D,b,intern);
   case AP_SCALAR_MPQ:
-    return ap_linexprMPQ_set_ap_linexprZZZ(a->linexpr.MPQ,b,intern);
+    return ap_linexprMPQ_set_linexprZZZ(a->linexpr.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return ap_linexprMPFR_set_ap_linexprZZZ(a->linexpr.MPFR,b,intern);
+    return ap_linexprMPFR_set_linexprZZZ(a->linexpr.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_linexprZZZ_set_ap_linexpr0(ap_linexprZZZ_t a, ap_linexpr0_t b, num_internal_t intern)
+bool ap_linexprZZZ_set_linexpr0(ap_linexprZZZ_t a, ap_linexpr0_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_linexprZZZ_set_ap_linexprD(a,b->linexpr.D,intern);
+    return ap_linexprZZZ_set_linexprD(a,b->linexpr.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_linexprZZZ_set_ap_linexprMPQ(a,b->linexpr.MPQ,intern);
+    return ap_linexprZZZ_set_linexprMPQ(a,b->linexpr.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_linexprZZZ_set_ap_linexprMPFR(a,b->linexpr.MPFR,intern);
+    return ap_linexprZZZ_set_linexprMPFR(a,b->linexpr.MPFR,intern);
   default:
     abort();
   }
