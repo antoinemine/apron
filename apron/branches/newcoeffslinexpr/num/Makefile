@@ -21,11 +21,11 @@ H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
 boundXXX.h \
 itvXXX_types.h itvXXX.h eitvXXX.h \
-numbounditvXXX_conv.h
+itvXXX_conv.h
 
 C_TMPL_FILES = \
 itvXXX_types.c itvXXX.c eitvXXX.c \
-numbounditvXXX_conv.c
+itvXXX_conv.c
 
 H_ORIG_FILES = \
 num_types.h \
@@ -45,10 +45,10 @@ numRl.h numRll.h \
 numD.h numDl.h \
 $(TMPL:%=bound%.h) \
 $(TMPL:%=itv%_types.h) $(TMPL:%=itv%.h) $(TMPL:%=eitv%.h) \
-$(TMPL:%=numbounditv%_conv.h)
+$(TMPL:%=itv%_conv.h)
 C_GENERATED_FILES = \
 $(TMPL:%=itv%_types.c) $(TMPL:%=itv%.c) $(TMPL:%=eitv%.c) \
-$(TMPL:%=numbounditv%_conv.c)
+$(TMPL:%=itv%_conv.c)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
@@ -159,12 +159,12 @@ $(TMPL:%=eitv%.c): eitv%.c: eitvXXX.c
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-$(TMPL:%=numbounditv%_conv.h): numbounditv%_conv.h: numbounditvXXX_conv.h
+$(TMPL:%=itv%_conv.h): itv%_conv.h: itvXXX_conv.h
 	@echo "/* GENERATED, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-$(TMPL:%=numbounditv%_conv.c): numbounditv%_conv.c: numbounditvXXX_conv.c
+$(TMPL:%=itv%_conv.c): itv%_conv.c: itvXXX_conv.c
 	@echo "/* GENERATED, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
