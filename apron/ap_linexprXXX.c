@@ -3,7 +3,13 @@
 /* ********************************************************************** */
 
 #include "eitvXXX.h"
-#include "ap_linexprXXX.h"
+#include "eitvD.h"
+#include "eitvMPQ.h"
+#include "eitvMPFR.h"
+#include "numbounditvXXX_conv.h"
+#include "numbounditvD_conv.h"
+#include "numbounditvMPQ_conv.h"
+#include "numbounditvMPFR_conv.h"
 #include "ap_linexprconsXXX_conv.h"
 #include "ap_linexprconsD_conv.h"
 #include "ap_linexprconsMPQ_conv.h"
@@ -13,15 +19,15 @@
 /* I. Constructor and Destructor */
 /* ********************************************************************** */
 
-inline void ap_lintermXXX_init(ap_lintermXXX_t term)
+extern inline void ap_lintermXXX_init(ap_lintermXXX_t term)
 { eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
-inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
+extern inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
 { eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
-inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
+extern inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
 { eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
-inline void ap_lintermXXX_clear(ap_lintermXXX_t term)
+extern inline void ap_lintermXXX_clear(ap_lintermXXX_t term)
 { eitvXXX_clear(term->eitv); }
-inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
+extern inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
 { if (a!=b){ ap_lintermXXX_struct t=*a; *a=*b; *b=t; } }
 
 void ap_linexprXXX_init(ap_linexprXXX_t expr, size_t size)
@@ -286,13 +292,13 @@ bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* e
 				  num_internal_t intern,
 				  void* expr, va_list* va)
 {
-  itvcoefftag_t tag;
+  ap_coeff_tag_t tag;
   eitvXXX_ptr a;
   bool res;
 
   res = true;
   while (true){
-    tag = va_arg(*va,itvcoefftag_t);
+    tag = va_arg(*va,ap_coeff_tag_t);
     if (tag==ITV_END)
       break;
 
@@ -562,8 +568,8 @@ void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr)
   }
   return;
 }
-void ap_linexprXXX_scale(itvXXX_internal_t intern,
-			  ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff)
+void ap_linexprXXX_scale(
+			  ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
 {
   size_t i;
   ap_dim_t dim;
@@ -579,20 +585,20 @@ void ap_linexprXXX_scale(itvXXX_internal_t intern,
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  eitvXXX_mul(intern,res->cst,res->cst,coeff);
+  eitvXXX_mul(res->cst,res->cst,coeff, intern);
   if (eitvXXX_is_top(res->cst)){
     ap_linexprXXX_resize(res,0);
     return;
   }
   else {
     ap_linexprXXX_ForeachLinterm(res,i,dim,pitv){
-      eitvXXX_mul(intern,pitv,pitv,coeff);
+      eitvXXX_mul(pitv,pitv,coeff, intern);
     }
   }
   return;
 }
-void ap_linexprXXX_div(itvXXX_internal_t intern,
-			ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff)
+void ap_linexprXXX_div(
+			ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
 {
   size_t i;
   ap_dim_t dim;
@@ -601,17 +607,17 @@ void ap_linexprXXX_div(itvXXX_internal_t intern,
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  eitvXXX_div(intern,res->cst,res->cst,coeff);
+  eitvXXX_div(res->cst,res->cst,coeff, intern);
   ap_linexprXXX_ForeachLinterm(expr,i,dim,pitv){
-    eitvXXX_div(intern,pitv,pitv,coeff);
+    eitvXXX_div(pitv,pitv,coeff, intern);
   }
   return;
 }
 
-void ap_linexprXXX_add(itvXXX_internal_t intern,
+void ap_linexprXXX_add(
 			ap_linexprXXX_t res,
 			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB)
+			ap_linexprXXX_t exprB, itv_internal_t intern)
 {
   size_t i,j,k;
   ap_linexprXXX_t expr;
@@ -659,21 +665,21 @@ void ap_linexprXXX_add(itvXXX_internal_t intern,
   *res = *expr;
   return;
 }
-void ap_linexprXXX_sub(itvXXX_internal_t intern,
+void ap_linexprXXX_sub(
 		     ap_linexprXXX_t res,
 		     ap_linexprXXX_t exprA,
-		     ap_linexprXXX_t exprB)
+		     ap_linexprXXX_t exprB, itv_internal_t intern)
 {
   if (exprA==exprB){
     ap_linexprXXX_t expr;
     ap_linexprXXX_init(expr,0);
     ap_linexprXXX_neg(expr,exprB);
-    ap_linexprXXX_add(intern,res,exprA,expr);
+    ap_linexprXXX_add(res,exprA,expr, intern);
     ap_linexprXXX_clear(expr);
   }
   else {
     ap_linexprXXX_neg(exprB,exprB);
-    ap_linexprXXX_add(intern,res,exprA,exprB);
+    ap_linexprXXX_add(res,exprA,exprB, intern);
     if (exprB!=res){
       ap_linexprXXX_neg(exprB,exprB);
     }
@@ -685,8 +691,7 @@ void ap_linexprXXX_sub(itvXXX_internal_t intern,
 /* ********************************************************************** */
 
 /* Evaluate an interval linear expression */
-bool ap_linexprXXX_eval(itvXXX_internal_t intern,
-			 itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env)
+bool ap_linexprXXX_eval(itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern)
 {
   size_t i;
   ap_dim_t dim;
@@ -696,9 +701,8 @@ bool ap_linexprXXX_eval(itvXXX_internal_t intern,
 
   itvXXX_set(res, expr->cst->itv);
   ap_linexprXXX_ForeachLinterm(expr,i,dim,eitv){
-    itvXXX_mul(intern,
-	    intern->eval_itv,env[dim],eitv->itv);
-    itvXXX_add(res,res,intern->eval_itv);
+    itvXXX_mul(intern->XXX->eval_itv,env[dim],eitv->itv, intern);
+    itvXXX_add(res,res,intern->XXX->eval_itv);
     if (itvXXX_is_top(res))
       break;
   }
@@ -872,9 +876,9 @@ itvXXX_quasilinearize_choose_middle(numXXX_t middle, /* the result */
   }
 }
 
-bool ap_linexprXXX_quasilinearize(itvXXX_internal_t intern,
+bool ap_linexprXXX_quasilinearize(
 				   ap_linexprXXX_t linexpr, itvXXX_t* env,
-				   bool for_meet_inequality)
+				   bool for_meet_inequality, itv_internal_t intern)
 {
   ap_dim_t size,i,dim;
   eitvXXX_ptr eitv;
@@ -896,18 +900,18 @@ bool ap_linexprXXX_quasilinearize(itvXXX_internal_t intern,
     else if (!eitvXXX_is_point(eitv)){
       itvXXX_ptr itv = eitv->itv;
       /* Compute the middle of the interval */
-      itvXXX_quasilinearize_choose_middle(intern->quasi_num,
+      itvXXX_quasilinearize_choose_middle(intern->XXX->quasi_num,
 					  itv,env[dim],for_meet_inequality);
       /* Residue (interval-middle) */
-      itvXXX_sub_num(intern->eval_itv2,itv,intern->quasi_num);
+      itvXXX_sub_num(intern->XXX->eval_itv2,itv,intern->XXX->quasi_num);
       /* Multiplication of residue by variable range */
-      itvXXX_mul(intern,
-		 intern->eval_itv,
-		 intern->eval_itv2,
-		 env[dim]);
+      itvXXX_mul(
+		 intern->XXX->eval_itv,
+		 intern->XXX->eval_itv2,
+		 env[dim], intern);
       /* Addition to the constant coefficient */
       linexpr->cst->eq = false;
-      itvXXX_add(linexpr->cst->itv,linexpr->cst->itv,intern->eval_itv);
+      itvXXX_add(linexpr->cst->itv,linexpr->cst->itv,intern->XXX->eval_itv);
       if (eitvXXX_is_top(linexpr->cst)){
 	top = true;
 	break;
@@ -929,14 +933,14 @@ bool ap_linexprXXX_quasilinearize(itvXXX_internal_t intern,
 #endif
 }
 
-bool ap_linexprXXX_array_quasilinearize(itvXXX_internal_t intern,
-					 ap_linexprXXX_array_t array, itvXXX_t* env)
+bool ap_linexprXXX_array_quasilinearize(
+					 ap_linexprXXX_array_t array, itvXXX_t* env, itv_internal_t intern)
 {
   size_t i;
   bool res;
   res = true;
   for (i=0; i<array->size; i++) {
-    ap_linexprXXX_quasilinearize(intern,array->p[i],env,false);
+    ap_linexprXXX_quasilinearize(array->p[i],env,false, intern);
   }
 #if NUMXXX_EXACT
   return true;

@@ -19,7 +19,6 @@
 
 void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size)
 {
-  res->ref = false;
   res->discr = discr;
   SWITCH(discr)
     res->linexpr.XXX = ap_linexprXXX_alloc(size);
@@ -27,7 +26,6 @@ void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size)
 }
 void ap_linexpr0_init_set(ap_linexpr0_t res,ap_linexpr0_t e)
 {
-  res->ref = false;
   res->discr = e->discr;
   SWITCH(e->discr)
     res->linexpr.XXX = ap_linexprXXX_alloc_set(e->linexpr.XXX);
@@ -42,11 +40,9 @@ void ap_linexpr0_init_set_ZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e)
 ENDMACRO
 void ap_linexpr0_clear(ap_linexpr0_t e)
 {
-  if (e->ref==false){
-    SWITCH(e->discr)
-      ap_linexprXXX_clear(e->linexpr.XXX);
-    ENDSWITCH
-  }
+  SWITCH(e->discr)
+    ap_linexprXXX_clear(e->linexpr.XXX);
+  ENDSWITCH
 }
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim)
 {
@@ -117,14 +113,14 @@ bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, n
 void ap_linexpr0_cstref(ap_coeff_t res, ap_linexpr0_t expr)
 {
   SWITCH (expr->discr)
-    ap_coeff_ref_XXX(res,expr->linexpr.XXX->cst);
+    ap_coeff_cons_XXX(res,expr->linexpr.XXX->cst);
   ENDSWITCH
 }
 void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 {
   SWITCH (expr->discr)
     eitvXXX_ptr eitv = ap_linexprXXX_eitvref(expr->linexpr.XXX,dim,true);
-    ap_coeff_ref_XXX(res,eitv);
+    ap_coeff_cons_XXX(res,eitv);
   ENDSWITCH
 }
 
@@ -151,7 +147,7 @@ void ap_linexpr0_add_dimensions(ap_linexpr0_t res,
 				ap_linexpr0_t expr,
 				ap_dimchange_t* dimchange)
 {
-  if (res->discr!=expr->discr || (res==expr && expr->ref))
+  if (res->discr!=expr->discr)
     abort();
   SWITCH (expr->discr)
     ap_linexprXXX_add_dimensions(res->linexpr.XXX,expr->linexpr.XXX,dimchange);
@@ -161,7 +157,7 @@ void ap_linexpr0_permute_dimensions(ap_linexpr0_t res,
 				    ap_linexpr0_t expr,
 				    ap_dimperm_t* perm)
 {
-  if (res->discr!=expr->discr || (res==expr && expr->ref))
+  if (res->discr!=expr->discr)
     abort();
   SWITCH (expr->discr)
     ap_linexprXXX_permute_dimensions(res->linexpr.XXX,expr->linexpr.XXX,perm);

@@ -93,12 +93,12 @@ ap_linexpr_type_t ap_linconsXXX_array_type(ap_linconsXXX_array_t array);
 /* III. Evaluation, simplification and linearisation */
 /* ********************************************************************** */
 
-tbool_t ap_linconsXXX_evalcst(itvXXX_internal_t intern,
-			    ap_linconsXXX_t lincons);
+tbool_t ap_linconsXXX_evalcst(
+			    ap_linconsXXX_t lincons, itv_internal_t intern);
   /* Is the assumed constant constraint satisfied ? */
 
-bool ap_linconsXXX_sat_is_false(itvXXX_internal_t intern,
-			      ap_linconsXXX_t lincons);
+bool ap_linconsXXX_sat_is_false(
+			      ap_linconsXXX_t lincons, itv_internal_t intern);
   /* Return true if the constraint is not satisfiable
      *for all* deterministic expressions contained in it
      Cases taken into account:
@@ -108,8 +108,8 @@ bool ap_linconsXXX_sat_is_false(itvXXX_internal_t intern,
      - the cases where itvXXX_eval_cstlincons returns tbool_false
   */
 
-void ap_linconsXXX_reduce_integer(itvXXX_internal_t intern,
-				ap_linconsXXX_t cons, size_t intdim);
+void ap_linconsXXX_reduce_integer(
+				ap_linconsXXX_t cons, size_t intdim, itv_internal_t intern);
   /* Transform a constraint involving only integer variables and only scalar
      coefficients (with the exception of the constant) as follows:
      - divide expr by the pgcd of non-constant coefficients
@@ -122,8 +122,8 @@ void ap_linconsXXX_reduce_integer(itvXXX_internal_t intern,
      - expr + [min,sup] = 0   ==>  expr + [ceil(min),floor(sup)] = 0
   */
 
-tbool_t ap_linconsXXX_array_reduce(itvXXX_internal_t intern,
-				 ap_linconsXXX_array_t array, bool meet);
+tbool_t ap_linconsXXX_array_reduce(
+				 ap_linconsXXX_array_t array, bool meet, itv_internal_t intern);
   /* Simplify the array as follows:
      - remove trivially true constraints (like 1>=0)
      - if a constraint is trivially false, reduce the array to the constraint
@@ -133,9 +133,9 @@ tbool_t ap_linconsXXX_array_reduce(itvXXX_internal_t intern,
      - tbool_false if trivially false
      - tbool_top otherwise
   */
-tbool_t ap_linconsXXX_array_reduce_integer(itvXXX_internal_t intern,
+tbool_t ap_linconsXXX_array_reduce_integer(
 					 ap_linconsXXX_array_t array,
-					 size_t intdim);
+					 size_t intdim, itv_internal_t intern);
   /* Apply first ap_linconsXXX_reduce_integer, and then
      ap_linconsXXX_array_reduce(.,.,true) */
 
@@ -157,17 +157,17 @@ size_t ap_linconsXXX_array_supportinterval(ap_linconsXXX_array_t array, ap_dim_t
    satisfaction, meet should be set to false.
 */
 static inline
-bool ap_linconsXXX_quasilinearize(itvXXX_internal_t intern,
+bool ap_linconsXXX_quasilinearize(
 				ap_linconsXXX_t lincons,
 				itvXXX_t* env,
-				bool for_meet_inequality);
+				bool for_meet_inequality, itv_internal_t intern);
   /* Quasilinearize in-place lincons using the bounding box itv. Return true
      if no approximations. */
 
-bool ap_linconsXXX_array_quasilinearize(itvXXX_internal_t intern,
+bool ap_linconsXXX_array_quasilinearize(
 				      ap_linconsXXX_array_t array,
 				      itvXXX_t* env,
-				      bool for_meet_inequality);
+				      bool for_meet_inequality, itv_internal_t intern);
   /* Same for an array */
 
 
@@ -175,13 +175,13 @@ bool ap_linconsXXX_array_quasilinearize(itvXXX_internal_t intern,
 /* IV. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linconsXXX_array_boxize(itvXXX_internal_t intern,
+bool ap_linconsXXX_array_boxize(
 			      itvXXX_t* res,
 			      bool* tchange,
 			      ap_linconsXXX_array_t array,
 			      itvXXX_t* env,size_t intdim,
 			      size_t kmax,
-			      bool intervalonly);
+			      bool intervalonly, itv_internal_t intern);
   /* Deduce interval constraints from a set of interval linear constraints.
 
      Return true if some bounds have been inferred.
@@ -280,12 +280,12 @@ static inline size_t ap_linconsXXX_supportinterval(ap_linconsXXX_t cons, ap_dim_
   return ap_linexprXXX_supportinterval(cons->linexpr,tdim);
 }
 static inline
-bool ap_linconsXXX_quasilinearize(itvXXX_internal_t intern,
+bool ap_linconsXXX_quasilinearize(
 				ap_linconsXXX_t lincons,
 				itvXXX_t* env,
-				bool for_meet_inequality)
+				bool for_meet_inequality, itv_internal_t intern)
 {
-  return ap_linexprXXX_quasilinearize(intern,lincons->linexpr,env,for_meet_inequality);
+  return ap_linexprXXX_quasilinearize(lincons->linexpr,env,for_meet_inequality, intern);
 }
 static inline
 void ap_linconsXXX_add_dimensions(ap_linconsXXX_t res,

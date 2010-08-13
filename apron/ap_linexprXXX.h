@@ -128,35 +128,7 @@ eitvXXX_ptr ap_linexprXXX_eitvref(ap_linexprXXX_t expr, ap_dim_t dim, bool creat
 
 /* Set the coefficient of dimension dim in the expression */
 static inline void ap_linexprXXX_set_eitv(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv);
-
-/* Defined in itvConfig.h for avoiding multiple definitions */
-/*
-typedef enum itv_coefftag_t {
-  ITV_COEFF,           waiting for 1 ap_coeff_t* and a dimension
-  ITV_EITV,            waiting for 1 eitvXXX_t and a dimension
-  ITV_NUM,             waiting for 1 num_t and a dimension
-  ITV_NUM2,            waiting for 2 num_t and a dimension
-  ITV_LINT,            waiting for 1 long int and a dimension
-  ITV_LINT2,           waiting for 2 long int and a dimension
-  ITV_LLINT,           waiting for 1 long long int and a dimension
-  ITV_LLINT2,          waiting for 2 long long int and a dimension
-  ITV_MPZ,             waiting for 1 mpz_t and a dimension
-  ITV_MPZ2,            waiting for 2 mpz_t and a dimension
-  ITV_LFRAC,           waiting for 2 long int and a dimension
-  ITV_LFRAC2,          waiting for 4 long int and a dimension
-  ITV_LLFRAC,          waiting for 2 long long int and a dimension
-  ITV_LLFRAC2,         waiting for 4 long long int and a dimension
-  ITV_MPQ,             waiting for 1 mpq_t and a dimension
-  ITV_MPQ2,            waiting for 2 mpq_t and a dimension
-  ITV_DOUBLE,          waiting for 1 double and a dimension
-  ITV_DOUBLE2,         waiting for 2 double and a dimension
-  ITV_LDOUBLE,         waiting for 1 long double and a dimension
-  ITV_LDOUBLE2,        waiting for 2 long double and a dimension
-  ITV_MPFR,            waiting for 1 mpfr_t and a dimension
-  ITV_MPFR2,           waiting for 2 mpfr_t double and a dimension
-  ITV_END
-} itvcoefftag_t;
-*/
+  /* ap_coeff_tag_t defined in ap_coeff.h */
 
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* env, void* expr, va_list* va),
 				     void* env,
@@ -214,20 +186,20 @@ bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr);
   /* Negate an expression */
-void ap_linexprXXX_scale(itvXXX_internal_t intern,
-			  ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff);
-void ap_linexprXXX_div(itvXXX_internal_t intern,
-			ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff);
+void ap_linexprXXX_scale(
+			  ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+void ap_linexprXXX_div(
+			ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
   /* Scale an expression by an interval */
 
-void ap_linexprXXX_add(itvXXX_internal_t intern,
+void ap_linexprXXX_add(
 			ap_linexprXXX_t expr,
 			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB);
-void ap_linexprXXX_sub(itvXXX_internal_t intern,
+			ap_linexprXXX_t exprB, itv_internal_t intern);
+void ap_linexprXXX_sub(
 			ap_linexprXXX_t expr,
 			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB);
+			ap_linexprXXX_t exprB, itv_internal_t intern);
   /* Resp. add and substract two linear epxression.
      (Substraction temporarily negates exprB, and then restores it */
 
@@ -235,8 +207,8 @@ void ap_linexprXXX_sub(itvXXX_internal_t intern,
 /* V. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linexprXXX_eval(itvXXX_internal_t intern,
-			 itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env);
+bool ap_linexprXXX_eval(
+			 itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
 
@@ -259,16 +231,16 @@ size_t ap_linexprXXX_array_supportinterval(ap_linexprXXX_array_t array, ap_dim_t
    deducing things. If constraints are quasilinearized for testing
    satisfaction, meet should be set to false.
 */
-bool ap_linexprXXX_quasilinearize(itvXXX_internal_t intern,
+bool ap_linexprXXX_quasilinearize(
 				   ap_linexprXXX_t linexpr,
 				   itvXXX_t* env,
-				   bool for_meet_inequality);
+				   bool for_meet_inequality, itv_internal_t intern);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
-bool ap_linexprXXX_array_quasilinearize(itvXXX_internal_t intern,
+bool ap_linexprXXX_array_quasilinearize(
 					 ap_linexprXXX_array_t array,
-					 itvXXX_t* env);
+					 itvXXX_t* env, itv_internal_t intern);
   /* Same for an array */
 
 /* ********************************************************************** */
