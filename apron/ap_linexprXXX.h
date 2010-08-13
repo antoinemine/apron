@@ -9,6 +9,8 @@
 #include "eitvXXX.h"
 #include "ap_dimension.h"
 #include "ap_coeff.h"
+#include "ap_var.h"
+#include "ap_environment.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -119,27 +121,33 @@ static inline
 size_t ap_linexprXXX_size(ap_linexprXXX_t expr);
   /* Get the size of the linear expression */
 
-eitvXXX_ptr ap_linexprXXX_eitvref(ap_linexprXXX_t expr, ap_dim_t dim, bool create);
+static inline void ap_linexprXXX_get_cst(eitvXXX_t eitv, ap_linexprXXX_t expr);
+static inline void ap_linexprXXX_get_eitv0(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_dim_t dim);
+  static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool* perror);
+  /* Get the coefficient of cst/dimension dim/variable var and assign it to
+     eitv */
+
+static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv);
+static inline void ap_linexprXXX_set_eitv0(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv);
+static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv, bool* perror);
+  /* Assign the coefficient of cst/dimension dim/variable var in the
+     expression */
+
+static inline eitvXXX_ptr ap_linexprXXX_cstref(ap_linexprXXX_t expr);
+  /* Get a reference to the constant */
+eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool create);
+static inline eitvXXX_ptr ap_linexprXXX_eitvref1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create, bool* perror);
   /* Get a (possibly NULL) reference to the coefficient associated to the
-     dimension.
+     dimension/variable.
      If create==false, returns NULL if the corresponding dimension does not exist.
      If create==true, a new coefficient may be added.
  */
 
-/* Set the coefficient of dimension dim in the expression */
-static inline void ap_linexprXXX_set_eitv(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv);
-  /* ap_coeff_tag_t defined in ap_coeff.h */
-
-bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(void* env, void* expr, va_list* va),
-				     void* env,
-				     num_internal_t intern,
-				     void* expr, va_list* va);
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(void* env, void* expr, va_list* va);
-
-bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
+bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
-     itv_coefftag_t, each followed by a number of arguments as specified in
-     the definition of the type ap_coefftag_t, and ended by the tag ITV_END;
+     ap_coeff_tag_t, defined in ap_coeff.h, each followed by a number of
+     arguments as specified in the definition of the type ap_coefftag_t, and
+     ended by the tag ITV_END;
 
      - The dimension AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
@@ -158,7 +166,7 @@ bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
      assuming that the expression was "0" before the call and that all the
      number conversions were exact.
   */
-
+bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, ap_environment_t* env, bool* perror, ...);
 
 /* Iterator (Macro): use:
    ap_linexprXXX_ForeachLinterm(ap_linexprXXX_t e, size_t i, ap_dim_t d, eitvXXX_ptr eitv){
@@ -171,12 +179,21 @@ bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
    - peitv is a pointer to the corresponding interval (of type eitvXXX_ptr)
 
 */
-#define ap_linexprXXX_ForeachLinterm(_p_e, _p_i, _p_d, _p_eitv) \
+#define ap_linexprXXX_ForeachLinterm0(_p_e, _p_i, _p_d, _p_eitv)	\
   for ((_p_i)=0;							\
        (_p_i)<(_p_e)->size ?						\
 	 (((_p_d) = (_p_e)->linterm[_p_i]->dim),			\
 	  ((_p_eitv) = (_p_e)->linterm[_p_i]->eitv),			\
 	  ((_p_d)!=AP_DIM_MAX)) :					\
+	 false;								\
+       (_p_i)++)
+
+#define ap_linexprXXX_ForeachLinterm1(_p_e, _p_env, _p_i, _p_v, _p_eitv) \
+  for ((_p_i)=0;							\
+       (_p_i)<(_p_e)->size ?						\
+	 (((_p_v) = ap_environment_var_of_dim((_p_e)->linterm[_p_i]->dim)), \
+	  ((_p_eitv) = (_p_e)->linterm[_p_i]->eitv),			\
+	  ((_p_v)!=NULL)) :						\
 	 false;								\
        (_p_i)++)
 
@@ -186,20 +203,16 @@ bool ap_linexprXXX_set_list(num_internal_t intern, ap_linexprXXX_t expr, ...);
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr);
   /* Negate an expression */
-void ap_linexprXXX_scale(
-			  ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
-void ap_linexprXXX_div(
-			ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+void ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+void ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
   /* Scale an expression by an interval */
 
-void ap_linexprXXX_add(
-			ap_linexprXXX_t expr,
-			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB, itv_internal_t intern);
-void ap_linexprXXX_sub(
-			ap_linexprXXX_t expr,
-			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB, itv_internal_t intern);
+void ap_linexprXXX_add(ap_linexprXXX_t expr,
+		       ap_linexprXXX_t exprA,
+		       ap_linexprXXX_t exprB, itv_internal_t intern);
+void ap_linexprXXX_sub(ap_linexprXXX_t expr,
+		       ap_linexprXXX_t exprA,
+		       ap_linexprXXX_t exprB, itv_internal_t intern);
   /* Resp. add and substract two linear epxression.
      (Substraction temporarily negates exprB, and then restores it */
 
@@ -207,8 +220,7 @@ void ap_linexprXXX_sub(
 /* V. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linexprXXX_eval(
-			 itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_eval(itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
 
@@ -231,16 +243,14 @@ size_t ap_linexprXXX_array_supportinterval(ap_linexprXXX_array_t array, ap_dim_t
    deducing things. If constraints are quasilinearized for testing
    satisfaction, meet should be set to false.
 */
-bool ap_linexprXXX_quasilinearize(
-				   ap_linexprXXX_t linexpr,
-				   itvXXX_t* env,
-				   bool for_meet_inequality, itv_internal_t intern);
+bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr,
+				  itvXXX_t* env,
+				  bool for_meet_inequality, itv_internal_t intern);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
-bool ap_linexprXXX_array_quasilinearize(
-					 ap_linexprXXX_array_t array,
-					 itvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
+					itvXXX_t* env, itv_internal_t intern);
   /* Same for an array */
 
 /* ********************************************************************** */
@@ -250,21 +260,28 @@ bool ap_linexprXXX_array_quasilinearize(
 /* These two functions add dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
 void ap_linexprXXX_add_dimensions(ap_linexprXXX_t res,
-				   ap_linexprXXX_t expr,
-				   ap_dimchange_t* dimchange);
+				  ap_linexprXXX_t expr,
+				  ap_dimchange_t* dimchange);
 void ap_linexprXXX_array_add_dimensions(ap_linexprXXX_array_t res,
-					 ap_linexprXXX_array_t array,
-					 ap_dimchange_t* dimchange);
+					ap_linexprXXX_array_t array,
+					ap_dimchange_t* dimchange);
+void ap_linexprXXX_extend_environment(ap_linexprXXX_t res,
+				      ap_environment_t* nenv,
+				      ap_linexprXXX_t expr,
+				      ap_environment_t* env,
+				      bool* perror);
 
 /* These two functions apply the given permutation to the dimensions.
    The dimensions present in the expression should just be less
    than the size of the permutation. */
 void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
-				       ap_linexprXXX_t expr,
-				       ap_dimperm_t* perm);
+				      ap_linexprXXX_t expr,
+				      ap_dimperm_t* perm);
 void ap_linexprXXX_array_permute_dimensions(ap_linexprXXX_array_t res,
-					     ap_linexprXXX_array_t array,
-					     ap_dimperm_t* dimchange);
+					    ap_linexprXXX_array_t array,
+					    ap_dimperm_t* dimchange);
+
+
 
 /* ********************************************************************** */
 /* VII. Hashing, comparison */
@@ -290,22 +307,68 @@ static inline size_t ap_linexprXXX_size(ap_linexprXXX_t expr)
   eitvXXX_ptr eitv;
 
   size = 0;
-  ap_linexprXXX_ForeachLinterm(expr,i,dim,eitv){
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
     size++;
   }
   return size;
 }
-
-static inline void ap_linexprXXX_set_eitv(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv)
+static inline void ap_linexprXXX_get_cst(eitvXXX_t eitv, ap_linexprXXX_t expr)
+{ eitvXXX_set(eitv,expr->cst); }
+static inline void ap_linexprXXX_get_eitv0(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_dim_t dim)
 {
-  eitvXXX_ptr r = ap_linexprXXX_eitvref(expr,dim,true);
+  eitvXXX_ptr r = ap_linexprXXX_eitvref0(expr,dim,false);
+  if (r==NULL)
+    eitvXXX_set_int(eitv,0);
+  else
+    eitvXXX_set(eitv,r);
+}
+static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool* perror)
+{
+  ap_dim_t dim = ap_environment_dim_of_var(env,var);
+  bool error = dim<AP_DIM_MAX;
+  if (perror) *perror = error;
+  if (!error) ap_linexprXXX_get_eitv0(eitv,expr,dim);
+}
+static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv)
+  { eitvXXX_set(expr->cst,eitv); }
+static inline void ap_linexprXXX_set_eitv0(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv)
+{
+  eitvXXX_ptr r = ap_linexprXXX_eitvref0(expr,dim,true);
   eitvXXX_set(r,eitv);
 }
+static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv, bool* perror)
+{
+  ap_dim_t dim = ap_environment_dim_of_var(env,var);
+  bool error = dim<AP_DIM_MAX;
+  if (perror) *perror = error;
+  if (!error) ap_linexprXXX_set_eitv0(expr,dim,eitv);
+}
+static inline eitvXXX_ptr ap_linexprXXX_eitvref1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create, bool* perror)
+{
+  ap_dim_t dim = ap_environment_dim_of_var(env,var);
+  bool error = dim<AP_DIM_MAX;
+  if (perror) *perror = error;
+  if (error) 
+    return NULL;
+  else
+    return ap_linexprXXX_eitvref0(expr,dim,create);
+}
+static inline eitvXXX_ptr ap_linexprXXX_cstref(ap_linexprXXX_t expr)
+{ return expr->cst; }
 static inline bool ap_linexprXXX_equal(ap_linexprXXX_t expr1,ap_linexprXXX_t expr2)
 { return ap_linexprXXX_compare(expr1,expr2)==0; }
 
 /* Internal function */
 void itvXXX_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va);
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va);
+bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va),
+				    ap_environment_t* env,
+				    num_internal_t intern,
+				    ap_linexprXXX_t expr, 
+				    bool* perror, 
+				    va_list* va);
+
 
 #ifdef __cplusplus
 }

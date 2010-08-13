@@ -111,7 +111,7 @@ bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, num_internal_t in
 bool ap_linexpr0_get_coeff(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim, num_internal_t intern)
 {
   SWITCH (expr->discr)
-    eitvXXX_ptr eitv = ap_linexprXXX_eitvref(expr->linexpr.XXX,dim,false);
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref0(expr->linexpr.XXX,dim,false);
     if (eitv==NULL) break; else return ap_coeff_set_eitvXXX(coeff,eitv,intern);
   ENDSWITCH
   ap_coeff_set_int(coeff,0);
@@ -126,7 +126,7 @@ void ap_linexpr0_cstref(ap_coeff_t res, ap_linexpr0_t expr)
 void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 {
   SWITCH (expr->discr)
-    eitvXXX_ptr eitv = ap_linexprXXX_eitvref(expr->linexpr.XXX,dim,true);
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref0(expr->linexpr.XXX,dim,true);
     ap_coeff_cons_XXX(res,eitv);
   ENDSWITCH
 }
