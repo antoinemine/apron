@@ -48,39 +48,23 @@ typedef ap_linexpr0_struct* ap_linexpr0_ptr;
 
 void ap_linexpr0_init(ap_linexpr0_t res, ap_scalar_discr_t discr, size_t size);
 void ap_linexpr0_init_set(ap_linexpr0_t res, ap_linexpr0_t e);
-void ap_linexpr0_init_set_D(ap_linexpr0_t res, ap_linexprD_t e);
-void ap_linexpr0_init_set_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
-void ap_linexpr0_init_set_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
-static inline void ap_linexpr0_init_cons_D(ap_linexpr0_t res, ap_linexprD_t e);
-static inline void ap_linexpr0_init_cons_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
-static inline void ap_linexpr0_init_cons_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
-
+MACRO_MAINZ
+void ap_linexpr0_init_set_linexprZZZ(ap_linexpr0_t res, ap_linexprZZZ_t e);
+ENDMACRO
 void ap_linexpr0_clear(ap_linexpr0_t e);
 void ap_linexpr0_fprint(FILE* stream, ap_linexpr0_t e, char** name_of_dim);
   /* Printing a linear expression */
 void ap_linexpr0_minimize(ap_linexpr0_t a);
-
-static inline void ap_linexpr0_ref_D(ap_linexpr0_t res, ap_linexprD_t e);
-static inline void ap_linexpr0_ref_MPQ(ap_linexpr0_t res, ap_linexprMPQ_t e);
-static inline void ap_linexpr0_ref_MPFR(ap_linexpr0_t res, ap_linexprMPFR_t e);
-  /* Returns a reference on the argument under the form of ap_linexpr0_ref.
-     INTERNAL USE.
-     BE CAUTIOUS: memory is shared between the result and the argument, and
-     memory should be managed through the argument. */
 
 /* ====================================================================== */
 /* II. Conversions */
 /* ====================================================================== */
 
 bool ap_linexpr0_set(ap_linexpr0_t res, ap_linexpr0_t e, num_internal_t intern);
-
-bool ap_linexpr0_set_ap_linexprD(ap_linexpr0_t a, ap_linexprD_t b, num_internal_t intern);
-bool ap_linexpr0_set_ap_linexprMPQ(ap_linexpr0_t a, ap_linexprMPQ_t b, num_internal_t intern);
-bool ap_linexpr0_set_ap_linexprMPFR(ap_linexpr0_t a, ap_linexprMPFR_t b, num_internal_t intern);
-
-bool ap_linexprD_set_ap_linexpr0(ap_linexprD_t a, ap_linexpr0_t b, num_internal_t intern);
-bool ap_linexprDMPQ_set_ap_linexpr0(ap_linexprMPQ_t a, ap_linexpr0_t b, num_internal_t intern);
-bool ap_linexprMPFR_set_ap_linexpr0(ap_linexprMPFR_t a, ap_linexpr0_t b, num_internal_t intern);
+MACRO_MAINZ
+bool ap_linexpr0_set_linexprZZZ(ap_linexpr0_t a, ap_linexprZZZ_t b, num_internal_t intern);
+bool ap_linexprZZZ_set_linexpr0(ap_linexprZZZ_t a, ap_linexpr0_t b, num_internal_t intern);
+ENDMACRO
 
 /* ====================================================================== */
 /* III. Access */

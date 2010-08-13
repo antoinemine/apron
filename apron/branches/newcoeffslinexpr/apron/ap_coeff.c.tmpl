@@ -47,7 +47,7 @@ void ap_coeff_init_set(ap_coeff_t a, ap_coeff_t b)
   ENDSWITCH
 }
 MACRO_MAINZ
-void ap_coeff_init_set_ZZZ(ap_coeff_t a, eitvZZZ_t eitv)
+void ap_coeff_init_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t eitv)
 {
   a->discr = AP_SCALAR_ZZZ;
   eitvZZZ_init_set(a->eitv.ZZZ,eitv);
