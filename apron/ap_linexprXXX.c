@@ -287,262 +287,266 @@ eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool crea
   }
 }
 
-bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va),
-				    ap_environment_t* env,
+bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va),
 				    num_internal_t intern,
 				    ap_linexprXXX_t expr, 
 				    bool* perror,
+				    ap_environment_t* env,
 				    va_list* va)
 {
   ap_coeff_tag_t tag;
+  bool cst;
   eitvXXX_ptr a=NULL;
   bool res;
 
   res = true;
   while (true){
     tag = va_arg(*va,ap_coeff_tag_t);
-    if (tag==ITV_END)
+    if (tag==AP_END)
       break;
-
+    cst = (tag>=AP_CST);
+    if (cst)
+      tag -= AP_CST;
+    
     switch (tag){
-    case ITV_COEFF:
+    case AP_COEFF:
       {
 	ap_coeff_ptr b = va_arg(*va,ap_coeff_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_ap_coeff(a,b,intern);
       }
       break;
-    case ITV_EITVD:
+    case AP_COEFF_EITVD:
       {
 	eitvD_ptr b = va_arg(*va,eitvD_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_eitvD(a,b,intern);
       }
       break;
-    case ITV_EITVMPQ:
+    case AP_COEFF_EITVMPQ:
       {
 	eitvD_ptr b = va_arg(*va,eitvD_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_eitvD(a,b,intern);
       }
       break;
-    case ITV_EITVMPFR:
+    case AP_COEFF_EITVMPFR:
       {
 	eitvMPQ_ptr b = va_arg(*va,eitvMPQ_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_eitvMPQ(a,b,intern);
       }
       break;
-    case ITV_NUMD:
+    case AP_COEFF_NUMD:
       {
 	numD_ptr b = va_arg(*va,numD_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numD(a,b,intern);
       }
       break;
-    case ITV_NUMMPQ:
+    case AP_COEFF_NUMMPQ:
       {
 	numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numMPQ(a,b,intern);
       }
       break;
-    case ITV_NUMMPFR:
+    case AP_COEFF_NUMMPFR:
       {
 	numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numMPFR(a,b,intern);
       }
       break;
-    case ITV_NUMD2:
+    case AP_COEFF_NUMD2:
       {
 	numD_ptr b = va_arg(*va,numD_ptr);
 	numD_ptr c = va_arg(*va,numD_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numD2(a,b,c,intern);
       }
       break;
-    case ITV_NUMMPQ2:
+    case AP_COEFF_NUMMPQ2:
       {
 	numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
 	numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numMPQ2(a,b,c,intern);
       }
       break;
-    case ITV_NUMMPFR2:
+    case AP_COEFF_NUMMPFR2:
       {
 	numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
 	numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	eitvXXX_set_numMPFR2(a,b,c,intern);
       }
       break;
-    case ITV_LINT:
+    case AP_COEFF_LINT:
       {
 	long int b = va_arg(*va,long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_lint(a,b,intern) && res;
       }
       break;
-    case ITV_LINT2:
+    case AP_COEFF_LINT2:
       {
 	long int b = va_arg(*va,long int);
 	long int c = va_arg(*va,long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_lint2(a,b,c,intern) && res;
       }
       break;
-    case ITV_LLINT:
+    case AP_COEFF_LLINT:
       {
 	long long int b = va_arg(*va,long long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_llint(a,b,intern) && res;
       }
       break;
-    case ITV_LLINT2:
+    case AP_COEFF_LLINT2:
       {
 	long long int b = va_arg(*va,long long int);
 	long long int c = va_arg(*va,long long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_llint2(a,b,c,intern) && res;
       }
       break;
-    case ITV_MPZ:
+    case AP_COEFF_MPZ:
       {
 	mpz_ptr b = va_arg(*va,mpz_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpz(a,b,intern) && res;
       }
       break;
-    case ITV_MPZ2:
+    case AP_COEFF_MPZ2:
       {
 	mpz_ptr b = va_arg(*va,mpz_ptr);
 	mpz_ptr c = va_arg(*va,mpz_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpz2(a,b,c,intern) && res;
       }
       break;
-    case ITV_LFRAC:
+    case AP_COEFF_LFRAC:
       {
 	long int i = va_arg(*va,long int);
 	long int j = va_arg(*va,long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_lfrac(a,i,j,intern) && res;
       }
       break;
-    case ITV_LFRAC2:
+    case AP_COEFF_LFRAC2:
       {
 	long int i = va_arg(*va,long int);
 	long int j = va_arg(*va,long int);
 	long int k = va_arg(*va,long int);
 	long int l = va_arg(*va,long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_lfrac2(a,i,j,k,l,intern) && res;
       }
       break;
-    case ITV_LLFRAC:
+    case AP_COEFF_LLFRAC:
       {
 	long long int i = va_arg(*va,long long int);
 	long long int j = va_arg(*va,long long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_llfrac(a,i,j,intern) && res;
       }
       break;
-    case ITV_LLFRAC2:
+    case AP_COEFF_LLFRAC2:
       {
 	long long int i = va_arg(*va,long long int);
 	long long int j = va_arg(*va,long long int);
 	long long int k = va_arg(*va,long long int);
 	long long int l = va_arg(*va,long long int);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_llfrac2(a,i,j,k,l,intern) && res;
       }
       break;
-    case ITV_MPQ:
+    case AP_COEFF_MPQ:
       {
 	mpq_ptr b = va_arg(*va,mpq_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpq(a,b,intern) && res;
       }
       break;
-    case ITV_MPQ2:
+    case AP_COEFF_MPQ2:
       {
 	mpq_ptr b = va_arg(*va,mpq_ptr);
 	mpq_ptr c = va_arg(*va,mpq_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpq2(a,b,c,intern) && res;
       }
       break;
-    case ITV_DOUBLE:
+    case AP_COEFF_DOUBLE:
       {
 	double b = va_arg(*va,double);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_double(a,b,intern) && res;
       }
       break;
-    case ITV_DOUBLE2:
+    case AP_COEFF_DOUBLE2:
       {
 	double b = va_arg(*va,double);
 	double c = va_arg(*va,double);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_double2(a,b,c,intern) && res;
       }
       break;
-    case ITV_LDOUBLE:
+    case AP_COEFF_LDOUBLE:
       {
 	long double b = va_arg(*va,long double);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_ldouble(a,b,intern) && res;
       }
       break;
-    case ITV_LDOUBLE2:
+    case AP_COEFF_LDOUBLE2:
       {
 	long double b = va_arg(*va,long double);
 	long double c = va_arg(*va,long double);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_ldouble2(a,b,c,intern) && res;
       }
       break;
-    case ITV_MPFR:
+    case AP_COEFF_MPFR:
       {
 	mpfr_ptr b = va_arg(*va,mpfr_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpfr(a,b,intern) && res;
       }
       break;
-    case ITV_MPFR2:
+    case AP_COEFF_MPFR2:
       {
 	mpfr_ptr b = va_arg(*va,mpfr_ptr);
 	mpfr_ptr c = va_arg(*va,mpfr_ptr);
-	a = get_eitvXXX_of_dimvar(env,expr,va);
+	a = get_eitvXXX_of_dimvar(expr,env,cst,va);
 	if (a==NULL) break;
 	res = eitvXXX_set_mpfr2(a,b,c,intern) && res;
       }
@@ -554,39 +558,43 @@ bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_envi
     }
     if (a==NULL) break;
   }
-  *perror = (tag!=ITV_END) && (a==NULL);
+  *perror = (tag!=AP_END) && (a==NULL);
   return res && !(*perror);
 }
 
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va)
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va)
 {
   eitvXXX_ptr ptr;
-  ap_dim_t dim = va_arg(*va,ap_dim_t);
-  if (dim==AP_DIM_MAX)
-    ptr = ((ap_linexprXXX_ptr)expr)->cst;
-  else
+  if (cst){
+     ptr = expr->cst;
+  } else {
+    ap_dim_t dim = va_arg(*va,ap_dim_t);
     ptr = ap_linexprXXX_eitvref0(expr,dim,true);
+  }
   return ptr;
 }
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va)
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va)
 {
   eitvXXX_ptr ptr;
-  ap_var_t var = va_arg(*va,ap_var_t);
-  ap_dim_t dim = ap_environment_dim_of_var(env,var);
-  if (dim==AP_DIM_MAX)
-    ptr = NULL;
-  else
-    ptr = ap_linexprXXX_eitvref0(expr,dim,true);
+  if (cst){
+    ptr = expr->cst;
+  } else {
+    ap_var_t var = va_arg(*va,ap_var_t);
+    ap_dim_t dim = ap_environment_dim_of_var(env,var);
+    if (dim==AP_DIM_MAX)
+      ptr = NULL;
+    else
+      ptr = ap_linexprXXX_eitvref0(expr,dim,true);
+  }
   return ptr;
 }
-
 bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ...)
 {
   bool res;
   va_list va;
   va_start(va,perror);
   res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-				       NULL,intern,expr,perror,&va);
+				       intern,expr,perror,NULL,&va);
   va_end(va);
   return res;
 }
@@ -596,7 +604,7 @@ bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* 
   va_list va;
   va_start(va,env);
   res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-				       env,intern,expr,perror,&va);
+				       intern,expr,perror,env,&va);
   va_end(va);
   return res;
 }
