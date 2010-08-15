@@ -38,17 +38,18 @@ void ap_yyy1_init_set_yyyZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env
   res->env = ap_environment_copy(env);
 }
 ENDMACRO
+
 void ap_yyy1_clear(ap_yyy1_t e)
 {
   ap_yyy0_clear(e->yyy0);
   ap_environment_free(e->env);
 }
-void ap_yyy1_fprint(FILE* stream, ap_yyy1_t e, char** name_of_dim)
+void ap_yyy1_fprint(FILE* stream, ap_yyy1_t e)
 {
   ap_environment_name_of_dim_t* name_of_dim;
 
   name_of_dim = ap_environment_name_of_dim_alloc(e->env);
-  ap_yyy0_fprint(stream, e->linexpr0, name_of_dim->p);
+  ap_yyy0_fprint(stream, e->yyy0, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
 void ap_yyy1_minimize(ap_yyy1_t e)
@@ -77,7 +78,7 @@ bool ap_yyy1_set_yyyZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env, num
 }
 bool ap_yyyZZZ_set_yyy1(ap_yyyZZZ_t res, ap_yyy1_t e, num_internal_t intern)
 {
-  return ap_yyyZZZ_set_yyy0(res,e->yyy0);
+  return ap_yyyZZZ_set_yyy0(res,e->yyy0,intern);
 }
 ENDMACRO
 
@@ -89,9 +90,9 @@ ENDMACRO
 
 void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr)
 { ap_linexpr0_cstref(coeff,expr->linexpr0); }
-void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var);
+void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var)
 {
-  ap_dim_t dim = ap_environment_dim_of_var(expr->env,dim);
+  ap_dim_t dim = ap_environment_dim_of_var(expr->env,var);
   *perror = (dim==AP_DIM_MAX);
   if (! (*perror))
     ap_linexpr0_coeffref(coeff,expr->linexpr0,dim);
@@ -102,7 +103,7 @@ bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t in
 bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern)
 {
   ap_coeff_t ref;
-  ap_linexpr1_coeffref(ref,perror,expr,var,intern);
+  ap_linexpr1_coeffref(ref,perror,expr,var);
   if (*perror)
     return false;
   else
@@ -114,19 +115,19 @@ bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t in
 bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern)
 {
   ap_coeff_t ref;
-  ap_linexpr1_coeffref(ref,perror,expr,var,intern);
+  ap_linexpr1_coeffref(ref,perror,expr,var);
   if (*perror)
     return false;
   else
     return ap_coeff_set(ref,coeff,intern);
 }
 
-bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
+bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...)
 {
   bool res;
   va_list va;
   va_start(va,perror);
-  SWITCH (expr->discr)
+  SWITCH (expr->linexpr0->discr)
     res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_var,
 					 expr->env,
 					 intern,expr->linexpr0->linexpr.XXX,perror,&va);
@@ -140,7 +141,7 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
 void ap_lincons1_linexpr1ref(ap_linexpr1_t e, ap_lincons1_t c)
 {
   ap_lincons0_linexpr0ref(e->linexpr0,c->lincons0);
-  e->env = env;
+  e->env = c->env;
 }
 ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t c)
 { return ap_lincons0_constypref(c->lincons0); }
@@ -154,7 +155,7 @@ bool ap_lincons1_get_linexpr1(ap_linexpr1_t e, ap_lincons1_t c, num_internal_t i
 }
 ap_constyp_t ap_lincons1_get_constyp(ap_lincons1_t c)
 { return ap_lincons0_get_constyp(c->lincons0); }
-void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
+void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c)
 { ap_lincons0_get_mpq(mpq,c->lincons0); }
 
 bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t intern)
@@ -165,8 +166,8 @@ bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t i
 }
 void ap_lincons1_set_constyp(ap_lincons1_t c, ap_constyp_t constyp)
 { ap_lincons0_set_constyp(c->lincons0,constyp); }
-void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
-{ ap_lincons0_set_constyp(c->lincons0,mpq); }
+void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq)
+{ ap_lincons0_set_mpq(c->lincons0,mpq); }
 
 #else
 #error "HERE"

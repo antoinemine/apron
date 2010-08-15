@@ -64,6 +64,7 @@ $(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) \
 $(TMPL:%=ap_linexprcons%_conv.h) \
 ap_coeff.h \
 ap_linexpr0.h ap_lincons0.h \
+ap_linexpr1.h ap_lincons1.h \
 ap_linexpr0_array.h ap_lincons0_array.h
 C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) \
@@ -71,6 +72,7 @@ $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) \
 $(TMPL:%=ap_linexprcons%_conv.c) \
 ap_coeff.c \
 ap_linexpr0.c ap_lincons0.c \
+ap_linexpr1.c ap_lincons1.c \
 ap_linexpr0_array.c ap_lincons0_array.c
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
@@ -221,11 +223,11 @@ $(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_YYYXXX_array.c
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-ap_linexpr%: ap_yyy%
+ap_linexpr0.h ap_linexpr0.c ap_linexpr1.h ap_linexpr1.c: ap_linexpr%: ap_yyy%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
-ap_lincons%: ap_yyy%
+ap_lincons0.h ap_lincons0.c ap_lincons1.h ap_lincons1.c: ap_lincons%: ap_yyy%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@

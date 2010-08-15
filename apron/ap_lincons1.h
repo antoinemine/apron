@@ -1,5 +1,7 @@
+/* GENERATED FROM ap_yyy1.h, DO NOT MODIFY */
+#line 1 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 /* ************************************************************************* */
-/* ap_lincons1.h: linear constraints and arrays */
+/* ap_yyy1.h: linear expressions or constraints */
 /* ************************************************************************* */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
@@ -7,296 +9,187 @@
 
 /* normally included from ap_expr1.h */
 
-#ifndef _AP_LINCONS1_H_
-#define _AP_LINCONS1_H_
+#ifndef _AP_lincons1_H_
+#define _AP_lincons1_H_
 
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ap_coeff.h"
-#include "ap_environment.h"
+#include <stdarg.h>
+#include <string.h>
 #include "ap_lincons0.h"
+#include "ap_environment.h"
+#ifndef _AP_linexpr1_H_
 #include "ap_linexpr1.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define _AP_lincons1_MARK_
+
 /* ====================================================================== */
 /* Datatypes */
 /* ====================================================================== */
 
-/* Constraints */
-typedef struct ap_lincons1_t {
+/* Linear expressions */
+typedef struct ap_lincons1_struct {
   ap_lincons0_t lincons0;
   ap_environment_t* env;
-} ap_lincons1_t;
-
-/* Array of constraints */
-typedef struct ap_lincons1_array_t {
-  ap_lincons0_array_t lincons0_array;
-  ap_environment_t* env;
-} ap_lincons1_array_t;
-
-
-/* ********************************************************************** */
-/* I. ap_lincons1_t */
-/* ********************************************************************** */
-
-/* For internal use */
-static inline
-ap_lincons1_t ap_lincons1_of_lincons0(ap_environment_t* env, ap_lincons0_t lincons0)
-{
-  ap_lincons1_t res;
-  res.lincons0 = lincons0;
-  res.env = ap_environment_copy(env);
-  return res;
-}
-
+} ap_lincons1_struct;
+typedef ap_lincons1_struct ap_lincons1_t[1];
+typedef ap_lincons1_struct* ap_lincons1_ptr;
 
 /* ====================================================================== */
-/* I.1 Memory management and printing */
+/* I. Memory management and printing */
 /* ====================================================================== */
 
-static inline
-ap_lincons1_t ap_lincons1_make(ap_constyp_t constyp,
-			       ap_linexpr1_t* expr,
-			       ap_scalar_t* scalar);
-  /* Create a constraint of given type with the given expression.
-     The expression and the optional coefficient are not duplicated,
-     just pointed to. */
-
-ap_lincons1_t ap_lincons1_make_unsat(ap_environment_t* env);
-  /* Create the constraint -1>=0 */
-
-static inline
-ap_lincons1_t ap_lincons1_copy(ap_lincons1_t* cons);
-  /* Duplication */
-
-void ap_lincons1_clear(ap_lincons1_t* cons);
-  /* Clear the constraint and set pointers to NULL */
-
-void ap_lincons1_fprint(FILE* stream, ap_lincons1_t* cons);
-  /* Printing */
+void ap_lincons1_init(ap_lincons1_t res, ap_scalar_discr_t discr, size_t size, ap_environment_t* env);
+void ap_lincons1_init_set(ap_lincons1_t res, ap_lincons1_t e);
+void ap_lincons1_init_set_linexpr0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env);
+#line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+void ap_lincons1_init_set_linconsD(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env);
+#line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+void ap_lincons1_init_set_linconsMPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env);
+#line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+void ap_lincons1_init_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env);
+void ap_lincons1_clear(ap_lincons1_t e);
+void ap_lincons1_fprint(FILE* stream, ap_lincons1_t e);
+void ap_lincons1_minimize(ap_lincons1_t a);
 
 /* ====================================================================== */
-/* I.2 Tests */
+/* II. Conversions */
+/* ====================================================================== */
+
+bool ap_lincons1_set(ap_lincons1_t res, ap_lincons1_t e, num_internal_t intern);
+bool ap_lincons1_set_lincons0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env, num_internal_t intern);
+#line 63 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+bool ap_lincons1_set_linconsD(ap_lincons1_t a, ap_linconsD_t b, ap_environment_t* env, num_internal_t intern);
+bool ap_linconsD_set_lincons1(ap_linconsD_t a, ap_lincons1_t b, num_internal_t intern);
+#line 63 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+bool ap_lincons1_set_linconsMPQ(ap_lincons1_t a, ap_linconsMPQ_t b, ap_environment_t* env, num_internal_t intern);
+bool ap_linconsMPQ_set_lincons1(ap_linconsMPQ_t a, ap_lincons1_t b, num_internal_t intern);
+#line 63 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+bool ap_lincons1_set_linconsMPFR(ap_lincons1_t a, ap_linconsMPFR_t b, ap_environment_t* env, num_internal_t intern);
+bool ap_linconsMPFR_set_lincons1(ap_linconsMPFR_t a, ap_lincons1_t b, num_internal_t intern);
+
+/* ====================================================================== */
+/* III. Access */
 /* ====================================================================== */
 
 static inline
-bool ap_lincons1_is_unsat(ap_lincons1_t* cons);
-  /* True if the constraint is b>=0 or [a,b]>=0 with b negative */
-
-/* ====================================================================== */
-/* I.3 Access */
-/* ====================================================================== */
-
-static inline
-ap_environment_t* ap_lincons1_envref(ap_lincons1_t* cons);
+ap_environment_t* ap_lincons1_envref(ap_lincons1_t expr);
   /* Get a reference to the environment. Do not free it. */
+static inline 
+ap_lincons0_ptr ap_lincons1_lincons0ref(ap_lincons1_t e);
+  /* Get a reference to the underlying linear expression of level
+     0. Do not free it. */
 
-static inline
-ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t* cons);
-  /* Get a reference to the type of constraint */
+#if defined(_AP_linexpr1_MARK_)
+bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern);
+  /* Get the constant and assign it to coeff with possible conversion */
+  bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
+  /* Get coefficient of dimension dim in the expression and assign it to
+     coeff with possible conversion. */
 
-static inline
-ap_scalar_t* ap_lincons1_scalarref(ap_lincons1_t* cons);
-  /* Get a reference to the auxiliary coefficient of the constraint */
+bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t intern);
+  /* Assign the constant with possible conversion. */
+  bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern);
+  /* Assign the coefficient of dimension dim in the expression, with possible
+     conversion. */
 
-static inline
-ap_linexpr1_t ap_lincons1_linexpr1ref(ap_lincons1_t* cons);
-  /* Get a reference to the underlying expression of the constraint.
-     Do not free it: nothing is duplicated.
-     Modifying the argument or the result is equivalent, except for
-     change of dimensions/environment. */
+void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr);
+void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var);
 
-/* Get the constant and assign it to coeff */
-static inline void ap_lincons1_get_cst(ap_coeff_t* coeff, ap_lincons1_t* cons);
+bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
+  /* This function assigns the linear expression from a list of tags of type
+     itv_coefftag_t, each followed by a number of arguments as specified in
+     the definition of the type ap_coeff_tag_t_t, and ended by the tag ITV_END;
 
-/* Get coefficient of variable var in the constraint and assign it to coeff.
-   Return true if var is unknown in the environment */
-bool ap_lincons1_get_coeff(ap_coeff_t* coeff, ap_lincons1_t* cons, ap_var_t var);
+     - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
+     - If the same dimension appears several times, only the last tag
+       referring to it is taken into account.
 
-/* Set the constant of the linear constraint */
-static inline void ap_lincons1_set_cst(ap_lincons1_t* cons, ap_coeff_t* cst);
+     Returns true iff all conversions were exact.
 
-/* Set the coefficient of variable var in the constraint.
-   Return true if var is unknown in the environment */
-static inline bool ap_lincons1_set_coeff(ap_lincons1_t* cons, ap_var_t var, ap_coeff_t* coeff);
-
-/*
-bool ap_lincons1_set_format(ap_lincons1_t* cons, char* fmt, ...);
-*/
-
-bool ap_lincons1_set_list(ap_lincons1_t* cons, ...);
-
-static inline
-ap_coeff_t* ap_lincons1_cstref(ap_lincons1_t* cons);
-  /* Get a reference to the constant. Do not free it. */
-
-ap_coeff_t* ap_lincons1_coeffref(ap_lincons1_t* cons, ap_var_t var);
-  /* Get a reference to the coefficient associated to the variable.
-     Do not free it.
-     In case of sparse representation,
-     possibly induce the addition of a new linear term.
-     Return NULL if var is unknown in the environment.
+     Example:
+     ap_linexpr1_set_list(intern,
+			  expr,
+			  ITV_LFRAC,7,9,0,
+			  ITV_DOUBLE2,-3.0,4.5,1,
+			  ITV_LLINT,3LL,ITV_DIM_MAX,
+			  ITV_END)
+     sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
+     assuming that the expression was "0" before the call and that all the
+     number conversions were exact.
   */
 
-static inline
-ap_lincons0_t* ap_lincons1_lincons0ref(ap_lincons1_t* cons);
-  /* Return underlying constraint of level 0.
-     Do not free it: nothing is duplicated.
-     Modifying the argument or the result is equivalent, except for
-     change of dimensions/environment. */
+#elif defined(_AP_lincons1_MARK_)
+
+bool ap_lincons1_get_linexpr1(ap_linexpr1_t e, ap_lincons1_t c, num_internal_t intern);
+  /* Get the underlying expression and assign it to e with possible
+     conversion */
+ap_constyp_t ap_lincons1_get_constyp(ap_lincons1_t c);
+void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
+
+void ap_lincons1_linexpr1ref(ap_linexpr1_t e, ap_lincons1_t c);
+ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t c);
+mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c);
+
+bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t intern);
+  /* Assign the underlying expression of c to e with possible conversion */
+void ap_lincons1_set_constyp(ap_lincons1_t c, ap_constyp_t constyp);
+void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
+
+#else
+#error "HERE"
+#endif
 
 /* ====================================================================== */
-/* I.3 Change of dimensions and permutations */
+/* IV. Change of dimensions and permutations */
 /* ====================================================================== */
 
-bool ap_lincons1_extend_environment(ap_lincons1_t* ncons,
-				 ap_lincons1_t* cons,
-				 ap_environment_t* nenv);
-bool ap_lincons1_extend_environment_with(ap_lincons1_t* cons,
-				      ap_environment_t* nenv);
-
-/* ********************************************************************** */
-/* II. Array of linear constraints */
-/* ********************************************************************** */
-
-/* ====================================================================== */
-/* I.1 Memory management and printing */
-/* ====================================================================== */
-
-ap_lincons1_array_t ap_lincons1_array_make(ap_environment_t* env, size_t size);
-  /* Allocate an array of size constraints.
-     The constraints are initialized with NULL pointers,
-     so that ap_lincons1_array_free may be safely called */
-void ap_lincons1_array_clear(ap_lincons1_array_t* array);
-  /* Clear the constraints of the array, and then the array itself */
-void ap_lincons1_array_fprint(FILE* stream,
-			   ap_lincons1_array_t* ap_lincons1_array);
-  /* Printing */
-
-/* ====================================================================== */
-/* II.3 Access */
-/* ====================================================================== */
+void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
+				bool* perror,
+				ap_lincons1_t expr,
+				ap_environment_t* nenv);
 
 static inline
-size_t ap_lincons1_array_size(ap_lincons1_array_t* array);
-
+ap_environment_t* ap_lincons1_envref(ap_lincons1_t e)
+{ return e->env; }
 static inline
-ap_environment_t* ap_lincons1_array_envref(ap_lincons1_array_t* array);
+ap_lincons0_ptr ap_lincons1_lincons0ref(ap_lincons1_t e)
+{ return e->lincons0; }
 
-static inline
-void ap_lincons1_array_clear_index(ap_lincons1_array_t* array, size_t index);
-  /* Clear the constraint at index index. */
-
-ap_lincons1_t ap_lincons1_array_get(ap_lincons1_array_t* array,
-			      size_t index);
-  /* Return the linear constraint of the given index
-     Nothing is duplicated, and the result should never be cleared.
-     Modifying the argument or the result is equivalent, except for
-     change of environments */
-
-bool ap_lincons1_array_set(ap_lincons1_array_t* array,
-			      size_t index, ap_lincons1_t* cons);
-  /* Fill the index of the array with the constraint.
-     Assumes ap_environment_is_eq(array->env,cons->env).
-     Nothing is duplicated.
-     The argument should never be cleared. (its environment is dereferenced).
-     If a constraint was already stored, it is first cleared.
-     Return true iff problem (index or array->env!=cons->env)
-  */
-
-/* ====================================================================== */
-/* II.4 Change of dimensions and permutations */
-/* ====================================================================== */
-
-bool
-ap_lincons1_array_extend_environment_with(ap_lincons1_array_t* array,
-					  ap_environment_t* env);
-bool
-ap_lincons1_array_extend_environment(ap_lincons1_array_t* narray,
-				     ap_lincons1_array_t* array,
-				     ap_environment_t* env);
-
-/* ********************************************************************** */
-/* III. Inline functions definitions */
-/* ********************************************************************** */
-
-static inline
-ap_lincons1_t ap_lincons1_make(ap_constyp_t constyp,
-			       ap_linexpr1_t* expr,
-			       ap_scalar_t* scalar)
+static inline void ap_lincons1_cons(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env)
 {
-  ap_lincons1_t cons;
-  cons.lincons0 = ap_lincons0_make(constyp,expr->linexpr0,scalar);
-  cons.env = expr->env;
-  return cons;
+  ap_lincons0_cons(res->lincons0,e);
+  res->env = env;
 }
-static inline
-ap_lincons1_t ap_lincons1_copy(ap_lincons1_t* cons){
-  ap_lincons1_t ncons;
-  ncons.lincons0 = ap_lincons0_copy(&cons->lincons0);
-  ncons.env = ap_environment_copy(cons->env);
-  return ncons;
+#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+static inline void ap_lincons1_cons_D(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env)
+{
+  res->lincons0->discr = AP_SCALAR_D;
+  res->lincons0->lincons.D = e;
+  res->env = env;
 }
-
-bool ap_lincons1_is_unsat(ap_lincons1_t* cons){
-  return ap_lincons0_is_unsat(&cons->lincons0);
+#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+static inline void ap_lincons1_cons_MPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env)
+{
+  res->lincons0->discr = AP_SCALAR_MPQ;
+  res->lincons0->lincons.MPQ = e;
+  res->env = env;
 }
-
-static inline
-ap_environment_t* ap_lincons1_envref(ap_lincons1_t* cons){
-  return cons->env;
-}
-
-static inline
-ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t* cons){
-  return &cons->lincons0.constyp;
-}
-static inline
-ap_scalar_t* ap_lincons1_scalarref(ap_lincons1_t* cons){
-  return cons->lincons0.scalar;
-}
-static inline
-ap_linexpr1_t ap_lincons1_linexpr1ref(ap_lincons1_t* cons){
-  ap_linexpr1_t expr;
-  expr.linexpr0 = cons->lincons0.linexpr0;
-  expr.env = cons->env;
-  return expr;
-}
-static inline
-ap_lincons0_t* ap_lincons1_lincons0ref(ap_lincons1_t* cons){
-  return &cons->lincons0;
-}
-static inline
-ap_coeff_t* ap_lincons1_cstref(ap_lincons1_t* cons){
-  return &cons->lincons0.linexpr0->cst;
-}
-static inline void ap_lincons1_get_cst(ap_coeff_t* coeff, ap_lincons1_t* cons){
-  ap_linexpr0_get_cst(coeff,cons->lincons0.linexpr0);
-}
-static inline void ap_lincons1_set_cst(ap_lincons1_t* cons, ap_coeff_t* cst){
-  ap_linexpr0_set_cst(cons->lincons0.linexpr0,cst);
-}
-static inline bool ap_lincons1_set_coeff(ap_lincons1_t* cons, ap_var_t var, ap_coeff_t* coeff)
-  { ap_coeff_t* ecoeff = ap_lincons1_coeffref(cons,var); if (ecoeff){ap_coeff_set(ecoeff,coeff); return false;} else return true; }
-
-static inline
-size_t ap_lincons1_array_size(ap_lincons1_array_t* array){
-  return array->lincons0_array.size;
+#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+static inline void ap_lincons1_cons_MPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env)
+{
+  res->lincons0->discr = AP_SCALAR_MPFR;
+  res->lincons0->lincons.MPFR = e;
+  res->env = env;
 }
 
-static inline
-ap_environment_t* ap_lincons1_array_envref(ap_lincons1_array_t* array){
-  return array->env;
-}
-
-static inline
-void ap_lincons1_array_clear_index(ap_lincons1_array_t* array, size_t index){
-  ap_lincons0_clear(&array->lincons0_array.p[index]);
-}
+#undef _AP_lincons1_MARK_
 
 #ifdef __cplusplus
 }
