@@ -1,0 +1,186 @@
+/* -*- mode: c -*- */
+
+/* ************************************************************************* */
+/* ap_box0.c: array of ap_coeff_t */
+/* ************************************************************************* */
+
+/* This file is part of the APRON Library, released under LGPL license.  Please
+   read the COPYING file packaged in the distribution */
+
+#include "ap_box_array.h"	  
+#include "itvD_conv.h"
+#include "itvMPQ_conv.h"
+#include "itvMPFR_conv.h"
+
+
+/* ====================================================================== */
+/* I. Memory management and printing */
+/* ====================================================================== */
+
+void ap_box0_init(ap_box0_t res, ap_scalar_discr_t discr, size_t size)
+{
+  res->discr = discr;
+  SWITCH(discr)
+    res->p.D = eitvXXX_array_alloc(size);
+  ENDSWITCH
+  res->size = size;
+}
+void ap_box0_resize(ap_box0_t res, size_t size)
+{
+  size_t i;
+  if (size == res->size) return;
+  SWITCH(res->discr)
+    if (size < res->size){
+      for (i=size; i<res->size; i++){
+	eitvXXX_clear(res->p[i]);
+      }
+      res->p = realloc(res->p,size*sizeof(eitvXXX_t));
+    }
+    else { /* size > res->size */
+      res->p = realloc(res->p,size*sizeof(eitvXXX_t));
+      for (i=res->size; i<size; i++){
+	eitvXXX_init(res->p[i]);
+      }
+    }
+  ENDSWITCH
+  res->size = size;
+  return;
+}
+void ap_box0_init_set(ap_box0_t res, ap_box0_t e)
+{
+  ap_box0_init(res,e->discr,e->size);
+  SWITCH(discr)
+    size_t i;
+  for (i=0;i<e->size;i++){
+    eitvXXX_set(res->p.XXX[i],e->p.XXX[i]);
+  }
+  ENDSWITCH
+}
+
+MACRO_MAINZ
+void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size)
+{
+  ap_box0_init(res,AP_SCALAR_ZZZ,size);
+  size_t i;
+  for (i=0;i<size;i++){
+    eitvXXX_set(res->p.XXX[i],e[i]);
+  }
+}
+ENDMACRO
+void ap_box0_clear(ap_box0_t e)
+{
+  SWITCH(discr)
+    eitvXXX_array_free(e->p.XXX,e->size);
+  ENDSWITCH
+}
+void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim)
+{
+  SWITCH(e->discr)
+    eitvXXX_array_fprint(stream,e->p.XXX,name_of_dim);
+  ENDSWITCH
+}
+
+/* ====================================================================== */
+/* II. Access, possibly with conversions */
+/* ====================================================================== */
+
+bool ap_box0_set(ap_box0_t res, ap_box0_t e, num_internal_t intern)
+{
+  SWITCH(e->discr)
+    return ap_box0_set_eitvXXX_array(res,e->p.XXX,e->size,intern);
+  ENDSWITCH
+}
+bool ap_box0_set_index(ap_box0_t p, size_t i, ap_coeff_t a, num_internal_t intern)
+{
+  ap_coeff_t ref;
+  ap_box0_ref_index(ref,p,i);
+  return ap_coeff_set(ref,a,intern);
+}
+bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t intern);
+{
+  ap_coeff_t ref;
+  ap_box0_ref_index(ref,p,i);
+  return ap_coeff_set(a,ref,intern);
+}
+void ap_box0_ref_index(ap_coeff_t a, ap_box0_t e, size_t i)
+{
+  SWITCH(e->discr)
+    ap_coeff_cons_eitvXX(a,e->p.XXX[i]);
+  ENDSWITCH
+}
+
+MACRO_MAINZ
+bool ap_box0_set_eitvZZZ_array(ap_box0_t res, ap_eitvZZZ_t* e, size_t size, num_internal_t intern)
+{
+  size_t i;
+  bool exact = true;
+  ap_box0_resize(res,size);
+  switch(res->discr){
+  case AP_SCALAR_D:
+    for (i=0;i<size;i++){
+      exact = eitvD_set_eitvZZZ(res->p.D[i],e[i],intern) && exact;
+    }
+    return exact;
+  case AP_SCALAR_MPQ:
+    for (i=0;i<size;i++){
+      exact = eitvMPQ_set_eitvZZZ(res->p.MPQ[i],e[i],intern) && exact;
+    }
+    return exact;
+  case AP_SCALAR_MPFR:
+    for (i=0;i<size;i++){
+      exact = eitvMPFR_set_eitvZZZ(res->p.MPFR[i],e[i],intern) && exact;
+    }
+    return exact;
+  default: abort();
+  }
+}
+bool eitvZZZ_array_set_ap_box0(eitvZZZ_t* e, ap_box0_t res, num_internal_t intern)
+{
+  size_t i;
+  bool exact = true;
+  switch(res->discr){
+  case AP_SCALAR_D:
+    for (i=0;i<res->size;i++){
+      exact = eitvZZZ_set_eitvD(e[i],res->p.D[i],intern) && exact;
+    }
+    return exact;
+  case AP_SCALAR_MPQ:
+    for (i=0;i<res->size;i++){
+      exact = eitvZZZ_set_eitvMPQ(e[i],res->p.MPQ[i],intern) && exact;
+    }
+    return exact;
+  case AP_SCALAR_MPFR:
+    for (i=0;i<res->size;i++){
+      exact = eitvZZZ_set_eitvMPFR(e[i],res->p.MPFR[i],intern) && exact;
+    }
+    return exact;
+  default: abort();
+  }
+  return exact;
+}
+
+bool ap_box0_set_index_eitvZZZ(ap_box0_t p, size_t i, eitvZZZ_t a, num_internal_t intern)
+{
+  switch(p->discr){
+  case AP_SCALAR_D:
+    return eitvD_set_eitvZZZ(p->p.D[i],a,intern);
+  case AP_SCALAR_MPQ:
+    return eitvMPQ_set_eitvZZZ(p->p.MPQ[i],a,intern);
+  case AP_SCALAR_MPFR:
+    return eitvMPFR_set_eitvZZZ(p->p.MPFR[i],a,intern);
+  default: abort();
+  }
+}
+bool ap_box0_get_index_eitvZZZ(eitvZZZ_t a, ap_box0_t p, size_t i, num_internal_t intern)
+{
+  switch(p->discr){
+  case AP_SCALAR_D:
+    return eitvZZZ_set_eitvD(a,p->p.D[i],intern);
+  case AP_SCALAR_MPQ:
+    return eitvZZZ_set_eitvMPQ(a,p->p.MPQ[i],intern);
+  case AP_SCALAR_MPFR:
+    return eitvZZZ_set_eitvMPFR(a,p->p.MPFR[i],intern);
+  default: abort();
+  }
+}
+ENDMACRO

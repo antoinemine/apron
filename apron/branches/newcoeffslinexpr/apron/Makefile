@@ -28,12 +28,12 @@ TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 H_TMPL_FILES = \
 ap_linexprXXX.h ap_linconsXXX.h \
 ap_linexprconsXXX_conv.h \
-ap_coeff.h.tmpl \
+ap_coeff.h.tmpl ap_box0.h.tmpl \
 ap_yyy0.h ap_yyy1.h ap_yyy0_array.h ap_yyy1_array.h
 C_TMPL_FILES = \
 ap_linexprXXX.c ap_linconsXXX.c ap_YYYXXX_array.c \
 ap_linexprconsXXX_conv.c \
-ap_coeff.c.tmpl \
+ap_coeff.c.tmpl ap_box0.c.tmpl \\
 ap_yyy0.c ap_yyy1.c ap_yyy0_array.c ap_yyy1_array.c
 
 H_ORIG_FILES = \
@@ -62,7 +62,7 @@ C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 H_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) \
 $(TMPL:%=ap_linexprcons%_conv.h) \
-ap_coeff.h \
+ap_coeff.h ap_box0.h \
 ap_linexpr0.h ap_lincons0.h \
 ap_linexpr1.h ap_lincons1.h \
 ap_linexpr0_array.h ap_lincons0_array.h \
@@ -71,7 +71,7 @@ C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) \
 $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) \
 $(TMPL:%=ap_linexprcons%_conv.c) \
-ap_coeff.c \
+ap_coeff.c ap_box0.c \
 ap_linexpr0.c ap_lincons0.c \
 ap_linexpr1.c ap_lincons1.c \
 ap_linexpr0_array.c ap_lincons0_array.c \
