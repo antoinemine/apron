@@ -164,6 +164,11 @@ bool ap_yyy0_equal(ap_yyy0_t expr1,
 int ap_yyy0_compare(ap_yyy0_t expr1,
 			ap_yyy0_t expr2);
 
+static inline void ap_yyy0_cons(ap_yyy0_t res, ap_yyy0_t e)
+{
+  res->discr = e->discr;
+  res->yyy = e->yyy;
+}
 MACRO_MAINZ
 static inline void ap_yyy0_cons_ZZZ(ap_yyy0_t res, ap_yyyZZZ_t e)
 { res->discr = AP_SCALAR_ZZZ; res->yyy.ZZZ = e; };

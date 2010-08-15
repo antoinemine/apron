@@ -148,6 +148,11 @@ static inline
 ap_linexpr1_ptr ap_yyy1_yyy0ref(ap_yyy1_t e);
 { return e->yyy0; }
 
+static inline void ap_yyy1_cons(ap_yyy1_t res, ap_yyy0_t e, ap_environment_t* env)
+{ 
+  ap_yyy0_cons(res->yyy0,e->yyy0); 
+  res->env = env;
+}
 MACRO_MAINZ
 static inline void ap_yyy1_cons_ZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_enviromnent_t* env)
 { res->yyy0->discr = AP_SCALAR_ZZZ; res->yyy0->yyy.ZZZ = e; res->env = env; };
