@@ -1,0 +1,83 @@
+/* -*- mode: c -*- */
+
+/* ************************************************************************* */
+/* ap_box0.h: array of ap_coeff_t */
+/* ************************************************************************* */
+
+/* This file is part of the APRON Library, released under LGPL license.  Please
+   read the COPYING file packaged in the distribution */
+
+/* normally included from ap_expr0.h */
+
+#ifndef _AP_BOX0_H_
+#define _AP_BOX0_H_
+
+#include "ap_coeff.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ====================================================================== */
+/* Datatypes */
+/* ====================================================================== */
+
+/* Array of linear expressions */
+typedef struct ap_box0_struct {
+  ap_scalar_discr_t discr;
+  union {
+    eitvD_t*    D;
+    eitvMPQ_t*  MPQ;
+    eitvMPFR_t* MPFR;
+  } p;
+  size_t size;
+} ap_box0_struct;
+typedef ap_box0_struct* ap_box0_ptr;
+typedef ap_box0_struct ap_box0_t[1];
+
+/* ====================================================================== */
+/* I. Memory management and printing */
+/* ====================================================================== */
+
+void ap_box0_init(ap_box0_t e, ap_scalar_discr_t discr, size_t size);
+void ap_box0_init_set(ap_box0_t res, ap_box0_t e);
+MACRO_MAINZ
+void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, ap_eitvZZZ_array_t e);
+ENDMACRO
+void ap_box0_clear(ap_box0_t e);
+void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim);
+
+/* ====================================================================== */
+/* II. Access, possibly with conversions */
+/* ====================================================================== */
+
+static inline ap_scalar_discr_t ap_box0_discr(ap_box0_t p);
+static inline size_t ap_box0_size(ap_box0_t p);
+
+bool ap_box0_set(ap_box0_t res, ap_box0_t e, num_internal_t intern);
+bool ap_box0_set_index(ap_box0_t p, size_t i, ap_coeff_t a, num_internal_t intern);
+bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t intern);
+void ap_box0_ref_index(ap_coeff_t a, ap_box0_t p, size_t i);
+
+MACRO_MAINZ
+bool ap_box0_set_eitvZZZ_array(ap_box0_t a, ap_eitvZZZ_array_t b, num_internal_t intern);
+bool ap_eitvZZZ_array_set_box0(ap_eitvZZZ_array_t a, ap_box0_t b, num_internal_t intern);
+
+bool ap_box0_set_index_eitvZZZ(ap_box0_t p, size_t i, eitvZZZ_t a, num_internal_t intern);
+bool ap_box0_get_index_eitvZZZ(eitvZZZ_t a, ap_box0_t p, size_t i, num_internal_t intern);
+ENDMACRO
+
+
+static inline ap_scalar_discr_t ap_box0_discr(ap_box0_t p)
+{ return p->discr; }
+static inline size_t ap_box0_size(ap_box0_t p)
+{ return p->size; }
+
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
