@@ -252,6 +252,19 @@ ap_environment_t* ap_environment_copy(ap_environment_t* env){
   env->count++;
   return env;
 }
+
+static inline void ap_environment_init_set(ap_environment_t** dest, ap_environment_t* org)
+{
+  *dest = ap_environment_copy(org);
+}
+static inline void ap_environment_set(ap_environment_t** dest, ap_environment_t* org)
+{
+  if (*dest!=org){
+    ap_environment_free(*dest);
+    *dest = ap_environment_copy(org);
+  }
+}
+
 #ifdef __cplusplus
 }
 #endif

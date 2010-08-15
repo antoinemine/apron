@@ -554,10 +554,8 @@ bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_envi
     }
     if (a==NULL) break;
   }
-  if (perror!=NULL){
-    *perror = (tag!=ITV_END) && (a==NULL);
-  }
-  return res;
+  *perror = (tag!=ITV_END) && (a==NULL);
+  return res && !(*perror);
 }
 
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va)
@@ -592,11 +590,11 @@ bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* 
   va_end(va);
   return res;
 }
-bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, ap_environment_t* env, bool* perror, ...)
+bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ap_environment_t* env, ...)
 {
   bool res;
   va_list va;
-  va_start(va,perror);
+  va_start(va,env);
   res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
 				       env,intern,expr,perror,&va);
   va_end(va);
@@ -1027,10 +1025,10 @@ void ap_linexprXXX_add_dimensions(ap_linexprXXX_t res,
   }
 }
 void ap_linexprXXX_extend_environment(ap_linexprXXX_t res,
+				      bool* perror,
 				      ap_environment_t* nenv,
 				      ap_linexprXXX_t expr,
-				      ap_environment_t* env,
-				      bool* perror)
+				      ap_environment_t* env)
 {
   bool error;
   if (env==nenv){

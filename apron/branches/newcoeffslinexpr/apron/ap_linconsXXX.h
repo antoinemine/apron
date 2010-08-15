@@ -211,6 +211,17 @@ void ap_linconsXXX_permute_dimensions(ap_linconsXXX_t res,
 void ap_linconsXXX_array_permute_dimensions(ap_linconsXXX_array_t res,
 					  ap_linconsXXX_array_t array,
 					  ap_dimperm_t* dimchange);
+static inline
+void ap_linconsXXX_extend_environment(ap_linconsXXX_t res,
+				      bool* perror,
+				      ap_environment_t* nenv,
+				      ap_linconsXXX_t expr,
+				      ap_environment_t* env);
+void ap_linconsXXX_array_extend_environment(ap_linconsXXX_array_t res,
+					    bool* perror,
+					    ap_environment_t* nenv,
+					    ap_linconsXXX_array_t expr,
+					    ap_environment_t* env);
 
 /* ********************************************************************** */
 /* VI. Hashing, comparison */
@@ -290,6 +301,13 @@ void ap_linconsXXX_permute_dimensions(ap_linconsXXX_t res,
 				    ap_linconsXXX_t cons,
 				    ap_dimperm_t* dimperm)
 { ap_linexprXXX_permute_dimensions(res->linexpr,cons->linexpr,dimperm); }
+static inline
+void ap_linconsXXX_extend_environment(ap_linconsXXX_t res,
+				      bool* perror,
+				      ap_environment_t* nenv,
+				      ap_linconsXXX_t expr,
+				      ap_environment_t* env)
+{ ap_linexprXXX_extend_environment(res->linexpr,perror,nenv,expr->linexpr,env); }
 
 static inline
 int ap_linconsXXX_hash(ap_linconsXXX_t cons)
