@@ -17,6 +17,9 @@
 #include <string.h>
 #include "ap_coeff.h"
 #include "ap_dimension.h"
+#ifndef _AP_linexpr0_H_
+#include "ap_linexpr0.h"
+#endif
 #include "ap_yyyD.h"
 #include "ap_yyyMPQ.h"
 #include "ap_yyyMPFR.h"
@@ -85,7 +88,7 @@ bool ap_linexpr0_set_coeff(ap_linexpr0_t expr, ap_dim_t dim, ap_coeff_t coeff, n
 void ap_linexpr0_cstref(ap_coeff_t coeff, ap_linexpr0_t expr);
 void ap_linexpr0_coeffref(ap_coeff_t coeff, ap_linexpr0_t expr, ap_dim_t dim);
 
-bool ap_linexpr0_set_list(num_internal_t intern, ap_linexpr0_t expr, ...);
+bool ap_linexpr0_set_list(num_internal_t intern, ap_linexpr0_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
      the definition of the type ap_coeff_tag_t_t, and ended by the tag ITV_END;

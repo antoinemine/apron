@@ -192,3 +192,22 @@ void ap_YYYXXX_array_permute_dimensions(ap_YYYXXX_array_t res,
     ap_YYYXXX_permute_dimensions(res->p[i],array->p[i],dimperm);
   }
 }
+void ap_YYYXXX_array_extend_environment(ap_YYYXXX_array_t res,
+					bool* perror,
+					ap_environment_t* nenv,
+					ap_YYYXXX_array_t array,
+					ap_environment_t* env)
+{
+  if (env==nenv){
+    if (res!=array) ap_YYYXXX_array_set(res,array);
+    *perror = false;
+  } 
+  else {
+    ap_dimchange_t* dimchange = ap_environment_dimchange(env,nenv);
+    *perror = (dimchange==NULL);
+    if (!(*perror)){
+      ap_YYYXXX_array_add_dimensions(res,array,dimchange);
+      ap_dimchange_free(dimchange);
+    }
+  }
+}

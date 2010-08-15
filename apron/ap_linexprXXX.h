@@ -123,20 +123,20 @@ size_t ap_linexprXXX_size(ap_linexprXXX_t expr);
 
 static inline void ap_linexprXXX_get_cst(eitvXXX_t eitv, ap_linexprXXX_t expr);
 static inline void ap_linexprXXX_get_eitv0(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_dim_t dim);
-  static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool* perror);
+static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, bool* perror, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var);
   /* Get the coefficient of cst/dimension dim/variable var and assign it to
      eitv */
 
 static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv);
 static inline void ap_linexprXXX_set_eitv0(ap_linexprXXX_t expr, ap_dim_t dim, eitvXXX_t eitv);
-static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv, bool* perror);
+static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, bool* perror, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv);
   /* Assign the coefficient of cst/dimension dim/variable var in the
      expression */
 
 static inline eitvXXX_ptr ap_linexprXXX_cstref(ap_linexprXXX_t expr);
   /* Get a reference to the constant */
 eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool create);
-static inline eitvXXX_ptr ap_linexprXXX_eitvref1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create, bool* perror);
+static inline eitvXXX_ptr ap_linexprXXX_eitvref1(bool* perror, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create);
   /* Get a (possibly NULL) reference to the coefficient associated to the
      dimension/variable.
      If create==false, returns NULL if the corresponding dimension does not exist.
@@ -166,7 +166,7 @@ bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* 
      assuming that the expression was "0" before the call and that all the
      number conversions were exact.
   */
-bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, ap_environment_t* env, bool* perror, ...);
+bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ap_environment_t* env, ...);
 
 /* Iterator (Macro): use:
    ap_linexprXXX_ForeachLinterm(ap_linexprXXX_t e, size_t i, ap_dim_t d, eitvXXX_ptr eitv){
@@ -187,7 +187,6 @@ bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, ap_env
 	  ((_p_d)!=AP_DIM_MAX)) :					\
 	 false;								\
        (_p_i)++)
-
 #define ap_linexprXXX_ForeachLinterm1(_p_e, _p_env, _p_i, _p_v, _p_eitv) \
   for ((_p_i)=0;							\
        (_p_i)<(_p_e)->size ?						\
@@ -266,10 +265,10 @@ void ap_linexprXXX_array_add_dimensions(ap_linexprXXX_array_t res,
 					ap_linexprXXX_array_t array,
 					ap_dimchange_t* dimchange);
 void ap_linexprXXX_extend_environment(ap_linexprXXX_t res,
+				      bool* perror,
 				      ap_environment_t* nenv,
 				      ap_linexprXXX_t expr,
-				      ap_environment_t* env,
-				      bool* perror);
+				      ap_environment_t* env);
 
 /* These two functions apply the given permutation to the dimensions.
    The dimensions present in the expression should just be less
@@ -280,8 +279,11 @@ void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
 void ap_linexprXXX_array_permute_dimensions(ap_linexprXXX_array_t res,
 					    ap_linexprXXX_array_t array,
 					    ap_dimperm_t* dimchange);
-
-
+void ap_linexprXXX_array_extend_environment(ap_linexprXXX_array_t res,
+					    bool* perror,
+					    ap_environment_t* nenv,
+					    ap_linexprXXX_array_t expr,
+					    ap_environment_t* env);
 
 /* ********************************************************************** */
 /* VII. Hashing, comparison */
@@ -322,12 +324,11 @@ static inline void ap_linexprXXX_get_eitv0(eitvXXX_t eitv, ap_linexprXXX_t expr,
   else
     eitvXXX_set(eitv,r);
 }
-static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool* perror)
+static inline void ap_linexprXXX_get_eitv1(eitvXXX_t eitv, bool* perror, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var)
 {
   ap_dim_t dim = ap_environment_dim_of_var(env,var);
-  bool error = dim<AP_DIM_MAX;
-  if (perror) *perror = error;
-  if (!error) ap_linexprXXX_get_eitv0(eitv,expr,dim);
+  *perror = (dim==AP_DIM_MAX);
+  if (! *perror) ap_linexprXXX_get_eitv0(eitv,expr,dim);
 }
 static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv)
   { eitvXXX_set(expr->cst,eitv); }
@@ -336,19 +337,17 @@ static inline void ap_linexprXXX_set_eitv0(ap_linexprXXX_t expr, ap_dim_t dim, e
   eitvXXX_ptr r = ap_linexprXXX_eitvref0(expr,dim,true);
   eitvXXX_set(r,eitv);
 }
-static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv, bool* perror)
+static inline void ap_linexprXXX_set_eitv1(ap_linexprXXX_t expr, bool* perror, ap_environment_t* env, ap_var_t var, eitvXXX_t eitv)
 {
   ap_dim_t dim = ap_environment_dim_of_var(env,var);
-  bool error = dim<AP_DIM_MAX;
-  if (perror) *perror = error;
-  if (!error) ap_linexprXXX_set_eitv0(expr,dim,eitv);
+  *perror = (dim==AP_DIM_MAX);
+  if (! *perror) ap_linexprXXX_set_eitv0(expr,dim,eitv);
 }
-static inline eitvXXX_ptr ap_linexprXXX_eitvref1(ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create, bool* perror)
+static inline eitvXXX_ptr ap_linexprXXX_eitvref1(bool* perror, ap_linexprXXX_t expr, ap_environment_t* env, ap_var_t var, bool create)
 {
   ap_dim_t dim = ap_environment_dim_of_var(env,var);
-  bool error = dim<AP_DIM_MAX;
-  if (perror) *perror = error;
-  if (error) 
+  *perror = (dim==AP_DIM_MAX);
+  if (*perror)
     return NULL;
   else
     return ap_linexprXXX_eitvref0(expr,dim,create);
