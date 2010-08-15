@@ -169,3 +169,19 @@ void ap_yyy_array_permute_dimensions(ap_yyy_array_t res,
 					perm);
   ENDSWITCH
 }
+void ap_yyy_array_extend_environment(ap_yyy_array_t res,
+				     bool* perror,
+				     ap_environment_t* nenv,
+				     ap_yyy_array_t expr,
+				     ap_environment_t* env)
+{
+  if (res->discr!=expr->discr)
+    abort();
+  SWITCH(expr->discr)
+    ap_zzzXXX_array_extend_environment(res->zzz_array.XXX,
+				       perror,
+				       nenv,
+				       expr->zzz_array.XXX,
+				       env);
+  ENDSWITCH
+}

@@ -6,9 +6,9 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_yyy0.h"
-#include "ap_yyyconsD_conv.h"
-#include "ap_yyyconsMPQ_conv.h"
-#include "ap_yyyconsMPFR_conv.h"
+#include "ap_linexprconsD_conv.h"
+#include "ap_linexprconsMPQ_conv.h"
+#include "ap_linexprconsMPFR_conv.h"
 #include <stdarg.h>
 
 #define _AP_yyy0_MARK_
@@ -51,7 +51,7 @@ void ap_yyy0_fprint(FILE* stream, ap_yyy0_t e, char** name_of_dim)
   ENDSWITCH
 }
 void ap_yyy0_minimize(ap_yyy0_t e)
-é{
+{
   SWITCH(e->discr){
     ap_yyyXXX_minimize(e->yyy.XXX);
   ENDSWITCH
@@ -146,15 +146,13 @@ void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 }
 
 bool ap_linexpr0_set_list(num_internal_t intern,
-			  ap_linexpr0_t expr, ...)
+			  ap_linexpr0_t expr, bool* perror, ...)
 {
   bool res;
   va_list va;
-  va_start(va,expr);
+  va_start(va,perror);
   SWITCH (expr->discr)
-    res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-					  NULL,
-					  intern,expr->linexpr.XXX,&va);
+    res = ap_linexprXXX_set_list0(intern,expr->linexpr.XXX,perror,&va);
   ENDSWITCH
   va_end(va);
   return res;
