@@ -72,6 +72,9 @@ ENDMACRO
 /* III. Access */
 /* ====================================================================== */
 
+static inline 
+ap_scalar_discr_t ap_yyy0_discr(ap_yyy0_t expr);
+
 #if defined(_AP_linexpr0_MARK_)
 bool ap_linexpr0_get_cst(ap_coeff_t coeff, ap_linexpr0_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
@@ -164,6 +167,9 @@ bool ap_yyy0_equal(ap_yyy0_t expr1,
 int ap_yyy0_compare(ap_yyy0_t expr1,
 			ap_yyy0_t expr2);
 
+static inline 
+ap_scalar_discr_t ap_yyy0_discr(ap_yyy0_t expr)
+{ return expr->discr; }
 static inline void ap_yyy0_cons(ap_yyy0_t res, ap_yyy0_t e)
 {
   res->discr = e->discr;

@@ -70,6 +70,11 @@ bool ap_yyy1_set(ap_yyy1_t res, ap_yyy1_t e, num_internal_t intern)
   else
     return true;
 }
+bool ap_yyy1_set_yyy0(ap_yyy1_t res, ap_yyy0_t e, ap_environment_t* env, num_internal_t intern)
+{
+  ap_environment_set(&res->env,env);
+  return ap_yyy0_set(res->yyy0,e,intern);
+}
 MACRO_MAINZ
 bool ap_yyy1_set_yyyZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env, num_internal_t intern)
 {

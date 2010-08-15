@@ -51,6 +51,7 @@ void ap_lincons1_init_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_
   ap_lincons0_init_set_linconsMPFR(res->lincons0,e);
   res->env = ap_environment_copy(env);
 }
+#line 41 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 
 void ap_lincons1_clear(ap_lincons1_t e)
 {
@@ -83,7 +84,12 @@ bool ap_lincons1_set(ap_lincons1_t res, ap_lincons1_t e, num_internal_t intern)
   else
     return true;
 }
-#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+bool ap_lincons1_set_lincons0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env, num_internal_t intern)
+{
+  ap_environment_set(&res->env,env);
+  return ap_lincons0_set(res->lincons0,e,intern);
+}
+#line 79 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 bool ap_lincons1_set_linconsD(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env, num_internal_t intern)
 {
   ap_environment_set(&res->env,env);
@@ -93,7 +99,7 @@ bool ap_linconsD_set_lincons1(ap_linconsD_t res, ap_lincons1_t e, num_internal_t
 {
   return ap_linconsD_set_lincons0(res,e->lincons0,intern);
 }
-#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 79 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 bool ap_lincons1_set_linconsMPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env, num_internal_t intern)
 {
   ap_environment_set(&res->env,env);
@@ -103,7 +109,7 @@ bool ap_linconsMPQ_set_lincons1(ap_linconsMPQ_t res, ap_lincons1_t e, num_intern
 {
   return ap_linconsMPQ_set_lincons0(res,e->lincons0,intern);
 }
-#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 79 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 bool ap_lincons1_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env, num_internal_t intern)
 {
   ap_environment_set(&res->env,env);
@@ -113,6 +119,7 @@ bool ap_linconsMPFR_set_lincons1(ap_linconsMPFR_t res, ap_lincons1_t e, num_inte
 {
   return ap_linconsMPFR_set_lincons0(res,e->lincons0,intern);
 }
+#line 89 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 
 /* ====================================================================== */
 /* III. Access */
@@ -160,21 +167,21 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
   va_list va;
   va_start(va,perror);
   switch (expr->linexpr0->discr) {
-#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 135 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_D: {
     res = ap_linexprD_set_list_generic(ap_linexprD_set_list_get_eitvD_of_var,
 					 expr->env,
 					 intern,expr->linexpr0->linexpr.D,perror,&va);
     }
     break;
-#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 135 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_MPQ: {
     res = ap_linexprMPQ_set_list_generic(ap_linexprMPQ_set_list_get_eitvMPQ_of_var,
 					 expr->env,
 					 intern,expr->linexpr0->linexpr.MPQ,perror,&va);
     }
     break;
-#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 135 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_MPFR: {
     res = ap_linexprMPFR_set_list_generic(ap_linexprMPFR_set_list_get_eitvMPFR_of_var,
 					 expr->env,
@@ -183,7 +190,7 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
     break;
   default: abort();
   }
-#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 140 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   va_end(va);
   return res;
 }
@@ -237,7 +244,7 @@ void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
   if (nexpr->lincons0->discr != expr->lincons0->discr)
     abort();
   switch (nexpr->lincons0->discr) {
-#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 192 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_D: {
     ap_linconsD_extend_environment(nexpr->lincons0->lincons.D,perror,
 				 nenv,
@@ -245,7 +252,7 @@ void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
 				 expr->env);
     }
     break;
-#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 192 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_MPQ: {
     ap_linconsMPQ_extend_environment(nexpr->lincons0->lincons.MPQ,perror,
 				 nenv,
@@ -253,7 +260,7 @@ void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
 				 expr->env);
     }
     break;
-#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 192 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   case AP_SCALAR_MPFR: {
     ap_linconsMPFR_extend_environment(nexpr->lincons0->lincons.MPFR,perror,
 				 nenv,
@@ -263,7 +270,7 @@ void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
     break;
   default: abort();
   }
-#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+#line 198 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   ap_environment_set(&nexpr->env,nenv);
 }
 #undef _AP_lincons1_MARK_

@@ -47,13 +47,14 @@ typedef ap_lincons1_struct* ap_lincons1_ptr;
 
 void ap_lincons1_init(ap_lincons1_t res, ap_scalar_discr_t discr, size_t size, ap_environment_t* env);
 void ap_lincons1_init_set(ap_lincons1_t res, ap_lincons1_t e);
-void ap_lincons1_init_set_linexpr0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env);
+void ap_lincons1_init_set_lincons0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env);
 #line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 void ap_lincons1_init_set_linconsD(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env);
 #line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 void ap_lincons1_init_set_linconsMPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env);
 #line 50 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 void ap_lincons1_init_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env);
+#line 52 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 void ap_lincons1_clear(ap_lincons1_t e);
 void ap_lincons1_fprint(FILE* stream, ap_lincons1_t e);
 void ap_lincons1_minimize(ap_lincons1_t a);
@@ -73,11 +74,14 @@ bool ap_linconsMPQ_set_lincons1(ap_linconsMPQ_t a, ap_lincons1_t b, num_internal
 #line 63 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 bool ap_lincons1_set_linconsMPFR(ap_lincons1_t a, ap_linconsMPFR_t b, ap_environment_t* env, num_internal_t intern);
 bool ap_linconsMPFR_set_lincons1(ap_linconsMPFR_t a, ap_lincons1_t b, num_internal_t intern);
+#line 66 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 
 /* ====================================================================== */
 /* III. Access */
 /* ====================================================================== */
 
+static inline 
+ap_scalar_discr_t ap_lincons1_discr(ap_lincons1_t expr);
 static inline
 ap_environment_t* ap_lincons1_envref(ap_lincons1_t expr);
   /* Get a reference to the environment. Do not free it. */
@@ -89,7 +93,7 @@ ap_lincons0_ptr ap_lincons1_lincons0ref(ap_lincons1_t e);
 #if defined(_AP_linexpr1_MARK_)
 bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
-  bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
+bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to
      coeff with possible conversion. */
 
@@ -155,6 +159,9 @@ void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
 				ap_lincons1_t expr,
 				ap_environment_t* nenv);
 
+static inline 
+ap_scalar_discr_t ap_lincons1_discr(ap_lincons1_t expr)
+{ return expr->lincons0->discr; }
 static inline
 ap_environment_t* ap_lincons1_envref(ap_lincons1_t e)
 { return e->env; }
@@ -167,27 +174,28 @@ static inline void ap_lincons1_cons(ap_lincons1_t res, ap_lincons0_t e, ap_envir
   ap_lincons0_cons(res->lincons0,e);
   res->env = env;
 }
-#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+#line 166 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 static inline void ap_lincons1_cons_D(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env)
 {
   res->lincons0->discr = AP_SCALAR_D;
   res->lincons0->lincons.D = e;
   res->env = env;
 }
-#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+#line 166 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 static inline void ap_lincons1_cons_MPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env)
 {
   res->lincons0->discr = AP_SCALAR_MPQ;
   res->lincons0->lincons.MPQ = e;
   res->env = env;
 }
-#line 161 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
+#line 166 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 static inline void ap_lincons1_cons_MPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env)
 {
   res->lincons0->discr = AP_SCALAR_MPFR;
   res->lincons0->lincons.MPFR = e;
   res->env = env;
 }
+#line 173 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.h"
 
 #undef _AP_lincons1_MARK_
 
