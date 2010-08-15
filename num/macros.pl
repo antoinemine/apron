@@ -20,6 +20,8 @@ while ($l = <>) {
 	    print "#line $nb \"$file\"\n";
 	    print "$rr"
 	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";	
     }
     elsif ($l =~ /MACRO_ALLZ/) {
 	$nb = $nbline+1;
@@ -35,6 +37,8 @@ while ($l = <>) {
 	    print "#line $nb \"$file\"\n";
 	    print "$rr"
 	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";	
     }
     else { print "$l"; }
 }
