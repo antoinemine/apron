@@ -17,6 +17,9 @@
 #include <string.h>
 #include "ap_yyy0.h"
 #include "ap_environment.h"
+#ifndef _AP_linexpr1_H_
+#include "ap_linexpr1.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +35,7 @@ extern "C" {
 typedef struct ap_yyy1_struct {
   ap_yyy0_t yyy0;
   ap_environment_t* env;
-} ap_linexpr1_sruct;
+} ap_yyy1_struct;
 typedef ap_yyy1_struct ap_yyy1_t[1];
 typedef ap_yyy1_struct* ap_yyy1_ptr;
 
@@ -47,7 +50,7 @@ MACRO_MAINZ
 void ap_yyy1_init_set_yyyZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env);
 ENDMACRO
 void ap_yyy1_clear(ap_yyy1_t e);
-void ap_yyy1_fprint(FILE* stream, ap_yyy1_t e, char** name_of_dim);
+void ap_yyy1_fprint(FILE* stream, ap_yyy1_t e);
 void ap_yyy1_minimize(ap_yyy1_t a);
 
 /* ====================================================================== */
@@ -76,18 +79,18 @@ ap_yyy0_ptr ap_yyy1_yyy0ref(ap_yyy1_t e);
 #if defined(_AP_linexpr1_MARK_)
 bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
-bool ap_linexpr1_get_coeff(ap_coeff_t coeff, ap_linexpr1_t expr, ap_dim_t dim, num_internal_t intern);
+  bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to
      coeff with possible conversion. */
 
 bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t intern);
   /* Assign the constant with possible conversion. */
-bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, ap_dim_t dim, ap_coeff_t coeff, num_internal_t intern);
+  bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern);
   /* Assign the coefficient of dimension dim in the expression, with possible
      conversion. */
 
 void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr);
-void ap_linexpr1_coeffref(ap_coeff_t coeff, ap_linexpr1_t expr, ap_dim_t dim);
+void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var);
 
 bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
@@ -138,24 +141,29 @@ void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
 /* ====================================================================== */
 
 void ap_yyy1_extend_environment(ap_yyy1_t nexpr,
-				    ap_yyy1_t expr,
-				    ap_environment_t* nenv);
+				bool* perror,
+				ap_yyy1_t expr,
+				ap_environment_t* nenv);
 
 static inline
 ap_environment_t* ap_yyy1_envref(ap_yyy1_t e)
 { return e->env; }
-static inline 
-ap_linexpr1_ptr ap_yyy1_yyy0ref(ap_yyy1_t e);
+static inline
+ap_yyy0_ptr ap_yyy1_yyy0ref(ap_yyy1_t e)
 { return e->yyy0; }
 
 static inline void ap_yyy1_cons(ap_yyy1_t res, ap_yyy0_t e, ap_environment_t* env)
-{ 
-  ap_yyy0_cons(res->yyy0,e->yyy0); 
+{
+  ap_yyy0_cons(res->yyy0,e);
   res->env = env;
 }
 MACRO_MAINZ
-static inline void ap_yyy1_cons_ZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_enviromnent_t* env)
-{ res->yyy0->discr = AP_SCALAR_ZZZ; res->yyy0->yyy.ZZZ = e; res->env = env; };
+static inline void ap_yyy1_cons_ZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env)
+{
+  res->yyy0->discr = AP_SCALAR_ZZZ;
+  res->yyy0->yyy.ZZZ = e;
+  res->env = env;
+}
 ENDMACRO
 
 #undef _AP_yyy1_MARK_

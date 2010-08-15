@@ -1,5 +1,7 @@
+/* GENERATED FROM ap_yyy1.c, DO NOT MODIFY */
+#line 1 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
 /* ************************************************************************* */
-/* ap_lincons1.c: linear constraints */
+/* ap_yyy1.c: linear expressions or constraints */
 /* ************************************************************************* */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
@@ -7,191 +9,261 @@
 
 #include "ap_lincons1.h"
 
-/* ********************************************************************** */
-/* I. ap_lincons0_t */
-/* ********************************************************************** */
+#define _AP_lincons1_MARK_
 
 /* ====================================================================== */
-/* I.1 Memory management and printing */
+/* I. Memory management and printing */
 /* ====================================================================== */
-ap_lincons1_t ap_lincons1_make_unsat(ap_environment_t* env)
+
+void ap_lincons1_init(ap_lincons1_t res, ap_scalar_discr_t discr, size_t size, ap_environment_t* env)
 {
-  ap_lincons1_t lincons1;
-  lincons1.lincons0 = ap_lincons0_make_unsat();
-  lincons1.env = ap_environment_copy(env);
-  return lincons1;
+  ap_lincons0_init(res->lincons0,discr,size);
+  res->env = ap_environment_copy(env);
 }
-
-void ap_lincons1_clear(ap_lincons1_t* cons)
+void ap_lincons1_init_set(ap_lincons1_t res, ap_lincons1_t e)
 {
-  ap_lincons0_clear(&cons->lincons0);
-  if (cons->env){
-    ap_environment_free(cons->env); cons->env = NULL;
+  if (res!=e){
+    ap_lincons0_init_set(res->lincons0,e->lincons0);
+    res->env = ap_environment_copy(e->env);
   }
 }
+void ap_lincons1_init_set_linexpr0(ap_lincons1_t res, ap_lincons0_t e, ap_environment_t* env)
+{
+  ap_lincons0_init_set(res->lincons0,e);
+  res->env = ap_environment_copy(env);
+ }
 
-void ap_lincons1_fprint(FILE* stream, ap_lincons1_t* cons)
+#line 35 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+void ap_lincons1_init_set_linconsD(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env)
+{
+  ap_lincons0_init_set_linconsD(res->lincons0,e);
+  res->env = ap_environment_copy(env);
+}
+#line 35 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+void ap_lincons1_init_set_linconsMPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env)
+{
+  ap_lincons0_init_set_linconsMPQ(res->lincons0,e);
+  res->env = ap_environment_copy(env);
+}
+#line 35 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+void ap_lincons1_init_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env)
+{
+  ap_lincons0_init_set_linconsMPFR(res->lincons0,e);
+  res->env = ap_environment_copy(env);
+}
+
+void ap_lincons1_clear(ap_lincons1_t e)
+{
+  ap_lincons0_clear(e->lincons0);
+  ap_environment_free(e->env);
+}
+void ap_lincons1_fprint(FILE* stream, ap_lincons1_t e)
 {
   ap_environment_name_of_dim_t* name_of_dim;
 
-  name_of_dim = ap_environment_name_of_dim_alloc(cons->env);
-  ap_lincons0_fprint(stream, &cons->lincons0, name_of_dim->p);
+  name_of_dim = ap_environment_name_of_dim_alloc(e->env);
+  ap_lincons0_fprint(stream, e->lincons0, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
-
-/* ====================================================================== */
-/* I.2 Tests */
-/* ====================================================================== */
-
-/* ====================================================================== */
-/* I.3 Access */
-/* ====================================================================== */
-
-ap_coeff_t* ap_lincons1_coeffref(ap_lincons1_t* cons, ap_var_t var)
+void ap_lincons1_minimize(ap_lincons1_t e)
 {
-  ap_dim_t dim = ap_environment_dim_of_var(cons->env,var);
-  return ap_linexpr0_coeffref(cons->lincons0.linexpr0,dim);
-}
-bool ap_lincons1_get_coeff(ap_coeff_t* coeff, ap_lincons1_t* cons, ap_var_t var)
-{
-  ap_dim_t dim = ap_environment_dim_of_var(cons->env,var);
-  return ap_linexpr0_get_coeff(coeff,cons->lincons0.linexpr0,dim);
+  ap_lincons0_minimize(e->lincons0);
 }
 
-ap_coeff_t* ap_lincons1_set_list_get_pcoeff(void* cons, bool cst, va_list* va)
+/* ====================================================================== */
+/* II. Conversions */
+/* ====================================================================== */
+
+bool ap_lincons1_set(ap_lincons1_t res, ap_lincons1_t e, num_internal_t intern)
 {
-  ap_coeff_t* pcoeff;
-  if (cst){
-    pcoeff = ap_lincons1_cstref(cons);
-  } else {
-    ap_var_t var = va_arg(*va,ap_var_t);
-    pcoeff = ap_lincons1_coeffref(cons,var);
+  if (res!=e){
+    ap_environment_set(&res->env,e->env);
+    return ap_lincons0_set(res->lincons0,e->lincons0,intern);
   }
-  return pcoeff;
+  else
+    return true;
+}
+#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+bool ap_lincons1_set_linconsD(ap_lincons1_t res, ap_linconsD_t e, ap_environment_t* env, num_internal_t intern)
+{
+  ap_environment_set(&res->env,env);
+  return ap_lincons0_set_linconsD(res->lincons0,e,intern);
+}
+bool ap_linconsD_set_lincons1(ap_linconsD_t res, ap_lincons1_t e, num_internal_t intern)
+{
+  return ap_linconsD_set_lincons0(res,e->lincons0,intern);
+}
+#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+bool ap_lincons1_set_linconsMPQ(ap_lincons1_t res, ap_linconsMPQ_t e, ap_environment_t* env, num_internal_t intern)
+{
+  ap_environment_set(&res->env,env);
+  return ap_lincons0_set_linconsMPQ(res->lincons0,e,intern);
+}
+bool ap_linconsMPQ_set_lincons1(ap_linconsMPQ_t res, ap_lincons1_t e, num_internal_t intern)
+{
+  return ap_linconsMPQ_set_lincons0(res,e->lincons0,intern);
+}
+#line 74 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+bool ap_lincons1_set_linconsMPFR(ap_lincons1_t res, ap_linconsMPFR_t e, ap_environment_t* env, num_internal_t intern)
+{
+  ap_environment_set(&res->env,env);
+  return ap_lincons0_set_linconsMPFR(res->lincons0,e,intern);
+}
+bool ap_linconsMPFR_set_lincons1(ap_linconsMPFR_t res, ap_lincons1_t e, num_internal_t intern)
+{
+  return ap_linconsMPFR_set_lincons0(res,e->lincons0,intern);
 }
 
-bool ap_lincons1_set_list(ap_lincons1_t* cons, ...)
+/* ====================================================================== */
+/* III. Access */
+/* ====================================================================== */
+
+#if defined(_AP_linexpr1_MARK_)
+
+void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr)
+{ ap_linexpr0_cstref(coeff,expr->linexpr0); }
+void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var)
 {
-  va_list va;
+  ap_dim_t dim = ap_environment_dim_of_var(expr->env,var);
+  *perror = (dim==AP_DIM_MAX);
+  if (! (*perror))
+    ap_linexpr0_coeffref(coeff,expr->linexpr0,dim);
+}
+bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern)
+{ return ap_linexpr0_get_cst(coeff,expr->linexpr0,intern); }
+
+bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern)
+{
+  ap_coeff_t ref;
+  ap_linexpr1_coeffref(ref,perror,expr,var);
+  if (*perror)
+    return false;
+  else
+    return ap_coeff_set(coeff,ref,intern);
+}
+
+bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t intern)
+{ return ap_linexpr0_set_cst(expr->linexpr0, coeff, intern); }
+bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern)
+{
+  ap_coeff_t ref;
+  ap_linexpr1_coeffref(ref,perror,expr,var);
+  if (*perror)
+    return false;
+  else
+    return ap_coeff_set(ref,coeff,intern);
+}
+
+bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...)
+{
   bool res;
-  va_start(va,cons);
-  res = ap_linexpr0_set_list_generic(ap_lincons1_set_list_get_pcoeff,
-				     cons,&va);
+  va_list va;
+  va_start(va,perror);
+  switch (expr->linexpr0->discr) {
+#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_D: {
+    res = ap_linexprD_set_list_generic(ap_linexprD_set_list_get_eitvD_of_var,
+					 expr->env,
+					 intern,expr->linexpr0->linexpr.D,perror,&va);
+    }
+    break;
+#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_MPQ: {
+    res = ap_linexprMPQ_set_list_generic(ap_linexprMPQ_set_list_get_eitvMPQ_of_var,
+					 expr->env,
+					 intern,expr->linexpr0->linexpr.MPQ,perror,&va);
+    }
+    break;
+#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_MPFR: {
+    res = ap_linexprMPFR_set_list_generic(ap_linexprMPFR_set_list_get_eitvMPFR_of_var,
+					 expr->env,
+					 intern,expr->linexpr0->linexpr.MPFR,perror,&va);
+    }
+    break;
+  default: abort();
+  }
+#line 130 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
   va_end(va);
   return res;
 }
 
-/* ====================================================================== */
-/* I.4 Change of dimensions and permutations */
-/* ====================================================================== */
+#elif defined(_AP_lincons1_MARK_)
 
-bool ap_lincons1_extend_environment(ap_lincons1_t* ncons,
-				    ap_lincons1_t* cons,
-				    ap_environment_t* nenv)
+void ap_lincons1_linexpr1ref(ap_linexpr1_t e, ap_lincons1_t c)
 {
-  ap_dimchange_t* dimchange = ap_environment_dimchange(cons->env,nenv);
-  if (dimchange==NULL) return true;
-  ncons->lincons0 = ap_lincons0_add_dimensions(&cons->lincons0,dimchange);
-  ncons->env = ap_environment_copy(nenv);
-  ap_dimchange_free(dimchange);
-  return false;
+  ap_lincons0_linexpr0ref(e->linexpr0,c->lincons0);
+  e->env = c->env;
 }
-bool ap_lincons1_extend_environment_with(ap_lincons1_t* cons,
-					 ap_environment_t* nenv)
+ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t c)
+{ return ap_lincons0_constypref(c->lincons0); }
+mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c)
+{ return ap_lincons0_mpqref(c->lincons0); }
+bool ap_lincons1_get_linexpr1(ap_linexpr1_t e, ap_lincons1_t c, num_internal_t intern)
 {
-  ap_environment_t* env;
-  ap_dimchange_t* dimchange = ap_environment_dimchange(cons->env,nenv);
-  if (dimchange==NULL) return true;
-  ap_lincons0_add_dimensions_with(&cons->lincons0,dimchange);
-  env = cons->env;
-  cons->env = ap_environment_copy(nenv);
-  ap_dimchange_free(dimchange);
-  ap_environment_free(env);
-  return false;
+  ap_linexpr1_t ref;
+  ap_lincons1_linexpr1ref(ref,c);
+  return ap_linexpr1_set(e,ref,intern);
 }
+ap_constyp_t ap_lincons1_get_constyp(ap_lincons1_t c)
+{ return ap_lincons0_get_constyp(c->lincons0); }
+void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c)
+{ ap_lincons0_get_mpq(mpq,c->lincons0); }
 
-/* ********************************************************************** */
-/* II. Array of linear constraints */
-/* ********************************************************************** */
-
-/* ====================================================================== */
-/* I.1 Memory management and printing */
-/* ====================================================================== */
-
-ap_lincons1_array_t ap_lincons1_array_make(ap_environment_t* env, size_t size)
+bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t intern)
 {
-  ap_lincons1_array_t array;
-  array.lincons0_array = ap_lincons0_array_make(size);
-  array.env = ap_environment_copy(env);
-  return array;
+  ap_linexpr1_t ref;
+  ap_lincons1_linexpr1ref(ref,c);
+  return ap_linexpr1_set(ref,e,intern);
 }
-void ap_lincons1_array_clear(ap_lincons1_array_t* array)
-{
-  ap_lincons0_array_clear(&array->lincons0_array);
-  ap_environment_free(array->env);
-  array->env = NULL;
-}
-void ap_lincons1_array_fprint(FILE* stream,
-			      ap_lincons1_array_t* array)
-{
-  ap_environment_name_of_dim_t* name_of_dim;
+void ap_lincons1_set_constyp(ap_lincons1_t c, ap_constyp_t constyp)
+{ ap_lincons0_set_constyp(c->lincons0,constyp); }
+void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq)
+{ ap_lincons0_set_mpq(c->lincons0,mpq); }
 
-  name_of_dim = ap_environment_name_of_dim_alloc(array->env);
-  ap_lincons0_array_fprint(stream,&array->lincons0_array,name_of_dim->p);
-  ap_environment_name_of_dim_free(name_of_dim);
-}
+#else
+#error "HERE"
+#endif
 
 /* ====================================================================== */
-/* II.3 Access */
+/* IV. Change of dimensions and permutations */
 /* ====================================================================== */
 
-ap_lincons1_t ap_lincons1_array_get(ap_lincons1_array_t* array,
-				    size_t index)
+void ap_lincons1_extend_environment(ap_lincons1_t nexpr,
+				bool* perror,
+				ap_lincons1_t expr,
+				ap_environment_t* nenv)
 {
-  ap_lincons1_t cons;
-  cons.lincons0 = array->lincons0_array.p[index];
-  cons.env = array->env;
-  return cons;
+  if (nexpr->lincons0->discr != expr->lincons0->discr)
+    abort();
+  switch (nexpr->lincons0->discr) {
+#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_D: {
+    ap_linconsD_extend_environment(nexpr->lincons0->lincons.D,perror,
+				 nenv,
+				 expr->lincons0->lincons.D,
+				 expr->env);
+    }
+    break;
+#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_MPQ: {
+    ap_linconsMPQ_extend_environment(nexpr->lincons0->lincons.MPQ,perror,
+				 nenv,
+				 expr->lincons0->lincons.MPQ,
+				 expr->env);
+    }
+    break;
+#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  case AP_SCALAR_MPFR: {
+    ap_linconsMPFR_extend_environment(nexpr->lincons0->lincons.MPFR,perror,
+				 nenv,
+				 expr->lincons0->lincons.MPFR,
+				 expr->env);
+    }
+    break;
+  default: abort();
+  }
+#line 187 "/Users/bjeannet/dev/newcoeffslinexpr/apron/ap_yyy1.c"
+  ap_environment_set(&nexpr->env,nenv);
 }
-
-bool ap_lincons1_array_set(ap_lincons1_array_t* array,
-			   size_t index, ap_lincons1_t* cons)
-{
-  if (index>=array->lincons0_array.size || !ap_environment_is_eq(cons->env,array->env))
-    return true;
-  ap_lincons1_array_clear_index(array,index);
-  array->lincons0_array.p[index] = cons->lincons0;
-  ap_environment_free(cons->env);
-  return false;
-}
-
-/* ====================================================================== */
-/* II.4 Change of dimensions and permutations */
-/* ====================================================================== */
-
-bool
-ap_lincons1_array_extend_environment_with(ap_lincons1_array_t* array,
-					  ap_environment_t* nenv)
-{
-  ap_environment_t* env;
-  ap_dimchange_t* dimchange = ap_environment_dimchange(array->env,nenv);
-  if (dimchange==NULL) return true;
-  ap_lincons0_array_add_dimensions_with(&array->lincons0_array,dimchange);
-  env = array->env;
-  array->env = ap_environment_copy(nenv);
-  ap_dimchange_free(dimchange);
-  ap_environment_free(env);
-  return false;
-}
-bool
-ap_lincons1_array_extend_environment(ap_lincons1_array_t* narray,
-				     ap_lincons1_array_t* array,
-				     ap_environment_t* nenv)
-{
-  ap_dimchange_t* dimchange = ap_environment_dimchange(array->env,nenv);
-  if (dimchange==NULL) return true;
-  narray->lincons0_array = ap_lincons0_array_add_dimensions(&array->lincons0_array,dimchange);
-  narray->env = ap_environment_copy(nenv);
-  ap_dimchange_free(dimchange);
-  return false;
-}
+#undef _AP_lincons1_MARK_
