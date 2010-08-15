@@ -45,7 +45,7 @@ typedef ap_yyy1_struct* ap_yyy1_ptr;
 
 void ap_yyy1_init(ap_yyy1_t res, ap_scalar_discr_t discr, size_t size, ap_environment_t* env);
 void ap_yyy1_init_set(ap_yyy1_t res, ap_yyy1_t e);
-void ap_yyy1_init_set_linexpr0(ap_yyy1_t res, ap_yyy0_t e, ap_environment_t* env);
+void ap_yyy1_init_set_yyy0(ap_yyy1_t res, ap_yyy0_t e, ap_environment_t* env);
 MACRO_MAINZ
 void ap_yyy1_init_set_yyyZZZ(ap_yyy1_t res, ap_yyyZZZ_t e, ap_environment_t* env);
 ENDMACRO
@@ -68,6 +68,8 @@ ENDMACRO
 /* III. Access */
 /* ====================================================================== */
 
+static inline 
+ap_scalar_discr_t ap_yyy1_discr(ap_yyy1_t expr);
 static inline
 ap_environment_t* ap_yyy1_envref(ap_yyy1_t expr);
   /* Get a reference to the environment. Do not free it. */
@@ -79,7 +81,7 @@ ap_yyy0_ptr ap_yyy1_yyy0ref(ap_yyy1_t e);
 #if defined(_AP_linexpr1_MARK_)
 bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
-  bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
+bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to
      coeff with possible conversion. */
 
@@ -145,6 +147,9 @@ void ap_yyy1_extend_environment(ap_yyy1_t nexpr,
 				ap_yyy1_t expr,
 				ap_environment_t* nenv);
 
+static inline 
+ap_scalar_discr_t ap_yyy1_discr(ap_yyy1_t expr)
+{ return expr->yyy0->discr; }
 static inline
 ap_environment_t* ap_yyy1_envref(ap_yyy1_t e)
 { return e->env; }
