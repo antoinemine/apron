@@ -40,35 +40,64 @@ typedef ap_coeff_struct* ap_coeff_ptr;
 typedef ap_coeff_struct ap_coeff_t[1];
 
 typedef enum ap_coeff_tag_t {
-  ITV_COEFF,    /* waiting for 1 ap_coeff_t* and a dimension */
-  ITV_EITVD,    /* waiting for 1 eitvD_t and a dimension */
-  ITV_EITVMPQ,  /* waiting for 1 eitvMPQ_t and a dimension */
-  ITV_EITVMPFR, /* waiting for 1 eitvMPFR_t and a dimension */
-  ITV_NUMD,     /* waiting for 1 numD_t and a dimension */
-  ITV_NUMMPQ,   /* waiting for 1 numMPQ_t and a dimension */
-  ITV_NUMMPFR,  /* waiting for 1 numMPFR_t and a dimension */
-  ITV_NUMD2,    /* waiting for 2 numD_t and a dimension */
-  ITV_NUMMPQ2,  /* waiting for 2 numMPQ_t and a dimension */
-  ITV_NUMMPFR2, /* waiting for 2 numMPFR_t and a dimension */
-  ITV_LINT,     /* waiting for 1 long int and a dimension */
-  ITV_LINT2,    /* waiting for 2 long int and a dimension */
-  ITV_LLINT,    /* waiting for 1 long long int and a dimension */
-  ITV_LLINT2,   /* waiting for 2 long long int and a dimension */
-  ITV_MPZ,      /* waiting for 1 mpz_t and a dimension */
-  ITV_MPZ2,     /* waiting for 2 mpz_t and a dimension */
-  ITV_LFRAC,    /* waiting for 2 long int and a dimension */
-  ITV_LFRAC2,   /* waiting for 4 long int and a dimension */
-  ITV_LLFRAC,   /* waiting for 2 long long int and a dimension */
-  ITV_LLFRAC2,  /* waiting for 4 long long int and a dimension */
-  ITV_MPQ,      /* waiting for 1 mpq_t and a dimension */
-  ITV_MPQ2,     /* waiting for 2 mpq_t and a dimension */
-  ITV_DOUBLE,   /* waiting for 1 double and a dimension */
-  ITV_DOUBLE2,  /* waiting for 2 double and a dimension */
-  ITV_LDOUBLE,  /* waiting for 1 long double and a dimension */
-  ITV_LDOUBLE2, /* waiting for 2 long double and a dimension */
-  ITV_MPFR,     /* waiting for 1 mpfr_t and a dimension */
-  ITV_MPFR2,    /* waiting for 2 mpfr_t double and a dimension */
-  ITV_END
+  AP_COEFF,		/* waiting for 1 ap_coeff_t* and a dimension/var */
+  AP_COEFF_EITVD,	/* waiting for 1 eitvD_t and a dimension/var */
+  AP_COEFF_EITVMPQ,	/* waiting for 1 eitvMPQ_t and a dimension/var */
+  AP_COEFF_EITVMPFR,	/* waiting for 1 eitvMPFR_t and a dimension/var */
+  AP_COEFF_NUMD,	/* waiting for 1 numD_t and a dimension/var */
+  AP_COEFF_NUMMPQ,	/* waiting for 1 numMPQ_t and a dimension/var */
+  AP_COEFF_NUMMPFR,	/* waiting for 1 numMPFR_t and a dimension/var */
+  AP_COEFF_NUMD2,	/* waiting for 2 numD_t and a dimension/var */
+  AP_COEFF_NUMMPQ2,	/* waiting for 2 numMPQ_t and a dimension/var */
+  AP_COEFF_NUMMPFR2,	/* waiting for 2 numMPFR_t and a dimension/var */
+  AP_COEFF_LINT,	/* waiting for 1 long int and a dimension/var */
+  AP_COEFF_LINT2,	/* waiting for 2 long int and a dimension/var */
+  AP_COEFF_LLINT,	/* waiting for 1 long long int and a dimension/var */
+  AP_COEFF_LLINT2,	/* waiting for 2 long long int and a dimension/var */
+  AP_COEFF_MPZ,		/* waiting for 1 mpz_t and a dimension/var */
+  AP_COEFF_MPZ2,	/* waiting for 2 mpz_t and a dimension/var */
+  AP_COEFF_LFRAC,	/* waiting for 2 long int and a dimension/var */
+  AP_COEFF_LFRAC2,	/* waiting for 4 long int and a dimension/var */
+  AP_COEFF_LLFRAC,	/* waiting for 2 long long int and a dimension/var */
+  AP_COEFF_LLFRAC2,	/* waiting for 4 long long int and a dimension/var */
+  AP_COEFF_MPQ,		/* waiting for 1 mpq_t and a dimension/var */
+  AP_COEFF_MPQ2,	/* waiting for 2 mpq_t and a dimension/var */
+  AP_COEFF_DOUBLE,	/* waiting for 1 double and a dimension/var */
+  AP_COEFF_DOUBLE2,	/* waiting for 2 double and a dimension/var */
+  AP_COEFF_LDOUBLE,	/* waiting for 1 long double and a dimension/var */
+  AP_COEFF_LDOUBLE2,	/* waiting for 2 long double and a dimension/var */
+  AP_COEFF_MPFR,	/* waiting for 1 mpfr_t and a dimension/var */
+  AP_COEFF_MPFR2,	/* waiting for 2 mpfr_t double and a dimension/var */
+
+  AP_CST,		/* waiting for 1 ap_coeff_t* */
+  AP_CST_EITVD,		/* waiting for 1 eitvD_t */
+  AP_CST_EITVMPQ,	/* waiting for 1 eitvMPQ_t */
+  AP_CST_EITVMPFR,	/* waiting for 1 eitvMPFR_t */
+  AP_CST_NUMD,		/* waiting for 1 numD_t */
+  AP_CST_NUMMPQ,	/* waiting for 1 numMPQ_t */
+  AP_CST_NUMMPFR,	/* waiting for 1 numMPFR_t */
+  AP_CST_NUMD2,		/* waiting for 2 numD_t */
+  AP_CST_NUMMPQ2,	/* waiting for 2 numMPQ_t */
+  AP_CST_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  AP_CST_LINT,		/* waiting for 1 long int */
+  AP_CST_LINT2,		/* waiting for 2 long int */
+  AP_CST_LLINT,		/* waiting for 1 long long int */
+  AP_CST_LLINT2,	/* waiting for 2 long long int */
+  AP_CST_MPZ,		/* waiting for 1 mpz_t */
+  AP_CST_MPZ2,		/* waiting for 2 mpz_t */
+  AP_CST_LFRAC,		/* waiting for 2 long int */
+  AP_CST_LFRAC2,	/* waiting for 4 long int */
+  AP_CST_LLFRAC,	/* waiting for 2 long long int */
+  AP_CST_LLFRAC2,	/* waiting for 4 long long int */
+  AP_CST_MPQ,		/* waiting for 1 mpq_t */
+  AP_CST_MPQ2,		/* waiting for 2 mpq_t */
+  AP_CST_DOUBLE,	/* waiting for 1 double */
+  AP_CST_DOUBLE2,	/* waiting for 2 double */
+  AP_CST_LDOUBLE,	/* waiting for 1 long double */
+  AP_CST_LDOUBLE2,	/* waiting for 2 long double */
+  AP_CST_MPFR,		/* waiting for 1 mpfr_t */
+  AP_CST_MPFR2,		/* waiting for 2 mpfr_t double */
+  AP_END
 } ap_coeff_tag_t;
 
 /* ====================================================================== */

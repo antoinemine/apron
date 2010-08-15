@@ -147,7 +147,7 @@ bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* 
   /* This function assigns the linear expression from a list of tags of type
      ap_coeff_tag_t, defined in ap_coeff.h, each followed by a number of
      arguments as specified in the definition of the type ap_coefftag_t, and
-     ended by the tag ITV_END;
+     ended by the tag AP_END;
 
      - The dimension AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
@@ -158,10 +158,10 @@ bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* 
      Example:
      ap_linexprXXX_set_list(intern,
 			  expr,
-			  ITV_LFRAC,7,9,0,
-			  ITV_DOUBLE2,-3.0,4.5,1,
-			  ITV_LLINT,3LL,AP_DIM_MAX,
-			  ITV_END)
+			  AP_COEFF_LFRAC,7,9,0,
+			  AP_COEFF_DOUBLE2,-3.0,4.5,1,
+			  AP_COEFF_LLINT,3LL,AP_DIM_MAX,
+			  AP_END)
      sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
      assuming that the expression was "0" before the call and that all the
      number conversions were exact.
@@ -359,13 +359,13 @@ static inline bool ap_linexprXXX_equal(ap_linexprXXX_t expr1,ap_linexprXXX_t exp
 
 /* Internal function */
 void itvXXX_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va);
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va);
-bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_environment_t* env, ap_linexprXXX_t expr, va_list* va),
-				    ap_environment_t* env,
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
+eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
+bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va),
 				    num_internal_t intern,
 				    ap_linexprXXX_t expr, 
 				    bool* perror, 
+				    ap_environment_t* env,
 				    va_list* va);
 
 

@@ -97,9 +97,9 @@ void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap
 bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
-     the definition of the type ap_coeff_tag_t_t, and ended by the tag ITV_END;
+     the definition of the type ap_coeff_tag_t_t, and ended by the tag AP_END;
 
-     - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
+     - The dimension AP_COEFF_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
        referring to it is taken into account.
 
@@ -108,10 +108,10 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
      Example:
      ap_linexpr1_set_list(intern,
 			  expr,
-			  ITV_LFRAC,7,9,0,
-			  ITV_DOUBLE2,-3.0,4.5,1,
-			  ITV_LLINT,3LL,ITV_DIM_MAX,
-			  ITV_END)
+			  AP_COEFF_LFRAC,7,9,0,
+			  AP_COEFF_DOUBLE2,-3.0,4.5,1,
+			  AP_COEFF_LLINT,3LL,AP_COEFF_DIM_MAX,
+			  AP_END)
      sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
      assuming that the expression was "0" before the call and that all the
      number conversions were exact.
