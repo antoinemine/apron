@@ -122,44 +122,51 @@ bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_co
 }
 
 bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
-  /* This function assigns the linear expression from a list of tags of type
-     itv_coefftag_t, each followed by a number of arguments as specified in
-     the definition of the type ap_coeff_tag_t_t, and ended by the tag ITV_END;
-
-     - The dimension ITV_DIM_MAX/AP_DIM_MAX is used to refer to the constat coefficient.
-     - If the same dimension appears several times, only the last tag
-       referring to it is taken into account.
-
-     Returns true iff all conversions were exact.
-
-     Example:
-     ap_linexpr1_set_list(intern,
-			  expr,
-			  ITV_LFRAC,7,9,0,
-			  ITV_DOUBLE2,-3.0,4.5,1,
-			  ITV_LLINT,3LL,ITV_DIM_MAX,
-			  ITV_END)
-     sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
-     assuming that the expression was "0" before the call and that all the
-     number conversions were exact.
-  */
+{
+  bool res;
+  va_list va;
+  va_start(va,perror);
+  SWITCH (expr->discr)
+    res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_var,
+					 expr->env,
+					 intern,expr->linexpr0->linexpr.XXX,perror,&va);
+  ENDSWITCH
+  va_end(va);
+  return res;
+}
 
 #elif defined(_AP_lincons1_MARK_)
 
-bool ap_lincons1_get_linexpr1(ap_linexpr1_t e, ap_lincons1_t c, num_internal_t intern);
-  /* Get the underlying expression and assign it to e with possible
-     conversion */
-ap_constyp_t ap_lincons1_get_constyp(ap_lincons1_t c);
+void ap_lincons1_linexpr1ref(ap_linexpr1_t e, ap_lincons1_t c)
+{
+  ap_lincons0_linexpr0ref(e->linexpr0,c->lincons0);
+  e->env = env;
+}
+ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t c)
+{ return ap_lincons0_constypref(c->lincons0); }
+mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c)
+{ return ap_lincons0_mpqref(c->lincons0); }
+bool ap_lincons1_get_linexpr1(ap_linexpr1_t e, ap_lincons1_t c, num_internal_t intern)
+{
+  ap_linexpr1_t ref;
+  ap_lincons1_linexpr1ref(ref,c);
+  return ap_linexpr1_set(e,ref,intern);
+}
+ap_constyp_t ap_lincons1_get_constyp(ap_lincons1_t c)
+{ return ap_lincons0_get_constyp(c->lincons0); }
 void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
+{ ap_lincons0_get_mpq(mpq,c->lincons0); }
 
-void ap_lincons1_linexpr1ref(ap_linexpr1_t e, ap_lincons1_t c);
-ap_constyp_t* ap_lincons1_constypref(ap_lincons1_t c);
-mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c);
-
-bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t intern);
-  /* Assign the underlying expression of c to e with possible conversion */
-void ap_lincons1_set_constyp(ap_lincons1_t c, ap_constyp_t constyp);
+bool ap_lincons1_set_linexpr1(ap_lincons1_t c, ap_linexpr1_t e, num_internal_t intern)
+{
+  ap_linexpr1_t ref;
+  ap_lincons1_linexpr1ref(ref,c);
+  return ap_linexpr1_set(ref,e,intern);
+}
+void ap_lincons1_set_constyp(ap_lincons1_t c, ap_constyp_t constyp)
+{ ap_lincons0_set_constyp(c->lincons0,constyp); }
 void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
+{ ap_lincons0_set_constyp(c->lincons0,mpq); }
 
 #else
 #error "HERE"
@@ -170,7 +177,18 @@ void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
 /* ====================================================================== */
 
 void ap_yyy1_extend_environment(ap_yyy1_t nexpr,
-				    ap_yyy1_t expr,
-				    ap_environment_t* nenv);
-
+				bool* perror,
+				ap_yyy1_t expr,
+				ap_environment_t* nenv)
+{
+  if (nexpr->yyy0->discr != expr->yyy0->discr)
+    abort();
+  SWITCH(nexpr->yyy0->discr)
+    ap_yyyXXX_extend_environment(nexpr->yyy0->yyy.XXX,perror,
+				 nenv,
+				 expr->yyy0->yyy.XXX,
+				 expr->env);
+  ENDSWITCH
+  ap_environment_set(&nexpr->env,nenv);
+}
 #undef _AP_yyy1_MARK_
