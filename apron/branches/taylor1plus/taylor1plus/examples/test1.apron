@@ -1,0 +1,9 @@
+/* cosine */
+/* y in [-1,1] */
+
+var x : real, y : real;
+begin
+x = random;
+assume x>=0 and x<=180;
+end
+

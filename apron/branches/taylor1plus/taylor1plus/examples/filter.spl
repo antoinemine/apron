@@ -1,0 +1,8 @@
+var a:real, x:real;
+begin
+assume x <= 1 and -x <= 1;
+a = 3/4;
+while true do
+x = x - a*x;
+done;
+end

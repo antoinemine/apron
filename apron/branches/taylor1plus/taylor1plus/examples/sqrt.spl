@@ -1,0 +1,6 @@
+var x :real, y:real;
+begin
+assume x >= -1 and x <= 1;
+x = 1 + 0.75*x;
+y = sqrt(x);
+end

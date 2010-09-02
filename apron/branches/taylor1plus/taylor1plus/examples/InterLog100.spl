@@ -1,0 +1,401 @@
+var x : real, y : real ; 
+begin 
+assume x >= 0.000000 and x <= 0.500000; 
+if (x<=0.005000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.010000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.015000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.020000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.025000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.030000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.035000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.040000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.045000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.050000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.055000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.060000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.065000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.070000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.075000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.080000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.085000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.090000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.095000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.100000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.105000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.110000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.115000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.120000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.125000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.130000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.135000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.140000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.145000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.150000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.155000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.160000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.165000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.170000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.175000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.180000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.185000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.190000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.195000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.200000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.205000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.210000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.215000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.220000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.225000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.230000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.235000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.240000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.245000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.250000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.255000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.260000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.265000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.270000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.275000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.280000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.285000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.290000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.295000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.300000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.305000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.310000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.315000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.320000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.325000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.330000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.335000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.340000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.345000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.350000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.355000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.360000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.365000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.370000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.375000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.380000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.385000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.390000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.395000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.400000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.405000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.410000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.415000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.420000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.425000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.430000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.435000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.440000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.445000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.450000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.455000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.460000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.465000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.470000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.475000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.480000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.485000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.490000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.495000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end
