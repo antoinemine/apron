@@ -1,0 +1,280 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_generator1.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+import "linexpr0.idl";
+import "generator0.idl";
+import "environment.idl";
+import "linexpr1.idl";
+
+struct ap_generator1_t {
+  [mlname(mutable_generator0)] struct ap_generator0_t generator0;
+  [mlname(mutable_env)]ap_environment_ptr env;
+};
+struct ap_generator1_array_t {
+  [mlname(mutable_generator0_array)] struct ap_generator0_array_t generator0_array;
+  [mlname(mutable_array_env)] ap_environment_ptr env;
+};
+quote(MLMLI,"(** APRON Generators and array of generators of level 1 *)")
+     
+quote(MLMLI,"\n\
+type typ = Generator0.typ = \n\
+  | LINE\n\
+  | RAY\n\
+  | VERTEX\n\
+  | LINEMOD\n\
+  | RAYMOD\n\
+")
+
+quote(MLI,"\n\
+(** Make a generator. Modifying later the linear expression ({e not\n\
+  advisable}) modifies correspondingly the generator and conversely,\n\
+  except for changes of environements *)\n\
+val make: Linexpr1.t -> Generator0.typ -> t\n\
+\n\
+(** Copy (deep copy) *)\n\
+val copy: t -> t\n\
+\n\
+(** Print the generator *)\n\
+val print : Format.formatter -> t -> unit\n\
+\n\
+(** Get the generator type *)\n\
+val get_typ: t -> Generator0.typ\n\
+\n\
+(** Iter the function on the pair coefficient/variable of the underlying linear\n\
+  expression *)\n\
+val iter: (Coeff.t -> Var.t -> unit) -> t -> unit\n\
+\n\
+(** Set the generator type *)\n\
+val set_typ: t -> Generator0.typ -> unit\n\
+\n\
+(** Set simultaneously a number of coefficients.\n\
+\n\
+  [set_list expr [(c1,\"x\"); (c2,\"y\")]] assigns coefficients [c1] \n\
+  to variable [\"x\"] and coefficient [c2] to variable [\"y\"]. *)\n\
+val set_list : t -> (Coeff.t * Var.t) list -> unit\n\
+\n\
+  (** Set simultaneously a number of coefficients, as [set_list]. *)\n\
+val set_array : t -> (Coeff.t * Var.t) array -> unit\n\
+\n\
+")
+
+quote(MLI,"(** Get the coefficient of the variable in the underlying linear expression *)")
+struct ap_coeff_t ap_generator1_get_coeff([ref]struct ap_generator1_t* a, ap_var_t var)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  ap_coeff_init(&_res,AP_COEFF_SCALAR);\n\
+  b = ap_generator1_get_coeff(&_res,a,var);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    ap_coeff_clear(&_res);\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Generator1.get_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}\n\
+")
+     quote(dealloc,"ap_coeff_clear(&_res);");
+
+quote(MLI,"(** Set the coefficient of the variable in the underlying linear expression *)")
+void ap_generator1_set_coeff([ref]struct ap_generator1_t* a, ap_var_t var,
+			[ref]struct ap_coeff_t* coeff)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  b = ap_generator1_set_coeff(a,var,coeff);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Generator1.set_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}");
+
+quote(MLI,"(** Change the environement of the generator for a super-environement. Raise [Failure] if it is not the case *)")
+struct ap_generator1_t ap_generator1_extend_environment(const struct ap_generator1_t generator,
+					      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_generator1_extend_environment(&_res,&generator,env);\n\
+  if (b) caml_failwith(\"Generator1.extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_generator1_extend_environment_with(struct ap_generator1_t generator,
+				      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (generator.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(generator.env); /* to protect it */ \n\
+    b = ap_generator1_extend_environment_with(&generator,env);\n\
+    if (b){ \n\
+      ap_environment_free(generator.env); \n\
+      caml_failwith(\"Generator1.extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_generator,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(ML,"\n\
+let make linexpr1 gentyp = {\n\
+  generator0 = {\n\
+    Generator0.linexpr0 = linexpr1.Linexpr1.linexpr0;\n\
+    Generator0.typ = gentyp;\n\
+  };\n\
+  env = linexpr1.Linexpr1.env;\n\
+}\n\
+let copy gen = {\n\
+  generator0 = Generator0.copy gen.generator0;\n\
+  env = gen.env;\n\
+}\n\
+let print fmt gen = \n\
+  Generator0.print\n\
+    (fun dim -> Var.to_string (Environment.var_of_dim gen.env dim)) fmt gen.generator0;\n \
+  ()\n\
+let get_typ gen = gen.generator0.Generator0.typ\n\
+let set_typ gen typ = gen.generator0.Generator0.typ <- typ\n\
+let get_generator0 gen = gen.generator0\n\
+let get_env gen = gen.env\n\
+let set_list expr list = \n\
+  List.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    list;\n\
+  ()\n\
+let set_array expr tab = \n\
+  Array.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    tab;\n\
+  ()\n\
+\n\
+let iter f gen =\n\
+  Linexpr0.iter\n\
+    (begin fun coeff dim ->\n\
+      f coeff (Environment.var_of_dim gen.env dim)\n\
+    end)\n\
+    gen.generator0.Generator0.linexpr0\n\
+let get_linexpr1 gen = {\n\
+  Linexpr1.linexpr0 = gen.generator0.Generator0.linexpr0;\n\
+  Linexpr1.env = gen.env;\n\
+}")
+
+quote(MLMLI,"(* ====================================================================== *)")
+quote(MLMLI,"(** {2 Type earray} *)")
+quote(MLMLI,"(* ====================================================================== *)")
+
+quote(MLI,"\n\
+(** Make an array of generators with the given size and defined on the\n\
+  given environement. The elements are initialized with the line 0. *)\n\
+val array_make : Environment.t -> int -> earray\n\
+\n\
+(** Print an array of generators *)\n\
+val array_print :\n\
+  ?first:(unit, Format.formatter, unit) format ->\n\
+  ?sep:(unit, Format.formatter, unit) format ->\n\
+  ?last:(unit, Format.formatter, unit) format ->\n\
+  Format.formatter -> earray -> unit\n\
+\n\
+(** Get the size of the array *)\n\
+val array_length : earray -> int\n\
+\n\
+(** Get the element of the given index (which is not a copy) *)\n\
+val array_get : earray -> int -> t\n\
+\n\
+(** Set the element of the given index (without any copy). The array and the\n\
+  generator should be defined on the same environement; otherwise a [Failure]\n\
+  exception is raised.*)\n\
+val array_set : earray -> int -> t -> unit\n\
+")
+
+quote(MLI,"(** Change the environement of the array of generators for a super-environement. Raise [Failure] if it is not the case*)")
+struct ap_generator1_array_t ap_generator1_array_extend_environment(const struct ap_generator1_array_t array,
+					      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_generator1_array_extend_environment(&_res,&array,env);\n\
+  if (b) caml_failwith(\"Generator1.array_extend_environment: new environment is not a superenvironment\");\n\
+}")
+;
+quote(MLI,"(** Side-effect version of the previous function *)")
+void ap_generator1_array_extend_environment_with(struct ap_generator1_array_t array,
+				      ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  if (array.env!=env){ \n\
+    bool b;\n\
+    ap_environment_copy(array.env); /* to protect it */ \n\
+    b = ap_generator1_array_extend_environment_with(&array,env);\n\
+    if (b){ \n\
+      ap_environment_free(array.env); \n\
+      caml_failwith(\"Generator1.array_extend_environment_with: new environment is not a superenvironment\");\n\
+    }\n\
+    Store_field(_v_array,1,_v_env);\n\
+    ap_environment_free(env);\n\
+  }\n\
+}")
+;
+
+quote(MLI,"\n\
+(** Get the environement of the generator *)\n\
+val get_env: t -> Environment.t\n\
+\n\
+(** Get the underlying linear expression. Modifying the linear expression ({e\n\
+  not advisable}) modifies correspondingly the generator and\n\
+  conversely, except for changes of environements *)\n\
+val get_linexpr1: t -> Linexpr1.t\n\
+\n\
+(** Get the underlying generator of level 0. Modifying the generator\n\
+  of level 0 ({e not advisable}) modifies correspondingly the generator\n\
+  and conversely, except for changes of environements*)\n\
+val get_generator0: t -> Generator0.t\n\
+")
+
+quote(ML,"\n\
+let array_make env size =\n\
+  let gen = Generator0.make (Linexpr0.make None) Generator0.LINE in\n\
+  {\n\
+    generator0_array = Array.make size gen;\n\
+    array_env = env\n\
+  }\n\
+let array_print\n\
+  ?(first=(\"[|@[<hov>\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  fmt array \n\
+  = \n\
+  Abstract0.print_array ~first ~sep ~last\n\
+    (Generator0.print\n\
+      (fun dim -> Var.to_string (Environment.var_of_dim array.array_env dim)))\n \
+    fmt array.generator0_array;\n\
+  ()\n\
+let array_length array = Array.length (array.generator0_array)\n\
+let array_get array index =\n\
+  let gen0 = array.generator0_array.(index) in\n\
+  { generator0 = gen0; env = array.array_env; }\n\
+let array_set array index gen1 =\n\
+  if not (Environment.equal array.array_env gen1.env) then\n\
+    failwith \"Expr1.array_set: environments are not the same\"\n\
+  else\n\
+    array.generator0_array.(index) <- gen1.generator0;\n\
+ ")

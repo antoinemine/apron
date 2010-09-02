@@ -1,0 +1,16 @@
+
+The APRON interface has been designed by the research teams involved in the
+APRON project (http://www.cri.ensmp.fr/apron/).
+
+The related software developpements have been conducted by the following
+people:
+
+Bertrand Jeannet	Main author of num, mlgmpidl, apron, mlapronidl,
+			and newpolka packages.
+
+Sebastian Pop		Adaptation of the Omega library (to come).
+
+Antoine Mine		Author of the Octagon Abstract Domain Library and its
+			adaptation to APRON interface.
+			Binding to the Parma Polyhedra Library.
+			Author of num package.

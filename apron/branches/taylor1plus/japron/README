@@ -1,0 +1,60 @@
+# README
+#
+# APRON Library / Java Binding
+#
+# Copyright (C) Antoine Mine' 2010
+
+# This file is part of the APRON Library, released under GPL license.
+# Please read the COPYING file packaged in the distribution.
+
+This package provides a Java binding for the Apron library.
+This includes Apron API objects (expression, constraints, etc.) as well as 
+manager factories for the numerical abstract domains included in the
+Apron distribution.
+Also included is a Java binding for the GMP and MPFR libraries used by Apron.
+
+
+STATUS
+######
+
+Status: Beta
+All functions have been implemented but only very few have 
+been tested so far.
+
+Requirements: 
+Only tested on Sun's Java 1.6.0_17, on x86_64 Linux
+
+
+INSTALLATION
+############
+
+In order to compile, you must set HAS_JAVA to 1 in the global Makefile.config
+and type "make" from the Apron main directory.
+You must also set-up Java-specific binary names and directories your
+Makefile.config.
+In particular, you will probably need to set the JNIINC variable to provide
+the -I to include jni.h.
+
+"make" builds classfiles and .jar, and .so glue C libraries
+
+"make install" installs the .so, but not classfiles nor .jar
+
+"make doc" builds some Javadoc documentation 
+
+To run some tests, type
+  java -ae gmp.Test
+  java -ae apron.Test
+after checking that your CLASSPATH contains the proper directories.
+
+The PPL binding is optional. It is built only if HAS_PPL is 1.
+Currently, 
+
+Currently, whether to compile a double, MPQ, or MPFR of boxes and
+octagons is hardcoded in the Makefile.
+
+
+DOCUMENTATION
+#############
+
+For information on the API, type "make doc" and look in the doc/ subdirectory.
+

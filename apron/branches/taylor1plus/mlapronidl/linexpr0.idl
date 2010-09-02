@@ -1,0 +1,217 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(MLI,"(** APRON Linear expressions of level 0 *)\n")
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_linexpr0.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "dim.idl";
+
+typedef [abstract,
+	 ml2c(camlidl_apron_linexpr0_ptr_ml2c),
+	 c2ml(camlidl_apron_linexpr0_ptr_c2ml)]
+struct ap_linexpr0_ptr* ap_linexpr0_ptr;
+
+quote(MLI,"(** Create a linear expression. Its representation is sparse if [None] is provided, dense of size [size] if [Some size] is provided. *)")
+ap_linexpr0_ptr ap_linexpr0_make([unique]int* size)
+     quote(call,"\n\
+  if (size && *size<0) caml_failwith(\"Linexpr0.make: negative optional size\");\n\
+  if (size){\n\
+    _res = ap_linexpr0_alloc(AP_LINEXPR_DENSE, *size);\n\
+  } else {\n\
+    _res = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);\n\
+  }\n\
+  ");
+
+quote(MLI,"\n\
+val of_list : int option -> (Coeff.t * Dim.t) list -> Coeff.t option -> t\n\
+(** Combines {!make} and {!set_list} (see below) *)\n\
+val of_array : int option -> (Coeff.t * Dim.t) array -> Coeff.t option -> t\n\
+(** Combines {!make} and {!set_array} (see below) *)\n\
+")
+
+quote(MLI,"(** In case of sparse representation, remove zero coefficients *)")
+void ap_linexpr0_minimize(ap_linexpr0_ptr a);
+
+quote(MLI,"(** Copy *)")
+ap_linexpr0_ptr ap_linexpr0_copy(const ap_linexpr0_ptr a);
+
+quote(MLI,"(** Comparison with lexicographic ordering using Coeff.cmp, terminating by constant *)")
+int ap_linexpr0_compare(const ap_linexpr0_ptr a, const ap_linexpr0_ptr b);
+
+quote(MLI,"(** Hashing function *)")
+int ap_linexpr0_hash(const ap_linexpr0_ptr a);
+
+quote(MLI,"(** Get the size of the linear expression (which may be sparse or dense) *)")
+int ap_linexpr0_get_size(ap_linexpr0_ptr a)
+     quote(call,"_res = a->size;");
+
+quote(MLI,"(** Get the constant *)")
+[ref]struct ap_coeff_t* ap_linexpr0_get_cst(ap_linexpr0_ptr a)
+     quote(call,"_res = &a->cst;");
+
+quote(MLI,"(** Get the coefficient corresponding to the dimension *)")
+struct ap_coeff_t ap_linexpr0_get_coeff(ap_linexpr0_ptr a, int dim)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  ap_coeff_init(&_res,AP_COEFF_SCALAR);\n\
+  if (dim<0) goto ap_linexpr0_get_coeff_exit;\n\
+  b = ap_linexpr0_get_coeff(&_res,a,(ap_dim_t)dim);\n   \
+  if (b){\n\
+   ap_linexpr0_get_coeff_exit:\n\
+    ap_coeff_clear(&_res);\n\
+    caml_failwith(\"Linexpr0.get_coeff: out of bound dimension\");\n\
+  }\n\
+}")
+     quote(dealloc,"ap_coeff_clear(&_res);");
+
+quote(MLI,"\n\
+val set_list : t -> (Coeff.t * Dim.t) list -> Coeff.t option -> unit\n\
+  (** Set simultaneously a number of coefficients.\n\
+\n\
+    [set_list expr [(c1,1); (c2,2)] (Some cst)] assigns coefficients [c1] \n\
+    to dimension 1, coefficient [c2] to dimension 2, and coefficient [cst]\n\
+    to the constant. If [(Some cst)] is replaced by [None],\n\
+    the constant coefficient is not assigned. *)\n\
+val set_array : t -> (Coeff.t * Dim.t) array -> Coeff.t option -> unit\n\
+  (** Set simultaneously a number of coefficients, as [set_list]. *)\n")
+
+quote(MLI,"(** Set the constant *)")
+void ap_linexpr0_set_cst(ap_linexpr0_ptr a, [ref]struct ap_coeff_t* coeff)
+     quote(call,"ap_linexpr0_set_cst(a,coeff);");
+
+quote(MLI,"(** Set the coefficient corresponding to the dimension *)")
+void ap_linexpr0_set_coeff(ap_linexpr0_ptr a, int dim, [ref]struct ap_coeff_t* coeff)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  if (dim<0) goto ap_linexpr0_set_coeff_exit;\n\
+  b = ap_linexpr0_set_coeff(a,(ap_dim_t)dim,coeff);\n \
+  if (b){\n\
+   ap_linexpr0_set_coeff_exit:\n\
+    caml_failwith(\"Linexpr0.set_coeff: out of bound dimension\");\n\
+  }\n\
+}\n\
+");
+
+quote(MLI,"(** Iter the function on the pairs coefficient/dimension of the linear expression *)")
+
+quote(MLMLI,"\n\
+external ap_linexpr0_iter: (Coeff.t -> Dim.t -> unit) -> ap_linexpr0_ptr -> unit = \"camlidl_expr0_linexpr0_iter\"\n \
+")
+
+quote(C,"\n\
+value camlidl_expr0_linexpr0_iter(value _v_closure, value _v_linexpr0)\n\
+{\n\
+  CAMLparam2(_v_closure,_v_linexpr0);\n\
+  CAMLlocal2(_v_dim,_v_coeff);\n\
+  size_t i;\n\
+  ap_dim_t dim;\n\
+  ap_coeff_t* pcoeff;\n\
+  ap_linexpr0_t* linexpr0;\n\
+\n\
+ camlidl_apron_linexpr0_ptr_ml2c(_v_linexpr0,&linexpr0);\n\
+ ap_linexpr0_ForeachLinterm(linexpr0,i,dim,pcoeff){\n\
+    _v_dim = Val_int(dim);\n\
+    _v_coeff = camlidl_c2ml_coeff_struct_ap_coeff_t(pcoeff,NULL);\n \
+    callback2(_v_closure,_v_coeff,_v_dim);\n\
+  }\n\
+  CAMLreturn(Val_unit);\n\
+}\n\
+")
+
+quote(MLI,"\n\
+(** Print a linear expression, using a function converting from dimensions to names *)\n\
+val print : (Dim.t -> string) -> Format.formatter -> ap_linexpr0_ptr -> unit\n\
+")
+
+quote(ML,"\n\
+let set_list expr list ocst = \n\
+  List.iter\n\
+    (fun (coeff,dim) -> set_coeff expr dim coeff )\n\
+    list;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+let set_array expr tab ocst = \n\
+  Array.iter\n\
+    (fun (coeff,dim) -> set_coeff expr dim coeff )\n\
+    tab;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+\n\
+let of_list osize list ocst =\n\
+  let expr = make osize in\n\
+  set_list expr list ocst;\n\
+  expr\n\
+let of_array osize tab ocst =\n\
+  let expr = make osize in\n\
+  set_array expr tab ocst;\n\
+  expr\n\
+\n\
+let print assoc fmt expr = \n\
+  Format.fprintf fmt \"@[<hov>\";\n\
+  let first = ref true in\n\
+  iter\n\
+    (begin fun coeff dim ->\n\
+      let coeff = Coeff.reduce coeff in\n\
+      let sgn = match coeff with\n\
+      | Coeff.Scalar x -> Scalar.sgn x\n\
+      | Coeff.Interval i ->\n\
+	  if Interval.is_zero i then 0 else 1\n\
+      in\n\
+      if sgn <> 0 then begin\n\
+	if not !first then Format.fprintf fmt \"@,\";\n\
+	if sgn>0 then begin\n\
+	  if not !first then Format.pp_print_string fmt \"+\";\n\
+	end;\n\
+	begin match coeff with\n\
+	| Coeff.Scalar scalar ->\n\
+	    if Scalar.equal_int scalar (-1) then\n\
+	      Format.pp_print_string fmt \"-\"\n\
+	    else if not (Scalar.equal_int scalar 1) then\n\
+	      Scalar.print fmt scalar;\n\
+	| Coeff.Interval i ->\n\
+	    Interval.print fmt i\n\
+	end;\n\
+	Format.pp_print_string fmt (assoc dim);\n\
+	first := false;\n\
+      end;\n\
+    end)\n\
+    expr;\n\
+  begin match get_cst expr with\n\
+  | Coeff.Scalar scalar ->\n\
+      let sgn = Scalar.sgn scalar in\n\
+      if sgn <> 0 then begin\n\
+	if not !first then Format.fprintf fmt \"@,\";\n\
+	if sgn>0 && not !first then Format.pp_print_char fmt '+';\n\
+	Scalar.print fmt scalar;\n\
+      end\n\
+      else if !first then\n\
+	Format.pp_print_char fmt '0';\n\
+  | Coeff.Interval i ->\n\
+      if not (Interval.is_zero i) then begin\n\
+	if not !first then Format.pp_print_char fmt '+';\n\
+	Interval.print fmt i\n\
+      end\n\
+      else if !first then\n\
+	Format.pp_print_char fmt '0';\n\
+  end;\n\
+  Format.fprintf fmt \"@]\";\n\
+  ()\n\
+")

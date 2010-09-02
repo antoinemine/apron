@@ -1,0 +1,49 @@
+
+This document tries to explain some specific points in compiling Apron under
+Macintosh. It brings additional information compared to the README.
+
+Note that this is work-in-progress.
+
+PREREQUISITES
+-------------
+
+- GNU sed is required, instead of standard sed.
+
+- gcc 4.0.1 is reported to cause this problem at the end of the compilation
+  process:
+
+  ld: duplicate symbol ___gmpz_abs in ...
+
+  more recent versions should work properly.
+
+The following Cygwin package are required:
+- gcc (Devel)
+- make (Devel)
+- gmp, mpfr (Math)
+- doxygen (Devel)
+- tetex-base (Publishing)
+
+Additionally, you'll need to install manually the following
+
+- OCaml 3.09 or better, from http://caml.inria.fr/ocaml/release.fr.html
+  (the 3.08 version, in CygWin, at the time of writing is too old)
+
+- CamlIDL, from http://caml.inria.fr/pub/old_caml_site/camlidl/
+
+
+CONFIGURATION
+-------------
+
+Copy Makefile.config.model into Makefile.config and edit the _PREFIX paths to
+suit your installation (you might want to set APRON_PREFIX, CAMLIDL_PREFIX
+and CAML_PREFIX to /usr/local instead of the default /usr).
+
+The following options should be disabled:
+- HAS_CPP (Cygwin's gcc is too old)
+- HAS_PPL (Apron with PPL compilation untested under Windows)
+- HAS_LONG_DOUBLE (long double not supported by math library under Windows)
+
+Do the same with mlgmpidl/Makefile.config.model
+
+Now, (make rebuild), make and make install in the apron top-level directory
+should work.

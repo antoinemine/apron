@@ -1,0 +1,18 @@
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+There are currently two examples, 
+
+- example1.c (C, use of level 1)
+- mlexample1.ml, mlexample2.ml, mlexample3.ml (OCaml, level 1).
+
+For C examples, type make example1
+
+For OCaml examples, type make mlexample1 or make mlexample1.opt
+
+Look at the Makefile for making your own.  
+
+The present one assumes that all APRON subpackages are installed in
+$APRON_PREFIX directory.

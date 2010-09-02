@@ -1,0 +1,3 @@
+
+- The files ap_pkgrid.c, ap_pkgrid.h, ap_pkgrid.texi, polkaGrid.idl are
+  released under the GPL license, as they relies on the PPL library.
