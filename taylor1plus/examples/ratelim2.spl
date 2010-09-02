@@ -1,0 +1,13 @@
+var i: int, x: real, y:real, EPS:real, xt:real, yt:real;
+begin
+assume x <= .1 and -x <= .1;
+assume y <= .1 and -y <= .1;
+i = 0;
+EPS = 0.01;
+xt = 10;
+yt = 10;
+while (((xt-x)*(xt-x)+(yt-y)*(yt-y))>EPS) do
+  x = x+.5*(xt-x);
+  y = y+.5*(yt-y);
+done;
+end

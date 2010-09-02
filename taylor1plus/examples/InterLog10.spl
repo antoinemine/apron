@@ -1,0 +1,41 @@
+var x : real, y : real ; 
+begin 
+assume x >= 0.000000 and x <= 0.500000; 
+if (x<=0.050000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.100000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.150000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.200000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.250000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.300000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.350000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.400000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+if (x<=0.450000) then 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  else 
+  y = x - (x*x)/2 + (x*x*x)/3 - (x*x*x*x)/4; 
+  endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end

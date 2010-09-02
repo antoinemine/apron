@@ -1,0 +1,40 @@
+A quoi sert la concretisation intervalle de chaque nsym :
+ - calcul de l'union avec concretisation minimale
+ - calcule de la forme z = x = y (en cas de test d'égalité)
+ - calcul de la concretisation d'une dimension
+ - calcule de la concretisation de l'objet abstrait T1+
+ - linearisation (calcule de la multiplication, division sqrt)
+
+Quand est ce que la concretisation d'un nsym change ?
+ - pour l'objet unioné, la concretisation, calculée fraichement est l'union donc est différente à priori
+ - suite à un meet avec une contrainte :
+   * transformer la contrainte en une contrainte sur les eps (linéaire : faire une version qui calcule in-place )
+   * rajouter les dimensions non déjà contraints à l'objet abstrait
+   * faire un meet avec la contrainte
+   * calculer la concretisation intervalle des nsym contraints
+
+
+Est ce que l'operation de rajout/suppression de dimension est couteuse ?
+
+Quand ajouter une dimension dans l'objet abstrait des eps :
+ - si la contrainte induit une amélioration de l'intervalle [-1,1]
+
+Quand supprimer un nsym contraint :
+ - union (pour tous les domaines sous-poly)
+ - pour les boxes, si la concretisation n'améliore pas [-1,1]
+
+Algo meet lincons :
+ - Require : obj abstrait T1+
+ - Ensure : obj abstrait T1+ meet tableau de contraites linéaires
+ - si pas encore de symboles de bruit dans l'analyse :
+   - T1+ -> Box -> meet lincons -> Box -> T1+
+   sinon, évaluer la contrainte en terme de sym de bruit :
+   - si pas de sym de bruit dans la contrainte (nsym simplifiés ou la contrainte porte sur des dimensions qui n'en ont pas) :
+    - isoler les var concernés, mettre a jour leurs centres (Box -> meet lincons -> Box)
+    - si bottom, mettre tout a bottom
+   - sinon, faire un meet de la contrainte exprimée en les eps avec l'objet abstrait des eps,
+    - calculer la concretisation intervalles des eps contraints, ne stocker que les intervalles qui améliore [-1,1], pour le domaine des intervalles supprimer ces eps comme étant contraints
+      
+
+
+

@@ -1,0 +1,56 @@
+/* Inverse of a square root (Householder 3d order)
+   NB iter: 10
+*/
+
+var c3d8:real, A:real, hn:real, xn:real, xnp1:real, z:real;
+begin
+
+A = random;
+assume A<=25 and A>=16;
+
+c3d8 = 0.375;
+xn = 0.0625;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+hn = 1 - A*xn*xn;
+xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+xn = xnp1;
+
+z = A*xn;
+
+end

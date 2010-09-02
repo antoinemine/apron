@@ -1,0 +1,13 @@
+var x : int , y : int;
+begin
+assume x <= 100 and x >= -100;
+if ( x >= -1 and x <= 1 ) then
+y = x - 1;
+else
+y = x;
+endif;
+if( x == 0 ) then
+assume y != 0;
+endif;
+end
+
