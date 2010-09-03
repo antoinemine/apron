@@ -1,7 +1,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <mcheck.h>
 #include "ap_global1.h"
 
 #include "num.h"

@@ -1,7 +1,7 @@
 include Makefile.config
 
 LCFLAGS = \
--Lapron -Litv -Lbox -Loctagons -Lnewpolka \
+-Lapron -Litv -Lbox -Loctagons -Lnewpolka -Ltaylor1plus \
 -L$(PPL_PREFIX)/lib -Lppl \
 -Lproducts \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
@@ -14,9 +14,6 @@ endif
 ifneq ($(HAS_CPP),)
 all: cxx
 endif
-ifneq ($(HAS_JAVA),)
-all: java
-endif
 
 c:
 	(cd num; make all)
@@ -25,6 +22,7 @@ c:
 	(cd newpolka; make all)
 	(cd box; make all)
 	(cd octagons; make MPQ D)
+	(cd taylor1plus; make all)
 ifneq ($(HAS_PPL),)
 	(cd ppl; make)
 	(cd products; make)
@@ -38,23 +36,21 @@ ml:
 	(cd newpolka; make ml)
 	(cd box; make ml)
 	(cd octagons; make mlMPQ mlD)
+	(cd taylor1plus; make ml)
 ifneq ($(HAS_PPL),)
 	(cd ppl; make ml)
 	(cd products; make ml)
 endif
 
-java: c
-	(cd japron; make all)
-
 .PHONY: aprontop apronppltop
 
 aprontop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX)/lib -I $(APRON_PREFIX)/lib -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma
 
 apronppltop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma
+	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX)/lib -I $(APRON_PREFIX)/lib -verbose -o $@ \
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa
 
 rebuild:
 ifneq ($(HAS_OCAML),)
@@ -62,6 +58,7 @@ ifneq ($(HAS_OCAML),)
 	(cd newpolka; make rebuild)
 	(cd box; make rebuild)
 	(cd octagons; make rebuild)
+	(cd taylor1plus; make rebuild)
 	(cd ppl; make rebuild)
 	(cd products; make rebuild)
 endif
@@ -73,6 +70,7 @@ install:
 	(cd newpolka; make install)
 	(cd box; make install)
 	(cd octagons; make install)
+	(cd taylor1plus; make install)
 ifneq ($(HAS_PPL),)
 	(cd ppl; make install)
 	(cd products; make install)
@@ -88,9 +86,6 @@ endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; make install)
 endif
-ifneq ($(HAS_JAVA),)
-	(cd japron; make install)
-endif
 
 clean:
 	(cd num; make clean)
@@ -103,7 +98,6 @@ clean:
 	(cd ppl; make clean)
 	(cd products; make clean)
 	(cd apronxx; make clean)
-	(cd japron; make clean)
 	(cd examples; make clean)
 	(cd test; make clean)
 	rm -fr online tmp apron*run aprontop apronppltop
@@ -114,11 +108,10 @@ mostlyclean: clean
 	(cd octagons; make mostlyclean)
 	(cd newpolka; make mostlyclean)
 	(cd ppl; make mostlyclean)
-	(cd japron; make mostlyclean)
 	(cd products; make mostlyclean)
 	(cd apronxx; make mostlyclean)
 
-uninstall :distclean
+uninstall: distclean
 
 distclean:
 	(cd num; make distclean)
@@ -128,11 +121,11 @@ distclean:
 	(cd box; make distclean)
 	(cd newpolka; make distclean)
 	(cd octagons; make distclean)
+	(cd taylor1plus; make uninstall)
 	(cd examples; make distclean)
 	(cd ppl; make distclean)
 	(cd products; make distclean)
 	(cd apronxx; make distclean)
-	(cd japron; make distclean)
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 
 doc:
@@ -143,15 +136,12 @@ endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; make doc)
 endif
-ifneq ($(HAS_JAVA),)
-	(cd japron; make doc)
-endif
 
 # make distribution, update to reflect current version
 
 PKGNAME  = apron-0.9.10
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box newpolka ppl products mlapronidl examples test apronxx japron
+PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx
 
 dist:
 	$(MAKE) all
