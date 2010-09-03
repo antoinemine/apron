@@ -52,6 +52,7 @@ ap_manager_t* t1p_manager_alloc(void)
 	/* 2.Control of internal representation */
 	funptr[AP_FUNID_MINIMIZE] = &t1p_minimize;
 	funptr[AP_FUNID_CANONICALIZE] = &t1p_canonicalize;
+	funptr[AP_FUNID_HASH] = &t1p_hash;
 	funptr[AP_FUNID_APPROXIMATE] = &t1p_approximate;
 	/* 3.Printing */
 	funptr[AP_FUNID_FPRINT] = &t1p_fprint;

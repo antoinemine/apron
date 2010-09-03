@@ -95,9 +95,9 @@ void t1p_free(ap_manager_t* man, t1p_t* a)
 	    if (a->gamma[i] != pr->ap_muu) ap_interval_free(a->gamma[i]);
 	}
     }
-    free(a->gamma); 
+    free(a->gamma);
     a->gamma = NULL;
-    free(a->nsymcons); 
+    free(a->nsymcons);
     a->nsymcons = NULL;
     ap_abstract0_free(pr->manNS, a->abs);
     a->size = 0;
@@ -108,7 +108,7 @@ void t1p_free(ap_manager_t* man, t1p_t* a)
     man->result.flag_exact = tbool_true;
 }
 
-/* size of the abstract value 
+/* size of the abstract value
  * TODO: la taille de quoi exactement ?
  */
 size_t t1p_size(ap_manager_t* man, t1p_t* a)
@@ -134,15 +134,23 @@ void t1p_minimize(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_MINIMIZE);
-        not_implemented();
+	not_implemented();
 }
 
 /* Put the abstract value in canonical form. (supress zero coeff from the affine form) */
-void t1p_canonicalize(ap_manager_t* man, t1p_t* a) 
+void t1p_canonicalize(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_CANONICALIZE);
-        not_implemented();
+	not_implemented();
+}
+
+/* Return an hash code */
+int t1p_hash(ap_manager_t* man, t1p_t* a)
+{
+    CALL();
+	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_HASH);
+	not_implemented();
 }
 
 /* Perform some transformation on the abstract value, guided by the field algorithm.
@@ -150,11 +158,11 @@ void t1p_canonicalize(ap_manager_t* man, t1p_t* a)
  * The transformation may lose information.  The argument "algorithm"
  * overrides the field algorithm of the structure of type ap_funopt_t
  * associated to ap_abstract0_approximate (commodity feature). */
-void t1p_approximate(ap_manager_t* man, t1p_t* a, int algorithm) 
+void t1p_approximate(ap_manager_t* man, t1p_t* a, int algorithm)
 {
     CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_APPROXIMATE);
-        not_implemented();
+	not_implemented();
 }
 
 
@@ -169,7 +177,7 @@ void t1p_approximate(ap_manager_t* man, t1p_t* a, int algorithm)
 void t1p_fprint(FILE* stream,
 		ap_manager_t* man,
 		t1p_t* a,
-		char** name_of_dim) 
+		char** name_of_dim)
 {
     CALL();
     t1p_internal_t* pr = t1p_init_from_manager(man,AP_FUNID_FPRINT);
@@ -183,7 +191,7 @@ void t1p_fprint(FILE* stream,
     fprintf(stdout, "[[pby %zu]]   ",a->paf[i]->pby);
 #endif
 	    if (name_of_dim) {
-   	        fprintf(stream, "%s", name_of_dim[i]);
+		fprintf(stream, "%s", name_of_dim[i]);
 	    } else {
 		fprintf(stream, "(%zu)", i);
 	    }
@@ -213,13 +221,13 @@ void t1p_fprint(FILE* stream,
 void t1p_fprintdiff(FILE* stream,
 		ap_manager_t* man,
 		t1p_t* a1, t1p_t* a2,
-		char** name_of_dim) 
+		char** name_of_dim)
 {
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_FPRINTDIFF);
-        not_implemented();
+	not_implemented();
 }
 
-void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a) 
+void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a)
 {
 	CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man,AP_FUNID_FDUMP);
@@ -245,17 +253,16 @@ void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a)
 /* ********************************************************************** */
 /* 4. Serialisation */
 /* ********************************************************************** */
-void t1p_serialize_raw(ap_manager_t* man, t1p_t* a) 
+void t1p_serialize_raw(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_SERIALIZE_RAW);
-        not_implemented();
+	not_implemented();
 }
 
-void t1p_deserialize_raw(ap_manager_t* man, t1p_t* a) 
+void t1p_deserialize_raw(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_DESERIALIZE_RAW);
-        not_implemented();
+	not_implemented();
 }
-
