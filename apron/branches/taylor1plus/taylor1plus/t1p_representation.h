@@ -29,6 +29,8 @@ void t1p_minimize(ap_manager_t* man, t1p_t* a);
 
 void t1p_canonicalize(ap_manager_t* man, t1p_t* a);
 
+int t1p_hash(ap_manager_t* man, t1p_t* a);
+
 void t1p_approximate(ap_manager_t* man, t1p_t* a, int algorithm);
 
 /* ********************************************************************** */
