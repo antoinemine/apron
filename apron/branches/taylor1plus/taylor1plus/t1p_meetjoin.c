@@ -54,52 +54,51 @@ t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     } else {
 	res = t1p_alloc(man, intdim, realdim);
 	//ap_abstract0_free(pr->manNS, res->abs);
-	    size_t k = 0;
-	    ap_dim_t j = 0;
-	    size_t dims1 = t1p_nsymcons_get_dimension(pr, a1);
-	    size_t dims2 = t1p_nsymcons_get_dimension(pr, a2);
-	    if (dims1 && dims2) {
-		size_t dim2 = 0;
-		/* au pire il y a toute la liste de l'un a rajouter dans l'autre */
-		ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
-		res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
-		for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
-		ap_abstract0_free(pr->manNS, res->abs);
-		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
-		for (k=0; k<dims1; k++) {
-		    if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-			dimchange2->dim[dim2] = j; 
-			dim2++;
-		    }
+	size_t k = 0;
+	ap_dim_t j = 0;
+	size_t dims1 = t1p_nsymcons_get_dimension(pr, a1);
+	size_t dims2 = t1p_nsymcons_get_dimension(pr, a2);
+	if (dims1 && dims2) {
+	    size_t dim2 = 0;
+	    /* au pire il y a toute la liste de l'un a rajouter dans l'autre */
+	    ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
+	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
+	    for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
+	    ap_abstract0_free(pr->manNS, res->abs);
+	    res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
+	    for (k=0; k<dims1; k++) {
+		if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
+		    dimchange2->dim[dim2] = j; 
+		    dim2++;
 		}
-		dimchange2->realdim = dim2;
-		size_t dim1 = 0;
-		for (k=0; k<dims2; k++) t1p_insert_constrained_nsym(pr, &j, a2->nsymcons[k], res);
-
-		/* destructive, without projection (new dimension set to top) */
-		ap_abstract0_add_dimensions(pr->manNS, true, a2->abs, dimchange2, false);
-
-		ap_abstract0_meet(pr->manNS, true, res->abs, a2->abs);
-
-		/* update res->gamma */
-		t1p_update_nsymcons_gamma(pr, res);
-
-		ap_dimchange_add_invert(dimchange2);
-		ap_abstract0_remove_dimensions(pr->manNS, true, a2->abs, dimchange2);
-
-		dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
-	    } else if (dims1) {
-		res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
-		for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
-		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
-	    } else if (dims2) {
-		res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a2->nsymcons, dims2*sizeof(ap_dim_t));
-		for (i=0; i<dims2; i++) res->gamma[i] = ap_interval_alloc_set(a2->gamma[i]);
-		res->abs = ap_abstract0_copy(pr->manNS, a2->abs);
-	    } else {
-		/* non constrained abstract objects */
 	    }
+	    dimchange2->realdim = dim2;
+	    size_t dim1 = 0;
+	    for (k=0; k<dims2; k++) t1p_insert_constrained_nsym(pr, &j, a2->nsymcons[k], res);
 
+	    /* destructive, without projection (new dimension set to top) */
+	    ap_abstract0_add_dimensions(pr->manNS, true, a2->abs, dimchange2, false);
+
+	    ap_abstract0_meet(pr->manNS, true, res->abs, a2->abs);
+
+	    /* update res->gamma */
+	    t1p_update_nsymcons_gamma(pr, res);
+
+	    ap_dimchange_add_invert(dimchange2);
+	    ap_abstract0_remove_dimensions(pr->manNS, true, a2->abs, dimchange2);
+
+	    dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
+	} else if (dims1) {
+	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
+	    for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
+	    res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
+	} else if (dims2) {
+	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a2->nsymcons, dims2*sizeof(ap_dim_t));
+	    for (i=0; i<dims2; i++) res->gamma[i] = ap_interval_alloc_set(a2->gamma[i]);
+	    res->abs = ap_abstract0_copy(pr->manNS, a2->abs);
+	} else {
+	    /* non constrained abstract objects */
+	}
 
 	//res->abs = ap_abstract0_meet(pr->manNS, false, a1->abs, a2->abs);
 	/* update res->gamma */
@@ -133,7 +132,11 @@ t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		fprintf(stdout, "destructive ? %d\n",destructive);
 		t1p_fprint(stdout, man, a1, 0x0);
 		t1p_fprint(stdout, man, a2, 0x0);
-		not_implemented();
+		//not_implemented();
+		/* return a top instead */
+		res->paf[i] = pr->top;
+		res->paf[i]->pby++;
+		itv_set_top(res->box[i]);
 	    }
 	}
 	itv_clear(tmp);
