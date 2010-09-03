@@ -80,7 +80,7 @@ ifneq ($(HAS_OCAML),)
 	$(INSTALLd) $(APRON_PREFIX)/bin
 	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
 ifneq ($(HAS_PPL),)
-	if test -f aprontop; then $(INSTALL) apronppltop $(APRON_PREFIX)/bin; fi
+	if test -f apronppltop; then $(INSTALL) apronppltop $(APRON_PREFIX)/bin; fi
 endif
 endif
 ifneq ($(HAS_CPP),)
