@@ -29,7 +29,7 @@ t1p_t* t1p_alloc(ap_manager_t* man, size_t intdim, size_t realdim)
     res->box = itv_array_alloc(intdim + realdim);
     checked_malloc(res->paf, t1p_aff_t*, res->dims, abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "********* alloc %x*********\n",(intptr_t)res);
+    fprintf(stdout, "********* alloc %tx*********\n",(intptr_t)res);
 #endif
     return res;
 }
@@ -75,7 +75,7 @@ void t1p_free(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "********* free %x*********\n",(intptr_t)a);
+    fprintf(stdout, "********* free %tx*********\n",(intptr_t)a);
 #endif
     t1p_internal_t * pr = t1p_init_from_manager(man, AP_FUNID_FREE);
     arg_assert(a,abort(););
@@ -183,7 +183,7 @@ void t1p_fprint(FILE* stream,
     fprintf(stdout, "[[pby %zu]]   ",a->paf[i]->pby);
 #endif
 	    if (name_of_dim) {
-		fprintf(stream, name_of_dim[i]);
+   	        fprintf(stream, "%s", name_of_dim[i]);
 	    } else {
 		fprintf(stream, "(%zu)", i);
 	    }
