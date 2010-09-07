@@ -954,37 +954,9 @@ ap_interval_t* ap_abstract0_bound_dimension(ap_manager_t* man,
   }
 }
 ap_lincons0_array_t ap_abstract0_to_lincons_array(ap_manager_t* man, ap_abstract0_t* a)
-/*{
-  if (ap_abstract0_checkman1(AP_FUNID_TO_LINCONS_ARRAY,man,a)){
-    ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
-    return ptr(man,a->value);
-  }
-  else {
-    ap_lincons0_array_t res = { NULL, 0 };
-    return res;
-  }
-}*/
-/*--------------------------------------*/    
-/* @khalil ghorbal@ dirty hack to print 
-   readable interval concretisations at 
-   the end of analysis */
-/*--------------------------------------*/    
 {
   if (ap_abstract0_checkman1(AP_FUNID_TO_LINCONS_ARRAY,man,a)){
     ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
-    FILE *file = fopen("/tmp/itv.log", "w");
-    ap_interval_t** toto = ap_abstract0_to_box(man, a);
-    size_t i;
-    double inf,sup;
-    inf = sup = 0.0;
-    ap_dimension_t dim = ap_abstract0_dimension(man, a);
-    for (i=0;i<dim.intdim+dim.realdim;i++) {
-	ap_double_set_scalar(&inf, toto[i]->inf, GMP_RNDU);
-	ap_double_set_scalar(&sup, toto[i]->sup, GMP_RNDU);
-	fprintf(file,"[%f,%f]\n",inf,sup);
-    }
-    fclose(file);
-    ap_interval_array_free(toto,dim.intdim+dim.realdim);
     return ptr(man,a->value);
   }
   else {
@@ -1666,3 +1638,4 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
 			    dimension.realdim);
   }
 }
+
