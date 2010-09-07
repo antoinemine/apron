@@ -69,7 +69,7 @@ void ap_abstract1_canonicalize(ap_manager_t* man, ap_abstract1_t* a);
      considered as equal by the function ap_abstract0_is_eq are given the
      same hash value.
   */
-  /* Return an hash code (assume canonical form) */ 
+  /* Return an hash code (assume canonical form) */
 void ap_abstract1_approximate(ap_manager_t* man, ap_abstract1_t* a, int algorithm);
   /* Perform some transformation on the abstract value, guided by the
      field algorithm.
@@ -262,33 +262,33 @@ ap_abstract1_t ap_abstract1_add_ray_array(ap_manager_t* man,
 
 /* Parallel Assignment and Substitution of several dimensions by
    expressions. */
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_assign_linexpr_array(ap_manager_t* man,
 				  bool destructive, ap_abstract1_t* a,
 				  ap_var_t* tvar, ap_linexpr1_t* texpr, size_t size,
 				  ap_abstract1_t* dest);
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_substitute_linexpr_array(ap_manager_t* man,
 				      bool destructive, ap_abstract1_t* a,
 				      ap_var_t* tvar, ap_linexpr1_t* texpr, size_t size,
 				      ap_abstract1_t* dest);
- ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_assign_texpr_array(ap_manager_t* man,
 				bool destructive, ap_abstract1_t* a,
 				ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
 				ap_abstract1_t* dest);
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_substitute_texpr_array(ap_manager_t* man,
 				    bool destructive, ap_abstract1_t* a,
 				    ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
 				    ap_abstract1_t* dest);
-  
+
 /* ============================================================ */
 /* III.3 Projections */
 /* ============================================================ */
 
 ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
-					 bool destructive, ap_abstract1_t* a, 
+					 bool destructive, ap_abstract1_t* a,
 					 ap_var_t* tvar, size_t size,
 					 bool project);
 
@@ -296,19 +296,19 @@ ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
 /* III.4 Change of environment */
 /* ============================================================ */
 
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_change_environment(ap_manager_t* man,
 				bool destructive, ap_abstract1_t* a,
 				ap_environment_t* nenv,
 				bool project);
 
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_minimize_environment(ap_manager_t* man,
 				  bool destructive, ap_abstract1_t* a);
   /* Remove from the environment of the abstract value
      variables that are unconstrained in it. */
 
-ap_abstract1_t 
+ap_abstract1_t
 ap_abstract1_rename_array(ap_manager_t* man,
 			  bool destructive, ap_abstract1_t* a,
 			  ap_var_t* var, ap_var_t* nvar, size_t size);
@@ -322,7 +322,7 @@ ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
 				   bool destructive, ap_abstract1_t* a,
 				   ap_var_t var,
 				   ap_var_t* tvar, size_t size);
-  /* Expand the variable var into itself + the size additional variables 
+  /* Expand the variable var into itself + the size additional variables
      of the array tvar, which are given the same type as var.
 
      It results in (size+1) unrelated variables having same
@@ -373,7 +373,7 @@ ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
 ap_abstract1_t ap_abstract1_of_tcons_array(ap_manager_t* man,
 					   ap_environment_t* env,
 					   ap_tcons1_array_t* array);
-  /* Abstract a conjunction of constraints and return an abstract value 
+  /* Abstract a conjunction of constraints and return an abstract value
      defined on the given environment. */
 
 ap_abstract1_t ap_abstract1_assign_linexpr(ap_manager_t* man,
@@ -396,11 +396,11 @@ ap_abstract1_t ap_abstract1_substitute_texpr(ap_manager_t* man,
      dimension by an expression */
 
 ap_abstract1_t ap_abstract1_unify(ap_manager_t* man,
-				  bool destructive, 
+				  bool destructive,
 				  ap_abstract1_t* a1,ap_abstract1_t* a2);
   /* Unify two abstract values on their common variables, that is, embed them
      on the least common environment and then compute their meet. The result is
-     defined on the least common environment. 
+     defined on the least common environment.
 
      Ex: unify of {x=y, defined on {x,y}} and {y=z+t, defined on {y,z,t}}
      gives {x=y and y=z+t, defined on {x,y,z,t}}.
@@ -419,7 +419,7 @@ ap_linexpr1_t ap_abstract1_intlinear_of_tree (ap_manager_t* man, ap_abstract1_t*
      it by an interval linear (resp. quasilinear if quasilinearize is true)
      expression. discr indicates which type of numbers should be used for
      computations.
-     
+
      This implies calls to ap_abstract0_bound_dimension. */
 
 #ifdef __cplusplus
