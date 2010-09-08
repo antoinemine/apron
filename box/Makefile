@@ -29,8 +29,14 @@ OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 # Files
 #---------------------------------------
 
-CCMODULES = box_internal box_representation box_constructor box_meetjoin box_assign box_resize box_otherops
+CCMODULES = box_internal box_representation box_constructor box_meetjoin box_assign box_resize box_otherops box_policy
 CCSRC = box_config.h box.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
+
+IDLDEPMODULES = \
+scalar interval coeff \
+dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
+var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy 
+IDLDEP = $(IDLDEPMODULES:%=%.idl)
 
 CCINC_TO_INSTALL = box.h
 CCBIN_TO_INSTALL =
@@ -113,7 +119,7 @@ clean:
 	/bin/rm -fr boxpolkarung boxpolkatopg tmp
 
 mostlyclean: clean
-	/bin/rm -fr manager.idl
+	/bin/rm -fr $(IDLDEP)
 	/bin/rm -f box.ml box.mli box_caml.c
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
@@ -225,15 +231,15 @@ box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
 # IDL rules
 #---------------------------------------
 
-manager.idl: ../mlapronidl/manager.idl
+$(IDLDEP): %.idl: ../mlapronidl/%.idl
 	ln -s -f $< $@
 
 # generates box.ml, box.mli, box_caml.c from box.idl
-rebuild: manager.idl box.idl
+rebuild: $(IDLDEP) box.idl
 	mkdir -p tmp
 	cp box.idl tmp/box.idl
 	$(CAMLIDL) -no-include -nocpp tmp/box.idl
-	cp tmp/box_stubs.c box_caml.c
+	$(SED) -f ../mlapronidl/sedscript_c tmp/box_stubs.c >box_caml.c
 	$(SED) -f sedscript_caml tmp/box.ml >box.ml
 	$(SED) -f sedscript_caml tmp/box.mli >box.mli
 
