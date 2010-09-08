@@ -41,7 +41,7 @@ C_FILES = \
 ap_scalar.c ap_interval.c ap_coeff.c ap_dimension.c \
 ap_linexpr0.c ap_lincons0.c ap_generator0.c \
 ap_texpr0.c ap_tcons0.c \
-ap_manager.c ap_abstract0.c ap_generic.c \
+ap_manager.c ap_abstract0.c ap_policy.c ap_generic.c \
 ap_var.c ap_environment.c \
 ap_linexpr1.c ap_lincons1.c ap_generator1.c \
 ap_texpr1.c ap_tcons1.c \

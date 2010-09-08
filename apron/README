@@ -38,6 +38,7 @@ Header files associated to C files and considered as modules:
   ap_texpr0.h     : tree expressions, level 0
   ap_tcons0.h     : tree constraints, level 0
   ap_manager.h    : managers
+  ap_policy.h     : policy iterations
   ap_abstract0.h: : abstract values, level 0
   ap_var.h        : variables 
   ap_environment.h: environment binding variables to dimensions

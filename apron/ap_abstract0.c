@@ -11,40 +11,6 @@
 /* 0. Utility and checking functions */
 /* ********************************************************************** */
 
-/* Constructor for ap_abstract0_t */
-
-static inline
-ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
-{
-  ap_abstract0_t* res = malloc(sizeof(ap_abstract0_t));
-  res->value = value;
-  res->man = ap_manager_copy(man);
-  return res;
-}
-static inline
-void _ap_abstract0_free(ap_abstract0_t* a)
-{
-  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = a->man->funptr[AP_FUNID_FREE];
-  ptr(a->man,a->value);
-  ap_manager_free(a->man);
-  free(a);
-}
-static inline
-ap_abstract0_t* ap_abstract0_cons2(ap_manager_t* man, bool destructive, ap_abstract0_t* oldabs, void* newvalue)
-{
-  if (destructive){
-    if (oldabs->man != man){
-      ap_manager_free(oldabs->man);
-      oldabs->man = ap_manager_copy(man);
-    }
-    oldabs->value = newvalue;
-    return oldabs;
-  }
-  else {
-    return ap_abstract0_cons(man,newvalue);
-  }
-}
-
 /* ====================================================================== */
 /* 0.1 Checking typing w.r.t. manager */
 /* ====================================================================== */
@@ -56,7 +22,6 @@ ap_abstract0_t* ap_abstract0_cons2(ap_manager_t* man, bool destructive, ap_abstr
 
 /* One abstract value */
 
-static
 void ap_abstract0_checkman1_raise(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
 {
   char str[160];
@@ -69,19 +34,8 @@ The abstract value of type %s is not of the type %s expected by the manager\
 			     funid,
 			     str);
 }
-static inline
-bool ap_abstract0_checkman1(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
-{
-  if (man->library != a->man->library){
-    ap_abstract0_checkman1_raise(funid,man,a);
-    return false;
-  }
-  else
-    return true;
-}
 
 /* Two abstract values */
-static
 bool ap_abstract0_checkman2(ap_funid_t funid,
 			    ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a2)
 {
@@ -112,7 +66,6 @@ The second abstract value of type %s is not of the type %s expected by the manag
   return res;
 }
 /* Array of abstract values */
-static
 bool ap_abstract0_checkman_array(ap_funid_t funid,
 				 ap_manager_t* man, ap_abstract0_t** tab, size_t size)
 {
@@ -138,16 +91,7 @@ The %luth abstract value of the array is of type %s and not of the type %s expec
 /* 0.2 Checking compatibility of arguments: abstract values */
 /* ====================================================================== */
 
-/* Getting dimensions without checks */
-static inline
-ap_dimension_t _ap_abstract0_dimension(ap_abstract0_t* a)
-{
-  ap_dimension_t (*ptr)(ap_manager_t*,...) = a->man->funptr[AP_FUNID_DIMENSION];
-  return ptr(a->man,a->value);
-}
-
 /* Check that the 2 abstract values have the same dimensionality */
-static
 bool ap_abstract0_check_abstract2(ap_funid_t funid, ap_manager_t* man,
 				  ap_abstract0_t* a1, ap_abstract0_t* a2)
 {
@@ -174,7 +118,6 @@ second abstract0: (%3lu,%3lu)",
 }
 
 /* Check that the array of abstract values have the same dimensionality.*/
-static
 bool ap_abstract0_check_abstract_array(ap_funid_t funid, ap_manager_t* man,
 				       ap_abstract0_t** tab, size_t size)
 {
@@ -229,7 +172,6 @@ abstract0 %lu: (%3lu,%3lu)\
 /* ====================================================================== */
 
 /* Check that the dimension makes sense in the given dimensionality */
-static
 void ap_abstract0_check_dim_raise(ap_funid_t funid, ap_manager_t* man,
 				  ap_dimension_t dimension, ap_dim_t dim,
 				  char* prefix)
@@ -249,21 +191,7 @@ dimension:  %3lu\n",
 			     funid,str);
 }
 
-static inline
-bool ap_abstract0_check_dim(ap_funid_t funid, ap_manager_t* man,
-			    ap_dimension_t dimension, ap_dim_t dim)
-{
-  if (dim>=dimension.intdim+dimension.realdim){
-    ap_abstract0_check_dim_raise(funid,man,dimension,dim,
-				 "incompatible dimension for the abstract value");
-    return false;
-  } else {
-    return true;
-  }
-}
-
 /* Check that the array of dimensions make sense in the given dimensionality */
-static
 bool ap_abstract0_check_dim_array(ap_funid_t funid, ap_manager_t* man,
 				  ap_dimension_t dimension, ap_dim_t* tdim, size_t size)
 {
@@ -284,7 +212,6 @@ bool ap_abstract0_check_dim_array(ap_funid_t funid, ap_manager_t* man,
 /* 0.4 Checking compatibility of arguments: expressions */
 /* ====================================================================== */
 
-static
 void ap_abstract0_check_expr_raise(ap_funid_t funid, ap_manager_t* man,
 				   ap_dimension_t dimension,
 				   ap_dim_t dim,
@@ -305,7 +232,6 @@ dimension: %3lu\
 }
 
 /* Check that the linear expression makes sense in the given dimensionality */
-static
 ap_dim_t ap_abstract0_check_linexpr_check(ap_dimension_t dimension,
 					  ap_linexpr0_t* expr)
 {
@@ -343,7 +269,6 @@ ap_dim_t ap_abstract0_check_linexpr_check(ap_dimension_t dimension,
   return dim;
 }
 
-static
 bool ap_abstract0_check_linexpr(ap_funid_t funid, ap_manager_t* man,
 				ap_dimension_t dimension,
 				ap_linexpr0_t* expr)
@@ -359,7 +284,6 @@ bool ap_abstract0_check_linexpr(ap_funid_t funid, ap_manager_t* man,
 }
 
 /* Check that the tree expression makes sense in the given dimensionality */
-static
 ap_dim_t ap_abstract0_check_texpr_check(ap_dimension_t dimension,
 					ap_texpr0_t* expr)
 {
@@ -372,7 +296,6 @@ ap_dim_t ap_abstract0_check_texpr_check(ap_dimension_t dimension,
     return dim;
 }
 
-static
 bool ap_abstract0_check_texpr(ap_funid_t funid, ap_manager_t* man,
 			      ap_dimension_t dimension,
 			      ap_texpr0_t* expr)

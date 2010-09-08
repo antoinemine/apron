@@ -422,6 +422,22 @@ ap_linexpr1_t ap_abstract1_intlinear_of_tree (ap_manager_t* man, ap_abstract1_t*
 
      This implies calls to ap_abstract0_bound_dimension. */
 
+/* ********************************************************************** */
+/* ********************************************************************** */
+/* Internal functions */
+/* ********************************************************************** */
+/* ********************************************************************** */
+
+ap_abstract1_t ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value);
+
+bool ap_abstract1_check_env2(ap_funid_t funid,
+			     ap_manager_t* man,
+			     ap_abstract1_t* a1, ap_abstract1_t* a2);
+bool ap_abstract1_check_env_array(ap_funid_t funid,ap_manager_t* man,
+				  ap_abstract1_t* tab, size_t size);
+bool ap_abstract1_checkman_array(ap_funid_t funid,
+				 ap_manager_t* man, ap_abstract1_t* tab, size_t size);
+
 #ifdef __cplusplus
 }
 #endif

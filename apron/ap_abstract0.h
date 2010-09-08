@@ -435,6 +435,173 @@ ap_abstract0_widening_threshold(ap_manager_t* man,
 /* ********************************************************************** */
 /* ********************************************************************** */
 
+/* ********************************************************************** */
+/* 0. Utility and checking functions */
+/* ********************************************************************** */
+
+/* Constructor for ap_abstract0_t */
+
+static inline
+ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
+{
+  ap_abstract0_t* res = malloc(sizeof(ap_abstract0_t));
+  res->value = value;
+  res->man = ap_manager_copy(man);
+  return res;
+}
+static inline
+void _ap_abstract0_free(ap_abstract0_t* a)
+{
+  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = a->man->funptr[AP_FUNID_FREE];
+  ptr(a->man,a->value);
+  ap_manager_free(a->man);
+  free(a);
+}
+static inline
+ap_abstract0_t* ap_abstract0_cons2(ap_manager_t* man, bool destructive, ap_abstract0_t* oldabs, void* newvalue)
+{
+  if (destructive){
+    if (oldabs->man != man){
+      ap_manager_free(oldabs->man);
+      oldabs->man = ap_manager_copy(man);
+    }
+    oldabs->value = newvalue;
+    return oldabs;
+  }
+  else {
+    return ap_abstract0_cons(man,newvalue);
+  }
+}
+
+/* ====================================================================== */
+/* 0.1 Checking typing w.r.t. manager */
+/* ====================================================================== */
+
+/*
+  These functions return true if everything is OK, otherwise they raise an
+  exception in the manager and return false.
+*/
+
+/* One abstract value */
+
+void ap_abstract0_checkman1_raise(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a);
+
+static inline
+bool ap_abstract0_checkman1(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
+{
+  if (man->library != a->man->library){
+    ap_abstract0_checkman1_raise(funid,man,a);
+    return false;
+  }
+  else
+    return true;
+}
+
+/* Two abstract values */
+bool ap_abstract0_checkman2(ap_funid_t funid,
+			    ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a2);
+
+/* Array of abstract values */
+bool ap_abstract0_checkman_array(ap_funid_t funid,
+				 ap_manager_t* man, ap_abstract0_t** tab, size_t size);
+
+/* ====================================================================== */
+/* 0.2 Checking compatibility of arguments: abstract values */
+/* ====================================================================== */
+
+/* Getting dimensions without checks */
+static inline
+ap_dimension_t _ap_abstract0_dimension(ap_abstract0_t* a)
+{
+  ap_dimension_t (*ptr)(ap_manager_t*,...) = a->man->funptr[AP_FUNID_DIMENSION];
+  return ptr(a->man,a->value);
+}
+
+/* Check that the 2 abstract values have the same dimensionality */
+bool ap_abstract0_check_abstract2(ap_funid_t funid, ap_manager_t* man,
+				  ap_abstract0_t* a1, ap_abstract0_t* a2);
+
+/* Check that the array of abstract values have the same dimensionality.*/
+bool ap_abstract0_check_abstract_array(ap_funid_t funid, ap_manager_t* man,
+				       ap_abstract0_t** tab, size_t size);
+
+/* ====================================================================== */
+/* 0.3 Checking compatibility of arguments: dimensions */
+/* ====================================================================== */
+
+/* Check that the dimension makes sense in the given dimensionality */
+void ap_abstract0_check_dim_raise(ap_funid_t funid, ap_manager_t* man,
+				  ap_dimension_t dimension, ap_dim_t dim,
+				  char* prefix);
+static inline
+bool ap_abstract0_check_dim(ap_funid_t funid, ap_manager_t* man,
+			    ap_dimension_t dimension, ap_dim_t dim)
+{
+  if (dim>=dimension.intdim+dimension.realdim){
+    ap_abstract0_check_dim_raise(funid,man,dimension,dim,
+				 "incompatible dimension for the abstract value");
+    return false;
+  } else {
+    return true;
+  }
+}
+
+/* Check that the array of dimensions make sense in the given dimensionality */
+bool ap_abstract0_check_dim_array(ap_funid_t funid, ap_manager_t* man,
+				  ap_dimension_t dimension, ap_dim_t* tdim, size_t size);
+
+/* ====================================================================== */
+/* 0.4 Checking compatibility of arguments: expressions */
+/* ====================================================================== */
+
+void ap_abstract0_check_expr_raise(ap_funid_t funid, ap_manager_t* man,
+				   ap_dimension_t dimension,
+				   ap_dim_t dim,
+				   char* prefix);
+
+/* Check that the linear expression makes sense in the given dimensionality */
+ap_dim_t ap_abstract0_check_linexpr_check(ap_dimension_t dimension,
+					  ap_linexpr0_t* expr);
+bool ap_abstract0_check_linexpr(ap_funid_t funid, ap_manager_t* man,
+				ap_dimension_t dimension,
+				ap_linexpr0_t* expr);
+
+/* Check that the tree expression makes sense in the given dimensionality */
+ap_dim_t ap_abstract0_check_texpr_check(ap_dimension_t dimension,
+					ap_texpr0_t* expr);
+bool ap_abstract0_check_texpr(ap_funid_t funid, ap_manager_t* man,
+			      ap_dimension_t dimension,
+			      ap_texpr0_t* expr);
+
+/* ====================================================================== */
+/* 0.5 Checking compatibility of arguments: array of expressions/constraints/generators */
+/* ====================================================================== */
+
+/* Check that array of linear expressions makes sense in the given dimensionality */
+bool ap_abstract0_check_linexpr_array(ap_funid_t funid, ap_manager_t* man,
+				      ap_dimension_t dimension,
+				      ap_linexpr0_t** texpr, size_t size);
+
+/* Check that array of linear constraint makes sense in the given dimensionality */
+bool ap_abstract0_check_lincons_array(ap_funid_t funid, ap_manager_t* man,
+				      ap_dimension_t dimension,
+				      ap_lincons0_array_t* array);
+
+/* Check that array of generator makes sense in the given dimensionality */
+bool ap_abstract0_check_generator_array(ap_funid_t funid, ap_manager_t* man,
+					ap_dimension_t dimension, ap_generator0_array_t* array);
+
+/* Check that array of tree expressions makes sense in the given dimensionality */
+bool ap_abstract0_check_texpr_array(ap_funid_t funid, ap_manager_t* man,
+				    ap_dimension_t dimension,
+				    ap_texpr0_t** texpr, size_t size);
+
+/* Check that array of tree constraint makes sense in the given dimensionality */
+bool ap_abstract0_check_tcons_array(ap_funid_t funid, ap_manager_t* man,
+				    ap_dimension_t dimension,
+				    ap_tcons0_array_t* array);
+
+
 ap_abstract0_t*
 ap_abstract0_meetjoin(ap_funid_t funid,
 		      /* either meet or join */
