@@ -32,12 +32,12 @@ ICFLAGS = \
 IDLMODULES = \
 scalar interval coeff \
 dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
-var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1
+var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy 
 
 IDLMODULEStex = Introduction.tex \
 Scalar.tex Interval.tex Coeff.tex \
 Dim.tex Linexpr0.tex Lincons0.tex Generator0.tex  Texpr0.tex Tcons0.tex Texpr1.tex Tcons1.tex Manager.tex Abstract0.tex \
-Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex \
+Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex Policy.tex \
 Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex
 
 MLMODULES = $(IDLMODULES) apron_parser apron_lexer parser

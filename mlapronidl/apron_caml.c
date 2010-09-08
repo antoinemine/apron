@@ -376,3 +376,57 @@ value camlidl_apron_init(value dummy)
   register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
   return Val_unit;
 }
+/* ********************************************************************** */
+/* ********************************************************************** */
+/* Policy experimental extension */
+/* ********************************************************************** */
+/* ********************************************************************** */
+
+static
+void camlidl_apron_policy_manager_ptr_finalize(value v)
+{
+  ap_policy_manager_ptr p = *(ap_policy_manager_ptr *) Data_custom_val(v);
+  ap_policy_manager_free(p);
+}
+
+struct custom_operations camlidl_apron_custom_policy_manager_ptr = {
+  "appolicyman",
+  camlidl_apron_manager_ptr_finalize,
+  custom_compare_default,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default
+};
+
+
+static
+void camlidl_apron_policy_ptr_finalize(value v)
+{
+  ap_policy_ptr* p = (ap_policy_ptr *) Data_custom_val(v);
+  ap_policy_t* a = *p;
+  ap_policy_free(a->man,a);
+}
+
+static 
+int camlidl_apron_policy_ptr_compare(value v1, value v2)
+{
+  ap_policy_ptr* p1 = (ap_policy_ptr *) Data_custom_val(v1);
+  ap_policy_ptr* p2 = (ap_policy_ptr *) Data_custom_val(v2);
+  ap_policy_t* a1 = *p1;
+  ap_policy_t* a2 = *p2;
+  int res;
+  
+  res = ap_policy_equal(a1->man,a1,a2);
+  if (res!=0)
+    res = (int)(a1-a2);
+  return res;
+}
+
+struct custom_operations camlidl_apron_custom_policy_ptr = {
+  "appolicy",
+  camlidl_apron_policy_ptr_finalize,
+  camlidl_apron_policy_ptr_compare,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default
+};
