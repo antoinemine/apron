@@ -1,10 +1,16 @@
 /* -*- mode: c -*- */
 
-quote(C,"#include \"box.h\"")
-quote(C,"#include \"ap_manager.h\"")
-quote(C,"#include \"apron_caml.h\"")
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_manager.h\"\n\
+#include \"ap_policy.h\"\n\
+#include \"caml/callback.h\"\n\
+#include \"apron_caml.h\"\n\
+#include \"box.h\"\n\
+#include \"box_policy.h\"\n\
+")
 
-import "manager.idl";
+import "policy.idl";
 
 quote(MLMLI,"(** Intervals abstract domain *)")
 
@@ -90,6 +96,8 @@ module Abstract1 = struct
     failwith \"Box.Abstract1.to_box: the argument value is not a Box value\"
 end
 ")
+
+ap_policy_manager_ptr box_policy_manager_alloc(ap_manager_ptr man);
 
 quote(MLI,"\n(**
 {2 Compilation information}
