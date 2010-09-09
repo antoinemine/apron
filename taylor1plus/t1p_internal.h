@@ -405,9 +405,10 @@ static inline void t1p_aff_free(t1p_internal_t *pr, t1p_aff_t *a)
 	a->q = NULL;
 	a->end = NULL;
 	a->lastu = NULL;
-	a->l = 0;
+	a->l = (size_t)0;
     	itv_clear(a->itv);
 	free(a);
+	a = NULL;
     }
 }
 static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a)

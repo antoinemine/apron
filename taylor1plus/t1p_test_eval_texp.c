@@ -29,7 +29,9 @@ t1p_aff_t* afexpr_random_cst(t1p_internal_t* pr, unsigned int seed)
 t1p_aff_t* afexpr_random_nb(t1p_internal_t* pr, unsigned int seed, size_t Nb)
 {
     itv_t itv;
+    itv_init(itv);
     num_t num_dbl;
+    num_init(num_dbl);
     double dbl;
     size_t tmp;
     t1p_aff_t* afexpr = t1p_aff_alloc_init(pr);
@@ -46,6 +48,8 @@ t1p_aff_t* afexpr_random_nb(t1p_internal_t* pr, unsigned int seed, size_t Nb)
 	if (afexpr->l<Nb - 3) t1p_aff_nsym_create(pr, afexpr, itv, IN);
 	else t1p_aff_nsym_create(pr, afexpr, itv, UN);
     }
+    itv_clear(itv);
+    num_clear(num_dbl);
     return afexpr;
 }
 
@@ -726,6 +730,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
        y = 0
      */
     abs->paf[0] = t1p_aff_alloc_init(pr);
+    abs->paf[0]->pby++;
     ap_texpr0_t* texp = ap_texpr0_binop(AP_TEXPR_MUL,
 	     ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
 	     ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
@@ -740,6 +745,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
        y = bottom
      */
     abs->paf[0] = pr->bot;
+    abs->paf[0]->pby++;
     abs->paf[2] = t1p_aff_eval_ap_texpr0(pr, texp, abs);
     //t1p_aff_fprint(pr, stdout, abs->paf[2]);
     if (t1p_aff_is_bottom(pr, abs->paf[2])) printf("o");
@@ -756,7 +762,9 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
     t1p_aff_check_free(pr, abs->paf[2]);
 
     abs->paf[0] = t1p_aff_alloc_init(pr);
+    abs->paf[0]->pby++;
     abs->paf[1] = t1p_aff_alloc_init(pr);
+    abs->paf[1]->pby++;
 
     itv_set_int(abs->paf[0]->c, 77617);
     itv_set_int(abs->paf[0]->itv, 77617);
@@ -898,6 +906,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
     t1p_aff_check_free(pr, abs->paf[2]);
 
     abs->paf[1] = t1p_aff_alloc_init(pr);
+    abs->paf[1]->pby++;
     num_set_double(num, -2.5);
     itv_set_num(coeff, num);
     itv_set(abs->paf[1]->c, coeff);
@@ -938,6 +947,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
 
     t1p_aff_check_free(pr, abs->paf[0]);
     abs->paf[0] = t1p_aff_alloc_init(pr);
+    abs->paf[0]->pby++;
     num_set_double(num, -2.5);
     itv_set_num(coeff, num);
     itv_set(abs->paf[0]->c, coeff);

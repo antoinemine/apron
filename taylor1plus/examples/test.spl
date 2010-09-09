@@ -1,17 +1,21 @@
-var c:real, x:real, y:real, y1:real, y2:real, z:real;
+var x:real, y:real, z:real, z1:real, z2:real, z3:real;
 begin
 
-assume x >= 0 and x <= 3.14;
-assume y >= 0 and y <= 3;
-z = y * y - y + 0.5;
-y1 = sqrt(z);
+assume y >= -1 and y <= 1;
+assume z >= 1 and z <= 2;
 
-if (2*x <= 3.14) then
- y1 = 2*x/3.14;
- y2 = -2*x/3.14 + 1;
-else 
- y1 = -2*x/3.14 + 2;
- y2 = -2*x/3.14 + 1;
-endif;
-z = y1*y1 + y2*y2;
+z1 = 1.7;
+z2 = 0.2;
+z3 = 1.6;
+
+if (-x + 0.5*y - 0.25*z + 2 == 0) then
+ if (x + 0.5*z - 2.5 == 0) then
+  if (-0.2*x - 0.2*y + 0.1*z + 0.22 == 0) then
+   z1 = x;
+   z2 = y;
+   z3 = z;
+  endif;
+ endif;
+endif; 
+
 end

@@ -192,7 +192,7 @@ static inline bool t1p_eval_lincons_array(t1p_internal_t* pr, size_t* hash, t1p_
 			    tmp3 = t1p_aff_add(pr, tmp2, sum, a);
 			    t1p_aff_free(pr, sum);
 			    sum = tmp3;
-			    t1p_aff_clear(pr, tmp1);
+			    t1p_aff_free(pr, tmp1);
 			    t1p_aff_free(pr, tmp2);
 			}
 		    }
@@ -207,7 +207,7 @@ static inline bool t1p_eval_lincons_array(t1p_internal_t* pr, size_t* hash, t1p_
 			    tmp3 = t1p_aff_add(pr, tmp2, sum, a);
 			    t1p_aff_free(pr, sum);
 			    sum = tmp3;
-			    t1p_aff_clear(pr, tmp1);
+			    t1p_aff_free(pr, tmp1);
 			    t1p_aff_free(pr, tmp2);
 			}
 		    }
@@ -343,7 +343,13 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
 		    } else if (res->paf[i]->q == NULL) {
 			t1p_aff_check_free(pr, res->paf[i]);
 			res->paf[i] = t1p_aff_alloc_init(pr);
-			itv_set(res->paf[i]->c, res->box[i]);
+
+			if (itv_has_finite_bound(res->box[i])) {
+			    t1p_aff_add_itv(pr, res->paf[i], res->box[i], IN);
+			} else {
+			    itv_set(res->paf[i]->c, res->box[i]);
+			}
+
 			res->paf[i]->pby++;
 		    } /*else if (itv_is_point(pr->itv, res->box[i])) {
 			ap_tcons0_array_resize(array, 1+(array->size));
@@ -427,7 +433,7 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
 		}
 
 	    }
-	    t1p_aff_free(pr, aff[i]);
+	    t1p_aff_check_free(pr, aff[i]);
 	}
 	free(aff);
     }
