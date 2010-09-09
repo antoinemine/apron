@@ -6,7 +6,7 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_texpr0.h"
-#include "ap_linearize.h"
+#include "ap_linexpr0.h"
 
 #include <stdarg.h>
 
@@ -14,124 +14,11 @@
 /* I. Constructors and Destructors */
 /* ====================================================================== */
 
-ap_texpr0_t* ap_texpr0_cst(ap_coeff_t* coeff)
+ap_texpr0_t* ap_texpr0_cst(ap_coeff_t coeff)
 {
   ap_texpr0_t* res = malloc(sizeof(ap_texpr0_t));
   res->discr = AP_TEXPR_CST;
-  ap_coeff_init_set(&res->val.cst,coeff);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar(ap_scalar_t* scalar)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar(&res->val.cst, scalar);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar_mpq(mpq_t mpq)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar_mpq(&res->val.cst, mpq);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar_mpfr(mpfr_t mpfr)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar_mpfr(&res->val.cst, mpfr);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar_int(long int num)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar_int(&res->val.cst, num);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar_frac(long int num, unsigned long int den)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar_frac(&res->val.cst, num, den);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_scalar_double(double num)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_SCALAR);
-  ap_coeff_set_scalar_double(&res->val.cst, num);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval(ap_interval_t* itv)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval(&res->val.cst, itv);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_scalar(ap_scalar_t* inf, ap_scalar_t* sup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_scalar(&res->val.cst, inf, sup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_mpq(mpq_t inf, mpq_t sup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_mpq(&res->val.cst, inf, sup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_mpfr(mpfr_t inf, mpfr_t sup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_mpfr(&res->val.cst, inf, sup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_int(long int inf, long int sup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_int(&res->val.cst, inf, sup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_frac(long int numinf, unsigned long int deninf,
-					 long int numsup, unsigned long int densup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_frac(&res->val.cst, numinf, deninf, numsup, densup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_double(double inf, double sup)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_coeff_set_interval_double(&res->val.cst, inf, sup);
-  return res;
-}
-ap_texpr0_t* ap_texpr0_cst_interval_top(void)
-{
-  ap_texpr0_t* res = (ap_texpr0_t*) malloc(sizeof(ap_texpr0_t));
-  res->discr = AP_TEXPR_CST;
-  ap_coeff_init(&res->val.cst, AP_COEFF_INTERVAL);
-  ap_interval_set_top(res->val.cst.val.interval);
+  ap_coeff_init_set(res->val.cst,coeff);
   return res;
 }
 ap_texpr0_t* ap_texpr0_dim(ap_dim_t dim)
@@ -188,7 +75,7 @@ ap_texpr0_t* ap_texpr0_copy(ap_texpr0_t* expr)
   if (!expr) return NULL;
   switch (expr->discr){
   case AP_TEXPR_CST:
-    return ap_texpr0_cst(&expr->val.cst);
+    return ap_texpr0_cst(expr->val.cst);
   case AP_TEXPR_DIM:
     return ap_texpr0_dim(expr->val.dim);
   case AP_TEXPR_NODE:
@@ -208,7 +95,7 @@ void ap_texpr0_clear(ap_texpr0_t* expr)
 {
   switch(expr->discr){
   case AP_TEXPR_CST:
-    ap_coeff_clear(&expr->val.cst);
+    ap_coeff_clear(expr->val.cst);
     break;
   case AP_TEXPR_DIM:
     break;
@@ -225,19 +112,33 @@ void ap_texpr0_free(ap_texpr0_t* expr)
   ap_texpr0_clear(expr);
   free(expr);
 }
-ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t* e)
+ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
 {
-  ap_texpr0_t* res = ap_texpr0_cst(&e->cst);
+  ap_texpr0_t* res = NULL;
   size_t i;
-  ap_dim_t d;
-  ap_coeff_t* c;
-  ap_linexpr0_ForeachLinterm(e, i, d, c) {
-    res = ap_texpr0_binop(AP_TEXPR_ADD,
-			  res,
-			  ap_texpr0_binop(AP_TEXPR_MUL,
-					  ap_texpr0_cst(c), ap_texpr0_dim(d),
-					  AP_RTYPE_REAL, AP_RDIR_RND),
-			  AP_RTYPE_REAL, AP_RDIR_RND);
+  ap_dim_t dim;
+  ap_coeff_t coeffref;
+  
+  switch(e->discr){
+  case AP_SCALAR_D:
+    {
+      eitvD_ptr peitv;
+
+      ap_coeff_cons_eitvD(coeffref,e->linexpr.D->cst);
+      res = ap_texpr0_cst(coeffref);
+      ap_linexprD_ForeachLinterm0(e->linexpr.D,i,dim,peitv){
+	ap_coeff_cons_eitvD(coeffref,peitv);
+	res = ap_texpr0_binop(AP_TEXPR_ADD,
+			      res,
+			      ap_texpr0_binop(AP_TEXPR_MUL,
+					      ap_texpr0_cst(coeffref), 
+					      ap_texpr0_dim(dim),
+					      AP_RTYPE_REAL, AP_RDIR_RND),
+			      AP_RTYPE_REAL, AP_RDIR_RND);
+      }
+    }
+  default:
+    abort();
   }
   return res;
 }
@@ -312,7 +213,7 @@ void ap_texpr0_fprint(FILE* stream, ap_texpr0_t* a, char** name_of_dim)
   if (!a) return;
   switch (a->discr) {
   case AP_TEXPR_CST:
-    ap_coeff_fprint(stream, &a->val.cst);
+    ap_coeff_fprint(stream, a->val.cst);
     break;
   case AP_TEXPR_DIM:
     if (name_of_dim) fprintf(stream, "%s", name_of_dim[a->val.dim]);
@@ -483,10 +384,7 @@ bool ap_texpr0_is_scalar(ap_texpr0_t* a)
   if (!a) return true;
   switch(a->discr) {
   case AP_TEXPR_CST:
-    return
-      (a->val.cst.discr==AP_COEFF_SCALAR) ||
-      (ap_scalar_equal(a->val.cst.val.interval->inf,
-		       a->val.cst.val.interval->sup));
+    return ap_coeff_is_point(a->val.cst);
   case AP_TEXPR_DIM:
     return true;
   case AP_TEXPR_NODE:
@@ -704,42 +602,7 @@ void ap_texpr0_add_dimensions_with(ap_texpr0_t* expr,
     assert(false);
   }
 }
-ap_texpr0_t* ap_texpr0_remove_dimensions(ap_texpr0_t* expr,
-					 ap_dimchange_t* dimchange)
-{
-  ap_texpr0_t* res = ap_texpr0_copy(expr);
-  ap_texpr0_remove_dimensions_with(res,dimchange);
-  return res;
-}
-void ap_texpr0_remove_dimensions_with(ap_texpr0_t* expr,
-				      ap_dimchange_t* dimchange)
-{
-  if (!expr) return;
-  switch(expr->discr){
-  case AP_TEXPR_CST:
-    return;
-  case AP_TEXPR_DIM:
-    {
-      size_t dimrem = dimchange->intdim+dimchange->realdim;
-      size_t i;
-      for (i=0;i<dimrem && expr->val.dim>dimchange->dim[i];i++);
-      if (i<dimrem && expr->val.dim==dimchange->dim[i]) {
-	/* replace variable with top */
-	expr->discr = AP_TEXPR_CST;
-	ap_coeff_init(&expr->val.cst, AP_COEFF_INTERVAL);
-	ap_interval_set_top(expr->val.cst.val.interval);
-      }
-      else expr->val.dim -= i;
-    }
-    return;
-  case AP_TEXPR_NODE:
-    ap_texpr0_remove_dimensions_with(expr->val.node->exprA,dimchange);
-    ap_texpr0_remove_dimensions_with(expr->val.node->exprB,dimchange);
-    return;
-  default:
-    assert(false);
-  }
-}
+
 ap_texpr0_t* ap_texpr0_permute_dimensions(ap_texpr0_t* expr,
 					  ap_dimperm_t* dimperm)
 {
@@ -775,7 +638,7 @@ long ap_texpr0_hash(ap_texpr0_t* a)
   if (!a) return 0;
   switch(a->discr) {
   case AP_TEXPR_CST:
-    return ap_coeff_hash(&a->val.cst);
+    return ap_coeff_hash(a->val.cst);
   case AP_TEXPR_DIM:
     return a->val.dim;
   case AP_TEXPR_NODE:
@@ -798,7 +661,7 @@ bool ap_texpr0_equal(ap_texpr0_t* a1, ap_texpr0_t* a2)
   if (a1->discr!=a2->discr) return false;
   switch(a1->discr) {
   case AP_TEXPR_CST:
-    return ap_coeff_equal(&a1->val.cst, &a2->val.cst);
+    return ap_coeff_is_eq(a1->val.cst, a2->val.cst);
   case AP_TEXPR_DIM:
     return a1->val.dim==a2->val.dim;
   case AP_TEXPR_NODE:

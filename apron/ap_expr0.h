@@ -10,7 +10,7 @@
 
 #include "ap_linexpr0.h"
 #include "ap_lincons0.h"
-#include "ap_generator0.h"
+#include "ap_lingen0.h"
 #include "ap_texpr0.h"
 #include "ap_tcons0.h"
 #include "ap_linearize.h"
