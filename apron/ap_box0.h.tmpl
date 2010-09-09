@@ -42,7 +42,7 @@ typedef ap_box0_struct ap_box0_t[1];
 void ap_box0_init(ap_box0_t e, ap_scalar_discr_t discr, size_t size);
 void ap_box0_init_set(ap_box0_t res, ap_box0_t e);
 MACRO_MAINZ
-void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, ap_eitvZZZ_array_t e);
+void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size);
 ENDMACRO
 void ap_box0_clear(ap_box0_t e);
 void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim);
@@ -60,8 +60,8 @@ bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t inter
 void ap_box0_ref_index(ap_coeff_t a, ap_box0_t p, size_t i);
 
 MACRO_MAINZ
-bool ap_box0_set_eitvZZZ_array(ap_box0_t a, ap_eitvZZZ_array_t b, num_internal_t intern);
-bool ap_eitvZZZ_array_set_box0(ap_eitvZZZ_array_t a, ap_box0_t b, num_internal_t intern);
+bool ap_box0_set_eitvZZZ_array(ap_box0_t a, eitvZZZ_t* b, size_t size, num_internal_t intern);
+bool ap_eitvZZZ_array_set_box0(eitvZZZ_t* a, ap_box0_t b, num_internal_t intern);
 
 bool ap_box0_set_index_eitvZZZ(ap_box0_t p, size_t i, eitvZZZ_t a, num_internal_t intern);
 bool ap_box0_get_index_eitvZZZ(eitvZZZ_t a, ap_box0_t p, size_t i, num_internal_t intern);

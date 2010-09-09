@@ -83,7 +83,7 @@ void ap_linexprXXX_array_clear(ap_linexprXXX_array_t array);
 
 ap_linexprXXX_array_ptr ap_linexprXXX_array_alloc(size_t size);
 ap_linexprXXX_array_ptr ap_linexprXXX_array_alloc_set(ap_linexprXXX_array_t a);
-  void ap_linexprXXX_array_free(ap_linexprXXX_array_ptr expr);
+void ap_linexprXXX_array_free(ap_linexprXXX_array_ptr expr);
 
 void ap_linexprXXX_array_fprint(FILE* stream, ap_linexprXXX_array_t array, char** name);
 static inline void ap_linexprXXX_array_print(ap_linexprXXX_array_t array, char** name);

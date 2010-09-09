@@ -33,7 +33,7 @@ typedef struct ap_linconsXXX_struct {
 typedef ap_linconsXXX_struct ap_linconsXXX_t[1];
 typedef ap_linconsXXX_struct* ap_linconsXXX_ptr;
 
-/* Array of interval linear constraint */
+/* Array of interval linear constraints */
 typedef struct ap_linconsXXX_array_struct {
   ap_linconsXXX_t* p;
   size_t size;
@@ -68,8 +68,11 @@ void ap_linconsXXX_array_set(ap_linconsXXX_array_t res, ap_linconsXXX_array_t ar
 void ap_linconsXXX_array_resize(ap_linconsXXX_array_t array, size_t size);
 void ap_linconsXXX_array_minimize(ap_linconsXXX_array_t array);
 void ap_linconsXXX_array_clear(ap_linconsXXX_array_t array);
+
 ap_linconsXXX_array_ptr ap_linconsXXX_array_alloc(size_t size);
 ap_linconsXXX_array_ptr ap_linconsXXX_array_alloc_set(ap_linconsXXX_array_t a);
+void ap_linconsXXX_array_free(ap_linconsXXX_array_ptr a);
+
 void ap_linconsXXX_array_fprint(FILE* stream, ap_linconsXXX_array_t array, char** name);
 static inline void ap_linconsXXX_array_print(ap_linconsXXX_array_t array, char** name);
 
