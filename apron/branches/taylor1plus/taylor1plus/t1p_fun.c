@@ -402,12 +402,14 @@ t1p_aff_t* t1p_aff_mul_constrained_backup(t1p_internal_t* pr, t1p_aff_t* exprA, 
 	else 
 	    square_dep(pr, itv2, exprA->q, exprB->q, hash, dim, gammabis);
 	if (exprA == exprB) {
-	    if (bound_sgn(itv1->inf) > 0) {bound_init(itv1->inf);}
-	    if (bound_sgn(itv2->inf) > 0) {bound_init(itv2->inf);}
+	    if (bound_sgn(itv1->inf) > 0) {bound_set_int(itv1->inf,0);}
+	    if (bound_sgn(itv2->inf) > 0) {bound_set_int(itv2->inf,0);}
 	}
 	if (cond_SDP) itv_set(itv_nlin,itv1);
 	else itv_set(itv_nlin,itv2);
 	itv_add(res->c, res->c, itv_nlin);
+	itv_clear(itv1);
+	itv_clear(itv2);
     }
     /* hash may be NULL if pr->index is zero */
     if (hash) {free(hash);free(nsym_shared);free(nsym_shared_hash);}
@@ -417,6 +419,8 @@ t1p_aff_t* t1p_aff_mul_constrained_backup(t1p_internal_t* pr, t1p_aff_t* exprA, 
     itv_clear(mid2);
     itv_clear(midi);
     itv_clear(devi);
+    itv_clear(itv_nlin);
+    itv_clear(eps_itv);
     return res;
 }
 
@@ -610,8 +614,8 @@ t1p_aff_t* t1p_aff_mul_constrained(t1p_internal_t* pr, t1p_aff_t* exprA, t1p_aff
 	else 
 	    square_dep(pr, itv2, exprA->q, exprB->q, hash, dim, gammabis);
 	if (exprA == exprB) {
-	    if (bound_sgn(itv1->inf) > 0) {bound_init(itv1->inf);}
-	    if (bound_sgn(itv2->inf) > 0) {bound_init(itv2->inf);}
+	    if (bound_sgn(itv1->inf) > 0) {bound_set_int(itv1->inf,0);}
+	    if (bound_sgn(itv2->inf) > 0) {bound_set_int(itv2->inf,0);}
 	}
 	if (cond_SDP) itv_set(itv_nlin,itv1);
 	else itv_set(itv_nlin,itv2);
@@ -750,13 +754,15 @@ t1p_aff_t* t1p_aff_mul_non_constrained(t1p_internal_t* pr, t1p_aff_t* exprA, t1p
 	    square_dep(pr, itv2, exprA->q, exprB->q, hash, dim, NULL);
 
 	if (exprA == exprB) {
-	    if (bound_sgn(itv1->inf) > 0) {bound_init(itv1->inf);}
-	    if (bound_sgn(itv2->inf) > 0) {bound_init(itv2->inf);}
+	    if (bound_sgn(itv1->inf) > 0) {bound_set_int(itv1->inf,0);}
+	    if (bound_sgn(itv2->inf) > 0) {bound_set_int(itv2->inf,0);}
 	}
 	if (cond_SDP) itv_set(itv_nlin,itv1);
 	else itv_set(itv_nlin,itv2);
 	itv_add(res->c, res->c, itv_nlin);
 	itv_add(res->itv, res->itv, itv_nlin);
+	itv_clear(itv1);
+	itv_clear(itv2);
     }
     /* hash may be NULL if pr->index is zero */
     if (hash) {free(hash);free(nsym_shared);free(nsym_shared_hash);}
@@ -781,10 +787,10 @@ t1p_aff_t* t1p_aff_div(t1p_internal_t* pr, t1p_aff_t* exprA, t1p_aff_t* exprB, t
     itv_t tmp;
 
     itv_init(box);
-    itv_init(one);
+    itv_init(mid); itv_init(dev);
     itv_init(a); itv_init(b);
     itv_init(zeta); itv_init(alpha); itv_init(beta);
-    itv_init(mid); itv_init(dev);
+    itv_init(one);
     itv_init(tmp);
 
     itv_set_int(one, (long int)1);
@@ -901,12 +907,13 @@ t1p_aff_t* t1p_aff_sqrt( t1p_internal_t* pr, t1p_aff_t* expr, t1p_t* env)
 	itv_t mid, dev;
 	itv_t one, tmp, tmp1;
 	itv_t a, b;
-	itv_init(a); itv_init(b);
+
 	itv_init(alpha); itv_init(beta); itv_init(zeta);
 	itv_init(mid); itv_init(dev);
-	itv_init(one);
+	itv_init(one); itv_init(tmp); itv_init(tmp1);
+	itv_init(a); itv_init(b);
+
 	itv_set_int(one, 1);
-	itv_init(tmp); itv_init(tmp1);
 	itv_set(a,box);bound_neg(a->sup,a->inf);	// a <- [box->inf,box->inf]
 	itv_set(b,box);bound_neg(b->inf,b->sup);	// b <- [box->sup,box->sup]
 
@@ -946,6 +953,7 @@ t1p_aff_t* t1p_aff_sqrt( t1p_internal_t* pr, t1p_aff_t* expr, t1p_t* env)
 	itv_clear(mid); itv_clear(dev);
 	itv_clear(one);
 	itv_clear(tmp); itv_clear(tmp1);
+
     }
     itv_clear(zero); itv_clear(box);
     return res;
@@ -1013,8 +1021,8 @@ t1p_aff_t* t1p_aff_eval_node_unary (t1p_internal_t* pr, ap_texpr0_node_t* node, 
 	    fatal("Unknown unary operation");
     }
     /* if pB->pby is non zero pB pointes to an affine form of a dimension, we shall not free it here */
-    //if (pB->pby == 0) t1p_aff_free(pr, pB);
-    if (node->exprA->discr != AP_TEXPR_DIM) t1p_aff_free(pr, pB);
+    //if (node->exprA->discr != AP_TEXPR_DIM) t1p_aff_free(pr, pB);
+    t1p_aff_check_free(pr, pB);
     return res;
 }
 
@@ -1058,8 +1066,10 @@ t1p_aff_t* t1p_aff_eval_node_binary (t1p_internal_t* pr, ap_texpr0_node_t* node,
 	      }
 	default: fatal("Unknown binary operation");
       }
-    if (node->exprA->discr != AP_TEXPR_DIM) t1p_aff_free(pr, exprAB[0]);
-    if (node->exprB->discr != AP_TEXPR_DIM) t1p_aff_free(pr, exprAB[1]);
+    //if (node->exprA->discr != AP_TEXPR_DIM) t1p_aff_free(pr, exprAB[0]);
+    //if (node->exprB->discr != AP_TEXPR_DIM) t1p_aff_free(pr, exprAB[1]);
+    t1p_aff_check_free(pr, exprAB[0]);
+    t1p_aff_check_free(pr, exprAB[1]);
 #ifdef _T1P_DEBUG_FUN
     fprintf(stdout, "### BINARY RESULT ###\n");
     t1p_aff_fprint(pr, stdout, res);
@@ -1093,7 +1103,10 @@ t1p_aff_t* t1p_aff_eval_ap_texpr0(t1p_internal_t* pr, ap_texpr0_t* expr, t1p_t* 
 	      }
 	case AP_TEXPR_DIM:
 	      {
+		/* involved affine forms should have ->pby > 0 */
 		res = env->paf[expr->val.dim];
+		if (res->pby == 0) fatal("partage des formes affines foireux...");
+		res->pby++;
 		break;
 	      }
 	case AP_TEXPR_NODE:
@@ -1131,6 +1144,8 @@ void square_dep(t1p_internal_t* pr, itv_t res, t1p_aaterm_t* p, t1p_aaterm_t* q,
 
     if (gamma == NULL) {
 	itv_t zeroone, moneone;
+	itv_init(zeroone);
+	itv_init(moneone);
 	itv_set_int2(zeroone,(long int)0,(long int)1);
 	itv_set_int2(moneone,(long int)(-1),(long int)1);
 	for (i=0; i<dim; i++) itv_matrix[i] = itv_array_alloc(dim);
@@ -1212,33 +1227,9 @@ void square_dep(t1p_internal_t* pr, itv_t res, t1p_aaterm_t* p, t1p_aaterm_t* q,
     itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
 }
 
-    void buildIntervalUpperTriangle(t1p_internal_t* pr, itv_t* array, t1p_aaterm_t* p, t1p_aaterm_t* q, size_t dim, int* hash) {
-	int i,j,k;
-	t1p_aaterm_t* ptr_p;
-	t1p_aaterm_t* ptr_q;
-	itv_t tmp,mid,dev;
-	itv_init(tmp);
-	//itv_t* res = itv_array_alloc(dim*(dim+1)/2);
-	for (ptr_p=p; ptr_p; ptr_p = ptr_p->n) {
-	    for (ptr_q=q; ptr_q; ptr_q = ptr_q->n) {
-		itv_mul(pr->itv, tmp, ptr_p->coeff, ptr_q->coeff);
-		if (hash[ptr_p->pnsym->index] < hash[ptr_q->pnsym->index]) {
-		    i = hash[ptr_p->pnsym->index];
-		    j = hash[ptr_q->pnsym->index];
-		} else {
-		    i = hash[ptr_q->pnsym->index];
-		    j = hash[ptr_p->pnsym->index];
-		}
-		if (i!=j) {
-		    itv_mul_2exp(tmp,tmp,(int)-1);
-		}
-		//itv_add(array[(i-1)*dim + (j-1)],array[(i-1)*dim + (j-1)],tmp);
-		k = (i-1)*dim + (j-1) - i*(i-1)/2;
-		itv_add(array[k],array[k],tmp);
-	    }
-	}
-	//return res;
-    }
+    void buildIntervalUpperTriangle(t1p_internal_t* pr, itv_t* array, t1p_aaterm_t* p, t1p_aaterm_t* q, size_t dim, int* hash) 
+{
+}
 
 double* buildDoubleUpperTriangle(t1p_internal_t* pr, itv_t* array, size_t dim) {
     itv_t mid, dev;
@@ -1262,392 +1253,400 @@ bool call_sdp(itv_internal_t* itv, itv_t res, t1p_aaterm_t* p, t1p_aaterm_t* q, 
 #else
 bool call_sdp(itv_internal_t* itv, itv_t res, t1p_aaterm_t* p, t1p_aaterm_t* q, size_t dim, int* hash, bool square)
 {
-//	printf("Calling SDP %d\n",dim);
-	t1p_aaterm_t* ptr_p; 
-	t1p_aaterm_t* ptr_q;
-	itv_t tmp;
-	itv_t mid, dev;
-	
-	//printf("dim of SDP problem: %d\n",dim);fflush(stdout);
+    //	printf("Calling SDP %d\n",dim);
+    t1p_aaterm_t* ptr_p; 
+    t1p_aaterm_t* ptr_q;
+    itv_t tmp;
+    itv_t mid, dev;
+    itv_init(tmp);
+    itv_init(mid);
+    itv_init(dev);
 
-	/************* SDP data ************/
-	unsigned int i=1,j=1;
-	/*
-	 * The problem and solution data.
-	 */
+    //printf("dim of SDP problem: %d\n",dim);fflush(stdout);
 
-	struct blockmatrix C;
-	double *b;
-	struct constraintmatrix *constraints;
+    /************* SDP data ************/
+    unsigned int i=1,j=1;
+    /*
+     * The problem and solution data.
+     */
 
-	/*
-	 * Storage for the initial and final solutions.
-	 */
+    struct blockmatrix C;
+    double *b;
+    struct constraintmatrix *constraints;
 
-	struct blockmatrix X,Z;
-	double *y;
-	double pobj,dobj;
+    /*
+     * Storage for the initial and final solutions.
+     */
 
-	num_t sol1, sol2;
+    struct blockmatrix X,Z;
+    double *y;
+    double pobj,dobj;
 
-	/*
-	 * blockptr will be used to point to blocks in constraint matrices.
-	 */
+    num_t sol1, sol2;
 
-	struct sparseblock *blockptr;
+    /*
+     * blockptr will be used to point to blocks in constraint matrices.
+     */
 
-	/*
-	 * A return code for the call to easy_sdp().
-	 */
+    struct sparseblock *blockptr;
 
-	int ret;
+    /*
+     * A return code for the call to easy_sdp().
+     */
 
-	double dbl = 0;
-	num_t temp;
-	size_t dim_of_X, nb_of_cons;
-	/************* end SDP data ****************/
+    int ret;
 
-	/*
-	 * The first major task is to setup the C matrix and right hand side b.
-	 */
+    double dbl = 0;
+    num_t temp;
+    size_t dim_of_X, nb_of_cons;
+    /************* end SDP data ****************/
 
-	/*
-	 * First, allocate storage for the C matrix.  We have always two blocks, but
-	 * because C starts arrays with index 0, we have to allocate space for
-	 * three blocks- we'll waste the 0th block.  Notice that we check to 
-	 * make sure that the malloc succeeded.
-	 */
+    /*
+     * The first major task is to setup the C matrix and right hand side b.
+     */
 
-	C.nblocks=2;
-	C.blocks=(struct blockrec *)malloc((2+1)*sizeof(struct blockrec));
-	if (C.blocks == NULL)
-	{
-		printf("Couldn't allocate storage for C!\n");
-		exit(1);
-	};
+    /*
+     * First, allocate storage for the C matrix.  We have always two blocks, but
+     * because C starts arrays with index 0, we have to allocate space for
+     * three blocks- we'll waste the 0th block.  Notice that we check to 
+     * make sure that the malloc succeeded.
+     */
 
-	/*
-	 * Setup the first block.
-	 */
+    C.nblocks=2;
+    C.blocks=(struct blockrec *)malloc((2+1)*sizeof(struct blockrec));
+    if (C.blocks == NULL)
+      {
+	printf("Couldn't allocate storage for C!\n");
+	exit(1);
+      };
 
-	C.blocks[1].blockcategory=MATRIX;
-	C.blocks[1].blocksize=dim;
-	C.blocks[1].data.mat=(double *)malloc(dim*dim*sizeof(double));
-	if (C.blocks[1].data.mat == NULL)
-	{
-		printf("Couldn't allocate storage for C!\n");
-		exit(1);
-	};
+    /*
+     * Setup the first block.
+     */
 
-	/*
-	 * Put the entries into the first block.
-	 */
+    C.blocks[1].blockcategory=MATRIX;
+    C.blocks[1].blocksize=dim;
+    C.blocks[1].data.mat=(double *)malloc(dim*dim*sizeof(double));
+    if (C.blocks[1].data.mat == NULL)
+      {
+	printf("Couldn't allocate storage for C!\n");
+	exit(1);
+      };
 
-	/* Initialize */
-	for (i=1; i<=dim; i++) {
-		for (j=1; j<=dim; j++) {
-			C.blocks[1].data.mat[ijtok(i,j,dim)] = 0.0;
+    /*
+     * Put the entries into the first block.
+     */
+
+    /* Initialize */
+    for (i=1; i<=dim; i++) {
+	for (j=1; j<=dim; j++) {
+	    C.blocks[1].data.mat[ijtok(i,j,dim)] = 0.0;
+	}
+    }
+
+    num_t eps; num_init(eps);
+    bound_t err; bound_init(err);
+    num_set_double(eps,(double)30*1.11022302462515654042e-16);
+    for (ptr_p=p; ptr_p; ptr_p = ptr_p->n) {
+	for (ptr_q=q; ptr_q; ptr_q = ptr_q->n) {
+	    /* TODO: We shall resolve an interval SDP problem and not reduce the interval to tmp->sup */
+	    itv_mul(itv, tmp, ptr_p->coeff, ptr_q->coeff);
+	    if (itv_is_point(itv, tmp)) double_set_num(&dbl, tmp->sup); 
+	    else {
+		itv_range_rel(itv,err,tmp);
+		itv_middev(itv, mid, dev, tmp);
+		bound_print(err);
+		printf("\n");
+		//	printf("\ndev:");
+		//	itv_print(dev);
+		//	printf("\n");
+		//	num_print(eps);
+		if (bound_cmp_num(err,eps) <= 0) {
+		    double_set_num(&dbl, mid->sup);
+		} else {
+		    printf("Warning: (SDP) "); itv_print(mid); printf("is taken instead of "); itv_print(tmp);printf(" continue ...\n");abort();
 		}
+	    }
+	    if (ptr_p->pnsym->index == ptr_q->pnsym->index) {
+		C.blocks[1].data.mat[ijtok(hash[ptr_p->pnsym->index],hash[ptr_q->pnsym->index],dim)]=dbl;
+	    } else {
+		C.blocks[1].data.mat[ijtok(hash[ptr_p->pnsym->index],hash[ptr_q->pnsym->index],dim)] += dbl/2;
+		C.blocks[1].data.mat[ijtok(hash[ptr_q->pnsym->index],hash[ptr_p->pnsym->index],dim)] += dbl/2;
+	    }
 	}
+    }
 
-	num_t eps;
-	bound_t err;
-	num_set_double(eps,(double)30*1.11022302462515654042e-16);
-	for (ptr_p=p; ptr_p; ptr_p = ptr_p->n) {
-		for (ptr_q=q; ptr_q; ptr_q = ptr_q->n) {
-			/* TODO: We shall resolve an interval SDP problem and not reduce the interval to tmp->sup */
-			itv_mul(itv, tmp, ptr_p->coeff, ptr_q->coeff);
-			if (itv_is_point(itv, tmp)) double_set_num(&dbl, tmp->sup); 
-			else {
-    				itv_range_rel(itv,err,tmp);
-				itv_middev(itv, mid, dev, tmp);
-				bound_print(err);
-				printf("\n");
-			//	printf("\ndev:");
-			//	itv_print(dev);
-			//	printf("\n");
-			//	num_print(eps);
-    				if (bound_cmp_num(err,eps) <= 0) {
-					double_set_num(&dbl, mid->sup);
-				} else {
-					printf("Warning: (SDP) "); itv_print(mid); printf("is taken instead of "); itv_print(tmp);printf(" continue ...\n");abort();
-				}
-			}
-			if (ptr_p->pnsym->index == ptr_q->pnsym->index) {
-				C.blocks[1].data.mat[ijtok(hash[ptr_p->pnsym->index],hash[ptr_q->pnsym->index],dim)]=dbl;
-			} else {
-				C.blocks[1].data.mat[ijtok(hash[ptr_p->pnsym->index],hash[ptr_q->pnsym->index],dim)] += dbl/2;
-				C.blocks[1].data.mat[ijtok(hash[ptr_q->pnsym->index],hash[ptr_p->pnsym->index],dim)] += dbl/2;
-			}
-		}
+    /*
+     * Setup the second block.
+     */
+
+    C.blocks[2].blockcategory=MATRIX;
+    C.blocks[2].blocksize=dim;
+    C.blocks[2].data.mat=(double *)malloc(dim*dim*sizeof(double));
+    if (C.blocks[2].data.mat == NULL)
+      {
+	printf("Couldn't allocate storage for C!\n");
+	exit(1);
+      };
+    /*
+     * Put the entries into the second block.
+     */
+    for (i=1; i<=dim; i++) {
+	for (j=1; j<=dim; j++) {
+	    C.blocks[2].data.mat[ijtok(i,j,dim)] = 0.0;
 	}
+    }
+
+    /*
+     * Allocate storage for the right hand side, b.
+     */
+
+    b=(double *)malloc((dim+1)*sizeof(double));
+    if (b==NULL)
+      {
+	printf("Failed to allocate storage for a!\n");
+	exit(1);
+      };
+
+    /*
+     * Fill in the entries in b.
+     */
+
+    for (i=1; i<=dim; i++) {
+	b[i]=1.0;
+    }
+
+    /*
+     * The next major step is to setup the constraint matrices Ai.
+     * Again, because C indexing starts with 0, we have to allocate space for
+     * one more constraint.  constraints[0] is not used.
+     */
+
+    constraints=(struct constraintmatrix *)malloc((dim+1)*sizeof(struct constraintmatrix));
+    if (constraints==NULL)
+      {
+	printf("Failed to allocate storage for constraints!\n");
+	exit(1);
+      };
+
+    /*
+     * Setup the A1 matrix.  Note that we start with block 3 of A1 and then
+     * do block 1 of A1.  We do this in this order because the blocks will
+     * be inserted into the linked list of A1 blocks in reverse order.  
+     */
+
+    /*
+     * Terminate the linked list with a NULL pointer.
+     */
+
+    for (i=1; i<=dim; i++) {
+	constraints[i].blocks=NULL;
 
 	/*
-	 * Setup the second block.
+	 * Now, we handle block 2 of Ai.
 	 */
 
-	C.blocks[2].blockcategory=MATRIX;
-	C.blocks[2].blocksize=dim;
-	C.blocks[2].data.mat=(double *)malloc(dim*dim*sizeof(double));
-	if (C.blocks[2].data.mat == NULL)
-	{
-		printf("Couldn't allocate storage for C!\n");
-		exit(1);
-	};
 	/*
-	 * Put the entries into the second block.
+	 * Allocate space for block 2 of Ai.
 	 */
-	for (i=1; i<=dim; i++) {
-		for (j=1; j<=dim; j++) {
-			C.blocks[2].data.mat[ijtok(i,j,dim)] = 0.0;
-		}
+
+	blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
+	if (blockptr==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+
+	/*
+	 * Initialize block 2.
+	 */
+
+	blockptr->blocknum=2;
+	blockptr->blocksize=dim;
+	blockptr->constraintnum=i;
+	blockptr->next=NULL;
+	blockptr->nextbyblock=NULL;
+	blockptr->entries=(double *) malloc((1+1)*sizeof(double));
+	if (blockptr->entries==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+	blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
+	if (blockptr->iindices==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+	blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
+	if (blockptr->jindices==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+
+	/*
+	 * We have 1 nonzero entry in the upper triangle of block 2 of Ai.
+	 */
+
+	blockptr->numentries=1;
+
+	/*
+	 * The entry in the i,i position of block 2 of Ai is 1.0
+	 */
+
+	blockptr->iindices[1]=i;
+	blockptr->jindices[1]=i;
+	blockptr->entries[1]=1.0;
+
+	/*
+	 * Note that the entry in the other positions of block 2 of Ai is 0, 
+	 * So we don't store anything for it.
+	 */
+
+	/*
+	 * Insert block 2 into the linked list of Ai blocks.  
+	 */
+
+	blockptr->next=constraints[i].blocks;
+	constraints[i].blocks=blockptr;
+
+	/*
+	 * Now, we handle block 1.  
+	 */
+
+	/*
+	 * Allocate space for block 1.
+	 */
+
+	blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
+	if (blockptr==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+
+	/*
+	 * Initialize block 1.
+	 */
+
+	blockptr->blocknum=1;
+	blockptr->blocksize=dim;
+	blockptr->constraintnum=i;
+	blockptr->next=NULL;
+	blockptr->nextbyblock=NULL;
+	blockptr->entries=(double *) malloc((1+1)*sizeof(double));
+	if (blockptr->entries==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+	blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
+	if (blockptr->iindices==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+	blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
+	if (blockptr->jindices==NULL)
+	  {
+	    printf("Allocation of constraint block failed!\n");
+	    exit(1);
+	  };
+
+	/*
+	 * We have 3 nonzero entries in the upper triangle of block 1 of A1.
+	 */
+
+	blockptr->numentries=1;
+
+	/*
+	 * The entry in the i,i position of block 1 of Ai is 1.0
+	 */
+
+	blockptr->iindices[1]=i;
+	blockptr->jindices[1]=i;
+	blockptr->entries[1]=1.0;
+
+	/*
+	 * Insert block 1 into the linked list of A1 blocks.  
+	 */
+
+	blockptr->next=constraints[i].blocks;
+	constraints[i].blocks=blockptr;
+    }
+
+
+    /*
+     * At this point, we have all of the problem data setup.
+     */
+
+    /*
+     * Write the problem out in SDPA sparse format.
+     */
+    dim_of_X = 2*dim;
+    nb_of_cons = dim;
+
+    write_prob("prob.dat-s", dim_of_X, nb_of_cons, C, b, constraints);
+
+    /*
+     * Create an initial solution.  This allocates space for X, y, and Z,
+     * and sets initial values.
+     */
+
+    initsoln(dim_of_X, nb_of_cons, C, b, constraints, &X, &y, &Z);
+
+    /*
+     * Solve the problem.
+     */
+
+    ret=easy_sdp(dim_of_X, nb_of_cons,C,b,constraints,0.0,&X,&y,&Z,&pobj,&dobj);
+
+    /*
+     * Write out the problem solution.
+     */
+
+    //num_set_double(sol1, (dobj+pobj)/(2));
+    //	printf("primal : %.16e \t dual : %.16e\n",pobj,dobj);
+    num_set_double(sol1, dobj);
+    //	if (square) {
+    //		num_set_double(sol2, (double)0.0);
+    //		itv_set_num2(res, sol1, sol2);
+    //		free_prob(dim_of_X, nb_of_cons, C,b,constraints,X,y,Z);
+    //		return ret;
+    //	}
+    //	write_sol("prob.sol", dim_of_X, nb_of_cons, X, y, Z);
+
+
+    /*
+     * solve the same problem with C = -C
+     */
+
+    for (i=1; i<=dim; i++) {
+	for (j=1; j<=dim; j++) {
+	    C.blocks[1].data.mat[ijtok(i,j,dim)] = -1*C.blocks[1].data.mat[ijtok(i,j,dim)];
 	}
+    }
+    //write_prob("prob.dat-s", dim_of_X, nb_of_cons, C, b, constraints);
+    initsoln(dim_of_X, nb_of_cons, C, b, constraints, &X, &y, &Z);
+    ret+=easy_sdp(dim_of_X, nb_of_cons,C,b,constraints,0.0,&X,&y,&Z,&pobj,&dobj);
 
-	/*
-	 * Allocate storage for the right hand side, b.
-	 */
+    //num_set_double(sol2, (dobj+pobj)/(-2));
+    //	printf("primal : %.16e \t dual : %.16e\n",-pobj,-dobj);
+    num_set_double(sol2, -dobj);
+    itv_set_num2(res, sol1, sol2);
 
-	b=(double *)malloc((dim+1)*sizeof(double));
-	if (b==NULL)
-	{
-		printf("Failed to allocate storage for a!\n");
-		exit(1);
-	};
+    /*
+     * Free storage allocated for the problem and return.
+     */
 
-	/*
-	 * Fill in the entries in b.
-	 */
-
-	for (i=1; i<=dim; i++) {
-		b[i]=1.0;
-	}
-
-	/*
-	 * The next major step is to setup the constraint matrices Ai.
-	 * Again, because C indexing starts with 0, we have to allocate space for
-	 * one more constraint.  constraints[0] is not used.
-	 */
-
-	constraints=(struct constraintmatrix *)malloc((dim+1)*sizeof(struct constraintmatrix));
-	if (constraints==NULL)
-	{
-		printf("Failed to allocate storage for constraints!\n");
-		exit(1);
-	};
-
-	/*
-	 * Setup the A1 matrix.  Note that we start with block 3 of A1 and then
-	 * do block 1 of A1.  We do this in this order because the blocks will
-	 * be inserted into the linked list of A1 blocks in reverse order.  
-	 */
-
-	/*
-	 * Terminate the linked list with a NULL pointer.
-	 */
-
-	for (i=1; i<=dim; i++) {
-		constraints[i].blocks=NULL;
-
-		/*
-		 * Now, we handle block 2 of Ai.
-		 */
-
-		/*
-		 * Allocate space for block 2 of Ai.
-		 */
-
-		blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
-		if (blockptr==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-
-		/*
-		 * Initialize block 2.
-		 */
-
-		blockptr->blocknum=2;
-		blockptr->blocksize=dim;
-		blockptr->constraintnum=i;
-		blockptr->next=NULL;
-		blockptr->nextbyblock=NULL;
-		blockptr->entries=(double *) malloc((1+1)*sizeof(double));
-		if (blockptr->entries==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-		blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
-		if (blockptr->iindices==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-		blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
-		if (blockptr->jindices==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-
-		/*
-		 * We have 1 nonzero entry in the upper triangle of block 2 of Ai.
-		 */
-
-		blockptr->numentries=1;
-
-		/*
-		 * The entry in the i,i position of block 2 of Ai is 1.0
-		 */
-
-		blockptr->iindices[1]=i;
-		blockptr->jindices[1]=i;
-		blockptr->entries[1]=1.0;
-
-		/*
-		 * Note that the entry in the other positions of block 2 of Ai is 0, 
-		 * So we don't store anything for it.
-		 */
-
-		/*
-		 * Insert block 2 into the linked list of Ai blocks.  
-		 */
-
-		blockptr->next=constraints[i].blocks;
-		constraints[i].blocks=blockptr;
-
-		/*
-		 * Now, we handle block 1.  
-		 */
-
-		/*
-		 * Allocate space for block 1.
-		 */
-
-		blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
-		if (blockptr==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-
-		/*
-		 * Initialize block 1.
-		 */
-
-		blockptr->blocknum=1;
-		blockptr->blocksize=dim;
-		blockptr->constraintnum=i;
-		blockptr->next=NULL;
-		blockptr->nextbyblock=NULL;
-		blockptr->entries=(double *) malloc((1+1)*sizeof(double));
-		if (blockptr->entries==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-		blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
-		if (blockptr->iindices==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-		blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
-		if (blockptr->jindices==NULL)
-		{
-			printf("Allocation of constraint block failed!\n");
-			exit(1);
-		};
-
-		/*
-		 * We have 3 nonzero entries in the upper triangle of block 1 of A1.
-		 */
-
-		blockptr->numentries=1;
-
-		/*
-		 * The entry in the i,i position of block 1 of Ai is 1.0
-		 */
-
-		blockptr->iindices[1]=i;
-		blockptr->jindices[1]=i;
-		blockptr->entries[1]=1.0;
-
-		/*
-		 * Insert block 1 into the linked list of A1 blocks.  
-		 */
-
-		blockptr->next=constraints[i].blocks;
-		constraints[i].blocks=blockptr;
-	}
-
-
-	/*
-	 * At this point, we have all of the problem data setup.
-	 */
-
-	/*
-	 * Write the problem out in SDPA sparse format.
-	 */
-	dim_of_X = 2*dim;
-	nb_of_cons = dim;
-
-	write_prob("prob.dat-s", dim_of_X, nb_of_cons, C, b, constraints);
-
-	/*
-	 * Create an initial solution.  This allocates space for X, y, and Z,
-	 * and sets initial values.
-	 */
-
-	initsoln(dim_of_X, nb_of_cons, C, b, constraints, &X, &y, &Z);
-
-	/*
-	 * Solve the problem.
-	 */
-
-	ret=easy_sdp(dim_of_X, nb_of_cons,C,b,constraints,0.0,&X,&y,&Z,&pobj,&dobj);
-
-	/*
-	 * Write out the problem solution.
-	 */
-
-	//num_set_double(sol1, (dobj+pobj)/(2));
-//	printf("primal : %.16e \t dual : %.16e\n",pobj,dobj);
-	num_set_double(sol1, dobj);
-//	if (square) {
-//		num_set_double(sol2, (double)0.0);
-//		itv_set_num2(res, sol1, sol2);
-//		free_prob(dim_of_X, nb_of_cons, C,b,constraints,X,y,Z);
-//		return ret;
-//	}
-	//	write_sol("prob.sol", dim_of_X, nb_of_cons, X, y, Z);
-
-
-	/*
-	 * solve the same problem with C = -C
-	 */
-
-	for (i=1; i<=dim; i++) {
-		for (j=1; j<=dim; j++) {
-			C.blocks[1].data.mat[ijtok(i,j,dim)] = -1*C.blocks[1].data.mat[ijtok(i,j,dim)];
-		}
-	}
-	//write_prob("prob.dat-s", dim_of_X, nb_of_cons, C, b, constraints);
-	initsoln(dim_of_X, nb_of_cons, C, b, constraints, &X, &y, &Z);
-	ret+=easy_sdp(dim_of_X, nb_of_cons,C,b,constraints,0.0,&X,&y,&Z,&pobj,&dobj);
-
-	//num_set_double(sol2, (dobj+pobj)/(-2));
-//	printf("primal : %.16e \t dual : %.16e\n",-pobj,-dobj);
-	num_set_double(sol2, -dobj);
-	itv_set_num2(res, sol1, sol2);
-
-	/*
-	 * Free storage allocated for the problem and return.
-	 */
-
-	free_prob(dim_of_X, nb_of_cons, C,b,constraints,X,y,Z);
-	return ret;
+    free_prob(dim_of_X, nb_of_cons, C,b,constraints,X,y,Z);
+    itv_clear(tmp);
+    itv_clear(mid);
+    itv_clear(dev);
+    num_clear(eps);
+    bound_clear(err);
+    return ret;
 }
 
 #endif
