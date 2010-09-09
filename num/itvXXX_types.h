@@ -68,7 +68,8 @@ typedef struct __itvXXX_internal_struct {
   itvXXX_t boxize_lincons_eval;
   boundXXX_t boxize_lincons_bound;
   itvXXX_float_const cst_half, cst_single, cst_double, cst_extended, cst_quad;
-  itvXXX_t itvXXX_half; /* [-0.5,0.5] */
+  eitvXXX_t eitvXXX_half; /* [-0.5,0.5] */
+  eitvXXX_t eval_eitv;
   mpz_t reduce_lincons_gcd;
   mpz_t reduce_lincons_mpz;
 } __itvXXX_internal_struct;

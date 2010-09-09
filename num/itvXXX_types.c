@@ -75,9 +75,10 @@ void itvXXX_internal_init(itvXXX_internal_t intern)
   make_itvXXX_float_const(52,11,1023,&intern->cst_double);    /* 64-bit */
   make_itvXXX_float_const(63,15,16383,&intern->cst_extended); /* 80-bit, no hidden bit */
   make_itvXXX_float_const(112,15,16383,&intern->cst_quad);    /* 128-bit */
-  itvXXX_init(intern->itvXXX_half);
-  itvXXX_set_int2(intern->itvXXX_half,-1,1);
-  itvXXX_mul_2exp(intern->itvXXX_half,intern->itvXXX_half,-1);
+  eitvXXX_init(intern->eitvXXX_half);
+  eitvXXX_set_int2(intern->eitvXXX_half,-1,1);
+  eitvXXX_mul_2exp(intern->eitvXXX_half,intern->eitvXXX_half,-1);
+  eitvXXX_init(intern->eval_eitv);
 }
 void itvXXX_internal_clear(itvXXX_internal_t intern)
 {
@@ -104,7 +105,8 @@ void itvXXX_internal_clear(itvXXX_internal_t intern)
   itvXXX_float_const_clear(&intern->cst_double);
   itvXXX_float_const_clear(&intern->cst_extended);
   itvXXX_float_const_clear(&intern->cst_quad);
-  itvXXX_clear(intern->itvXXX_half);
+  eitvXXX_clear(intern->eitvXXX_half);
+  eitvXXX_clear(intern->eval_eitv);
 }
 
 itvXXX_internal_ptr itvXXX_internal_alloc(void)

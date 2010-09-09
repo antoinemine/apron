@@ -15,7 +15,7 @@ CLIBS = -lmpfr -lgmp -lm
 # Files
 #---------------------------------------
 
-TMPL = Il Ill MPZ Rl Rll MPQ D Dl MPFR
+TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
