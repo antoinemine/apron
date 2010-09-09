@@ -27,14 +27,14 @@ TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES = \
 ap_linexprXXX.h ap_linconsXXX.h ap_lingenXXX.h \
-ap_linexprconsXXX_conv.h \
+ap_linexprconsgenXXX_conv.h \
 ap_coeff.h.tmpl ap_box0.h.tmpl \
-ap_yyy0.h ap_yyy1.h ap_yyy0_array.h ap_yyy1_array.h
+ap_linyyy0.h ap_linyyy1.h ap_linyyy0_array.h ap_linyyy1_array.h
 C_TMPL_FILES = \
 ap_linexprXXX.c ap_linconsXXX.c ap_lingenXXX.c ap_YYYXXX_array.c \
-ap_linexprconsXXX_conv.c \
+ap_linexprconsgenXXX_conv.c \
 ap_coeff.c.tmpl ap_box0.c.tmpl \
-ap_yyy0.c ap_yyy1.c ap_yyy0_array.c ap_yyy1_array.c
+ap_linyyy0.c ap_linyyy1.c ap_linyyy0_array.c ap_linyyy1_array.c
 
 H_ORIG_FILES = \
 ap_config.h ap_dimension.h \
@@ -61,21 +61,21 @@ C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) $(TMPL:%=ap_lingen%.h) \
-$(TMPL:%=ap_linexprcons%_conv.h) \
+$(TMPL:%=ap_linexprconsgen%_conv.h) \
 ap_coeff.h ap_box0.h \
-ap_linexpr0.h ap_lincons0.h \
-ap_linexpr1.h ap_lincons1.h \
-ap_linexpr0_array.h ap_lincons0_array.h \
-ap_linexpr1_array.h ap_lincons1_array.h
+ap_linexpr0.h ap_lincons0.h ap_lingen0.h \
+ap_linexpr1.h ap_lincons1.h ap_lingen1.h \
+ap_linexpr0_array.h ap_lincons0_array.h ap_lingen0_array.h \
+ap_linexpr1_array.h ap_lincons1_array.h ap_lingen1_array.h 
 C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) $(TMPL:%=ap_lingen%.c) \
 $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) \
-$(TMPL:%=ap_linexprcons%_conv.c) \
+$(TMPL:%=ap_linexprconsgen%_conv.c) \
 ap_coeff.c ap_box0.c \
-ap_linexpr0.c ap_lincons0.c \
-ap_linexpr1.c ap_lincons1.c \
-ap_linexpr0_array.c ap_lincons0_array.c \
-ap_linexpr1_array.c ap_lincons1_array.c
+ap_linexpr0.c ap_lincons0.c ap_lingen0.c \
+ap_linexpr1.c ap_lincons1.c ap_lingen1.c \
+ap_linexpr0_array.c ap_lincons0_array.c ap_lingen0_array.c \
+ap_linexpr1_array.c ap_lincons1_array.c ap_lingen1_array.c
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
@@ -207,9 +207,9 @@ $(TMPL:%=ap_lingen%.h): ap_lingen%.h: ap_lingenXXX.h
 	$(generate-file-XXX)
 $(TMPL:%=ap_lingen%.c): ap_lingen%.c: ap_lingenXXX.c
 	$(generate-file-XXX)
-$(TMPL:%=ap_linexprcons%_conv.h): ap_linexprcons%_conv.h: ap_linexprconsXXX_conv.h
+$(TMPL:%=ap_linexprconsgen%_conv.h): ap_linexprconsgen%_conv.h: ap_linexprconsgenXXX_conv.h
 	$(generate-file-XXX)
-$(TMPL:%=ap_linexprcons%_conv.c): ap_linexprcons%_conv.c: ap_linexprconsXXX_conv.c
+$(TMPL:%=ap_linexprconsgen%_conv.c): ap_linexprconsgen%_conv.c: ap_linexprconsgenXXX_conv.c
 	$(generate-file-XXX)
 
 $(TMPL:%=ap_linexpr%_array.c): ap_linexpr%_array.c: ap_YYYXXX_array.c
@@ -221,33 +221,39 @@ $(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_YYYXXX_array.c
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/YYY/lincons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-define generate-file-linexpr-yyy
+define generate-file-expr-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/linexpr/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/expr/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
-define generate-file-lincons-yyy
+define generate-file-cons-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lincons/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/cons/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
-define generate-file-lingen-yyy
+define generate-file-gen-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/lingen/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/gen/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
-ap_linexpr0.h ap_linexpr0.c ap_linexpr1.h ap_linexpr1.c: ap_linexpr%: ap_yyy%
-	$(generate-file-linexpr-yyy)
-ap_linexpr0_array.h ap_linexpr0_array.c: ap_linexpr0_array.%: ap_yyy0_array.%
-	$(generate-file-linexpr-yyy)
-ap_linexpr1_array.h ap_linexpr1_array.c: ap_linexpr1_array.%: ap_yyy1_array.%
-	$(generate-file-linexpr-yyy)
-ap_lincons0.h ap_lincons0.c ap_lincons1.h ap_lincons1.c: ap_lincons%: ap_yyy%
-	$(generate-file-lincons-yyy)
-ap_lincons0_array.h ap_lincons0_array.c: ap_lincons0_array.%: ap_yyy0_array.%
-	$(generate-file-lincons-yyy)
-ap_lincons1_array.h ap_lincons1_array.c: ap_lincons1_array.%: ap_yyy1_array.%
-	$(generate-file-lincons-yyy)
+ap_linexpr0.h ap_linexpr0.c ap_linexpr1.h ap_linexpr1.c: ap_linexpr%: ap_linyyy%
+	$(generate-file-expr-yyy)
+ap_linexpr0_array.h ap_linexpr0_array.c: ap_linexpr0_array.%: ap_linyyy0_array.%
+	$(generate-file-expr-yyy)
+ap_linexpr1_array.h ap_linexpr1_array.c: ap_linexpr1_array.%: ap_linyyy1_array.%
+	$(generate-file-expr-yyy)
+ap_lincons0.h ap_lincons0.c ap_lincons1.h ap_lincons1.c: ap_lincons%: ap_linyyy%
+	$(generate-file-cons-yyy)
+ap_lincons0_array.h ap_lincons0_array.c: ap_lincons0_array.%: ap_linyyy0_array.%
+	$(generate-file-cons-yyy)
+ap_lincons1_array.h ap_lincons1_array.c: ap_lincons1_array.%: ap_linyyy1_array.%
+	$(generate-file-cons-yyy)
+ap_lingen0.h ap_lingen0.c ap_lingen1.h ap_lingen1.c: ap_lingen%: ap_linyyy%
+	$(generate-file-gen-yyy)
+ap_lingen0_array.h ap_lingen0_array.c: ap_lingen0_array.%: ap_linyyy0_array.%
+	$(generate-file-gen-yyy)
+ap_lingen1_array.h ap_lingen1_array.c: ap_lingen1_array.%: ap_linyyy1_array.%
+	$(generate-file-gen-yyy)
 
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
