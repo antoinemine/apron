@@ -17,12 +17,12 @@
 #include <string.h>
 #include "ap_coeff.h"
 #include "ap_dimension.h"
-#ifndef _AP_linexpr0_H_
-#include "ap_linexpr0.h"
-#endif
 #include "ap_linyyyD.h"
 #include "ap_linyyyMPQ.h"
 #include "ap_linyyyMPFR.h"
+#ifndef _AP_linexpr0_H_
+#include "ap_linexpr0.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -23,18 +23,33 @@ void ap_tcons0_fprint(FILE* stream, ap_tcons0_t* cons, char** name_of_dim)
 	     " > 0" :
 	     "\"ERROR in ap_tcons0_fprint\"")));
   if (cons->constyp == AP_CONS_EQMOD){
-    assert(cons->scalar!=NULL);
     fprintf(stream," mod ");
-    ap_scalar_fprint(stream,cons->scalar);
+    mpq_out_str(stream,10,cons->mpq);
   }
 }
 
 ap_tcons0_t ap_tcons0_make_unsat()
 {
-  ap_texpr0_t* expr;
-
-  expr = ap_texpr0_cst_scalar_int(-1);
+  ap_texpr0_t* expr = malloc(sizeof(ap_texpr0_t));
+  expr->discr = AP_TEXPR_CST;
+  ap_coeff_init(expr->val.cst,AP_SCALAR_D);
+  ap_coeff_set_int(expr->val.cst,-1);
   return ap_tcons0_make(AP_CONS_SUPEQ,expr,NULL);
+}
+
+ap_tcons0_t ap_tcons0_from_lincons0(ap_lincons0_t cons)
+{
+  ap_tcons0_t res;
+  ap_linexpr0_t linexpr0ref;
+  ap_constyp_t constyp;
+  mpq_ptr mpqref;
+
+  ap_lincons0_linexpr0ref(linexpr0ref,cons);
+  res.texpr0 = ap_texpr0_from_linexpr0(linexpr0ref);
+  res.constyp = ap_lincons0_get_constyp(cons);
+  ap_lincons0_get_mpq(res.mpq, cons);
+
+  return res;
 }
 
 /* ********************************************************************** */
@@ -49,7 +64,6 @@ ap_tcons0_array_t ap_tcons0_array_make(size_t size)
   array.p = (size==0) ? NULL : (ap_tcons0_t*)malloc(size*sizeof(ap_tcons0_t));
   for (i=0; i<size; i++){
     array.p[i].texpr0 = NULL;
-    array.p[i].scalar = NULL;
   }
   return array;
 }
@@ -62,7 +76,6 @@ void ap_tcons0_array_resize(ap_tcons0_array_t* array, size_t size)
   array->p = (ap_tcons0_t*)realloc(array->p,size*sizeof(ap_tcons0_t));
    for (i=array->size; i<size; i++){
     array->p[i].texpr0 = NULL;
-    array->p[i].scalar = NULL;
   }
    array->size = size;
 }
@@ -132,28 +145,6 @@ ap_tcons0_array_t ap_tcons0_array_add_dimensions(ap_tcons0_array_t* array,
   narray = ap_tcons0_array_make(array->size);
   for(i=0; i<array->size; i++){
     narray.p[i] =  ap_tcons0_add_dimensions(&array->p[i],dimchange);
-  }
-  return narray;
-}
-
-void ap_tcons0_array_remove_dimensions_with(ap_tcons0_array_t* array,
-					    ap_dimchange_t* dimchange)
-{
-  size_t i;
-  for(i=0; i<array->size; i++){
-    ap_texpr0_t* expr = array->p[i].texpr0;
-    if (expr) ap_texpr0_remove_dimensions_with(expr,dimchange);
-  }
-}
-ap_tcons0_array_t ap_tcons0_array_remove_dimensions(ap_tcons0_array_t* array,
-						    ap_dimchange_t* dimchange)
-{
-  size_t i;
-  ap_tcons0_array_t narray;
-
-  narray = ap_tcons0_array_make(array->size);
-  for(i=0; i<array->size; i++){
-    narray.p[i] =  ap_tcons0_remove_dimensions(&array->p[i],dimchange);
   }
   return narray;
 }

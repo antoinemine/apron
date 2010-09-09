@@ -29,9 +29,8 @@ extern "C" {
 typedef struct ap_tcons0_t {
   ap_texpr0_t* texpr0;  /* expression */
   ap_constyp_t constyp; /* type of constraint */
-  ap_scalar_t* scalar;  /* maybe NULL.  
-			   For EQMOD constraint, indicates the
-			   modulo */
+  mpq_t mpq;  /* For EQMOD constraint, indicates the
+		 modulo */
 } ap_tcons0_t;
 
 /* Array of constraints */
@@ -49,17 +48,16 @@ typedef struct ap_tcons0_array_t {
 /* ====================================================================== */
 
 static inline
-ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp, 
+ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp,
 			   ap_texpr0_t* texpr,
-			   ap_scalar_t* scalar);
+			   mpq_t mpq);
   /* Create a constraint of given type with the given expression.
      The expression and the coefficient are not duplicated, just pointed to */
 
 ap_tcons0_t ap_tcons0_make_unsat(void);
   /* Create the constraint -1>=0 */
 
-static inline
-ap_tcons0_t ap_tcons0_from_lincons0(ap_lincons0_t* cons);
+ap_tcons0_t ap_tcons0_from_lincons0(ap_lincons0_t cons);
   /* From linear constraint to comb-like tree expression constraint  */
 
 static inline
@@ -95,7 +93,7 @@ bool ap_tcons0_is_interval_polyfrac(ap_tcons0_t* a);
   /* polynomial fraction with possibly interval coefficients, no rounding */
 
 static inline
-bool ap_tcons0_is_scalar(ap_tcons0_t* a);
+bool ap_tcons0_is_linear(ap_tcons0_t* a);
   /* all coefficients are scalar (non-interval) */
 
 /* ====================================================================== */
@@ -108,13 +106,6 @@ void ap_tcons0_add_dimensions_with(ap_tcons0_t* cons,
 static inline
 ap_tcons0_t ap_tcons0_add_dimensions(ap_tcons0_t* cons,
 				     ap_dimchange_t* dimchange);
-
-static inline
-void ap_tcons0_remove_dimensions_with(ap_tcons0_t* cons,
-				      ap_dimchange_t* dimchange);
-static inline
-ap_tcons0_t ap_tcons0_remove_dimensions(ap_tcons0_t* cons,
-					ap_dimchange_t* dimchange);
 
 static inline
 void ap_tcons0_permute_dimensions_with(ap_tcons0_t* cons,
@@ -170,40 +161,31 @@ ap_tcons0_array_t ap_tcons0_array_permute_dimensions(ap_tcons0_array_t* array,
 /* III. Inline functions definitions */
 /* ********************************************************************** */
 
-static inline ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp, ap_texpr0_t* texpr, ap_scalar_t* scalar)
+static inline ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp, ap_texpr0_t* texpr, mpq_t mpq)
 {
   ap_tcons0_t cons;
   cons.constyp = constyp;
   cons.texpr0 = texpr;
-  cons.scalar = scalar;
+  mpq_init(cons.mpq);
+  if (mpq) mpq_set(cons.mpq,mpq);
   return cons;
 }
-static inline ap_tcons0_t ap_tcons0_from_lincons0(ap_lincons0_t* cons)
-{
-  ap_tcons0_t res;
-  res.texpr0 = ap_texpr0_from_linexpr0(cons->linexpr0);
-  res.constyp = cons->constyp;
-  res.scalar = cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL;
-  return res;
-}
+
 static inline ap_tcons0_t ap_tcons0_copy(ap_tcons0_t* cons)
 {
-  return ap_tcons0_make(cons->constyp, 
+  return ap_tcons0_make(cons->constyp,
 			ap_texpr0_copy(cons->texpr0),
-			cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
+			cons->mpq);
 }
 static inline void ap_tcons0_clear(ap_tcons0_t* tcons)
 {
   if (tcons->texpr0){
     ap_texpr0_free(tcons->texpr0);
+    tcons->texpr0 = NULL;
   }
-  tcons->texpr0 = NULL;
-  if (tcons->scalar){
-    ap_scalar_free(tcons->scalar);
-  }
-  tcons->scalar = NULL;
+  mpq_clear(tcons->mpq);
 }
-  
+
 static inline
 bool ap_tcons0_is_interval_cst(ap_tcons0_t* a)
 { return ap_texpr0_is_interval_cst(a->texpr0); }
@@ -230,19 +212,7 @@ ap_tcons0_t ap_tcons0_add_dimensions(ap_tcons0_t* cons,
 {
   return ap_tcons0_make(cons->constyp,
 			ap_texpr0_add_dimensions(cons->texpr0,dimchange),
-			cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
-}
-static inline
-void ap_tcons0_remove_dimensions_with(ap_tcons0_t* cons,
-				      ap_dimchange_t* dimchange)
-{ ap_texpr0_remove_dimensions_with(cons->texpr0,dimchange); }
-static inline
-ap_tcons0_t ap_tcons0_remove_dimensions(ap_tcons0_t* cons,
-					ap_dimchange_t* dimchange)
-{
-  return ap_tcons0_make(cons->constyp,
-			ap_texpr0_remove_dimensions(cons->texpr0,dimchange),
-			cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
+			cons->mpq);
 }
 static inline
 void ap_tcons0_permute_dimensions_with(ap_tcons0_t* cons,
@@ -254,9 +224,9 @@ ap_tcons0_t ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
 {
   return ap_tcons0_make(cons->constyp,
 			ap_texpr0_permute_dimensions(cons->texpr0,perm),
-			cons->scalar ? ap_scalar_alloc_set(cons->scalar) : NULL);
+			cons->mpq);
 }
-  
+
 #ifdef __cplusplus
 }
 #endif
