@@ -7,11 +7,13 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "ap_box_array.h"	  
+#include "ap_box0.h"
+#include "eitvD.h"
+#include "eitvMPQ.h"
+#include "eitvMPFR.h"
 #include "itvD_conv.h"
 #include "itvMPQ_conv.h"
 #include "itvMPFR_conv.h"
-
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -21,7 +23,7 @@ void ap_box0_init(ap_box0_t res, ap_scalar_discr_t discr, size_t size)
 {
   res->discr = discr;
   SWITCH(discr)
-    res->p.D = eitvXXX_array_alloc(size);
+    res->p.XXX = eitvXXX_array_alloc(size);
   ENDSWITCH
   res->size = size;
 }
@@ -32,14 +34,14 @@ void ap_box0_resize(ap_box0_t res, size_t size)
   SWITCH(res->discr)
     if (size < res->size){
       for (i=size; i<res->size; i++){
-	eitvXXX_clear(res->p[i]);
+	eitvXXX_clear(res->p.XXX[i]);
       }
-      res->p = realloc(res->p,size*sizeof(eitvXXX_t));
+      res->p.XXX = realloc(res->p.XXX,size*sizeof(eitvXXX_t));
     }
     else { /* size > res->size */
-      res->p = realloc(res->p,size*sizeof(eitvXXX_t));
+      res->p.XXX = realloc(res->p.XXX,size*sizeof(eitvXXX_t));
       for (i=res->size; i<size; i++){
-	eitvXXX_init(res->p[i]);
+	eitvXXX_init(res->p.XXX[i]);
       }
     }
   ENDSWITCH
@@ -49,7 +51,7 @@ void ap_box0_resize(ap_box0_t res, size_t size)
 void ap_box0_init_set(ap_box0_t res, ap_box0_t e)
 {
   ap_box0_init(res,e->discr,e->size);
-  SWITCH(discr)
+  SWITCH(e->discr)
     size_t i;
   for (i=0;i<e->size;i++){
     eitvXXX_set(res->p.XXX[i],e->p.XXX[i]);
@@ -63,20 +65,28 @@ void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size)
   ap_box0_init(res,AP_SCALAR_ZZZ,size);
   size_t i;
   for (i=0;i<size;i++){
-    eitvXXX_set(res->p.XXX[i],e[i]);
+    eitvZZZ_set(res->p.ZZZ[i],e[i]);
   }
 }
 ENDMACRO
 void ap_box0_clear(ap_box0_t e)
 {
-  SWITCH(discr)
+  SWITCH(e->discr)
     eitvXXX_array_free(e->p.XXX,e->size);
   ENDSWITCH
 }
 void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim)
 {
+  size_t i;
   SWITCH(e->discr)
-    eitvXXX_array_fprint(stream,e->p.XXX,name_of_dim);
+    for (i=0;i<e->size;i++){
+      if (name_of_dim)
+	fprintf(stream,"%s in \t",name_of_dim[i]);
+      else
+	fprintf(stream,"x%ud in \t",(unsigned int)i);
+      eitvXXX_fprint(stream,e->p.XXX[i]);
+      fprintf(stream,"\n");
+    }
   ENDSWITCH
 }
 
@@ -96,7 +106,7 @@ bool ap_box0_set_index(ap_box0_t p, size_t i, ap_coeff_t a, num_internal_t inter
   ap_box0_ref_index(ref,p,i);
   return ap_coeff_set(ref,a,intern);
 }
-bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t intern);
+bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t intern)
 {
   ap_coeff_t ref;
   ap_box0_ref_index(ref,p,i);
@@ -105,12 +115,12 @@ bool ap_box0_get_index(ap_coeff_t a, ap_box0_t p, size_t i, num_internal_t inter
 void ap_box0_ref_index(ap_coeff_t a, ap_box0_t e, size_t i)
 {
   SWITCH(e->discr)
-    ap_coeff_cons_eitvXX(a,e->p.XXX[i]);
+    ap_coeff_cons_eitvXXX(a,e->p.XXX[i]);
   ENDSWITCH
 }
 
 MACRO_MAINZ
-bool ap_box0_set_eitvZZZ_array(ap_box0_t res, ap_eitvZZZ_t* e, size_t size, num_internal_t intern)
+bool ap_box0_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size, num_internal_t intern)
 {
   size_t i;
   bool exact = true;
