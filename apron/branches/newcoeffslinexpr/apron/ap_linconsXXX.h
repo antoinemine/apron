@@ -166,6 +166,14 @@ bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array,
 					bool for_meet_inequality, itv_internal_t intern);
   /* Same for an array */
 
+struct ap_tcons0_t;
+bool ap_linconsXXX_set_tcons0(ap_linconsXXX_t lincons, bool* perror, struct ap_tcons0_t* cons);
+  /* Linearize a tree constraint that is (syntaxically) interval linear .
+     If the precondition is violated, sets *perror to true.
+  */
+bool ap_linconsXXX_intlinearize_tcons0(ap_linconsXXX_t lincons, itvXXX_t* env, struct ap_tcons0_t* cons, itv_internal_t intern);
+bool ap_linconsXXX_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons, itvXXX_t* env, struct ap_tcons0_t** cons, size_t size, itv_internal_t intern);
+  /* Return true if no approximations. */
 
 /* ********************************************************************** */
 /* IV. Boxization of interval linear expressions */
@@ -247,8 +255,9 @@ static inline void ap_linconsXXX_set(ap_linconsXXX_t a, ap_linconsXXX_t b)
 static inline void ap_linconsXXX_init_set(ap_linconsXXX_t a, ap_linconsXXX_t b)
 { assert(a!=b); ap_linexprXXX_init_set(a->linexpr,b->linexpr); a->constyp = b->constyp; mpq_init(a->mpq); mpq_set(a->mpq,b->mpq); }
 static inline void ap_linconsXXX_init_set_linexpr(ap_linconsXXX_t res, ap_linexprXXX_t expr, ap_constyp_t constyp, mpq_ptr mpq)
-{ 
-  ap_linexprXXX_init_set(res->linexpr,expr); res->constyp = constyp; 
+{
+  ap_linexprXXX_init_set(res->linexpr,expr);
+  res->constyp = constyp;
   mpq_init(res->mpq);
   if (mpq) mpq_set(res->mpq,mpq);
 }

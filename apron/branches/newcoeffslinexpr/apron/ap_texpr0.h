@@ -93,22 +93,7 @@ typedef struct ap_texpr0_t {
 /* I. Constructors and Destructors */
 /* ====================================================================== */
 
-ap_texpr0_t* ap_texpr0_cst                 (ap_coeff_t* coeff);
-ap_texpr0_t* ap_texpr0_cst_scalar          (ap_scalar_t* scalar);
-ap_texpr0_t* ap_texpr0_cst_scalar_mpq      (mpq_t mpq);
-ap_texpr0_t* ap_texpr0_cst_scalar_mpfr     (mpfr_t mpfr);
-ap_texpr0_t* ap_texpr0_cst_scalar_int      (long int num);
-ap_texpr0_t* ap_texpr0_cst_scalar_frac     (long int num, unsigned long int den);
-ap_texpr0_t* ap_texpr0_cst_scalar_double   (double num);
-ap_texpr0_t* ap_texpr0_cst_interval        (ap_interval_t* itv);
-ap_texpr0_t* ap_texpr0_cst_interval_scalar (ap_scalar_t* inf, ap_scalar_t* sup);
-ap_texpr0_t* ap_texpr0_cst_interval_mpq    (mpq_t inf, mpq_t sup);
-ap_texpr0_t* ap_texpr0_cst_interval_mpfr   (mpfr_t inf, mpfr_t sup);
-ap_texpr0_t* ap_texpr0_cst_interval_int    (long int inf, long int sup);
-ap_texpr0_t* ap_texpr0_cst_interval_frac   (long int numinf, unsigned long int deninf,
-					    long int numsup, unsigned long int densup);
-ap_texpr0_t* ap_texpr0_cst_interval_double (double inf, double sup);
-ap_texpr0_t* ap_texpr0_cst_interval_top    (void);
+ap_texpr0_t* ap_texpr0_cst(ap_coeff_t coeff);
   /* Create a constant leaf expression */
 
 ap_texpr0_t* ap_texpr0_dim(ap_dim_t dim);
@@ -130,7 +115,7 @@ ap_texpr0_t* ap_texpr0_copy(ap_texpr0_t* expr);
 void ap_texpr0_free(ap_texpr0_t* expr);
   /* Recursive (deep) free */
 
-ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t* e);
+ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e);
   /* From linear expression to comb-like expression tree */
 
 
@@ -211,14 +196,10 @@ void ap_texpr0_substitute_with   (ap_texpr0_t* a, ap_dim_t dim, ap_texpr0_t *dst
 
 ap_texpr0_t* ap_texpr0_add_dimensions(ap_texpr0_t* expr,
 				      ap_dimchange_t* dimchange);
-ap_texpr0_t* ap_texpr0_remove_dimensions(ap_texpr0_t* expr,
-					 ap_dimchange_t* dimchange);
 ap_texpr0_t* ap_texpr0_permute_dimensions(ap_texpr0_t* expr,
 					  ap_dimperm_t* dimperm);
 void ap_texpr0_add_dimensions_with(ap_texpr0_t* expr,
 				   ap_dimchange_t* dimchange);
-void ap_texpr0_remove_dimensions_with(ap_texpr0_t* expr,
-					ap_dimchange_t* dimchange);
 void ap_texpr0_permute_dimensions_with(ap_texpr0_t* expr,
 				       ap_dimperm_t* perm);
 

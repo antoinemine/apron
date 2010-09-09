@@ -38,6 +38,7 @@ ap_linyyy0.c ap_linyyy1.c ap_linyyy0_array.c ap_linyyy1_array.c
 
 H_ORIG_FILES = \
 ap_config.h ap_dimension.h \
+ap_texpr0.h ap_tcons0.h \
 ap_manager.h \
 ap_var.h ap_environment.h 
 #ap_linexpr0_array.h \
@@ -53,6 +54,7 @@ ap_var.h ap_environment.h
 #ap_reducedproduct.h
 C_ORIG_FILES = \
 ap_dimension.c \
+ap_texpr0.c ap_tcons0.c \
 ap_manager.c \
 ap_var.c ap_environment.c
 

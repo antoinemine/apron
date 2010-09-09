@@ -14,6 +14,7 @@
 #include "ap_linexprconsgenD_conv.h"
 #include "ap_linexprconsgenMPQ_conv.h"
 #include "ap_linexprconsgenMPFR_conv.h"
+#include "ap_texpr0.h"
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -203,7 +204,7 @@ bool ap_linexprXXX_is_real(ap_linexprXXX_t expr, size_t intdim)
 }
 bool ap_linexprXXX_is_linear(ap_linexprXXX_t expr)
 {
-  return eitvXXX_is_point(expr->cst) && ap_linexprXXX_is_quasilinear(expr); 
+  return eitvXXX_is_point(expr->cst) && ap_linexprXXX_is_quasilinear(expr);
 }
 bool ap_linexprXXX_is_quasilinear(ap_linexprXXX_t expr)
 {
@@ -230,9 +231,9 @@ ap_linexpr_type_t ap_linexprXXX_type(ap_linexprXXX_t a)
     return AP_LINEXPR_INTLINEAR;
 }
 
-/* ====================================================================== */
+/* ********************************************************************** */
 /* III. Access */
-/* ====================================================================== */
+/* ********************************************************************** */
 
 static size_t index_of_or_after_dim(ap_dim_t dim, ap_lintermXXX_t* linterm, size_t size)
 {
@@ -290,7 +291,7 @@ eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool crea
 
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va),
 				    num_internal_t intern,
-				    ap_linexprXXX_t expr, 
+				    ap_linexprXXX_t expr,
 				    bool* perror,
 				    ap_environment_t* env,
 				    va_list* va)
@@ -308,7 +309,7 @@ bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_line
     cst = (tag>=AP_CST);
     if (cst)
       tag -= AP_CST;
-    
+
     switch (tag){
     case AP_COEFF:
       {
@@ -630,8 +631,9 @@ void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr)
   }
   return;
 }
-void ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
+bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
 {
+  bool exact = NUMXXX_EXACT;
   size_t i;
   ap_dim_t dim;
   bool* peq;
@@ -641,7 +643,7 @@ void ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t co
   if (eitvXXX_is_zero(coeff)){
     eitvXXX_set(expr->cst,coeff);
     ap_linexprXXX_resize(expr,0);
-    return;
+    return true;
   }
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
@@ -649,17 +651,18 @@ void ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t co
   eitvXXX_mul(res->cst,res->cst,coeff, intern);
   if (eitvXXX_is_top(res->cst)){
     ap_linexprXXX_resize(res,0);
-    return;
+    return exact;
   }
   else {
     ap_linexprXXX_ForeachLinterm0(res,i,dim,pitv){
       eitvXXX_mul(pitv,pitv,coeff, intern);
     }
   }
-  return;
+  return exact;
 }
-void ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
+bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern)
 {
+  bool exact = NUMXXX_DIVEXACT;
   size_t i;
   ap_dim_t dim;
   eitvXXX_ptr pitv;
@@ -671,14 +674,14 @@ void ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coef
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv){
     eitvXXX_div(pitv,pitv,coeff, intern);
   }
-  return;
+  return exact;
 }
 
-void ap_linexprXXX_add(
-			ap_linexprXXX_t res,
-			ap_linexprXXX_t exprA,
-			ap_linexprXXX_t exprB, itv_internal_t intern)
+bool ap_linexprXXX_add(ap_linexprXXX_t res,
+		       ap_linexprXXX_t exprA,
+		       ap_linexprXXX_t exprB, itv_internal_t intern)
 {
+  bool exact = true;
   size_t i,j,k;
   ap_linexprXXX_t expr;
   bool endA,endB;
@@ -692,6 +695,7 @@ void ap_linexprXXX_add(
   }
   i = j = k = 0;
   endA = endB = false;
+  exact = NUMXXX_EXACT || eitvXXX_is_zero(exprA->cst) || eitvXXX_is_zero(exprB->cst);
   eitvXXX_add(expr->cst,exprA->cst,exprB->cst);
   if (eitvXXX_is_top(expr->cst))
     goto _ap_linexprXXX_add_return;
@@ -709,6 +713,7 @@ void ap_linexprXXX_add(
       k++; i++;
     }
     else {
+      exact = NUMXXX_EXACT;
       eitvXXX_add(expr->linterm[k]->eitv, exprA->linterm[i]->eitv,exprB->linterm[j]->eitv);
       expr->linterm[k]->dim = exprA->linterm[i]->dim;
       if (!eitvXXX_is_zero(expr->linterm[k]->eitv)){
@@ -723,35 +728,36 @@ void ap_linexprXXX_add(
     ap_linexprXXX_clear(res);
   }
   *res = *expr;
-  return;
+  return exact;
 }
-void ap_linexprXXX_sub(
-		     ap_linexprXXX_t res,
-		     ap_linexprXXX_t exprA,
-		     ap_linexprXXX_t exprB, itv_internal_t intern)
+bool ap_linexprXXX_sub(ap_linexprXXX_t res,
+		       ap_linexprXXX_t exprA,
+		       ap_linexprXXX_t exprB, itv_internal_t intern)
 {
+  bool exact;
   if (exprA==exprB){
     ap_linexprXXX_t expr;
     ap_linexprXXX_init(expr,0);
     ap_linexprXXX_neg(expr,exprB);
-    ap_linexprXXX_add(res,exprA,expr, intern);
+    exact = ap_linexprXXX_add(res,exprA,expr, intern);
     ap_linexprXXX_clear(expr);
   }
   else {
     ap_linexprXXX_neg(exprB,exprB);
-    ap_linexprXXX_add(res,exprA,exprB, intern);
+    exact = ap_linexprXXX_add(res,exprA,exprB, intern);
     if (exprB!=res){
       ap_linexprXXX_neg(exprB,exprB);
     }
   }
+  return exact;
 }
 
 /* ********************************************************************** */
-/* V. Evaluation and Quasilinearisation of interval linear expressions */
+/* Va. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
 /* Evaluate an interval linear expression */
-bool ap_linexprXXX_eval(itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern)
+bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, itv_internal_t intern)
 {
   size_t i;
   ap_dim_t dim;
@@ -759,11 +765,11 @@ bool ap_linexprXXX_eval(itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_i
 
   assert(env);
 
-  itvXXX_set(res, expr->cst->itv);
+  eitvXXX_set(res, expr->cst);
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    itvXXX_mul(intern->XXX->eval_itv,env[dim],eitv->itv, intern);
-    itvXXX_add(res,res,intern->XXX->eval_itv);
-    if (itvXXX_is_top(res))
+    eitvXXX_mul(intern->XXX->eval_eitv,env[dim],eitv, intern);
+    eitvXXX_add(res,res,intern->XXX->eval_eitv);
+    if (eitvXXX_is_top(res))
       break;
   }
 #if NUMXXX_EXACT
@@ -1007,9 +1013,725 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array, itvXXX_t* e
 #endif
 }
 
+
+/* ********************************************************************** */
+/* Vb. Evaluation and interval linearisation of tree expressions */
+/* ********************************************************************** */
+
 /* ====================================================================== */
+/* Vb.1 Conversion to interval linear expression */
+/* ====================================================================== */
+
+/* preconditions:
+   - lres is initialised
+
+   postconditions:
+   - stores an interval linear form in lres
+   - puts perror to true if input expression is not interval linear
+*/
+static
+bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
+				   ap_texpr0_node_t* n,
+				   itv_internal_t intern)
+{
+  bool exact = true;
+  eitvXXX_t i1;
+  ap_linexprXXX_t l1;
+
+  *perror = n->type!=AP_RTYPE_REAL;
+  if (*perror) return false;
+  switch (n->op) {
+  case AP_TEXPR_NEG:
+    exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprA,intern);
+    ap_linexprXXX_neg(lres,lres);
+    break;
+  case AP_TEXPR_CAST:
+    break;
+  case AP_TEXPR_MOD:
+  case AP_TEXPR_SQRT:
+    *perror = true;
+    break;
+
+  case AP_TEXPR_ADD:
+  case AP_TEXPR_SUB:
+    exact = NUMXXX_EXACT;
+    ap_linexprXXX_init(l1,0);
+
+    /* intlinearize arguments */
+    exact  =ap_linexprXXX_set_texpr0(l1,perror,n->exprA,intern);
+    if (*perror) break;
+    exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern) && exact;
+    if (*perror) break;
+    /* add/sub linear form & interval */
+    if (n->op==AP_TEXPR_ADD)
+      exact = ap_linexprXXX_add(lres,l1,lres,intern) && exact;
+    else
+      exact = ap_linexprXXX_sub(lres,l1,lres,intern) && exact;
+    ap_linexprXXX_clear(l1);
+    break;
+  case AP_TEXPR_MUL:
+  case AP_TEXPR_DIV:
+    eitvXXX_init(i1);
+    if (ap_texpr0_is_interval_cst(n->exprB)){
+      exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprA,intern);
+      if (*perror) break;
+      exact = eitvXXX_eval_ap_texpr0(i1,n->exprB,NULL,intern) && exact;
+    }
+    else if (n->op == AP_TEXPR_MUL && ap_texpr0_is_interval_cst(n->exprA)){
+      exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern);
+      if (*perror) break;
+      exact = eitvXXX_eval_ap_texpr0(i1,n->exprA,NULL,intern) && exact;
+    }
+    else {
+      *perror = true;
+      break;
+    }
+    if (n->op==AP_TEXPR_DIV){
+      eitvXXX_t i2;
+      eitvXXX_init(i2);
+      eitvXXX_set_int(i2,1);
+      eitvXXX_div(i1,i2,i1,intern);
+      eitvXXX_clear(i2);
+    }
+    exact = ap_linexprXXX_scale(lres,lres,i1,intern) && exact;
+    eitvXXX_clear(i1);
+    break;
+
+  default:
+    assert(0);
+  }
+  return exact;
+}
+
+struct ap_texpr0_t;
+bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t lres, bool* perror, struct ap_texpr0_t* expr, itv_internal_t intern)
+{
+  ap_linexprXXX_t r;
+  bool exact;
+
+  *perror = false;
+  switch(expr->discr){
+  case AP_TEXPR_CST:
+    ap_linexprXXX_resize(lres,0);
+    exact = eitvXXX_set_ap_coeff(lres->cst,expr->val.cst,intern->num);
+    break;
+  case AP_TEXPR_DIM:
+    exact = true;
+    ap_linexprXXX_resize(lres,1);
+    eitvXXX_set_int(lres->cst,0);
+    lres->linterm[0]->dim = expr->val.dim;
+    eitvXXX_set_int(lres->linterm[0]->eitv,1);
+    break;
+  case AP_TEXPR_NODE:
+    if (ap_texpr0_is_interval_cst(expr)){
+      ap_linexprXXX_resize(lres,0);
+      exact = eitvXXX_eval_ap_texpr0(lres->cst,expr,NULL,intern);
+    }
+    else {
+      exact = ap_linexprXXX_set_texpr0_node(lres,perror,expr->val.node,intern);
+    }
+    break;
+  default:
+    abort();
+  }
+  return exact;
+}
+
+/* ====================================================================== */
+/* Vb.2 Evaluation of tree expressions */
+/* ====================================================================== */
+
+/* General rounding */
+static void eitvXXX_round(eitvXXX_t res, eitvXXX_t arg,
+			  ap_texpr_rtype_t t, ap_texpr_rdir_t d,
+			  itv_internal_t intern)
+{
+  switch (t) {
+
+  case AP_RTYPE_REAL:
+    if (res!=arg) eitvXXX_set(res,arg);
+    break;
+
+  case AP_RTYPE_INT:
+    switch (d) {
+    case AP_RDIR_ZERO:
+      eitvXXX_trunc(res,arg);
+      break;
+    case AP_RDIR_UP:
+      eitvXXX_ceil(res,arg);
+      break;
+    case AP_RDIR_DOWN:
+      eitvXXX_floor(res,arg);
+      break;
+    case AP_RDIR_RND:
+    case AP_RDIR_NEAREST: /* 'to nearest' case could be improved */
+      eitvXXX_to_int(res,arg);
+      break;
+    default:
+      assert(0);
+    }
+    break;
+
+  case AP_RTYPE_SINGLE:
+    /* directed rounding cases (+oo, -oo, 0) could be improved */
+    eitvXXX_to_float(res,arg,intern);
+    break;
+
+  case AP_RTYPE_QUAD:     /* 'round to quad' could be improved */
+  case AP_RTYPE_EXTENDED: /* 'round to extended' could be improved */
+  case AP_RTYPE_DOUBLE:
+    /* directed rounding cases (+oo, -oo, 0) could be improved */
+    eitvXXX_to_double(res,arg,intern);
+    break;
+
+  default:
+    assert(0);
+  }
+}
+
+static bool
+eitvXXX_eval_ap_texpr0_node(eitvXXX_t res, 
+			    ap_texpr0_node_t* n,
+			    eitvXXX_t arg1, eitvXXX_t arg2,
+			    itv_internal_t intern)
+{
+  bool exact = true;
+  switch (n->op) {
+  case AP_TEXPR_NEG:
+    eitvXXX_neg(res, arg1);
+    return exact; /* no rounding */
+  case AP_TEXPR_CAST:
+    eitvXXX_set(res, arg1);
+    break;
+  case AP_TEXPR_SQRT:
+    eitvXXX_sqrt(res, arg1, intern);
+    exact = false;
+    break;
+  case AP_TEXPR_ADD:
+    eitvXXX_add(res, arg1, arg2);
+    exact = NUMXXX_EXACT;
+    break;
+  case AP_TEXPR_SUB:
+    eitvXXX_sub(res, arg1, arg2);
+    exact = NUMXXX_EXACT;
+    break;
+  case AP_TEXPR_MUL:
+    eitvXXX_mul(res, arg1, arg2, intern);
+    exact = NUMXXX_EXACT;
+    break;
+  case AP_TEXPR_DIV:
+    eitvXXX_div(res, arg1, arg2, intern);
+    exact = NUMXXX_DIVEXACT;
+    break;
+  case AP_TEXPR_MOD:
+    eitvXXX_mod(res, arg1, arg2, n->type==AP_RTYPE_INT, intern);
+    exact = false;
+    return exact; /* no rounding */
+  default:
+    assert(0);
+  }
+  eitvXXX_round(res,res,n->type,n->dir,intern);
+  exact = exact && (n->type==AP_RTYPE_REAL);
+  return exact;
+}
+
+
+bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, eitvXXX_t* env, itv_internal_t intern)
+{
+  bool exact;
+  switch(expr->discr){
+  case AP_TEXPR_CST:
+    exact = eitvXXX_set_ap_coeff(res,expr->val.cst,intern->num);
+    break;
+  case AP_TEXPR_DIM:
+    eitvXXX_set(res,env[expr->val.dim]);
+    exact = true;
+    break;
+  case AP_TEXPR_NODE:
+    if (expr->val.node->exprB) {
+      /* binary */
+      eitvXXX_t x;
+      eitvXXX_init(x);
+      exact = eitvXXX_eval_ap_texpr0(x,expr->val.node->exprA,env,intern);
+      exact = eitvXXX_eval_ap_texpr0(res,expr->val.node->exprB,env,intern) && exact;
+      if (eitvXXX_is_bottom(x,intern) || eitvXXX_is_bottom(res,intern)){
+	eitvXXX_set_bottom(res);
+      }
+      else {
+	exact = eitvXXX_eval_ap_texpr0_node(res,expr->val.node,x,res,intern);
+      }
+      eitvXXX_clear(x);
+    }
+    else {
+      /* unary */
+      exact = eitvXXX_eval_ap_texpr0(res,expr->val.node->exprA,env,intern);
+      if (!eitvXXX_is_bottom(res,intern)){
+	eitvXXX_eval_ap_texpr0_node(res,expr->val.node,res,res,intern) && exact;
+      }
+    }
+    break;
+  default:
+    abort();
+  }
+  return exact;
+}
+
+/* ====================================================================== */
+/* Vb.3 Linearisation of tree expressions */
+/* ====================================================================== */
+
+/* transform in-place
+	[A0,B0] + sum Xi [Ai,Bi]
+   into
+       ([A0,B0] + [A0,B0][-ulp,ulp]) + [-mf,mf] +
+       sum Xi ([Ai,Bi] + [Ai,Bi][-ulp,ulp])
+
+   i.e., add a relative error of magnitude ulp as an interval linear form
+*/
+static void
+ap_linexprXXX_round_float_lin(ap_linexprXXX_t l /* in/out */, itvXXX_float_const* f, itv_internal_t intern)
+{
+  size_t i;
+  ap_dim_t dim;
+  eitvXXX_ptr peitv;
+  eitvXXX_magnitude(intern->XXX->linear_bound,l->cst);
+  boundXXX_mul(intern->XXX->linear_bound,intern->XXX->linear_bound,f->ulp->sup);
+  boundXXX_add(intern->XXX->linear_bound,intern->XXX->linear_bound,f->min->sup);
+  eitvXXX_enlarge_bound(l->cst,l->cst,intern->XXX->linear_bound);
+  ap_linexprXXX_ForeachLinterm0(l,i,dim,peitv) {
+    eitvXXX_magnitude(intern->XXX->linear_bound,peitv);
+    boundXXX_mul(intern->XXX->linear_bound,intern->XXX->linear_bound,f->ulp->sup);
+    eitvXXX_enlarge_bound(peitv,peitv,intern->XXX->linear_bound);
+  }
+}
+
+
+/* transform in-place
+	[A0,B0] + sum Xi [Ai,Bi]
+   into
+       [A0,B0] + ([A0,B0] + sum [min Xi,max Xi][Ai,Bi]) [-ulp,ulp] + [-mf,mf]
+	sum Xi [Ai,Bi]
+
+   i.e., adds a relative error of magnitude ulp flattened into an interval
+*/
+static void
+ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */, itvXXX_float_const* f, eitvXXX_t* env, itv_internal_t intern)
+{
+  size_t i;
+  ap_dim_t dim;
+  eitvXXX_ptr peitv;
+  eitvXXX_magnitude(intern->XXX->linear_bound,l->cst);
+  ap_linexprXXX_ForeachLinterm0(l,i,dim,peitv) {
+    eitvXXX_magnitude(intern->XXX->linear_bound2,peitv);
+    eitvXXX_magnitude(intern->XXX->linear_bound3,env[dim]);
+    boundXXX_mul(intern->XXX->linear_bound2,intern->XXX->linear_bound2,intern->XXX->linear_bound3);
+    boundXXX_add(intern->XXX->linear_bound,intern->XXX->linear_bound,intern->XXX->linear_bound2);
+  }
+  boundXXX_mul(intern->XXX->linear_bound,intern->XXX->linear_bound,f->ulp->sup);
+  boundXXX_add(intern->XXX->linear_bound,intern->XXX->linear_bound,f->min->sup);
+  eitvXXX_enlarge_bound(l->cst,l->cst,intern->XXX->linear_bound);
+}
+
+/* adds an absolute error to l corresponding to a conversion to int
+   assumes that i overapproximates the values of l before conversion
+ */
+static void
+ap_texpr0_to_int(ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in */, ap_texpr_rdir_t d, itv_internal_t intern)
+{
+  switch (d) {
+  case AP_RDIR_UP:
+    /* add [0,1] */
+    boundXXX_add_uint(l->cst->itv->sup,l->cst->itv->sup,1);
+    l->cst->eq = false;
+    break;
+  case AP_RDIR_DOWN:
+    /* add [-1,0] */
+    boundXXX_add_uint(l->cst->itv->neginf,l->cst->itv->neginf,1);
+    l->cst->eq = false;
+    break;
+  case AP_RDIR_RND:
+    /* add [-1,1] */
+    boundXXX_add_uint(l->cst->itv->sup,l->cst->itv->sup,1);
+    boundXXX_add_uint(l->cst->itv->neginf,l->cst->itv->neginf,1);
+    l->cst->eq = false;
+    break;
+  case AP_RDIR_ZERO:
+    /* UP or DOWN or RND, depending on sign of i */
+    if (boundXXX_sgn(i->itv->neginf)>0) boundXXX_add_uint(l->cst->itv->sup,l->cst->itv->sup,1);
+    if (boundXXX_sgn(i->itv->sup)>0) boundXXX_add_uint(l->cst->itv->neginf,l->cst->itv->neginf,1);
+    l->cst->eq = l->cst->eq && itvXXX_is_point(l->cst->itv);
+    break;
+  case AP_RDIR_NEAREST:
+    /* [-0.5,0.5] */
+    eitvXXX_add(l->cst,l->cst,intern->XXX->eitvXXX_half);
+    break;
+  default:
+    assert(0);
+  }
+}
+
+/* adds rounding error to both l and i to go from type org to type dst */
+static ap_texpr_rtype_t
+ap_texpr0_round(ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in/out */,
+		ap_texpr_rtype_t org,
+		ap_texpr_rtype_t dst, ap_texpr_rdir_t d,
+		itv_internal_t intern)
+{
+  if (dst==AP_RTYPE_REAL) return org;
+  switch (dst) {
+  case AP_RTYPE_INT:
+    if (org==AP_RTYPE_INT) return org;
+    ap_texpr0_to_int(l,i,d, intern);
+    break;
+  case AP_RTYPE_SINGLE:
+    if (org==AP_RTYPE_SINGLE) return org;
+    ap_linexprXXX_round_float_lin(l,&intern->XXX->cst_single, intern);
+    break;
+  case AP_RTYPE_DOUBLE:
+    if (org==AP_RTYPE_SINGLE || org==AP_RTYPE_DOUBLE) return org;
+    ap_linexprXXX_round_float_lin(l,&intern->XXX->cst_double, intern);
+    break;
+  case AP_RTYPE_EXTENDED:
+    if (org==AP_RTYPE_SINGLE && org==AP_RTYPE_DOUBLE && org==AP_RTYPE_EXTENDED)
+      return org;
+    ap_linexprXXX_round_float_lin(l,&intern->XXX->cst_extended, intern);
+    break;
+  case AP_RTYPE_QUAD:
+    if (org==AP_RTYPE_SINGLE || org==AP_RTYPE_DOUBLE ||
+	org==AP_RTYPE_EXTENDED || org==AP_RTYPE_QUAD) return org;
+    ap_linexprXXX_round_float_lin(l,&intern->XXX->cst_quad, intern);
+    break;
+  default:
+    assert(0);
+  }
+  eitvXXX_round(i,i,dst,d,intern);
+  return dst;
+}
+
+/* reduce l and i:
+   - intersect i with the interval evaluation of l
+   - if l is constant, replace it with i
+   - check for emptiness
+ */
+static void
+ap_texpr0_reduce(eitvXXX_t* env,
+		 ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in/out */,
+		 itv_internal_t intern)
+{
+  eitvXXX_t tmp;
+  eitvXXX_init(tmp);
+  ap_linexprXXX_eval(tmp,l,env, intern);
+  eitvXXX_meet(i,i,tmp, intern);
+  if (eitvXXX_is_bottom(i, intern) || eitvXXX_is_bottom(l->cst, intern)) {
+    eitvXXX_set_bottom(i);
+    eitvXXX_set_bottom(l->cst);
+    if (l->size>0) ap_linexprXXX_resize(l,0);
+  }
+  else if (l->size==0){
+    eitvXXX_set(l->cst,i);
+  }
+  eitvXXX_clear(tmp);
+}
+
+/* multiplication heuristic: choose which interval to keep (0=a, 1=b) */
+static int
+ap_texpr0_cmp_range(ap_linexprXXX_t la, eitvXXX_t ia,
+		    ap_linexprXXX_t lb, eitvXXX_t ib,
+		    itv_internal_t intern)
+{
+  int sgn_a,sgn_b;
+  /* if one linear form is an interval keep it */
+  if (la->size==0) return 0;
+  if (lb->size==0) return 1;
+  /* if only one interval has constant sign, keep it */
+  sgn_a = eitvXXX_is_pos(ia) || eitvXXX_is_neg(ia);
+  sgn_b = eitvXXX_is_pos(ib) || eitvXXX_is_neg(ib);
+  if (sgn_a!=sgn_b) return sgn_a ? 0 : 1;
+  /* otherwise, keep the interval with the smallest relative range */
+  eitvXXX_range_rel(intern->XXX->linear_bound,ia, intern);
+  eitvXXX_range_rel(intern->XXX->linear_bound2,ib, intern);
+  if (boundXXX_cmp(intern->XXX->linear_bound,intern->XXX->linear_bound2)<0) return 0;
+  else return 1;
+}
+
+
+/* preconditions:
+   - env assigns an interval to each dimension
+   - dimensions strictly smaller that intdim are integer
+   - lres is not initialised
+   - ires is initialised
+
+   postconditions:
+   - stores an interval linear form in lres
+   - stores an interval in ires
+   both encompase the exact expression values (ires may be smaller than the
+   interval evaluation of lres)
+   - returns the expression type
+*/
+
+static ap_texpr_rtype_t
+eitvXXX_intlinearize_texpr0_rec(ap_texpr0_t* expr,
+				eitvXXX_t* env, size_t intdim,
+				ap_linexprXXX_t lres /* out */,
+				eitvXXX_t ires /* out */,
+				itv_internal_t intern);
+
+static int debug_indent = 0;
+
+static ap_texpr_rtype_t
+ap_texpr0_node_intlinearize(ap_texpr0_node_t* n,
+			    eitvXXX_t* env, size_t intdim,
+			    ap_linexprXXX_t lres /* out */, eitvXXX_t ires /* out */,
+			    itv_internal_t intern)
+{
+  eitvXXX_t i1,i2;
+  ap_linexprXXX_t l1;
+  ap_texpr_rtype_t t1,t2;
+
+  switch (n->op) {
+  case AP_TEXPR_NEG:
+    /* negate linear form & interval, no rounding */
+    t1 = eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,lres,ires, intern);
+    ap_linexprXXX_neg(lres,lres);
+    eitvXXX_neg(ires,ires);
+    return t1;
+
+  case AP_TEXPR_CAST:
+    /* round linear form & interval */
+    t1 = eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,lres,ires, intern);
+    ap_texpr0_round(lres,ires,t1,n->type,n->dir, intern);
+    ap_texpr0_reduce(env,lres,ires, intern);
+    break;
+
+  case AP_TEXPR_SQRT:
+    /* intlinearize argument, lres is not used */
+    eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,lres,ires, intern);
+    /* interval square root */
+    eitvXXX_sqrt(ires,ires, intern);
+    eitvXXX_round(ires,ires,n->type,n->dir,intern);
+    ap_linexprXXX_resize(lres,0);
+    eitvXXX_set(lres->cst,ires);
+    break;
+
+  case AP_TEXPR_ADD:
+  case AP_TEXPR_SUB:
+    eitvXXX_init(i1);
+    ap_linexprXXX_init(l1,0);
+
+    /* intlinearize arguments */
+    t1 = eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,&l1,i1, intern);
+    t2 = eitvXXX_intlinearize_texpr0_rec(n->exprB,env,intdim,lres,ires, intern);
+    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+      eitvXXX_set_bottom(ires);
+      ap_linexprXXX_reinit(lres,0);
+      eitvXXX_set(lres->cst,ires);
+    }
+    else {
+      /* add/sub linear form & interval */
+      if (n->op==AP_TEXPR_ADD) {
+	ap_linexprXXX_add(lres,&l1,lres, intern);
+	eitvXXX_add(ires,i1,ires);
+      }
+      else {
+	ap_linexprXXX_sub(lres,&l1,lres, intern);
+	eitvXXX_sub(ires,i1,ires);
+      }
+      /* round */
+      ap_texpr0_round(lres,ires,
+		      (t1==AP_RTYPE_INT && t2==AP_RTYPE_INT, intern) ?
+		      AP_RTYPE_INT : AP_RTYPE_REAL,
+		      n->type,n->dir);
+      /* reduce */
+      ap_texpr0_reduce(env,lres,ires, intern);
+    }
+    eitvXXX_clear(i1);
+    ap_linexprXXX_clear(&l1);
+    break;
+
+  case AP_TEXPR_DIV:
+    eitvXXX_init(i1);
+    ap_linexprXXX_init(&l1,0);
+    /* intlinearize arguments, l1 is not used */
+    eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,lres,ires, intern);
+    eitvXXX_intlinearize_texpr0_rec(n->exprB,env,intdim,&l1,i1, intern);
+    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+      eitvXXX_set_bottom(ires);
+      ap_linexprXXX_reinit(lres,0);
+      eitvXXX_set(lres->cst,ires);
+    }
+    else {
+      /* divide linear form & interval */
+      ap_linexprXXX_div(lres,i1, intern);
+      eitvXXX_div(ires,ires,i1, intern);
+      /* round */
+      ap_texpr0_round(lres,ires,AP_RTYPE_REAL,n->type,n->dir, intern);
+      /* reduce */
+      ap_texpr0_reduce(env,lres,ires, intern);
+    }
+    eitvXXX_clear(i1);
+    ap_linexprXXX_clear(&l1);
+    break;
+
+  case AP_TEXPR_MUL:
+    eitvXXX_init(i1);
+    ap_linexprXXX_init(&l1,0);
+    /* intlinearize arguments */
+    t1 = eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,&l1,i1, intern);
+    t2 = eitvXXX_intlinearize_texpr0_rec(n->exprB,env,intdim,lres,ires, intern);
+    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+      eitvXXX_set_bottom(ires);
+      ap_linexprXXX_reinit(lres,0);
+      eitvXXX_set(lres->cst,ires);
+      ap_linexprXXX_clear(&l1);
+    }
+    else {
+      /* multiply one linear form with the other interval */
+      if (ap_texpr0_cmp_range(&l1,i1,lres,ires, intern))  {
+	/* res = ires * l1 */
+#if LOGDEBUG
+	printf("%*s lin * inter\n",2*debug_indent,"");
+#endif
+	ap_linexprXXX_clear(lres);
+	*lres = l1;
+	ap_linexprXXX_scale(lres,ires, intern);
+      }
+      else {
+	/* res = i1 * lres */
+#if LOGDEBUG
+	printf("%*s inter * lin\n",2*debug_indent,"");
+#endif
+	ap_linexprXXX_clear(&l1);
+	ap_linexprXXX_scale(lres,i1, intern);
+      }
+      eitvXXX_mul(ires,i1,ires, intern);
+      /* round */
+      ap_texpr0_round(lres,ires,
+		      (t1==AP_RTYPE_INT && t2==AP_RTYPE_INT, intern) ?
+		      AP_RTYPE_INT : AP_RTYPE_REAL,
+		      n->type,n->dir);
+      /* reduce */
+      ap_texpr0_reduce(env,lres,ires, intern);
+    }
+    eitvXXX_clear(i1);
+    break;
+
+  case AP_TEXPR_MOD:
+    eitvXXX_init(i1);
+    ap_linexprXXX_init(&l1,0);
+    /* intlinearize arguments, lres & l1 are not used */
+    eitvXXX_intlinearize_texpr0_rec(n->exprA,env,intdim,lres,ires, intern);
+    eitvXXX_intlinearize_texpr0_rec(n->exprB,env,intdim,&l1,i1, intern);
+    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+      eitvXXX_set_bottom(ires);
+      ap_linexprXXX_reinit(lres,0);
+      eitvXXX_set(lres->cst,ires);
+    }
+    else {
+      /* interval modulo, no rounding */
+      eitvXXX_mod(ires,ires,i1,n->type==AP_RTYPE_INT, intern);
+      ap_linexprXXX_reinit(lres,0);
+      eitvXXX_set(lres->cst,ires);
+      lres->equality = eitvXXX_is_point(lres->cst, intern);
+    }
+    eitvXXX_clear(i1);
+    ap_linexprXXX_clear(&l1);
+    break;
+
+  default:
+    assert(0);
+  }
+
+  return n->type;
+}
+
+static ap_texpr_rtype_t
+eitvXXX_intlinearize_texpr0_rec(ap_texpr0_t* expr,
+				eitvXXX_t* env, size_t intdim,
+				ap_linexprXXX_t lres /* out */, eitvXXX_t ires /* out */,
+				itv_internal_t intern)
+{
+  ap_linexprXXX_t r;
+  ap_texpr_rtype_t t;
+  assert(expr);
+
+#if LOGDEBUG
+  printf("%*s @ ",2*debug_indent,"");
+  ap_texpr0_print(expr,NULL);
+  printf("\n");
+  debug_indent++;
+#endif
+
+  switch(expr->discr){
+  case AP_TEXPR_CST:
+    eitvXXX_set_ap_coeff(ires,&expr->val.cst, intern);
+    ap_linexprXXX_reinit(lres,0);
+    eitvXXX_set(lres->cst,ires);
+    lres->equality = eitvXXX_is_point(lres->cst, intern);
+    t = eitvXXX_is_int(lres->cst, intern) ? AP_RTYPE_INT : AP_RTYPE_REAL;
+    break;
+  case AP_TEXPR_DIM:
+    eitvXXX_set(ires,env[expr->val.dim]);
+    ap_linexprXXX_reinit(lres,1);
+    eitvXXX_set_int(lres->cst,0);
+    lres->linterm[0].dim = expr->val.dim;
+    lres->linterm[0].equality = true;
+    eitvXXX_set_int(lres->linterm[0].itv,1);
+    t = (expr->val.dim<intdim) ? AP_RTYPE_INT : AP_RTYPE_REAL;
+    break;
+  case AP_TEXPR_NODE:
+    t = ap_texpr0_node_intlinearize(expr->val.node,env,intdim,lres,ires, intern);
+    break;
+  default:
+    t = 0;
+    assert(false);
+  }
+
+#if LOGDEBUG
+  debug_indent--;
+  printf("%*s   = ",2*debug_indent,"");
+  ap_linexprXXX_print(lres,NULL);
+  printf(" /\\ ");
+  eitvXXX_print(ires);
+  printf(" t=%i\n",t);
+#endif
+
+  return t;
+}
+
+bool
+ITVFUN(itv_intlinearize_ap_texpr0)(itv_internal_t* intern,
+				   ap_linexprXXX_t res,
+				   ap_texpr0_t* expr,
+				   itv_t* env, size_t intdim)
+{
+  bool exc;
+  itv_t i;
+  itv_init(i);
+  itv_intlinearize_texpr0_rec(expr,env,intdim,res,i, intern);
+  if (!itv_is_bottom(i, intern) && !itv_is_bottom(res->cst, intern)) {
+    if (res->size==0){
+      itv_meet(res->cst,res->cst,i, intern);
+      res->equality = itv_is_point(res->cst, intern);
+    }
+    exc = false;
+  }
+  else {
+    exc = true;
+  }
+  itv_clear(i);
+  return exc;
+}
+
+/* Evaluates node into interval res, assuming operator arguments are arg1 and
+   (for binary operator) arg2
+*/
+bool ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, itv_internal_t intern);
+  /* Return true if no approximations. */
+
+/* ********************************************************************** */
 /* VI. Change of dimensions and permutations */
-/* ====================================================================== */
+/* ********************************************************************** */
 
 /* This function adds dimensions to the expressions, following the
    semantics of dimchange (see the type definition of dimchange).  */
@@ -1085,9 +1807,10 @@ void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
 	sizeof(ap_lintermXXX_t),
 	&ap_lintermXXX_cmp);
 }
-/* ====================================================================== */
+
+/* ********************************************************************** */
 /* VII. Hashing, comparison */
-/* ====================================================================== */
+/* ********************************************************************** */
 
 /* Induces reduction of the coefficients */
 

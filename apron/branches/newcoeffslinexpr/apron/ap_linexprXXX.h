@@ -202,24 +202,24 @@ bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* 
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr);
   /* Negate an expression */
-void ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
-void ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
   /* Scale an expression by an interval */
 
-void ap_linexprXXX_add(ap_linexprXXX_t expr,
+bool ap_linexprXXX_add(ap_linexprXXX_t expr,
 		       ap_linexprXXX_t exprA,
 		       ap_linexprXXX_t exprB, itv_internal_t intern);
-void ap_linexprXXX_sub(ap_linexprXXX_t expr,
+bool ap_linexprXXX_sub(ap_linexprXXX_t expr,
 		       ap_linexprXXX_t exprA,
 		       ap_linexprXXX_t exprB, itv_internal_t intern);
   /* Resp. add and substract two linear epxression.
      (Substraction temporarily negates exprB, and then restores it */
 
 /* ********************************************************************** */
-/* V. Evaluation and Quasilinearisation of interval linear expressions */
+/* Va. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linexprXXX_eval(itvXXX_t res, ap_linexprXXX_t expr, itvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, itv_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
 
@@ -251,6 +251,23 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr,
 bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 					itvXXX_t* env, itv_internal_t intern);
   /* Same for an array */
+
+/* ********************************************************************** */
+/* Vb. Evaluation and interval linearisation of tree expressions */
+/* ********************************************************************** */
+
+struct ap_texpr0_t;
+bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, itv_internal_t intern);
+  /* Linearize a tree expression that is (syntaxically) interval linear.
+     If the precondition is violated, sets *perror to true.
+
+     Return true if no approximations.
+  */
+
+bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, itv_internal_t intern);
+  /* Return true if no approximations. */
 
 /* ********************************************************************** */
 /* VI. Change of dimensions and permutations */
