@@ -10,10 +10,10 @@
 #include "itvD_conv.h"
 #include "itvMPQ_conv.h"
 #include "itvMPFR_conv.h"
-#include "ap_linexprconsXXX_conv.h"
-#include "ap_linexprconsD_conv.h"
-#include "ap_linexprconsMPQ_conv.h"
-#include "ap_linexprconsMPFR_conv.h"
+#include "ap_linexprconsgenXXX_conv.h"
+#include "ap_linexprconsgenD_conv.h"
+#include "ap_linexprconsgenMPQ_conv.h"
+#include "ap_linexprconsgenMPFR_conv.h"
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
