@@ -134,14 +134,14 @@ bool ap_linexpr0_set_coeff(ap_linexpr0_t expr, ap_dim_t dim, ap_coeff_t coeff, n
 void ap_linexpr0_cstref(ap_coeff_t res, ap_linexpr0_t expr)
 {
   SWITCH (expr->discr)
-    ap_coeff_cons_XXX(res,expr->linexpr.XXX->cst);
+    ap_coeff_cons_eitvXXX(res,expr->linexpr.XXX->cst);
   ENDSWITCH
 }
 void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 {
   SWITCH (expr->discr)
     eitvXXX_ptr eitv = ap_linexprXXX_eitvref0(expr->linexpr.XXX,dim,true);
-    ap_coeff_cons_XXX(res,eitv);
+    ap_coeff_cons_eitvXXX(res,eitv);
   ENDSWITCH
 }
 

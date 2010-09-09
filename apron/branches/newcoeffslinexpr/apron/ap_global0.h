@@ -9,8 +9,6 @@
 #define _AP_GLOBAL0_H_
 
 #include "ap_config.h"
-#include "ap_scalar.h"
-#include "ap_interval.h"
 #include "ap_coeff.h"
 #include "ap_dimension.h"
 #include "ap_linexpr0.h"

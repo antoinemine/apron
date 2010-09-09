@@ -128,6 +128,7 @@ void ap_linexprXXX_clear(ap_linexprXXX_t expr)
   }
   eitvXXX_clear(expr->cst);
 }
+
 ap_linexprXXX_ptr ap_linexprXXX_alloc(size_t size)
 {
   ap_linexprXXX_ptr res = (ap_linexprXXX_ptr)malloc(sizeof(ap_linexprXXX_struct));
