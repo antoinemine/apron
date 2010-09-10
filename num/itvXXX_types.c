@@ -65,7 +65,7 @@ void itvXXX_internal_init(itvXXX_internal_t intern)
   itvXXX_init(intern->eval_itv3);
   numXXX_init(intern->quasi_num);
   eitvXXX_init(intern->boxize_lincons_eitv);
-  itvXXX_init(intern->boxize_lincons_eval);
+  eitvXXX_init(intern->boxize_lincons_eval);
   boundXXX_init(intern->boxize_lincons_bound);
   mpz_init(intern->reduce_lincons_gcd);
   mpz_init(intern->reduce_lincons_mpz);
@@ -79,6 +79,8 @@ void itvXXX_internal_init(itvXXX_internal_t intern)
   eitvXXX_set_int2(intern->eitvXXX_half,-1,1);
   eitvXXX_mul_2exp(intern->eitvXXX_half,intern->eitvXXX_half,-1);
   eitvXXX_init(intern->eval_eitv);
+  eitvXXX_init(intern->eval_eitv2);
+  eitvXXX_init(intern->eval_eitv3);
 }
 void itvXXX_internal_clear(itvXXX_internal_t intern)
 {
@@ -96,7 +98,7 @@ void itvXXX_internal_clear(itvXXX_internal_t intern)
   itvXXX_clear(intern->eval_itv3);
   numXXX_clear(intern->quasi_num);
   eitvXXX_clear(intern->boxize_lincons_eitv);
-  itvXXX_clear(intern->boxize_lincons_eval);
+  eitvXXX_clear(intern->boxize_lincons_eval);
   boundXXX_clear(intern->boxize_lincons_bound);
   mpz_clear(intern->reduce_lincons_gcd);
   mpz_clear(intern->reduce_lincons_mpz);
@@ -107,6 +109,8 @@ void itvXXX_internal_clear(itvXXX_internal_t intern)
   itvXXX_float_const_clear(&intern->cst_quad);
   eitvXXX_clear(intern->eitvXXX_half);
   eitvXXX_clear(intern->eval_eitv);
+  eitvXXX_clear(intern->eval_eitv2);
+  eitvXXX_clear(intern->eval_eitv3);
 }
 
 itvXXX_internal_ptr itvXXX_internal_alloc(void)
