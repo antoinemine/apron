@@ -243,13 +243,13 @@ size_t ap_linexprXXX_array_supportinterval(ap_linexprXXX_array_t array, ap_dim_t
    satisfaction, meet should be set to false.
 */
 bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr,
-				  itvXXX_t* env,
+				  eitvXXX_t* env,
 				  bool for_meet_inequality, itv_internal_t intern);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
 bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
-					itvXXX_t* env, itv_internal_t intern);
+					eitvXXX_t* env, itv_internal_t intern);
   /* Same for an array */
 
 /* ********************************************************************** */
@@ -258,6 +258,9 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 
 struct ap_texpr0_t;
 bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, itv_internal_t intern);
+bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* perror, 
+					  struct ap_texpr0_t** expr, size_t size, 
+					  itv_internal_t intern);
   /* Linearize a tree expression that is (syntaxically) interval linear.
      If the precondition is violated, sets *perror to true.
 
@@ -265,8 +268,8 @@ bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_t
   */
 
 bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, itv_internal_t intern);
-bool ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, itv_internal_t intern);
-bool ap_linexprXXX_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, itv_internal_t intern);
+void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, size_t intdim, itv_internal_t intern);
+void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, size_t intdim, itv_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */
