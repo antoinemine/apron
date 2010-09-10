@@ -1,0 +1,45 @@
+var x : real, y : real; 
+begin 
+assume x >= -1 and x <= 1; 
+if (x>=0) then 
+y = 10*x; 
+else
+if (x>=-1/10) then 
+	y = 11.000000*x; 
+	else 
+	if (x>=-2/10) then 
+	y = 12.000000*x; 
+	else 
+	if (x>=-3/10) then 
+	y = 13.000000*x; 
+	else 
+	if (x>=-4/10) then 
+	y = 14.000000*x; 
+	else 
+	if (x>=-5/10) then 
+	y = 15.000000*x; 
+	else 
+	if (x>=-6/10) then 
+	y = 16.000000*x; 
+	else 
+	if (x>=-7/10) then 
+	y = 17.000000*x; 
+	else 
+	if (x>=-8/10) then 
+	y = 18.000000*x; 
+	else 
+	if (x>=-9/10) then 
+	y = 19.000000*x; 
+	else 
+	y = 20*x;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+assume y == 1;end

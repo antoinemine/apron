@@ -1,0 +1,14 @@
+/* InterQ2 */
+/* x = sqrt(1/10) */
+
+var x : real, y : real;
+begin
+assume x >= -1 and x <= 1;
+if (x>=0) then
+ y = 10*x*x;
+else
+ y = -20*x*x;
+endif;
+assume y == 1;
+end
+

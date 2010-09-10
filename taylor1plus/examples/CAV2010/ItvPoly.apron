@@ -1,0 +1,11 @@
+/* IntPoly3 */
+/* x >= 3 */
+
+var x : real, y : real, z:real;
+begin
+assume -5 <= z and z <= 5;
+assume x >= -2;
+y = z * x + 1; 
+assume y == -14;
+end
+
