@@ -10,14 +10,36 @@
 /* Other functions */
 /*******************/
 
-t1p_t t1p_forget_array(ap_manager_t* man,
+t1p_t* t1p_forget_array(ap_manager_t* man,
 		bool destructive, t1p_t* a,
-		ap_var_t* tvar, size_t size,
+		ap_dim_t* tdim, size_t size,
 		bool project)
 {
     CALL();
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_FORGET_ARRAY);
-    not_implemented();
+    t1p_t* res;
+    size_t i;
+
+    man->result.flag_best = true;
+    man->result.flag_exact = true;
+
+    res = destructive ? a : t1p_copy(man,a);
+    if (project){
+	for (i=0;i<size;i++){
+	    t1p_aff_check_free(pr, res->paf[tdim[i]]);
+	    res->paf[tdim[i]] = t1p_aff_alloc_init(pr);
+	    res->paf[tdim[i]]->pby++;
+	}
+    }
+    else {
+	for (i=0;i<size;i++){
+	    t1p_aff_check_free(pr, res->paf[tdim[i]]);
+	    res->paf[tdim[i]] = pr->top;
+	    res->paf[tdim[i]]->pby++;
+	}
+    }
+    return res;
+    //not_implemented();
 }
 
 t1p_t t1p_expand(ap_manager_t* man,
