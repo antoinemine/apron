@@ -13,9 +13,9 @@ void ap_abstract1_aff_build(ap_manager_t* man, ap_abstract1_t * abstract, ap_var
 void ap_abstract1_ns_meet_lincons_array(ap_manager_t* man, ap_abstract1_t* abstract1, ap_lincons0_array_t* lincons);
 void ap_abstract1_ns_meet_box_array(ap_manager_t* man, ap_abstract1_t* abstract1, ap_interval_t** box, size_t size);
 
-t1p_t t1p_forget_array(ap_manager_t* man,
+t1p_t* t1p_forget_array(ap_manager_t* man,
 		bool destructive, t1p_t* a,
-		ap_var_t* tvar, size_t size,
+		ap_dim_t* tdim, size_t size,
 		bool project);
 
 t1p_t t1p_expand(ap_manager_t* man,
