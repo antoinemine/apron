@@ -18,25 +18,114 @@
 
 itv_internal_t* intern;
 
+void check(itv_t a)
+{
+  bound_neg(a->inf,a->inf);
+  if (bound_cmp(a->inf,a->sup)>0) abort();
+  bound_neg(a->inf,a->inf);
+}
+
+void testunopi(char* str, bool (*ptr)(itv_internal_t*,itv_t,itv_t),itv_t c, itv_t a)
+{
+  itv_t a2;
+  itv_init_set(a2,a);
+  printf("%s\n",str);
+  ptr(intern,c,a);
+  printf("z = unop x = "); itv_print(c); printf("\n"); 
+  ptr(intern,a,a);
+  printf("x = unop x = "); itv_print(a); printf("\n"); 
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+}
+void testunop(char* str, void (*ptr)(itv_t,itv_t),itv_t c, itv_t a)
+{
+  itv_t a2;
+  itv_init_set(a2,a);
+  printf("%s\n",str);
+  ptr(c,a);
+  printf("z = unop x = "); itv_print(c); printf("\n"); check(c);
+  ptr(a,a);
+  printf("x = unop x = "); itv_print(a); printf("\n"); check(a);
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+}
+
 void testun(itv_t a)
 {
-  itv_t b;
+  itv_t c,a2;
   bool exact;
-  itv_init(b);
+
+  itv_init_set(a2,a);
+  itv_init(c);
   printf("x = "); itv_print(a); printf("\n");
-  itv_neg(b,a); printf("-x = "); itv_print(b); printf("\n");
-  itv_abs(b,a); printf("abs(x) = "); itv_print(b); printf("\n");
-  exact = itv_sqrt(intern,b,a); printf("sqrt(x) = "); itv_print(b); printf(" (%i)\n",exact);
-  itv_ceil(b,a); printf("ceil(x) = "); itv_print(b); printf("\n");
-  itv_floor(b,a); printf("floor(x) = "); itv_print(b); printf("\n");
-  itv_trunc(b,a); printf("trunc(x) = "); itv_print(b); printf("\n");
-  itv_to_int(b,a); printf("int(x) = "); itv_print(b); printf("\n");
-  itv_to_float(b,a); printf("float(x) = "); itv_print(b); printf("\n");
-  itv_to_double(b,a); printf("double(x) = "); itv_print(b); printf("\n");
-  itv_mul_2exp(b,a,2); printf("x << 2 = "); itv_print(b); printf("\n");
-  itv_mul_2exp(b,a,-2); printf("x >> 2 = "); itv_print(b); printf("\n");
+  testunop("neg",itv_neg,c,a);
+  testunop("abs",itv_abs,c,a);
+  testunopi("sqrt",itv_sqrt,c,a);
+  testunop("ceil",itv_ceil,c,a);
+  testunop("floor",itv_floor,c,a);
+  testunop("trunc",itv_trunc,c,a);
+  testunop("to_float",itv_to_float,c,a);
+  testunop("to_double",itv_to_double,c,a);
+  itv_mul_2exp(c,a,2); printf("x << 2 = "); itv_print(c); printf("\n");
+  itv_mul_2exp(c,a,-2); printf("x >> 2 = "); itv_print(c); printf("\n");
   printf("\n");
-  itv_clear(b);
+  itv_clear(c);
+  itv_clear(a2);
+}
+
+void testbinopi(char* str, void (*ptr)(itv_internal_t*,itv_t,itv_t,itv_t),itv_t c, itv_t a, itv_t b)
+{
+  itv_t a2,b2;
+  itv_init_set(a2,a);
+  itv_init_set(b2,b);
+
+  printf("%s\n",str);
+  ptr(intern,c,a,b);
+  printf("z = x binop y = "); itv_print(c); printf("\n"); check(c);
+  ptr(intern,a,a,b);
+  printf("x = x binop y = "); itv_print(a); printf("\n"); check(a);
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+  ptr(intern,b,a,b);
+  printf("y = x binop y = "); itv_print(b); printf("\n"); check(b);
+  if (! itv_is_eq(b,c)) abort();
+  itv_set(b,b2);
+  ptr(intern,c,a,a);
+  printf("z = x binop x = "); itv_print(c); printf("\n"); check(c);
+  ptr(intern,a,a,a);
+  printf("x = x binop x = "); itv_print(a); printf("\n"); check(a);
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+
+  itv_clear(a2);
+  itv_clear(b2);
+}
+void testbinop(char* str, void (*ptr)(itv_t,itv_t,itv_t),itv_t c, itv_t a, itv_t b)
+{
+  itv_t a2,b2;
+  itv_init_set(a2,a);
+  itv_init_set(b2,b);
+
+  printf("%s\n",str);
+  ptr(c,a,b);
+  printf("z = x binop y = "); itv_print(c); printf("\n"); check(c);
+  ptr(a,a,b);
+  printf("x = x binop y = "); itv_print(a); printf("\n"); check(a);
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+  ptr(b,a,b);
+  printf("y = x binop y = "); itv_print(b); printf("\n"); check(b);
+  if (! itv_is_eq(b,c)) abort();
+  itv_set(b,b2);
+  ptr(c,a,a);
+  printf("z = x binop x = "); itv_print(c); printf("\n"); check(c);
+  ptr(a,a,a);
+  printf("x = x binop x = "); itv_print(a); printf("\n"); check(a);
+  if (! itv_is_eq(a,c)) abort();
+  itv_set(a,a2);
+
+  itv_clear(a2);
+  itv_clear(b2);
 }
 
 void testbin(itv_t a, itv_t b)
@@ -45,29 +134,50 @@ void testbin(itv_t a, itv_t b)
   itv_init(c);
   printf("x = "); itv_print(a); printf("\n");
   printf("y = "); itv_print(b); printf("\n");
-  itv_add(c,a,b);
-  printf("x + y = "); itv_print(c); printf("\n");
-  itv_sub(c,a,b);
-  printf("x - y = "); itv_print(c); printf("\n");
-  itv_mul(intern,c,a,b);
-  printf("x * y = "); itv_print(c); printf("\n");
-  itv_div(intern,c,a,b);
-  printf("x / y = "); itv_print(c); printf("\n");
-  itv_clear(c);
+  testbinop("add",itv_add,c,a,b);
+  testbinop("sub",itv_sub,c,a,b);
+  testbinopi("mul",itv_mul,c,a,b);
+  testbinopi("div",itv_div,c,a,b);
   printf("\n");
+  
+  itv_clear(c);
 }
 
 void testmod(itv_t a, itv_t b)
 {
-  itv_t c;
+  itv_t c,a2,b2;
+  itv_init_set(a2,a);
+  itv_init_set(b2,b);
   itv_init(c);
   printf("x = "); itv_print(a); printf("\n");
   printf("y = "); itv_print(b); printf("\n");
   itv_mod(intern,c,a,b,1);
-  printf("x mod_i y = "); itv_print(c); printf("\n");
+  printf("z = x mod_i y = "); itv_print(c); printf("\n");
+  itv_mod(intern,a,a,b,1);
+  printf("x = x mod_i y = "); itv_print(a); printf("\n");
+  itv_set(a,a2);
+  itv_mod(intern,b,a,b,1);
+  printf("y = x mod_i y = "); itv_print(b); printf("\n");
+  itv_set(b,b2);
+  itv_mod(intern,c,a,a,1);
+  printf("z = x mod_i x = "); itv_print(c); printf("\n");
+  itv_mod(intern,a,a,a,1);
+  printf("x = x mod_i x = "); itv_print(a); printf("\n");
+  itv_set(a,a2);
+
   itv_mod(intern,c,a,b,0);
-  printf("x mod_f y = "); itv_print(c); printf("\n");
-  printf("\n");
+  printf("z = x mod y = "); itv_print(c); printf("\n");
+  itv_mod(intern,a,a,b,0);
+  printf("x = x mod y = "); itv_print(a); printf("\n");
+  itv_set(a,a2);
+  itv_mod(intern,b,a,b,0);
+  printf("y = x mod y = "); itv_print(b); printf("\n");
+  itv_set(b,b2);
+  itv_mod(intern,c,a,a,0);
+  printf("z = x mod x = "); itv_print(c); printf("\n");
+  itv_mod(intern,a,a,a,0);
+  printf("x = x mod x = "); itv_print(a); printf("\n");
+  itv_set(a,a2);
   itv_clear(c);
 }
 
@@ -111,7 +221,6 @@ int main()
   set_double(a,-1./0.,6); testun(a);
   set_double(a,-1./0.,1./0.); testun(a);
   set_frac(a,-1,10,1,100); testun(a);
-  set_double(a,1,-2); testun(a);
 
   set_double(a,1,5); set_double(b,10,10); testmod(a,b);
   set_double(a,15,18); set_double(b,10,10); testmod(a,b);
@@ -134,6 +243,19 @@ int main()
   set_double(a,-2,-1); set_double(b,-2,-1); testbin(a,b);
   set_double(a,-2,-1); set_double(b,-2,0); testbin(a,b);
   set_double(a,-2,3); set_double(b,-1,1); testbin(a,b);
+
+  set_double(a,-0.375,-0.375); set_double(b,-0.625,-0.625); testbin(a,b); 
+  set_double(a,-0.375,-0.375); set_double(b,0.625,0.625); testbin(a,b); 
+  set_double(a,0.375,0.375); set_double(b,-0.625,-0.625); testbin(a,b); 
+  set_double(a,0.375,0.375); set_double(b,0.625,0.625); testbin(a,b);
+
+  set_frac(a,-1,3,-1,3); set_frac(b,-2,3,-2,3); testbin(a,b); 
+  set_frac(a,-1,3,-1,3); set_frac(b,2,3,2,3); testbin(a,b); 
+  set_frac(a,1,3,1,3); set_frac(b,-2,3,-2,3); testbin(a,b); 
+  set_frac(a,1,3,1,3); set_frac(b,2,3,2,3); testbin(a,b); 
+
+
+
 
   itv_clear(a); itv_clear(b);
   itv_internal_free(intern);
