@@ -2,7 +2,7 @@
 /* itv.h: (unidimensional) intervals */
 /* ********************************************************************** */
 
-#ifndef _ITVH_
+#ifndef _ITV_H_
 #define _ITV_H_
 
 #include <stdio.h>
