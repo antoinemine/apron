@@ -444,7 +444,7 @@ ap_abstract0_widening_threshold(ap_manager_t* man,
 static inline
 ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
 {
-  ap_abstract0_t* res = malloc(sizeof(ap_abstract0_t));
+  ap_abstract0_t* res = (ap_abstract0_t*)malloc(sizeof(ap_abstract0_t));
   res->value = value;
   res->man = ap_manager_copy(man);
   return res;
@@ -452,7 +452,7 @@ ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
 static inline
 void _ap_abstract0_free(ap_abstract0_t* a)
 {
-  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = a->man->funptr[AP_FUNID_FREE];
+  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = (void (*ptr)(ap_manager_t*,ap_abstract0_t*))a->man->funptr[AP_FUNID_FREE];
   ptr(a->man,a->value);
   ap_manager_free(a->man);
   free(a);
