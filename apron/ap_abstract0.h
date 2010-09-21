@@ -452,8 +452,8 @@ ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
 static inline
 void _ap_abstract0_free(ap_abstract0_t* a)
 {
-  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = (void (*ptr)(ap_manager_t*,ap_abstract0_t*))a->man->funptr[AP_FUNID_FREE];
-  ptr(a->man,a->value);
+  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = (void (*) (ap_manager_t*,ap_abstract0_t*))(a->man->funptr[AP_FUNID_FREE]);
+  ptr(a->man,(ap_abstract0_t*)a->value);
   ap_manager_free(a->man);
   free(a);
 }
@@ -513,7 +513,7 @@ bool ap_abstract0_checkman_array(ap_funid_t funid,
 static inline
 ap_dimension_t _ap_abstract0_dimension(ap_abstract0_t* a)
 {
-  ap_dimension_t (*ptr)(ap_manager_t*,...) = a->man->funptr[AP_FUNID_DIMENSION];
+  ap_dimension_t (*ptr)(ap_manager_t*,...) = (ap_dimension_t (*) (ap_manager_t*,...))(a->man->funptr[AP_FUNID_DIMENSION]);
   return ptr(a->man,a->value);
 }
 
