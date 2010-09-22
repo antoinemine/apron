@@ -1,9 +1,14 @@
 /* cosine */
 /* y in [-1,1] */
 
-var x : real, y : real;
+var eps0 : real, eps1 : real, x:real, y:real, z:real;
 begin
-x = random;
-assume x>=0 and x<=180;
+assume -1 <= eps0 and eps0 <= 1;
+assume -1 <= eps1 and eps1 <= 1;
+if (eps0 >= 0) then
+ x = 1 - eps0 + 2*eps1;
+else 
+ x = 2 + eps0 + eps1;
+endif;
 end
 

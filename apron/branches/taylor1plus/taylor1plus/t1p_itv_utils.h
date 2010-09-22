@@ -86,6 +86,7 @@ static inline void itv_middev(itv_internal_t *itv, itv_t mid, itv_t dev, itv_t a
     bound_clear(tmp[3]);
 }
 
+/* return true if for all x in a, for all y in b: x <= y */
 static inline bool itv_cmp(itv_t a, itv_t b){
     bool res = false;
     bound_t tmp; bound_init(tmp);

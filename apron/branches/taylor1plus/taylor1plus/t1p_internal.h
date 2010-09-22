@@ -61,6 +61,51 @@ struct _t1p_aff_t {
 };
 typedef struct _t1p_aff_t t1p_aff_t;
 
+/***************************************/
+/* Optimization Problem Data Structure */
+/***************************************/
+typedef enum indicesSets_t {
+    IXY,
+    IX,
+    IY,
+    J
+} indicesSets_t;
+
+typedef struct Li {
+    int i; /* corresponding index in global tabs */
+    itv_t abc[3]; /* coeff of lambda in abc[0], coeff of u0 in abc[1], cst in abc[2] */
+} Li;
+
+typedef struct optpr_indexinfo_t {
+    int sign; /* tableau de taille n contenant le sign de alphaix - alphaiy */
+    indicesSets_t I; /* tableau de taille n indiquant l'indice de chaque eps */
+    itv_t alphaixMalphaiy;
+    itv_t nsymitvx;
+    itv_t nsymitvy;
+    itv_t alphaix;
+    itv_t alphaiy;
+    t1p_nsym_t* pnsym;
+} optpr_indexinfo_t; 
+
+/* data structure for feasible point */
+typedef struct optpr_point_t {
+    itv_t u0;
+    itv_t lambda;
+    int* ui; /* table of (-1) or (0) or (+1) with size J, if (-1) min{a,b} = a; if (0) min{a,b} = a = b; if (+1), min{a,b} = +1 */
+} optpr_point_t;
+
+typedef struct optpr_problem_t {
+    itv_t alpha0;
+    itv_t beta;	/* |u0| < beta*(1-lambda) */
+    itv_t gamma; /* |u0| < gamma*lambda */
+    Li* litab; /* table of Li lines and their associated eps */
+    optpr_indexinfo_t* T; /* tableau de taille n */
+    size_t sizeJ; /* size of litab % détermine la complexité du problème */
+    size_t size; /* nb de symboles en tout: le "n" */
+    itv_t optval; /* optimal value */
+    optpr_point_t optsol; /* optimal point, TODO: pour le moment on prend le dernier qui optimise, mais il peut y en avoir plusieurs */
+} optpr_problem_t;
+
 /*******************************/
 /* Taylor1+ internal structure */
 /*******************************/
@@ -81,6 +126,7 @@ typedef struct _t1p_internal_t {
     ap_dimchange_t*	dimchange;
     ap_abstract0_t*	nsymhypercube;
     clock_t	start;		
+    optpr_problem_t* optpr;
 } t1p_internal_t;
 
 /***********/
@@ -203,6 +249,14 @@ static inline t1p_aff_t * t1p_aff_join(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_
 static inline t1p_aff_t* t1p_aff_join_constrained1(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
 
 static inline t1p_aff_t* t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
+
+/* calcul du mub ligne par ligne. s'attend a une forme + une perturbation intervalle a calculer.
+   retourne une forme + la deviation de la nouvelle perturbation.
+ */
+static inline t1p_aff_t* t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
+
+static inline t1p_aff_t* t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
+
 static inline t1p_aff_t* t1p_aff_widening_constrained6(t1p_internal_t* pr, t1p_aff_t* exp1, t1p_aff_t* exp2, t1p_t* a, t1p_t* b, t1p_t* ab);
 
 /* compute lambda such that x' = x + lambda(cons), lambda is stored into res as an interval */
@@ -245,6 +299,16 @@ static inline bool t1p_nsymcons_get_dimpos(t1p_internal_t * pr, ap_dim_t* dim, s
 static inline size_t t1p_nsymcons_get_dimension(t1p_internal_t * pr, t1p_t* a);
 /* get the concretisation of a noise symbol given its index and the abstract object */
 static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, size_t nsymIndex, t1p_t* a);
+
+/**********************************/
+/* Optimization Problem Functions */
+/**********************************/
+
+void optpr_init(t1p_internal_t* pr);
+void optpr_clear(t1p_internal_t* pr);
+void optpr_u0_iszero(t1p_internal_t* pr); /* inject u0 = 0 */
+void optpr_build(t1p_internal_t* pr, itv_t alphaix, itv_t alphaiy, t1p_nsym_t* pnsym, itv_t nsymItv1, itv_t nsymItv2, indicesSets_t I); /* construire le problème à résoudre */
+void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, itv_t midgy, itv_t taux, itv_t tauy, t1p_aff_t* res);
 
 /**************************************************************************************************/
 /* Definitions of inline functions */
@@ -1067,6 +1131,10 @@ static inline t1p_aff_t * t1p_aff_join(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_
     return res;
 }
 
+/* version rapide qui calcule l'argmin pour i>= 1 puis complete par alpha0 et tau telque
+   - z soit upper bound
+   - beta^z soit minimale
+ */
 static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
     arg_assert(exp1 && exp2, abort(););
@@ -1298,6 +1366,436 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     return res;
 }
 
+static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
+/* 
+   - inputs: (alpha^x, tau^x) ; (alpha^y, tau^y)
+   - output: (alpha^z, tau^z)
+   - algo: 1/calculer tau^x et tau^y
+   	   2/calculer lambda et u_0 (autre procedure)
+	   3/deduire les u_i restants
+	   4/ecrire le sys d'equation verifie par les alpha^z_i, puis le resoudre (autre procedure)
+*/   
+{
+    arg_assert(exp1 && exp2, abort(););
+
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+
+    itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
+    itv_t c1, c2, d1, d2, c, d;
+    itv_init(tmp); itv_init(tmp1); itv_init(tmp2);
+    itv_init(betaA); itv_init(betaB);
+    itv_init(c);
+    itv_init(c1);
+    itv_init(c2);
+    itv_init(d);
+    itv_init(d1);
+    itv_init(d2);
+    itv_init(mid);
+    itv_init(dev);
+    itv_t nsymItv1; itv_init(nsymItv1);
+    itv_t nsymItv2; itv_init(nsymItv2);
+    itv_t pmptr; itv_init(pmptr);
+    itv_t qmptr; itv_init(qmptr);
+    itv_t argminpq; itv_init(argminpq);
+    itv_t midgx, midgy;
+
+    itv_init(midgx); itv_init(midgy); /* TODO: to clear later */
+    /* !!!!!!!!!!!!!!!!! SUPPOSES THAT exp->itv contains always the interval concretisation of the form, not its interval in Reduced Product !!!!!!!!!!!!!!!!!!!!!!!!!! */
+    itv_middev(pr->itv, midgx, dev, exp1->itv);
+    itv_middev(pr->itv, midgy, dev, exp2->itv);
+
+    itv_t alpha0; itv_init(alpha0); /* TODO: clear alpha0 */
+
+    itv_t(alphaix); itv_t(alphaiy); itv_init(alphaix); itv_init(alphaiy);
+
+    t1p_nsym_t* pnsym = NULL;
+
+    t1p_aaterm_t *p, *q;
+
+    if (exp1->q || exp2->q) {
+	optpr_init(pr);
+	for(p = exp1->q, q = exp2->q; p || q;) {
+	    if (p && q) {
+		if (p->pnsym->index == q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			pnsym = NULL;
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (p->pnsym->type == IN) {
+			pnsym = p->pnsym;
+			itv_set(alphaix, p->coeff);
+			itv_set(alphaiy, q->coeff);
+		    }
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			pnsym = NULL;
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+		    } else if (p->pnsym->type == IN) {
+			pnsym = p->pnsym;
+			itv_set(alphaix,p->coeff);
+			itv_set_int(alphaiy,0);
+		    }
+		    p = p->n;
+		} else {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		    if (q->pnsym->type == UN) {
+			pnsym = NULL;
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (q->pnsym->type == IN) {
+			pnsym = q->pnsym;
+			itv_set_int(alphaix,0);
+			itv_set(alphaiy,q->coeff);
+		    }
+		    q = q->n;
+		}
+	    } else if (p) {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		if (p->pnsym->type == UN) {
+		    pnsym = NULL;
+		    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+		    itv_add(betaA, betaA, tmp);
+		} else if (p->pnsym->type == IN) {
+		    pnsym = p->pnsym;
+		    itv_set(alphaix,p->coeff);
+		    itv_set_int(alphaiy,0);
+		}
+		p = p->n;
+	    } else {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		if (q->pnsym->type == UN) {
+		    pnsym = NULL;
+		    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+		    itv_add(betaB, betaB, tmp);
+		} else if (q->pnsym->type == IN) {
+		    pnsym = q->pnsym;
+		    itv_set_int(alphaix,0);
+		    itv_set(alphaiy,q->coeff);
+		}
+		q = q->n;
+	    }
+	    if (pnsym) {
+		if (itv_is_point(pr->itv, nsymItv1) && itv_is_point(pr->itv, nsymItv2)) {
+		    /* I^{xy} */
+		    if (itv_is_eq(nsymItv1,nsymItv2)) {
+			/* u0 != 0 */
+			//itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+			//itv_mul(pr->itv, tmp, tmp, nsymItv1); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
+			//itv_add(alpha0,alpha0,tmp);
+			optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IXY);
+		    } else {
+			/* u0 = 0 */
+			itv_set_int(alpha0,0);
+			optpr_u0_iszero(pr);
+			// solve a much simpler problem
+		    }
+		} else if (itv_is_point(pr->itv, nsymItv1)) {
+		    /* I^x */
+		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+		    //itv_mul(pr->itv, tmp, tmp, nsymItv1); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
+		    //itv_add(alpha0,alpha0,tmp);
+		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IX);
+		} else if (itv_is_point(pr->itv, nsymItv2)) {
+		    /* I^y */
+		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+		    //itv_mul(pr->itv, tmp, tmp, nsymItv2); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
+		    //itv_add(alpha0,alpha0,tmp);
+		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IY);
+		} else {
+		    /* J */
+		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, J); /* construire le problème à résoudre */
+		}
+		pnsym = NULL;
+	    }
+	}
+
+	itv_middev(pr->itv, mid, dev, betaA);
+	itv_t taux; itv_init(taux);
+	itv_set(taux, dev);
+	itv_t cx; itv_init(cx);
+	itv_add(cx, exp1->c, mid);
+
+	itv_middev(pr->itv, mid, dev, betaB);
+	itv_t tauy; itv_init(tauy);
+	itv_set(tauy, dev);
+	itv_t cy; itv_init(cy);
+	itv_add(cy, exp2->c, mid);
+
+	itv_sub(tmp, cx, cy);
+	itv_clear(cx); itv_clear(cy);
+	itv_add(alpha0, alpha0, tmp);
+
+	optpr_solve(pr, exp1->c, alpha0, midgx, midgy, taux, tauy, res);
+	itv_clear(taux);
+	itv_clear(tauy);
+
+	optpr_clear(pr); pr->optpr = NULL;
+    } else {
+	t1p_aff_add_itv(pr, res, res->itv, UN);
+    }
+    itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
+    itv_clear(betaA); itv_clear(betaB);
+    itv_clear(c);
+    itv_clear(c1);
+    itv_clear(c2);
+    itv_clear(d);
+    itv_clear(d1);
+    itv_clear(d2);
+    itv_clear(nsymItv1);
+    itv_clear(nsymItv2);
+    itv_clear(argminpq);
+    itv_clear(pmptr);
+    itv_clear(qmptr);
+    itv_clear(mid);
+    itv_clear(dev);
+    return res;
+}
+
+/* mub global */
+static inline t1p_aff_t * t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
+{
+    arg_assert(exp1 && exp2, abort(););
+
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+    itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
+    itv_t c1, c2, d1, d2, c, d;
+    itv_init(tmp); itv_init(tmp1); itv_init(tmp2);
+    itv_init(betaA); itv_init(betaB);
+    itv_init(c);
+    itv_init(c1);
+    itv_init(c2);
+    itv_init(d);
+    itv_init(d1);
+    itv_init(d2);
+    itv_init(mid);
+    itv_init(dev);
+    itv_t nsymItv1; itv_init(nsymItv1);
+    itv_t nsymItv2; itv_init(nsymItv2);
+    itv_t pmptr; itv_init(pmptr);
+    itv_t qmptr; itv_init(qmptr);
+    itv_t argminpq; itv_init(argminpq);
+
+    t1p_aaterm_t *p, *q, *ptr;
+
+    itv_join(res->itv, exp1->itv, exp2->itv);
+    ptr = NULL;
+
+    if (exp1->q || exp2->q) {
+	itv_set(c1, exp1->c);
+	itv_set(c2, exp2->c);
+	ptr = t1p_aaterm_alloc_init();
+	for(p = exp1->q, q = exp2->q; p || q;) {
+	    if (p && q) {
+		if (p->pnsym->index == q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (p->pnsym->type == IN) {
+			argmin(pr, ptr->coeff, p->coeff, q->coeff);
+			ptr->pnsym = p->pnsym;
+			itv_sub(pmptr, p->coeff, ptr->coeff);
+			itv_sub(qmptr, q->coeff, ptr->coeff);
+
+		    }
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+		    } else if (p->pnsym->type == IN) {
+			itv_set(pmptr,p->coeff);
+			itv_set_int(qmptr,0);
+		    }
+		    t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+		    p = p->n;
+		} else {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		    if (q->pnsym->type == UN) {
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (q->pnsym->type == IN) {
+			itv_set(qmptr,q->coeff);
+			itv_set_int(pmptr,0);
+		    }
+		    t1p_delete_constrained_nsym(pr, q->pnsym->index, ab);
+		    q = q->n;
+		}
+	    } else if (p) {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		if (p->pnsym->type == UN) {
+		    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+		    itv_add(betaA, betaA, tmp);
+		} else if (p->pnsym->type == IN) {
+		    itv_set(pmptr,p->coeff);
+		    itv_set_int(qmptr,0);
+		}
+		t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+		p = p->n;
+	    } else {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		if (q->pnsym->type == UN) {
+		    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+		    itv_add(betaB, betaB, tmp);
+		} else if (q->pnsym->type == IN) {
+		    itv_set(qmptr,q->coeff);
+		    itv_set_int(pmptr,0);
+		}
+		t1p_delete_constrained_nsym(pr, q->pnsym->index, ab);
+		q = q->n;
+	    }
+	    itv_mul(pr->itv, tmp1, pmptr, nsymItv1);
+	    itv_add(c1, c1, tmp1);
+	    itv_mul(pr->itv, tmp2, qmptr, nsymItv2);
+	    itv_add(c2, c2, tmp2);
+	    itv_set_int(pmptr,0);
+	    itv_set_int(qmptr,0);
+	    if (itv_is_zero(ptr->coeff)) {
+		if (!(p||q)) {
+		    /* the last iteration */
+		    t1p_aaterm_free(pr, ptr);
+		    if (res->end) res->end->n = NULL;
+		}
+	    } else {
+		/* keep this term */
+		if (!res->q) res->q = ptr;
+		res->end = ptr;
+		res->l++;
+		if (p||q) {
+		    /* continuing */
+		    ptr->n = t1p_aaterm_alloc_init();
+		    ptr=ptr->n;
+		} else {
+		    /* the last iteration */
+		}
+	    }
+	}
+
+	itv_middev(pr->itv, mid, dev, betaA);
+	itv_set(d1, dev);
+	itv_add(c1, c1, mid);
+
+	itv_middev(pr->itv, mid, dev, betaB);
+	itv_set(d2, dev);
+	itv_add(c2, c2, mid);
+
+	num_t c0, min, max, dmin, dmax;
+	num_init(c0); num_init(min); num_init(max); num_init(dmin); num_init(dmax);
+	itv_t beta; itv_init(beta);
+
+	num_t array[4];
+	num_init(array[0]);
+	num_init(array[1]);
+	num_init(array[2]);
+	num_init(array[3]);
+
+	num_set(array[0],bound_numref(c1->inf));
+	num_neg(array[0],array[0]);
+	num_add(array[0],array[0],bound_numref(d1->sup));
+	num_set(array[1],bound_numref(c2->inf));
+	num_neg(array[1],array[1]);
+	num_add(array[1],array[1],bound_numref(d2->sup));
+	num_set(array[2],bound_numref(c1->sup));
+	num_add(array[2],array[2],bound_numref(d1->sup));
+	num_set(array[3],bound_numref(c2->sup));
+	num_add(array[3],array[3],bound_numref(d2->sup));
+
+	int i = 0;
+	num_set(dmax, array[0]);
+	for (i=1;i<4;i++)
+	    if (num_cmp(dmax,array[i]) < 0) num_set(dmax, array[i]);
+
+	num_set(array[0],bound_numref(c1->inf));
+	num_add(array[0],array[0],bound_numref(d1->sup));
+	num_set(array[1],bound_numref(c2->inf));
+	num_add(array[1],array[1],bound_numref(d2->sup));
+	num_set(array[2],bound_numref(c1->sup));
+	num_neg(array[2],array[2]);
+	num_add(array[2],array[2],bound_numref(d1->sup));
+	num_set(array[3],bound_numref(c2->sup));
+	num_neg(array[3],array[3]);
+	num_add(array[3],array[3],bound_numref(d2->sup));
+
+	num_set(dmin, array[0]);
+	for (i=1;i<4;i++)
+	    if (num_cmp(dmin,array[i]) < 0) num_set(dmin, array[i]);
+
+	num_add(c0,dmax,dmin);
+	num_div_2(c0, c0);
+	itv_set_num(beta,c0);
+
+	num_sub(c0,dmax,dmin);
+	num_div_2(c0, c0);
+	itv_set_num(res->c,c0);
+
+	if (num_cmp(bound_numref(c1->inf),bound_numref(c2->inf)) < 0) {
+	    num_set(min, bound_numref(c2->inf));
+	} else {
+	    num_set(min, bound_numref(c1->inf));
+	}
+	num_neg(min,min);
+
+	if (num_cmp(bound_numref(c1->sup),bound_numref(c2->sup)) < 0) {
+	    num_set(max, bound_numref(c2->sup));
+	} else {
+	    num_set(max, bound_numref(c1->sup));
+	}
+
+	if (num_cmp(c0,min) <= 0 || num_cmp(c0,max) >= 0) {
+	    t1p_aff_free(pr, res);
+	    itv_sub(tmp,d2,d1);
+	    if (itv_is_pos(tmp)) res = exp2;
+	    else res = exp1;
+	} else t1p_aff_nsym_create(pr, res, beta, UN);
+
+	num_clear(c0); num_clear(min); num_clear(max); num_clear(dmin); num_clear(dmax);
+	num_clear(array[0]);
+	num_clear(array[1]);
+	num_clear(array[2]);
+	num_clear(array[3]);
+	itv_clear(beta);
+    } else {
+	t1p_aff_add_itv(pr, res, res->itv, UN);
+    }
+    itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
+    itv_clear(betaA); itv_clear(betaB);
+    itv_clear(c);
+    itv_clear(c1);
+    itv_clear(c2);
+    itv_clear(d);
+    itv_clear(d1);
+    itv_clear(d2);
+    itv_clear(nsymItv1);
+    itv_clear(nsymItv2);
+    itv_clear(argminpq);
+    itv_clear(pmptr);
+    itv_clear(qmptr);
+    itv_clear(mid);
+    itv_clear(dev);
+    return res;
+}
 /* draft CAV 2010 *
  * computes mub with minimal interval concretisation
  */
@@ -2092,6 +2590,7 @@ static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
     pr->moo.p[1] = ap_lincons0_make(AP_CONS_SUPEQ, nspone, NULL);
 
     pr->start = clock();
+    pr->optpr = NULL;
     return pr;
 }
 
@@ -2129,6 +2628,7 @@ static inline void t1p_internal_free(t1p_internal_t* pr)
 	free(pr->dimtoremove);
 	ap_dimchange_free(pr->dimchange);
 	pr->dimchange = NULL;
+	pr->optpr = NULL;
 	free(pr);
     }
 }
