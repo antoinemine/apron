@@ -200,8 +200,8 @@ void ITVFUN(itv_div_bound)(itv_t a, itv_t b, bound_t c)
 {
   assert (c!=a->inf && c!=a->sup && c!=b->inf && c!=b->sup);
   if (bound_sgn(c)>=0){
-    bound_div_num(a->sup,b->sup,c);
-    bound_div_num(a->inf,b->inf,c);
+    bound_div(a->sup,b->sup,c);
+    bound_div(a->inf,b->inf,c);
   } else {
     bound_neg(c,c);
     bound_div(a->sup,b->sup,c);
