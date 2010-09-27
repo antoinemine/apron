@@ -1213,9 +1213,9 @@ extern "C" ap_manager_t* ap_ppl_poly_manager_alloc(bool strict)
   ap_manager_t* man;
 
   ppl = ap_ppl_internal_alloc(strict);
-  char* name = const_cast<char*>(strict ? 
-				 "PPL::Polyhedron, strict mode" :  
-				 "PPL::Polyhedron, loose mode");
+  const char* name = (strict ? 
+		      "PPL::Polyhedron, strict mode" :  
+		      "PPL::Polyhedron, loose mode");
   man = ap_manager_alloc(name,PPL_VERSION,ppl,&ap_ppl_internal_free);
   assert(man);
 

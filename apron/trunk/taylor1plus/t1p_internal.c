@@ -943,7 +943,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
         ap_interval_t* gamma = ap_abstract0_bound_dimension(pk, obj, i);
 	ap_double_set_scalar(&inf, gamma->inf, GMP_RNDU);
 	ap_double_set_scalar(&sup, gamma->sup, GMP_RNDU);
-	printf("x%d : [%f,%f]\n", i, inf, sup);
+	printf("x%zd : [%f,%f]\n", i, inf, sup);
     }
 
     /* on doit construire la forme finale puis calculer tau^z */

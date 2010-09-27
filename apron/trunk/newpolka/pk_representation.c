@@ -630,7 +630,7 @@ bool matrix_check_gauss(matrix_t* mat, size_t nbeq)
     /* Check that this coeff is zero on all other rows */
     for (i=0; i<mat->nbrows; i++){
       if (i != k && numint_sgn(mat->p[i][j])!=0){
-	fprintf(stderr,"matrix_check_gauss: row %d col %d should be zero !\n",i,j);
+	fprintf(stderr,"matrix_check_gauss: row %zd col %zd should be zero !\n",i,j);
 	return false;
       }
     }
