@@ -95,6 +95,7 @@ clean:
 	(cd box; make clean)
 	(cd newpolka; make clean)
 	(cd octagons; make clean)
+	(cd taylor1plus; make clean)
 	(cd ppl; make clean)
 	(cd products; make clean)
 	(cd apronxx; make clean)
@@ -106,6 +107,7 @@ mostlyclean: clean
 	(cd mlapronidl; make mostlyclean)
 	(cd box; make mostlyclean)
 	(cd octagons; make mostlyclean)
+	(cd taylor1plus; make mostlyclean)
 	(cd newpolka; make mostlyclean)
 	(cd ppl; make mostlyclean)
 	(cd products; make mostlyclean)
@@ -139,7 +141,7 @@ endif
 
 # make distribution, update to reflect current version
 
-PKGNAME  = apron-0.9.10
+PKGNAME  = apron-0.9.11
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
 PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx
 

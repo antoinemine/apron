@@ -71,8 +71,9 @@ mlexample%.opt: mlexample.ml $(APRON_PREFIX)/lib/polka%.cmxa $(APRON_PREFIX)/lib
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa polka%.cmxa ppl.cmxa polkaGrid.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.cm[xiao] *.cmxa
+	/bin/rm -f *.[ao] *.so *.annot *.cm[xiao] *.cmxa
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
+	/bin/rm -fr tmp
 
 mostlyclean: clean
 	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 sedscript_c

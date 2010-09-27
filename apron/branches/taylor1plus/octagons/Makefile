@@ -118,7 +118,7 @@ mlexample%.opt: mlexample.ml oct%.cmxa
 clean:
 	/bin/rm -f *.[ao] *.so octtest*
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
-	/bin/rm -fr *.cm[ioax] *.cmxa
+	/bin/rm -fr *.annot *.cm[ioax] *.cmxa
 	/bin/rm -fr octtop* octrun* tmp
 	/bin/rm -fr *~ \#*\#
 

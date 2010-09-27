@@ -114,7 +114,7 @@ mlexample%.opt: mlexample.ml box%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt *.annot
+	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmxa *.byte *.opt
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr boxpolkarung boxpolkatopg tmp
 
