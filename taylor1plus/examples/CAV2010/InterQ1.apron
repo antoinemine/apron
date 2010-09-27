@@ -1,0 +1,16 @@
+/* InterQ1 */
+/* x in [0, 1875] */
+
+
+var x : real, y : real;
+begin
+x = random;
+assume x <= 100 and x >= 0;
+if (x <= 50) then 
+y = 0.5*x;
+x = (x-y)*x;
+else 
+y = 0.75*x;
+x = (x-y)*y;
+endif;
+end

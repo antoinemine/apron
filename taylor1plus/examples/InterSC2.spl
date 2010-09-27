@@ -1,0 +1,12 @@
+var x : real, y1 : real, y2 : real, z : real; 
+begin 
+assume x >= 0 and x <= 1.570000; 
+if (x<=0.785000) then 
+  y1 = 0.900414*x + 0.000000; 
+  y2 = -0.372754*x + 1.000000; 
+  else 
+  y1 = 0.373471*x + 0.413651; 
+  y2 = -0.900117*x + 1.413980; 
+  endif;
+z = y1*y1 + y2*y2;
+end

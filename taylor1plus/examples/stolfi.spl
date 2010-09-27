@@ -1,0 +1,12 @@
+var x:real, y:real, s:real,h:real;
+begin
+x = 0.0;
+s = 0.0;
+h = 0.01;
+y = 0.0;
+while x <= 1-h do
+x = x + h;
+y = sqrt(x*x - x + 0.5)/sqrt(x*x + 0.5);
+s = s + y*h;
+done;
+end

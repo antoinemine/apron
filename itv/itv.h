@@ -354,10 +354,10 @@ static inline void itv_set_num(itv_t a, num_t b)
 }
 static inline void itv_set_num2(itv_t a, num_t b, num_t c)
 {
-  bound_set_num(a->sup,b);
-  num_neg(c,c);
-  bound_set_num(a->inf,c);
-  num_neg(c,c);
+  num_neg(b,b);
+  bound_set_num(a->inf,b);
+  num_neg(b,b);
+  bound_set_num(a->sup,c);
 }
 static inline void itv_set_unit_num(itv_t a, num_t b)
 {

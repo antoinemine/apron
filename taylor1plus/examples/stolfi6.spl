@@ -1,0 +1,32 @@
+var x:real, y:real, z:real, h:real ; 
+begin 
+assume x >= -2.000000 and x <= 2.000000; 
+h = 0.666667; 
+if (-x<=1*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=2*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=3*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=4*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=5*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+	  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+	    endif;
+endif;
+endif;
+endif;
+endif;
+end
