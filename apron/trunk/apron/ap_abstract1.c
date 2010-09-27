@@ -28,7 +28,6 @@ static inline ap_abstract1_t ap_abstract1_cons(ap_abstract0_t* a0, ap_environmen
    Build a new abstract value level 1 from the old one and a new value level 0,
    depending on destructive. The environment is supposed unchanged.
 */
-static
 ap_abstract1_t ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value)
 {
   ap_abstract1_t res;

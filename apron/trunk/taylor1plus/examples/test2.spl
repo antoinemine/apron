@@ -1,0 +1,17 @@
+var c:real, x:real, y1:real, y2:real, z:real;
+begin
+
+assume x >= 0 and x <= 3.14;
+
+if (x <= 0.25*3.14) then
+else 
+ if (x <= 0.5*3.14) then
+ else
+  if (x <= 0.75*3.14) then
+  else
+  endif;
+ endif;
+endif; 
+
+z = y1*y1 + y2*y2;
+end

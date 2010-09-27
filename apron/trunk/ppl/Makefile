@@ -81,7 +81,7 @@ mlexample.opt: mlexample.ml ppl.cmxa
 
 clean:
 	/bin/rm -f *.[ao] *.so ap_ppl_test
-	/bin/rm -f *.cm[ioax] *.cmxa pplrun ppltop manager.idl
+	/bin/rm -f *.annot *.cm[ioax] *.cmxa pplrun ppltop manager.idl
 	/bin/rm -fr *~ \#*\# tmp
 
 mostlyclean:

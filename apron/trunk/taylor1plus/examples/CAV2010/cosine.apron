@@ -1,0 +1,22 @@
+/* cosine */
+/* y in [-1,1] */
+
+var x : real, y : real;
+begin
+x = random;
+assume x>=0 and x<=180;
+ if (x <= 45) then
+  y = 1 - 0.006508738196*x;
+ else 
+  if (x <= 90) then
+   y = 1 - 0.00017644492*x*x + 0.000000588757*x*x*x;
+  else 
+    if (x<=135) then
+      y = 1.283184584 - 0.0062929908*x - 0.00014148386*x*x +0.000000588757*x*x*x;
+    else
+      y = 0.17157287528 - 0.006508738196*x;
+    endif;
+   endif;
+ endif;
+end
+
