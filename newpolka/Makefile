@@ -124,7 +124,7 @@ clean:
 	/bin/rm -f *.[ao] *.so
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -f test[01]Il* test[01]MPQ test[01]Il*_debug test[01]MPQ_debug
-	/bin/rm -fr *.cm[ioax] *.cmxa
+	/bin/rm -fr *.annot *.cm[ioax] *.cmxa
 	/bin/rm -f manager.idl
 	/bin/rm -fr tmp
 
