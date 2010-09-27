@@ -532,7 +532,7 @@ bool ap_abstract0_check_abstract_array(ap_funid_t funid, ap_manager_t* man,
 /* Check that the dimension makes sense in the given dimensionality */
 void ap_abstract0_check_dim_raise(ap_funid_t funid, ap_manager_t* man,
 				  ap_dimension_t dimension, ap_dim_t dim,
-				  char* prefix);
+				  const char* prefix);
 static inline
 bool ap_abstract0_check_dim(ap_funid_t funid, ap_manager_t* man,
 			    ap_dimension_t dimension, ap_dim_t dim)

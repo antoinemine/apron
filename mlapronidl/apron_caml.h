@@ -91,6 +91,7 @@ value camlidl_apron_scalar_c2ml(struct ap_scalar_t* scalar);
 /* coefficients */
 /* ********************************************************************** */
 
+struct camlidl_ctx_struct;
 void camlidl_ml2c_coeff_struct_ap_coeff_t(value _v1, struct ap_coeff_t * _c2, struct camlidl_ctx_struct* _ctx);
 value camlidl_c2ml_coeff_struct_ap_coeff_t(struct ap_coeff_t * _c1, struct camlidl_ctx_struct* _ctx);
 

@@ -270,7 +270,7 @@ void box_fprintdiff(FILE* stream,
 	    ( sgn1<0 ?
 	      "+[" :
 	      "[=, "  );
-	  fprintf(stream,str);
+	  fprintf(stream,"%s",str);
 	  if (sgn1!=0){
 	    bound_neg(bound,b->p[i]->inf);
 	    bound_fprint(stream,bound);

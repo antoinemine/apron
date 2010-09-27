@@ -187,8 +187,8 @@ typedef struct ap_option_t {
 
 /* Manager (opaque type) */
 typedef struct ap_manager_t {
-  char* library;                 /* name of the effective library */
-  char* version;                 /* version of the effective library */
+  const char* library;                 /* name of the effective library */
+  const char* version;                 /* version of the effective library */
   void* internal;                /* library dependent,
 				    should be different for each thread
 				    (working space) */
@@ -237,7 +237,7 @@ bool ap_fpu_init(void);
 /* III. Implementor Functions */
 /* ********************************************************************** */
 
-ap_manager_t* ap_manager_alloc(char* library, char* version,
+ap_manager_t* ap_manager_alloc(const char* library, const char* version,
 			       void* internal,
 			       void (*internal_free)(void*));
 static inline

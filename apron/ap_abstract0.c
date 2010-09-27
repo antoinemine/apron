@@ -174,7 +174,7 @@ abstract0 %lu: (%3lu,%3lu)\
 /* Check that the dimension makes sense in the given dimensionality */
 void ap_abstract0_check_dim_raise(ap_funid_t funid, ap_manager_t* man,
 				  ap_dimension_t dimension, ap_dim_t dim,
-				  char* prefix)
+				  const char* prefix)
 {
   char str[160];
 
