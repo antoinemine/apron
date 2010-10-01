@@ -159,39 +159,39 @@ int get_clk_tck (void)
 void log_init(void* addr, size_t length, int fd)
 {
 
-	size_t page_size = (size_t) sysconf(_SC_PAGESIZE);
-	char * path = getcwd(NULL, (size_t)0);
-	if (!(path)) {
-		fprintf(stderr,"getcwd: %s\n",strerror(errno));
-		abort();
-	}
-	char * logfile = "/taylor1plus.log";
-	size_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
-	char * logpath = (char*)malloc(l*sizeof(char));
-	strcpy(logpath,path);
-	strcat(logpath,logfile);
-	fd = open(logpath, O_RDWR | O_CREAT, S_IRWXU);
-	if (fd == -1) {
-		fprintf(stderr,"open: %s\n",strerror(errno));
-		abort();
-	}
-	length = (size_t)(1*page_size);
-	addr = mmap (NULL, length, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, (off_t)(0*page_size));
-	if (addr == MAP_FAILED) {
-		fprintf(stderr,"mmap: %s\n",strerror(errno));
-		abort();
-	}
-	free(path);
-	free(logpath);
+    size_t page_size = (size_t) sysconf(_SC_PAGESIZE);
+    char * path = getcwd(NULL, (size_t)0);
+    if (!(path)) {
+	fprintf(stderr,"getcwd: %s\n",strerror(errno));
+	abort();
+    }
+    char * logfile = "/taylor1plus.log";
+    size_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
+    char * logpath = (char*)malloc(l*sizeof(char));
+    strcpy(logpath,path);
+    strcat(logpath,logfile);
+    fd = open(logpath, O_RDWR | O_CREAT, S_IRWXU);
+    if (fd == -1) {
+	fprintf(stderr,"open: %s\n",strerror(errno));
+	abort();
+    }
+    length = (size_t)(1*page_size);
+    addr = mmap (NULL, length, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, (off_t)(0*page_size));
+    if (addr == MAP_FAILED) {
+	fprintf(stderr,"mmap: %s\n",strerror(errno));
+	abort();
+    }
+    free(path);
+    free(logpath);
 }
 
 void log_sync(void* addr, size_t length, int fd)
 {
-	if (munmap(addr, length) == -1) {
-		fprintf(stderr,"munmap: %s\n",strerror(errno));
-		abort();
-	}
-	close(fd);
+    if (munmap(addr, length) == -1) {
+	fprintf(stderr,"munmap: %s\n",strerror(errno));
+	abort();
+    }
+    close(fd);
 }
 
 /*
