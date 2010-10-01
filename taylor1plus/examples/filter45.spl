@@ -2,32 +2,12 @@ var xnp1: real, xn:real, xnm1: real;
 begin
 xnm1 = 0;
 assume xn <= 1 and -xn <= 0;
- xnp1 = 1.2*xn - 0.8*xnm1;
- xnm1 = xn;
- xn = xnp1;
-
- xnp1 = 1.2*xn - 0.8*xnm1;
- xnm1 = xn;
- xn = xnp1;
-
- xnp1 = 1.2*xn - 0.8*xnm1;
- xnm1 = xn;
- xn = xnp1;
-
- xnp1 = 1.2*xn - 0.8*xnm1;
- xnm1 = xn;
- xn = xnp1;
-
- xnp1 = 1.2*xn - 0.8*xnm1;
- xnm1 = xn;
- xn = xnp1;
-
- xnp1 = 1.2*xn - 0.8*xnm1;
+ xnp1 = (12/10)*xn - (8/10)*xnm1;
  xnm1 = xn;
  xn = xnp1;
 
 while true do
- xnp1 = 1.2*xn - 0.8*xnm1;
+ xnp1 = (12/10)*xn - (8/10)*xnm1;
  xnm1 = xn;
  xn = xnp1;
 done;

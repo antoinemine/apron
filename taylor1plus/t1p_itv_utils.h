@@ -9,6 +9,7 @@
 static inline bool itv_has_infty_bound(itv_t itv);
 static inline bool itv_has_finite_bound(itv_t itv);
 static inline bool itv_cmp(itv_t a, itv_t b);
+static inline int itv_sign(itv_internal_t *itv, itv_t a, itv_t b);
 
 /* mid = RND_NEAREST((sup(a) + inf(a))/2). dev = max(sup(a)-mid, mid-inf(a)) */
 static inline void itv_middev(itv_internal_t *itv, itv_t mid, itv_t dev, itv_t a);
@@ -100,5 +101,24 @@ static inline bool itv_is_generic(itv_t a, itv_t b)
     if (itv_is_leq(a,b) || itv_is_leq(a,b)) {
 	if ((bound_cmp(a->inf, b->inf) == 0) || (bound_cmp(a->sup, b->sup) == 0)) return true; else return false;
     } else return true;
+}
+
+/* sign of a-b : 0 means a == b; 1 means a < b; -1 means a > b; 2 means undef sign */
+static inline int itv_sign(itv_internal_t *itv, itv_t a, itv_t b)
+{
+    int res = 0;
+    itv_t meet; itv_init(meet);
+    if (itv_is_eq(a,b)) res =  0;
+    else {
+	itv_meet(itv, meet, a, b);
+	if (itv_is_bottom(itv, meet)) {
+	    if (itv_cmp(a,b)) res = 1;
+	    else res = -1;
+	} else {
+	    res = 2; /* sign may be undefined as meet is not empty */
+	}
+    }
+    itv_clear(meet);
+    return res;
 }
 #endif

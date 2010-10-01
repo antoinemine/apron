@@ -69,8 +69,8 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_ASSIGN_TEXPR_ARRAY);
     size_t i = 0;
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### ASSIGN TEXPR ARRAY (des %d) ###\n", destructive);
-    t1p_fprint(stdout, man, a, NULL);
+    fprintf(stdout, "### ASSIGN TEXPR ARRAY (des %d) %x ###\n", destructive,(intptr_t)a);
+    //t1p_fprint(stdout, man, a, NULL);
     for (i=0; i<size; i++) {
 	fprintf(stdout, "(%d) = ", tdim[i]);
 	ap_texpr0_fprint(stdout, texpr[i], NULL);
@@ -97,8 +97,8 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
     man->result.flag_best = tbool_top;
     man->result.flag_exact = tbool_top;
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT OF ASSIGN TEXPR ARRAY (des %d) ###\n", destructive);
-    t1p_fprint(stdout, man, res, NULL);
+    fprintf(stdout, "### RESULT OF ASSIGN TEXPR ARRAY (des %d) [%x] ###\n", destructive, (intptr_t)res);
+    //t1p_fprint(stdout, man, res, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
     return res;
