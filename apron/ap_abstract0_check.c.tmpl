@@ -20,11 +20,11 @@
 
 /* One abstract value */
 
-void ap_abstract0_checkman1(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
+void ap_abstract0_checkman1_raise(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
 {
   char str[160];
   snprintf(str,159,"\
-The abstract value of type %s is not of the type %s expected by the manager\
+The abstract value of type %s is not of the type %s expected by the manager \
 ",
 	   a->man->library,man->library);
   ap_manager_raise_exception(man,
