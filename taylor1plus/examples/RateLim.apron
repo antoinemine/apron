@@ -1,0 +1,24 @@
+/* RateLim */
+/* y in [-128, 128] */
+
+var x : real, y : real, r : real, s : real, d : real, i : int;
+begin
+assume x <= 128 and x >= -128;
+assume d <= 16 and d >= 0;
+i = 0;
+y = 0;
+while (i<100) do
+ s = y;
+ r = x-s;
+ y = x;
+ if (r <= -d) then 
+  y = s - d;
+ else
+  if (0.5*d <= r) then
+   y = s + d;
+  endif;
+ endif;
+ i = i + 1;
+done;
+end
+

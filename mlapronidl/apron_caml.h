@@ -91,6 +91,7 @@ value camlidl_apron_scalar_c2ml(struct ap_scalar_t* scalar);
 /* coefficients */
 /* ********************************************************************** */
 
+struct camlidl_ctx_struct;
 void camlidl_ml2c_coeff_struct_ap_coeff_t(value _v1, struct ap_coeff_t * _c2, struct camlidl_ctx_struct* _ctx);
 value camlidl_c2ml_coeff_struct_ap_coeff_t(struct ap_coeff_t * _c1, struct camlidl_ctx_struct* _ctx);
 
@@ -318,6 +319,54 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p);
 /* init */
 /* ********************************************************************** */
 value camlidl_apron_init(value dummy);
+
+/* ********************************************************************** */
+/* ********************************************************************** */
+/* Policy experimental extension */
+/* ********************************************************************** */
+/* ********************************************************************** */
+#include "ap_policy.h"
+
+typedef struct ap_policy_manager_t* ap_policy_manager_ptr;
+typedef struct ap_policy_t* ap_policy_ptr;
+
+extern struct custom_operations camlidl_apron_custom_policy_manager_ptr;
+extern struct custom_operations camlidl_apron_custom_policy_ptr;
+
+static inline
+void camlidl_apron_policy_manager_ptr_ml2c(value v, ap_policy_manager_ptr* p)
+{
+  *p = *((ap_policy_manager_ptr *) Data_custom_val(v));
+}
+
+static inline
+value camlidl_apron_policy_manager_ptr_c2ml(ap_policy_manager_ptr* p)
+{
+  value v;
+  v = alloc_custom(&camlidl_apron_custom_policy_manager_ptr, sizeof(ap_policy_manager_ptr), 
+		   0,1);
+  *((ap_policy_manager_ptr *) Data_custom_val(v)) = *p;
+  return v;
+}
+void ap_policy_manager_set_deserialize(ap_policy_manager_ptr man);
+ap_policy_manager_ptr ap_policy_manager_get_deserialize(void);
+
+static inline
+void camlidl_apron_policy_ptr_ml2c(value v, ap_policy_ptr* p)
+{
+  *p = *((ap_policy_ptr *) Data_custom_val(v));
+}
+
+static inline
+value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
+{
+  value v;
+  assert((*p)->man!=NULL);
+  v = alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr), 
+		   0,1);
+  *((ap_policy_ptr *) Data_custom_val(v)) = *p;
+  return v;
+}
 
 #ifdef __cplusplus
 }

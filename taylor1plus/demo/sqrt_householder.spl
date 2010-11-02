@@ -1,0 +1,21 @@
+/* SIMPLE LANGUAGE : http://pop-art.inrialpes.fr/people/bjeannet/bjeannet-forge/interproc/manual_3.html */
+/* Inverse of a square root (Householder 3d order) */
+
+var c3d8:real, A:real, hn:real, xn:real, xnp1:real, z:real, i:int;
+begin
+
+c3d8 = 0.375;
+A = random;
+assume A<=25 and A>=16;
+
+xn = 0.0625;
+i = 1;
+while (true) do
+	hn = 1 - A*xn*xn;
+	xnp1 = xn + xn*(0.5*hn + c3d8*hn*hn);
+	xn = xnp1;
+done;
+
+z = A*xn;
+
+end

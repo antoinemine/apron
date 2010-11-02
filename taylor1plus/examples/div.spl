@@ -1,0 +1,5 @@
+var x:real, y:real, z:real;
+begin
+assume x < 0 and y < 0;
+z = x/y;
+end
