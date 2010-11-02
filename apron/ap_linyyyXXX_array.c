@@ -142,47 +142,6 @@ ap_linexpr_type_t ap_linyyyXXX_array_type(ap_linyyyXXX_array_t array)
 /* ********************************************************************** */
 /* V. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
-/* Merge buffers indexed by k0 and k1, and return the new buffer in the index
-   *pk (normally, k2) */
-static
-void support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk)
-{
-  size_t k0 = *pk;
-  size_t k1 = (k0+1)%3;
-  size_t k2 = (k0+2)%3;
-  if (k0==0)
-    *pk = k1;
-  else if (k1==0)
-    *pk = k0;
-  else {
-    size_t i0,i1,i2;
-    bool end0, end1;
-
-    i0 = i1 = i2 = 0;
-    end0 = end1 = false;
-    while (true){
-      end0 = end0 || i0>=tnb[k0];
-      end1 = end1 || i1>=tnb[k1];
-      if (end0 && end1)
-	break;
-      else if (end0 || (!end1 && ttdim[k1][i1] < ttdim[k0][i0])){
-	ttdim[k2][i2] = ttdim[k1][i1];
-	i2++; i1++;
-      }
-      else if (end1 || (!end0 && ttdim[k1][i1] > ttdim[k0][i0])){
-	ttdim[k2][i2] = ttdim[k0][i0];
-	i2++; i0++;
-      }
-      else {
-	ttdim[k2][i2] = ttdim[k0][i0];
-	i2++; i0++; i1++;
-      }
-    }
-    tnb[k2] = i2;
-    *pk = k2;
-  }
-}
-
 size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
 					  ap_dim_t* tdim, size_t maxdim1)
 {
@@ -207,7 +166,7 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
     for (i=0; i<array->size; i++){
       size_t k1 = (k+1)%3 ;
       tnb[k1] = ap_linyyyXXX_supportinterval(array->p[i],ttdim[k1]);
-      support_merge(ttdim,tnb,&k);
+      ap_dimsupport_merge(ttdim,tnb,&k);
     }
     nb = tnb[k];
     memcpy(tdim,&ttdim[k],nb*sizeof(ap_dim_t));

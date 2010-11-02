@@ -8,7 +8,7 @@ SRCDIR = $(shell pwd)
 #---------------------------------------
 
 # Use ICFLAGS to specify machine-independent compilation flags.
-ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
 CLIBS = -lmpfr -lgmp -lm
 
 #---------------------------------------
@@ -67,7 +67,7 @@ all: src libitv.a libitv_debug.a
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 
 clean: 
-	/bin/rm -f test*I* test*R* test*MP* test*D* test*MPFR* out.* 
+	/bin/rm -fr test*I* test*R* test*MP* test*D* test*MPFR* out.* 
 	/bin/rm -f *.[ao] TAGS $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 
 mostlyclean: clean
@@ -87,8 +87,6 @@ distclean:
 
 dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl Makefile README
 	(cd ..; tar zcvf num.tgz $(^:%=num/%))
-
-ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
 
 #---------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
@@ -199,13 +197,16 @@ libitv_debug.a: $(C_FILES:%.c=%_debug.o)
 
 $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+
 $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+
+
 
 #-----------------------------------
 # Test
 #-----------------------------------
-tests: $(TMPL:%=testnb%) $(TMPL:%=testitv1%) $(TMPL:%=testitv2%)
+tests: src $(TMPL:%=testnb%) $(TMPL:%=testi1%) $(TMPL:%=testi2%)
 
 out: tests
 	for i in $(TMPL); do \
@@ -214,8 +215,8 @@ out: tests
 		./testi2$$i >> out.$$i; \
 	done
 
-$(TMPL:%=testnb%) $(TMPL:%=testi1%) $(TMPL:%=testi2%): %: %_debug.o libitv_debug.a
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -o $@ $< -L. -litv_debug $(CLIBS)
+$(TMPL:%=testnb%) $(TMPL:%=testi1%) $(TMPL:%=testi2%): %: %.c libitv_debug.a
+	$(CC) -g $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ $< -L. -litv_debug $(CLIBS)
 
 depend: $(C_FILES) $(TMPL:%=testnb%.c) $(TMPL:%=testi1%.c) $(TMPL:%=testi2%.c) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend

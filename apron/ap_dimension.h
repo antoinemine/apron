@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ap_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -168,6 +169,12 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm);
   /* Invert the permutation perm and store it in the already allocated nperm.
      The sizes of permutations are supposed to be equal.
   */
+
+/* ====================================================================== */
+/* Supports */
+/* ====================================================================== */
+
+void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 
 /* ====================================================================== */
 /* Inline Functions Definitions */

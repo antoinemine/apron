@@ -84,31 +84,6 @@ typedef __itvXXX_internal_struct itvXXX_internal_t[1];
 /* Interval linear expressions */
 /* ********************************************************************** */
 
-/* Interval linear term */
-typedef struct itvXXX_linterm_struct {
-  eitvXXX_t eitv;
-  ap_dim_t dim;
-} itvXXX_linterm_struct;
-typedef itvXXX_linterm_struct* itvXXX_linterm_ptr;
-typedef itvXXX_linterm_struct itvXXX_linterm_t[1];
-
-/* Interval linear expression */
-typedef struct itvXXX_linexpr_struct {
-  itvXXX_linterm_t* linterm;
-  size_t size;
-  eitvXXX_t cst;
-} itvXXX_linexpr_struct;
-typedef itvXXX_linexpr_struct itvXXX_linexpr_t[1];
-typedef itvXXX_linexpr_struct* itvXXX_linexpr_ptr;
-
-/* Array of interval linear expressions */
-typedef struct itvXXX_linexpr_array_struct {
-  itvXXX_linexpr_t* p;
-  size_t size;
-} itvXXX_linexpr_array_struct;
-typedef itvXXX_linexpr_array_struct itvXXX_linexpr_array_t[1];
-typedef itvXXX_linexpr_array_struct* itvXXX_linexpr_array_ptr;
-
 /*
   Defined in itvConfig.h for avoiding multiple definitions
 
@@ -130,23 +105,6 @@ typedef enum itvlinexpr_type_t {
 /* ********************************************************************** */
 /* Interval linear constraints */
 /* ********************************************************************** */
-
-/* Interval linear constraint */
-typedef struct itvXXX_lincons_struct {
-  itvXXX_linexpr_t linexpr;
-  itvconstyp_t constyp;
-  mpq_t mpq;
-} itvXXX_lincons_struct;
-typedef itvXXX_lincons_struct itvXXX_lincons_t[1];
-typedef itvXXX_lincons_struct* itvXXX_lincons_ptr;
-
-/* Array of interval linear constraint */
-typedef struct itvXXX_lincons_array_struct {
-  itvXXX_lincons_t* p;
-  size_t size;
-} itvXXX_lincons_array_struct;
-typedef itvXXX_lincons_array_struct itvXXX_lincons_array_t[1];
-typedef itvXXX_lincons_array_struct* itvXXX_lincons_array_ptr;
 
 #ifdef __cplusplus
 }

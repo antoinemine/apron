@@ -43,7 +43,7 @@ const char* ap_name_of_funid[AP_FUNID_SIZE2] = {
   "to_box",
   "to_lincons_array",
   "to_tcons_array",
-  "to_generator_array",
+  "to_lingen_array",
   "meet",
   "meet_array",
   "meet_lincons_array",

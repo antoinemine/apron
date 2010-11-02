@@ -1,0 +1,494 @@
+/* -*- mode: c -*- */
+
+/* ************************************************************************* */
+/* ap_abstract0_check.c.tmpl: checks for level 0 */
+/* ************************************************************************* */
+
+/* This file is part of the APRON Library, released under LGPL license.  Please
+   read the COPYING file packaged in the distribution */
+
+#include "ap_abstract0_check.h"
+
+/* ********************************************************************** */
+/* 2 Checking typing w.r.t. manager */
+/* ********************************************************************** */
+
+/*
+  These functions return true if everything is OK, otherwise they raise an
+  exception in the manager and return false.
+*/
+
+/* One abstract value */
+
+void ap_abstract0_checkman1(ap_funid_t funid, ap_manager_t* man, ap_abstract0_t* a)
+{
+  char str[160];
+  snprintf(str,159,"\
+The abstract value of type %s is not of the type %s expected by the manager\
+",
+	   a->man->library,man->library);
+  ap_manager_raise_exception(man,
+			     AP_EXC_INVALID_ARGUMENT,
+			     funid,
+			     str);
+}
+
+/* Two abstract values */
+bool ap_abstract0_checkman2(ap_funid_t funid,
+			    ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a2)
+{
+  bool res;
+  char str[160];
+
+  res = true;
+  if (man->library != a1->man->library){
+    snprintf(str,159,"\
+The first abstract value of type %s is not of the type %s expected by the manager\
+",
+	     a1->man->library,man->library);
+    res = false;
+  }
+  else if (man->library != a2->man->library){
+    snprintf(str,159,"\
+The second abstract value of type %s is not of the type %s expected by the manager\
+",
+	     a2->man->library,man->library);
+    res = false;
+  }
+  if (!res){
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,
+			       str);
+  }
+  return res;
+}
+/* Array of abstract values */
+bool ap_abstract0_checkman_array(ap_funid_t funid,
+				 ap_manager_t* man, ap_abstract0_t** tab, size_t size)
+{
+  size_t i;
+  for (i=0;i<size;i++){
+    if (man->library != tab[i]->man->library){
+      char str[160];
+      snprintf(str,159,"\
+The %luth abstract value of the array is of type %s and not of the type %s expected by the manager\
+",
+	       (unsigned long)i,tab[i]->man->library,man->library);
+      ap_manager_raise_exception(man,
+				 AP_EXC_INVALID_ARGUMENT,
+				 funid,
+				 str);
+      return false;
+    }
+  }
+  return true;
+}
+
+/* ********************************************************************** */
+/* 3. Checking compatibility of arguments: abstract values */
+/* ********************************************************************** */
+
+/* Check that the 2 abstract values have the same dimensionality */
+bool ap_abstract0_check_abstract2(ap_funid_t funid, ap_manager_t* man,
+				  ap_abstract0_t* a1, ap_abstract0_t* a2)
+{
+  ap_dimension_t dim1 = _ap_abstract0_dimension(a1);
+  ap_dimension_t dim2 = _ap_abstract0_dimension(a2);
+  if ( (dim1.intdim != dim2.intdim) || (dim1.realdim != dim2.realdim) ){
+    char str[160];
+
+    snprintf(str,159,"\
+incompatible dimensions for the two arguments:\n\
+first abstract0:  (%3lu,%3lu)\n\
+second abstract0: (%3lu,%3lu)",
+	     (unsigned long)dim1.intdim,
+	     (unsigned long)dim1.realdim,
+	     (unsigned long)dim2.intdim,
+	     (unsigned long)dim2.realdim);
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,str);
+    return false;
+  } else {
+    return true;
+  }
+}
+
+/* Check that the array of abstract values have the same dimensionality.*/
+bool ap_abstract0_check_abstract_array(ap_funid_t funid, ap_manager_t* man,
+				       ap_abstract0_t** tab, size_t size)
+{
+  size_t i=0;
+  ap_dimension_t dim;
+  ap_dimension_t dim0;
+  bool res;
+
+  res = true;
+
+  if (size==0){
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,"array of abstract values of size 0");
+    res = false;
+  }
+  else {
+    dim0 = _ap_abstract0_dimension(tab[0]);
+    for (i=1; i<size; i++){
+      dim = _ap_abstract0_dimension(tab[i]);
+      if ( (dim.intdim != dim0.intdim) || (dim.realdim != dim0.realdim) ){
+	res = false;
+	break;
+      }
+    }
+  }
+  if (!res){
+    char str[160];
+    if (size==0){
+      snprintf(str,159,"array of size 0");
+    }
+    else {
+      snprintf(str,159,"\
+incompatible dimensions for the array of polyhedra:\n\
+abstract0 0: (%3lu,%3lu)\n\
+abstract0 %lu: (%3lu,%3lu)\
+",
+	       (unsigned long)dim0.intdim,(unsigned long)dim0.realdim,
+	       (unsigned long)i,
+	       (unsigned long)dim.intdim,(unsigned long)dim.realdim
+	       );
+    }
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,str);
+  }
+  return res;
+}
+
+/* ********************************************************************** */
+/* 4. Checking compatibility of arguments: dimensions */
+/* ********************************************************************** */
+
+/* Check that the dimension makes sense in the given dimensionality */
+void ap_abstract0_check_dim_raise(ap_funid_t funid, ap_manager_t* man,
+				  ap_dimension_t dimension, ap_dim_t dim,
+				  char* prefix)
+{
+  char str[160];
+
+  snprintf(str,159,"\
+%s:\n\
+abstract0:  (%3lu,%3lu)\n\
+dimension:  %3lu\n",
+	   prefix,
+	   (unsigned long)dimension.intdim,
+	   (unsigned long)dimension.realdim,
+	   (unsigned long)dim);
+  ap_manager_raise_exception(man,
+			     AP_EXC_INVALID_ARGUMENT,
+			     funid,str);
+}
+
+/* Check that the array of dimensions make sense in the given dimensionality */
+bool ap_abstract0_check_dim_array(ap_funid_t funid, ap_manager_t* man,
+				  ap_dimension_t dimension, ap_dim_t* tdim, size_t size)
+{
+  size_t i;
+  for (i=0;i<size;i++){
+    ap_dim_t dim = tdim[i];
+    if (dim>=dimension.intdim+dimension.realdim){
+      char str[80];
+      sprintf(str,"incompatible %luth dimension in the array for the abstract value",(unsigned long)i);
+      ap_abstract0_check_dim_raise(funid,man,dimension,dim,str);
+      return false;
+    }
+  }
+  return true;
+}
+
+/* ********************************************************************** */
+/* 5. Checking compatibility of arguments: expressions */
+/* ********************************************************************** */
+
+void ap_abstract0_check_expr_raise(ap_funid_t funid, ap_manager_t* man,
+				   ap_dimension_t dimension,
+				   ap_dim_t dim,
+				   char* prefix)
+{
+  char str[160];
+  snprintf(str,159,"\
+%s:\n\
+abstract0: (%3lu,%3lu)\n\
+dimension: %3lu\
+",
+	   prefix,
+	   (unsigned long)dimension.intdim,(unsigned long)dimension.realdim,
+	   (unsigned long)dim);
+  ap_manager_raise_exception(man,
+			     AP_EXC_INVALID_ARGUMENT,
+			     funid,str);
+}
+
+/* Check that the linear expression makes sense in the given dimensionality */
+MACRO_MAINZ
+ap_dim_t ap_abstract0_check_linexprZZZ_check(ap_dimension_t dimension,
+					     ap_linexprZZZ_t expr)
+{
+  int i;
+  size_t nbdims;
+  ap_dim_t dim;
+
+  nbdims = dimension.intdim+dimension.realdim;
+  dim = 0;
+  /* Assumed to be sorted (this is not checked */
+  for (i=expr->size-1; i>=0; i--){
+    dim = expr->linterm[i]->dim;
+    if (dim!=AP_DIM_MAX){
+      if (dim < nbdims)
+	dim = AP_DIM_MAX;
+      ;
+      break;
+    }
+  }
+  if (!dim) dim = AP_DIM_MAX;
+  return dim;
+}
+ENDMACRO
+
+ap_dim_t ap_abstract0_check_linexpr0_check(ap_dimension_t dimension,
+					  ap_linexpr0_t expr)
+{
+  SWITCH (expr->discr)
+    return ap_abstract0_check_linexprXXX_check(dimension,expr->linexpr.XXX);
+  ENDSWITCH
+}
+ap_dim_t ap_abstract0_check_lincons0_check(ap_dimension_t dimension,
+					   ap_lincons0_t cons)
+{
+  SWITCH (cons->discr)
+    return ap_abstract0_check_linexprXXX_check(dimension,cons->lincons.XXX->linexpr);
+  ENDSWITCH
+}
+
+/* ********************************************************************** */
+/* 6. Checking compatibility of arguments: array of expressions/constraints/generators */
+/* ********************************************************************** */
+
+/* Check that array of linear expressions makes sense in the given dimensionality */
+bool ap_abstract0_check_linexpr_array(ap_funid_t funid, ap_manager_t* man,
+				      ap_dimension_t dimension,
+				      ap_linexpr0_array_t array)
+{
+  size_t i;
+  ap_dim_t dim = AP_DIM_MAX;
+  SWITCH(array->discr)
+    for (i=0;i<array->linexpr_array.XXX->size; i++){
+      dim = ap_abstract0_check_linexprXXX_check(dimension,array->linexpr_array.XXX->p[i]);
+      if (dim!=AP_DIM_MAX){
+	break;
+      }
+    }
+  ENDSWITCH
+  if (dim!=AP_DIM_MAX){
+    char str[80];
+    sprintf(str,"incompatible dimension in the %luth expression of the array",(unsigned long)i);
+    ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
+    return false;
+  }
+  return true;
+}
+/* Check that array of linear constraint makes sense in the given dimensionality */
+bool ap_abstract0_check_lincons_array(ap_funid_t funid, ap_manager_t* man,
+				      ap_dimension_t dimension,
+				      ap_lincons0_array_t array)
+{
+  size_t i;
+  ap_dim_t dim = AP_DIM_MAX;
+  SWITCH(array->discr)
+    for (i=0;i<array->lincons_array.XXX->size; i++){
+      dim = ap_abstract0_check_linexprXXX_check(dimension,array->lincons_array.XXX->p[i]->linexpr);
+      if (dim!=AP_DIM_MAX){
+	break;
+      }
+    }
+  ENDSWITCH
+  if (dim!=AP_DIM_MAX){
+    char str[80];
+    sprintf(str,"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
+    ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
+    return false;
+  }
+  return true;
+}
+
+/* Check that array of generator makes sense in the given dimensionality */
+bool ap_abstract0_check_lingen_array(ap_funid_t funid, ap_manager_t* man,
+				     ap_dimension_t dimension, ap_lingen0_array_t array)
+{
+  size_t i;
+  ap_dim_t dim = AP_DIM_MAX;
+  SWITCH(array->discr)
+    for (i=0;i<array->lingen_array.XXX->size; i++){
+      dim = ap_abstract0_check_linexprXXX_check(dimension,array->lingen_array.XXX->p[i]->linexpr);
+      if (dim!=AP_DIM_MAX){
+	break;
+      }
+    }
+  ENDSWITCH
+  if (dim!=AP_DIM_MAX){
+      char str[80];
+      sprintf(str,"incompatible dimension in the %luth generator of the array",(unsigned long)i);
+      ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
+      return false;
+  }
+  return true;
+}
+
+/* Check that array of tree expressions makes sense in the given dimensionality */
+bool ap_abstract0_check_texpr_array(ap_funid_t funid, ap_manager_t* man,
+				    ap_dimension_t dimension,
+				    ap_texpr0_array_t* array)
+{
+  size_t i;
+
+  for (i=0;i<array->size; i++){
+    if (array->p[i]==NULL){
+      char str[80];
+      sprintf(str,"null pointer in the %luth expression of the array",(unsigned long)i);
+      ap_manager_raise_exception(man,
+				 AP_EXC_INVALID_ARGUMENT,
+				 funid,str);
+      return false;
+    }
+    ap_dim_t dim = ap_abstract0_check_texpr_check(dimension,array->p[i]);
+    if (dim!=AP_DIM_MAX){
+      char str[80];
+      sprintf(str,"incompatible dimension in the %luth expression of the array",(unsigned long)i);
+      ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
+      return false;
+    }
+  }
+  return true;
+}
+/* Check that array of tree constraint makes sense in the given dimensionality */
+bool ap_abstract0_check_tcons_array(ap_funid_t funid, ap_manager_t* man,
+				    ap_dimension_t dimension,
+				    ap_tcons0_array_t* array)
+{
+  size_t i;
+
+  for (i=0;i<array->size; i++){
+    if (array->p[i].texpr0==NULL){
+      char str[80];
+      sprintf(str,"null pointer in the %luth constraint of the array",(unsigned long)i);
+      ap_manager_raise_exception(man,
+				 AP_EXC_INVALID_ARGUMENT,
+				 funid,str);
+      return false;
+    }
+    ap_dim_t dim = ap_abstract0_check_texpr_check(dimension,array->p[i].texpr0);
+    if (dim!=AP_DIM_MAX){
+      char str[80];
+      sprintf(str,"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
+      ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
+      return false;
+    }
+  }
+  return true;
+}
+
+/* ********************************************************************** */
+/* 7. Checking compatibility of arguments: dimchange */
+/* ********************************************************************** */
+
+bool ap_abstract0_check_ap_dimchange_add(ap_funid_t funid, ap_manager_t* man,
+					 ap_dimension_t dimension, ap_dimchange_t* dimchange)
+{
+  size_t i,size;
+  bool res = true;
+  /* Check consistency between intdim and the dimensions in the array */
+  for (i=0; i<dimchange->intdim; i++){
+    if (dimchange->dim[i]>dimension.intdim){
+      res = false;
+      break;
+    }
+  }
+  size = dimchange->intdim+dimchange->realdim;
+  if (res && size>0){
+    /* Check sortedness */
+    ap_dim_t dim = 0;
+    for (i=1; i<size; i++){
+      if (dim>dimchange->dim[i]){
+	res = false;
+	break;
+      } else {
+	dim = dimchange->dim[i];
+      }
+    }
+    res = res && dimchange->dim[size-1]<=dimension.intdim+dimension.realdim;
+  }
+  if (!res){
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,
+			       "dimchange->dim is not sorted or is inconsistent wrt dimchange->intdim or abstract0");
+  }
+  return res;
+}
+
+bool ap_abstract0_check_ap_dimchange_remove(ap_funid_t funid, ap_manager_t* man,
+					    ap_dimension_t dimension, ap_dimchange_t* dimchange)
+{
+  size_t i,size;
+  bool res = true;
+  /* Check consistency between intdim and the dimensions in the array */
+  for (i=0; i<dimchange->intdim; i++){
+    if (dimchange->dim[i]>=dimension.intdim){
+      res = false;
+      break;
+    }
+  }
+  size = dimchange->intdim+dimchange->realdim;
+  if (res && size>0){
+    /* Check sortedness */
+    ap_dim_t dim = 0;
+    for (i=1; i<dimchange->intdim+dimchange->realdim; i++){
+      if (dim>=dimchange->dim[i]){
+	res = false;
+	break;
+      } else {
+	dim = dimchange->dim[i];
+      }
+    }
+    res = res && dimchange->dim[size-1]<dimension.intdim+dimension.realdim;
+  }
+  if (!res){
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,
+			       "dimchange->dim is not sorted, contains duplicatas, or is inconsistent wrt dimchange->intdim or abstract0");
+  }
+  return res;
+}
+bool ap_abstract0_check_dimperm(ap_funid_t funid, ap_manager_t* man,
+				ap_dimension_t dimension, ap_dimperm_t* perm)
+{
+  size_t i;
+  size_t size = dimension.intdim+dimension.realdim;
+  bool res = (dimension.intdim+dimension.realdim==perm->size);
+  if (res){
+    for (i=0; i<perm->size; i++){
+      if (perm->dim[i]>=size){
+	res = false;
+	break;
+      }
+    }
+  }
+  if (!res){
+    ap_manager_raise_exception(man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,
+			       "permutation is not valid");
+  }
+  return res;
+}

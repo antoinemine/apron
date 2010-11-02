@@ -14,7 +14,7 @@
 #include "ap_environment.h"
 #include "ap_linexpr1.h"
 #include "ap_lincons1.h"
-#include "ap_generator1.h"
+#include "ap_lingen1.h"
 #include "ap_abstract1.h"
 
 #endif
