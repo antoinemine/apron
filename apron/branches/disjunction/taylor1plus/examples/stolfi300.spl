@@ -1,0 +1,1502 @@
+var x:real, y:real, z:real, h:real ; 
+begin 
+assume x >= -2.000000 and x <= 2.000000; 
+h = 0.013333; 
+if (-x<=1*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=2*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=3*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=4*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=5*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=6*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=7*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=8*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=9*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=10*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=11*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=12*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=13*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=14*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=15*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=16*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=17*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=18*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=19*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=20*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=21*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=22*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=23*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=24*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=25*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=26*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=27*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=28*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=29*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=30*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=31*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=32*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=33*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=34*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=35*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=36*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=37*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=38*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=39*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=40*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=41*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=42*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=43*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=44*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=45*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=46*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=47*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=48*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=49*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=50*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=51*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=52*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=53*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=54*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=55*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=56*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=57*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=58*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=59*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=60*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=61*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=62*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=63*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=64*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=65*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=66*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=67*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=68*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=69*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=70*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=71*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=72*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=73*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=74*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=75*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=76*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=77*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=78*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=79*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=80*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=81*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=82*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=83*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=84*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=85*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=86*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=87*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=88*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=89*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=90*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=91*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=92*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=93*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=94*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=95*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=96*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=97*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=98*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=99*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=100*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=101*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=102*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=103*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=104*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=105*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=106*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=107*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=108*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=109*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=110*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=111*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=112*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=113*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=114*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=115*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=116*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=117*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=118*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=119*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=120*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=121*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=122*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=123*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=124*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=125*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=126*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=127*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=128*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=129*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=130*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=131*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=132*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=133*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=134*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=135*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=136*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=137*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=138*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=139*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=140*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=141*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=142*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=143*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=144*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=145*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=146*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=147*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=148*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=149*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=150*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=151*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=152*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=153*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=154*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=155*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=156*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=157*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=158*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=159*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=160*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=161*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=162*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=163*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=164*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=165*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=166*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=167*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=168*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=169*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=170*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=171*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=172*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=173*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=174*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=175*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=176*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=177*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=178*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=179*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=180*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=181*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=182*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=183*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=184*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=185*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=186*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=187*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=188*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=189*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=190*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=191*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=192*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=193*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=194*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=195*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=196*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=197*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=198*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=199*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=200*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=201*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=202*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=203*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=204*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=205*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=206*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=207*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=208*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=209*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=210*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=211*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=212*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=213*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=214*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=215*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=216*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=217*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=218*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=219*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=220*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=221*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=222*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=223*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=224*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=225*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=226*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=227*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=228*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=229*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=230*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=231*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=232*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=233*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=234*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=235*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=236*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=237*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=238*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=239*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=240*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=241*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=242*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=243*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=244*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=245*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=246*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=247*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=248*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=249*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=250*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=251*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=252*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=253*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=254*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=255*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=256*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=257*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=258*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=259*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=260*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=261*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=262*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=263*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=264*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=265*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=266*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=267*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=268*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=269*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=270*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=271*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=272*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=273*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=274*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=275*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=276*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=277*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=278*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=279*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=280*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=281*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=282*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=283*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=284*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=285*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=286*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=287*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=288*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=289*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=290*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=291*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=292*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=293*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=294*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=295*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=296*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=297*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=298*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+if (-x<=299*h - 2) then 
+  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+  else 
+	  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
+  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
+	    endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end

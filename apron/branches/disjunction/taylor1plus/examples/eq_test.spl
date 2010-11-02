@@ -1,0 +1,14 @@
+var eps1 : real, eps2 : real, eps3 : real, x: real, y : real, z : real;
+begin
+assume eps1 >= -1 and eps1 <= 1;
+assume eps2 >= -1 and eps2 <= 1;
+assume eps3 >= -1 and eps3 <= 1;
+
+x = 4 + eps1 + eps2 + eps3;
+y = -eps1 + 3*eps2;
+z = -eps1 + 2*eps2 - eps3;
+
+if (x == y) then
+skip;
+endif;
+end

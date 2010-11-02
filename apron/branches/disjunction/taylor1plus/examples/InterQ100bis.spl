@@ -1,0 +1,406 @@
+var x : real, y : real; 
+begin 
+assume x >= 0 and x <= 10; 
+y = x*x - x; 
+if (y>=0) then 
+y = x/10; 
+else
+if (y>=-1/4 + 1/400) then 
+  y = x*x + 1.010000; 
+  else 
+  if (y>=-1/4 + 2/400) then 
+  y = x*x + 1.020000; 
+  else 
+  if (y>=-1/4 + 3/400) then 
+  y = x*x + 1.030000; 
+  else 
+  if (y>=-1/4 + 4/400) then 
+  y = x*x + 1.040000; 
+  else 
+  if (y>=-1/4 + 5/400) then 
+  y = x*x + 1.050000; 
+  else 
+  if (y>=-1/4 + 6/400) then 
+  y = x*x + 1.060000; 
+  else 
+  if (y>=-1/4 + 7/400) then 
+  y = x*x + 1.070000; 
+  else 
+  if (y>=-1/4 + 8/400) then 
+  y = x*x + 1.080000; 
+  else 
+  if (y>=-1/4 + 9/400) then 
+  y = x*x + 1.090000; 
+  else 
+  if (y>=-1/4 + 10/400) then 
+  y = x*x + 1.100000; 
+  else 
+  if (y>=-1/4 + 11/400) then 
+  y = x*x + 1.110000; 
+  else 
+  if (y>=-1/4 + 12/400) then 
+  y = x*x + 1.120000; 
+  else 
+  if (y>=-1/4 + 13/400) then 
+  y = x*x + 1.130000; 
+  else 
+  if (y>=-1/4 + 14/400) then 
+  y = x*x + 1.140000; 
+  else 
+  if (y>=-1/4 + 15/400) then 
+  y = x*x + 1.150000; 
+  else 
+  if (y>=-1/4 + 16/400) then 
+  y = x*x + 1.160000; 
+  else 
+  if (y>=-1/4 + 17/400) then 
+  y = x*x + 1.170000; 
+  else 
+  if (y>=-1/4 + 18/400) then 
+  y = x*x + 1.180000; 
+  else 
+  if (y>=-1/4 + 19/400) then 
+  y = x*x + 1.190000; 
+  else 
+  if (y>=-1/4 + 20/400) then 
+  y = x*x + 1.200000; 
+  else 
+  if (y>=-1/4 + 21/400) then 
+  y = x*x + 1.210000; 
+  else 
+  if (y>=-1/4 + 22/400) then 
+  y = x*x + 1.220000; 
+  else 
+  if (y>=-1/4 + 23/400) then 
+  y = x*x + 1.230000; 
+  else 
+  if (y>=-1/4 + 24/400) then 
+  y = x*x + 1.240000; 
+  else 
+  if (y>=-1/4 + 25/400) then 
+  y = x*x + 1.250000; 
+  else 
+  if (y>=-1/4 + 26/400) then 
+  y = x*x + 1.260000; 
+  else 
+  if (y>=-1/4 + 27/400) then 
+  y = x*x + 1.270000; 
+  else 
+  if (y>=-1/4 + 28/400) then 
+  y = x*x + 1.280000; 
+  else 
+  if (y>=-1/4 + 29/400) then 
+  y = x*x + 1.290000; 
+  else 
+  if (y>=-1/4 + 30/400) then 
+  y = x*x + 1.300000; 
+  else 
+  if (y>=-1/4 + 31/400) then 
+  y = x*x + 1.310000; 
+  else 
+  if (y>=-1/4 + 32/400) then 
+  y = x*x + 1.320000; 
+  else 
+  if (y>=-1/4 + 33/400) then 
+  y = x*x + 1.330000; 
+  else 
+  if (y>=-1/4 + 34/400) then 
+  y = x*x + 1.340000; 
+  else 
+  if (y>=-1/4 + 35/400) then 
+  y = x*x + 1.350000; 
+  else 
+  if (y>=-1/4 + 36/400) then 
+  y = x*x + 1.360000; 
+  else 
+  if (y>=-1/4 + 37/400) then 
+  y = x*x + 1.370000; 
+  else 
+  if (y>=-1/4 + 38/400) then 
+  y = x*x + 1.380000; 
+  else 
+  if (y>=-1/4 + 39/400) then 
+  y = x*x + 1.390000; 
+  else 
+  if (y>=-1/4 + 40/400) then 
+  y = x*x + 1.400000; 
+  else 
+  if (y>=-1/4 + 41/400) then 
+  y = x*x + 1.410000; 
+  else 
+  if (y>=-1/4 + 42/400) then 
+  y = x*x + 1.420000; 
+  else 
+  if (y>=-1/4 + 43/400) then 
+  y = x*x + 1.430000; 
+  else 
+  if (y>=-1/4 + 44/400) then 
+  y = x*x + 1.440000; 
+  else 
+  if (y>=-1/4 + 45/400) then 
+  y = x*x + 1.450000; 
+  else 
+  if (y>=-1/4 + 46/400) then 
+  y = x*x + 1.460000; 
+  else 
+  if (y>=-1/4 + 47/400) then 
+  y = x*x + 1.470000; 
+  else 
+  if (y>=-1/4 + 48/400) then 
+  y = x*x + 1.480000; 
+  else 
+  if (y>=-1/4 + 49/400) then 
+  y = x*x + 1.490000; 
+  else 
+  if (y>=-1/4 + 50/400) then 
+  y = x*x + 1.500000; 
+  else 
+  if (y>=-1/4 + 51/400) then 
+  y = x*x + 1.510000; 
+  else 
+  if (y>=-1/4 + 52/400) then 
+  y = x*x + 1.520000; 
+  else 
+  if (y>=-1/4 + 53/400) then 
+  y = x*x + 1.530000; 
+  else 
+  if (y>=-1/4 + 54/400) then 
+  y = x*x + 1.540000; 
+  else 
+  if (y>=-1/4 + 55/400) then 
+  y = x*x + 1.550000; 
+  else 
+  if (y>=-1/4 + 56/400) then 
+  y = x*x + 1.560000; 
+  else 
+  if (y>=-1/4 + 57/400) then 
+  y = x*x + 1.570000; 
+  else 
+  if (y>=-1/4 + 58/400) then 
+  y = x*x + 1.580000; 
+  else 
+  if (y>=-1/4 + 59/400) then 
+  y = x*x + 1.590000; 
+  else 
+  if (y>=-1/4 + 60/400) then 
+  y = x*x + 1.600000; 
+  else 
+  if (y>=-1/4 + 61/400) then 
+  y = x*x + 1.610000; 
+  else 
+  if (y>=-1/4 + 62/400) then 
+  y = x*x + 1.620000; 
+  else 
+  if (y>=-1/4 + 63/400) then 
+  y = x*x + 1.630000; 
+  else 
+  if (y>=-1/4 + 64/400) then 
+  y = x*x + 1.640000; 
+  else 
+  if (y>=-1/4 + 65/400) then 
+  y = x*x + 1.650000; 
+  else 
+  if (y>=-1/4 + 66/400) then 
+  y = x*x + 1.660000; 
+  else 
+  if (y>=-1/4 + 67/400) then 
+  y = x*x + 1.670000; 
+  else 
+  if (y>=-1/4 + 68/400) then 
+  y = x*x + 1.680000; 
+  else 
+  if (y>=-1/4 + 69/400) then 
+  y = x*x + 1.690000; 
+  else 
+  if (y>=-1/4 + 70/400) then 
+  y = x*x + 1.700000; 
+  else 
+  if (y>=-1/4 + 71/400) then 
+  y = x*x + 1.710000; 
+  else 
+  if (y>=-1/4 + 72/400) then 
+  y = x*x + 1.720000; 
+  else 
+  if (y>=-1/4 + 73/400) then 
+  y = x*x + 1.730000; 
+  else 
+  if (y>=-1/4 + 74/400) then 
+  y = x*x + 1.740000; 
+  else 
+  if (y>=-1/4 + 75/400) then 
+  y = x*x + 1.750000; 
+  else 
+  if (y>=-1/4 + 76/400) then 
+  y = x*x + 1.760000; 
+  else 
+  if (y>=-1/4 + 77/400) then 
+  y = x*x + 1.770000; 
+  else 
+  if (y>=-1/4 + 78/400) then 
+  y = x*x + 1.780000; 
+  else 
+  if (y>=-1/4 + 79/400) then 
+  y = x*x + 1.790000; 
+  else 
+  if (y>=-1/4 + 80/400) then 
+  y = x*x + 1.800000; 
+  else 
+  if (y>=-1/4 + 81/400) then 
+  y = x*x + 1.810000; 
+  else 
+  if (y>=-1/4 + 82/400) then 
+  y = x*x + 1.820000; 
+  else 
+  if (y>=-1/4 + 83/400) then 
+  y = x*x + 1.830000; 
+  else 
+  if (y>=-1/4 + 84/400) then 
+  y = x*x + 1.840000; 
+  else 
+  if (y>=-1/4 + 85/400) then 
+  y = x*x + 1.850000; 
+  else 
+  if (y>=-1/4 + 86/400) then 
+  y = x*x + 1.860000; 
+  else 
+  if (y>=-1/4 + 87/400) then 
+  y = x*x + 1.870000; 
+  else 
+  if (y>=-1/4 + 88/400) then 
+  y = x*x + 1.880000; 
+  else 
+  if (y>=-1/4 + 89/400) then 
+  y = x*x + 1.890000; 
+  else 
+  if (y>=-1/4 + 90/400) then 
+  y = x*x + 1.900000; 
+  else 
+  if (y>=-1/4 + 91/400) then 
+  y = x*x + 1.910000; 
+  else 
+  if (y>=-1/4 + 92/400) then 
+  y = x*x + 1.920000; 
+  else 
+  if (y>=-1/4 + 93/400) then 
+  y = x*x + 1.930000; 
+  else 
+  if (y>=-1/4 + 94/400) then 
+  y = x*x + 1.940000; 
+  else 
+  if (y>=-1/4 + 95/400) then 
+  y = x*x + 1.950000; 
+  else 
+  if (y>=-1/4 + 96/400) then 
+  y = x*x + 1.960000; 
+  else 
+  if (y>=-1/4 + 97/400) then 
+  y = x*x + 1.970000; 
+  else 
+  if (y>=-1/4 + 98/400) then 
+  y = x*x + 1.980000; 
+  else 
+  if (y>=-1/4 + 99/400) then 
+  y = x*x + 1.990000; 
+  else 
+  y = x*x + 2;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end

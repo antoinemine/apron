@@ -1,0 +1,290 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_manager.h\"\n\
+#include \"apron_caml.h\"\n\
+\n\
+void camlidl_apron_manager_funid_ml2c(value _v, enum ap_funid_t* res)\n\
+{\n\
+  int v = Int_val(_v);\n\
+  if (v+1>=AP_FUNID_CHANGE_ENVIRONMENT)\n\
+    *res = v+1;\n\
+  else\n\
+    *res = v;\n\
+}\n\
+value camlidl_apron_manager_funid_c2ml(enum ap_funid_t* arg)\n\
+{\n\
+  int n = *arg;\n\
+  if (n>=0 && n<AP_FUNID_SIZE2 && n!=AP_FUNID_SIZE){\n\
+    if (n>AP_FUNID_SIZE) n--;\n\
+  }\n\
+  else {\n\
+    invalid_argument(\"enum ap_funid_t: bad enum value\");\n\
+  }\n\
+  return Val_int(n);\n\
+}\n\
+void camlidl_apron_manager_exc_ml2c(value _v, enum ap_exc_t* res)\n\
+{\n\
+  *res = Int_val(_v);\n\
+}\n\
+value camlidl_apron_manager_exc_c2ml(enum ap_exc_t* arg)\n\
+{\n\
+    int n = *arg;\n\
+  if (! (n>=AP_EXC_NONE && n<AP_EXC_SIZE)){\n\
+    invalid_argument(\"enum ap_exc_t: bad enum value\");\n\
+  }\n\
+  return Val_int(n);\n\
+}\n\
+")
+
+typedef [abstract,
+	 ml2c(camlidl_apron_manager_funid_ml2c),
+	 c2ml(camlidl_apron_manager_funid_c2ml),
+	 mltype("\n\
+  | Funid_unknown\n\
+  | Funid_copy\n\
+  | Funid_free\n\
+  | Funid_asize\n\
+  | Funid_minimize\n\
+  | Funid_canonicalize\n\
+  | Funid_hash\n\
+  | Funid_approximate\n\
+  | Funid_fprint\n\
+  | Funid_fprintdiff\n\
+  | Funid_fdump\n\
+  | Funid_serialize_raw\n\
+  | Funid_deserialize_raw\n\
+  | Funid_bottom\n\
+  | Funid_top\n\
+  | Funid_of_box\n\
+  | Funid_dimension\n\
+  | Funid_is_bottom\n\
+  | Funid_is_top\n\
+  | Funid_is_leq\n\
+  | Funid_is_eq\n\
+  | Funid_is_dimension_unconstrained\n\
+  | Funid_sat_interval\n\
+  | Funid_sat_lincons\n\
+  | Funid_sat_tcons\n\
+  | Funid_bound_dimension\n\
+  | Funid_bound_linexpr\n\
+  | Funid_bound_texpr\n\
+  | Funid_to_box\n\
+  | Funid_to_lincons_array\n\
+  | Funid_to_tcons_array\n\
+  | Funid_to_generator_array\n\
+  | Funid_meet\n\
+  | Funid_meet_array\n\
+  | Funid_meet_lincons_array\n\
+  | Funid_meet_tcons_array\n\
+  | Funid_join\n\
+  | Funid_join_array\n\
+  | Funid_add_ray_array\n\
+  | Funid_assign_linexpr_array\n\
+  | Funid_substitute_linexpr_array\n\
+  | Funid_assign_texpr_array\n\
+  | Funid_substitute_texpr_array\n\
+  | Funid_add_dimensions\n\
+  | Funid_remove_dimensions\n\
+  | Funid_permute_dimensions\n\
+  | Funid_forget_array\n\
+  | Funid_expand\n\
+  | Funid_fold\n\
+  | Funid_widening\n\
+  | Funid_closure\n\
+  | Funid_change_environment\n\
+  | Funid_rename_array
+")]
+enum ap_funid_t ap_funid_t;
+
+struct ap_funopt_t {
+  int algorithm;
+  /* Algorithm selection:
+     - 0 is default algorithm;
+     - MAX_INT is most accurate available;
+     - MIN_INT is most efficient available;
+     - otherwise, no accuracy or speed meaning
+  */
+  unsigned int timeout; /* unit !? */
+  /* Above the given computation time, the function may abort with the
+     exception flag flag_time_out on.
+  */
+  unsigned int max_object_size; /* in abstract object size unit. */
+  /* If during the computation, the size of some object reach this limit, the
+     function may abort with the exception flag flag_out_of_space on.
+  */
+  boolean flag_exact_wanted;
+  /* return information about exactitude if possible
+  */
+  boolean flag_best_wanted;
+  /* return information about best correct approximation if possible
+  */
+};
+
+typedef [abstract,
+	 ml2c(camlidl_apron_manager_exc_ml2c),
+	 c2ml(camlidl_apron_manager_exc_c2ml),
+	 mltype("\n\
+  | Exc_none\n\
+  | Exc_timeout\n\
+  | Exc_out_of_space\n\
+  | Exc_overflow\n\
+  | Exc_invalid_argument\n\
+  | Exc_not_implemented\n\
+")]
+enum ap_exc_t ap_exc_t;
+
+struct ap_exclog_t {
+  ap_exc_t exn;
+  ap_funid_t funid;
+  [string]char* msg;
+};
+
+typedef [abstract,
+	 ml2c(camlidl_apron_manager_ptr_ml2c),
+	 c2ml(camlidl_apron_manager_ptr_c2ml)]
+struct ap_manager_ptr ap_manager_ptr;
+
+quote(MLMLI,"(** APRON Managers *)")
+
+quote(MLMLI,"(** The type parameter ['a] allows to distinguish managers allocated by different underlying abstract domains. *)\n")
+
+quote(MLMLI,"(** Concerning the other types,\n\n\
+- [funid] defines identifiers for the generic function working on abstrat values;\n\n\
+- [funopt] defines the options associated to generic functions; \n\n\
+- [exc] defines the different kind of exceptions; \n\n\
+- [exclog] defines the exceptions raised by APRON functions.\n\n\
+*)\n")
+
+
+
+quote(MLI,"(** Get the name of the effective library which allocated the manager *)")
+[string]const char* ap_manager_get_library(ap_manager_ptr man);
+
+quote(MLI,"(** Get the version of the effective library which allocated the manager *)")
+[string]const char* ap_manager_get_version(ap_manager_ptr man);
+
+
+quote(MLI,"(** Return the default options for any function ([0] or [false] for al fields) *)")
+void ap_funopt_make([ref,out]struct ap_funopt_t* x)
+     quote(call,"ap_funopt_init(x);");
+
+quote(MLI,"(** Get the options sets for the function. The result is a copy of the internal structure and may be freely modified. [funid] should be different from [Funid_change_environment] and [Funid_rename_array] (no option associated to them). *)")
+struct ap_funopt_t ap_manager_get_funopt(ap_manager_ptr man, ap_funid_t funid)
+  quote(call,"\
+  if (funid >= AP_FUNID_SIZE) invalid_argument(\"Manager.get.funopt <funid>: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
+  _res = ap_manager_get_funopt(man,funid);\n\
+");
+
+quote(MLI,"(** Set the options for the function. [funid] should be different from [Funid_change_environment] and [Funid_rename_array] (no option associated to them). *)")
+void ap_manager_set_funopt(ap_manager_ptr man, ap_funid_t funid, [ref]struct ap_funopt_t* funopt)
+  quote(call,"\
+  if (funid >= AP_FUNID_SIZE) invalid_argument(\"Manager.set.funopt <funid> ...: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
+  ap_manager_set_funopt(man,funid,funopt);\n\
+");
+
+quote(MLI,"(** Get the corresponding result flag *)")
+boolean ap_manager_get_flag_exact(ap_manager_ptr man);
+quote(MLI,"(** Get the corresponding result flag *)")
+boolean ap_manager_get_flag_best(ap_manager_ptr man);
+
+
+quote(MLI,"(** Exception raised by functions of the interface *)")
+quote(MLMLI,"exception Error of ap_exclog_t");
+
+quote(ML,"\
+let _ = Callback.register_exception \"apron exception\" \
+	  (Error { exn=Exc_none; funid = Funid_bottom; msg = \"dummy\"; })")
+
+quote(MLI,"val string_of_funid: ap_funid_t -> string")
+quote(MLI,"val string_of_exc: ap_exc_t -> string")
+quote(MLI,"val print_funid: Format.formatter -> ap_funid_t -> unit")
+quote(MLI,"val print_funopt: Format.formatter -> ap_funopt_t -> unit")
+quote(MLI,"val print_exc: Format.formatter -> ap_exc_t -> unit")
+quote(MLI,"val print_exclog: Format.formatter -> ap_exclog_t -> unit")
+quote(MLI,"  (** Printing functions *)")
+quote(ML,"\n\
+let string_of_funid = function\n\
+| Funid_unknown -> \"Funid_unknown\"\n\
+| Funid_copy -> \"Funid_copy\"\n\
+| Funid_free -> \"Funid_free\"\n\
+| Funid_asize -> \"Funid_asize\"\n\
+| Funid_minimize -> \"Funid_minimize\"\n\
+| Funid_canonicalize -> \"Funid_canonicalize\"\n\
+| Funid_hash -> \"Funid_hash\"\n\
+| Funid_approximate -> \"Funid_approximate\"\n\
+| Funid_fprint -> \"Funid_fprint\"\n\
+| Funid_fprintdiff -> \"Funid_fprintdiff\"\n\
+| Funid_fdump -> \"Funid_fdump\"\n\
+| Funid_serialize_raw -> \"Funid_serialize_raw\"\n\
+| Funid_deserialize_raw -> \"Funid_deserialize_raw\"\n\
+| Funid_bottom -> \"Funid_bottom\"\n\
+| Funid_top -> \"Funid_top\"\n\
+| Funid_of_box -> \"Funid_of_box\"\n\
+| Funid_dimension -> \"Funid_dimension\"\n\
+| Funid_is_bottom -> \"Funid_is_bottom\"\n\
+| Funid_is_top -> \"Funid_is_top\"\n\
+| Funid_is_leq -> \"Funid_is_leq\"\n\
+| Funid_is_eq -> \"Funid_is_eq\"\n\
+| Funid_is_dimension_unconstrained -> \"Funid_is_dimension_unconstrained\"\n\
+| Funid_sat_interval -> \"Funid_sat_interval\"\n\
+| Funid_sat_lincons -> \"Funid_sat_lincons\"\n\
+| Funid_sat_tcons -> \"Funid_sat_tcons\"\n\
+| Funid_bound_dimension -> \"Funid_bound_dimension\"\n\
+| Funid_bound_linexpr -> \"Funid_bound_linexpr\"\n\
+| Funid_bound_texpr -> \"Funid_bound_texpr\"\n\
+| Funid_to_box -> \"Funid_to_box\"\n\
+| Funid_to_lincons_array -> \"Funid_to_lincons_array\"\n\
+| Funid_to_tcons_array -> \"Funid_to_tcons_array\"\n\
+| Funid_to_generator_array -> \"Funid_to_generator_array\"\n\
+| Funid_meet -> \"Funid_meet\"\n\
+| Funid_meet_array -> \"Funid_meet_array\"\n\
+| Funid_meet_lincons_array -> \"Funid_meet_lincons_array\"\n\
+| Funid_meet_tcons_array -> \"Funid_meet_tcons_array\"\n\
+| Funid_join -> \"Funid_join\"\n\
+| Funid_join_array -> \"Funid_join_array\"\n\
+| Funid_add_ray_array -> \"Funid_add_ray_array\"\n\
+| Funid_assign_linexpr_array -> \"Funid_assign_linexpr_array\"\n\
+| Funid_substitute_linexpr_array -> \"Funid_substitute_linexpr_array\"\n\
+| Funid_assign_texpr_array -> \"Funid_assign_texpr_array\"\n\
+| Funid_substitute_texpr_array -> \"Funid_substitute_texpr_array\"\n\
+| Funid_add_dimensions -> \"Funid_add_dimensions\"\n\
+| Funid_remove_dimensions -> \"Funid_remove_dimensions\"\n\
+| Funid_permute_dimensions -> \"Funid_permute_dimensions\"\n\
+| Funid_forget_array -> \"Funid_forget_array\"\n\
+| Funid_expand -> \"Funid_expand\"\n\
+| Funid_fold -> \"Funid_fold\"\n\
+| Funid_widening -> \"Funid_widening\"\n\
+| Funid_closure -> \"Funid_closure\"\n\
+| Funid_change_environment -> \"Funid_change_environment\"\n\
+| Funid_rename_array -> \"Funid_rename_array\"\n\
+\n\
+let string_of_exc = function\n\
+| Exc_none -> \"Exc_none\"\n\
+| Exc_timeout -> \"Exc_timeout\"\n\
+| Exc_out_of_space -> \"Exc_out_of_space\"\n\
+| Exc_overflow -> \"Exc_overflow\"\n\
+| Exc_invalid_argument -> \"Exc_invalid_argument\"\n\
+| Exc_not_implemented -> \"Exc_not_implemented\"\n\
+\n\
+let print_funid fmt x = Format.pp_print_string fmt (string_of_funid x)\n\
+let print_exc fmt x = Format.pp_print_string fmt (string_of_exc x)\n\
+let print_exclog fmt x =\n\
+  Format.fprintf fmt \"{ @[ exn = %a;@ funid = %a;@ msg = %s;@] }\"
+    print_exc x.exn print_funid x.funid x.msg\n\
+let print_funopt fmt x =\n\
+  Format.fprintf fmt \"{ @[ algorithm = %i;@ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"
+    x.algorithm x.timeout x.max_object_size x.flag_exact_wanted x.flag_best_wanted\n\
+")
+
+quote(MLI,"(** Set / get the global manager used for deserialization *)")
+void ap_manager_set_deserialize(ap_manager_ptr man);
+ap_manager_ptr ap_manager_get_deserialize();
+
+/* Init */
+quote(ML,"external init: unit -> unit = \"camlidl_apron_init\"\n")
+quote(ML,"let _ = init()")

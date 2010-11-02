@@ -1,0 +1,115 @@
+# $Id$
+
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+This package is an OCAML interface for the APRON library/interface.
+
+The interface is accessed via the Apron module, which is decomposed into 15
+submodules, corresponding to C modules:
+
+Scalar     : scalars (numbers)     
+Interval   : intervals on scalars 
+Coeff      : coefficients (either scalars or intervals)
+Dimension  : dimensions and related operations
+Linexpr0   : (interval) linear expressions, level 0
+Lincons0   : (interval) linear constraints, level 0
+Generator0 : generators, level 0
+Texpr0     : tree expressions, level 0
+Tcons0     : tree constraints, level 0
+Manager    : managers
+Abstract0: : abstract values, level 0
+Var        : variables 
+Environment: environment binding variables to dimensions
+Linexpr1   : (interval) linear expressions, level 1
+Lincons1   : interval) linear constraints, level 1
+Generator1 : generators, level 1
+Texpr0     : tree expressions, level 1
+Tcons0     : tree constraints, level 1
+Abstract1  : abstract values, level 1
+Parser     : parsing of expressions, constraints and generators
+
+REQUIREMENTS
+============
+M4 preprocessor (standard on any UNIX system)
+APRON library
+GMP library (tested with version 4.0 and up)
+MPFR library (tested with version 2.2 and up)
+mlgmpidl package (included)
+OCaml 3.0 or up (tested with 3.09)
+Camlidl (tested with 1.05)
+
+INSTALLATION
+============
+
+1. Library
+----------
+Set the file Makefile.config to your own setting.
+You might also have to modify the Makefile for executables
+
+type 'make', and then 'make install'
+
+The OCaml part of the library is named apron.cma (.cmxa, .a)
+The C part of the library is named libapron_caml.a or dllapron_caml.so (libapron_caml_debug.a or ...)
+
+'make install' installs not only .mli, .cmi, but also .idl files.
+
+2. Documentation
+----------------
+
+The documentation is generated with ocamldoc.
+
+'make mlapronidl.pdf'
+'make html' (put the HTML files in the html subdirectoy)
+
+3. Miscellaneous
+----------------
+
+'make clean' and 'make distclean' have the usual behaviour.
+
+COMPILATION AND LINKING
+=======================
+
+To make things clearer, we assume an example file 'mlexample.ml' which uses both
+NewPolka (convex polyhedra) and Box (intervals) libraries, in their versions
+where numbers are GMP rationals (the default). We assume
+that C and OCaml interface and library files are located in directory
+$APRON/lib.
+
+The native-code compilation command looks like
+
+ocamlopt -I $MLGMPIDL/lib -I $APRON/lib -o mlexample.opt bigarray.cmxa gmp.cmxa apron.cmxa boxMPFR.cmxa polkaMPQ.cmxa mlexample.ml
+
+Comments:
+
+1. You need at least the libraries 'bigarray' (standard OCaml
+  distribution), 'gmp', and 'apron' (standard APRON distribution),
+  plus the one implementing an effective abstract domains: here,
+  'boxMPFR', and 'polkaMPQ'.
+
+2. The C libraries associated to those OCaml libraries
+  ('gmp_caml', 'box_caml', ...)  are automatically looked for.
+
+If dynamic libraries are available (HAS_SHARED variable in Makefile.config), the byte-code compilation process looks the same:
+
+ocamlc -I $MLGMPIDL/lib -I $APRON/lib -o mlexample.byte bigarray.cma gmp.cma apron.cma boxMPFR.cma polkaMPQ.cma mlexample.ml
+
+Otherwise, either
+1. add the '-custom' option on the command-line above
+2. or use a cusrtom runtime interprer:
+
+   ocamlc -I $APRON/lib -make-runtime -o myrun bigarray.cma gmp.cma apron.cma boxMPFR.cma polkaMPQ.cma 
+ 
+  ocamlc -I $APRON/lib -use-runtime myrun -o mlexample.byte bigarray.cma gmp.cma apron.cma box.cma polka.cma mlexample.ml
+
+  Comments:
+  a. One first build a custom bytecode interpreter that includes the
+     new native-code needed;
+  b. One then compile the 'mlexample.ml' file.
+
+The option '-verbose' helps to understand what is happening in
+case of problem.
+
+See the pdf or html documentations for more details.

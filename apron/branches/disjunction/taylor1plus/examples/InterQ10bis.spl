@@ -1,0 +1,46 @@
+var x : real, y : real; 
+begin 
+assume x >= 0 and x <= 10; 
+y = x*x - x; 
+if (y>=0) then 
+y = x/10; 
+else
+if (y>=-1/4 + 1/40) then 
+  y = y+x + 1.100000; 
+  else 
+  if (y>=-1/4 + 2/40) then 
+  y = y+x + 1.200000; 
+  else 
+  if (y>=-1/4 + 3/40) then 
+  y = y+x + 1.300000; 
+  else 
+  if (y>=-1/4 + 4/40) then 
+  y = y+x + 1.400000; 
+  else 
+  if (y>=-1/4 + 5/40) then 
+  y = y+x + 1.500000; 
+  else 
+  if (y>=-1/4 + 6/40) then 
+  y = y+x + 1.600000; 
+  else 
+  if (y>=-1/4 + 7/40) then 
+  y = y+x + 1.700000; 
+  else 
+  if (y>=-1/4 + 8/40) then 
+  y = y+x + 1.800000; 
+  else 
+  if (y>=-1/4 + 9/40) then 
+  y = y+x + 1.900000; 
+  else 
+  y = y+x + 2;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end

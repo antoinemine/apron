@@ -1,0 +1,2006 @@
+var x : real, y : real; 
+begin 
+assume x >= 0 and x <= 10; 
+y = x*x - x; 
+if (y>=0) then 
+y = x/10; 
+else
+if (y>=-1/4 + 1/2000) then 
+  y = x*x + 1.002000; 
+  else 
+  if (y>=-1/4 + 2/2000) then 
+  y = x*x + 1.004000; 
+  else 
+  if (y>=-1/4 + 3/2000) then 
+  y = x*x + 1.006000; 
+  else 
+  if (y>=-1/4 + 4/2000) then 
+  y = x*x + 1.008000; 
+  else 
+  if (y>=-1/4 + 5/2000) then 
+  y = x*x + 1.010000; 
+  else 
+  if (y>=-1/4 + 6/2000) then 
+  y = x*x + 1.012000; 
+  else 
+  if (y>=-1/4 + 7/2000) then 
+  y = x*x + 1.014000; 
+  else 
+  if (y>=-1/4 + 8/2000) then 
+  y = x*x + 1.016000; 
+  else 
+  if (y>=-1/4 + 9/2000) then 
+  y = x*x + 1.018000; 
+  else 
+  if (y>=-1/4 + 10/2000) then 
+  y = x*x + 1.020000; 
+  else 
+  if (y>=-1/4 + 11/2000) then 
+  y = x*x + 1.022000; 
+  else 
+  if (y>=-1/4 + 12/2000) then 
+  y = x*x + 1.024000; 
+  else 
+  if (y>=-1/4 + 13/2000) then 
+  y = x*x + 1.026000; 
+  else 
+  if (y>=-1/4 + 14/2000) then 
+  y = x*x + 1.028000; 
+  else 
+  if (y>=-1/4 + 15/2000) then 
+  y = x*x + 1.030000; 
+  else 
+  if (y>=-1/4 + 16/2000) then 
+  y = x*x + 1.032000; 
+  else 
+  if (y>=-1/4 + 17/2000) then 
+  y = x*x + 1.034000; 
+  else 
+  if (y>=-1/4 + 18/2000) then 
+  y = x*x + 1.036000; 
+  else 
+  if (y>=-1/4 + 19/2000) then 
+  y = x*x + 1.038000; 
+  else 
+  if (y>=-1/4 + 20/2000) then 
+  y = x*x + 1.040000; 
+  else 
+  if (y>=-1/4 + 21/2000) then 
+  y = x*x + 1.042000; 
+  else 
+  if (y>=-1/4 + 22/2000) then 
+  y = x*x + 1.044000; 
+  else 
+  if (y>=-1/4 + 23/2000) then 
+  y = x*x + 1.046000; 
+  else 
+  if (y>=-1/4 + 24/2000) then 
+  y = x*x + 1.048000; 
+  else 
+  if (y>=-1/4 + 25/2000) then 
+  y = x*x + 1.050000; 
+  else 
+  if (y>=-1/4 + 26/2000) then 
+  y = x*x + 1.052000; 
+  else 
+  if (y>=-1/4 + 27/2000) then 
+  y = x*x + 1.054000; 
+  else 
+  if (y>=-1/4 + 28/2000) then 
+  y = x*x + 1.056000; 
+  else 
+  if (y>=-1/4 + 29/2000) then 
+  y = x*x + 1.058000; 
+  else 
+  if (y>=-1/4 + 30/2000) then 
+  y = x*x + 1.060000; 
+  else 
+  if (y>=-1/4 + 31/2000) then 
+  y = x*x + 1.062000; 
+  else 
+  if (y>=-1/4 + 32/2000) then 
+  y = x*x + 1.064000; 
+  else 
+  if (y>=-1/4 + 33/2000) then 
+  y = x*x + 1.066000; 
+  else 
+  if (y>=-1/4 + 34/2000) then 
+  y = x*x + 1.068000; 
+  else 
+  if (y>=-1/4 + 35/2000) then 
+  y = x*x + 1.070000; 
+  else 
+  if (y>=-1/4 + 36/2000) then 
+  y = x*x + 1.072000; 
+  else 
+  if (y>=-1/4 + 37/2000) then 
+  y = x*x + 1.074000; 
+  else 
+  if (y>=-1/4 + 38/2000) then 
+  y = x*x + 1.076000; 
+  else 
+  if (y>=-1/4 + 39/2000) then 
+  y = x*x + 1.078000; 
+  else 
+  if (y>=-1/4 + 40/2000) then 
+  y = x*x + 1.080000; 
+  else 
+  if (y>=-1/4 + 41/2000) then 
+  y = x*x + 1.082000; 
+  else 
+  if (y>=-1/4 + 42/2000) then 
+  y = x*x + 1.084000; 
+  else 
+  if (y>=-1/4 + 43/2000) then 
+  y = x*x + 1.086000; 
+  else 
+  if (y>=-1/4 + 44/2000) then 
+  y = x*x + 1.088000; 
+  else 
+  if (y>=-1/4 + 45/2000) then 
+  y = x*x + 1.090000; 
+  else 
+  if (y>=-1/4 + 46/2000) then 
+  y = x*x + 1.092000; 
+  else 
+  if (y>=-1/4 + 47/2000) then 
+  y = x*x + 1.094000; 
+  else 
+  if (y>=-1/4 + 48/2000) then 
+  y = x*x + 1.096000; 
+  else 
+  if (y>=-1/4 + 49/2000) then 
+  y = x*x + 1.098000; 
+  else 
+  if (y>=-1/4 + 50/2000) then 
+  y = x*x + 1.100000; 
+  else 
+  if (y>=-1/4 + 51/2000) then 
+  y = x*x + 1.102000; 
+  else 
+  if (y>=-1/4 + 52/2000) then 
+  y = x*x + 1.104000; 
+  else 
+  if (y>=-1/4 + 53/2000) then 
+  y = x*x + 1.106000; 
+  else 
+  if (y>=-1/4 + 54/2000) then 
+  y = x*x + 1.108000; 
+  else 
+  if (y>=-1/4 + 55/2000) then 
+  y = x*x + 1.110000; 
+  else 
+  if (y>=-1/4 + 56/2000) then 
+  y = x*x + 1.112000; 
+  else 
+  if (y>=-1/4 + 57/2000) then 
+  y = x*x + 1.114000; 
+  else 
+  if (y>=-1/4 + 58/2000) then 
+  y = x*x + 1.116000; 
+  else 
+  if (y>=-1/4 + 59/2000) then 
+  y = x*x + 1.118000; 
+  else 
+  if (y>=-1/4 + 60/2000) then 
+  y = x*x + 1.120000; 
+  else 
+  if (y>=-1/4 + 61/2000) then 
+  y = x*x + 1.122000; 
+  else 
+  if (y>=-1/4 + 62/2000) then 
+  y = x*x + 1.124000; 
+  else 
+  if (y>=-1/4 + 63/2000) then 
+  y = x*x + 1.126000; 
+  else 
+  if (y>=-1/4 + 64/2000) then 
+  y = x*x + 1.128000; 
+  else 
+  if (y>=-1/4 + 65/2000) then 
+  y = x*x + 1.130000; 
+  else 
+  if (y>=-1/4 + 66/2000) then 
+  y = x*x + 1.132000; 
+  else 
+  if (y>=-1/4 + 67/2000) then 
+  y = x*x + 1.134000; 
+  else 
+  if (y>=-1/4 + 68/2000) then 
+  y = x*x + 1.136000; 
+  else 
+  if (y>=-1/4 + 69/2000) then 
+  y = x*x + 1.138000; 
+  else 
+  if (y>=-1/4 + 70/2000) then 
+  y = x*x + 1.140000; 
+  else 
+  if (y>=-1/4 + 71/2000) then 
+  y = x*x + 1.142000; 
+  else 
+  if (y>=-1/4 + 72/2000) then 
+  y = x*x + 1.144000; 
+  else 
+  if (y>=-1/4 + 73/2000) then 
+  y = x*x + 1.146000; 
+  else 
+  if (y>=-1/4 + 74/2000) then 
+  y = x*x + 1.148000; 
+  else 
+  if (y>=-1/4 + 75/2000) then 
+  y = x*x + 1.150000; 
+  else 
+  if (y>=-1/4 + 76/2000) then 
+  y = x*x + 1.152000; 
+  else 
+  if (y>=-1/4 + 77/2000) then 
+  y = x*x + 1.154000; 
+  else 
+  if (y>=-1/4 + 78/2000) then 
+  y = x*x + 1.156000; 
+  else 
+  if (y>=-1/4 + 79/2000) then 
+  y = x*x + 1.158000; 
+  else 
+  if (y>=-1/4 + 80/2000) then 
+  y = x*x + 1.160000; 
+  else 
+  if (y>=-1/4 + 81/2000) then 
+  y = x*x + 1.162000; 
+  else 
+  if (y>=-1/4 + 82/2000) then 
+  y = x*x + 1.164000; 
+  else 
+  if (y>=-1/4 + 83/2000) then 
+  y = x*x + 1.166000; 
+  else 
+  if (y>=-1/4 + 84/2000) then 
+  y = x*x + 1.168000; 
+  else 
+  if (y>=-1/4 + 85/2000) then 
+  y = x*x + 1.170000; 
+  else 
+  if (y>=-1/4 + 86/2000) then 
+  y = x*x + 1.172000; 
+  else 
+  if (y>=-1/4 + 87/2000) then 
+  y = x*x + 1.174000; 
+  else 
+  if (y>=-1/4 + 88/2000) then 
+  y = x*x + 1.176000; 
+  else 
+  if (y>=-1/4 + 89/2000) then 
+  y = x*x + 1.178000; 
+  else 
+  if (y>=-1/4 + 90/2000) then 
+  y = x*x + 1.180000; 
+  else 
+  if (y>=-1/4 + 91/2000) then 
+  y = x*x + 1.182000; 
+  else 
+  if (y>=-1/4 + 92/2000) then 
+  y = x*x + 1.184000; 
+  else 
+  if (y>=-1/4 + 93/2000) then 
+  y = x*x + 1.186000; 
+  else 
+  if (y>=-1/4 + 94/2000) then 
+  y = x*x + 1.188000; 
+  else 
+  if (y>=-1/4 + 95/2000) then 
+  y = x*x + 1.190000; 
+  else 
+  if (y>=-1/4 + 96/2000) then 
+  y = x*x + 1.192000; 
+  else 
+  if (y>=-1/4 + 97/2000) then 
+  y = x*x + 1.194000; 
+  else 
+  if (y>=-1/4 + 98/2000) then 
+  y = x*x + 1.196000; 
+  else 
+  if (y>=-1/4 + 99/2000) then 
+  y = x*x + 1.198000; 
+  else 
+  if (y>=-1/4 + 100/2000) then 
+  y = x*x + 1.200000; 
+  else 
+  if (y>=-1/4 + 101/2000) then 
+  y = x*x + 1.202000; 
+  else 
+  if (y>=-1/4 + 102/2000) then 
+  y = x*x + 1.204000; 
+  else 
+  if (y>=-1/4 + 103/2000) then 
+  y = x*x + 1.206000; 
+  else 
+  if (y>=-1/4 + 104/2000) then 
+  y = x*x + 1.208000; 
+  else 
+  if (y>=-1/4 + 105/2000) then 
+  y = x*x + 1.210000; 
+  else 
+  if (y>=-1/4 + 106/2000) then 
+  y = x*x + 1.212000; 
+  else 
+  if (y>=-1/4 + 107/2000) then 
+  y = x*x + 1.214000; 
+  else 
+  if (y>=-1/4 + 108/2000) then 
+  y = x*x + 1.216000; 
+  else 
+  if (y>=-1/4 + 109/2000) then 
+  y = x*x + 1.218000; 
+  else 
+  if (y>=-1/4 + 110/2000) then 
+  y = x*x + 1.220000; 
+  else 
+  if (y>=-1/4 + 111/2000) then 
+  y = x*x + 1.222000; 
+  else 
+  if (y>=-1/4 + 112/2000) then 
+  y = x*x + 1.224000; 
+  else 
+  if (y>=-1/4 + 113/2000) then 
+  y = x*x + 1.226000; 
+  else 
+  if (y>=-1/4 + 114/2000) then 
+  y = x*x + 1.228000; 
+  else 
+  if (y>=-1/4 + 115/2000) then 
+  y = x*x + 1.230000; 
+  else 
+  if (y>=-1/4 + 116/2000) then 
+  y = x*x + 1.232000; 
+  else 
+  if (y>=-1/4 + 117/2000) then 
+  y = x*x + 1.234000; 
+  else 
+  if (y>=-1/4 + 118/2000) then 
+  y = x*x + 1.236000; 
+  else 
+  if (y>=-1/4 + 119/2000) then 
+  y = x*x + 1.238000; 
+  else 
+  if (y>=-1/4 + 120/2000) then 
+  y = x*x + 1.240000; 
+  else 
+  if (y>=-1/4 + 121/2000) then 
+  y = x*x + 1.242000; 
+  else 
+  if (y>=-1/4 + 122/2000) then 
+  y = x*x + 1.244000; 
+  else 
+  if (y>=-1/4 + 123/2000) then 
+  y = x*x + 1.246000; 
+  else 
+  if (y>=-1/4 + 124/2000) then 
+  y = x*x + 1.248000; 
+  else 
+  if (y>=-1/4 + 125/2000) then 
+  y = x*x + 1.250000; 
+  else 
+  if (y>=-1/4 + 126/2000) then 
+  y = x*x + 1.252000; 
+  else 
+  if (y>=-1/4 + 127/2000) then 
+  y = x*x + 1.254000; 
+  else 
+  if (y>=-1/4 + 128/2000) then 
+  y = x*x + 1.256000; 
+  else 
+  if (y>=-1/4 + 129/2000) then 
+  y = x*x + 1.258000; 
+  else 
+  if (y>=-1/4 + 130/2000) then 
+  y = x*x + 1.260000; 
+  else 
+  if (y>=-1/4 + 131/2000) then 
+  y = x*x + 1.262000; 
+  else 
+  if (y>=-1/4 + 132/2000) then 
+  y = x*x + 1.264000; 
+  else 
+  if (y>=-1/4 + 133/2000) then 
+  y = x*x + 1.266000; 
+  else 
+  if (y>=-1/4 + 134/2000) then 
+  y = x*x + 1.268000; 
+  else 
+  if (y>=-1/4 + 135/2000) then 
+  y = x*x + 1.270000; 
+  else 
+  if (y>=-1/4 + 136/2000) then 
+  y = x*x + 1.272000; 
+  else 
+  if (y>=-1/4 + 137/2000) then 
+  y = x*x + 1.274000; 
+  else 
+  if (y>=-1/4 + 138/2000) then 
+  y = x*x + 1.276000; 
+  else 
+  if (y>=-1/4 + 139/2000) then 
+  y = x*x + 1.278000; 
+  else 
+  if (y>=-1/4 + 140/2000) then 
+  y = x*x + 1.280000; 
+  else 
+  if (y>=-1/4 + 141/2000) then 
+  y = x*x + 1.282000; 
+  else 
+  if (y>=-1/4 + 142/2000) then 
+  y = x*x + 1.284000; 
+  else 
+  if (y>=-1/4 + 143/2000) then 
+  y = x*x + 1.286000; 
+  else 
+  if (y>=-1/4 + 144/2000) then 
+  y = x*x + 1.288000; 
+  else 
+  if (y>=-1/4 + 145/2000) then 
+  y = x*x + 1.290000; 
+  else 
+  if (y>=-1/4 + 146/2000) then 
+  y = x*x + 1.292000; 
+  else 
+  if (y>=-1/4 + 147/2000) then 
+  y = x*x + 1.294000; 
+  else 
+  if (y>=-1/4 + 148/2000) then 
+  y = x*x + 1.296000; 
+  else 
+  if (y>=-1/4 + 149/2000) then 
+  y = x*x + 1.298000; 
+  else 
+  if (y>=-1/4 + 150/2000) then 
+  y = x*x + 1.300000; 
+  else 
+  if (y>=-1/4 + 151/2000) then 
+  y = x*x + 1.302000; 
+  else 
+  if (y>=-1/4 + 152/2000) then 
+  y = x*x + 1.304000; 
+  else 
+  if (y>=-1/4 + 153/2000) then 
+  y = x*x + 1.306000; 
+  else 
+  if (y>=-1/4 + 154/2000) then 
+  y = x*x + 1.308000; 
+  else 
+  if (y>=-1/4 + 155/2000) then 
+  y = x*x + 1.310000; 
+  else 
+  if (y>=-1/4 + 156/2000) then 
+  y = x*x + 1.312000; 
+  else 
+  if (y>=-1/4 + 157/2000) then 
+  y = x*x + 1.314000; 
+  else 
+  if (y>=-1/4 + 158/2000) then 
+  y = x*x + 1.316000; 
+  else 
+  if (y>=-1/4 + 159/2000) then 
+  y = x*x + 1.318000; 
+  else 
+  if (y>=-1/4 + 160/2000) then 
+  y = x*x + 1.320000; 
+  else 
+  if (y>=-1/4 + 161/2000) then 
+  y = x*x + 1.322000; 
+  else 
+  if (y>=-1/4 + 162/2000) then 
+  y = x*x + 1.324000; 
+  else 
+  if (y>=-1/4 + 163/2000) then 
+  y = x*x + 1.326000; 
+  else 
+  if (y>=-1/4 + 164/2000) then 
+  y = x*x + 1.328000; 
+  else 
+  if (y>=-1/4 + 165/2000) then 
+  y = x*x + 1.330000; 
+  else 
+  if (y>=-1/4 + 166/2000) then 
+  y = x*x + 1.332000; 
+  else 
+  if (y>=-1/4 + 167/2000) then 
+  y = x*x + 1.334000; 
+  else 
+  if (y>=-1/4 + 168/2000) then 
+  y = x*x + 1.336000; 
+  else 
+  if (y>=-1/4 + 169/2000) then 
+  y = x*x + 1.338000; 
+  else 
+  if (y>=-1/4 + 170/2000) then 
+  y = x*x + 1.340000; 
+  else 
+  if (y>=-1/4 + 171/2000) then 
+  y = x*x + 1.342000; 
+  else 
+  if (y>=-1/4 + 172/2000) then 
+  y = x*x + 1.344000; 
+  else 
+  if (y>=-1/4 + 173/2000) then 
+  y = x*x + 1.346000; 
+  else 
+  if (y>=-1/4 + 174/2000) then 
+  y = x*x + 1.348000; 
+  else 
+  if (y>=-1/4 + 175/2000) then 
+  y = x*x + 1.350000; 
+  else 
+  if (y>=-1/4 + 176/2000) then 
+  y = x*x + 1.352000; 
+  else 
+  if (y>=-1/4 + 177/2000) then 
+  y = x*x + 1.354000; 
+  else 
+  if (y>=-1/4 + 178/2000) then 
+  y = x*x + 1.356000; 
+  else 
+  if (y>=-1/4 + 179/2000) then 
+  y = x*x + 1.358000; 
+  else 
+  if (y>=-1/4 + 180/2000) then 
+  y = x*x + 1.360000; 
+  else 
+  if (y>=-1/4 + 181/2000) then 
+  y = x*x + 1.362000; 
+  else 
+  if (y>=-1/4 + 182/2000) then 
+  y = x*x + 1.364000; 
+  else 
+  if (y>=-1/4 + 183/2000) then 
+  y = x*x + 1.366000; 
+  else 
+  if (y>=-1/4 + 184/2000) then 
+  y = x*x + 1.368000; 
+  else 
+  if (y>=-1/4 + 185/2000) then 
+  y = x*x + 1.370000; 
+  else 
+  if (y>=-1/4 + 186/2000) then 
+  y = x*x + 1.372000; 
+  else 
+  if (y>=-1/4 + 187/2000) then 
+  y = x*x + 1.374000; 
+  else 
+  if (y>=-1/4 + 188/2000) then 
+  y = x*x + 1.376000; 
+  else 
+  if (y>=-1/4 + 189/2000) then 
+  y = x*x + 1.378000; 
+  else 
+  if (y>=-1/4 + 190/2000) then 
+  y = x*x + 1.380000; 
+  else 
+  if (y>=-1/4 + 191/2000) then 
+  y = x*x + 1.382000; 
+  else 
+  if (y>=-1/4 + 192/2000) then 
+  y = x*x + 1.384000; 
+  else 
+  if (y>=-1/4 + 193/2000) then 
+  y = x*x + 1.386000; 
+  else 
+  if (y>=-1/4 + 194/2000) then 
+  y = x*x + 1.388000; 
+  else 
+  if (y>=-1/4 + 195/2000) then 
+  y = x*x + 1.390000; 
+  else 
+  if (y>=-1/4 + 196/2000) then 
+  y = x*x + 1.392000; 
+  else 
+  if (y>=-1/4 + 197/2000) then 
+  y = x*x + 1.394000; 
+  else 
+  if (y>=-1/4 + 198/2000) then 
+  y = x*x + 1.396000; 
+  else 
+  if (y>=-1/4 + 199/2000) then 
+  y = x*x + 1.398000; 
+  else 
+  if (y>=-1/4 + 200/2000) then 
+  y = x*x + 1.400000; 
+  else 
+  if (y>=-1/4 + 201/2000) then 
+  y = x*x + 1.402000; 
+  else 
+  if (y>=-1/4 + 202/2000) then 
+  y = x*x + 1.404000; 
+  else 
+  if (y>=-1/4 + 203/2000) then 
+  y = x*x + 1.406000; 
+  else 
+  if (y>=-1/4 + 204/2000) then 
+  y = x*x + 1.408000; 
+  else 
+  if (y>=-1/4 + 205/2000) then 
+  y = x*x + 1.410000; 
+  else 
+  if (y>=-1/4 + 206/2000) then 
+  y = x*x + 1.412000; 
+  else 
+  if (y>=-1/4 + 207/2000) then 
+  y = x*x + 1.414000; 
+  else 
+  if (y>=-1/4 + 208/2000) then 
+  y = x*x + 1.416000; 
+  else 
+  if (y>=-1/4 + 209/2000) then 
+  y = x*x + 1.418000; 
+  else 
+  if (y>=-1/4 + 210/2000) then 
+  y = x*x + 1.420000; 
+  else 
+  if (y>=-1/4 + 211/2000) then 
+  y = x*x + 1.422000; 
+  else 
+  if (y>=-1/4 + 212/2000) then 
+  y = x*x + 1.424000; 
+  else 
+  if (y>=-1/4 + 213/2000) then 
+  y = x*x + 1.426000; 
+  else 
+  if (y>=-1/4 + 214/2000) then 
+  y = x*x + 1.428000; 
+  else 
+  if (y>=-1/4 + 215/2000) then 
+  y = x*x + 1.430000; 
+  else 
+  if (y>=-1/4 + 216/2000) then 
+  y = x*x + 1.432000; 
+  else 
+  if (y>=-1/4 + 217/2000) then 
+  y = x*x + 1.434000; 
+  else 
+  if (y>=-1/4 + 218/2000) then 
+  y = x*x + 1.436000; 
+  else 
+  if (y>=-1/4 + 219/2000) then 
+  y = x*x + 1.438000; 
+  else 
+  if (y>=-1/4 + 220/2000) then 
+  y = x*x + 1.440000; 
+  else 
+  if (y>=-1/4 + 221/2000) then 
+  y = x*x + 1.442000; 
+  else 
+  if (y>=-1/4 + 222/2000) then 
+  y = x*x + 1.444000; 
+  else 
+  if (y>=-1/4 + 223/2000) then 
+  y = x*x + 1.446000; 
+  else 
+  if (y>=-1/4 + 224/2000) then 
+  y = x*x + 1.448000; 
+  else 
+  if (y>=-1/4 + 225/2000) then 
+  y = x*x + 1.450000; 
+  else 
+  if (y>=-1/4 + 226/2000) then 
+  y = x*x + 1.452000; 
+  else 
+  if (y>=-1/4 + 227/2000) then 
+  y = x*x + 1.454000; 
+  else 
+  if (y>=-1/4 + 228/2000) then 
+  y = x*x + 1.456000; 
+  else 
+  if (y>=-1/4 + 229/2000) then 
+  y = x*x + 1.458000; 
+  else 
+  if (y>=-1/4 + 230/2000) then 
+  y = x*x + 1.460000; 
+  else 
+  if (y>=-1/4 + 231/2000) then 
+  y = x*x + 1.462000; 
+  else 
+  if (y>=-1/4 + 232/2000) then 
+  y = x*x + 1.464000; 
+  else 
+  if (y>=-1/4 + 233/2000) then 
+  y = x*x + 1.466000; 
+  else 
+  if (y>=-1/4 + 234/2000) then 
+  y = x*x + 1.468000; 
+  else 
+  if (y>=-1/4 + 235/2000) then 
+  y = x*x + 1.470000; 
+  else 
+  if (y>=-1/4 + 236/2000) then 
+  y = x*x + 1.472000; 
+  else 
+  if (y>=-1/4 + 237/2000) then 
+  y = x*x + 1.474000; 
+  else 
+  if (y>=-1/4 + 238/2000) then 
+  y = x*x + 1.476000; 
+  else 
+  if (y>=-1/4 + 239/2000) then 
+  y = x*x + 1.478000; 
+  else 
+  if (y>=-1/4 + 240/2000) then 
+  y = x*x + 1.480000; 
+  else 
+  if (y>=-1/4 + 241/2000) then 
+  y = x*x + 1.482000; 
+  else 
+  if (y>=-1/4 + 242/2000) then 
+  y = x*x + 1.484000; 
+  else 
+  if (y>=-1/4 + 243/2000) then 
+  y = x*x + 1.486000; 
+  else 
+  if (y>=-1/4 + 244/2000) then 
+  y = x*x + 1.488000; 
+  else 
+  if (y>=-1/4 + 245/2000) then 
+  y = x*x + 1.490000; 
+  else 
+  if (y>=-1/4 + 246/2000) then 
+  y = x*x + 1.492000; 
+  else 
+  if (y>=-1/4 + 247/2000) then 
+  y = x*x + 1.494000; 
+  else 
+  if (y>=-1/4 + 248/2000) then 
+  y = x*x + 1.496000; 
+  else 
+  if (y>=-1/4 + 249/2000) then 
+  y = x*x + 1.498000; 
+  else 
+  if (y>=-1/4 + 250/2000) then 
+  y = x*x + 1.500000; 
+  else 
+  if (y>=-1/4 + 251/2000) then 
+  y = x*x + 1.502000; 
+  else 
+  if (y>=-1/4 + 252/2000) then 
+  y = x*x + 1.504000; 
+  else 
+  if (y>=-1/4 + 253/2000) then 
+  y = x*x + 1.506000; 
+  else 
+  if (y>=-1/4 + 254/2000) then 
+  y = x*x + 1.508000; 
+  else 
+  if (y>=-1/4 + 255/2000) then 
+  y = x*x + 1.510000; 
+  else 
+  if (y>=-1/4 + 256/2000) then 
+  y = x*x + 1.512000; 
+  else 
+  if (y>=-1/4 + 257/2000) then 
+  y = x*x + 1.514000; 
+  else 
+  if (y>=-1/4 + 258/2000) then 
+  y = x*x + 1.516000; 
+  else 
+  if (y>=-1/4 + 259/2000) then 
+  y = x*x + 1.518000; 
+  else 
+  if (y>=-1/4 + 260/2000) then 
+  y = x*x + 1.520000; 
+  else 
+  if (y>=-1/4 + 261/2000) then 
+  y = x*x + 1.522000; 
+  else 
+  if (y>=-1/4 + 262/2000) then 
+  y = x*x + 1.524000; 
+  else 
+  if (y>=-1/4 + 263/2000) then 
+  y = x*x + 1.526000; 
+  else 
+  if (y>=-1/4 + 264/2000) then 
+  y = x*x + 1.528000; 
+  else 
+  if (y>=-1/4 + 265/2000) then 
+  y = x*x + 1.530000; 
+  else 
+  if (y>=-1/4 + 266/2000) then 
+  y = x*x + 1.532000; 
+  else 
+  if (y>=-1/4 + 267/2000) then 
+  y = x*x + 1.534000; 
+  else 
+  if (y>=-1/4 + 268/2000) then 
+  y = x*x + 1.536000; 
+  else 
+  if (y>=-1/4 + 269/2000) then 
+  y = x*x + 1.538000; 
+  else 
+  if (y>=-1/4 + 270/2000) then 
+  y = x*x + 1.540000; 
+  else 
+  if (y>=-1/4 + 271/2000) then 
+  y = x*x + 1.542000; 
+  else 
+  if (y>=-1/4 + 272/2000) then 
+  y = x*x + 1.544000; 
+  else 
+  if (y>=-1/4 + 273/2000) then 
+  y = x*x + 1.546000; 
+  else 
+  if (y>=-1/4 + 274/2000) then 
+  y = x*x + 1.548000; 
+  else 
+  if (y>=-1/4 + 275/2000) then 
+  y = x*x + 1.550000; 
+  else 
+  if (y>=-1/4 + 276/2000) then 
+  y = x*x + 1.552000; 
+  else 
+  if (y>=-1/4 + 277/2000) then 
+  y = x*x + 1.554000; 
+  else 
+  if (y>=-1/4 + 278/2000) then 
+  y = x*x + 1.556000; 
+  else 
+  if (y>=-1/4 + 279/2000) then 
+  y = x*x + 1.558000; 
+  else 
+  if (y>=-1/4 + 280/2000) then 
+  y = x*x + 1.560000; 
+  else 
+  if (y>=-1/4 + 281/2000) then 
+  y = x*x + 1.562000; 
+  else 
+  if (y>=-1/4 + 282/2000) then 
+  y = x*x + 1.564000; 
+  else 
+  if (y>=-1/4 + 283/2000) then 
+  y = x*x + 1.566000; 
+  else 
+  if (y>=-1/4 + 284/2000) then 
+  y = x*x + 1.568000; 
+  else 
+  if (y>=-1/4 + 285/2000) then 
+  y = x*x + 1.570000; 
+  else 
+  if (y>=-1/4 + 286/2000) then 
+  y = x*x + 1.572000; 
+  else 
+  if (y>=-1/4 + 287/2000) then 
+  y = x*x + 1.574000; 
+  else 
+  if (y>=-1/4 + 288/2000) then 
+  y = x*x + 1.576000; 
+  else 
+  if (y>=-1/4 + 289/2000) then 
+  y = x*x + 1.578000; 
+  else 
+  if (y>=-1/4 + 290/2000) then 
+  y = x*x + 1.580000; 
+  else 
+  if (y>=-1/4 + 291/2000) then 
+  y = x*x + 1.582000; 
+  else 
+  if (y>=-1/4 + 292/2000) then 
+  y = x*x + 1.584000; 
+  else 
+  if (y>=-1/4 + 293/2000) then 
+  y = x*x + 1.586000; 
+  else 
+  if (y>=-1/4 + 294/2000) then 
+  y = x*x + 1.588000; 
+  else 
+  if (y>=-1/4 + 295/2000) then 
+  y = x*x + 1.590000; 
+  else 
+  if (y>=-1/4 + 296/2000) then 
+  y = x*x + 1.592000; 
+  else 
+  if (y>=-1/4 + 297/2000) then 
+  y = x*x + 1.594000; 
+  else 
+  if (y>=-1/4 + 298/2000) then 
+  y = x*x + 1.596000; 
+  else 
+  if (y>=-1/4 + 299/2000) then 
+  y = x*x + 1.598000; 
+  else 
+  if (y>=-1/4 + 300/2000) then 
+  y = x*x + 1.600000; 
+  else 
+  if (y>=-1/4 + 301/2000) then 
+  y = x*x + 1.602000; 
+  else 
+  if (y>=-1/4 + 302/2000) then 
+  y = x*x + 1.604000; 
+  else 
+  if (y>=-1/4 + 303/2000) then 
+  y = x*x + 1.606000; 
+  else 
+  if (y>=-1/4 + 304/2000) then 
+  y = x*x + 1.608000; 
+  else 
+  if (y>=-1/4 + 305/2000) then 
+  y = x*x + 1.610000; 
+  else 
+  if (y>=-1/4 + 306/2000) then 
+  y = x*x + 1.612000; 
+  else 
+  if (y>=-1/4 + 307/2000) then 
+  y = x*x + 1.614000; 
+  else 
+  if (y>=-1/4 + 308/2000) then 
+  y = x*x + 1.616000; 
+  else 
+  if (y>=-1/4 + 309/2000) then 
+  y = x*x + 1.618000; 
+  else 
+  if (y>=-1/4 + 310/2000) then 
+  y = x*x + 1.620000; 
+  else 
+  if (y>=-1/4 + 311/2000) then 
+  y = x*x + 1.622000; 
+  else 
+  if (y>=-1/4 + 312/2000) then 
+  y = x*x + 1.624000; 
+  else 
+  if (y>=-1/4 + 313/2000) then 
+  y = x*x + 1.626000; 
+  else 
+  if (y>=-1/4 + 314/2000) then 
+  y = x*x + 1.628000; 
+  else 
+  if (y>=-1/4 + 315/2000) then 
+  y = x*x + 1.630000; 
+  else 
+  if (y>=-1/4 + 316/2000) then 
+  y = x*x + 1.632000; 
+  else 
+  if (y>=-1/4 + 317/2000) then 
+  y = x*x + 1.634000; 
+  else 
+  if (y>=-1/4 + 318/2000) then 
+  y = x*x + 1.636000; 
+  else 
+  if (y>=-1/4 + 319/2000) then 
+  y = x*x + 1.638000; 
+  else 
+  if (y>=-1/4 + 320/2000) then 
+  y = x*x + 1.640000; 
+  else 
+  if (y>=-1/4 + 321/2000) then 
+  y = x*x + 1.642000; 
+  else 
+  if (y>=-1/4 + 322/2000) then 
+  y = x*x + 1.644000; 
+  else 
+  if (y>=-1/4 + 323/2000) then 
+  y = x*x + 1.646000; 
+  else 
+  if (y>=-1/4 + 324/2000) then 
+  y = x*x + 1.648000; 
+  else 
+  if (y>=-1/4 + 325/2000) then 
+  y = x*x + 1.650000; 
+  else 
+  if (y>=-1/4 + 326/2000) then 
+  y = x*x + 1.652000; 
+  else 
+  if (y>=-1/4 + 327/2000) then 
+  y = x*x + 1.654000; 
+  else 
+  if (y>=-1/4 + 328/2000) then 
+  y = x*x + 1.656000; 
+  else 
+  if (y>=-1/4 + 329/2000) then 
+  y = x*x + 1.658000; 
+  else 
+  if (y>=-1/4 + 330/2000) then 
+  y = x*x + 1.660000; 
+  else 
+  if (y>=-1/4 + 331/2000) then 
+  y = x*x + 1.662000; 
+  else 
+  if (y>=-1/4 + 332/2000) then 
+  y = x*x + 1.664000; 
+  else 
+  if (y>=-1/4 + 333/2000) then 
+  y = x*x + 1.666000; 
+  else 
+  if (y>=-1/4 + 334/2000) then 
+  y = x*x + 1.668000; 
+  else 
+  if (y>=-1/4 + 335/2000) then 
+  y = x*x + 1.670000; 
+  else 
+  if (y>=-1/4 + 336/2000) then 
+  y = x*x + 1.672000; 
+  else 
+  if (y>=-1/4 + 337/2000) then 
+  y = x*x + 1.674000; 
+  else 
+  if (y>=-1/4 + 338/2000) then 
+  y = x*x + 1.676000; 
+  else 
+  if (y>=-1/4 + 339/2000) then 
+  y = x*x + 1.678000; 
+  else 
+  if (y>=-1/4 + 340/2000) then 
+  y = x*x + 1.680000; 
+  else 
+  if (y>=-1/4 + 341/2000) then 
+  y = x*x + 1.682000; 
+  else 
+  if (y>=-1/4 + 342/2000) then 
+  y = x*x + 1.684000; 
+  else 
+  if (y>=-1/4 + 343/2000) then 
+  y = x*x + 1.686000; 
+  else 
+  if (y>=-1/4 + 344/2000) then 
+  y = x*x + 1.688000; 
+  else 
+  if (y>=-1/4 + 345/2000) then 
+  y = x*x + 1.690000; 
+  else 
+  if (y>=-1/4 + 346/2000) then 
+  y = x*x + 1.692000; 
+  else 
+  if (y>=-1/4 + 347/2000) then 
+  y = x*x + 1.694000; 
+  else 
+  if (y>=-1/4 + 348/2000) then 
+  y = x*x + 1.696000; 
+  else 
+  if (y>=-1/4 + 349/2000) then 
+  y = x*x + 1.698000; 
+  else 
+  if (y>=-1/4 + 350/2000) then 
+  y = x*x + 1.700000; 
+  else 
+  if (y>=-1/4 + 351/2000) then 
+  y = x*x + 1.702000; 
+  else 
+  if (y>=-1/4 + 352/2000) then 
+  y = x*x + 1.704000; 
+  else 
+  if (y>=-1/4 + 353/2000) then 
+  y = x*x + 1.706000; 
+  else 
+  if (y>=-1/4 + 354/2000) then 
+  y = x*x + 1.708000; 
+  else 
+  if (y>=-1/4 + 355/2000) then 
+  y = x*x + 1.710000; 
+  else 
+  if (y>=-1/4 + 356/2000) then 
+  y = x*x + 1.712000; 
+  else 
+  if (y>=-1/4 + 357/2000) then 
+  y = x*x + 1.714000; 
+  else 
+  if (y>=-1/4 + 358/2000) then 
+  y = x*x + 1.716000; 
+  else 
+  if (y>=-1/4 + 359/2000) then 
+  y = x*x + 1.718000; 
+  else 
+  if (y>=-1/4 + 360/2000) then 
+  y = x*x + 1.720000; 
+  else 
+  if (y>=-1/4 + 361/2000) then 
+  y = x*x + 1.722000; 
+  else 
+  if (y>=-1/4 + 362/2000) then 
+  y = x*x + 1.724000; 
+  else 
+  if (y>=-1/4 + 363/2000) then 
+  y = x*x + 1.726000; 
+  else 
+  if (y>=-1/4 + 364/2000) then 
+  y = x*x + 1.728000; 
+  else 
+  if (y>=-1/4 + 365/2000) then 
+  y = x*x + 1.730000; 
+  else 
+  if (y>=-1/4 + 366/2000) then 
+  y = x*x + 1.732000; 
+  else 
+  if (y>=-1/4 + 367/2000) then 
+  y = x*x + 1.734000; 
+  else 
+  if (y>=-1/4 + 368/2000) then 
+  y = x*x + 1.736000; 
+  else 
+  if (y>=-1/4 + 369/2000) then 
+  y = x*x + 1.738000; 
+  else 
+  if (y>=-1/4 + 370/2000) then 
+  y = x*x + 1.740000; 
+  else 
+  if (y>=-1/4 + 371/2000) then 
+  y = x*x + 1.742000; 
+  else 
+  if (y>=-1/4 + 372/2000) then 
+  y = x*x + 1.744000; 
+  else 
+  if (y>=-1/4 + 373/2000) then 
+  y = x*x + 1.746000; 
+  else 
+  if (y>=-1/4 + 374/2000) then 
+  y = x*x + 1.748000; 
+  else 
+  if (y>=-1/4 + 375/2000) then 
+  y = x*x + 1.750000; 
+  else 
+  if (y>=-1/4 + 376/2000) then 
+  y = x*x + 1.752000; 
+  else 
+  if (y>=-1/4 + 377/2000) then 
+  y = x*x + 1.754000; 
+  else 
+  if (y>=-1/4 + 378/2000) then 
+  y = x*x + 1.756000; 
+  else 
+  if (y>=-1/4 + 379/2000) then 
+  y = x*x + 1.758000; 
+  else 
+  if (y>=-1/4 + 380/2000) then 
+  y = x*x + 1.760000; 
+  else 
+  if (y>=-1/4 + 381/2000) then 
+  y = x*x + 1.762000; 
+  else 
+  if (y>=-1/4 + 382/2000) then 
+  y = x*x + 1.764000; 
+  else 
+  if (y>=-1/4 + 383/2000) then 
+  y = x*x + 1.766000; 
+  else 
+  if (y>=-1/4 + 384/2000) then 
+  y = x*x + 1.768000; 
+  else 
+  if (y>=-1/4 + 385/2000) then 
+  y = x*x + 1.770000; 
+  else 
+  if (y>=-1/4 + 386/2000) then 
+  y = x*x + 1.772000; 
+  else 
+  if (y>=-1/4 + 387/2000) then 
+  y = x*x + 1.774000; 
+  else 
+  if (y>=-1/4 + 388/2000) then 
+  y = x*x + 1.776000; 
+  else 
+  if (y>=-1/4 + 389/2000) then 
+  y = x*x + 1.778000; 
+  else 
+  if (y>=-1/4 + 390/2000) then 
+  y = x*x + 1.780000; 
+  else 
+  if (y>=-1/4 + 391/2000) then 
+  y = x*x + 1.782000; 
+  else 
+  if (y>=-1/4 + 392/2000) then 
+  y = x*x + 1.784000; 
+  else 
+  if (y>=-1/4 + 393/2000) then 
+  y = x*x + 1.786000; 
+  else 
+  if (y>=-1/4 + 394/2000) then 
+  y = x*x + 1.788000; 
+  else 
+  if (y>=-1/4 + 395/2000) then 
+  y = x*x + 1.790000; 
+  else 
+  if (y>=-1/4 + 396/2000) then 
+  y = x*x + 1.792000; 
+  else 
+  if (y>=-1/4 + 397/2000) then 
+  y = x*x + 1.794000; 
+  else 
+  if (y>=-1/4 + 398/2000) then 
+  y = x*x + 1.796000; 
+  else 
+  if (y>=-1/4 + 399/2000) then 
+  y = x*x + 1.798000; 
+  else 
+  if (y>=-1/4 + 400/2000) then 
+  y = x*x + 1.800000; 
+  else 
+  if (y>=-1/4 + 401/2000) then 
+  y = x*x + 1.802000; 
+  else 
+  if (y>=-1/4 + 402/2000) then 
+  y = x*x + 1.804000; 
+  else 
+  if (y>=-1/4 + 403/2000) then 
+  y = x*x + 1.806000; 
+  else 
+  if (y>=-1/4 + 404/2000) then 
+  y = x*x + 1.808000; 
+  else 
+  if (y>=-1/4 + 405/2000) then 
+  y = x*x + 1.810000; 
+  else 
+  if (y>=-1/4 + 406/2000) then 
+  y = x*x + 1.812000; 
+  else 
+  if (y>=-1/4 + 407/2000) then 
+  y = x*x + 1.814000; 
+  else 
+  if (y>=-1/4 + 408/2000) then 
+  y = x*x + 1.816000; 
+  else 
+  if (y>=-1/4 + 409/2000) then 
+  y = x*x + 1.818000; 
+  else 
+  if (y>=-1/4 + 410/2000) then 
+  y = x*x + 1.820000; 
+  else 
+  if (y>=-1/4 + 411/2000) then 
+  y = x*x + 1.822000; 
+  else 
+  if (y>=-1/4 + 412/2000) then 
+  y = x*x + 1.824000; 
+  else 
+  if (y>=-1/4 + 413/2000) then 
+  y = x*x + 1.826000; 
+  else 
+  if (y>=-1/4 + 414/2000) then 
+  y = x*x + 1.828000; 
+  else 
+  if (y>=-1/4 + 415/2000) then 
+  y = x*x + 1.830000; 
+  else 
+  if (y>=-1/4 + 416/2000) then 
+  y = x*x + 1.832000; 
+  else 
+  if (y>=-1/4 + 417/2000) then 
+  y = x*x + 1.834000; 
+  else 
+  if (y>=-1/4 + 418/2000) then 
+  y = x*x + 1.836000; 
+  else 
+  if (y>=-1/4 + 419/2000) then 
+  y = x*x + 1.838000; 
+  else 
+  if (y>=-1/4 + 420/2000) then 
+  y = x*x + 1.840000; 
+  else 
+  if (y>=-1/4 + 421/2000) then 
+  y = x*x + 1.842000; 
+  else 
+  if (y>=-1/4 + 422/2000) then 
+  y = x*x + 1.844000; 
+  else 
+  if (y>=-1/4 + 423/2000) then 
+  y = x*x + 1.846000; 
+  else 
+  if (y>=-1/4 + 424/2000) then 
+  y = x*x + 1.848000; 
+  else 
+  if (y>=-1/4 + 425/2000) then 
+  y = x*x + 1.850000; 
+  else 
+  if (y>=-1/4 + 426/2000) then 
+  y = x*x + 1.852000; 
+  else 
+  if (y>=-1/4 + 427/2000) then 
+  y = x*x + 1.854000; 
+  else 
+  if (y>=-1/4 + 428/2000) then 
+  y = x*x + 1.856000; 
+  else 
+  if (y>=-1/4 + 429/2000) then 
+  y = x*x + 1.858000; 
+  else 
+  if (y>=-1/4 + 430/2000) then 
+  y = x*x + 1.860000; 
+  else 
+  if (y>=-1/4 + 431/2000) then 
+  y = x*x + 1.862000; 
+  else 
+  if (y>=-1/4 + 432/2000) then 
+  y = x*x + 1.864000; 
+  else 
+  if (y>=-1/4 + 433/2000) then 
+  y = x*x + 1.866000; 
+  else 
+  if (y>=-1/4 + 434/2000) then 
+  y = x*x + 1.868000; 
+  else 
+  if (y>=-1/4 + 435/2000) then 
+  y = x*x + 1.870000; 
+  else 
+  if (y>=-1/4 + 436/2000) then 
+  y = x*x + 1.872000; 
+  else 
+  if (y>=-1/4 + 437/2000) then 
+  y = x*x + 1.874000; 
+  else 
+  if (y>=-1/4 + 438/2000) then 
+  y = x*x + 1.876000; 
+  else 
+  if (y>=-1/4 + 439/2000) then 
+  y = x*x + 1.878000; 
+  else 
+  if (y>=-1/4 + 440/2000) then 
+  y = x*x + 1.880000; 
+  else 
+  if (y>=-1/4 + 441/2000) then 
+  y = x*x + 1.882000; 
+  else 
+  if (y>=-1/4 + 442/2000) then 
+  y = x*x + 1.884000; 
+  else 
+  if (y>=-1/4 + 443/2000) then 
+  y = x*x + 1.886000; 
+  else 
+  if (y>=-1/4 + 444/2000) then 
+  y = x*x + 1.888000; 
+  else 
+  if (y>=-1/4 + 445/2000) then 
+  y = x*x + 1.890000; 
+  else 
+  if (y>=-1/4 + 446/2000) then 
+  y = x*x + 1.892000; 
+  else 
+  if (y>=-1/4 + 447/2000) then 
+  y = x*x + 1.894000; 
+  else 
+  if (y>=-1/4 + 448/2000) then 
+  y = x*x + 1.896000; 
+  else 
+  if (y>=-1/4 + 449/2000) then 
+  y = x*x + 1.898000; 
+  else 
+  if (y>=-1/4 + 450/2000) then 
+  y = x*x + 1.900000; 
+  else 
+  if (y>=-1/4 + 451/2000) then 
+  y = x*x + 1.902000; 
+  else 
+  if (y>=-1/4 + 452/2000) then 
+  y = x*x + 1.904000; 
+  else 
+  if (y>=-1/4 + 453/2000) then 
+  y = x*x + 1.906000; 
+  else 
+  if (y>=-1/4 + 454/2000) then 
+  y = x*x + 1.908000; 
+  else 
+  if (y>=-1/4 + 455/2000) then 
+  y = x*x + 1.910000; 
+  else 
+  if (y>=-1/4 + 456/2000) then 
+  y = x*x + 1.912000; 
+  else 
+  if (y>=-1/4 + 457/2000) then 
+  y = x*x + 1.914000; 
+  else 
+  if (y>=-1/4 + 458/2000) then 
+  y = x*x + 1.916000; 
+  else 
+  if (y>=-1/4 + 459/2000) then 
+  y = x*x + 1.918000; 
+  else 
+  if (y>=-1/4 + 460/2000) then 
+  y = x*x + 1.920000; 
+  else 
+  if (y>=-1/4 + 461/2000) then 
+  y = x*x + 1.922000; 
+  else 
+  if (y>=-1/4 + 462/2000) then 
+  y = x*x + 1.924000; 
+  else 
+  if (y>=-1/4 + 463/2000) then 
+  y = x*x + 1.926000; 
+  else 
+  if (y>=-1/4 + 464/2000) then 
+  y = x*x + 1.928000; 
+  else 
+  if (y>=-1/4 + 465/2000) then 
+  y = x*x + 1.930000; 
+  else 
+  if (y>=-1/4 + 466/2000) then 
+  y = x*x + 1.932000; 
+  else 
+  if (y>=-1/4 + 467/2000) then 
+  y = x*x + 1.934000; 
+  else 
+  if (y>=-1/4 + 468/2000) then 
+  y = x*x + 1.936000; 
+  else 
+  if (y>=-1/4 + 469/2000) then 
+  y = x*x + 1.938000; 
+  else 
+  if (y>=-1/4 + 470/2000) then 
+  y = x*x + 1.940000; 
+  else 
+  if (y>=-1/4 + 471/2000) then 
+  y = x*x + 1.942000; 
+  else 
+  if (y>=-1/4 + 472/2000) then 
+  y = x*x + 1.944000; 
+  else 
+  if (y>=-1/4 + 473/2000) then 
+  y = x*x + 1.946000; 
+  else 
+  if (y>=-1/4 + 474/2000) then 
+  y = x*x + 1.948000; 
+  else 
+  if (y>=-1/4 + 475/2000) then 
+  y = x*x + 1.950000; 
+  else 
+  if (y>=-1/4 + 476/2000) then 
+  y = x*x + 1.952000; 
+  else 
+  if (y>=-1/4 + 477/2000) then 
+  y = x*x + 1.954000; 
+  else 
+  if (y>=-1/4 + 478/2000) then 
+  y = x*x + 1.956000; 
+  else 
+  if (y>=-1/4 + 479/2000) then 
+  y = x*x + 1.958000; 
+  else 
+  if (y>=-1/4 + 480/2000) then 
+  y = x*x + 1.960000; 
+  else 
+  if (y>=-1/4 + 481/2000) then 
+  y = x*x + 1.962000; 
+  else 
+  if (y>=-1/4 + 482/2000) then 
+  y = x*x + 1.964000; 
+  else 
+  if (y>=-1/4 + 483/2000) then 
+  y = x*x + 1.966000; 
+  else 
+  if (y>=-1/4 + 484/2000) then 
+  y = x*x + 1.968000; 
+  else 
+  if (y>=-1/4 + 485/2000) then 
+  y = x*x + 1.970000; 
+  else 
+  if (y>=-1/4 + 486/2000) then 
+  y = x*x + 1.972000; 
+  else 
+  if (y>=-1/4 + 487/2000) then 
+  y = x*x + 1.974000; 
+  else 
+  if (y>=-1/4 + 488/2000) then 
+  y = x*x + 1.976000; 
+  else 
+  if (y>=-1/4 + 489/2000) then 
+  y = x*x + 1.978000; 
+  else 
+  if (y>=-1/4 + 490/2000) then 
+  y = x*x + 1.980000; 
+  else 
+  if (y>=-1/4 + 491/2000) then 
+  y = x*x + 1.982000; 
+  else 
+  if (y>=-1/4 + 492/2000) then 
+  y = x*x + 1.984000; 
+  else 
+  if (y>=-1/4 + 493/2000) then 
+  y = x*x + 1.986000; 
+  else 
+  if (y>=-1/4 + 494/2000) then 
+  y = x*x + 1.988000; 
+  else 
+  if (y>=-1/4 + 495/2000) then 
+  y = x*x + 1.990000; 
+  else 
+  if (y>=-1/4 + 496/2000) then 
+  y = x*x + 1.992000; 
+  else 
+  if (y>=-1/4 + 497/2000) then 
+  y = x*x + 1.994000; 
+  else 
+  if (y>=-1/4 + 498/2000) then 
+  y = x*x + 1.996000; 
+  else 
+  if (y>=-1/4 + 499/2000) then 
+  y = x*x + 1.998000; 
+  else 
+  y = x*x + 2;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+endif;
+end
