@@ -27,6 +27,38 @@ typedef struct ap_abstract0_t ap_abstract0_t;
 /* I. General management */
 /* ********************************************************************** */
 
+static inline
+ap_abstract0_t* ap_abstract0_cons(ap_manager_t* man, void* value)
+{
+  ap_abstract0_t* res = (ap_abstract0_t*)malloc(sizeof(ap_abstract0_t));
+  res->value = value;
+  res->man = ap_manager_copy(man);
+  return res;
+}
+static inline
+void _ap_abstract0_free(ap_abstract0_t* a)
+{
+  void (*ptr)(ap_manager_t*,ap_abstract0_t*) = (void (*) (ap_manager_t*,ap_abstract0_t*))(a->man->funptr[AP_FUNID_FREE]);
+  ptr(a->man,(ap_abstract0_t*)a->value);
+  ap_manager_free(a->man);
+  free(a);
+}
+static inline
+ap_abstract0_t* ap_abstract0_cons2(ap_manager_t* man, bool destructive, ap_abstract0_t* oldabs, void* newvalue)
+{
+  if (destructive){
+    if (oldabs->man != man){
+      ap_manager_free(oldabs->man);
+      oldabs->man = ap_manager_copy(man);
+    }
+    oldabs->value = newvalue;
+    return oldabs;
+  }
+  else {
+    return ap_abstract0_cons(man,newvalue);
+  }
+}
+
 /* ============================================================ */
 /* I.1 Memory */
 /* ============================================================ */
