@@ -8,9 +8,8 @@
 #ifndef _AP_ABSTRACT0_H_
 #define _AP_ABSTRACT0_H_
 
-typedef struct ap_abstract0_t ap_abstract0_t;
-
 #include "ap_manager.h"
+#include "ap_box0.h"
 #include "ap_expr0.h"
 
 #ifdef __cplusplus
@@ -22,6 +21,7 @@ struct ap_abstract0_t {
   void* value;       /* Abstract value of the underlying library */
   ap_manager_t* man; /* Used to identify the effective type of value */
 };
+typedef struct ap_abstract0_t ap_abstract0_t;
 
 /* ********************************************************************** */
 /* I. General management */
@@ -130,7 +130,7 @@ ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, ap_dimension_t dim);
 
 ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 				    ap_dimension_t dim,
-				    ap_coeff_array_t tinterval);
+				    ap_box0_t tinterval);
   /* Abstract an hypercube defined by the array of coefficients (actually intervals) */
 
 /* ============================================================ */
@@ -203,13 +203,13 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
 
      The constraints are normally guaranteed to be scalar (without intervals) */
 
-void ap_abstract0_to_box(ap_manager_t* man, ap_coeff_array_t box, ap_abstract0_t* a);
+void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is ap_abstract0_dimension(man,a).  This
      function can be reimplemented by using ap_abstract0_bound_linexpr */
 
 
-void ap_abstract0_to_generator_array(ap_manager_t* man, ap_generator0_array_t array, ap_abstract0_t* a);
+void ap_abstract0_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, ap_abstract0_t* a);
   /* Converts an abstract value to a system of generators. */
 
 
@@ -250,7 +250,7 @@ ap_abstract0_meet_tcons_array(ap_manager_t* man,
 
 ap_abstract0_t*
 ap_abstract0_add_ray_array(ap_manager_t* man,
-			   bool destructive, ap_abstract0_t* a, ap_generator0_array_t array);
+			   bool destructive, ap_abstract0_t* a, ap_lingen0_array_t array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */
@@ -261,25 +261,25 @@ ap_abstract0_t*
 ap_abstract0_assign_linexpr_array(ap_manager_t* man,
 				  bool destructive,
 				  ap_abstract0_t* org,
-				  ap_dim_t* tdim, ap_linexpr0_array_t texpr, size_t size,
+				  ap_dim_t* tdim, ap_linexpr0_array_t texpr, 
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_assign_texpr_array(ap_manager_t* man,
 				bool destructive,
 				ap_abstract0_t* org,
-				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
+				ap_dim_t* tdim, ap_texpr0_array_t* array,
 				ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_substitute_linexpr_array(ap_manager_t* man,
 				      bool destructive,
 				      ap_abstract0_t* org,
-				      ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
+				      ap_dim_t* tdim, ap_linexpr0_array_t array,
 				      ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_substitute_texpr_array(ap_manager_t* man,
 				    bool destructive,
 				    ap_abstract0_t* org,
-				    ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
+				    ap_dim_t* tdim, ap_texpr0_array_t* array,
 				    ap_abstract0_t* dest);
 
   /* Parallel Assignment and Substitution of several dimensions by
@@ -376,17 +376,17 @@ ap_manager_t* ap_abstract0_manager(ap_abstract0_t* a)
      The reference should not be freed */
 
 ap_abstract0_t* ap_abstract0_of_lincons_array(ap_manager_t* man,
-					      size_t intdim, size_t realdim,
-					      ap_lincons0_array_t* array);
+					      ap_dimension_t dimension,
+					      ap_lincons0_array_t array);
 ap_abstract0_t* ap_abstract0_of_tcons_array(ap_manager_t* man,
-					    size_t intdim, size_t realdim,
+					    ap_dimension_t dimension,
 					    ap_tcons0_array_t* array);
   /* Abstract a conjunction of tree constraints */
 
 ap_abstract0_t* ap_abstract0_assign_linexpr(ap_manager_t* man,
 					    bool destructive,
 					    ap_abstract0_t* org,
-					    ap_dim_t dim, ap_linexpr0_t* expr,
+					    ap_dim_t dim, ap_linexpr0_t expr,
 					    ap_abstract0_t* dest);
 ap_abstract0_t* ap_abstract0_assign_texpr(ap_manager_t* man,
 					  bool destructive,
@@ -396,7 +396,7 @@ ap_abstract0_t* ap_abstract0_assign_texpr(ap_manager_t* man,
 ap_abstract0_t* ap_abstract0_substitute_linexpr(ap_manager_t* man,
 						bool destructive,
 						ap_abstract0_t* org,
-						ap_dim_t dim, ap_linexpr0_t* expr,
+						ap_dim_t dim, ap_linexpr0_t expr,
 						ap_abstract0_t* dest);
 ap_abstract0_t* ap_abstract0_substitute_texpr(ap_manager_t* man,
 					      bool destructive,
@@ -424,7 +424,7 @@ ap_abstract0_t* ap_abstract0_apply_dimchange2(ap_manager_t* man,
 ap_abstract0_t*
 ap_abstract0_widening_threshold(ap_manager_t* man,
 				ap_abstract0_t* a1, ap_abstract0_t* a2,
-				ap_lincons0_array_t* array);
+				ap_lincons0_array_t array);
 
 /* ********************************************************************** */
 /* ********************************************************************** */
@@ -443,7 +443,7 @@ ap_abstract0_asssub_linexpr(ap_funid_t funid,
 			    ap_manager_t* man,
 			    bool destructive,
 			    ap_abstract0_t* a,
-			    ap_dim_t dim, ap_linexpr0_t* expr,
+			    ap_dim_t dim, ap_linexpr0_t expr,
 			    ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_asssub_linexpr_array(ap_funid_t funid,
@@ -451,7 +451,7 @@ ap_abstract0_asssub_linexpr_array(ap_funid_t funid,
 				  ap_manager_t* man,
 				  bool destructive,
 				  ap_abstract0_t* a,
-				  ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
+				  ap_dim_t* tdim, ap_linexpr0_array_t array,
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_asssub_texpr(ap_funid_t funid,
@@ -467,7 +467,7 @@ ap_abstract0_asssub_texpr_array(ap_funid_t funid,
 				ap_manager_t* man,
 				bool destructive,
 				ap_abstract0_t* a,
-				ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
+				ap_dim_t* tdim, ap_texpr0_array_t* array,
 				ap_abstract0_t* dest);
 #ifdef __cplusplus
 }

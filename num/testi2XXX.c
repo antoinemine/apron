@@ -9,7 +9,7 @@
 #include "itvD.h"
 #include "itvMPQ.h"
 #include "itvMPFR.h"
-#include "numbounditvXXX_conv.h"
+#include "itvXXX_conv.h"
 
 itv_internal_t intern;
 

@@ -248,10 +248,10 @@ static inline void itvXXX_set_num(itvXXX_t a, numXXX_t b)
 }
 static inline void itvXXX_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c)
 {
-  boundXXX_set_num(a->sup,b);
-  numXXX_neg(c,c);
-  boundXXX_set_num(a->neginf,c);
-  numXXX_neg(c,c);
+  numXXX_neg(b,b);
+  boundXXX_set_num(a->neginf,b);
+  numXXX_neg(b,b);
+  boundXXX_set_num(a->sup,c);
 }
 static inline void itvXXX_set_int(itvXXX_t a, long int b)
 {

@@ -35,6 +35,12 @@ void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyy
    ap_linyyyZZZ_array_set(res->linyyy_array.ZZZ,e);
 } 
 ENDMACRO
+void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size)
+{
+  SWITCH(a->discr)
+    ap_linyyyXXX_array_resize(a->linyyy_array.XXX,size);
+  ENDSWITCH
+}
 void ap_linyyy0_array_minimize(ap_linyyy0_array_t a)
 {
   SWITCH(a->discr)

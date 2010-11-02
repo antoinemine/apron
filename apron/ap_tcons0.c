@@ -74,10 +74,10 @@ void ap_tcons0_array_resize(ap_tcons0_array_t* array, size_t size)
     ap_tcons0_clear(&array->p[i]);
   }
   array->p = (ap_tcons0_t*)realloc(array->p,size*sizeof(ap_tcons0_t));
-   for (i=array->size; i<size; i++){
+  for (i=array->size; i<size; i++){
     array->p[i].texpr0 = NULL;
   }
-   array->size = size;
+  array->size = size;
 }
 
 void ap_tcons0_array_clear(ap_tcons0_array_t* array)
@@ -93,36 +93,50 @@ void ap_tcons0_array_clear(ap_tcons0_array_t* array)
 }
 
 void ap_tcons0_array_fprint(FILE* stream,
-			      ap_tcons0_array_t* array,
-			      char** name_of_dim)
+			    ap_tcons0_array_t* array,
+			    char** name_of_dim)
 {
   size_t i;
 
-  if (array->size==0){
-    fprintf(stream,"empty array of constraints\n");
-  } else {
-    fprintf(stream,"array of constraints of size %lu\n",
-	    (unsigned long)array->size);
-    for (i=0; i<array->size; i++){
-      fprintf(stream,"%2lu: ",(unsigned long)i);
-      ap_tcons0_fprint(stream,&array->p[i],name_of_dim);
-      fprintf(stream,"\n");
-    }
+  fprintf(stream,"array of constraints of size %lu\n",
+	  (unsigned long)array->size);
+  for (i=0; i<array->size; i++){
+    fprintf(stream,"%2lu: ",(unsigned long)i);
+    ap_tcons0_fprint(stream,&array->p[i],name_of_dim);
+    fprintf(stream,"\n");
   }
 }
+void ap_tcons0_array_print(ap_tcons0_array_t* array,
+			   char** name_of_dim)
+{ ap_tcons0_array_fprint(stdout,array,name_of_dim); }
 
-bool ap_tcons0_array_is_interval_linear(ap_tcons0_array_t* array)
+static bool ap_tcons0_array_is_template(ap_tcons0_array_t* array, bool (*is_template)(ap_tcons0_t* tcons))
 {
   size_t i;
   bool res = true;
   for (i=0; i<array->size; i++){
-    if (!ap_texpr0_is_interval_linear(array->p[i].texpr0)){
-      res = false;
-      break;
-    }
+    res = is_template(&array->p[i]);
+    if (!res) break;
   }
   return res;
 }
+bool ap_tcons0_array_is_interval_linear(ap_tcons0_array_t* array)
+{
+  return ap_tcons0_array_is_template(array,ap_tcons0_is_interval_linear);
+}
+bool ap_tcons0_array_is_interval_polynomial(ap_tcons0_array_t* array)
+{
+return ap_tcons0_array_is_template(array,ap_tcons0_is_interval_polynomial);
+}
+bool ap_tcons0_array_is_interval_polyfrac(ap_tcons0_array_t* array)
+{
+  return ap_tcons0_array_is_template(array,ap_tcons0_is_interval_polyfrac);
+}
+bool ap_tcons0_array_is_scalar(ap_tcons0_array_t* array)
+{
+  return ap_tcons0_array_is_template(array,ap_tcons0_is_scalar);
+}
+
 
 /* ====================================================================== */
 /* II.1 Change of dimensions and permutations */
