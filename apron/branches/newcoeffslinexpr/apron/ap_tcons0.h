@@ -16,6 +16,7 @@
 #include "ap_coeff.h"
 #include "ap_texpr0.h"
 #include "ap_lincons0.h"
+#include "ap_lincons0_array.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,13 +131,20 @@ void ap_tcons0_array_resize(ap_tcons0_array_t* array, size_t size);
 void ap_tcons0_array_clear(ap_tcons0_array_t* array);
   /* Clear the constraints of the array, and then the array itself */
 
+ap_tcons0_array_t ap_tcons0_array_from_lincons0_array(ap_lincons0_array_t e);
+  /* From linear constraints to comb-like constraint trees */
+
 void ap_tcons0_array_fprint(FILE* stream,
 			      ap_tcons0_array_t* ap_tcons0_array,
 			      char** name_of_dim);
+void ap_tcons0_array_print(ap_tcons0_array_t* ap_tcons0_array,
+			   char** name_of_dim);
   /* Printing */
 
 bool ap_tcons0_array_is_interval_linear(ap_tcons0_array_t* array);
-  /* Are all the expressions involved interval linear ? */
+bool ap_tcons0_array_is_interval_polynomial(ap_tcons0_array_t* array);
+bool ap_tcons0_array_is_interval_polyfrac(ap_tcons0_array_t* array);
+bool ap_tcons0_array_is_scalar(ap_tcons0_array_t* array);
 
 /* ====================================================================== */
 /* II.1 Change of dimensions and permutations */
@@ -146,11 +154,6 @@ void ap_tcons0_array_add_dimensions_with(ap_tcons0_array_t* array,
 					 ap_dimchange_t* dimchange);
 ap_tcons0_array_t ap_tcons0_array_add_dimensions(ap_tcons0_array_t* array,
 						 ap_dimchange_t* dimchange);
-
-void ap_tcons0_array_remove_dimensions_with(ap_tcons0_array_t* array,
-					    ap_dimchange_t* dimchange);
-ap_tcons0_array_t ap_tcons0_array_remove_dimensions(ap_tcons0_array_t* array,
-						    ap_dimchange_t* dimchange);
 
 void ap_tcons0_array_permute_dimensions_with(ap_tcons0_array_t* array,
 					     ap_dimperm_t* perm);

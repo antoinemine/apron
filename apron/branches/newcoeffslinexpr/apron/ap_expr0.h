@@ -13,6 +13,8 @@
 #include "ap_lingen0.h"
 #include "ap_texpr0.h"
 #include "ap_tcons0.h"
-#include "ap_linearize.h"
+#include "ap_linexpr0_array.h"
+#include "ap_lincons0_array.h"
+#include "ap_lingen0_array.h"
 
 #endif

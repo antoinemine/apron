@@ -388,7 +388,6 @@ bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_line
 				    ap_environment_t* env,
 				    va_list* va);
 
-
 #ifdef __cplusplus
 }
 #endif

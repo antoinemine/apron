@@ -43,6 +43,7 @@ void ap_linyyy0_array_init_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e);
 MACRO_MAINZ
 void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e);
 ENDMACRO
+void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
 void ap_linyyy0_array_minimize(ap_linyyy0_array_t a);
 void ap_linyyy0_array_clear(ap_linyyy0_array_t e);
 void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_dim);

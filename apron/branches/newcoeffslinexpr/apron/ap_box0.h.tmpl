@@ -45,6 +45,7 @@ MACRO_MAINZ
 void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size);
 ENDMACRO
 void ap_box0_clear(ap_box0_t e);
+void ap_box0_resize(ap_box0_t, size_t size);
 void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim);
 
 /* ====================================================================== */
@@ -72,9 +73,6 @@ static inline ap_scalar_discr_t ap_box0_discr(ap_box0_t p)
 { return p->discr; }
 static inline size_t ap_box0_size(ap_box0_t p)
 { return p->size; }
-
-
-
 
 #ifdef __cplusplus
 }

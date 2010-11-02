@@ -72,46 +72,58 @@ int itvXXX_cmp_zero(itvXXX_t a)
 
 void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
-  boundXXX_mul_num(a->sup,b->sup,c);
-  boundXXX_mul_num(a->neginf,b->neginf,c);
-  if (numXXX_sgn(c)<0){
+  if (numXXX_sgn(c)>=0){
+    boundXXX_mul_num(a->sup,b->sup,c);
+    boundXXX_mul_num(a->neginf,b->neginf,c);
+  } else {
+    numXXX_neg(c,c);
+    boundXXX_mul_num(a->sup,b->sup,c);
+    boundXXX_mul_num(a->neginf,b->neginf,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    numXXX_neg(c,c);
   }
 }
 
 void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
   assert (c!=a->neginf && c!=a->sup && c!=b->neginf && c!=b->sup);
-  boundXXX_mul(a->sup,b->sup,c);
-  boundXXX_mul(a->neginf,b->neginf,c);
-  if (boundXXX_sgn(c)<0){
+  if (boundXXX_sgn(c)>=0){
+    boundXXX_mul(a->sup,b->sup,c);
+    boundXXX_mul(a->neginf,b->neginf,c);
+  } else {
+    boundXXX_neg(c,c);
+    boundXXX_mul(a->sup,b->sup,c);
+    boundXXX_mul(a->neginf,b->neginf,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    boundXXX_neg(c,c);
   }
 }
 
 void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
-  boundXXX_div_num(a->sup,b->sup,c);
-  boundXXX_div_num(a->neginf,b->neginf,c);
-  if (numXXX_sgn(c)<0){
+  if (numXXX_sgn(c)>=0){
+    boundXXX_div_num(a->sup,b->sup,c);
+    boundXXX_div_num(a->neginf,b->neginf,c);
+  } else {
+    numXXX_neg(c,c);
+    boundXXX_div_num(a->sup,b->sup,c);
+    boundXXX_div_num(a->neginf,b->neginf,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    numXXX_neg(c,c);
   }
 }
 void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
   assert (c!=a->neginf && c!=a->sup && c!=b->neginf && c!=b->sup);
-  boundXXX_div(a->sup,b->sup,c);
-  boundXXX_div(a->neginf,b->neginf,c);
-  if (boundXXX_sgn(c)<0){
+  if (boundXXX_sgn(c)>=0){
+    boundXXX_div(a->sup,b->sup,c);
+    boundXXX_div(a->neginf,b->neginf,c);
+  } else {
+    boundXXX_neg(c,c);
+    boundXXX_div(a->sup,b->sup,c);
+    boundXXX_div(a->neginf,b->neginf,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    boundXXX_neg(c,c);
   }
 }
 void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
@@ -119,9 +131,12 @@ void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
   if (a!=c){
     boundXXX_add(a->neginf,b->neginf,c->sup);
     boundXXX_add(a->sup,b->sup,c->neginf);
-  } else {
-    boundXXX_swap(a->neginf,a->sup);
+  } else if (a!=b) { /* a=c */
+    boundXXX_swap(c->sup,c->neginf);
     itvXXX_add(a,b,c);
+  } else { /* a=b=c */
+    boundXXX_add(a->sup,b->sup,c->neginf);
+    boundXXX_set(a->neginf,a->sup);
   }
 }
 void itvXXX_neg(itvXXX_t a, itvXXX_t b)
@@ -208,13 +223,13 @@ void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c,
 /* Assume that both intervals are positive */
 static
 void itvXXX_mulpp(itvXXX_t a,
-		 itvXXX_t b,
-		 itvXXX_t c,
-		 itv_internal_t intern)
+		  itvXXX_t b,
+		  itvXXX_t c,
+		  itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->neginf)<=0 && boundXXX_sgn(c->neginf)<=0);
-  boundXXX_mul(a->neginf,b->neginf,c->neginf);
-  boundXXX_neg(a->neginf,a->neginf);
+  boundXXX_neg(intern->XXX->mul_bound,c->neginf);
+  boundXXX_mul(a->neginf,b->neginf,intern->XXX->mul_bound);
   boundXXX_mul(a->sup,b->sup,c->sup);
 }
 /* Assume that both intervals are negative */
@@ -225,10 +240,10 @@ void itvXXX_mulnn(itvXXX_t a,
 		 itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->sup)<=0 && boundXXX_sgn(c->sup)<=0);
-  boundXXX_mul(a->neginf,b->neginf,c->neginf);
-  boundXXX_mul(a->sup,b->sup,c->sup);
-  boundXXX_neg(a->sup,a->sup);
-  boundXXX_swap(a->neginf,a->sup);
+  boundXXX_neg(intern->XXX->mul_bound,c->sup);
+  boundXXX_mul(intern->XXX->mul_bound,b->sup,intern->XXX->mul_bound);
+  boundXXX_mul(a->sup,b->neginf,c->neginf);
+  boundXXX_set(a->neginf,intern->XXX->mul_bound);
 }
 /* Assume that b is positive and c negative */
 static
@@ -238,9 +253,9 @@ void itvXXX_mulpn(itvXXX_t a,
 		 itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->neginf)<=0 && boundXXX_sgn(c->sup)<=0);
-  boundXXX_mul(intern->XXX->mul_bound,b->neginf,c->sup);
+  boundXXX_neg(intern->XXX->mul_bound,b->neginf);
   boundXXX_mul(a->neginf,b->sup,c->neginf);
-  boundXXX_neg(a->sup,intern->XXX->mul_bound);
+  boundXXX_mul(a->sup,intern->XXX->mul_bound,c->sup);
 }
 /* Assume that interval c is positive */
 static
@@ -331,50 +346,37 @@ static
 void itvXXX_divpp(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->neginf)<=0 && boundXXX_sgn(c->neginf)<0);
-  boundXXX_div(intern->XXX->mul_bound,b->sup,c->neginf);
+  boundXXX_neg(intern->XXX->mul_bound,c->neginf);
   boundXXX_div(a->neginf,b->neginf,c->sup);
-  boundXXX_neg(a->sup,intern->XXX->mul_bound);
+  boundXXX_div(a->sup,b->sup,intern->XXX->mul_bound);
 }
 /* Assume that both intervals are negative */
 static
 void itvXXX_divnn(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->sup)<=0 && boundXXX_sgn(c->sup)<0);
-  if (a!=b){
-    boundXXX_div(a->neginf,b->sup,c->neginf);
-    boundXXX_div(a->sup,b->neginf,c->sup);
-    boundXXX_neg(a->sup,a->sup);
-  } else {
-    boundXXX_div(intern->XXX->mul_bound,b->sup,c->neginf);
-    boundXXX_div(a->sup,b->neginf,c->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_set(a->neginf,intern->XXX->mul_bound);
-  }
+  boundXXX_neg(intern->XXX->mul_bound,b->neginf);
+  boundXXX_div(a->neginf,b->sup,c->neginf);
+  boundXXX_div(a->sup,intern->XXX->mul_bound,c->sup);
 }
 /* Assume that b is positive and c negative */
 static
 void itvXXX_divpn(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->neginf)<=0 && boundXXX_sgn(c->sup)<0);
-  /*
-     boundXXX_div(a->neginf,b->sup,c->sup);
-     boundXXX_neg(a->neginf,a->neginf)
-     boundXXX_div(a->sup,b->neginf,c->neginf);
-  */
-  boundXXX_div(a->sup,b->sup,c->sup);
-  boundXXX_div(a->neginf,b->neginf,c->neginf);
-  boundXXX_neg(a->sup,a->sup);
-  boundXXX_swap(a->neginf,a->sup);
+  boundXXX_neg(intern->XXX->mul_bound,b->sup);
+  boundXXX_div(intern->XXX->mul_bound,intern->XXX->mul_bound,c->sup);
+  boundXXX_div(a->sup,b->neginf,c->neginf);
+  boundXXX_set(a->neginf,intern->XXX->mul_bound);
 }
 /* Assume that b is negative and c positive */
 static
 void itvXXX_divnp(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
 {
   assert(boundXXX_sgn(b->sup)<=0 && boundXXX_sgn(c->neginf)<0);
-  boundXXX_neg(b->neginf, b->neginf);
-  boundXXX_div(a->neginf,b->neginf,c->neginf);
+  boundXXX_neg(intern->XXX->mul_bound, b->neginf);
+  boundXXX_div(a->neginf,intern->XXX->mul_bound,c->neginf);
   boundXXX_div(a->sup,b->sup,c->sup);
-  if (a!=b) boundXXX_neg(b->neginf, b->neginf);
 }
 
 /* Assume that interval c is positive */
@@ -393,10 +395,9 @@ void itvXXX_divp(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
   }
   else {
     /* 0 is in the middle of b: one divides b by c->neginf */
-    boundXXX_div(a->sup,b->sup,c->neginf);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_div(a->neginf,b->neginf,c->neginf);
-    boundXXX_neg(a->neginf,a->neginf);
+    boundXXX_neg(intern->XXX->mul_bound,c->neginf);
+    boundXXX_div(a->neginf,b->neginf,intern->XXX->mul_bound);
+    boundXXX_div(a->sup,b->sup,intern->XXX->mul_bound);
   }
 }
 /* Assume that interval c is negative */
@@ -415,15 +416,9 @@ void itvXXX_divn(itvXXX_t a, itvXXX_t b, itvXXX_t c, itv_internal_t intern)
   }
   else {
     /* 0 is in the middle of b: one cross-divide b by c->sup */
-    /*
-      boundXXX_div(a->neginf,b->sup,c->sup);
-      boundXXX_div(a->sup,b->neginf,c->sup);
-    */
-    boundXXX_div(a->neginf,b->neginf,c->sup);
-    boundXXX_div(a->sup,b->sup,c->sup);
-    boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
-    boundXXX_neg(a->sup,a->sup);
+    boundXXX_neg(intern->XXX->mul_bound,c->sup);
+    boundXXX_div(a->neginf,b->sup,intern->XXX->mul_bound);
+    boundXXX_div(a->sup,b->neginf,intern->XXX->mul_bound);
   }
 }
 

@@ -2,8 +2,8 @@
 /* box.h: abstract lattice of intervals */
 /* ********************************************************************** */
 
-#ifndef _BOX_H_
-#define _BOX_H_
+#ifndef _BOX_XXX_H_
+#define _BOX_XXX_H_
 
 #include <stdio.h>
 #include "ap_global0.h"
@@ -12,10 +12,7 @@
 extern "C" {
 #endif
 
-/* OCaml interface */
-ap_manager_t* box_manager_alloc(void);
-
-typedef struct box_t box_t;
+ap_manager_t* boxXXX_manager_alloc(void);
 
 /* ********************************************************************** */
 /* I. General management */
@@ -25,59 +22,59 @@ typedef struct box_t box_t;
 /* I.1 Memory */
 /* ============================================================ */
 
-box_t* box_copy(ap_manager_t* man, box_t* a);
+boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a);
   /* Return a copy of a box value, on 
      which destructive update does not affect the initial value. */
 
-void box_free(ap_manager_t* man, box_t* a);
+void boxXXX_free(ap_manager_t* man, boxXXX_t* a);
   /* Free all the memory used by the box value */
 
-size_t box_size(ap_manager_t* man, box_t* a); 
+size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a); 
   /* Return the itv size of a box value (see ap_manager_t) */
 
 /* ============================================================ */
 /* I.2 Control of internal representation */
 /* ============================================================ */
 
-void box_minimize(ap_manager_t* man, box_t* a);
+void boxXXX_minimize(ap_manager_t* man, boxXXX_t* a);
   /* Minimize the size of the representation of a. 
      This may result in a later recomputation of internal information.
   */
 
-void box_canonicalize(ap_manager_t* man, box_t* a);
+void boxXXX_canonicalize(ap_manager_t* man, boxXXX_t* a);
   /* Put the box value in canonical form. (not yet clear definition) */
-int box_hash(ap_manager_t* man, box_t* a);
+int boxXXX_hash(ap_manager_t* man, boxXXX_t* a);
   /* Return an hash code */
 
-void box_approximate(ap_manager_t* man, box_t* a, int algorithm);
+void boxXXX_approximate(ap_manager_t* man, boxXXX_t* a, int algorithm);
   /* Perform some transformation on the box value, guided by the 
      field algorithm. 
 
      The transformation may lose information. */
 
-bool box_is_minimal(ap_manager_t* man, box_t* a);
-bool box_is_canonical(ap_manager_t* man, box_t* a);
+bool boxXXX_is_minimal(ap_manager_t* man, boxXXX_t* a);
+bool boxXXX_is_canonical(ap_manager_t* man, boxXXX_t* a);
 
 /* ============================================================ */
 /* I.3 Printing */
 /* ============================================================ */
 
-void box_fprint(FILE* stream, 
+void boxXXX_fprint(FILE* stream, 
 	       ap_manager_t* man, 
-	       box_t* a, 
+	       boxXXX_t* a, 
 	       char** name_of_dim);
   /* Print the box value in a pretty way, using function 
      name_of_dim to name dimensions */
 
-void box_fprintdiff(FILE* stream, 
+void boxXXX_fprintdiff(FILE* stream, 
 		   ap_manager_t* man, 
-		   box_t* a1, box_t* a2, 
+		   boxXXX_t* a1, boxXXX_t* a2, 
 		   char** name_of_dim);
 /* Print the difference between a1 (old value) and a2 (new value), 
      using function name_of_dim to name dimensions.
      The meaning of difference is library dependent. */
 
-void box_fdump(FILE* stream, ap_manager_t* man, box_t* a);
+void boxXXX_fdump(FILE* stream, ap_manager_t* man, boxXXX_t* a);
   /* Dump the internal representation of a box value, 
      for debugging purposes */
 
@@ -85,13 +82,13 @@ void box_fdump(FILE* stream, ap_manager_t* man, box_t* a);
 /* I.4 Serialization */
 /* ============================================================ */
 
-ap_membuf_t box_serialize_raw(ap_manager_t* man, box_t* a); 
+ap_membuf_t boxXXX_serialize_raw(ap_manager_t* man, boxXXX_t* a); 
 /* Allocate a memory bfer (with malloc), output the box value in raw
    binary format to it and return a pointer on the memory buffer and the size
    of bytes written.  It is the user responsability to free the memory
    afterwards (with free). */
 
-box_t* box_deserialize_raw(ap_manager_t* man, void* ptr); 
+boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr); 
 /* Return the box value read in raw binary format from the input stream
    and store in size the number of bytes read */
 /* ********************************************************************** */
@@ -105,15 +102,15 @@ box_t* box_deserialize_raw(ap_manager_t* man, void* ptr);
 /* We assume that dimensions [0..intdim-1] correspond to integer variables, and
    dimensions [intdim..intdim+realdim-1] to real variables */
 
-box_t* box_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+boxXXX_t* boxXXX_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
   /* Create a bottom (empty) value */
 
-box_t* box_top(ap_manager_t* man, size_t intdim, size_t realdim);
+boxXXX_t* boxXXX_top(ap_manager_t* man, size_t intdim, size_t realdim);
   /* Create a top (universe) value */
 
-box_t* box_of_box(ap_manager_t* man, 
-		  size_t intdim, size_t realdim,
-		  ap_interval_t** tinterval);
+boxXXX_t* boxXXX_of_box(ap_manager_t* man, 
+		  ap_dimension_t dim,
+		  ap_coeff_array_t tinterval);
   /* Abstract an hypercube defined by the array of intervals 
      of size intdim+realdim */
 
@@ -121,34 +118,34 @@ box_t* box_of_box(ap_manager_t* man,
 /* II.2 Accessors */
 /* ============================================================ */
 
-ap_dimension_t box_dimension(ap_manager_t* man, box_t* a);
+ap_dimension_t boxXXX_dimension(ap_manager_t* man, boxXXX_t* a);
   /* Return the dimensionality of the box values */
 
 /* ============================================================ */
 /* II.3 Tests */
 /* ============================================================ */
 
-bool box_is_bottom(ap_manager_t* man, box_t* a);
-bool box_is_top(ap_manager_t* man, box_t* a);
+bool boxXXX_is_bottom(ap_manager_t* man, boxXXX_t* a);
+bool boxXXX_is_top(ap_manager_t* man, boxXXX_t* a);
 
-bool box_is_leq(ap_manager_t* man, box_t* a1, box_t* a2);
+bool boxXXX_is_leq(ap_manager_t* man, boxXXX_t* a1, boxXXX_t* a2);
   /* inclusion check */
 
-bool box_is_eq(ap_manager_t* man, box_t* a1, box_t* a2);
+bool boxXXX_is_eq(ap_manager_t* man, boxXXX_t* a1, boxXXX_t* a2);
   /* equality check */
 
-bool box_sat_lincons(ap_manager_t* man, box_t* a, ap_lincons0_t* cons);
+bool boxXXX_sat_lincons(ap_manager_t* man, boxXXX_t* a, ap_lincons0_t* cons);
   /* does the box value satisfy the linear constraint ? */
-bool box_sat_tcons(ap_manager_t* man, box_t* a, ap_tcons0_t* tcons);
+bool boxXXX_sat_tcons(ap_manager_t* man, boxXXX_t* a, ap_tcons0_t* tcons);
   /* does the box value satisfy the tree expression constraint ? */
 
-bool box_sat_interval(ap_manager_t* man,
-		      box_t* a, 
+bool boxXXX_sat_interval(ap_manager_t* man,
+		      boxXXX_t* a, 
 		      ap_dim_t dim, ap_interval_t* interval);
   /* is the dimension included in the interval in the box value ? */
 
-bool box_is_dimension_unconstrained(ap_manager_t* man, 
-				    box_t* a, ap_dim_t dim);
+bool boxXXX_is_dimension_unconstrained(ap_manager_t* man, 
+				    boxXXX_t* a, ap_dim_t dim);
   /* is the dimension unconstrained in the box value ?  If it
      is the case, we have forget(man,a,dim) == a */
 
@@ -156,37 +153,37 @@ bool box_is_dimension_unconstrained(ap_manager_t* man,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* box_bound_dimension(ap_manager_t* man, 
-				box_t* a, ap_dim_t dim);
+ap_interval_t* boxXXX_bound_dimension(ap_manager_t* man, 
+				boxXXX_t* a, ap_dim_t dim);
   /* Returns the interval taken by a linear expression  
      over the box value */
 
-ap_interval_t* box_bound_linexpr(ap_manager_t* man, 
-				 box_t* a, ap_linexpr0_t* expr);
+ap_interval_t* boxXXX_bound_linexpr(ap_manager_t* man, 
+				 boxXXX_t* a, ap_linexpr0_t* expr);
   /* Returns the interval taken by a linear expression  
      over the box value */
 
-ap_interval_t* box_bound_texpr(ap_manager_t* man, 
-			       box_t* a, ap_texpr0_t* expr);
+ap_interval_t* boxXXX_bound_texpr(ap_manager_t* man, 
+			       boxXXX_t* a, ap_texpr0_t* expr);
   /* Returns the interval taken by a tree expression  
      over the box value */
 
-ap_interval_t** box_to_box(ap_manager_t* man, box_t* a);
+void boxXXX_to_box(ap_manager_t* man, ap_coeff_array_t box, boxXXX_t* a);
   /* Converts a box value to an interval/hypercube.
-     The size of the resulting array is box_dimension(man,a).  This
-     function can be reimplemented by using box_bound_linexpr */
+     The size of the resulting array is boxXXX_dimension(man,a).  This
+     function can be reimplemented by using boxXXX_bound_linexpr */
 
-ap_lincons0_array_t box_to_lincons_array(ap_manager_t* man, box_t* a);
+ap_lincons0_array_t boxXXX_to_lincons_array(ap_manager_t* man, boxXXX_t* a);
   /* Converts a box value to a polyhedra 
      (conjunction of linear constraints).
      The size of the returned array is stored in size. */
 
-ap_tcons0_array_t box_to_tcons_array(ap_manager_t* man, box_t* a);
+ap_tcons0_array_t boxXXX_to_tcons_array(ap_manager_t* man, boxXXX_t* a);
   /* Converts an box value to conjunction of tree expressions constraints.
 
      The constraints are normally guaranteed to be scalar (without intervals) */
 
-ap_generator0_array_t box_to_generator_array(ap_manager_t* man, box_t* a);
+ap_generator0_array_t boxXXX_to_generator_array(ap_manager_t* man, boxXXX_t* a);
   /* Converts an box value to a system of generators. */
 
 /* ********************************************************************** */
@@ -198,34 +195,34 @@ ap_generator0_array_t box_to_generator_array(ap_manager_t* man, box_t* a);
 /* ============================================================ */
 
 
-box_t* box_meet(ap_manager_t* man, bool destructive, box_t* a1, box_t* a2);
+boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_t* a2);
 
-box_t* box_join(ap_manager_t* man, bool destructive, box_t* a1, box_t* a2);
+boxXXX_t* boxXXX_join(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_t* a2);
   /* Meet and Join of 2 box values */
 
 
-box_t* box_meet_array(ap_manager_t* man, box_t** tab, size_t size);
+boxXXX_t* boxXXX_meet_array(ap_manager_t* man, boxXXX_t** tab, size_t size);
 
-box_t* box_join_array(ap_manager_t* man, box_t** tab, size_t size);
+boxXXX_t* boxXXX_join_array(ap_manager_t* man, boxXXX_t** tab, size_t size);
   /* Meet and Join of an array of box values.
      Raises an [[exc_invalid_argument]] exception if [[size==0]]
      (no way to define the dimensionality of the result in such a case */
 
 
-box_t* box_meet_lincons_array(ap_manager_t* man,
+boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
 			      bool destructive,
-			      box_t* a,
+			      boxXXX_t* a,
 			      ap_lincons0_array_t* array);
   /* Meet of an box value with a set of constraints */
 
-box_t*
-box_meet_tcons_array(ap_manager_t* man,
-		     bool destructive, box_t* a, ap_tcons0_array_t* array);
+boxXXX_t*
+boxXXX_meet_tcons_array(ap_manager_t* man,
+		     bool destructive, boxXXX_t* a, ap_tcons0_array_t* array);
   /* Meet of an box value with a set of tree expressions constraints */
 
-box_t* box_add_ray_array(ap_manager_t* man,
+boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 			 bool destructive,
-			 box_t* a,
+			 boxXXX_t* a,
 			 ap_generator0_array_t* array);
   /* Generalized time elapse operator */
 
@@ -233,34 +230,34 @@ box_t* box_add_ray_array(ap_manager_t* man,
 /* III.2 Assignement and Substitutions */
 /* ============================================================ */
 
-box_t* box_assign_linexpr_array(ap_manager_t* man,
+boxXXX_t* boxXXX_assign_linexpr_array(ap_manager_t* man,
 				bool destructive,
-				box_t* a,
+				boxXXX_t* a,
 				ap_dim_t* tdim,
-				ap_linexpr0_t** texpr,
+				ap_linexpr0_array_t texpr,
 				size_t size,
-				box_t* dest);
+				boxXXX_t* dest);
 
-box_t* box_substitute_linexpr_array(ap_manager_t* man,
+boxXXX_t* boxXXX_substitute_linexpr_array(ap_manager_t* man,
 				    bool destructive,
-				    box_t* org,
+				    boxXXX_t* org,
 				    ap_dim_t* tdim,
-				    ap_linexpr0_t** texpr,
+				    ap_linexpr0_array_t texpr,
 				    size_t size,
-				    box_t* dest);
-box_t*
-box_assign_texpr_array(ap_manager_t* man,
+				    boxXXX_t* dest);
+boxXXX_t*
+boxXXX_assign_texpr_array(ap_manager_t* man,
 		       bool destructive,
-		       box_t* org,
+		       boxXXX_t* org,
 		       ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-		       box_t* dest);
+		       boxXXX_t* dest);
 
-box_t* 
-box_substitute_texpr_array(ap_manager_t* man,
+boxXXX_t* 
+boxXXX_substitute_texpr_array(ap_manager_t* man,
 			   bool destructive,
-			   box_t* org,
+			   boxXXX_t* org,
 			   ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-			   box_t* dest);
+			   boxXXX_t* dest);
   /* Parallel Assignement and Substitution of several dimensions by
      expressions in box value org.
 
@@ -273,29 +270,29 @@ box_substitute_texpr_array(ap_manager_t* man,
 /* III.3 Projections */
 /* ============================================================ */
 
-box_t* box_forget_array(ap_manager_t* man,
+boxXXX_t* boxXXX_forget_array(ap_manager_t* man,
 			bool destructive,
-			box_t* a, ap_dim_t* tdim, size_t size,
+			boxXXX_t* a, ap_dim_t* tdim, size_t size,
 			bool project);
 
 /* ============================================================ */
 /* III.4 Change and permutation of dimensions */
 /* ============================================================ */
 
-box_t* box_add_dimensions(ap_manager_t* man,
+boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
 			  bool destructive,
-			  box_t* a,
+			  boxXXX_t* a,
 			  ap_dimchange_t* dimchange,
 			  bool project);
-box_t* box_remove_dimensions(ap_manager_t* man,
+boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
 			     bool destructive,
-			     box_t* a,
+			     boxXXX_t* a,
 			     ap_dimchange_t* dimchange);
 /* Size of the permutation is supposed to be equal to
    the dimension of the box value */
-box_t* box_permute_dimensions(ap_manager_t* man,
+boxXXX_t* boxXXX_permute_dimensions(ap_manager_t* man,
 			      bool destructive,
-			      box_t* a,
+			      boxXXX_t* a,
 			      ap_dimperm_t* perm);
 
 /* ============================================================ */
@@ -303,9 +300,9 @@ box_t* box_permute_dimensions(ap_manager_t* man,
 /* ============================================================ */
 
 
-box_t* box_expand(ap_manager_t* man,
+boxXXX_t* boxXXX_expand(ap_manager_t* man,
 		  bool destructive,
-		  box_t* a,
+		  boxXXX_t* a,
 		  ap_dim_t dim,
 		  size_t n);
   /* Expand the dimension dim into itself + n additional dimensions.
@@ -320,21 +317,21 @@ box_t* box_expand(ap_manager_t* man,
   */
 
 
-box_t* box_fold(ap_manager_t* man,
+boxXXX_t* boxXXX_fold(ap_manager_t* man,
 		bool destructive,
-		box_t* a,
+		boxXXX_t* a,
 		ap_dim_t* tdim,
 		size_t size);
   /* Fold the dimensions in the array tdim of size n>=1 and put the result
      in the first dimension in the array. The other dimensions of the array
-     are then removed (using box_permute_remove_dimensions). */
+     are then removed (using boxXXX_permute_remove_dimensions). */
 
 /* ============================================================ */
 /* III.6 Widening */
 /* ============================================================ */
 
-box_t* box_widening(ap_manager_t* man,
-		    box_t* a1, box_t* a2);
+boxXXX_t* boxXXX_widening(ap_manager_t* man,
+		    boxXXX_t* a1, boxXXX_t* a2);
 
 /* ============================================================ */
 /* III.7 Closure operation */
@@ -342,7 +339,7 @@ box_t* box_widening(ap_manager_t* man,
 
 /* Returns the topological closure of a possibly opened box value */
 
-box_t* box_closure(ap_manager_t* man, bool destructive, box_t* a);
+boxXXX_t* boxXXX_closure(ap_manager_t* man, bool destructive, boxXXX_t* a);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 include Makefile.config
 
 LCFLAGS = \
--Lapron -Litv -Lbox -Loctagons -Lnewpolka \
+-Lapron -Lnum -Lbox -Loctagons -Lnewpolka \
 -L$(PPL_PREFIX)/lib -Lppl \
 -Lproducts \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
@@ -17,10 +17,9 @@ endif
 
 c:
 	(cd num; make all)
-	(cd itv; make depend all)
 	(cd apron; make all)
-	(cd newpolka; make all)
 	(cd box; make all)
+	(cd newpolka; make all)
 	(cd octagons; make MPQ D)
 ifneq ($(HAS_PPL),)
 	(cd ppl; make)
@@ -62,7 +61,6 @@ endif
 
 install:
 	(cd num; make install)
-	(cd itv; make install)
 	(cd apron; make install)
 	(cd newpolka; make install)
 	(cd box; make install)
@@ -85,7 +83,6 @@ endif
 
 clean:
 	(cd num; make clean)
-	(cd itv; make clean)
 	(cd apron; make clean)
 	(cd mlapronidl; make clean)
 	(cd box; make clean)
