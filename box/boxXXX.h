@@ -1,5 +1,5 @@
 /* ********************************************************************** */
-/* box.h: abstract lattice of intervals */
+/* boxXXX.h: abstract lattice of intervals */
 /* ********************************************************************** */
 
 #ifndef _BOX_XXX_H_
@@ -109,8 +109,8 @@ boxXXX_t* boxXXX_top(ap_manager_t* man, size_t intdim, size_t realdim);
   /* Create a top (universe) value */
 
 boxXXX_t* boxXXX_of_box(ap_manager_t* man, 
-		  ap_dimension_t dim,
-		  ap_coeff_array_t tinterval);
+			ap_dimension_t dim,
+			ap_box0_t box);
   /* Abstract an hypercube defined by the array of intervals 
      of size intdim+realdim */
 
@@ -134,18 +134,18 @@ bool boxXXX_is_leq(ap_manager_t* man, boxXXX_t* a1, boxXXX_t* a2);
 bool boxXXX_is_eq(ap_manager_t* man, boxXXX_t* a1, boxXXX_t* a2);
   /* equality check */
 
-bool boxXXX_sat_lincons(ap_manager_t* man, boxXXX_t* a, ap_lincons0_t* cons);
+bool boxXXX_sat_lincons(ap_manager_t* man, boxXXX_t* a, ap_lincons0_t cons);
   /* does the box value satisfy the linear constraint ? */
 bool boxXXX_sat_tcons(ap_manager_t* man, boxXXX_t* a, ap_tcons0_t* tcons);
   /* does the box value satisfy the tree expression constraint ? */
 
 bool boxXXX_sat_interval(ap_manager_t* man,
 		      boxXXX_t* a, 
-		      ap_dim_t dim, ap_interval_t* interval);
+		      ap_dim_t dim, ap_coeff_t interval);
   /* is the dimension included in the interval in the box value ? */
 
 bool boxXXX_is_dimension_unconstrained(ap_manager_t* man, 
-				    boxXXX_t* a, ap_dim_t dim);
+				       boxXXX_t* a, ap_dim_t dim);
   /* is the dimension unconstrained in the box value ?  If it
      is the case, we have forget(man,a,dim) == a */
 
@@ -153,27 +153,30 @@ bool boxXXX_is_dimension_unconstrained(ap_manager_t* man,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* boxXXX_bound_dimension(ap_manager_t* man, 
-				boxXXX_t* a, ap_dim_t dim);
+void boxXXX_bound_dimension(ap_manager_t* man, 
+			    ap_coeff_t interval,
+			    boxXXX_t* a, ap_dim_t dim);
   /* Returns the interval taken by a linear expression  
      over the box value */
 
-ap_interval_t* boxXXX_bound_linexpr(ap_manager_t* man, 
-				 boxXXX_t* a, ap_linexpr0_t* expr);
+void boxXXX_bound_linexpr(ap_manager_t* man, 
+			  ap_coeff_t interval,
+			  boxXXX_t* a, ap_linexpr0_t expr);
   /* Returns the interval taken by a linear expression  
      over the box value */
 
-ap_interval_t* boxXXX_bound_texpr(ap_manager_t* man, 
-			       boxXXX_t* a, ap_texpr0_t* expr);
+void boxXXX_bound_texpr(ap_manager_t* man, 
+			ap_coeff_t interval,
+			boxXXX_t* a, ap_texpr0_t* expr);
   /* Returns the interval taken by a tree expression  
      over the box value */
 
-void boxXXX_to_box(ap_manager_t* man, ap_coeff_array_t box, boxXXX_t* a);
+void boxXXX_to_box(ap_manager_t* man, ap_box0_t box, boxXXX_t* a);
   /* Converts a box value to an interval/hypercube.
      The size of the resulting array is boxXXX_dimension(man,a).  This
      function can be reimplemented by using boxXXX_bound_linexpr */
 
-ap_lincons0_array_t boxXXX_to_lincons_array(ap_manager_t* man, boxXXX_t* a);
+void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXXX_t* a);
   /* Converts a box value to a polyhedra 
      (conjunction of linear constraints).
      The size of the returned array is stored in size. */
@@ -183,7 +186,7 @@ ap_tcons0_array_t boxXXX_to_tcons_array(ap_manager_t* man, boxXXX_t* a);
 
      The constraints are normally guaranteed to be scalar (without intervals) */
 
-ap_generator0_array_t boxXXX_to_generator_array(ap_manager_t* man, boxXXX_t* a);
+void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_t* a);
   /* Converts an box value to a system of generators. */
 
 /* ********************************************************************** */
@@ -221,9 +224,9 @@ boxXXX_meet_tcons_array(ap_manager_t* man,
   /* Meet of an box value with a set of tree expressions constraints */
 
 boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
-			 bool destructive,
-			 boxXXX_t* a,
-			 ap_generator0_array_t* array);
+			       bool destructive,
+			       boxXXX_t* a,
+			       ap_lingen0_array_t array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */

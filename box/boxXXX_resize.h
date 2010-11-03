@@ -1,28 +1,28 @@
 /* ********************************************************************** */
-/* box_resize.h */
+/* boxXXX_resize.h */
 /* ********************************************************************** */
 
-#ifndef _BOX_RESIZE_H_
-#define _BOX_RESIZE_H_
+#ifndef _BOX_XXX_RESIZE_H_
+#define _BOX_XXX_RESIZE_H_
 
-#include "box.h"
+#include "boxXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-box_t* box_add_dimensions(ap_manager_t* man,
-			  bool destructive, box_t* a,
+boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
+			  bool destructive, boxXXX_t* a,
 			  ap_dimchange_t* dimchange,
 			  bool project);
 
-box_t* box_remove_dimensions(ap_manager_t* man,
-			     bool destructive, box_t* a,
+boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
+			     bool destructive, boxXXX_t* a,
 			     ap_dimchange_t* dimchange);
 
-box_t* box_permute_dimensions(ap_manager_t* man,
+boxXXX_t* boxXXX_permute_dimensions(ap_manager_t* man,
 			      bool destructive,
-			      box_t* a,
+			      boxXXX_t* a,
 			      ap_dimperm_t* permutation);
 
 #ifdef __cplusplus

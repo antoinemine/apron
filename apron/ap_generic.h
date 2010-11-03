@@ -35,8 +35,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
   /* This function implements a generic sat_tcons operation using
      ap_linearize_texpr0 and sat_lincons operations. */
 
-ap_interval_t* ap_generic_bound_texpr(ap_manager_t* man, void* abs, ap_texpr0_t* expr,
-				      ap_scalar_discr_t discr, bool quasilinearize);
+void ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval, void* abs, ap_texpr0_t* expr, bool quasilinearize);
   /* This function implements a generic bound_texpr operation using to_box and 
      ap_eval_texpr0 operations. */
   
