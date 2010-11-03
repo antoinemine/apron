@@ -11,10 +11,10 @@
 
 void boxXXX_internal_init(boxXXX_internal_t* intern)
 {
-  intern->itv = itv_internal_alloc();
+  itv_internal_init(intern->itv);
   eitvXXX_init(intern->bound_linexpr_internal_itv);
   eitvXXX_init(intern->bound_linexpr_internal_itv2);
-  /*  intern->sat_interval_interval = ap_interval_alloc();*/
+  eitvXXX_init(intern->sat_interval_eitv);
   eitvXXX_init(intern->sat_lincons_itv);
   numXXX_init(intern->sat_lincons_num);
   eitvXXX_init(intern->bound_linexpr_itv);
@@ -25,11 +25,10 @@ void boxXXX_internal_init(boxXXX_internal_t* intern)
 }
 void boxXXX_internal_clear(boxXXX_internal_t* intern)
 {
-  itv_internal_free(intern->itv); intern->itv=NULL;
+  itv_internal_clear(intern->itv);
   eitvXXX_clear(intern->bound_linexpr_internal_itv);
   eitvXXX_clear(intern->bound_linexpr_internal_itv2);
-  /*  ap_interval_free(intern->sat_interval_interval); */
-  intern->sat_interval_interval = NULL; 
+  eitvXXX_clear(intern->sat_interval_eitv);
   eitvXXX_clear(intern->sat_lincons_itv);
   numXXX_clear(intern->sat_lincons_num);
   eitvXXX_clear(intern->bound_linexpr_itv);
@@ -97,7 +96,7 @@ ap_manager_t* boxXXX_manager_alloc(void)
   funptr[AP_FUNID_TO_BOX] = &boxXXX_to_box;
   funptr[AP_FUNID_TO_LINCONS_ARRAY] = &boxXXX_to_lincons_array;
   funptr[AP_FUNID_TO_TCONS_ARRAY] = &boxXXX_to_tcons_array;
-  funptr[AP_FUNID_TO_GENERATOR_ARRAY] = &boxXXX_to_generator_array;
+  funptr[AP_FUNID_TO_LINGEN_ARRAY] = &boxXXX_to_lingen_array;
   funptr[AP_FUNID_MEET] = &boxXXX_meet;
   funptr[AP_FUNID_MEET_ARRAY] = &boxXXX_meet_array;
   funptr[AP_FUNID_MEET_LINCONS_ARRAY] = &boxXXX_meet_lincons_array;

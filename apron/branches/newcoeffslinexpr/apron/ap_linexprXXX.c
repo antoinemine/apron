@@ -773,6 +773,36 @@ size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
 }
 
 /* Evaluate an interval linear expression */
+bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, ap_linexpr0_t expr, eitvXXX_t* env, itv_internal_t intern)
+{
+  size_t i;
+  ap_dim_t dim;
+  ap_coeff_t coeff;
+  bool exact;
+
+  SWITCHZ(expr->discr)
+    {
+      eitvZZZ_ptr eitv;
+
+      exact = eitvXXX_set_eitvZZZ(res,expr->linexpr.ZZZ->cst,intern->num);
+      ap_linexprZZZ_ForeachLinterm0(expr->linexpr.ZZZ,i,dim,eitv){
+	exact =  eitvXXX_set_eitvZZZ(intern->XXX->eval_eitv,eitv,intern->num) && exact;
+	eitvXXX_mul(intern->XXX->eval_eitv, intern->XXX->eval_eitv, env[dim], intern);
+	eitvXXX_add(res,res,intern->XXX->eval_eitv);
+	if (eitvXXX_is_top(res))
+	  break;
+      }
+    }
+  ENDSWITCH
+#if NUMXXX_EXACT
+  return exact;
+#else
+  return false;
+#endif
+}    
+
+
+
 bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, itv_internal_t intern)
 {
   size_t i;

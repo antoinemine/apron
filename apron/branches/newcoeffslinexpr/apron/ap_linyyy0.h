@@ -54,6 +54,9 @@ void ap_linyyy0_init_set(ap_linyyy0_t res, ap_linyyy0_t e);
 MACRO_MAINZ
 void ap_linyyy0_init_set_linyyyZZZ(ap_linyyy0_t res, ap_linyyyZZZ_t e);
 ENDMACRO
+#if defined (_AP_lincons0_MARK_)
+void ap_lincons0_set_bool(ap_lincons0_t res, bool b);
+#endif
 void ap_linyyy0_clear(ap_linyyy0_t e);
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim);
 void ap_linyyy0_minimize(ap_linyyy0_t a);

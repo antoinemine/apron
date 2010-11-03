@@ -1,44 +1,44 @@
 /* ********************************************************************** */
-/* box_representation.c: general management */
+/* boxXXX_representation.c: general management */
 /* ********************************************************************** */
 
-#ifndef _BOX_REPRESENTATION_H_
-#define _BOX_REPRESENTATION_H_
+#ifndef _BOX_XXX_REPRESENTATION_H_
+#define _BOX_XXX_REPRESENTATION_H_
 
-#include "box.h"
+#include "boxXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Internal functions */
-box_t* box_alloc(size_t intdim, size_t realdim);
-void box_init(box_t* a);
-void box_set_bottom(box_t* a);
-void box_set_top(box_t* a);
-void box_set(box_t* a, box_t* b);
+boxXXX_t* boxXXX_alloc(size_t intdim, size_t realdim);
+void boxXXX_init(boxXXX_t* a);
+void boxXXX_set_bottom(boxXXX_t* a);
+void boxXXX_set_top(boxXXX_t* a);
+void boxXXX_set(boxXXX_t* a, boxXXX_t* b);
 
 /* 1. Memory */
-box_t* box_copy(ap_manager_t* man, box_t* a);
-void box_free(ap_manager_t* man, box_t* a);
-size_t box_size(ap_manager_t* man, box_t* a);
+boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a);
+void boxXXX_free(ap_manager_t* man, boxXXX_t* a);
+size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a);
 
 /* 2. Control of internal representation */
-void box_minimize(ap_manager_t* man, box_t* a);
-void box_canonicalize(ap_manager_t* man, box_t* a);
-void box_approximate(ap_manager_t* man, box_t* a, int algorithm);
+void boxXXX_minimize(ap_manager_t* man, boxXXX_t* a);
+void boxXXX_canonicalize(ap_manager_t* man, boxXXX_t* a);
+void boxXXX_approximate(ap_manager_t* man, boxXXX_t* a, int algorithm);
 
 /* 3. Printing */
-void box_print(FILE* stream,
-	       ap_manager_t* man,box_t* a,char** name_of_dim);
-void box_dump(FILE* stream, ap_manager_t* man, box_t* a);
-void box_printdiff(FILE* stream,
-		   ap_manager_t* man, box_t* a, box_t* b,
+void boxXXX_print(FILE* stream,
+	       ap_manager_t* man,boxXXX_t* a,char** name_of_dim);
+void boxXXX_dump(FILE* stream, ap_manager_t* man, boxXXX_t* a);
+void boxXXX_printdiff(FILE* stream,
+		   ap_manager_t* man, boxXXX_t* a, boxXXX_t* b,
 		   char** name_of_dim);
 
 /* 4. Serialization */
-ap_membuf_t box_serialize_raw(ap_manager_t* man, box_t* a);
-box_t* box_deserialize_raw(ap_manager_t* man, void* ptr);
+ap_membuf_t boxXXX_serialize_raw(ap_manager_t* man, boxXXX_t* a);
+boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr);
 
 #ifdef __cplusplus
 }

@@ -30,10 +30,10 @@ typedef struct boxXXX_t boxXXX_t;
 ap_manager_t* boxXXX_manager_alloc(void);
 
 typedef struct boxXXX_internal_t {
-  itv_internal_t* itv;
+  itv_internal_t itv;
   eitvXXX_t bound_linexpr_internal_itv;
   eitvXXX_t bound_linexpr_internal_itv2;
-  /*  ap_interval_t* sat_interval_interval;*/
+  eitvXXX_t sat_interval_eitv;
   eitvXXX_t sat_lincons_itv;
   numXXX_t sat_lincons_num;
   eitvXXX_t bound_linexpr_itv;

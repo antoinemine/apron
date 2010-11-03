@@ -38,6 +38,14 @@ void ap_linyyy0_init_set_linyyyZZZ(ap_linyyy0_t res, ap_linyyyZZZ_t e)
   ap_linyyyZZZ_set(res->linyyy.ZZZ,e);
 }
 ENDMACRO
+#if defined (_AP_lincons0_MARK_)
+void ap_lincons0_set_bool(ap_lincons0_t e, bool b)
+{
+  SWITCH(e->discr)
+    ap_linconsXXX_set_bool(e->lincons.XXX,b);
+  ENDSWITCH
+}
+#endif
 void ap_linyyy0_clear(ap_linyyy0_t e)
 {
   SWITCH(e->discr)

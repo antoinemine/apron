@@ -218,6 +218,8 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t expr,
 /* ********************************************************************** */
 /* Va. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
+struct ap_linexpr0_struct;
+bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, struct ap_linexpr0_struct* expr, eitvXXX_t* env, itv_internal_t intern);
 
 bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, itv_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
