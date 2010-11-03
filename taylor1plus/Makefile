@@ -73,8 +73,8 @@ dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so \
 dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
-LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron_debug
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron -L../polka -lpolkaMPQ -L../box -lboxMPQ 
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron_debug -L../polka -lpolkaMPQ_debug -L../box -lboxMPQ_debug
 
 #---------------------------------------
 # Rules
