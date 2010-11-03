@@ -240,10 +240,8 @@ void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a);
      The size of the resulting array is ap_abstract0_dimension(man,a).  This
      function can be reimplemented by using ap_abstract0_bound_linexpr */
 
-
 void ap_abstract0_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, ap_abstract0_t* a);
   /* Converts an abstract value to a system of generators. */
-
 
 /* ********************************************************************** */
 /* III. Operations */

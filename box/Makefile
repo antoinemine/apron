@@ -30,17 +30,20 @@ ICFLAGS = \
 TMPL = MPQ D MPFR
 
 H_TMPL_FILES = \
-boxXXX.h boxXXX_internal.h #boxXXX_representation.h boxXXX_constructor.h boxXXX_meetjoin.h boxXXX_assign.h boxXXX_resize.h boxXXX_otherops.h
+boxXXX.h boxXXX_internal.h boxXXX_representation.h boxXXX_constructor.h boxXXX_meetjoin.h boxXXX_assign.h boxXXX_resize.h boxXXX_otherops.h
 C_TMPL_FILES = \
-boxXXX_internal.c #boxXXX_representation.c boxXXX_constructor.c boxXXX_meetjoin.c boxXXX_assign.c boxXXX_resize.c boxXXX_otherops.c
+boxXXX_internal.c boxXXX_representation.c boxXXX_constructor.c boxXXX_meetjoin.c boxXXX_assign.c boxXXX_resize.c boxXXX_otherops.c
 
 H_ORIG_FILES =
 C_ORIG_FILES =
 
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
+
 H_GENERATED_FILES = \
-$(TMPL:%=box%.h) $(TMPL:%=box%_internal.h) #$(TMPL:%=box%_representation.h) $(TMPL:%=box%_constructor.h) $(TMPL:%=box%_meetjoin.h) $(TMPL:%=box%_assign.h) $(TMPL:%=box%_resize.h) $(TMPL:%=box%_otherops.h)
+$(TMPL:%=box%.h) $(TMPL:%=box%_internal.h) $(TMPL:%=box%_representation.h) $(TMPL:%=box%_constructor.h) $(TMPL:%=box%_meetjoin.h) $(TMPL:%=box%_assign.h) $(TMPL:%=box%_resize.h) $(TMPL:%=box%_otherops.h)
 C_GENERATED_FILES = \
-$(TMPL:%=box%_internal.c) #$(TMPL:%=box%_representation.c) $(TMPL:%=box%_constructor.c) $(TMPL:%=box%_meetjoin.c) $(TMPL:%=box%_assign.c) $(TMPL:%=box%_resize.c) $(TMPL:%=box%_otherops.c)
+$(TMPL:%=box%_internal.c) $(TMPL:%=box%_representation.c) $(TMPL:%=box%_constructor.c) $(TMPL:%=box%_meetjoin.c) $(TMPL:%=box%_assign.c) $(TMPL:%=box%_resize.c) $(TMPL:%=box%_otherops.c)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
@@ -129,6 +132,30 @@ $(TMPL:%=box%.h): box%.h: boxXXX.h
 $(TMPL:%=box%_internal.h): box%_internal.h: boxXXX_internal.h
 	$(generate-file)
 $(TMPL:%=box%_internal.c): box%_internal.c: boxXXX_internal.c
+	$(generate-file)
+$(TMPL:%=box%_representation.h): box%_representation.h: boxXXX_representation.h
+	$(generate-file)
+$(TMPL:%=box%_representation.c): box%_representation.c: boxXXX_representation.c
+	$(generate-file)
+$(TMPL:%=box%_constructor.h): box%_constructor.h: boxXXX_constructor.h
+	$(generate-file)
+$(TMPL:%=box%_constructor.c): box%_constructor.c: boxXXX_constructor.c
+	$(generate-file)
+$(TMPL:%=box%_meetjoin.h): box%_meetjoin.h: boxXXX_meetjoin.h
+	$(generate-file)
+$(TMPL:%=box%_meetjoin.c): box%_meetjoin.c: boxXXX_meetjoin.c
+	$(generate-file)
+$(TMPL:%=box%_assign.h): box%_assign.h: boxXXX_assign.h
+	$(generate-file)
+$(TMPL:%=box%_assign.c): box%_assign.c: boxXXX_assign.c
+	$(generate-file)
+$(TMPL:%=box%_resize.h): box%_resize.h: boxXXX_resize.h
+	$(generate-file)
+$(TMPL:%=box%_resize.c): box%_resize.c: boxXXX_resize.c
+	$(generate-file)
+$(TMPL:%=box%_otherops.h): box%_otherops.h: boxXXX_otherops.h
+	$(generate-file)
+$(TMPL:%=box%_otherops.c): box%_otherops.c: boxXXX_otherops.c
 	$(generate-file)
 
 #---------------------------------------

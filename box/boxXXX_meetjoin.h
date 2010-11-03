@@ -1,34 +1,34 @@
 /* ********************************************************************** */
-/* box_meetjoin.h */
+/* boxXXX_meetjoin.h */
 /* ********************************************************************** */
 
-#ifndef _BOX_MEETJOIN_H_
-#define _BOX_MEETJOIN_H_
+#ifndef _BOX_XXX_MEETJOIN_H_
+#define _BOX_XXX_MEETJOIN_H_
 
-#include "box.h"
+#include "boxXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void box_add_ray(box_internal_t* intern,
-		 box_t* a, ap_generator0_t* gen);
+void boxXXX_add_ray(boxXXX_internal_t* intern,
+		 boxXXX_t* a, ap_generator0_t* gen);
 
-box_t* box_meet(ap_manager_t* man, bool destructive, box_t* a1, box_t* a2);
-box_t* box_join(ap_manager_t* man, bool destructive, box_t* a1, box_t* a2);
-box_t* box_meet_array(ap_manager_t* man, box_t** tab, size_t size);
-box_t* box_join_array(ap_manager_t* man, box_t** tab, size_t size);
-box_t* box_meet_lincons_array(ap_manager_t* man,
+boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_t* a2);
+boxXXX_t* boxXXX_join(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_t* a2);
+boxXXX_t* boxXXX_meet_array(ap_manager_t* man, boxXXX_t** tab, size_t size);
+boxXXX_t* boxXXX_join_array(ap_manager_t* man, boxXXX_t** tab, size_t size);
+boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
 			      bool destructive,
-			      box_t* a,
+			      boxXXX_t* a,
 			      ap_lincons0_array_t* array);
-box_t* box_meet_tcons_array(ap_manager_t* man,
+boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
 			    bool destructive,
-			    box_t* a,
+			    boxXXX_t* a,
 			    ap_tcons0_array_t* array);
-box_t* box_add_ray_array(ap_manager_t* man,
+boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 			 bool destructive,
-			 box_t* a, ap_generator0_array_t* array);
+			 boxXXX_t* a, ap_generator0_array_t* array);
 
 #ifdef __cplusplus
 }

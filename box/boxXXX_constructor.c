@@ -1,16 +1,17 @@
 /* ********************************************************************** */
-/* box_constructor.c: constructors */
+/* boxXXX_constructor.c: constructors */
 /* ********************************************************************** */
 
 #include <string.h>
 #include <stdio.h>
 
-#include "box_internal.h"
-#include "box_representation.h"
+#include "itvXXX_conv.h"
+#include "boxXXX_internal.h"
+#include "boxXXX_representation.h"
 #include "ap_generic.h"
 
-#include "itv_linexpr.h"
-#include "itv_linearize.h"
+#include "ap_linexprXXX.h"
+#include "ap_linexpr0.h"
 
 /* ********************************************************************** */
 /* 1. Basic constructors */
@@ -20,21 +21,21 @@
    dimensions [intdim..intdim+realdim-1] to real variables */
 
 /* Create a bottom (empty) value */
-box_t* box_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
+boxXXX_t* boxXXX_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 {
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  return box_alloc(intdim,realdim);
+  return boxXXX_alloc(intdim,realdim);
 }
 
 /* Create a top (universe) value */
-box_t* box_top(ap_manager_t* man, size_t intdim, size_t realdim)
+boxXXX_t* boxXXX_top(ap_manager_t* man, size_t intdim, size_t realdim)
 {
   size_t i;
-  box_t* a = box_alloc(intdim,realdim);
-  box_init(a);
+  boxXXX_t* a = boxXXX_alloc(intdim,realdim);
+  boxXXX_init(a);
   for(i=0;i<a->intdim+a->realdim; i++){
-    itv_set_top(a->p[i]);
+    eitvXXX_set_top(a->p[i]);
   }
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -43,25 +44,27 @@ box_t* box_top(ap_manager_t* man, size_t intdim, size_t realdim)
 
 /* Abstract an hypercube defined by the array of intervals
    of size intdim+realdim */
-box_t* box_of_box(ap_manager_t* man,
-		  size_t intdim, size_t realdim,
-		  ap_interval_t** tinterval)
+boxXXX_t* boxXXX_of_box(ap_manager_t* man,
+			ap_dimension_t dim,
+			ap_box0_t box)
 {
   size_t i;
   bool exc;
-  box_internal_t* intern = box_init_from_manager(man,AP_FUNID_OF_BOX);
+  ap_coeff_t coeffref;
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_OF_BOX);
 
-  box_t* a = box_alloc(intdim,realdim);
-  if (intdim+realdim!=0){
-    box_init(a);
-    for(i=0;i<intdim+realdim; i++){
-      itv_set_ap_interval(intern->itv,a->p[i],tinterval[i]);
-      exc = itv_canonicalize(intern->itv,a->p[i],i<intdim);
-      if (exc) { box_set_bottom(a); break; }
-    }
-  }
   man->result.flag_best = true;
   man->result.flag_exact = true;
+  boxXXX_t* a = boxXXX_alloc(dim.intdim,dim.realdim);
+  if (dim.intdim+dim.realdim!=0){
+    boxXXX_init(a);
+    man->result.flag_exact = 
+      ap_eitvXXX_array_set_box0(a->p,box,intern->itv->num);
+    for(i=0;i<dim.intdim+dim.realdim; i++){
+      exc = eitvXXX_canonicalize(a->p[i],i<dim.intdim,intern->itv);
+      if (exc) { boxXXX_set_bottom(a); break; }
+    }
+  }
   return a;
 }
 
@@ -69,7 +72,7 @@ box_t* box_of_box(ap_manager_t* man,
 /* 2. Accessors */
 /* ********************************************************************** */
 
-ap_dimension_t box_dimension(ap_manager_t* man, box_t* a)
+ap_dimension_t boxXXX_dimension(ap_manager_t* man, boxXXX_t* a)
 { 
   ap_dimension_t res;
   res.intdim = a->intdim;
@@ -81,14 +84,14 @@ ap_dimension_t box_dimension(ap_manager_t* man, box_t* a)
 /* 3. Tests */
 /* ********************************************************************** */
 
-bool box_is_bottom(ap_manager_t* man, box_t* a)
+bool boxXXX_is_bottom(ap_manager_t* man, boxXXX_t* a)
 {
   man->result.flag_best = true;
   man->result.flag_exact = true;
   return a->p==NULL;
 }
 
-bool box_is_top(ap_manager_t* man, box_t* a)
+bool boxXXX_is_top(ap_manager_t* man, boxXXX_t* a)
 {
   size_t i;
   bool res;
@@ -101,7 +104,7 @@ bool box_is_top(ap_manager_t* man, box_t* a)
 
   res = true;
   for (i=0;i<nbdims;i++){
-    if (! itv_is_top(a->p[i])){
+    if (! eitvXXX_is_top(a->p[i])){
       res = false;
       break;
     }
@@ -110,7 +113,7 @@ bool box_is_top(ap_manager_t* man, box_t* a)
 }
 
 /* inclusion check */
-bool box_is_leq(ap_manager_t* man, box_t* a, box_t* b)
+bool boxXXX_is_leq(ap_manager_t* man, boxXXX_t* a, boxXXX_t* b)
 {
   size_t i;
   bool res;
@@ -126,7 +129,7 @@ bool box_is_leq(ap_manager_t* man, box_t* a, box_t* b)
 
   res = true;
   for (i=0;i<nbdims;i++){
-    if (! itv_is_leq(a->p[i],b->p[i])){
+    if (! eitvXXX_is_leq(a->p[i],b->p[i])){
       res = false;
       break;
     }
@@ -135,7 +138,7 @@ bool box_is_leq(ap_manager_t* man, box_t* a, box_t* b)
 }
 
 /* equality check */
-bool box_is_eq(ap_manager_t* man, box_t* a, box_t* b)
+bool boxXXX_is_eq(ap_manager_t* man, boxXXX_t* a, boxXXX_t* b)
 {
   size_t i;
   bool res;
@@ -151,7 +154,7 @@ bool box_is_eq(ap_manager_t* man, box_t* a, box_t* b)
 
   res = true;
   for (i=0;i<nbdims;i++){
-    if (! itv_is_eq(a->p[i],b->p[i])){
+    if (! eitvXXX_is_eq(a->p[i],b->p[i])){
       res = false;
       break;
     }
@@ -159,62 +162,63 @@ bool box_is_eq(ap_manager_t* man, box_t* a, box_t* b)
   return res;
 }
 
-bool box_is_dimension_unconstrained(ap_manager_t* man, box_t* a, ap_dim_t dim)
+bool boxXXX_is_dimension_unconstrained(ap_manager_t* man, boxXXX_t* a, ap_dim_t dim)
 {
-  return a->p && itv_is_top(a->p[dim]);
+  return a->p && eitvXXX_is_top(a->p[dim]);
 }
 
 /* is the dimension included in the interval in the abstract value ? */
-bool box_sat_interval(ap_manager_t* man, 
-			 box_t* a,
-			 ap_dim_t dim, ap_interval_t* interval)
+bool boxXXX_sat_interval(ap_manager_t* man, 
+			 boxXXX_t* a,
+			 ap_dim_t dim, ap_coeff_t interval)
 {
-  box_internal_t* intern = box_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
   man->result.flag_best = true;
   man->result.flag_exact = true;
   if (a->p==NULL)
     return true;
 
-  ap_interval_set_itv(intern->itv, intern->sat_interval_interval, a->p[dim]);
-  return ap_interval_is_leq(intern->sat_interval_interval,interval);
+  eitvXXX_set_ap_coeff(intern->sat_interval_eitv, interval, intern->itv->num);
+  return eitvXXX_is_leq(a->p[dim],intern->sat_interval_eitv);
 }
 
 /* does the abstract value satisfy the linear constraint ? */
-bool box_sat_lincons(ap_manager_t* man,
-			box_t* a, ap_lincons0_t* cons)
+bool boxXXX_sat_lincons(ap_manager_t* man,
+			boxXXX_t* a, ap_lincons0_t cons)
 {
-  itv_lincons_t lincons;
+  ap_linexpr0_t linexpr0;
+  ap_linconsXXX_t lincons;
   bool exact;
   tbool_t res;
-  box_internal_t* intern = box_init_from_manager(man,AP_FUNID_SAT_LINCONS);
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
   
   man->result.flag_best = man->result.flag_exact = true;
   
   if (a->p==NULL)
     return true;
 
-  itv_lincons_init(&lincons);
-  itv_lincons_set_ap_lincons0(intern->itv,&lincons,cons);
-  exact = itv_eval_ap_linexpr0(intern->itv,
-			       lincons.linexpr.cst, cons->linexpr0, a->p);
-  lincons.linexpr.equality = itv_is_point(intern->itv,lincons.linexpr.cst);
-  itv_linexpr_reinit(&lincons.linexpr,0);
-  res = itv_eval_cstlincons(intern->itv,&lincons);
-  itv_lincons_clear(&lincons);
-  
+  ap_lincons0_linexpr0ref(linexpr0,cons);
+  exact = eitvXXX_eval_ap_linexpr0(intern->sat_lincons_itv,
+				   linexpr0,a->p,intern->itv);
+  ap_linconsXXX_init(lincons,0);
+  eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
+  lincons->constyp = ap_lincons0_get_constyp(cons);
+  ap_lincons0_get_mpq(lincons->mpq,cons);
+
+  res = ap_linconsXXX_evalcst(lincons,intern->itv);
+  ap_linconsXXX_clear(lincons);
   man->result.flag_exact = exact;
-  
   return res==tbool_true;
 }
 
 /* does the abstract value satisfy the tree constraint ? */
-bool box_sat_tcons(ap_manager_t* man, 
-		      box_t* a, ap_tcons0_t* cons)
+bool boxXXX_sat_tcons(ap_manager_t* man, 
+		      boxXXX_t* a, ap_tcons0_t* cons)
 {
-  itv_lincons_t lincons;
+  ap_linconsXXX_t lincons;
   bool exact;
   tbool_t res;
-  box_internal_t* intern = box_init_from_manager(man,AP_FUNID_SAT_TCONS);
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_TCONS);
   
   man->result.flag_best = man->result.flag_exact = true;
   
@@ -222,18 +226,15 @@ bool box_sat_tcons(ap_manager_t* man,
     return true;
   
   man->result.flag_best = man->result.flag_exact = false;
-  itv_lincons_init(&lincons);
-  itv_eval_ap_texpr0(intern->itv,
-		     lincons.linexpr.cst, cons->texpr0, a->p);
-  lincons.linexpr.equality = itv_is_point(intern->itv,lincons.linexpr.cst);
-  lincons.constyp = cons->constyp;
-  if (cons->scalar)
-    num_set_ap_scalar(lincons.num,cons->scalar);
-  else
-    num_set_int(lincons.num,0);
-  res = itv_eval_cstlincons(intern->itv,&lincons);
-  if (res==tbool_top) res = tbool_false;
-  itv_lincons_clear(&lincons);
+
+  eitvXXX_eval_ap_texpr0(intern->sat_lincons_itv,
+			 cons->texpr0,a->p,intern->itv);
+  ap_linconsXXX_init(lincons,0);
+  eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
+  lincons->constyp = cons->constyp;
+  mpq_set(lincons->mpq, cons->mpq);
+  res = ap_linconsXXX_evalcst(lincons,intern->itv);
+  ap_linconsXXX_clear(lincons);
   return res==tbool_true;
 }
 
@@ -241,284 +242,278 @@ bool box_sat_tcons(ap_manager_t* man,
 /* II.4 Extraction of properties */
 /* ********************************************************************** */
 
-ap_interval_t* box_bound_dimension(ap_manager_t* man,
-				   box_t* a, ap_dim_t dim)
+void boxXXX_bound_dimension(ap_manager_t* man,
+			    ap_coeff_t interval, boxXXX_t* a, ap_dim_t dim)
 {
   bool exact;
-  box_internal_t* intern = box_init_from_manager(man,AP_FUNID_BOUND_DIMENSION);
-  ap_interval_t* interval = ap_interval_alloc();
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_BOUND_DIMENSION);
   if (a->p==NULL){
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     exact = true;
   }
   else {
-    exact = ap_interval_set_itv(intern->itv,interval,a->p[dim]);
-    
+    exact = ap_coeff_set_eitvXXX(interval,a->p[dim],intern->itv->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = exact;
-  return interval;
 }
 
 /* Returns the interval taken by a linear expression
    over the abstract value */
-ap_interval_t* box_bound_linexpr(ap_manager_t* man,
-				 box_t* a, ap_linexpr0_t* expr)
+void boxXXX_bound_linexpr(ap_manager_t* man,
+			  ap_coeff_t interval, boxXXX_t* a, ap_linexpr0_t expr)
 {
   bool exact;
-  ap_interval_t* interval = ap_interval_alloc();
-  box_internal_t* intern =  box_init_from_manager(man,AP_FUNID_BOUND_LINEXPR);
+  boxXXX_internal_t* intern =  boxXXX_init_from_manager(man,AP_FUNID_BOUND_LINEXPR);
 
   if (a->p==NULL){
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     exact = true;
   }
   else {
-    exact = itv_eval_ap_linexpr0(intern->itv,
-				 intern->bound_linexpr_itv,expr,a->p);
-				 
-    ap_interval_set_itv(intern->itv, interval,intern->bound_linexpr_itv);
+    exact = eitvXXX_eval_ap_linexpr0(intern->bound_linexpr_itv,
+				     expr,a->p,intern->itv);
+    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv,intern->itv->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = exact;
-  return interval;
 }
 
 /* Returns the interval taken by a tree expression
    over the abstract value */
-ap_interval_t* box_bound_texpr(ap_manager_t* man,
-			       box_t* a, ap_texpr0_t* expr)
+void boxXXX_bound_texpr(ap_manager_t* man,
+			ap_coeff_t interval, boxXXX_t* a, ap_texpr0_t* expr)
 {
   bool exact;
-  ap_interval_t* interval;
-  box_internal_t* intern =  box_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
+  boxXXX_internal_t* intern =  boxXXX_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
 
-  interval = ap_interval_alloc();
   if (a->p==NULL){
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     exact = true;
   }
   else {
-    itv_eval_ap_texpr0(intern->itv,
-		       intern->bound_linexpr_itv,expr,a->p);
-    ap_interval_set_itv(intern->itv, interval, intern->bound_linexpr_itv);
+    eitvXXX_eval_ap_texpr0(intern->bound_linexpr_itv,expr,a->p, intern->itv);
+    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv, intern->itv->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = false;
-  return interval;
 }
 
 /* Converts an abstract value to a polyhedra
-   (conjunction of linear constraints).
-   The size of the returned array is stored in size. */
-ap_lincons0_array_t box_to_lincons_array(ap_manager_t* man, box_t* a)
-{
-  size_t i;
-  ap_lincons0_array_t array;
-  box_internal_t* intern = (box_internal_t*)man->internal;
+   (conjunction of linear constraints). */
 
+void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXXX_t* a)
+{
+  bool exact,exact2;
+  size_t i,j;
+  ap_lincons0_t lincons0ref;
+  boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
   size_t nbdims = a->intdim + a->realdim;
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
   if (a->p==NULL){
-    array = ap_lincons0_array_make(1);
-    array.p[0] = ap_lincons0_make_unsat();
-  } 
+    ap_lincons0_array_resize(array,1);
+    ap_lincons0_array_ref_index(lincons0ref,array,0);
+    ap_lincons0_set_bool(lincons0ref,false);
+  }
   else if (nbdims==0){
-    array = ap_lincons0_array_make(0);
+    ap_lincons0_array_resize(array,0);
   }
   else {
     size_t size;
-    ap_linexpr0_t* expr;
-    ap_scalar_t* scalar;
 
     size = 0;
     for (i=0;i<nbdims;i++){
-      if (!bound_infty(a->p[i]->inf)) size++;
-      bool point = itv_is_point(intern->itv,a->p[i]);
-      if (!point && !bound_infty(a->p[i]->sup)) size++;
+      if (!boundXXX_infty(a->p[i]->itv->neginf)) size++;
+      if (!boundXXX_infty(a->p[i]->itv->sup)) size++;
     }
-    array = ap_lincons0_array_make(size);
-    size = 0;
-    for (i=0;i<nbdims;i++){      
-      bool point = false;
-      if (!bound_infty(a->p[i]->inf)){
-	expr = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,1);
-	ap_coeff_set_scalar_int(&expr->p.linterm[0].coeff, 1);
-	expr->p.linterm[0].dim = i;
+    SWITCHZ(array->discr)
+      {
+	eitvZZZ_t eitv;
+	ap_linconsZZZ_ptr lincons;
+	ap_linconsZZZ_array_ptr tab = array->lincons_array.ZZZ;
 
-	ap_coeff_reinit(&expr->cst,AP_COEFF_SCALAR,AP_SCALAR_DOUBLE);
-	scalar = expr->cst.val.scalar;
-	ap_scalar_set_bound(scalar,a->p[i]->inf);
+	ap_linconsZZZ_array_resize(tab,size);
+	eitvZZZ_init(eitv);
+	exact = true;
+	j = 0;
+	for (i=0;i<nbdims;i++){
+	  exact = eitvZZZ_set_eitvXXX(eitv,a->p[i],intern->itv->num) && exact;
 
-	point = itv_is_point(intern->itv,a->p[i]);
-	array.p[size].constyp = point ? AP_CONS_EQ : AP_CONS_SUPEQ;
-	array.p[size].linexpr0 = expr;
-	size++;
+	  if (eitv->eq){
+	    lincons = tab->p[j];
+	    ap_linconsZZZ_resize(lincons,1);
+	    lincons->linexpr->linterm[0]->dim = i;
+	    eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,1);
+	    eitvZZZ_neg(lincons->linexpr->cst,eitv);
+	    lincons->constyp = AP_CONS_EQ;
+	    j++;
+	  }
+	  else {
+	    if (!boundZZZ_infty(eitv->itv->neginf)){
+	      lincons = tab->p[j];
+	      ap_linconsZZZ_resize(lincons,1);
+	      lincons->linexpr->linterm[0]->dim = i;
+	      eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,1);
+	      eitvZZZ_set_num(lincons->linexpr->cst,
+			      boundZZZ_numref(eitv->itv->neginf));   
+	      lincons->constyp = AP_CONS_SUPEQ;
+	      j++;
+	    }
+	    if (!boundZZZ_infty(eitv->itv->sup)){
+	      lincons = tab->p[j];
+	      ap_linconsZZZ_resize(lincons,1);
+	      lincons->linexpr->linterm[0]->dim = i;
+	      eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,-1);
+	      eitvZZZ_set_num(lincons->linexpr->cst,
+				      boundZZZ_numref(eitv->itv->sup));    
+	      lincons->constyp = AP_CONS_SUPEQ;
+	      j++;
+	    }
+	  }
+	}
+	if (j<size) ap_linconsZZZ_array_resize(tab,j);
       }
-      if (!point && !bound_infty(a->p[i]->sup)){
-	expr = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,1);
-	ap_coeff_set_scalar_int(&expr->p.linterm[0].coeff, -1);
-	expr->p.linterm[0].dim = i;
-
-	ap_coeff_reinit(&expr->cst,AP_COEFF_SCALAR,AP_SCALAR_DOUBLE);
-	ap_scalar_set_bound(expr->cst.val.scalar,a->p[i]->sup);
-
-	array.p[size].constyp = AP_CONS_SUPEQ;
-	array.p[size].linexpr0 = expr;
-	size++;
-      }
-    }
+    ENDSWITCH;
   }
-  return array;
 }
 
-ap_tcons0_array_t box_to_tcons_array(ap_manager_t* man, box_t* a)
+ap_tcons0_array_t boxXXX_to_tcons_array(ap_manager_t* man, boxXXX_t* a)
 {
   return ap_generic_to_tcons_array(man,a);
 }
 
-ap_generator0_array_t box_to_generator_array(ap_manager_t* man, box_t* a)
+void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_t* a)
 {
+  bool exact;
   size_t i,j,size;
   size_t nbcoeffs,nblines,nbrays,nbvertices,l,r,v;
-  ap_generator0_array_t array;
-  ap_linexpr0_t* vertex;
-  ap_scalar_t scalar;
+  boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
   
   size = a->intdim+a->realdim;
   if (a->p==NULL){
-    array = ap_generator0_array_make(0);
-    return array;
+    ap_lingen0_array_resize(array,0);
+    return;
   }
-  /* Count the number of generators */
-  nbvertices = 1; /* we take into account the vertex */
-  nbrays = 0;
-  nblines = 0;
-  nbcoeffs = 0;
-  for (i=0;i<size;i++){
-    itv_ptr itv = a->p[i];
-    bool iinf = bound_infty(itv->inf);
-    bool isup = bound_infty(itv->sup);
-    if (iinf && isup){
-      nblines++;
+  SWITCHZ(array->discr)
+    {
+      eitvZZZ_t eitv,coeff;
+      ap_lingenZZZ_t vertex;
+      ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
+
+      eitvZZZ_init(eitv);
+      eitvZZZ_init(coeff);
+      ap_lingenZZZ_init(vertex,0);
+      vertex->gentyp = AP_GEN_VERTEX;
+
+      exact = true;
+      /* Count the number of generators */
+      nbvertices = 1; /* we take into account the vertex */
+      nbrays = 0;
+      nblines = 0;
+      for (i=0;i<size;i++){
+	exact = eitvZZZ_set_eitvXXX(eitv,a->p[i],intern->itv->num) && exact;
+	bool iinf = boundZZZ_infty(eitv->itv->neginf);
+	bool isup = boundZZZ_infty(eitv->itv->sup);
+	if (iinf && isup){
+	  nblines++;
+	}
+	else {
+	  if (iinf || isup){
+	    nbrays++;
+	  }
+	  else {
+	    if (!eitv->eq){
+	      nbvertices *= 2;
+	    }
+	    ap_linexprZZZ_set_eitv0(vertex->linexpr,i,coeff);
+	  }
+	}
+      }
+      
+      /* Preparation */
+      ap_lingenZZZ_array_resize(tab,nblines+nbrays+nbvertices);
+      eitvZZZ_set_int(coeff,0);
+      for (i=0; i<nblines+nbrays+nbvertices;i++){
+	ap_linexprZZZ_set_cst(tab->p[i]->linexpr,coeff);
+      }
+      /* Let's go now ! */  
+      v = r = l = 0;
+      /* Creates the vertices */
+      ap_lingenZZZ_set(tab->p[nblines+nbrays + v], vertex);
+      v=1;
+      for (i=0; i<size; i++){
+	eitvZZZ_set_eitvXXX(eitv,a->p[i],intern->itv->num);
+	bool iinf = boundZZZ_infty(eitv->itv->neginf);
+	bool isup = boundZZZ_infty(eitv->itv->sup);
+	if (iinf || isup){
+	  /* line or ray */
+	  eitvZZZ_set_int(coeff, (iinf && !isup) ? -1 : 1);
+	  j = (iinf && isup) ? l : (nbrays + r);
+	  ap_linexprZZZ_resize(tab->p[j]->linexpr,1);
+	  ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
+	  if (iinf && isup){ /* line */
+	    tab->p[j]->gentyp =
+	      i<a->intdim ? AP_GEN_LINEMOD : AP_GEN_LINE;
+	    l++;
+	  }
+	  else { /* ray */
+	    tab->p[j]->gentyp = 
+	      i<a->intdim ? AP_GEN_RAYMOD : AP_GEN_RAY;
+	    r++;
+	  }
+	}
+	else { /* vertex */
+	  if (!eitv->eq){
+	    /* Duplication, and in same time set inf and sup */
+	    for (j=0; j<v; j++){
+	      ap_lingenZZZ_set(tab->p[nblines+nbrays + v + j],
+			       tab->p[nblines+nbrays + j]);
+	      eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->neginf));
+	      eitvZZZ_neg(coeff,coeff);
+	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + j]->linexpr,
+				    i,coeff);
+	      eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->sup));
+	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+				    i,coeff);
+	    }
+	    v *= 2;
+	  }
+	  else {
+	    for (j=0; j<v; j++){
+	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+				      i,eitv);
+	    }
+	  }
+	}
+      }
+      eitvZZZ_clear(eitv);
+      eitvZZZ_clear(coeff);
+      ap_lingenZZZ_clear(vertex);
+      man->result.flag_exact = exact;
     }
-    else {
-      nbcoeffs++;
-      if (iinf || isup){
-	nbrays++;
-      }
-      else {
-	nbvertices *= 2;
-      }
-    }
-  }
-  /* Preparation */
-  array = ap_generator0_array_make(nblines+nbrays+nbvertices);
-  ap_scalar_init(&scalar,AP_SCALAR_DOUBLE);
-  ap_scalar_set_double(&scalar,0.0);
-  /* Let's go now ! */  
-  v = r = l = 0;
-  /* Creates the vertices */
-  vertex = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,nbcoeffs);
-  for (i=0;i<size;i++){
-    itv_ptr itv = a->p[i];
-    bool iinf = bound_infty(itv->inf);
-    bool isup = bound_infty(itv->sup);
-    if (!iinf || !isup){
-      ap_linexpr0_set_coeff_scalar(vertex,i,&scalar);
-    }
-  }
-  array.p[nblines+nbrays + v] = ap_generator0_make(AP_GEN_VERTEX,vertex);
-  v=1;
-  for (i=0; i<size; i++){
-    itv_ptr itv = a->p[i];
-    bool iinf = bound_infty(itv->inf);
-    bool isup = bound_infty(itv->sup);
-    if (!iinf && !isup){
-      /* Duplication, and in same time set inf and sup */
-      for (j=0; j<v; j++){
-	array.p[nblines+nbrays + v + j] = 
-	  ap_generator0_copy(&array.p[nblines+nbrays + j]);
-	ap_scalar_set_bound(&scalar,itv->inf);
-	ap_scalar_neg(&scalar,&scalar);
-	ap_linexpr0_set_coeff_scalar(array.p[nblines+nbrays + j].linexpr0,
-				     i,&scalar);
-	ap_scalar_set_bound(&scalar,itv->sup);
-	ap_linexpr0_set_coeff_scalar(array.p[nblines+nbrays + v + j].linexpr0,
-				     i,&scalar);
-      }
-      v *= 2;
-    }
-  }
-  /* Create lines and rays */
-  for (i=0; i<size; i++){
-    ap_linexpr0_t* expr;
-    itv_ptr itv = a->p[i];
-    bool iinf = bound_infty(itv->inf);
-    bool isup = bound_infty(itv->sup);
-    if (iinf || isup){
-      expr = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,1);
-      if (iinf && isup){
-	ap_linexpr0_set_coeff_scalar_double(expr,i,1.0);
-	array.p[l] = ap_generator0_make(AP_GEN_LINE,expr);
-	l++;
-      }
-      else if (isup){
-	ap_linexpr0_set_coeff_scalar_double(expr,i,1.0);
-	array.p[nblines+r] = ap_generator0_make(AP_GEN_RAY,expr);
-	r++;
-	for (j=nblines+nbrays; j<nblines+nbrays+v; j++){
-	  ap_scalar_set_bound(&scalar,itv->inf);
-	  ap_scalar_neg(&scalar,&scalar);
-	  ap_linexpr0_set_coeff_scalar(expr,i,&scalar);
-	}	   
-      }
-      else if (iinf){
-	ap_linexpr0_set_coeff_scalar_double(expr,i,-1.0);
-	array.p[nblines+r] = ap_generator0_make(AP_GEN_RAY,expr);
-	r++;
-	for (j=nblines+nbrays; j<nblines+nbrays+v; j++){
-	  ap_scalar_set_bound(&scalar,itv->sup);
-	  ap_linexpr0_set_coeff_scalar(expr,i,&scalar);
-	}	   
-      }
-    }
-  }
-  /* Clear things */
-  ap_scalar_clear(&scalar);
-  return array;
+  ENDSWITCH;
 }
 
 /* Converts an abstract value to an interval/hypercube.
-   The size of the resulting array is box_dimension(man,a).  This
-   function can be reimplemented by using box_bound_linexpr */
-ap_interval_t** box_to_box(ap_manager_t* man, box_t* a)
+   The size of the resulting array is boxXXX_dimension(man,a).  This
+   function can be reimplemented by using boxXXX_bound_linexpr */
+void boxXXX_to_box(ap_manager_t* man, ap_box0_t res, boxXXX_t* a)
 {
   size_t i;
-  ap_interval_t** interval;
   size_t nbdims;
-  box_internal_t* intern = (box_internal_t*)man->internal;
+  boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
   nbdims = a->intdim+a->realdim;
-  if (nbdims==0){
-    interval = NULL;
+  ap_box0_resize(res,nbdims);
+  if (nbdims>0){
+    man->result.flag_exact = 
+      ap_box0_set_eitvXXX_array(res,a->p,nbdims,intern->itv->num);
   }
-  else {
-    interval = ap_interval_array_alloc(nbdims);
-     for (i=0; i<nbdims; i++){
-       if (a->p==NULL){
-	 ap_interval_set_bottom(interval[i]);
-       } else {
-	 ap_interval_set_itv(intern->itv,interval[i],a->p[i]);
-       }
-     }
-  }
-  return interval;
 }

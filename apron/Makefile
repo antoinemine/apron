@@ -35,14 +35,14 @@ ap_linexprXXX.c ap_linconsXXX.c ap_lingenXXX.c ap_linyyyXXX_array.c \
 ap_linexprconsgenXXX_conv.c \
 ap_coeff.c.tmpl ap_box0.c.tmpl \
 ap_linyyy0.c ap_linyyy1.c ap_linyyy0_array.c ap_linyyy1_array.c \
-ap_abstract0_check.c.tmpl 
+ap_check0.c.tmpl 
 
 H_ORIG_FILES = \
 ap_config.h ap_dimension.h \
 ap_texpr0.h ap_tcons0.h \
 ap_manager.h \
 ap_var.h ap_environment.h \
-ap_abstract0_check.h ap_abstract0.h
+ap_check0.h ap_abstract0.h
 #ap_linexpr0_array.h \
 #ap_lincons0_array.h \ap_
 #ap_generator0.h
@@ -71,8 +71,7 @@ ap_coeff.h ap_box0.h \
 ap_linexpr0.h ap_lincons0.h ap_lingen0.h \
 ap_linexpr1.h ap_lincons1.h ap_lingen1.h \
 ap_linexpr0_array.h ap_lincons0_array.h ap_lingen0_array.h \
-ap_linexpr1_array.h ap_lincons1_array.h ap_lingen1_array.h \
-ap_abstract0_check.h
+ap_linexpr1_array.h ap_lincons1_array.h ap_lingen1_array.h
 C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) $(TMPL:%=ap_lingen%.c) \
 $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) $(TMPL:%=ap_lingen%_array.c) \
@@ -82,7 +81,7 @@ ap_linexpr0.c ap_lincons0.c ap_lingen0.c \
 ap_linexpr1.c ap_lincons1.c ap_lingen1.c \
 ap_linexpr0_array.c ap_lincons0_array.c ap_lingen0_array.c \
 ap_linexpr1_array.c ap_lincons1_array.c ap_lingen1_array.c \
-ap_abstract0_check.c
+ap_check0.c
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
