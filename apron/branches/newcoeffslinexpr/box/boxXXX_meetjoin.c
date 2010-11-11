@@ -5,13 +5,17 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "boundD.h"
+#include "boundMPQ.h"
+#include "boundMPFR.h"
+
+#include "boxXXX.h"
 #include "boxXXX_internal.h"
 #include "boxXXX_representation.h"
 #include "boxXXX_constructor.h"
 #include "boxXXX_meetjoin.h"
 
-#include "itv_linexpr.h"
-#include "itv_linearize.h"
+#include "ap_linconsXXX.h"
 
 /* ============================================================ */
 /* Meet and Join */
@@ -37,7 +41,7 @@ boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   }
   nbdims = a1->intdim + a1->realdim;
   for (i=0; i<nbdims; i++){
-    exc = eitvXXX_meet(intern->itv,res->p[i],a1->p[i],a2->p[i]);
+    exc = eitvXXX_meet(res->p[i],a1->p[i],a2->p[i],intern->num);
     if (exc){
       boxXXX_set_bottom(res);
       break;
@@ -108,45 +112,13 @@ boxXXX_t* boxXXX_join_array(ap_manager_t* man, boxXXX_t** tab, size_t size)
 /* Add_ray_array */
 /* ============================================================ */
 
-
-/* Generalized time elapse operator */
-void boxXXX_add_ray(boxXXX_internal_t* intern,
-		 boxXXX_t* a,
-		 ap_generator0_t* gen)
-{
-  size_t i;
-  int sgn;
-  ap_coeff_t* coeff;
-  ap_dim_t dim;
-  ap_linexpr0_t* expr;
-
-  assert(gen->gentyp != AP_GEN_VERTEX);
-  if (a->p==NULL){
-    boxXXX_set_bottom(a);
-    return;
-  }
-  expr = gen->linexpr0;
-  ap_linexpr0_ForeachLinterm(expr,i,dim,coeff){
-    assert(coeff->discr==AP_COEFF_SCALAR);
-    ap_scalar_t* scalar = coeff->val.scalar;
-    sgn = ap_scalar_sgn(scalar);
-    if (sgn!=0){
-      if (sgn>0 || gen->gentyp==AP_GEN_LINE){
-	bound_set_infty(a->p[dim]->sup,1);
-      }
-      if (sgn<0 || gen->gentyp==AP_GEN_LINE){
-	bound_set_infty(a->p[dim]->inf,1);
-      }
-    }
-  }
-}
-
 boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
-			 bool destructive,
-			 boxXXX_t* a,
-			 ap_generator0_array_t* array)
+			       bool destructive,
+			       boxXXX_t* a,
+			       ap_lingen0_array_t array)
 {
-  size_t i;
+  size_t i,j;
+  ap_dim_t dim;
   boxXXX_t* res;
   boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
 
@@ -157,10 +129,30 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
     man->result.flag_exact = true;
     return res;
   }
-  for (i=0;i<array->size; i++){
-    boxXXX_add_ray(intern,res,&array->p[i]);
-  }
-  return res;
+  SWITCHZ(array->discr)
+    {
+      ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
+      eitvZZZ_ptr eitvref;
+      for (i=0;i<tab->size; i++){
+	ap_lingenZZZ_ptr gen = tab->p[i];
+	ap_linexprZZZ_ptr expr = gen->linexpr;
+	assert(gen->gentyp != AP_GEN_VERTEX);
+	ap_linexprZZZ_ForeachLinterm0(expr,j,dim,eitvref){
+	  assert(eitvref->eq);
+	  int sgn = boundZZZ_sgn(eitvref->itv->sup);
+	  if (sgn!=0){
+	    a->p[dim]->eq = false;
+	    if (sgn>0 || gen->gentyp==AP_GEN_LINE){
+	      boundXXX_set_infty(a->p[dim]->itv->sup,1);
+	    }
+	    if (sgn<0 || gen->gentyp==AP_GEN_LINE){
+	      boundXXX_set_infty(a->p[dim]->itv->neginf,1);
+	    }
+	  }
+	}
+      }
+    }
+  ENDSWITCH;
 }
 
 
@@ -170,15 +162,14 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 
 /* Meet of an abstract value with a constraint */
 bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
-			       boxXXX_t* a,
-			       eitvXXX_lincons_t* cons)
+				  boxXXX_t* a,
+				  ap_linconsXXX_t cons)
 {
   size_t nbcoeffs,nbdims;
   ap_dim_t dim;
   size_t i;
   eitvXXX_ptr pitv;
-  eitvXXX_linexpr_t* expr;
-  bool *peq;
+  ap_linexprXXX_t expr;
   bool equality,change,globalchange;
   bool exc;
 
@@ -205,7 +196,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     equality = *peq;
     *peq = true;
     /* 2. evaluate e' */
-    eitvXXX_eval_linexpr(intern->itv,
+    eitvXXX_eval_linexpr(intern->num,
 		     intern->meet_lincons_internal_itv3,expr,a->p);
     change = false;
     if (!eitvXXX_is_top(intern->meet_lincons_internal_itv3)){
@@ -378,7 +369,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     *peq = equality;
     if (change){
       globalchange = true;
-      exc = eitvXXX_canonicalize(intern->itv,a->p[dim],dim<a->intdim);
+      exc = eitvXXX_canonicalize(intern->num,a->p[dim],dim<a->intdim);
       if (exc){
 	boxXXX_set_bottom(a);
 	goto _boxXXX_meet_boxXXX_lincons_exit;
@@ -434,15 +425,15 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
     kmax = man->option.funopt[AP_FUNID_MEET_LINCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
     eitvXXX_lincons_array_init(&tlincons,array->size);
-    eitvXXX_lincons_array_set_ap_lincons0_array(intern->itv,&tlincons,array);
-    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->itv,&tlincons,a->intdim);
+    eitvXXX_lincons_array_set_ap_lincons0_array(intern->num,&tlincons,array);
+    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->num,&tlincons,a->intdim);
     if (tb==tbool_false){
       goto _boxXXX_meet_lincons_array_bottom;
     }
-    eitvXXX_boxize_lincons_array(intern->itv,
+    eitvXXX_boxize_lincons_array(intern->num,
 			     res->p,NULL,
 			     &tlincons,res->p,a->intdim,kmax,false);
-    if (eitvXXX_is_bottom(intern->itv,res->p[0])){
+    if (eitvXXX_is_bottom(intern->num,res->p[0])){
     _boxXXX_meet_lincons_array_bottom:
       boxXXX_set_bottom(res);
     }
@@ -473,16 +464,16 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
     if (kmax<1) kmax=2;
     
     eitvXXX_lincons_array_init(&tlincons,array->size);
-    eitvXXX_intlinearize_ap_tcons0_array(intern->itv,&tlincons,
+    eitvXXX_intlinearize_ap_tcons0_array(intern->num,&tlincons,
 				     array,res->p,res->intdim);
-    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->itv,&tlincons,a->intdim);
+    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->num,&tlincons,a->intdim);
     if (tb==tbool_false){
       goto _boxXXX_meet_tcons_array_bottom;
     }
-    eitvXXX_boxize_lincons_array(intern->itv,
+    eitvXXX_boxize_lincons_array(intern->num,
 			     res->p,NULL,
 			     &tlincons,res->p,a->intdim,kmax,false);
-    if (eitvXXX_is_bottom(intern->itv,res->p[0])){
+    if (eitvXXX_is_bottom(intern->num,res->p[0])){
     _boxXXX_meet_tcons_array_bottom:
       boxXXX_set_bottom(res);
     }

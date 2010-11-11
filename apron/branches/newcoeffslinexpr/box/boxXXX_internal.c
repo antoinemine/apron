@@ -11,7 +11,7 @@
 
 void boxXXX_internal_init(boxXXX_internal_t* intern)
 {
-  itv_internal_init(intern->itv);
+  num_internal_init(intern->num);
   eitvXXX_init(intern->bound_linexpr_internal_itv);
   eitvXXX_init(intern->bound_linexpr_internal_itv2);
   eitvXXX_init(intern->sat_interval_eitv);
@@ -25,7 +25,7 @@ void boxXXX_internal_init(boxXXX_internal_t* intern)
 }
 void boxXXX_internal_clear(boxXXX_internal_t* intern)
 {
-  itv_internal_clear(intern->itv);
+  num_internal_clear(intern->num);
   eitvXXX_clear(intern->bound_linexpr_internal_itv);
   eitvXXX_clear(intern->bound_linexpr_internal_itv2);
   eitvXXX_clear(intern->sat_interval_eitv);
