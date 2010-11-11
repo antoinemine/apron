@@ -5,7 +5,7 @@
 #ifndef _BOUNDXXX_H_
 #define _BOUNDXXX_H_
 
-#include "bound_types.h"
+#include "num_types.h"
 #include "numXXX.h"
 
 #ifdef __cplusplus

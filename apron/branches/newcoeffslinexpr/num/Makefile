@@ -18,37 +18,37 @@ CLIBS = -lmpfr -lgmp -lm
 TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES = \
+num_types.h.tmpl \
 numIyyy.h numRyyy.h numDyyy.h \
 boundXXX.h \
-itvXXX_types.h itvXXX.h eitvXXX.h \
-itvXXX_conv.h
+itvXXX.h eitvXXX.h \
+numXXX_conv.h
 
 C_TMPL_FILES = \
-itvXXX_types.c itvXXX.c eitvXXX.c \
-itvXXX_conv.c
+num_internal.c.tmpl itvXXX.c eitvXXX.c \
+numXXX_conv.c
 
 H_ORIG_FILES = \
-num_types.h \
+num_internal.h \
 numMPZ.h numMPQ.h numMPFR.h \
-bound_types.h \
-itv_types.h 
+num_all.h bound_all.h itv_all.h eitv_all.h
 
-C_ORIG_FILES = \
-itv_types.c
+C_ORIG_FILES =
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
+num_types.h \
 numIl.h numIll.h \
 numRl.h numRll.h \
 numD.h numDl.h \
 $(TMPL:%=bound%.h) \
-$(TMPL:%=itv%_types.h) $(TMPL:%=itv%.h) $(TMPL:%=eitv%.h) \
-$(TMPL:%=itv%_conv.h)
+$(TMPL:%=itv%.h) $(TMPL:%=eitv%.h) \
+$(TMPL:%=num%_conv.h)
 C_GENERATED_FILES = \
-$(TMPL:%=itv%_types.c) $(TMPL:%=itv%.c) $(TMPL:%=eitv%.c) \
-$(TMPL:%=itv%_conv.c)
+num_internal.c $(TMPL:%=itv%.c) $(TMPL:%=eitv%.c) \
+$(TMPL:%=num%_conv.c)
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
@@ -91,6 +91,15 @@ dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl Makefile README
 #---------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
+
+num_types.h: num_types.h.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< >>$@
+num_internal.c: num_internal.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	macros.pl $(SRCDIR)/$< >>$@
 
 numIl.h: numIyyy.h
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
@@ -157,12 +166,12 @@ $(TMPL:%=eitv%.c): eitv%.c: eitvXXX.c
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-$(TMPL:%=itv%_conv.h): itv%_conv.h: itvXXX_conv.h
+$(TMPL:%=num%_conv.h): num%_conv.h: numXXX_conv.h
 	@echo "/* GENERATED, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
-$(TMPL:%=itv%_conv.c): itv%_conv.c: itvXXX_conv.c
+$(TMPL:%=num%_conv.c): num%_conv.c: numXXX_conv.c
 	@echo "/* GENERATED, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@

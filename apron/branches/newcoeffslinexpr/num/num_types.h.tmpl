@@ -1,0 +1,626 @@
+/* -*- mode: c -*- */
+/* ********************************************************************** */
+/* num_types.h */
+/* ********************************************************************** */
+
+#ifndef _NUM_TYPES_H_
+#define _NUM_TYPES_H_
+
+#include <string.h>
+#include <float.h>
+#include <stdint.h>
+#include "stdio.h"
+#include "gmp.h"
+#include "mpfr.h"
+
+#ifdef __cplusplus
+#define HAS_BOOL
+extern "C" {
+#endif
+
+#ifndef HAS_BOOL
+#define HAS_BOOL
+typedef char bool;
+static const bool false = 0;
+static const bool true  = 1;
+#endif
+
+/* prints attempts to convert NaN and infinities to non floating-point types */
+#define DEBUG_SPECIAL fprintf(stderr,"invalid floating-point in %s\n",__func__)
+
+/* ********************************************************************** */
+/* 1. Numbers and Bounds */
+/* ********************************************************************** */
+
+/* Operations on numbers and bounds are always rounded toward +infinity */
+
+/* ====================================================================== */
+/* 1.1 Integers */
+/* ====================================================================== */
+
+/* Il: long int */
+typedef long int numIl_native;
+typedef numIl_native* numIl_ptr;
+typedef numIl_native numIl_t[1];
+#define NUMIl_ZERO 0L
+#define NUMIl_ONE 1L
+#define NUMIl_MAX LONG_MAX
+#define NUMIl_MIN LONG_MIN
+#define NUMIl_EXACT 1
+#define NUMIl_DIVEXACT 0
+#define NUMIl_NATIVE 1
+
+typedef numIl_t boundIl_t;
+#define boundIl_numref(a) a
+#define _boundIl_inf(a)
+
+/* Ill: long long int */
+typedef long long int numIll_native;
+typedef numIll_native* numIll_ptr;
+typedef numIll_native numIll_t[1];
+#define NUMIll_ZERO 0LL
+#define NUMIll_ONE 1LL
+#define NUMIll_MAX LLONG_MAX
+#define NUMIll_MIN LLONG_MIN
+#define NUMIll_EXACT 1
+#define NUMIll_DIVEXACT 0
+#define NUMIll_NATIVE 1
+
+typedef numIll_t boundIll_t;
+#define boundIll_numref(a) a
+#define _boundIll_inf(a)
+
+/* MPZ: GMP mpz_t */
+typedef mpz_ptr numMPZ_ptr;
+typedef mpz_t numMPZ_t;
+#undef NUMMPZ_ZERO
+#undef NUMMPZ_ONE
+#undef NUMMPZ_MAX
+#undef NUMMPZ_MAX
+#undef NUMMPZ_MIN
+#define NUMMPZ_EXACT 1
+#define NUMMPZ_DIVEXACT 1
+#define NUMMPZ_NATIVE 0
+
+typedef struct _boundMPZ_struct {
+  numMPZ_t num; /* always allocated, even if inf=1 */
+  char inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
+		0 => >-oo, <+oo */
+} boundMPZ_t[1];
+#define boundMPZ_numref(a) a->num
+#define _boundMPZ_inf(a) a->inf = 0
+
+/* ====================================================================== */
+/* 1.2 Rationals */
+/* ====================================================================== */
+
+/* Rl: fraction on long int */
+typedef struct numRl_native {
+  numIl_t n; /* numerator */
+  numIl_t d; /* denominator, >=0 */
+} numRl_native;
+typedef numRl_native* numRl_ptr;
+typedef numRl_native numRl_t[1];
+#define numRl_numref(a) ((a)->n)
+#define numRl_denref(a) ((a)->d)
+typedef numIl_t numintRl_t;
+#define NUMRl_EXACT 1
+#define NUMRl_DIVEXACT 1
+#define NUMRl_NATIVE 1
+
+typedef numRl_t boundRl_t;
+#define boundRl_numref(a) a
+#define _boundRl_inf(a)
+
+/* Rll: fraction on long long int */
+typedef struct numRll_native {
+  numIll_t n; /* numerator */
+  numIll_t d; /* denominator, >=0 */
+} numRll_native;
+typedef numRll_native* numRll_ptr;
+typedef numRll_native numRll_t[1];
+#define numRll_numref(a) ((a)->n)
+#define numRll_denref(a) ((a)->d)
+typedef numIll_t numintRll_t;
+#define NUMRll_EXACT 1
+#define NUMRll_DIVEXACT 1
+#define NUMRll_NATIVE 1
+
+typedef numRll_t boundRll_t;
+#define boundRll_numref(a) a
+#define _boundRll_inf(a)
+
+/* MPQ: GMP mpq_t */
+typedef mpq_ptr numMPQ_ptr;
+typedef mpq_t numMPQ_t;
+#define numMPQ_numref(a) mpq_numref(a)
+#define numMPQ_denref(a) mpq_denref(a)
+typedef numMPZ_t numintMPQ_t;
+#define NUMMPQ_EXACT 1
+#define NUMMPQ_DIVEXACT 1
+#define NUMMPQ_NATIVE 0
+
+typedef numMPQ_t boundMPQ_t;
+#define boundMPQ_numref(a) a
+#define _boundMPQ_inf(a)
+
+/* ====================================================================== */
+/* 1.3 Floating-points */
+/* ====================================================================== */
+
+#ifndef NUMFLT_PRINT_PREC
+#define NUMFLT_PRINT_PREC 20
+#endif
+/* Number of significant digits used for printing.
+   Defaults to 20, but you can override NUMFLTD_PRINT_PREC to be any other
+   expression (including variable and function call).
+*/
+
+/* D: double */
+typedef double numD_native;
+typedef numD_native* numD_ptr;
+typedef numD_native numD_t[1];
+#define NUMD_ZERO 0.0
+#define NUMD_ONE 1.0
+#define NUMD_MANT_DIG DBL_MANT_DIG
+#define NUMD_MAX_EXP DBL_MAX_EXP
+#define NUMD_MAX NUMD_ONE/NUMD_ZERO
+#define NUMD_EXACT 0
+#define NUMD_DIVEXACT 0
+#define NUMD_NATIVE 1
+
+typedef numD_t boundD_t;
+#define boundD_numref(a) a
+#define _boundD_inf(a)
+
+/* Dl: long double */
+typedef long double numDl_native;
+typedef numDl_native* numDl_ptr;
+typedef numDl_native numDl_t[1];
+#define NUMDl_ZERO 0.0L
+#define NUMDl_ONE 1.0L
+#define NUMDl_MANT_DIG LDBL_MANT_DIG
+#define NUMDl_MAX_EXP LDBL_MAX_EXP
+#define NUMDl_MAX NUMDl_ONE/NUMDl_ZERO
+#define NUMDl_EXACT 0
+#define NUMDl_DIVEXACT 0
+#define NUMDl_NATIVE 1
+
+typedef numDl_t boundDl_t;
+#define boundDl_numref(a) a
+#define _boundDl_inf(a)
+
+/* MPFR: MPFR mpfr_t */
+typedef mpfr_ptr numMPFR_ptr;
+typedef mpfr_t numMPFR_t;
+#undef NUMMPFR_MAX
+#undef NUMMPFR_MAX
+#undef NUMMPFR_ZERO
+#undef NUMMPFR_ONE
+#undef NUMMPFR_MANT_DIG
+#define NUMMPFR_EXACT 0
+#define NUMMPFR_DIVEXACT 0
+#define NUMMPFR_NATIVE 0
+
+typedef numMPFR_t boundMPFR_t;
+#define boundMPFR_numref(a) a
+#define _boundMPFR_inf(a)
+
+/* ********************************************************************** */
+/* 2. Intervals */
+/* ********************************************************************** */
+
+/* Intervals.
+
+   Be cautious: interval [a,b] is represented by [-a,b].  This is because
+   bound quantities are always rounded toward +infty */
+
+MACRO_ALLZ
+/* ====================================================================== */
+/* ZZZ */
+/* ====================================================================== */
+
+/* Standard interval */
+typedef struct itvZZZ_struct {
+  boundZZZ_t neginf; /* negation of the inf bound */
+  boundZZZ_t sup; /* sup bound */
+} itvZZZ_struct;
+typedef itvZZZ_struct itvZZZ_t[1];
+typedef itvZZZ_struct* itvZZZ_ptr;
+
+/* Intervals with equality flag */
+typedef struct eitvZZZ_struct {
+  itvZZZ_t itv;
+  bool eq;
+} eitvZZZ_struct;
+typedef eitvZZZ_struct eitvZZZ_t[1];
+typedef eitvZZZ_struct* eitvZZZ_ptr;
+
+/* some useful local constant for linearization */
+typedef struct {
+  itvZZZ_t ulp;        /* [-1;1] * unit in the least place */
+  itvZZZ_t min;        /* [-1;1] * minimum positive denormal */
+  itvZZZ_t min_normal; /* [-1;1] * minimum positive normal */
+  itvZZZ_t max;        /* [-1;1] * maximum non +oo  */
+  itvZZZ_t max_exact;  /* [-1;1] * maximum exactly representable integer */
+} numZZZ_floatconst;
+
+/* Workspace to avoid temporary allocation and deallocation when numZZZ_t and
+   boundZZZ_t are multiprecision numbers */
+typedef struct numZZZ_internal {
+  numZZZ_t canonicalize_num;
+  boundZZZ_t muldiv_bound;
+  boundZZZ_t mul_bound;
+  boundZZZ_t sqrt_bound;
+  boundZZZ_t linear_bound;
+  boundZZZ_t linear_bound2;
+  boundZZZ_t linear_bound3;
+  itvZZZ_t mul_itv;
+  itvZZZ_t mul_itv2;
+  itvZZZ_t eval_itv;
+  itvZZZ_t eval_itv2;
+  itvZZZ_t eval_itv3;
+  numZZZ_t quasi_num;
+  eitvZZZ_t boxize_lincons_eitv;
+  eitvZZZ_t boxize_lincons_eval;
+  boundZZZ_t boxize_lincons_bound;
+  numZZZ_floatconst cst_half, cst_single, cst_double, cst_extended, cst_quad;
+  eitvZZZ_t eitvZZZ_half; /* [-0.5,0.5] */
+  eitvZZZ_t eval_eitv;
+  eitvZZZ_t eval_eitv2;
+  eitvZZZ_t eval_eitv3;
+  mpz_t reduce_lincons_gcd;
+  mpz_t reduce_lincons_mpz;
+} numZZZ_internal;
+ENDMACRO
+
+/* ********************************************************************** */
+/* 3. Global workspace and misc */
+/* ********************************************************************** */
+
+typedef struct num_internal_struct {
+  mpz_t q;
+  mpz_t r;
+  mpq_t mpq;
+  mpfr_t dbl;
+  mpfr_t ldbl;
+  numIl_internal Il;
+  numIll_internal Ill;
+  numMPZ_internal MPZ;
+  numRl_internal Rl;
+  numRll_internal Rll;
+  numMPQ_internal MPQ;
+  numD_internal D;
+  numDl_internal Dl;
+  numMPFR_internal MPFR;
+} num_internal_struct;
+typedef num_internal_struct* num_internal_ptr;
+typedef num_internal_struct num_internal_t[1];
+
+/*
+
+**********************************************************************
+1. Num: Functions
+**********************************************************************
+
+======================================================================
+1.1 Assignement
+======================================================================
+void numXXX_set(numXXX_t a, numXXX_t b);
+void numXXX_set_array(numXXX_t* a, numXXX_t* b, size_t size);
+void numXXX_set_int(numXXX_t a, long int i);
+
+======================================================================
+1.2 Constructors and Destructors
+======================================================================
+
+void numXXX_init(numXXX_t a);
+void numXXX_init_array(numXXX_t* a, size_t size);
+void numXXX_init_set(numXXX_t a, numXXX_t b);
+void numXXX_init_set_int(numXXX_t a, long int i);
+
+void numXXX_clear(numXXX_t a);
+void numXXX_clear_array(numXXX_t* a, size_t size);
+
+void numXXX_swap(numXXX_t a, numXXX_t b);
+
+======================================================================
+1.3 Arithmetic Operations
+======================================================================
+
+void numXXX_neg(numXXX_t a, numXXX_t b);
+void numXXX_abs(numXXX_t a, numXXX_t b);
+void numXXX_add(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_add_uint(numXXX_t a, numXXX_t b, unsigned long int c);
+void numXXX_sub(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_sub_uint(numXXX_t a, numXXX_t b, unsigned long int c);
+void numXXX_mul(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_mul_2(numXXX_t a, numXXX_t b);
+void numXXX_div(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_div_2(numXXX_t a, numXXX_t b);
+void numXXX_min(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_max(numXXX_t a, numXXX_t b, numXXX_t c);
+
+void numXXX_mul_2exp(numXXX_t a, numXXX_t b, int c);
+  multiplies b by 2^c (c can be positive or negative)
+
+void numXXX_floor(numXXX_t a, numXXX_t b);
+void numXXX_ceil(numXXX_t a, numXXX_t b);
+void numXXX_trunc(numXXX_t a, numXXX_t b);
+  Approximate to the nearest integer toward resp. -infty, +infty
+
+void numXXX_sqrt(numXXX_t up, numXXX_t down, numXXX_t b);
+  Compute both an upper bound and a lower bound
+
+======================================================================
+1.4 Arithmetic Tests
+======================================================================
+
+int numXXX_sgn(numXXX_t a);
+int numXXX_cmp(numXXX_t a, numXXX_t b);
+int numXXX_cmp_int(numXXX_t a, long int b);
+bool numXXX_equal(numXXX_t a, numXXX_t b);
+bool numXXX_integer(numXXX_t a);
+int numXXX_hash(numXXX_t a);
+
+======================================================================
+1.5 Printing
+======================================================================
+
+void numXXX_print(numXXX_t a);
+void numXXX_fprint(FILE* stream, numXXX_t a);
+int numXXX_snprint(char* s, size_t size, numXXX_t a);
+
+======================================================================
+1.6 Serialization
+======================================================================
+
+  Notes:
+   - call _serialized_size to get the minimal size of the buffer to allocate
+   - _serialize then returns the actual size of the serialized data (may be 
+   less than _serialized_size)
+   - deserialze assumes that the num destination has already been initialized
+   - when deserializing an array, you must supply the number of elements in the
+   array (it is not stored with the array by serialize)
+   - serialization is not type-safe (it depends on the chosen numerical type
+   and, for types using native integers, on whether the machine is 32 or 64 
+   bits). You can only deserialize data if the numXXX_serialize_id function 
+   returns the same value as when the data was serialized. (This id is not
+   stored systematically with each serialized number to save state, so, the
+   checking is up to you.)
+
+unsigned char numXXX_serialize_id(void);
+size_t numXXX_serialize(void* dst, numXXX_t src);
+size_t numXXX_deserialize(numXXX_t dst, const void* src);
+size_t numXXX_serialized_size(numXXX_t a);
+
+size_t numXXX_serialize_array(void* dst, numXXX_t* src, size_t size);
+size_t numXXX_deserialize_array(numXXX_t* dst, const void* src, size_t size);
+size_t numXXX_serialized_size_array(numXXX_t* src, size_t size);
+
+======================================================================
+1.7 Fits
+======================================================================
+
+bool lint_fits_numXXX(long int a);
+bool llint_fits_numXXX(long long int a);
+bool mpz_fits_numXXX(mpz_t a);
+bool lfrac_fits_numXXX(long int i, long int j);
+bool llfrac_fits_numXXX(long long int i, long long int j);
+bool mpq_fits_numXXX(mpq_t a);
+bool double_fits_numXXX(double a);
+bool ldouble_fits_numXXX(long double a);
+bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern);
+
+bool numXXX_fits_lint(numXXX_t a);
+bool numXXX_fits_llint(numXXX_t a);
+bool numXXX_fits_mpz(numXXX_t a);
+bool numXXX_fits_lfrac(numXXX_t a);
+bool numXXX_fits_llfrac(numXXX_t a);
+bool numXXX_fits_mpq(numXXX_t a);
+bool numXXX_fits_float(numXXX_t a);
+bool numXXX_fits_double(numXXX_t a);
+bool numXXX_fits_ldouble(numXXX_t a);
+bool numXXX_fits_mpfr(numXXX_t a);
+
+======================================================================
+1.8 Conversions 
+======================================================================
+
+bool numXXX_set_lint(numXXX_t a, long int b, num_internal_t intern);
+bool numXXX_set_llint(numXXX_t a, long long int b, num_internal_t intern);
+bool numXXX_set_mpz(numXXX_t a, mpz_t b, num_internal_t intern);
+bool numXXX_set_lfrac(numXXX_t a, long int i, long int j, num_internal_t intern);
+bool numXXX_set_llfrac(numXXX_t a, long long int i, long long int j, num_internal_t intern);
+bool numXXX_set_mpq(numXXX_t a, mpq_t b, num_internal_t intern);
+bool numXXX_set_double(numXXX_t a, double b, num_internal_t intern);
+bool numXXX_set_ldouble(numXXX_t a, long double b, num_internal_t intern);
+bool numXXX_set_mpfr(numXXX_t a, mpfr_t b, num_internal_t intern);
+
+bool lint_set_numXXX(long int* a, numXXX_t b, num_internal_t intern);
+bool llint_set_numXXX(long long int* a, numXXX_t b, num_internal_t intern);
+bool mpz_set_numXXX(mpz_t a, numXXX_t b, num_internal_t intern);
+bool lfrac_set_numXXX(long int* i, long int* j, numXXX_t b, num_internal_t intern);
+bool llfrac_set_numXXX(long long int* i, long long int* j, numXXX_t b, num_internal_t intern);
+bool mpq_set_numXXX(mpq_t a, numXXX_t b, num_internal_t intern);
+bool double_set_numXXX(double* a, numXXX_t b, num_internal_t intern);
+bool ldouble_set_numXXX(long double* a, numXXX_t b, num_internal_t intern);
+bool mpfr_set_numXXX(mpfr_t a, numXXX_t b, num_internal_t intern);
+
+======================================================================
+1.9 Integer only functions
+======================================================================
+
+void numXXX_gcd(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_lcm(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_fdiv_q(numXXX_t a, numXXX_t b, numXXX_t c);
+void numXXX_cdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
+void numXXX_tdiv_q(numXXX_t q, numXXX_t a, numXXX_t b);
+void numXXX_cdiv_qr(numXXX_t q, numXXX_t r, numXXX_t a, numXXX_t b);
+void numXXX_cdiv_2(numXXX_t a, numXXX_t b);
+void numXXX_cdiv_q_2exp(numXXX_t a, numXXX_t b, unsigned long int c);
+void numXXX_fdiv_q_2exp(numXXX_t a, numXXX_t b, unsigned long int c);
+
+======================================================================
+1.10 Rational only functions
+======================================================================
+
+void numXXX_canonicalize(numXXX_t a);
+bool numRl_set_numIl2(numRl_t a, numIl_t b, numIl_t c);
+bool numRll_set_numIll2(numRll_t a, numIll_t b, numIll_t c);
+bool numMPQ_set_numMPZ2(numMPQ_t a, numMPZ_t b, numMPZ_t c);
+
+======================================================================
+1.11 Floating-point only functions
+======================================================================
+
+bool numXXX_infty(numXXX_t a);
+void numXXX_set_infty(numXXX_t a, int sgn);
+
+**********************************************************************
+1. Bounds; Functions
+**********************************************************************
+
+bool boundXXX_infty(boundXXX_t a);
+Macro:
+numXXX_t boundXXX_numref(boundXXX_t a);
+
+======================================================================
+2.1 Assignement
+======================================================================
+void boundXXX_set(boundXXX_t a, boundXXX_t b);
+void boundXXX_set_array(boundXXX_t* a, boundXXX_t* b, size_t size);
+void boundXXX_set_int(boundXXX_t a, long int i);
+void boundXXX_set_infty(boundXXX_t a, int sgn);
+void boundXXX_swap(boundXXX_t a, boundXXX_t b);
+void boundXXX_set_num(boundXXX_t a, numXXX_t b);
+
+======================================================================
+2.2 Constructors and Destructors
+======================================================================
+
+void boundXXX_init(boundXXX_t a);
+void boundXXX_init_array(boundXXX_t* a, size_t size);
+
+void boundXXX_init_set(boundXXX_t a, boundXXX_t b);
+void boundXXX_init_set_int(boundXXX_t a, long int i);
+void boundXXX_init_set_infty(boundXXX_t a, int sgn);
+
+void boundXXX_clear(boundXXX_t a);
+void boundXXX_clear_array(boundXXX_t* a, size_t size);
+
+======================================================================
+2.3 Arithmetic Operations
+======================================================================
+
+   +oo + -oo  \
+   -oo + +oo  | undefined
+   +oo - +oo  |
+   -oo - -oo  /
+
+   +oo + x = +oo - x = x - -oo = +oo
+   -oo + x = -oo - x = x - +oo = -oo
+
+   0 * +oo = +oo * 0 = 0 * -oo = -oo * 0 = 0
+   x * +oo = +oo * x =  sign(x) * oo  if x!=0
+   x * -oo = -oo * x = -sign(x) * oo  if x!=0
+
+   0 / x = x / +oo = x / -oo = 0
+   x / 0 = sign(x) * oo     if x!=0
+   +oo / x =  sign(x) * oo  if x!=0,+oo,-oo
+   -oo / x = -sign(x) * oo  if x!=0,+oo,-oo
+
+void boundXXX_neg(boundXXX_t a, boundXXX_t b);
+void boundXXX_abs(boundXXX_t a, boundXXX_t b);
+void boundXXX_add(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_add_uint(boundXXX_t a, boundXXX_t b, unsigned long int c);
+void boundXXX_add_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+void boundXXX_sub(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_sub_uint(boundXXX_t a, boundXXX_t b, unsigned long int c);
+void boundXXX_sub_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+void boundXXX_mul(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+void boundXXX_mul_2(boundXXX_t a, boundXXX_t b);
+void boundXXX_div(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_div_num(boundXXX_t a, boundXXX_t b, numXXX_t c);
+void boundXXX_div_2(boundXXX_t a, boundXXX_t b);
+void boundXXX_min(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_max(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+void boundXXX_mul_2exp(boundXXX_t a, boundXXX_t b, int c);
+void boundXXX_floor(boundXXX_t a, boundXXX_t b);
+void boundXXX_ceil(boundXXX_t a, boundXXX_t b);
+void boundXXX_trunc(boundXXX_t a, boundXXX_t b);
+void boundXXX_sqrt(boundXXX_t up, boundXXX_t down, boundXXX_t b);
+void boundXXX_widening(boundXXX_t a, boundXXX_t b, boundXXX_t c);
+
+======================================================================
+2.4 Floating-point casts
+======================================================================
+
+always rounds toward +oo
+void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern);
+void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern);
+
+======================================================================
+2.5 Arithmetic Tests
+======================================================================
+
+int boundXXX_sgn(boundXXX_t a);
+int boundXXX_cmp(boundXXX_t a, boundXXX_t b);
+int boundXXX_cmp_int(boundXXX_t a, long int b);
+int boundXXX_cmp_num(boundXXX_t a, numXXX_t b);
+bool boundXXX_equal(boundXXX_t a, boundXXX_t b);
+int boundXXX_hash(boundXXX_t a);
+
+======================================================================
+2.6 Conversions
+======================================================================
+
+bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern);
+bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern);
+bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern);
+bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern);
+bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern);
+bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern);
+bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
+bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
+bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
+
+bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t internal);
+bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t internal);
+bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t internal);
+bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t internal);
+bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t internal);
+bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t internal);
+bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t internal);
+bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t internal);
+
+======================================================================
+2.7 Printing
+======================================================================
+
+void boundXXX_print(boundXXX_t a);
+void boundXXX_fprint(FILE* stream, boundXXX_t a);
+int boundXXX_snprint(char* s, size_t size, boundXXX_t a);
+
+======================================================================
+2.8 Serialization
+======================================================================
+
+Note: call _init before _deserialize
+
+size_t boundXXX_serialize(void* dst, boundXXX_t src);
+size_t boundXXX_deserialize(boundXXX_t dst, const void* src);
+size_t boundXXX_serialized_size(boundXXX_t a);
+
+size_t boundXXX_serialize_array(void* dst, boundXXX_t* src, size_t size);
+size_t boundXXX_deserialize_array(boundXXX_t* dst, const void* src, size_t size);
+size_t boundXXX_serialized_size_array(boundXXX_t* src, size_t size);
+
+*/
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

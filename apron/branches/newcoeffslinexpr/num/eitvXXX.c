@@ -2,8 +2,8 @@
 /* eitvXXX.c: (unidimensional) intervals */
 /* ********************************************************************** */
 
-#include "eitvXXX.h"
 #include "math.h"
+#include "eitvXXX.h"
 
 /* ********************************************************************** */
 /* Normalization and tests */
@@ -12,7 +12,7 @@
 /* If integer is true, narrow the interval to integer bounds.
    In any case, return true if the interval is bottom
 */
-bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, itv_internal_t intern)
+bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, num_internal_t intern)
 {
   bool exc,cmp;
 
@@ -24,8 +24,8 @@ bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, itv_internal_t intern)
   if (boundXXX_infty(a->itv->neginf) || boundXXX_infty(a->itv->sup)) return false;
 
   /* Check that it is not bottom */
-  numXXX_neg(intern->XXX->canonicalize_num,boundXXX_numref(a->itv->neginf));
-  cmp = boundXXX_cmp_num(a->itv->sup,intern->XXX->canonicalize_num);
+  numXXX_neg(intern->XXX.canonicalize_num,boundXXX_numref(a->itv->neginf));
+  cmp = boundXXX_cmp_num(a->itv->sup,intern->XXX.canonicalize_num);
   if (cmp<0){
     a->eq = false;
     exc = true;
@@ -156,7 +156,7 @@ void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
 /* Multiplication */
 /* ====================================================================== */
 
-void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, itv_internal_t intern)
+void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
   if (b->eq)
     eitvXXX_mul_bound(a,c,b->itv->sup);
@@ -173,7 +173,7 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, itv_internal_t intern)
 /* Division */
 /* ====================================================================== */
 
-void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, itv_internal_t intern)
+void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
   if (b->eq)
     eitvXXX_div_bound(a,c,b->itv->sup);
@@ -226,12 +226,12 @@ void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
   a->eq = itvXXX_is_point(a->itv);
 }
 
-void eitvXXX_to_float(eitvXXX_t a, eitvXXX_t b, itv_internal_t intern)
+void eitvXXX_to_float(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
   itvXXX_to_float(a->itv,b->itv, intern);
   a->eq = itvXXX_is_point(a->itv);
 }
-void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, itv_internal_t intern)
+void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
   itvXXX_to_double(a->itv,b->itv, intern);
   a->eq = itvXXX_is_point(a->itv);
