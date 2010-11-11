@@ -161,8 +161,7 @@ bool ap_linexpr0_set_list(num_internal_t intern,
   va_start(va,perror);
   SWITCH (expr->discr)
     res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-					 NULL,
-					 intern,expr->linexpr.XXX,perror,&va);
+					 expr->linexpr.XXX,perror,NULL,&va,intern);
   ENDSWITCH
   va_end(va);
   return res;

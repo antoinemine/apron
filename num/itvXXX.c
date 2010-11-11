@@ -4,6 +4,7 @@
 
 #include "math.h"
 #include "itvXXX.h"
+#include "num_all.h"
 
 /* ********************************************************************** */
 /* Normalization and tests */
@@ -483,3 +484,13 @@ int itvXXX_snprint(char* s, size_t size, itvXXX_t a)
   count += snprintf(s+count,size-count,"]");
   return count;
 }
+
+MACRO_ALLZ
+bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
+{
+  numZZZ_neg(b,b);
+  bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
+  numZZZ_neg(b,b);
+  return boundXXX_set_numZZZ(a->sup,c,intern) && res;
+}
+ENDMACRO

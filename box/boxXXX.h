@@ -7,10 +7,18 @@
 
 #include <stdio.h>
 #include "ap_global0.h"
+#include "boxXXX_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct boxXXX_t {
+  eitvXXX_t* p;
+  size_t intdim;
+  size_t realdim;
+};
+typedef struct boxXXX_t boxXXX_t;
 
 ap_manager_t* boxXXX_manager_alloc(void);
 

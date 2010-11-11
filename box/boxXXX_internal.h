@@ -20,17 +20,10 @@
 extern "C" {
 #endif
 
-struct boxXXX_t {
-  eitvXXX_t* p;
-  size_t intdim;
-  size_t realdim;
-};
-typedef struct boxXXX_t boxXXX_t;
-
 ap_manager_t* boxXXX_manager_alloc(void);
 
 typedef struct boxXXX_internal_t {
-  itv_internal_t itv;
+  num_internal_t num;
   eitvXXX_t bound_linexpr_internal_itv;
   eitvXXX_t bound_linexpr_internal_itv2;
   eitvXXX_t sat_interval_eitv;

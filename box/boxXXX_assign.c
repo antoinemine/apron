@@ -34,13 +34,13 @@ boxXXX_t* boxXXX_assign_linexpr_array(ap_manager_t* man,
   }
   if (size==1){
       res = destructive ? a : boxXXX_copy(man,a);
-      exact = itv_eval_ap_linexpr0(intern->itv,
+      exact = itv_eval_ap_linexpr0(intern->num,
 				   res->p[tdim[0]],texpr[0],a->p);
   }
   else {
     res = boxXXX_copy(man,a);
     for (i=0;i<size;i++){
-      exact = itv_eval_ap_linexpr0(intern->itv,
+      exact = itv_eval_ap_linexpr0(intern->num,
 				   res->p[tdim[i]],texpr[i],a->p) && exact;
     }
     if (destructive) boxXXX_free(man,a);
@@ -81,7 +81,7 @@ boxXXX_t* boxXXX_assign_texpr(ap_manager_t* man,
     man->result.flag_exact = true;
     return res;
   }
-  itv_eval_ap_texpr0(intern->itv,res->p[dim],texpr,a->p);
+  itv_eval_ap_texpr0(intern->num,res->p[dim],texpr,a->p);
   if (dest)
     res = boxXXX_meet(man,true,res,dest);
   man->result.flag_best = false;
@@ -108,12 +108,12 @@ boxXXX_t* boxXXX_assign_texpr_array(ap_manager_t* man,
   }
   if (size==1){
     res = destructive ? a : boxXXX_copy(man,a);
-    itv_eval_ap_texpr0(intern->itv,res->p[tdim[0]],texpr[0],a->p);
+    itv_eval_ap_texpr0(intern->num,res->p[tdim[0]],texpr[0],a->p);
   }
   else {
     res = boxXXX_copy(man,a);
     for (i=0;i<size;i++){
-      itv_eval_ap_texpr0(intern->itv,res->p[tdim[i]],texpr[i],a->p);
+      itv_eval_ap_texpr0(intern->num,res->p[tdim[i]],texpr[i],a->p);
     }
     if (destructive) boxXXX_free(man,a);
   }
