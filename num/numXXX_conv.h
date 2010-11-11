@@ -1,13 +1,11 @@
 /* ********************************************************************** */
-/* numbounditvXXX_conv.h: conversion between nums and bounds */
+/* numXXX_conv.h: conversion between nums and bounds */
 /* ********************************************************************** */
 
-#ifndef _NUMBOUNDITVXXX_CONV_H_
-#define _NUMBOUNDITVXXX_CONV_H_
+#ifndef _NUMXXX_CONV_H_
+#define _NUMXXX_CONV_H_
 
 #include "num_types.h"
-#include "bound_types.h"
-#include "itv_types.h"
 
 #include "numXXX.h"
 #include "boundXXX.h"
@@ -79,7 +77,7 @@ static inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_interna
 #endif
 ENDMACRO
 
-#if !defined(_NUMZZZ_MARK_) && !defined(_NUMBOUNDITVD_CONV_H_) && !defined(_NUMBOUNDITVMPQ_CONV_H_) && !defined(_NUMBOUNDITVMPFR_CONV_H_)
+#if !defined(_NUMZZZ_MARK_) && !defined(_NUMD_CONV_H_) && !defined(_NUMMPQ_CONV_H_) && !defined(_NUMMPFR_CONV_H_)
 static inline bool numXXX_fits_numD(numXXX_t a)
 { return numXXX_fits_double(a); }
 static inline bool numXXX_fits_numMPQ(numXXX_t a)

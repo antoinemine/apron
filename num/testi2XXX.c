@@ -9,9 +9,9 @@
 #include "itvD.h"
 #include "itvMPQ.h"
 #include "itvMPFR.h"
-#include "itvXXX_conv.h"
+#include "numXXX_conv.h"
 
-itv_internal_t intern;
+num_internal_t intern;
 
 /* ********************************************************************** */
 /* FPU init */
@@ -89,19 +89,19 @@ void testconv(itvXXX_t x)
 
   printf("x = "); itvXXX_print(x); printf("\n");
 
-  exact = itvD_set_itvXXX(d,x,intern->num);
+  exact = itvD_set_itvXXX(d,x,intern);
   printf("itvD_set_itvXXX(d,x); d = "); itvD_print(d); printf(" exact = %d\n",exact);
-  exact = itvXXX_set_itvD(y,d,intern->num);
+  exact = itvXXX_set_itvD(y,d,intern);
   printf("itvXXX_set_itvD(y,d); y = "); itvXXX_print(y); printf(" exact = %d\n",exact);
 
-  exact = itvMPQ_set_itvXXX(mpq,x,intern->num);
+  exact = itvMPQ_set_itvXXX(mpq,x,intern);
   printf("itvMPQ_set_itvXXX(mpq,x); mpq = "); itvMPQ_print(mpq); printf(" exact = %d\n",exact);
-  exact = itvXXX_set_itvMPQ(y,mpq,intern->num);
+  exact = itvXXX_set_itvMPQ(y,mpq,intern);
   printf("itvXXX_set_itvMPQ(y,mpq); y = "); itvXXX_print(y); printf(" exact = %d\n",exact);
 
-  exact = itvMPFR_set_itvXXX(mpfr,x,intern->num);
+  exact = itvMPFR_set_itvXXX(mpfr,x,intern);
   printf("itvMPFR_set_itvXXX(mpfr,x); mpfr = "); itvMPFR_print(mpfr); printf(" exact = %d\n",exact);
-  exact = itvXXX_set_itvMPFR(y,mpfr,intern->num);
+  exact = itvXXX_set_itvMPFR(y,mpfr,intern);
   printf("itvXXX_set_itvMPFR(y,mpfr); y = "); itvXXX_print(y); printf(" exact = %d\n",exact);
 
   itvXXX_clear(y);
@@ -170,9 +170,9 @@ void set_double(itvXXX_t a, double inf, double sup)
   numXXX_init(n);
   printf("[%f,%f]\n",inf,sup);
   if (sup==1./0.) boundXXX_set_infty(a->sup,1);
-  else { numXXX_set_double(n,sup,intern->num); boundXXX_set_num(a->sup,n); }
+  else { numXXX_set_double(n,sup,intern); boundXXX_set_num(a->sup,n); }
   if (inf==-1./0.) boundXXX_set_infty(a->neginf,1);
-  else { numXXX_set_double(n,-inf,intern->num); boundXXX_set_num(a->neginf,n); }
+  else { numXXX_set_double(n,-inf,intern); boundXXX_set_num(a->neginf,n); }
   numXXX_clear(n);
 }
 
@@ -181,8 +181,8 @@ void set_frac(itvXXX_t a, int ninf, int dinf, int nsup, int dsup)
   numXXX_t n;
   numXXX_init(n);
   printf("[%i/%i,%i/%i]\n",ninf,dinf,nsup,dsup);
-  numXXX_set_lfrac(n,nsup,dsup,intern->num);  boundXXX_set_num(a->sup,n);
-  numXXX_set_lfrac(n,-ninf,dinf,intern->num); boundXXX_set_num(a->neginf,n);
+  numXXX_set_lfrac(n,nsup,dsup,intern);  boundXXX_set_num(a->sup,n);
+  numXXX_set_lfrac(n,-ninf,dinf,intern); boundXXX_set_num(a->neginf,n);
   numXXX_clear(n);
 }
 
@@ -193,7 +193,7 @@ int main(void)
   numXXX_fpu_init();
   mpfr_set_default_prec(4046);
 
-  itv_internal_init(intern);
+  num_internal_init(intern);
   itvXXX_init(a); itvXXX_init(b);
 
   set_double(a,2,9); testun(a);
@@ -230,6 +230,6 @@ int main(void)
 
 
   itvXXX_clear(a); itvXXX_clear(b);
-  itv_internal_clear(intern);
+  num_internal_clear(intern);
   return 0;
 }

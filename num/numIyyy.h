@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #include "num_types.h"
-/* Require C99 compliant compiler */
+#include "num_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
