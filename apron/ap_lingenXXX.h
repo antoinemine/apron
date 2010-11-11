@@ -5,7 +5,7 @@
 #ifndef _AP_LINGENXXX_H_
 #define _AP_LINGENXXX_H_
 
-#include "itvXXX_types.h"
+#include "num_types.h"
 #include "ap_linexprXXX.h"
 
 #ifdef __cplusplus

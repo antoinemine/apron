@@ -202,16 +202,16 @@ bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* 
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr);
   /* Negate an expression */
-bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
-bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, itv_internal_t intern);
+bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, num_internal_t intern);
+bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coeff, num_internal_t intern);
   /* Scale an expression by an interval */
 
 bool ap_linexprXXX_add(ap_linexprXXX_t expr,
 		       ap_linexprXXX_t exprA,
-		       ap_linexprXXX_t exprB, itv_internal_t intern);
+		       ap_linexprXXX_t exprB, num_internal_t intern);
 bool ap_linexprXXX_sub(ap_linexprXXX_t expr,
 		       ap_linexprXXX_t exprA,
-		       ap_linexprXXX_t exprB, itv_internal_t intern);
+		       ap_linexprXXX_t exprB, num_internal_t intern);
   /* Resp. add and substract two linear epxression.
      (Substraction temporarily negates exprB, and then restores it */
 
@@ -219,9 +219,9 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t expr,
 /* Va. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 struct ap_linexpr0_struct;
-bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, struct ap_linexpr0_struct* expr, eitvXXX_t* env, itv_internal_t intern);
+bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, struct ap_linexpr0_struct* expr, eitvXXX_t* env, num_internal_t intern);
 
-bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, itv_internal_t intern);
+bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, num_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
 
@@ -246,12 +246,12 @@ size_t ap_linexprXXX_array_supportinterval(ap_linexprXXX_array_t array, ap_dim_t
 */
 bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr,
 				  eitvXXX_t* env,
-				  bool for_meet_inequality, itv_internal_t intern);
+				  bool for_meet_inequality, num_internal_t intern);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
 bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
-					eitvXXX_t* env, itv_internal_t intern);
+					eitvXXX_t* env, num_internal_t intern);
   /* Same for an array */
 
 /* ********************************************************************** */
@@ -259,19 +259,19 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 /* ********************************************************************** */
 
 struct ap_texpr0_t;
-bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, itv_internal_t intern);
+bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, num_internal_t intern);
 bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* perror, 
 					  struct ap_texpr0_t** expr, size_t size, 
-					  itv_internal_t intern);
+					  num_internal_t intern);
   /* Linearize a tree expression that is (syntaxically) interval linear.
      If the precondition is violated, sets *perror to true.
 
      Return true if no approximations.
   */
 
-bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, itv_internal_t intern);
-void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, size_t intdim, itv_internal_t intern);
-void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, size_t intdim, itv_internal_t intern);
+bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, num_internal_t intern);
+void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, size_t intdim, num_internal_t intern);
+void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, size_t intdim, num_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */
@@ -384,11 +384,11 @@ void itvXXX_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va),
-				    num_internal_t intern,
 				    ap_linexprXXX_t expr, 
 				    bool* perror, 
 				    ap_environment_t* env,
-				    va_list* va);
+				    va_list* va,
+				    num_internal_t intern);
 
 #ifdef __cplusplus
 }

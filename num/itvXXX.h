@@ -10,7 +10,6 @@
 #include "assert.h"
 
 #include "num_types.h"
-#include "num_all.h"
 #include "boundXXX.h"
 
 #ifdef __cplusplus
@@ -167,7 +166,7 @@ static inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal
 
 MACRO_ALLZ
 static inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
-static inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
+bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -513,13 +512,6 @@ MACRO_ALLZ
 static inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
 {
   return itvXXX_set_numZZZ2(a,b,b,intern);
-}
-static inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
-{
-  numZZZ_neg(b,b);
-  bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
-  numZZZ_neg(b,b);
-  return boundXXX_set_numZZZ(a->sup,c,intern) && res;
 }
 ENDMACRO
 

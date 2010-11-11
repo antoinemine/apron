@@ -70,7 +70,7 @@ void ap_linconsXXX_fprint(FILE* stream, ap_linconsXXX_t cons, char** name)
 /* ********************************************************************** */
 
 /* Evaluate a constraint, composed of a constant (interval) expression */
-tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, itv_internal_t intern)
+tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
 {
   tbool_t res;
   eitvXXX_ptr cst = lincons->linexpr->cst;
@@ -125,7 +125,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, itv_internal_t intern)
 #if defined(_ITVRl_MARK_) || defined(_ITVRll_MARK_) || defined(_ITVMPQ_MARK_)
 	numXXX_t numrat;
 	numXXX_init(numrat);
-	numXXX_set_mpq(numrat,lincons->mpq,intern->num);
+	numXXX_set_mpq(numrat,lincons->mpq,intern);
 	numXXX_div(numrat,boundXXX_numref(cst->itv->sup),numrat);
 	if (numintXXX_cmp_int(numXXX_denref(numrat),1)==0){
 	  res = tbool_true;
@@ -141,7 +141,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, itv_internal_t intern)
 	}
 	else {
 	  numXXX_init(numint);
-	  numXXX_set_mpz(numint,mpq_numref(lincons->mpq),intern->num);
+	  numXXX_set_mpz(numint,mpq_numref(lincons->mpq),intern);
 	  numXXX_mod(numint,boundXXX_numref(cst->itv->sup),numint);
 	  if (numXXX_sgn(numint)==0){
 	    res = tbool_true;
@@ -168,7 +168,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, itv_internal_t intern)
   return res;
 }
 
-bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, itv_internal_t intern)
+bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, num_internal_t intern)
 {
   bool res = false;
 
@@ -199,7 +199,7 @@ bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, itv_internal_t intern)
 }
 
 static bool
-ap_linconsXXX_is_useless_for_meet(ap_linconsXXX_t lincons, itv_internal_t intern)
+ap_linconsXXX_is_useless_for_meet(ap_linconsXXX_t lincons, num_internal_t intern)
 {
   bool res = false;
   eitvXXX_ptr cst = lincons->linexpr->cst;
@@ -232,7 +232,7 @@ ap_linconsXXX_is_useless_for_meet(ap_linconsXXX_t lincons, itv_internal_t intern
 }
 
 void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
-				  size_t intdim, itv_internal_t intern)
+				  size_t intdim, num_internal_t intern)
 {
   ap_linexprXXX_ptr expr;
   size_t i;
@@ -260,25 +260,25 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
 #if defined(_ITVRl_MARK_) || defined(_ITVRll_MARK_) || defined(_ITVMPQ_MARK_)
   {
     /* compute lcm of denominators and gcd of numerators */
-    numintXXX_set_int(numXXX_denref(intern->XXX->quasi_num),1);
-    numintXXX_set_int(numXXX_numref(intern->XXX->quasi_num),0);
+    numintXXX_set_int(numXXX_denref(intern->XXX.quasi_num),1);
+    numintXXX_set_int(numXXX_numref(intern->XXX.quasi_num),0);
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
-      numintXXX_lcm(numXXX_denref(intern->XXX->quasi_num),
-		    numXXX_denref(intern->XXX->quasi_num),
+      numintXXX_lcm(numXXX_denref(intern->XXX.quasi_num),
+		    numXXX_denref(intern->XXX.quasi_num),
 		    numXXX_denref(boundXXX_numref(pitv->itv->sup)));
-      numintXXX_gcd(numXXX_numref(intern->XXX->quasi_num),
-		    numXXX_numref(intern->XXX->quasi_num),
+      numintXXX_gcd(numXXX_numref(intern->XXX.quasi_num),
+		    numXXX_numref(intern->XXX.quasi_num),
 		    numXXX_numref(boundXXX_numref(pitv->itv->sup)));
     }
-    if (numintXXX_sgn(numXXX_numref(intern->XXX->quasi_num))==0)
+    if (numintXXX_sgn(numXXX_numref(intern->XXX.quasi_num))==0)
       return;
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       numintXXX_divexact(numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 			 numXXX_numref(boundXXX_numref(pitv->itv->sup)),
-			 numXXX_numref(intern->XXX->quasi_num));
+			 numXXX_numref(intern->XXX.quasi_num));
       numintXXX_mul(numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 		    numXXX_numref(boundXXX_numref(pitv->itv->sup)),
-		    numXXX_denref(intern->XXX->quasi_num));
+		    numXXX_denref(intern->XXX.quasi_num));
       numintXXX_divexact(numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 			 numXXX_numref(boundXXX_numref(pitv->itv->sup)),
 			 numXXX_denref(boundXXX_numref(pitv->itv->sup)));
@@ -286,49 +286,49 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
 			1);
       boundXXX_neg(pitv->itv->neginf,pitv->itv->sup);
     }
-    numXXX_inv(intern->XXX->quasi_num,intern->XXX->quasi_num);
-    eitvXXX_mul_num(expr->cst,expr->cst,intern->XXX->quasi_num);
+    numXXX_inv(intern->XXX.quasi_num,intern->XXX.quasi_num);
+    eitvXXX_mul_num(expr->cst,expr->cst,intern->XXX.quasi_num);
   }
 #else
 #if defined(_ITVD_MARK_) || defined(_ITVDl_MARK_) || defined(_ITVMPFR_MARK_)
   {
     /* Assuming that all coefficients are either integer,
        compute the pgcd */
-    mpz_set_si(intern->XXX->reduce_lincons_gcd,0);
+    mpz_set_si(intern->XXX.reduce_lincons_gcd,0);
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       if (!numXXX_integer(pitv->itv->sup))
 	return;
-      mpz_set_numXXX(intern->XXX->reduce_lincons_mpz,pitv->itv->sup,intern->num);
-      mpz_gcd(intern->XXX->reduce_lincons_gcd,
-	      intern->XXX->reduce_lincons_gcd,
-	      intern->XXX->reduce_lincons_mpz);
+      mpz_set_numXXX(intern->XXX.reduce_lincons_mpz,pitv->itv->sup,intern);
+      mpz_gcd(intern->XXX.reduce_lincons_gcd,
+	      intern->XXX.reduce_lincons_gcd,
+	      intern->XXX.reduce_lincons_mpz);
     }
-    if (mpz_sgn(intern->XXX->reduce_lincons_gcd)==0 ||
-	mpz_cmp_si(intern->XXX->reduce_lincons_gcd,1)==0)
+    if (mpz_sgn(intern->XXX.reduce_lincons_gcd)==0 ||
+	mpz_cmp_si(intern->XXX.reduce_lincons_gcd,1)==0)
       return;
-    bool exact = numXXX_set_mpz(intern->XXX->quasi_num,intern->XXX->reduce_lincons_gcd,intern->num);
+    bool exact = numXXX_set_mpz(intern->XXX.quasi_num,intern->XXX.reduce_lincons_gcd,intern);
     if (!exact) return;
   }
 #elif defined(_ITVIl_MARK_) || defined(_ITVIll_MARK_) || defined(_ITVMPZ_MARK_)
   {
-    numXXX_set_int(intern->XXX->quasi_num,0);
+    numXXX_set_int(intern->XXX.quasi_num,0);
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
-      numXXX_gcd(intern->XXX->quasi_num,
-		 intern->XXX->quasi_num,
+      numXXX_gcd(intern->XXX.quasi_num,
+		 intern->XXX.quasi_num,
 		 boundXXX_numref(pitv->itv->sup));
     }
-    if (numXXX_sgn(intern->XXX->quasi_num)==0 ||
-	numXXX_cmp_int(intern->XXX->quasi_num,1)==0)
+    if (numXXX_sgn(intern->XXX.quasi_num)==0 ||
+	numXXX_cmp_int(intern->XXX.quasi_num,1)==0)
       return;
   }
 #else
 #error "HERE"
 #endif
-  /* divide by gcd put in intern->XXX->quasi_num */
+  /* divide by gcd put in intern->XXX.quasi_num */
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
-    eitvXXX_div_num(pitv,pitv,intern->XXX->quasi_num);
+    eitvXXX_div_num(pitv,pitv,intern->XXX.quasi_num);
   }
-  eitvXXX_div_num(expr->cst,expr->cst,intern->XXX->quasi_num);
+  eitvXXX_div_num(expr->cst,expr->cst,intern->XXX.quasi_num);
 #endif
   /* Constrain bounds */
   if (!boundXXX_infty(expr->cst->itv->sup)){
@@ -370,7 +370,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
   }
 }
 
-tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool meet, itv_internal_t intern)
+tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool meet, num_internal_t intern)
 {
   tbool_t res;
   size_t i,size;
@@ -411,7 +411,7 @@ tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool meet, itv_i
 }
 
 tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
-					   size_t intdim, itv_internal_t intern)
+					   size_t intdim, num_internal_t intern)
 {
   size_t i;
   for (i=0; i<array->size; i++){
@@ -420,7 +420,7 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
   return ap_linconsXXX_array_reduce(array,true, intern);
 }
 
-bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, eitvXXX_t* env, bool meet, itv_internal_t intern)
+bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, eitvXXX_t* env, bool meet, num_internal_t intern)
 {
   size_t i;
   bool res;
@@ -444,7 +444,7 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 				 ap_linconsXXX_t cons,
 				 eitvXXX_t* env,
 				 size_t intdim,
-				 bool intervalonly, itv_internal_t intern)
+				 bool intervalonly, num_internal_t intern)
 {
   size_t i;
   ap_linexprXXX_ptr expr;
@@ -461,18 +461,18 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
   globalchange = false;
 
   /* Iterates on coefficients */
-  eitvXXX_set_int(intern->XXX->boxize_lincons_eitv,0);
+  eitvXXX_set_int(intern->XXX.boxize_lincons_eitv,0);
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
     bool equality = eitv->eq;
     /* 1. We decompose the expression e = ax+e' */
-    eitvXXX_swap(intern->XXX->boxize_lincons_eitv,eitv);
+    eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
     /* 2. evaluate e' */
-    ap_linexprXXX_eval(intern->XXX->boxize_lincons_eval,expr,env, intern);
+    ap_linexprXXX_eval(intern->XXX.boxize_lincons_eval,expr,env, intern);
     /* 3. Perform deductions */
     change = false;
-    if (!eitvXXX_is_top(intern->XXX->boxize_lincons_eval)){
+    if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
       if (equality && !intervalonly){
-	int sgn = boundXXX_sgn(intern->XXX->boxize_lincons_eitv->itv->sup);
+	int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
 	if (sgn!=0){
 	  /*
 	    If we have ax+e' >= 0 with a>0
@@ -488,32 +488,32 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      If we have a<0, we compute -inf(e')/(-a)=-inf(-e'/a)
 	    */
 	    if (sgn>0){
-	      boundXXX_div(intern->XXX->boxize_lincons_bound,
-			   intern->XXX->boxize_lincons_eval->itv->sup,
-			   intern->XXX->boxize_lincons_eitv->itv->sup);
+	      boundXXX_div(intern->XXX.boxize_lincons_bound,
+			   intern->XXX.boxize_lincons_eval->itv->sup,
+			   intern->XXX.boxize_lincons_eitv->itv->sup);
 	    }
 	    else {
-	      boundXXX_div(intern->XXX->boxize_lincons_bound,
-			   intern->XXX->boxize_lincons_eval->itv->neginf,
-			   intern->XXX->boxize_lincons_eitv->itv->neginf);
+	      boundXXX_div(intern->XXX.boxize_lincons_bound,
+			   intern->XXX.boxize_lincons_eval->itv->neginf,
+			   intern->XXX.boxize_lincons_eitv->itv->neginf);
 	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX->boxize_lincons_bound)){
+	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
 	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX->boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX->boxize_lincons_bound),
-				boundXXX_numref(intern->XXX->boxize_lincons_bound),
+		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				boundXXX_numref(intern->XXX.boxize_lincons_bound),
 				1);
 	      }
 	      else {
-		boundXXX_floor(intern->XXX->boxize_lincons_bound,
-			       intern->XXX->boxize_lincons_bound);
+		boundXXX_floor(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_bound);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX->boxize_lincons_bound, res[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->neginf)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(res[dim]->itv->neginf, intern->XXX->boxize_lincons_bound);
+	      boundXXX_set(res[dim]->itv->neginf, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	  if (sgn<0 || cons->constyp == AP_CONS_EQ){
@@ -522,32 +522,32 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      If we have a>0, we compute -inf(e')/a=-inf(e'/a)=sup(e'/-a)
 	    */
 	    if (sgn<0){
-	      boundXXX_div(intern->XXX->boxize_lincons_bound,
-			   intern->XXX->boxize_lincons_eval->itv->sup,
-			   intern->XXX->boxize_lincons_eitv->itv->neginf);
+	      boundXXX_div(intern->XXX.boxize_lincons_bound,
+			   intern->XXX.boxize_lincons_eval->itv->sup,
+			   intern->XXX.boxize_lincons_eitv->itv->neginf);
 	    }
 	    else {
-	      boundXXX_div(intern->XXX->boxize_lincons_bound,
-			   intern->XXX->boxize_lincons_eval->itv->neginf,
-			   intern->XXX->boxize_lincons_eitv->itv->sup);
+	      boundXXX_div(intern->XXX.boxize_lincons_bound,
+			   intern->XXX.boxize_lincons_eval->itv->neginf,
+			   intern->XXX.boxize_lincons_eitv->itv->sup);
 	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX->boxize_lincons_bound)){
+	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
 	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX->boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX->boxize_lincons_bound),
-				boundXXX_numref(intern->XXX->boxize_lincons_bound),
+		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				boundXXX_numref(intern->XXX.boxize_lincons_bound),
 				1);
 	      }
 	      else {
-		boundXXX_floor(intern->XXX->boxize_lincons_bound,
-			       intern->XXX->boxize_lincons_bound);
+		boundXXX_floor(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_bound);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX->boxize_lincons_bound, res[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->sup)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(res[dim]->itv->sup, intern->XXX->boxize_lincons_bound);
+	      boundXXX_set(res[dim]->itv->sup, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	}
@@ -574,119 +574,119 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	  * -inf(e')<=0: x<=inf(e')/-m
 	  */
 	int sgnitv =
-	  boundXXX_sgn(intern->XXX->boxize_lincons_eitv->itv->neginf)<0 ?
+	  boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->neginf)<0 ?
 	  1 :
-	  ( boundXXX_sgn(intern->XXX->boxize_lincons_eitv->itv->sup)<0 ?
+	  ( boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup)<0 ?
 	    -1 :
 	    0 );
 	if (sgnitv != 0){
-	  int sgnevalinf = boundXXX_sgn(intern->XXX->boxize_lincons_eval->itv->neginf);
-	  int sgnevalsup = boundXXX_sgn(intern->XXX->boxize_lincons_eval->itv->sup);
+	  int sgnevalinf = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->neginf);
+	  int sgnevalsup = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->sup);
 	  if (sgnitv>0 || (cons->constyp==AP_CONS_EQ && sgnitv<0)){
 	    if (sgnitv>0){
 	      if (sgnevalsup<=0){
 		/* We compute sup(e')/M */
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->sup,
-			     intern->XXX->boxize_lincons_eitv->itv->sup);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->sup,
+			     intern->XXX.boxize_lincons_eitv->itv->sup);
 	      } else {
 		/* We compute sup(e')/m = (-sup(e'))/(-m) */
-		boundXXX_neg(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->sup);
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eitv->itv->neginf);
+		boundXXX_neg(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->sup);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eitv->itv->neginf);
 	      }
 	    }
 	    else {
 	      if (sgnevalinf<=0){
 		/* We compute inf(e')/m = (-inf(e'))/(-m) */
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->neginf,
-			     intern->XXX->boxize_lincons_eitv->itv->neginf);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->neginf,
+			     intern->XXX.boxize_lincons_eitv->itv->neginf);
 	      } else {
 		/* We compute inf(e')/M) = (-inf(e'))/(-M) */
-		boundXXX_neg(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eitv->itv->sup);
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->neginf,
-			     intern->XXX->boxize_lincons_bound);
+		boundXXX_neg(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eitv->itv->sup);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->neginf,
+			     intern->XXX.boxize_lincons_bound);
 	      }
 	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX->boxize_lincons_bound)){
+	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
 	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX->boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX->boxize_lincons_bound),
-				boundXXX_numref(intern->XXX->boxize_lincons_bound),
+		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				boundXXX_numref(intern->XXX.boxize_lincons_bound),
 				1);
 	      }
 	      else {
-		boundXXX_floor(intern->XXX->boxize_lincons_bound,
-			       intern->XXX->boxize_lincons_bound);
+		boundXXX_floor(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_bound);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX->boxize_lincons_bound, res[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->neginf)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(res[dim]->itv->neginf, intern->XXX->boxize_lincons_bound);
+	      boundXXX_set(res[dim]->itv->neginf, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	  if (sgnitv<0 || (cons->constyp==AP_CONS_EQ && sgnitv>0)){
 	    if (sgnitv<0){
 	      if (sgnevalsup>=0){
 		/* We compute sup(e')/-M */
-		boundXXX_neg(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eitv->itv->sup);
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->sup,
-			     intern->XXX->boxize_lincons_bound);
+		boundXXX_neg(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eitv->itv->sup);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->sup,
+			     intern->XXX.boxize_lincons_bound);
 	      } else {
 		/* We compute sup(e')/-m */
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->sup,
-			     intern->XXX->boxize_lincons_eitv->itv->neginf);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->sup,
+			     intern->XXX.boxize_lincons_eitv->itv->neginf);
 	      }
 	    }
 	    else {
 	      if (sgnevalinf>=0){
 		/* We compute -inf(e')/M */
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->neginf,
-			     intern->XXX->boxize_lincons_eitv->itv->sup);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->neginf,
+			     intern->XXX.boxize_lincons_eitv->itv->sup);
 	      }
 	      else {
 		/* We compute -inf(e')/m = inf(e')/(-m) */
-		boundXXX_neg(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eval->itv->neginf);
-		boundXXX_div(intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_bound,
-			     intern->XXX->boxize_lincons_eitv->itv->neginf);
+		boundXXX_neg(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eval->itv->neginf);
+		boundXXX_div(intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_bound,
+			     intern->XXX.boxize_lincons_eitv->itv->neginf);
 	      }
 	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX->boxize_lincons_bound)){
+	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
 	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX->boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX->boxize_lincons_bound),
-				boundXXX_numref(intern->XXX->boxize_lincons_bound),
+		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				boundXXX_numref(intern->XXX.boxize_lincons_bound),
 				1);
 	      }
 	      else {
-		boundXXX_floor(intern->XXX->boxize_lincons_bound,
-			       intern->XXX->boxize_lincons_bound);
+		boundXXX_floor(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_bound);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX->boxize_lincons_bound, res[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->sup)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(res[dim]->itv->sup, intern->XXX->boxize_lincons_bound);
+	      boundXXX_set(res[dim]->itv->sup, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	}
       }
     }
-    eitvXXX_swap(intern->XXX->boxize_lincons_eitv,eitv);
+    eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
     if (change){
       globalchange = true;
       exc = itvXXX_canonicalize(res[dim]->itv,dim<intdim, intern);
@@ -726,7 +726,7 @@ bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
 				ap_linconsXXX_array_t array,
 				eitvXXX_t* env,size_t intdim,
 				size_t kmax,
-				bool intervalonly, itv_internal_t intern)
+				bool intervalonly, num_internal_t intern)
 {
   size_t i,k;
   bool change,globalchange;
