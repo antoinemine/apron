@@ -3,10 +3,7 @@
 #include <limits.h>
 
 #include "boundXXX.h"
-#include "itvXXX_conv.h"
-#include "itvD_conv.h"
-#include "itvMPQ_conv.h"
-#include "itvMPFR_conv.h"
+#include "numXXX_conv.h"
 
 /* ********************************************************************** */
 /* FPU init */

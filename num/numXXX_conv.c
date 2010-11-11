@@ -1,10 +1,9 @@
 /* ********************************************************************** */
-/* numbounditvXXX_conv.c: conversion between itvs */
+/* numXXX_conv.c: conversion between itvs */
 /* ********************************************************************** */
 
-#include "itvXXX_conv.h"
+#include "numXXX_conv.h"
 #include "itvXXX.h"
-
 #include "itvD.h"
 #include "itvMPQ.h"
 #include "itvMPFR.h"
@@ -25,7 +24,7 @@ inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
 }
 ENDMACRO
 
-#if !defined(_NUMZZZ_MARK_) && !defined(_NUMBOUNDITVD_CONV_H_) && !defined(_NUMBOUNDITVMPQ_CONV_H_) && !defined(_NUMBOUNDITVMPFR_CONV_H_)
+#if !defined(_NUMZZZ_MARK_) && !defined(_NUMD_CONV_H_) && !defined(_NUMMPQ_CONV_H_) && !defined(_NUMMPFR_CONV_H_)
 MACRO_MAINZ
 inline bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern)
 {
