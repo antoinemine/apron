@@ -98,14 +98,13 @@ allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
 
 test%: t1p_test_eval_texp%.o
-	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lapron t1p_internal$*.o t1p_representation$*.o
+	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $< -L. -lt1p$* -lbox$* $(LIBS)
 
 test%_debug: t1p_test_eval_texp%_debug.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
-
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $< -L. -lt1p$*_debug -lbox$*_debug $(LIBS_DEBUG)
 
 test_join%: t1p_test_join%.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@-L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug $(LIBS) 
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
