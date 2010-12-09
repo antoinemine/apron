@@ -554,18 +554,10 @@ ap_disjunction_t* ap_disjunction_join(ap_manager_t* manager,
 	for (i = 0; i < res_size; i++) {
 		res->p[i] = ptr(man, destructive, a1->p[i], a2->p[i]);
 	}
-	for (i = 0; i < res_size; i++){
-		if (res->p[i] != NULL){
-		for (j = i+1; j < res_size; j++){
-             if(res->p[i]==res->p[j]) {
-            	 free(res->p[j]);
-            	 res->p[j]=NULL;
-             }
-		}
-		}
-	}
-	res = ap_disjunction_resize(manager, res);
-	return res;
+
+	res = ap_disjunction_elim_redundant(man, res);
+
+	return ap_disjunction_reduce_top_bottom(man, res);
 }
 
 ap_disjunction_t* ap_disjunction_meet(ap_manager_t* manager, bool destructive,
