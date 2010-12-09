@@ -453,52 +453,23 @@ ap_generator0_array_t ap_disjunction_to_generator_array(ap_manager_t* manager,
 /* ============================================================ */
 
 /* Extra functions */
-ap_disjunction_t* ap_disjunction_elim_redundant(ap_manager_t* manager, ap_disjunction_t* a)
-{
 
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	ap_manager_t* man = intern->manager;
-
-	ap_disjunction_t* res = ap_disjunction_alloc(a->size);
-	res = ap_disjunction_copy(man, a);
-
-	size_t i,j;
-	for (i = 0; i < res->size; i++) {
-		if (res->p[i] != NULL){
-			for (j = i+1; j < res->size; j++){
-				if(res->p[i]==res->p[j]) {
-					free(res->p[j]);
-					res->p[j]=NULL;
-				}
-
-			}
-		}
-	}
-	return res;
-}
-
-ap_disjunction_t* ap_disjunction_resize(ap_manager_t* manager,
+ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 							ap_disjunction_t* a)
 {
 
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	ap_manager_t* man = intern->manager;
-
-	ap_disjunction_t* res = ap_disjunction_alloc(a->size);
-	res = ap_disjunction_copy(man, a);
-
 	size_t i,j;
 	i=0; j=0;
-	while (i < res->size) {
-		if (res->p[i] == NULL){
+	while (i < a->size) {
+		if (a->p[i] == NULL){
 			if (j == 0) j=i;
-			while ((i< res->size) & (res->p[i] == NULL)){
+			while ((i< a->size) & (a->p[i] == NULL)){
 				i=i+1;
 			}
-			if (i< res->size){
-				res->p[j] = res->p[i];
-				free(res->p[i]);
-				res->p[i] = NULL;
+			if (i< a->size){
+				a->p[j] = a->p[i];
+				free(a->p[i]);
+				a->p[i] = NULL;
 				j++;
 			}
 		} else i++;
@@ -508,39 +479,56 @@ ap_disjunction_t* ap_disjunction_resize(ap_manager_t* manager,
   return res;
 }
 
-ap_disjunction_t* ap_disjunction_reduce_top_bottom(ap_manager_t* manager,
+/* ************************************************************** */
+
+ap_disjunction_t* ap_disjunction_elim_redundant(ap_manager_t* man, ap_disjunction_t* a)
+{
+
+	size_t i,j;
+	for (i = 0; i < a->size; i++) {
+		if (a->p[i] != NULL){
+			for (j = i+1; j < a->size; j++){
+				if(a->p[i] == a->p[j]) {
+					free(a->p[j]);
+					a->p[j]=NULL;
+				}
+
+			}
+		}
+	}
+
+	return ap_disjunction_resize(man, a);
+}
+
+/* ************************************************************** */
+
+ap_disjunction_t* ap_disjunction_reduce_top_bottom(ap_manager_t* man,
 							ap_disjunction_t* a)
 {
 	bool first_top = true;
-
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	ap_manager_t* man = intern->manager;
-
-	ap_disjunction_t* res = ap_disjunction_alloc(a->size);
-	res = ap_disjunction_copy(man, a);
 
 	bool (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
 	bool (*is_top)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_TOP];
 
 	size_t i,j;
-	for (i = 0; i < res->size; i++) {
-		if (res->p[i] != NULL){
-				if(is_bottom(man ,res->p[i])) {
-					free(res->p[i]);
-					res->p[i]=NULL;
+	for (i = 0; i < a->size; i++) {
+		if (a->p[i] != NULL){
+				if(is_bottom(man ,a->p[i])) {
+					free(a->p[i]);
+					a->p[i]=NULL;
 
 				}
-				if(is_top(man ,res->p[i])) {
+				if(is_top(man ,a->p[i])) {
 					if (first_top == true) first_top = false;
 					else {
-						free(res->p[i]);
-						res->p[i]=NULL;
+						free(a->p[i]);
+						a->p[i]=NULL;
 					}
 
 				}
 		}
 	}
-  return res;
+  return ap_disjunction_resize(man, a);
 }
 
 //Meet and Join of two abstract values
@@ -929,31 +917,31 @@ ap_disjunction_t* ap_disjunction_fold(ap_manager_t* manager,
 
 // disjunctive widening
 /* *************************************************************************** */
-ap_disjunction_t* ap_disjunction_widening(ap_manager_t* manager,
+void* ap_disjunction_widening(ap_manager_t* manager,
 		ap_disjunction_t* a1, ap_disjunction_t* a2)
 {
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	ap_manager_t* man = intern->manager;
 
-	ap_disjunction_t* res = ap_disjunction_alloc(a1->size);
+	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,
+		AP_FUNID_WIDENING, NULL);
+    return false;
 
-	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_WIDENING];
-
-	size_t i;
-	for (i = 0; i < a1->size; i++) {
-		res->p[i] = ptr(man, a1->p[i], a2->p[i]);
-	}
-	return res;
 }
 
 /* ============================================================ */
 /* III.6 Merge function */
 /* ============================================================ */
 
-void* merge (ap_manager_t* manager, ap_disjunction_t* a)
+void* ap_disjunction_merge (ap_manager_t* manager, ap_disjunction_t* a)
 
 {
+	ap_disjunction_internal_t* intern = get_internal_init(manager);
+	ap_manager_t* man = intern->manager;
 
+	ap_disjunction_t* res = ap_disjunction_alloc(a->size);
+
+    res = ap_disjunction_elim_redundant(man, a);
+
+    return ap_disjunction_reduce_top_bottom(man, res);
 }
 
 /* ============================================================ */
