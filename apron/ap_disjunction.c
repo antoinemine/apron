@@ -36,8 +36,9 @@ static inline ap_disjunction_internal_t* get_internal_init(
 /*   */
 /* ============================================================ */
 
+/*
 static
-void ap_interval_meet_with(ap_interval_t* a, ap_interval_t* b)
+bool ap_interval_meet_with(ap_interval_t* a, ap_interval_t* b)
 {
   if (ap_scalar_cmp(a->inf,b->inf)<0){
     ap_scalar_set(a->inf,b->inf);
@@ -45,8 +46,9 @@ void ap_interval_meet_with(ap_interval_t* a, ap_interval_t* b)
   if (ap_scalar_cmp(a->sup,b->sup)>0){
     ap_scalar_set(a->sup,b->sup);
   }
-//  return ap_scalar_cmp(a->inf,a->sup)>0;
+  return ap_scalar_cmp(a->inf,a->sup)>0;
 }
+*/
 
 static
 void ap_interval_join_with(ap_interval_t* a, ap_interval_t* b)
@@ -59,27 +61,23 @@ void ap_interval_join_with(ap_interval_t* a, ap_interval_t* b)
   }
 }
 
-static void set_bottom(ap_disjunction_internal_t* intern, bool destructive,
-		ap_disjunction_t* a, size_t index /* index of the already bottom dimension */
-)
+static void set_bottom(ap_disjunction_internal_t* intern, ap_disjunction_t* a)
 {
 	ap_manager_t* man = intern->manager;
 
 	ap_dimension_t (*dimension)(ap_manager_t*, ...) = man->funptr[AP_FUNID_DIMENSION];
-	ap_dimension_t dim = dimension(man, a->p[index]);
+	ap_dimension_t dim = dimension(man, a->p[0]);
 
-	void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
 	void* (*bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOTTOM];
 
 	size_t i;
 	for (i = 0; i < a->size; i++) {
-		if (i != index) {
-			if (i < index || destructive)
-				free(man, a->p[i]);
-			a->p[i] = bottom(man, dim.intdim, dim.realdim);
-		}
+		if (a->p[i]!=NULL){
+			free(man, a->p[i]);
+			a->p[i] = NULL;
+	    }
 	}
-
+	a->p[0] = bottom(man, dim.intdim, dim.realdim);
 }
 
 /* ============================================================ */
@@ -116,10 +114,7 @@ void ap_disjunction_approximate(ap_manager_t* manager, ap_disjunction_t* a,
 /* ============================================================ */
 /* I.3 Printing */
 /* ============================================================ */
-
-/* ============================================================ */
-/* I.4 Serialization */
-/* ============================================================ */
+/* TO DO */
 
 /* ********************************************************************** */
 /* II. Constructor, accessory, tests and property extraction */
@@ -128,7 +123,7 @@ void ap_disjunction_approximate(ap_manager_t* manager, ap_disjunction_t* a,
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-ap_disjunction_t* ap_disjunction_of_one(ap_manager_t* man, void* abs) {
+ap_disjunction_t* ap_disjunction_of_one(void* abs) {
 	ap_disjunction_t* res = ap_disjunction_alloc(1);
 	res->p[0] = abs;
 	return res;
@@ -139,33 +134,27 @@ ap_disjunction_t* ap_disjunction_##NAME(ap_manager_t* manager, size_t intdim, si
 {									\
   ap_disjunction_internal_t* intern = get_internal_init(manager);	\
   ap_manager_t* man = intern->manager;	   \
-  ap_disjunction_t* res = ap_disjunction_alloc(sizeof(intern));	\
-															  \
 	void* (*ptr)(ap_manager_t*,...) = man->funptr[FUNID];		\
-    res->p[0] = ptr(man,intdim,realdim);				\
+    void* abs = ptr(man,intdim,realdim);				\
                       \
-  return res;								\
+  return ap_disjunction_of_one(abs);								\
 }
 
 BOTTOM_TOP(bottom,AP_FUNID_BOTTOM)
 BOTTOM_TOP(top,AP_FUNID_TOP)
-
 ap_disjunction_t* ap_disjunction_of_box(ap_manager_t* manager,
 					      size_t intdim, size_t realdim,
 					      ap_interval_t** tinterval)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-
-	ap_disjunction_t* res = ap_disjunction_alloc(sizeof(tinterval)); /* size alloc to res ??? */
+    void* abs;
+	ap_disjunction_t* res = ap_disjunction_alloc(1);
 
 	ap_manager_t* man = intern->manager;
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_OF_BOX];
 	bool (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
-	res->p[0] = ptr(man, intdim, realdim, tinterval);
-	if (is_bottom(man, res->p[0]))
-		set_bottom(intern, false, res, 0);
-
-	return res;
+	abs = ptr(man, intdim, realdim, tinterval);
+	return ap_disjunction_of_one(abs);
 }
 
 ap_dimension_t ap_disjunction_dimension(ap_manager_t* manager,
@@ -182,6 +171,7 @@ ap_dimension_t ap_disjunction_dimension(ap_manager_t* manager,
 /* II.3 Test Functions */
 /* ============================================================ */
 
+// remplacer size==1 && is_bottom(p[0])
 bool ap_disjunction_is_bottom(ap_manager_t* manager, ap_disjunction_t* a)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
@@ -325,6 +315,7 @@ ap_interval_t* ap_disjunction_bound_texpr(ap_manager_t* manager,
 	}
 	return gres;
 }
+
 ap_interval_t* ap_disjunction_bound_dimension(ap_manager_t* manager,
 		ap_disjunction_t* a, ap_dim_t dim) {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
@@ -463,7 +454,7 @@ ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 	while (i < a->size) {
 		if (a->p[i] == NULL){
 			if (j == 0) j=i;
-			while ((i< a->size) & (a->p[i] == NULL)){
+			while ((i< a->size) && (a->p[i] == NULL)){
 				i=i+1;
 			}
 			if (i< a->size){
@@ -484,12 +475,15 @@ ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 ap_disjunction_t* ap_disjunction_elim_redundant(ap_manager_t* man, ap_disjunction_t* a)
 {
 
+	void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
+
+
 	size_t i,j;
 	for (i = 0; i < a->size; i++) {
 		if (a->p[i] != NULL){
 			for (j = i+1; j < a->size; j++){
 				if(a->p[i] == a->p[j]) {
-					free(a->p[j]);
+					free(man,a->p[j]);
 					a->p[j]=NULL;
 				}
 
