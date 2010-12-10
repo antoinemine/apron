@@ -106,7 +106,8 @@ ap_disjunction_t* ap_disjunction_copy(ap_manager_t* manager,
 /* ============================================================ */
 
 void ap_disjunction_approximate(ap_manager_t* manager, ap_disjunction_t* a,
-		int n) {
+					int n)
+{
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
 	intern->approximate(manager, (void*) a, n);
 }
@@ -114,7 +115,51 @@ void ap_disjunction_approximate(ap_manager_t* manager, ap_disjunction_t* a,
 /* ============================================================ */
 /* I.3 Printing */
 /* ============================================================ */
-/* TO DO */
+
+/* Print 'a' on the stream */
+void ap_disjunction_fprint(FILE* stream, ap_manager_t* manager,
+			      ap_disjunction_t* a,
+			      char** name_of_dim)
+{
+  ap_disjunction_internal_t* intern = get_internal_init(manager);
+  ap_manager_t* man = intern->manager;
+
+  void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINT];
+
+  fprintf(stream,"disjunction of library %s\n",manager->library);
+
+  size_t i;
+  for (i=0;i<a->size;i++){
+    ptr(stream, man, a->p[i], name_of_dim);
+  }
+}
+
+/* print the difference between a1 (old value) and a2 (new value) */
+void ap_disjunction_fprintdiff(FILE* stream, ap_manager_t* manager,
+				  ap_disjunction_t* a1, disjunction_t* a2,
+				  char** name_of_dim)
+{
+	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, AP_FUNID_FPRINTDIFF, NULL);
+	return false;
+}
+
+/* dump the internal representation of a for debugging purposes */
+void ap_disjunction_fdump(FILE* stream, ap_manager_t* manager,
+			     ap_disjunction_t* a)
+{
+  ap_reducedproduct_internal_t* intern = get_internal_init(manager);
+  ap_manager_t* man = intern->manager;
+
+  void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FDUMP];
+
+  fprintf(stream,"disjunction of library %s\n",manager->library);
+
+  size_t i;
+  for (i=0;i<a->size;i++){
+    ptr(stream,man,a->p[i]);
+  }
+
+}
 
 /* ********************************************************************** */
 /* II. Constructor, accessory, tests and property extraction */
@@ -256,7 +301,7 @@ bool ap_disjunction_sat_tcons(ap_manager_t* manager, ap_disjunction_t* a,
 }
 
 bool ap_disjunction_sat_interval(ap_manager_t* manager, ap_disjunction_t* a,
-			ap_dim_t dim, ap_interval_t* interval)
+					ap_dim_t dim, ap_interval_t* interval)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
 	ap_manager_t* man = intern->manager;
@@ -590,49 +635,38 @@ ap_disjunction_t* ap_disjunction_meet(ap_manager_t* manager, bool destructive,
 	return NULL;
 }
 
-ap_disjunction_t* ap_disjunction_meetjoin_array(ap_funid_t funid,
-/* either meet or join */
-ap_manager_t* manager, ap_disjunction_t** tab, size_t size)
+ap_disjunction_t* ap_disjunction_join_array( ap_manager_t* manager,
+							ap_disjunction_t** tab, size_t size)
 {
 
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i, j;
-	ap_disjunction_t* res;
-	void** a;
 	ap_manager_t* man = intern->manager;
-	void* (*ptr)(ap_manager_t*, ...) = man->funptr[funid];
-	res = ap_disjunction_alloc(sizeof(tab));
+
+	ap_disjunction_t* res = ap_disjunction_alloc(sizeof(tab));
+
+	void** a;
 	a = (void**) malloc(size * sizeof(void*));
+
+	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_JOIN_ARRAY];
 	bool (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
+
+	size_t i, j;
 	for (i = 0; i < sizeof(tab); i++) {
 		for (j = 0; j < size; j++) {
 			a[j] = tab[j]->p[i];
 		}
 		res->p[i] = ptr(man, a, size);
-		if (funid == AP_FUNID_MEET_ARRAY) {
-			if (is_bottom(man, res->p[i])) {
-				set_bottom(intern, false, res, i);
-				goto ap_disjunction_meetjoin_array_exit;
-			}
-		}
 	}
+	free(a);
 
-	ap_disjunction_meetjoin_array_exit: free(a);
-	return res;
+   return res;
 }
 
 ap_disjunction_t* ap_disjunction_meet_array(ap_manager_t* manager,
-		ap_disjunction_t** tab, size_t size)
+							ap_disjunction_t** tab, size_t size)
 {
 	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, AP_FUNID_MEET_ARRAY, NULL);
 	return NULL;
-}
-
-ap_disjunction_t* ap_disjunction_join_array(ap_manager_t* manager,
-		ap_disjunction_t** tab, size_t size)
-{
-	return ap_disjunction_meetjoin_array(AP_FUNID_JOIN_ARRAY, manager, tab,
-			size);
 }
 
 //Meet of the abstract value a with the set of constraints array.
@@ -709,8 +743,7 @@ ap_disjunction_t* ap_disjunction_add_ray_array(ap_manager_t* manager,
 /* III.2 Assignment and Substitutions */
 /* ============================================================ */
 
-ap_disjunction_t*
-ap_disjunction_asssub_linexpr_array(ap_funid_t funid,
+ap_disjunction_t* ap_disjunction_asssub_linexpr_array(ap_funid_t funid,
 /* either assign or substitute */
 ap_manager_t* manager, bool destructive, ap_disjunction_t* a, ap_dim_t* tdim,
 		ap_linexpr0_t** texpr, size_t size, ap_disjunction_t* dest)
@@ -748,30 +781,30 @@ ap_disjunction_t* ap_disjunction_assign_linexpr_array(
 
 ap_disjunction_t* ap_disjunction_substitute_linexpr_array(ap_manager_t* man,
 		bool destructive, ap_disjunction_t* a, ap_dim_t* tdim,
-		ap_linexpr0_t** texpr, size_t size, ap_disjunction_t* dest) {
-	return ap_disjunction_asssub_linexpr_array(
-			AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY, man, destructive, a, tdim,
-			texpr, size, dest);
+		ap_linexpr0_t** texpr, size_t size, ap_disjunction_t* dest)
+{
+	return ap_disjunction_asssub_linexpr_array(	AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,
+			man, destructive, a, tdim, texpr, size, dest);
 }
 
-ap_disjunction_t*
-ap_disjunction_asssub_texpr_array(ap_funid_t funid,
+ap_disjunction_t* ap_disjunction_asssub_texpr_array(ap_funid_t funid,
 /* either assign or substitute */
 ap_manager_t* manager, bool destructive, ap_disjunction_t* a, ap_dim_t* tdim,
-		ap_texpr0_t** texpr, size_t size, ap_disjunction_t* dest) {
+		ap_texpr0_t** texpr, size_t size, ap_disjunction_t* dest)
+{
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
+	ap_manager_t* man = intern->manager;
+
 	ap_disjunction_t* res;
 
 	res = destructive ? a : ap_disjunction_alloc(a->size);
 
-	ap_manager_t* man = intern->manager;
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[funid];
 	bool (*is_bottom)(ap_manager_t*, ...) = 	man->funptr[AP_FUNID_IS_BOTTOM];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
-		res->p[i] = ptr(man, destructive, a->p[i], tdim, texpr, size,
-				dest ? dest->p[i] : NULL);
+		res->p[i] = ptr(man, destructive, a->p[i], tdim, texpr, size, dest ? dest->p[i] : NULL);
 		if (dest || funid == AP_FUNID_SUBSTITUTE_TEXPR_ARRAY) {
 			if (is_bottom(man, res->p[i])) {
 				set_bottom(intern, destructive, res, i);
@@ -808,14 +841,13 @@ ap_disjunction_t* ap_disjunction_forget_array(
 		bool project)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	ap_disjunction_t* res;
-
-	res = destructive ? a : ap_disjunction_alloc(a->size);
-
 	ap_manager_t* man = intern->manager;
+
+	ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
+
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FORGET_ARRAY];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		res->p[i] = ptr(man, destructive, a->p[i], tdim, size, project);
 	}
@@ -828,14 +860,13 @@ ap_disjunction_t* ap_disjunction_add_dimensions(
 		bool project)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	ap_disjunction_t* res;
-
-	res = destructive ? a : ap_disjunction_alloc(a->size);
 
 	ap_manager_t* man = intern->manager;
+	ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
+
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		res->p[i] = ptr(man, destructive, a->p[i], dimchange, project);
 	}
@@ -846,14 +877,13 @@ ap_disjunction_t* ap_disjunction_remove_dimensions(ap_manager_t* manager,
 		bool destructive, ap_disjunction_t* a, ap_dimchange_t* dimchange)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	ap_disjunction_t* res;
 
-	res = destructive ? a : ap_disjunction_alloc(a->size);
 
-	ap_manager_t* man = intern->manager;
+	ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
+
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		res->p[i] = ptr(man, destructive, a->p[i], dimchange);
 	}
@@ -864,14 +894,13 @@ ap_disjunction_t* ap_disjunction_permute_dimensions(ap_manager_t* manager,
 		bool destructive, ap_disjunction_t* a, ap_dimperm_t* perm)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	ap_disjunction_t* res;
-
-	res = destructive ? a : ap_disjunction_alloc(a->size);
-
 	ap_manager_t* man = intern->manager;
+
+	ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
+
 	void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		res->p[i] = ptr(man, destructive, a->p[i], perm);
 	}
@@ -936,8 +965,7 @@ void* ap_disjunction_widening(ap_manager_t* manager,
 		ap_disjunction_t* a1, ap_disjunction_t* a2)
 {
 
-	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,
-		AP_FUNID_WIDENING, NULL);
+	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, AP_FUNID_WIDENING, NULL);
     return false;
 
 }
