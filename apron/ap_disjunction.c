@@ -142,6 +142,7 @@ ap_disjunction_t* ap_disjunction_##NAME(ap_manager_t* manager, size_t intdim, si
 
 BOTTOM_TOP(bottom,AP_FUNID_BOTTOM)
 BOTTOM_TOP(top,AP_FUNID_TOP)
+
 ap_disjunction_t* ap_disjunction_of_box(ap_manager_t* manager,
 					      size_t intdim, size_t realdim,
 					      ap_interval_t** tinterval)
@@ -196,7 +197,7 @@ bool ap_disjunction_is_top(ap_manager_t* manager, ap_disjunction_t* a)
 	return false;
 }
 
-/* ============================================================ */
+/* ======================================================================= */
 
 bool ap_disjunction_is_eq(ap_manager_t* manager, ap_disjunction_t* a,
 		ap_disjunction_t* b)
@@ -215,13 +216,16 @@ bool ap_disjunction_is_leq(ap_manager_t* manager, ap_disjunction_t* a,
 }
 
 bool ap_disjunction_sat_lincons(ap_manager_t* manager, ap_disjunction_t* a,
-		ap_lincons0_t* lincons)
+				ap_lincons0_t* lincons)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	bool gres = false;
 	ap_manager_t* man = intern->manager;
+
 	bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_LINCONS];
+
+	bool gres = false;
+
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		bool res = ptr(man, a->p[i], lincons);
 		gres = gres || res;
@@ -235,10 +239,13 @@ bool ap_disjunction_sat_tcons(ap_manager_t* manager, ap_disjunction_t* a,
 		ap_tcons0_t* tcons)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	bool gres = false;
 	ap_manager_t* man = intern->manager;
+
 	bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_TCONS];
+
+	bool gres = false;
+
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		bool res = ptr(man, a->p[i], tcons);
 		gres = gres || res;
@@ -249,13 +256,16 @@ bool ap_disjunction_sat_tcons(ap_manager_t* manager, ap_disjunction_t* a,
 }
 
 bool ap_disjunction_sat_interval(ap_manager_t* manager, ap_disjunction_t* a,
-		ap_dim_t dim, ap_interval_t* interval)
+			ap_dim_t dim, ap_interval_t* interval)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
-	bool gres = false;
 	ap_manager_t* man = intern->manager;
+
 	bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_INTERVAL];
+
+	bool gres = false;
+
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		bool res = ptr(man, a->p[i], dim, interval);
 		gres = gres || res;
@@ -282,11 +292,14 @@ ap_interval_t* ap_disjunction_bound_linexpr(ap_manager_t* manager,
 
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
+	ap_manager_t* man = intern->manager;
+
+	ap_interval_t* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+
 	ap_interval_t* gres = ap_interval_alloc();
 	ap_interval_set_bottom(gres);
-	ap_manager_t* man = intern->manager;
-	ap_interval_t* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		ap_interval_t* res = ptr(man, a->p[i], expr);
 		ap_interval_join_with(gres, res);
@@ -301,11 +314,14 @@ ap_interval_t* ap_disjunction_bound_texpr(ap_manager_t* manager,
 		ap_disjunction_t* a, ap_texpr0_t* expr)
 {
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
+	ap_manager_t* man = intern->manager;
+
 	ap_interval_t* gres = ap_interval_alloc();
 	ap_interval_set_bottom(gres);
-	ap_manager_t* man = intern->manager;
+
 	ap_interval_t* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOUND_TEXPR];
+
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		ap_interval_t* res = ptr(man, a->p[i], expr);
 		ap_interval_join_with(gres, res);
@@ -317,14 +333,17 @@ ap_interval_t* ap_disjunction_bound_texpr(ap_manager_t* manager,
 }
 
 ap_interval_t* ap_disjunction_bound_dimension(ap_manager_t* manager,
-		ap_disjunction_t* a, ap_dim_t dim) {
+		ap_disjunction_t* a, ap_dim_t dim)
+{
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i;
+	ap_manager_t* man = intern->manager;
+
 	ap_interval_t* gres = ap_interval_alloc();
 	ap_interval_set_bottom(gres);
-	ap_manager_t* man = intern->manager;
+
 	ap_interval_t* (*ptr)(ap_manager_t*, ...) =	man->funptr[AP_FUNID_BOUND_DIMENSION];
 
+	size_t i;
 	for (i = 0; i < a->size; i++) {
 		ap_interval_t* res = ptr(man, a->p[i], dim);
 		ap_interval_join_with(gres, res);
@@ -339,16 +358,19 @@ ap_interval_t* ap_disjunction_bound_dimension(ap_manager_t* manager,
 /* ===================================================================== */
 
 ap_lincons0_array_t ap_disjunction_to_lincons_array(ap_manager_t* manager,
-		ap_disjunction_t* a) {
-	ap_lincons0_array_t garray;
+		ap_disjunction_t* a)
+{
 
+	ap_disjunction_internal_t* intern = get_internal_init(manager);
+	ap_manager_t* man = intern->manager;
+
+	ap_lincons0_array_t garray;
 	garray.p = NULL;
 	garray.size = 0;
 
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i,j;
-	ap_manager_t* man = intern->manager;
 	ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+
+	size_t i,j;
 	for (i=0;i<a->size;i++){
 	    ap_lincons0_array_t array = ptr(man,a->p[i]);
 	    garray.p = realloc(garray.p, (garray.size + array.size) * sizeof(ap_lincons0_t));
@@ -362,16 +384,18 @@ ap_lincons0_array_t ap_disjunction_to_lincons_array(ap_manager_t* manager,
 }
 
 ap_tcons0_array_t ap_disjunction_to_tcons_array(ap_manager_t* manager,
-		ap_disjunction_t* a) {
+		ap_disjunction_t* a)
+{
 	ap_tcons0_array_t garray;
-
 	garray.p = NULL;
 	garray.size = 0;
-	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i,j;
-	 ap_manager_t* man = intern->manager;
-	 ap_tcons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
 
+	ap_disjunction_internal_t* intern = get_internal_init(manager);
+	ap_manager_t* man = intern->manager;
+
+	ap_tcons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
+
+	size_t i,j;
 	for (i=0;i<a->size;i++){
 	  ap_tcons0_array_t array = ptr(man,a->p[i]);
 	    garray.p = realloc(garray.p, (garray.size + array.size) * sizeof(ap_tcons0_t));
@@ -388,19 +412,21 @@ ap_tcons0_array_t ap_disjunction_to_tcons_array(ap_manager_t* manager,
 /* ====================================================================== */
 
 ap_interval_t** ap_disjunction_to_box(ap_manager_t* manager,
-		ap_disjunction_t* a)
+						ap_disjunction_t* a)
 {
 
 	ap_disjunction_internal_t* intern = get_internal_init(manager);
-	size_t i, j;
+	ap_manager_t* man = intern->manager;
+
 	ap_interval_t** gbox = NULL;
 	size_t nbdims = 0;
 
-    ap_manager_t* man = intern->manager;
     ap_interval_t** (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_TO_BOX];
     ap_dimension_t (*ptrdimension)(ap_manager_t*, ...) = man->funptr[AP_FUNID_DIMENSION];
     ap_dimension_t dimension = ptrdimension(man, a->p[0]);
     nbdims = dimension.intdim + dimension.realdim;
+
+    size_t i, j;
     for (i = 0; i < a->size; i++) {
 		ap_interval_t** box = ptr(man, a->p[i]);
 		if (i == 0) {
@@ -426,12 +452,15 @@ ap_interval_t** ap_disjunction_to_box(ap_manager_t* manager,
 /* ====================================================================== */
 
 ap_generator0_array_t ap_disjunction_to_generator_array(ap_manager_t* manager,
-		ap_disjunction_t* a) {
+		ap_disjunction_t* a)
+{
 	ap_generator0_array_t array;
-	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,
-			AP_FUNID_TO_GENERATOR_ARRAY, NULL);
+
+	ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,	AP_FUNID_TO_GENERATOR_ARRAY, NULL);
+
 	array.p = NULL;
 	array.size = 0;
+
 	return array;
 }
 
@@ -448,6 +477,7 @@ ap_generator0_array_t ap_disjunction_to_generator_array(ap_manager_t* manager,
 ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 							ap_disjunction_t* a)
 {
+	void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
 
 	size_t i,j;
 	i=0; j=0;
@@ -459,7 +489,7 @@ ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 			}
 			if (i< a->size){
 				a->p[j] = a->p[i];
-				free(a->p[i]);
+				free(man, a->p[i]);
 				a->p[i] = NULL;
 				j++;
 			}
@@ -474,9 +504,7 @@ ap_disjunction_t* ap_disjunction_resize(ap_manager_t* man,
 
 ap_disjunction_t* ap_disjunction_elim_redundant(ap_manager_t* man, ap_disjunction_t* a)
 {
-
 	void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
-
 
 	size_t i,j;
 	for (i = 0; i < a->size; i++) {
@@ -503,19 +531,20 @@ ap_disjunction_t* ap_disjunction_reduce_top_bottom(ap_manager_t* man,
 
 	bool (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
 	bool (*is_top)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_TOP];
+	void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
 
 	size_t i,j;
 	for (i = 0; i < a->size; i++) {
 		if (a->p[i] != NULL){
 				if(is_bottom(man ,a->p[i])) {
-					free(a->p[i]);
+					free(man, a->p[i]);
 					a->p[i]=NULL;
 
 				}
 				if(is_top(man ,a->p[i])) {
 					if (first_top == true) first_top = false;
 					else {
-						free(a->p[i]);
+						free(man, a->p[i]);
 						a->p[i]=NULL;
 					}
 
