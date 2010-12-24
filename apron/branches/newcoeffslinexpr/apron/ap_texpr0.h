@@ -128,6 +128,9 @@ ap_texpr0_array_t ap_texpr0_array_make(size_t size);
   /* Allocate an array of expressions.
      The expressions are initialized with NULL pointers */
 
+static inline size_t ap_texpr0_array_size(ap_texpr0_array_t* array)
+{ return array->size; }
+
 void ap_texpr0_array_resize(ap_texpr0_array_t* array, size_t size);
   /* Resize an array..
      New expressions are initialized with NULL pointers,

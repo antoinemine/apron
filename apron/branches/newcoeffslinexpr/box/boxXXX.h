@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include "ap_global0.h"
-#include "boxXXX_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -223,7 +222,7 @@ boxXXX_t* boxXXX_join_array(ap_manager_t* man, boxXXX_t** tab, size_t size);
 boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
 			      bool destructive,
 			      boxXXX_t* a,
-			      ap_lincons0_array_t* array);
+			      ap_lincons0_array_t array);
   /* Meet of an box value with a set of constraints */
 
 boxXXX_t*
@@ -246,7 +245,6 @@ boxXXX_t* boxXXX_assign_linexpr_array(ap_manager_t* man,
 				boxXXX_t* a,
 				ap_dim_t* tdim,
 				ap_linexpr0_array_t texpr,
-				size_t size,
 				boxXXX_t* dest);
 
 boxXXX_t* boxXXX_substitute_linexpr_array(ap_manager_t* man,
@@ -254,21 +252,20 @@ boxXXX_t* boxXXX_substitute_linexpr_array(ap_manager_t* man,
 				    boxXXX_t* org,
 				    ap_dim_t* tdim,
 				    ap_linexpr0_array_t texpr,
-				    size_t size,
 				    boxXXX_t* dest);
 boxXXX_t*
 boxXXX_assign_texpr_array(ap_manager_t* man,
-		       bool destructive,
-		       boxXXX_t* org,
-		       ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-		       boxXXX_t* dest);
+			  bool destructive,
+			  boxXXX_t* org,
+			  ap_dim_t* tdim, ap_texpr0_array_t* array,
+			  boxXXX_t* dest);
 
 boxXXX_t* 
 boxXXX_substitute_texpr_array(ap_manager_t* man,
-			   bool destructive,
-			   boxXXX_t* org,
-			   ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-			   boxXXX_t* dest);
+			      bool destructive,
+			      boxXXX_t* org,
+			      ap_dim_t* tdim, ap_texpr0_array_t* array,
+			      boxXXX_t* dest);
   /* Parallel Assignement and Substitution of several dimensions by
      expressions in box value org.
 
@@ -282,9 +279,9 @@ boxXXX_substitute_texpr_array(ap_manager_t* man,
 /* ============================================================ */
 
 boxXXX_t* boxXXX_forget_array(ap_manager_t* man,
-			bool destructive,
-			boxXXX_t* a, ap_dim_t* tdim, size_t size,
-			bool project);
+			      bool destructive,
+			      boxXXX_t* a, ap_dim_t* tdim, size_t size,
+			      bool project);
 
 /* ============================================================ */
 /* III.4 Change and permutation of dimensions */

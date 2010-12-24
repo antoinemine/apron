@@ -7,14 +7,9 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "eitvXXX.h"
 
-#include "ap_config.h"
-#include "ap_coeff.h"
-#include "ap_dimension.h"
-#include "ap_linexpr0.h"
-#include "ap_lincons0.h"
-#include "ap_manager.h"
+#include "boxXXX.h"
+#include "eitvXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +43,13 @@ static inline boxXXX_internal_t* boxXXX_init_from_manager(ap_manager_t* man, ap_
   boxXXX_internal_t* itv = (boxXXX_internal_t*)man->internal;
   return itv;
 }
+
+/* Other internal functions */
+boxXXX_t* boxXXX_alloc(size_t intdim, size_t realdim);
+void boxXXX_init(boxXXX_t* a);
+void boxXXX_set_bottom(boxXXX_t* a);
+void boxXXX_set_top(boxXXX_t* a);
+void boxXXX_set(boxXXX_t* a, boxXXX_t* b);
 
 #ifdef __cplusplus
 }

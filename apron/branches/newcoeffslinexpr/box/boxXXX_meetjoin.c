@@ -9,13 +9,10 @@
 #include "boundMPQ.h"
 #include "boundMPFR.h"
 
-#include "boxXXX.h"
 #include "boxXXX_internal.h"
-#include "boxXXX_representation.h"
-#include "boxXXX_constructor.h"
-#include "boxXXX_meetjoin.h"
 
 #include "ap_linconsXXX.h"
+#include "ap_tcons0.h"
 
 /* ============================================================ */
 /* Meet and Join */
@@ -141,18 +138,19 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 	  assert(eitvref->eq);
 	  int sgn = boundZZZ_sgn(eitvref->itv->sup);
 	  if (sgn!=0){
-	    a->p[dim]->eq = false;
+	    res->p[dim]->eq = false;
 	    if (sgn>0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(a->p[dim]->itv->sup,1);
+	      boundXXX_set_infty(res->p[dim]->itv->sup,1);
 	    }
 	    if (sgn<0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(a->p[dim]->itv->neginf,1);
+	      boundXXX_set_infty(res->p[dim]->itv->neginf,1);
 	    }
 	  }
 	}
       }
     }
   ENDSWITCH;
+  return res;
 }
 
 
@@ -168,8 +166,8 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
   size_t nbcoeffs,nbdims;
   ap_dim_t dim;
   size_t i;
-  eitvXXX_ptr pitv;
-  ap_linexprXXX_t expr;
+  eitvXXX_ptr peitv;
+  ap_linexprXXX_ptr expr;
   bool equality,change,globalchange;
   bool exc;
 
@@ -182,26 +180,23 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     return false;
   }
   nbdims = a->intdim + a->realdim;
-  expr = &cons->linexpr;
+  expr = cons->linexpr;
   globalchange = false;
 
   /* Iterates on coefficients */
   nbcoeffs = 0;
   eitvXXX_set_int(intern->meet_lincons_internal_itv2,0);
-  eitvXXX_linexpr_ForeachLinterm(expr,i,dim,pitv,peq){
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,peitv){
     nbcoeffs++;
     /* 1. We decompose the expression e = ax+e' */
     /* We save the linterm */
-    eitvXXX_swap(intern->meet_lincons_internal_itv2,pitv);
-    equality = *peq;
-    *peq = true;
+    eitvXXX_swap(intern->meet_lincons_internal_itv2,peitv);
     /* 2. evaluate e' */
-    eitvXXX_eval_linexpr(intern->num,
-		     intern->meet_lincons_internal_itv3,expr,a->p);
+    ap_linexprXXX_eval(intern->meet_lincons_internal_itv3,expr,a->p,intern->num);
     change = false;
     if (!eitvXXX_is_top(intern->meet_lincons_internal_itv3)){
-      if (equality){
-	int sgn = boundXXX_sgn(intern->meet_lincons_internal_itv2->sup);
+      if (intern->meet_lincons_internal_itv2->eq){
+	int sgn = boundXXX_sgn(intern->meet_lincons_internal_itv2->itv->sup);
 	if (sgn!=0){
 	  /*
 	    If we have ax+e' >= 0 with a>0
@@ -218,18 +213,18 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	    */
 	    if (sgn>0){
 	      boundXXX_div(intern->meet_lincons_internal_bound,
-			intern->meet_lincons_internal_itv3->sup,
-			intern->meet_lincons_internal_itv2->sup);
+			intern->meet_lincons_internal_itv3->itv->sup,
+			intern->meet_lincons_internal_itv2->itv->sup);
 	    }
 	    else {
 	      boundXXX_div(intern->meet_lincons_internal_bound,
-			intern->meet_lincons_internal_itv3->inf,
-			intern->meet_lincons_internal_itv2->inf);
+			intern->meet_lincons_internal_itv3->itv->neginf,
+			intern->meet_lincons_internal_itv2->itv->neginf);
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->inf)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->neginf)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->inf, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->p[dim]->itv->neginf, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	  if (sgn<0 || cons->constyp == AP_CONS_EQ){
@@ -239,18 +234,18 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	    */
 	    if (sgn<0){
 	      boundXXX_div(intern->meet_lincons_internal_bound,
-			intern->meet_lincons_internal_itv3->sup,
-			intern->meet_lincons_internal_itv2->inf);
+			intern->meet_lincons_internal_itv3->itv->sup,
+			intern->meet_lincons_internal_itv2->itv->neginf);
 	    }
 	    else {
 	      boundXXX_div(intern->meet_lincons_internal_bound,
-			intern->meet_lincons_internal_itv3->inf,
-			intern->meet_lincons_internal_itv2->sup);
+			intern->meet_lincons_internal_itv3->itv->neginf,
+			intern->meet_lincons_internal_itv2->itv->sup);
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->sup)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->sup)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->sup, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->p[dim]->itv->sup, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	}
@@ -277,51 +272,51 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	    * -inf(e')<=0: x<=inf(e')/-m
 	*/
 	int sgncoeff =
-	  boundXXX_sgn(intern->meet_lincons_internal_itv2->inf)<0 ?
+	  boundXXX_sgn(intern->meet_lincons_internal_itv2->itv->neginf)<0 ?
 	  1 :
-	  ( boundXXX_sgn(intern->meet_lincons_internal_itv2->sup)<0 ?
+	  ( boundXXX_sgn(intern->meet_lincons_internal_itv2->itv->sup)<0 ?
 	    -1 :
 	    0 );
 	if (sgncoeff != 0){
-	  int sgninf = boundXXX_sgn(intern->meet_lincons_internal_itv3->inf);
-	  int sgnsup = boundXXX_sgn(intern->meet_lincons_internal_itv3->sup);
+	  int sgninf = boundXXX_sgn(intern->meet_lincons_internal_itv3->itv->neginf);
+	  int sgnsup = boundXXX_sgn(intern->meet_lincons_internal_itv3->itv->sup);
 	  if (sgncoeff>0 || (cons->constyp==AP_CONS_EQ && sgncoeff<0)){
 	    if (sgncoeff>0){
 	      if (sgnsup<=0){
 		/* We compute sup(e')/M */
 		boundXXX_div(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->sup,
-			  intern->meet_lincons_internal_itv2->sup);
+			  intern->meet_lincons_internal_itv3->itv->sup,
+			  intern->meet_lincons_internal_itv2->itv->sup);
 	      } else {
 		/* We compute sup(e')/m = (-sup(e'))/(-m) */
 		boundXXX_neg(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->sup);
+			  intern->meet_lincons_internal_itv3->itv->sup);
 		boundXXX_div(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv2->inf);
+			  intern->meet_lincons_internal_itv2->itv->neginf);
 	      }
 	    }
 	    else {
 	      boundXXX_neg(intern->meet_lincons_internal_bound,
-			intern->meet_lincons_internal_itv3->inf);
+			intern->meet_lincons_internal_itv3->itv->neginf);
 	      if (sgninf<=0){
 		/* We compute inf(e')/m = (-inf(e'))/(-m) */
 		boundXXX_div(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv2->inf);
+			  intern->meet_lincons_internal_itv2->itv->neginf);
 	      } else {
 		/* We compute inf(e')/M) = - (-inf(e'))/M */
 		boundXXX_div(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv2->sup);
+			  intern->meet_lincons_internal_itv2->itv->sup);
 		boundXXX_neg(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_bound);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->inf)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->neginf)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->inf, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->p[dim]->itv->neginf, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	  if (sgncoeff<0 || (cons->constyp==AP_CONS_EQ && sgncoeff>0)){
@@ -329,47 +324,46 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	      if (sgnsup>=0){
 		/* We compute sup(e')/-M */
 		boundXXX_neg(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv2->sup);
+			  intern->meet_lincons_internal_itv2->itv->sup);
 		boundXXX_div(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->sup,
+			  intern->meet_lincons_internal_itv3->itv->sup,
 			  intern->meet_lincons_internal_bound);
 	      } else {
 		/* We compute sup(e')/-m */
 		boundXXX_div(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->sup,
-			  intern->meet_lincons_internal_itv2->inf);
+			  intern->meet_lincons_internal_itv3->itv->sup,
+			  intern->meet_lincons_internal_itv2->itv->neginf);
 	      }
 	    }
 	    else {
 	      if (sgninf>=0){		
 		/* We compute -inf(e')/M */
 		boundXXX_div(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->inf,
-			  intern->meet_lincons_internal_itv2->sup);
+			  intern->meet_lincons_internal_itv3->itv->neginf,
+			  intern->meet_lincons_internal_itv2->itv->sup);
 	      }
 	      else {
 		/* We compute -inf(e')/m = inf(e')/(-m) */
 		boundXXX_neg(intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv3->inf);
+			  intern->meet_lincons_internal_itv3->itv->neginf);
 		boundXXX_div(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_bound,
-			  intern->meet_lincons_internal_itv2->inf);
+			  intern->meet_lincons_internal_itv2->itv->neginf);
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->sup)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->sup)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->sup, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->p[dim]->itv->sup, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	}
       }
     }
-    eitvXXX_swap(intern->meet_lincons_internal_itv2,pitv);
-    *peq = equality;
+    eitvXXX_swap(intern->meet_lincons_internal_itv2,peitv);
     if (change){
       globalchange = true;
-      exc = eitvXXX_canonicalize(intern->num,a->p[dim],dim<a->intdim);
+      exc = eitvXXX_canonicalize(a->p[dim],dim<a->intdim,intern->num);
       if (exc){
 	boxXXX_set_bottom(a);
 	goto _boxXXX_meet_boxXXX_lincons_exit;
@@ -378,8 +372,8 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
   }
   if (nbcoeffs==0){ /* Maybe an unsatisfiable constraint */
     bool unsat;
-    int sgnsup = boundXXX_sgn(expr->cst->sup);
-    int sgninf = expr->equality ? sgnsup : -boundXXX_sgn(expr->cst->inf);
+    int sgnsup = boundXXX_sgn(expr->cst->itv->sup);
+    int sgninf = expr->cst->eq ? sgnsup : -boundXXX_sgn(expr->cst->itv->neginf);
     switch(cons->constyp){
     case AP_CONS_EQ:
       unsat = sgnsup < 0 || sgninf > 0;
@@ -405,13 +399,13 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 }
 
 boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
-			      bool destructive,
-			      boxXXX_t* a,
-			      ap_lincons0_array_t* array)
+				    bool destructive,
+				    boxXXX_t* a,
+				    ap_lincons0_array_t array)
 {
   boxXXX_t* res;
   size_t kmax;
-  eitvXXX_lincons_array_t tlincons;
+  ap_linconsXXX_array_t tlincons;
   boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
 
   res = destructive ? a : boxXXX_copy(man,a);
@@ -420,37 +414,38 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
     man->result.flag_exact = true;
   }
   else {
-    man->result.flag_best = array->size==1;
+    man->result.flag_best = (ap_lincons0_array_size(array)==1);
     man->result.flag_exact = false;
     kmax = man->option.funopt[AP_FUNID_MEET_LINCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
-    eitvXXX_lincons_array_init(&tlincons,array->size);
-    eitvXXX_lincons_array_set_ap_lincons0_array(intern->num,&tlincons,array);
-    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->num,&tlincons,a->intdim);
+
+    ap_linconsXXX_array_init(tlincons,0);
+    ap_linconsXXX_array_set_lincons0_array(tlincons,array,intern->num);
+    tbool_t tb = ap_linconsXXX_array_reduce_integer(tlincons,a->intdim,intern->num);
     if (tb==tbool_false){
       goto _boxXXX_meet_lincons_array_bottom;
     }
-    eitvXXX_boxize_lincons_array(intern->num,
-			     res->p,NULL,
-			     &tlincons,res->p,a->intdim,kmax,false);
-    if (eitvXXX_is_bottom(intern->num,res->p[0])){
+    ap_linconsXXX_array_boxize(res->p,NULL,
+			       tlincons,res->p,a->intdim,kmax,false,
+			       intern->num);
+    if (eitvXXX_is_bottom(res->p[0],intern->num)){
     _boxXXX_meet_lincons_array_bottom:
       boxXXX_set_bottom(res);
     }
-    eitvXXX_lincons_array_clear(&tlincons);
+    ap_linconsXXX_array_clear(tlincons);
   }
   return res;
 }
 
 boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
-			    bool destructive,
-			    boxXXX_t* a,
-			    ap_tcons0_array_t* array)
+				  bool destructive,
+				  boxXXX_t* a,
+				  ap_tcons0_array_t* array)
 {
   boxXXX_t* res;
   size_t kmax;
   boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
-  eitvXXX_lincons_array_t tlincons;
+  ap_linconsXXX_array_t tlincons;
 
   res = destructive ? a : boxXXX_copy(man,a);
   if (a->p==NULL){
@@ -463,21 +458,22 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
     kmax = man->option.funopt[AP_FUNID_MEET_TCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
     
-    eitvXXX_lincons_array_init(&tlincons,array->size);
-    eitvXXX_intlinearize_ap_tcons0_array(intern->num,&tlincons,
-				     array,res->p,res->intdim);
-    tbool_t tb = eitvXXX_lincons_array_reduce_integer(intern->num,&tlincons,a->intdim);
+    ap_linconsXXX_array_init(tlincons,0);
+    ap_linconsXXX_array_intlinearize_tcons0_array(tlincons,array,
+						  res->p,res->intdim,
+						  intern->num);
+    tbool_t tb = ap_linconsXXX_array_reduce_integer(tlincons,a->intdim,intern->num);
     if (tb==tbool_false){
       goto _boxXXX_meet_tcons_array_bottom;
     }
-    eitvXXX_boxize_lincons_array(intern->num,
-			     res->p,NULL,
-			     &tlincons,res->p,a->intdim,kmax,false);
-    if (eitvXXX_is_bottom(intern->num,res->p[0])){
+    ap_linconsXXX_array_boxize(res->p,NULL,
+			       tlincons,res->p,a->intdim,kmax,false,
+			       intern->num);
+    if (eitvXXX_is_bottom(res->p[0],intern->num)){
     _boxXXX_meet_tcons_array_bottom:
       boxXXX_set_bottom(res);
     }
-    eitvXXX_lincons_array_clear(&tlincons);
+    ap_linconsXXX_array_clear(tlincons);
   }
   return res;
 }

@@ -2,15 +2,15 @@
 /* boxXXX_otherops.c */
 /* ********************************************************************** */
 
+#include "boxXXX.h"
 #include "boxXXX_internal.h"
-#include "boxXXX_otherops.h"
 
 boxXXX_t* boxXXX_forget_array(ap_manager_t* man,
-			bool destructive,
-			boxXXX_t* a,
-			ap_dim_t* tdim,
-			size_t size,
-			bool project)
+			      bool destructive,
+			      boxXXX_t* a,
+			      ap_dim_t* tdim,
+			      size_t size,
+			      bool project)
 {
   boxXXX_t* res;
   size_t i;
@@ -24,15 +24,14 @@ boxXXX_t* boxXXX_forget_array(ap_manager_t* man,
   }
   if (project){
     for (i=0;i<size;i++){
-      eitvXXX_ptr itv = res->p[tdim[i]];
-      boundXXX_set_int(itv->inf,0);
-      boundXXX_set_int(itv->sup,0);
+      eitvXXX_ptr eitv = res->p[tdim[i]];
+      eitvXXX_set_int(eitv,0);
     }
   }
   else {
     for (i=0;i<size;i++){
-      eitvXXX_ptr itv = res->p[tdim[i]];
-      eitvXXX_set_top(itv);
+      eitvXXX_ptr eitv = res->p[tdim[i]];
+      eitvXXX_set_top(eitv);
     }
   }
   return res;
@@ -79,10 +78,10 @@ boxXXX_t* boxXXX_expand(ap_manager_t* man,
 }
 
 boxXXX_t* boxXXX_fold(ap_manager_t* man,
-		bool destructive,
-		boxXXX_t* a,
-		ap_dim_t* tdim,
-		size_t size)
+		      bool destructive,
+		      boxXXX_t* a,
+		      ap_dim_t* tdim,
+		      size_t size)
 {
   ap_dim_t dim;
   size_t dimsup,intdimsup,realdimsup;

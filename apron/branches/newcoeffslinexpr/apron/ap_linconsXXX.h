@@ -164,19 +164,23 @@ bool ap_linconsXXX_quasilinearize(ap_linconsXXX_t lincons,
 
 bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array,
 					eitvXXX_t* env,
-					bool for_meet_inequality, 
+					bool meet,
 					num_internal_t intern);
   /* Same for an array */
+void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
+				   bool meet, 
+				   num_internal_t intern);
 
 struct ap_tcons0_t;
+struct ap_tcons0_array_t;
 bool ap_linconsXXX_set_tcons0(ap_linconsXXX_t lincons, bool* perror, struct ap_tcons0_t* cons,num_internal_t intern);
-bool ap_linconsXXX_array_set_tcons0_array(ap_linconsXXX_array_t lincons, bool* perror, struct ap_tcons0_t** cons, size_t size,num_internal_t intern);
+bool ap_linconsXXX_array_set_tcons0_array(ap_linconsXXX_array_t lincons, bool* perror, struct ap_tcons0_array_t* cons, num_internal_t intern);
   /* Linearize a tree constraint that is (syntaxically) interval linear .
      If the precondition is violated, sets *perror to true.
   */
 
 void ap_linconsXXX_intlinearize_tcons0(ap_linconsXXX_t lincons, struct ap_tcons0_t* cons, eitvXXX_t* env, size_t intdim, num_internal_t intern);
-void ap_linconsXXX_array_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons, struct ap_tcons0_t** cons, size_t size, eitvXXX_t* env, size_t intdim, num_internal_t intern);
+void ap_linconsXXX_array_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons, struct ap_tcons0_array_t* cons, eitvXXX_t* env, size_t intdim, num_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */
@@ -199,7 +203,7 @@ bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
      - env is the current bounds for variables
      - kmax specifies the maximum number of iterations
      - if intervalonly is true, deduces bounds from a constraint only when the
-x       coefficient associated to the current dimension is an interval.
+       coefficient associated to the current dimension is an interval.
   */
 
 /* ********************************************************************** */

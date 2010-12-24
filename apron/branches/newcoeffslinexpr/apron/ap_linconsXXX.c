@@ -419,7 +419,6 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
   }
   return ap_linconsXXX_array_reduce(array,true, intern);
 }
-
 bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, eitvXXX_t* env, bool meet, num_internal_t intern)
 {
   size_t i;

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <math.h>
 #include "ap_manager.h"
+#include "num_internal.h"
 
 const char* ap_name_of_funid[AP_FUNID_SIZE2] = {
   "unknown",
@@ -172,6 +173,7 @@ ap_manager_t* ap_manager_alloc(char* library, char* version,
   man->count = 1;
   ap_option_init(&man->option);
   ap_result_init(&man->result);
+  num_internal_init(man->num);
   return man;
 }
 void ap_manager_free(ap_manager_t* man)
@@ -185,6 +187,7 @@ void ap_manager_free(ap_manager_t* man)
       man->internal = NULL;
     }
     ap_result_clear(&man->result);
+    num_internal_clear(man->num);
     free(man);
   }
 }

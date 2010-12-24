@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "boxXXX_internal.h"
-#include "boxXXX_representation.h"
 
 /* ********************************************************************** */
 /* Internal functions */
