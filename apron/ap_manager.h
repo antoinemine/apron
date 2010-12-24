@@ -184,6 +184,7 @@ typedef struct ap_manager_t {
   ap_result_t result;            /* Exceptions and other indications (out) */
   void (*internal_free)(void*);  /* deallocation function for internal */
   size_t count;                  /* reference counter */
+  num_internal_t num;            /* Working space for numbers, etc... */
 } ap_manager_t;
 
 /* ********************************************************************** */

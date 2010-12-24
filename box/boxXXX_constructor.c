@@ -5,13 +5,16 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "boxXXX.h"
+#include "boxXXX_internal.h"
 #include "numXXX_conv.h"
 #include "boxXXX_internal.h"
-#include "boxXXX_representation.h"
+#include "ap_linexprXXX.h"
 #include "ap_generic.h"
 
-#include "ap_linexprXXX.h"
+#define _BOXXX_MARK_BOXXX_
+  /* Undefined at the end */
+
+
 
 /* ********************************************************************** */
 /* 1. Basic constructors */
@@ -381,7 +384,13 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 
 ap_tcons0_array_t boxXXX_to_tcons_array(ap_manager_t* man, boxXXX_t* a)
 {
-  return ap_generic_to_tcons_array(man,a);
+#if defined(_BOD_MARK_BOD_)
+  return ap_generic_to_tcons_array(man,a,AP_SCALAR_D);
+#elif defined(_BOMPFR_MARK_BOMPFR_) || defined(_BODl_MARK_BODl_)
+  return ap_generic_to_tcons_array(man,a,AP_SCALAR_MPFR);
+#else
+  return ap_generic_to_tcons_array(man,a,AP_SCALAR_MPQ);  
+#endif
 }
 
 void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_t* a)
@@ -517,3 +526,6 @@ void boxXXX_to_box(ap_manager_t* man, ap_box0_t res, boxXXX_t* a)
       ap_box0_set_eitvXXX_array(res,a->p,nbdims,intern->num);
   }
 }
+
+#undef _BOXXX_MARK_BOXXX_
+

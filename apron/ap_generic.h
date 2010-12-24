@@ -35,12 +35,13 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
   /* This function implements a generic sat_tcons operation using
      ap_linearize_texpr0 and sat_lincons operations. */
 
-void ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval, void* abs, ap_texpr0_t* expr, bool quasilinearize);
+void ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval, void* abs, ap_texpr0_t* expr, ap_scalar_discr_t discr, bool quasilinearize);
   /* This function implements a generic bound_texpr operation using to_box and 
      ap_eval_texpr0 operations. */
   
 ap_tcons0_array_t ap_generic_to_tcons_array(ap_manager_t* man,
-					    void* abs);
+					    void* abs,
+					    ap_scalar_discr_t discr);
   /* This function implements a generic to_tcons_array operation using
      to_lincons_array operation. */
 
@@ -73,32 +74,42 @@ void* ap_generic_join_array(ap_manager_t* man,
 /*  Meet with array of constraints */
 /* ============================================================ */
 
-void* ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
-						   bool destructive, void* abs, ap_lincons0_array_t* array,
-						   ap_scalar_discr_t discr, bool linearize,
-						   void* (*meet_lincons_array)(ap_manager_t*, 
-									       bool, void*,ap_lincons0_array_t*));
-
-void*
-ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
-					 bool destructive, void* abs, ap_tcons0_array_t* array,
-					 ap_scalar_discr_t discr, ap_linexpr_type_t linearize,
-					 void* (*meet_lincons_array)(ap_manager_t*,
-								     bool, void*,
-								     ap_lincons0_array_t*));
-
+void* ap_generic_meet_quasilinearize_lincons_array(
+    ap_manager_t* man,
+    bool destructive, void* abs, ap_lincons0_array_t array,
+    ap_scalar_discr_t discr, bool linearize,
+    void* (*meet_lincons_array)(ap_manager_t*, 
+				bool, void*,ap_lincons0_array_t)
+);
+  
+void* ap_generic_meet_intlinearize_tcons_array(
+    ap_manager_t* man,
+    bool destructive, void* abs, ap_tcons0_array_t* array,
+    ap_scalar_discr_t discr, ap_linexpr_type_t linearize,
+    void* (*meet_lincons_array)(ap_manager_t*,
+				bool, void*,
+				ap_lincons0_array_t)
+);
+  
 /* ============================================================ */
 /*  Assignments/Substitutions */
 /* ============================================================ */
 
-void* ap_generic_asssub_linexpr_array(bool assign,
-				      ap_manager_t* man,
-				      bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-				      void* dest);
-void* ap_generic_asssub_texpr_array(bool assign,
-				    ap_manager_t* man,
-				    bool destructive, void* abs, ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-				    void* dest);
+void* ap_generic_asssub_linexpr_array(
+    bool assign,
+    ap_scalar_discr_t discr,
+    ap_manager_t* man,
+    bool destructive, void* abs, 
+    ap_dim_t* tdim, ap_linexpr0_array_t texpr,
+    void* dest
+);
+void* ap_generic_asssub_texpr_array(
+    bool assign,
+    ap_manager_t* man,
+    bool destructive, void* abs, 
+    ap_dim_t* tdim, ap_texpr0_array_t* texpr,
+    void* dest
+);
   /*
     These functions implement generic parallel assignment/substitution
     operations by:
@@ -122,89 +133,6 @@ void* ap_generic_asssub_texpr_array(bool assign,
    - The other parameters have the meaning they have for parallel
      assignment/substitution
 */
-static inline
-void* ap_generic_assign_linexpr_array(ap_manager_t* man,
-				      bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-				      void* dest);
-static inline
-void* ap_generic_assign_texpr_array(ap_manager_t* man,
-				    bool destructive, void* abs, ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-				    void* dest);
-  /*
-     These functions implement generic parallel assignment operations by
-     relying on is_bottom, copy, dimension, add_dimensions, permute_dimensions,
-     remove_dimensions, meet_lincons_array or meet_tcons_array abstract
-     operations.
-  */
-static inline
-void* ap_generic_substitute_linexpr_array(ap_manager_t* man,
-					  bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-					  void* dest);
-static inline
-void* ap_generic_substitute_texpr_array(ap_manager_t* man,
-					bool destructive, void* abs, ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-					void* dest);
-  /*
-     These functions implement generic parallel assignment operations by
-     relying on is_bottom, copy, dimension, add_dimensions, permute_dimensions,
-     remove_dimensions, meet_lincons_array or meet_tcons_array abstract
-     operations.
-  */
-
-/* ********************************************************************** */
-/* III. Inline functions definitions */
-/* ********************************************************************** */
-static inline 
-void* ap_generic_meet_array(ap_manager_t* man,
-			    void** tab, size_t size)
-{ return ap_generic_meetjoin_array(true,man,tab,size); }
-
-static inline 
-void* ap_generic_join_array(ap_manager_t* man,
-			    void** tab, size_t size)
-{ return ap_generic_meetjoin_array(false,man,tab,size); }
-
-static inline
-void* ap_generic_assign_linexpr_array(ap_manager_t* man,
-				      bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-				      void* dest)
-{
-  return ap_generic_asssub_linexpr_array(true,
-					 man, destructive, abs, tdim, texpr, size,
-					 dest);
-}
-static inline
-void* ap_generic_substitute_linexpr_array(ap_manager_t* man,
-					  bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-					  void* dest)
-{
-  return ap_generic_asssub_linexpr_array(false,
-					 man, destructive, abs, tdim, texpr, size,
-					 dest);
-}
-
-static inline
-void* ap_generic_assign_texpr_array(ap_manager_t* man,
-				    bool destructive, void* abs, ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-				    void* dest)
-{
-  return ap_generic_asssub_texpr_array(true,
-				       man, destructive, abs, tdim, texpr, size,
-				       dest);
-}
-static inline
-void* ap_generic_substitute_texpr_array(ap_manager_t* man,
-					bool destructive,
-					void* abs,
-					ap_dim_t* tdim,
-					ap_texpr0_t** texpr,
-					size_t size,
-					void* dest)
-{
-  return ap_generic_asssub_texpr_array(false,
-				       man, destructive, abs, tdim, texpr, size,
-				       dest);
-}
 
 #ifdef __cplusplus
 }

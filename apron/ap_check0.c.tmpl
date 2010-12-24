@@ -436,7 +436,7 @@ bool ap_check0_tcons_array(ap_funid_t funid, ap_manager_t* man,
   size_t i;
   
   for (i=0;i<array->size; i++){
-    if (array->p[i].texpr0==NULL){
+    if (array->p[i]->texpr0==NULL){
       char str[80];
       sprintf(str,"null pointer in the %luth constraint of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
@@ -444,7 +444,7 @@ bool ap_check0_tcons_array(ap_funid_t funid, ap_manager_t* man,
 				 funid,str);
       return false;
     }
-    ap_dim_t dim = ap_check0_texpr_dim(dimension,array->p[i].texpr0);
+    ap_dim_t dim = ap_check0_texpr_dim(dimension,array->p[i]->texpr0);
     if (dim!=AP_DIM_MAX){
       char str[80];
       sprintf(str,"incompatible dimension in the %luth constraint of the array",(unsigned long)i);

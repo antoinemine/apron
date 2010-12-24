@@ -259,9 +259,10 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 /* ********************************************************************** */
 
 struct ap_texpr0_t;
+struct ap_texpr0_array_t;
 bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, num_internal_t intern);
 bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* perror, 
-					  struct ap_texpr0_t** expr, size_t size, 
+					  struct ap_texpr0_array_t* expr, 
 					  num_internal_t intern);
   /* Linearize a tree expression that is (syntaxically) interval linear.
      If the precondition is violated, sets *perror to true.
@@ -271,7 +272,7 @@ bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* p
 
 bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, num_internal_t intern);
 void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, size_t intdim, num_internal_t intern);
-void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_t** expr, size_t size, eitvXXX_t* env, size_t intdim, num_internal_t intern);
+void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_array_t* texpr, eitvXXX_t* env, size_t intdim, num_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */

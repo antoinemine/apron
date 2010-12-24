@@ -58,6 +58,7 @@ size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
 ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
 bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
 #endif
+
 bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
   /* Are all the constraints involved linear (resp. quasilinear) */
 

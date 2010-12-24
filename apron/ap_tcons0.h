@@ -36,7 +36,7 @@ typedef struct ap_tcons0_t {
 
 /* Array of constraints */
 typedef struct ap_tcons0_array_t {
-  ap_tcons0_t* p;
+  ap_tcons0_t** p;
   size_t size;
 } ap_tcons0_array_t;
 
@@ -49,24 +49,24 @@ typedef struct ap_tcons0_array_t {
 /* ====================================================================== */
 
 static inline
-ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp,
-			   ap_texpr0_t* texpr,
-			   mpq_t mpq);
+ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr,
+			    ap_constyp_t constyp,
+			    mpq_t mpq);
   /* Create a constraint of given type with the given expression.
-     The expression and the coefficient are not duplicated, just pointed to */
+     The expression is not duplicated, just pointed to */
 
-ap_tcons0_t ap_tcons0_make_unsat(void);
+ap_tcons0_t* ap_tcons0_make_unsat(void);
   /* Create the constraint -1>=0 */
 
-ap_tcons0_t ap_tcons0_from_lincons0(ap_lincons0_t cons);
+ap_tcons0_t* ap_tcons0_from_lincons0(ap_lincons0_t cons);
   /* From linear constraint to comb-like tree expression constraint  */
 
 static inline
-ap_tcons0_t ap_tcons0_copy(ap_tcons0_t* cons);
+ap_tcons0_t* ap_tcons0_copy(ap_tcons0_t* cons);
   /* Duplication */
 
 static inline
-void ap_tcons0_clear(ap_tcons0_t* cons);
+void ap_tcons0_free(ap_tcons0_t* cons);
   /* Free the linear expression of the constraint and set pointer to NULL */
 
 void ap_tcons0_fprint(FILE* stream,
@@ -105,14 +105,14 @@ static inline
 void ap_tcons0_add_dimensions_with(ap_tcons0_t* cons,
 				   ap_dimchange_t* dimchange);
 static inline
-ap_tcons0_t ap_tcons0_add_dimensions(ap_tcons0_t* cons,
+ap_tcons0_t* ap_tcons0_add_dimensions(ap_tcons0_t* cons,
 				     ap_dimchange_t* dimchange);
 
 static inline
 void ap_tcons0_permute_dimensions_with(ap_tcons0_t* cons,
 				       ap_dimperm_t* perm);
 static inline
-ap_tcons0_t ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
+ap_tcons0_t* ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
 					 ap_dimperm_t* perm);
 
 /* ********************************************************************** */
@@ -164,29 +164,32 @@ ap_tcons0_array_t ap_tcons0_array_permute_dimensions(ap_tcons0_array_t* array,
 /* III. Inline functions definitions */
 /* ********************************************************************** */
 
-static inline ap_tcons0_t ap_tcons0_make(ap_constyp_t constyp, ap_texpr0_t* texpr, mpq_t mpq)
+static inline ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr, ap_constyp_t constyp, mpq_t mpq)
 {
-  ap_tcons0_t cons;
-  cons.constyp = constyp;
-  cons.texpr0 = texpr;
-  mpq_init(cons.mpq);
-  if (mpq) mpq_set(cons.mpq,mpq);
+  ap_tcons0_t* cons = (ap_tcons0_t*)malloc(sizeof(ap_tcons0_t));
+  cons->texpr0 = texpr;
+  cons->constyp = constyp;
+  mpq_init(cons->mpq);
+  if (mpq) mpq_set(cons->mpq,mpq);
   return cons;
 }
 
-static inline ap_tcons0_t ap_tcons0_copy(ap_tcons0_t* cons)
+static inline ap_tcons0_t* ap_tcons0_copy(ap_tcons0_t* cons)
 {
-  return ap_tcons0_make(cons->constyp,
-			ap_texpr0_copy(cons->texpr0),
+  return ap_tcons0_make(ap_texpr0_copy(cons->texpr0),
+			cons->constyp,
 			cons->mpq);
 }
-static inline void ap_tcons0_clear(ap_tcons0_t* tcons)
+static inline void ap_tcons0_free(ap_tcons0_t* tcons)
 {
-  if (tcons->texpr0){
-    ap_texpr0_free(tcons->texpr0);
-    tcons->texpr0 = NULL;
+  if (tcons){
+    if (tcons->texpr0){
+      ap_texpr0_free(tcons->texpr0);
+      tcons->texpr0 = NULL;
+    }
+    mpq_clear(tcons->mpq);
+    free(tcons);
   }
-  mpq_clear(tcons->mpq);
 }
 
 static inline
@@ -210,11 +213,11 @@ void ap_tcons0_add_dimensions_with(ap_tcons0_t* cons,
 				   ap_dimchange_t* dimchange)
 { ap_texpr0_add_dimensions_with(cons->texpr0,dimchange); }
 static inline
-ap_tcons0_t ap_tcons0_add_dimensions(ap_tcons0_t* cons,
+ap_tcons0_t* ap_tcons0_add_dimensions(ap_tcons0_t* cons,
 				     ap_dimchange_t* dimchange)
 {
-  return ap_tcons0_make(cons->constyp,
-			ap_texpr0_add_dimensions(cons->texpr0,dimchange),
+  return ap_tcons0_make(ap_texpr0_add_dimensions(cons->texpr0,dimchange),
+			cons->constyp,
 			cons->mpq);
 }
 static inline
@@ -222,11 +225,11 @@ void ap_tcons0_permute_dimensions_with(ap_tcons0_t* cons,
 				       ap_dimperm_t* perm)
 { ap_texpr0_permute_dimensions_with(cons->texpr0,perm); }
 static inline
-ap_tcons0_t ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
+ap_tcons0_t* ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
 					 ap_dimperm_t* perm)
 {
-  return ap_tcons0_make(cons->constyp,
-			ap_texpr0_permute_dimensions(cons->texpr0,perm),
+  return ap_tcons0_make(ap_texpr0_permute_dimensions(cons->texpr0,perm),
+			cons->constyp,
 			cons->mpq);
 }
 

@@ -2,13 +2,13 @@
 /* boxXXX_resize.c */
 /* ********************************************************************** */
 
+#include "boxXXX.h"
 #include "boxXXX_internal.h"
-#include "boxXXX_resize.h"
 
 boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
-			  bool destructive, boxXXX_t* a,
-			  ap_dimchange_t* dimchange,
-			  bool project)
+				bool destructive, boxXXX_t* a,
+				ap_dimchange_t* dimchange,
+				bool project)
 {
   boxXXX_t* res;
   size_t size;
@@ -35,8 +35,7 @@ boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
     while (k>=1 && dimchange->dim[k-1]==(ap_dim_t)i){
       k--;
       if (project){
-	boundXXX_set_int(res->p[i+k]->inf,0);
-	boundXXX_set_int(res->p[i+k]->sup,0);
+	eitvXXX_set_int(res->p[i+k],0);
       }
       else {
 	eitvXXX_set_top(res->p[i+k]);

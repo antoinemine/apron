@@ -178,27 +178,27 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
 #if defined(_AP_linexpr_array_MARK_) || defined(_AP_lincons_array_MARK_)
 bool ap_linyyyXXX_array_set_tyyy0_array(ap_linyyyXXX_array_t res, 
 					bool* perror,
-					struct ap_tyyy0_t** expr, size_t size, 
+					struct ap_tyyy0_array_t* texpr,
 					num_internal_t intern)
 {
   size_t i;
   bool exact = true;
   *perror = false;
-  ap_linyyyXXX_array_resize(res,size);
-  for (i=0;i<size;i++){
-    exact = ap_linyyyXXX_set_tyyy0(res->p[i],perror,expr[i],intern) && exact;
+  ap_linyyyXXX_array_resize(res,texpr->size);
+  for (i=0;i<texpr->size;i++){
+    exact = ap_linyyyXXX_set_tyyy0(res->p[i],perror,texpr->p[i],intern) && exact;
     if (*perror) break;
   }
   return exact;
 }
 void ap_linyyyXXX_array_intlinearize_tyyy0_array(ap_linyyyXXX_array_t res, 
-						 ap_tyyy0_t** expr, size_t size, 
+						 ap_tyyy0_array_t* texpr,
 						 eitvXXX_t* env, size_t intdim, num_internal_t intern)
 {
   size_t i;
-  ap_linyyyXXX_array_resize(res,size);
-  for (i=0;i<size;i++){
-    ap_linyyyXXX_intlinearize_tyyy0(res->p[i],expr[i],env,intdim,intern);
+  ap_linyyyXXX_array_resize(res,texpr->size);
+  for (i=0;i<texpr->size;i++){
+    ap_linyyyXXX_intlinearize_tyyy0(res->p[i],texpr->p[i],env,intdim,intern);
   }
 }
 #endif

@@ -134,8 +134,8 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
   va_start(va,perror);
   SWITCH (expr->linexpr0->discr)
     res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_var,
-					 expr->env,
-					 intern,expr->linexpr0->linexpr.XXX,perror,&va);
+					 expr->linexpr0->linexpr.XXX,perror,
+					 expr->env,&va,intern);
   ENDSWITCH
   va_end(va);
   return res;
