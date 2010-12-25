@@ -150,7 +150,7 @@ static inline
 bool ap_check0_dim(ap_funid_t funid, ap_manager_t* man,
 		   ap_dimension_t dimension, ap_dim_t dim)
 {
-  if (dim>=dimension.intdim+dimension.realdim){
+  if (dim>=dimension.intd+dimension.reald){
       ap_check0_dim_raise(funid,man,dimension,dim,"incompatible dimension");
       return false;
   }

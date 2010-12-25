@@ -23,8 +23,8 @@ typedef struct ap_abstract1_t {
   ap_environment_t* env;
 } ap_abstract1_t;
   /* data structure invariant:
-     ap_abstract0_integer_dimension(man,abstract0)== env->intdim &&
-     ap_abstract0_real_dimension(man,abstract0)== env->realdim */
+     ap_abstract0_integer_dimension(man,abstract0)== env->dim.intd &&
+     ap_abstract0_real_dimension(man,abstract0)== env->dim.reald */
 
 typedef struct ap_box1_t {
   ap_interval_t** p;

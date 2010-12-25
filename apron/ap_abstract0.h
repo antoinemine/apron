@@ -151,8 +151,8 @@ ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* ptr, size_
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
+/* We assume that dimensions [0..intd-1] correspond to integer variables, and
+   dimensions [intdim..intd+realdim-1] to real variables */
 
 ap_abstract0_t* ap_abstract0_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */

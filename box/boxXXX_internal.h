@@ -45,7 +45,7 @@ static inline boxXXX_internal_t* boxXXX_init_from_manager(ap_manager_t* man, ap_
 }
 
 /* Other internal functions */
-boxXXX_t* boxXXX_alloc(size_t intdim, size_t realdim);
+boxXXX_t* boxXXX_alloc(ap_dimension_t dim);
 void boxXXX_init(boxXXX_t* a);
 void boxXXX_set_bottom(boxXXX_t* a);
 void boxXXX_set_top(boxXXX_t* a);

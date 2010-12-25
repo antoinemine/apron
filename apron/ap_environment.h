@@ -39,15 +39,14 @@ typedef struct ap_environment_t {
   /*
     Array of size intdim+realdim, indexed by dimensions.
     - It should not contain identical strings..
-    - Slice [0..intdim-1] is lexicographically sorted,
+    - Slice [0..intd-1] is lexicographically sorted,
       and denotes integer variables.
-    - Slice [intdim..intdim+realdim-1] is lexicographically sorted,
+    - Slice [intdim..intd+realdim-1] is lexicographically sorted,
       and denotes real variables.
     - The memory allocated for the variables are attached to the structure
       (they are freed when the structure is no longer in use)
   */
-  size_t intdim; /* Number of integer variables */
-  size_t realdim;/* Number of real variables */
+  ap_dimension_t dim; /* Number of (typed) variables */
   size_t count; /* For reference counting */
 } ap_environment_t;
 
@@ -238,7 +237,7 @@ bool ap_environment_mem_var(ap_environment_t* env, ap_var_t name)
 
 static inline
 ap_var_t ap_environment_var_of_dim(ap_environment_t* env, ap_dim_t dim){
-  return dim < env->intdim+env->realdim ? env->var_of_dim[dim] : NULL;
+  return dim < env->dim.intd+env->dim.reald ? env->var_of_dim[dim] : NULL;
 }
 static inline
 void ap_environment_free(ap_environment_t* env){

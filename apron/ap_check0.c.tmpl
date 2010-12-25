@@ -95,17 +95,17 @@ bool ap_check0_abstract2(ap_funid_t funid, ap_manager_t* man,
 {
   ap_dimension_t dim1 = _ap_abstract0_dimension(a1);
   ap_dimension_t dim2 = _ap_abstract0_dimension(a2);
-  if ( (dim1.intdim != dim2.intdim) || (dim1.realdim != dim2.realdim) ){
+  if ( (dim1.intd != dim2.intd) || (dim1.reald != dim2.reald) ){
     char str[160];
     
     snprintf(str,159,"\
 incompatible dimensions for the two arguments:\n	\
 first abstract0:  (%3lu,%3lu)\n				\
 second abstract0: (%3lu,%3lu)",
-	     (unsigned long)dim1.intdim,
-	     (unsigned long)dim1.realdim,
-	     (unsigned long)dim2.intdim,
-	     (unsigned long)dim2.realdim);
+	     (unsigned long)dim1.intd,
+	     (unsigned long)dim1.reald,
+	     (unsigned long)dim2.intd,
+	     (unsigned long)dim2.reald);
     ap_manager_raise_exception(man,
 			       AP_EXC_INVALID_ARGUMENT,
 			       funid,str);
@@ -136,7 +136,7 @@ bool ap_check0_abstract_array(ap_funid_t funid, ap_manager_t* man,
     dim0 = _ap_abstract0_dimension(tab[0]);
     for (i=1; i<size; i++){
       dim = _ap_abstract0_dimension(tab[i]);
-      if ( (dim.intdim != dim0.intdim) || (dim.realdim != dim0.realdim) ){
+      if ( (dim.intd != dim0.intd) || (dim.reald != dim0.reald) ){
 	res = false;
 	break;
       }
@@ -153,9 +153,9 @@ incompatible dimensions for the array of polyhedra:\n	\
 abstract0 0: (%3lu,%3lu)\n				\
 abstract0 %lu: (%3lu,%3lu)				\
 ",
-	       (unsigned long)dim0.intdim,(unsigned long)dim0.realdim,
+	       (unsigned long)dim0.intd,(unsigned long)dim0.reald,
 	       (unsigned long)i,
-	       (unsigned long)dim.intdim,(unsigned long)dim.realdim
+	       (unsigned long)dim.intd,(unsigned long)dim.reald
 	       );
     }
     ap_manager_raise_exception(man,
@@ -181,8 +181,8 @@ void ap_check0_dim_raise(ap_funid_t funid, ap_manager_t* man,
 abstract0:  (%3lu,%3lu)\n			\
 dimension:  %3lu\n",
 	   prefix,
-	   (unsigned long)dimension.intdim,
-	   (unsigned long)dimension.realdim,
+	   (unsigned long)dimension.intd,
+	   (unsigned long)dimension.reald,
 	   (unsigned long)dim);
   ap_manager_raise_exception(man,
 			     AP_EXC_INVALID_ARGUMENT,
@@ -196,7 +196,7 @@ bool ap_check0_dim_array(ap_funid_t funid, ap_manager_t* man,
   size_t i;
   for (i=0;i<size;i++){
     ap_dim_t dim = tdim[i];
-    if (dim>=dimension.intdim+dimension.realdim){
+    if (dim>=dimension.intd+dimension.reald){
       char str[80];
       sprintf(str,"incompatible %luth dimension in the array for the abstract value",(unsigned long)i);
       ap_check0_dim_raise(funid,man,dimension,dim,str);
@@ -222,7 +222,7 @@ abstract0: (%3lu,%3lu)\n			\
 dimension: %3lu					\
 ",
 	   prefix,
-	   (unsigned long)dimension.intdim,(unsigned long)dimension.realdim,
+	   (unsigned long)dimension.intd,(unsigned long)dimension.reald,
 	   (unsigned long)dim);
   ap_manager_raise_exception(man,
 			     AP_EXC_INVALID_ARGUMENT,
@@ -238,7 +238,7 @@ ap_dim_t ap_check0_linexprZZZ_dim(ap_dimension_t dimension,
   size_t nbdims;
   ap_dim_t dim;
   
-  nbdims = dimension.intdim+dimension.realdim;
+  nbdims = dimension.intd+dimension.reald;
   dim = 0;
   /* Assumed to be sorted (this is not checked */
   for (i=expr->size-1; i>=0; i--){
@@ -288,7 +288,7 @@ ap_dim_t ap_check0_texpr_dim(ap_dimension_t dimension,
   ap_dim_t dim;
   
   dim = ap_texpr0_max_dim(expr);
-  if (dim <= dimension.intdim+dimension.realdim)
+  if (dim <= dimension.intd+dimension.reald)
     return AP_DIM_MAX;
   else
     return dim;
@@ -465,31 +465,31 @@ bool ap_check0_dimchange_add(ap_funid_t funid, ap_manager_t* man,
   size_t i,size;
   bool res = true;
   /* Check consistency between intdim and the dimensions in the array */
-  for (i=0; i<dimchange->intdim; i++){
-    if (dimchange->dim[i]>dimension.intdim){
+  for (i=0; i<dimchange->dim.intd; i++){
+    if (dimchange->p[i]>dimension.intd){
       res = false;
       break;
     }
   }
-  size = dimchange->intdim+dimchange->realdim;
+  size = dimchange->dim.intd+dimchange->dim.reald;
   if (res && size>0){
     /* Check sortedness */
     ap_dim_t dim = 0;
     for (i=1; i<size; i++){
-      if (dim>dimchange->dim[i]){
+      if (dim>dimchange->p[i]){
 	res = false;
 	break;
       } else {
-	dim = dimchange->dim[i];
+	dim = dimchange->p[i];
       }
     }
-    res = res && dimchange->dim[size-1]<=dimension.intdim+dimension.realdim;
+    res = res && dimchange->p[size-1]<=dimension.intd+dimension.reald;
   }
   if (!res){
     ap_manager_raise_exception(man,
 			       AP_EXC_INVALID_ARGUMENT,
 			       funid,
-			       "dimchange->dim is not sorted or is inconsistent wrt dimchange->intdim or abstract0");
+			       "dimchange->dim is not sorted or is inconsistent wrt dimchange->dim.intd or abstract0");
   }
   return res;
 }
@@ -500,31 +500,31 @@ bool ap_check0_dimchange_remove(ap_funid_t funid, ap_manager_t* man,
   size_t i,size;
   bool res = true;
   /* Check consistency between intdim and the dimensions in the array */
-  for (i=0; i<dimchange->intdim; i++){
-    if (dimchange->dim[i]>=dimension.intdim){
+  for (i=0; i<dimchange->dim.intd; i++){
+    if (dimchange->p[i]>=dimension.intd){
       res = false;
       break;
     }
   }
-  size = dimchange->intdim+dimchange->realdim;
+  size = dimchange->dim.intd+dimchange->dim.reald;
   if (res && size>0){
     /* Check sortedness */
     ap_dim_t dim = 0;
-    for (i=1; i<dimchange->intdim+dimchange->realdim; i++){
-      if (dim>=dimchange->dim[i]){
+    for (i=1; i<dimchange->dim.intd+dimchange->dim.reald; i++){
+      if (dim>=dimchange->p[i]){
 	res = false;
 	break;
       } else {
-	dim = dimchange->dim[i];
+	dim = dimchange->p[i];
       }
     }
-    res = res && dimchange->dim[size-1]<dimension.intdim+dimension.realdim;
+    res = res && dimchange->p[size-1]<dimension.intd+dimension.reald;
   }
   if (!res){
     ap_manager_raise_exception(man,
 			       AP_EXC_INVALID_ARGUMENT,
 			       funid,
-			       "dimchange->dim is not sorted, contains duplicatas, or is inconsistent wrt dimchange->intdim or abstract0");
+			       "dimchange->dim is not sorted, contains duplicatas, or is inconsistent wrt dimchange->dim.intd or abstract0");
   }
   return res;
 }
@@ -532,11 +532,11 @@ bool ap_check0_dimperm(ap_funid_t funid, ap_manager_t* man,
 		       ap_dimension_t dimension, ap_dimperm_t* perm)
 {
   size_t i;
-  size_t size = dimension.intdim+dimension.realdim;
-  bool res = (dimension.intdim+dimension.realdim==perm->size);
+  size_t size = dimension.intd+dimension.reald;
+  bool res = (dimension.intd+dimension.reald==perm->size);
   if (res){
     for (i=0; i<perm->size; i++){
-      if (perm->dim[i]>=size){
+      if (perm->p[i]>=size){
 	res = false;
 	break;
       }

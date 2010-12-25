@@ -163,8 +163,8 @@ void ap_box1_fprint(FILE* stream, ap_box1_t* box)
 {
   size_t i;
   fprintf(stream,"Box1: (%lu,%lu)\n",
-	  (unsigned long)box->env->intdim,(unsigned long)box->env->realdim);
-  for (i=0; i<box->env->intdim+box->env->realdim;i++){
+	  (unsigned long)box->env->dim.intd,(unsigned long)box->env->dim.reald);
+  for (i=0; i<box->env->dim.intd+box->env->dim.reald;i++){
     ap_var_t var = ap_environment_var_of_dim(box->env,i);
     char* name = ap_var_operations->to_string(var);
     fprintf(stream,"  %s\tin",name);
@@ -180,7 +180,7 @@ void ap_box1_clear(ap_box1_t* box)
     fprintf(stderr,"abstract1.c: box_clear: either non initialized or already deallocated box !\n");
     abort();
   }
-  ap_interval_array_free(box->p,box->env->intdim+box->env->realdim);
+  ap_interval_array_free(box->p,box->env->dim.intd+box->env->dim.reald);
   ap_environment_free(box->env);
   box->p=NULL;
   box->env=NULL;
@@ -329,13 +329,13 @@ ap_abstract1_t ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr, size_t
 /* Create a bottom (empty) value */
 ap_abstract1_t ap_abstract1_bottom(ap_manager_t* man, ap_environment_t* env)
 {
-  return ap_abstract1_cons(ap_abstract0_bottom(man,env->intdim,env->realdim),env);
+  return ap_abstract1_cons(ap_abstract0_bottom(man,env->dim.intd,env->dim.reald),env);
 }
 
 /* Create a top (universe) value */
 ap_abstract1_t ap_abstract1_top(ap_manager_t* man, ap_environment_t* env)
 {
-  return ap_abstract1_cons(ap_abstract0_top(man,env->intdim,env->realdim),env);
+  return ap_abstract1_cons(ap_abstract0_top(man,env->dim.intd,env->dim.reald),env);
 }
 
 /* Abstract an hypercube defined by the arrays tvar and tinterval,
@@ -353,8 +353,8 @@ ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
   ap_abstract1_t a;
   size_t i;
 
-  ap_interval_t** itv = ap_interval_array_alloc(env->intdim+env->realdim);
-  for (i=0; i<env->intdim+env->realdim; i++){
+  ap_interval_t** itv = ap_interval_array_alloc(env->dim.intd+env->dim.reald);
+  for (i=0; i<env->dim.intd+env->dim.reald; i++){
     ap_interval_set_top(itv[i]);
   }
   for (i=0; i<size; i++){
@@ -366,8 +366,8 @@ ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
     }
     ap_interval_set(itv[dim],tinterval[i]);
   }
-  a = ap_abstract1_cons(ap_abstract0_of_box(man,env->intdim,env->realdim,(ap_interval_t**)itv),env);
-  ap_interval_array_free(itv,env->intdim+env->realdim);
+  a = ap_abstract1_cons(ap_abstract0_of_box(man,env->dim.intd,env->dim.reald,(ap_interval_t**)itv),env);
+  ap_interval_array_free(itv,env->dim.intd+env->dim.reald);
   return a;
 }
 
@@ -1030,7 +1030,7 @@ ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
   ap_var_t var;
 
   dim = ap_abstract0_dimension(man,a->abstract0);
-  size = dim.intdim+dim.realdim;
+  size = dim.intd+dim.reald;
   tvar = malloc(size*sizeof(ap_var_t));
   nbdims = 0;
   for (i=0; i<size;i++){
@@ -1119,7 +1119,7 @@ ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
 
   /* Building the resulting environment and permutation to apply */
   nenv =
-    (dim<a->env->intdim) ?
+    (dim<a->env->dim.intd) ?
     ap_environment_add_perm(a->env, tvar, size, NULL,0, &perm) :
     ap_environment_add_perm(a->env, NULL,0, tvar, size, &perm);
   if (nenv==NULL){
@@ -1225,7 +1225,7 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
     assert(p>=(void*)(&tdim[1]));
     size_t index = (p-(void*)tdim)/sizeof(ap_dim_t);
     /* compute permutation */
-    ap_dimperm_init(&perm, nenv->intdim+nenv->realdim);
+    ap_dimperm_init(&perm, nenv->dim.intd+nenv->dim.reald);
     ap_dimperm_set_id(&perm);
     for (rank=tdim[0]; rank<dim-index; rank++){
       perm.dim[rank] = rank+1;

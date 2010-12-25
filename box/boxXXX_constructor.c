@@ -20,24 +20,21 @@
 /* 1. Basic constructors */
 /* ********************************************************************** */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
-
 /* Create a bottom (empty) value */
-boxXXX_t* boxXXX_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
+boxXXX_t* boxXXX_bottom(ap_manager_t* man, ap_dimension_t dim)
 {
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  return boxXXX_alloc(intdim,realdim);
+  return boxXXX_alloc(dim);
 }
 
 /* Create a top (universe) value */
-boxXXX_t* boxXXX_top(ap_manager_t* man, size_t intdim, size_t realdim)
+boxXXX_t* boxXXX_top(ap_manager_t* man, ap_dimension_t dim)
 {
   size_t i;
-  boxXXX_t* a = boxXXX_alloc(intdim,realdim);
+  boxXXX_t* a = boxXXX_alloc(dim);
   boxXXX_init(a);
-  for(i=0;i<a->intdim+a->realdim; i++){
+  for(i=0;i<a->dim.intd+a->dim.reald; i++){
     eitvXXX_set_top(a->p[i]);
   }
   man->result.flag_best = true;
@@ -58,13 +55,13 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  boxXXX_t* a = boxXXX_alloc(dim.intdim,dim.realdim);
-  if (dim.intdim+dim.realdim!=0){
+  boxXXX_t* a = boxXXX_alloc(dim);
+  if (dim.intd+dim.reald!=0){
     boxXXX_init(a);
     man->result.flag_exact = 
       ap_eitvXXX_array_set_box0(a->p,box,intern->num);
-    for(i=0;i<dim.intdim+dim.realdim; i++){
-      exc = eitvXXX_canonicalize(a->p[i],i<dim.intdim,intern->num);
+    for(i=0;i<dim.intd+dim.reald; i++){
+      exc = eitvXXX_canonicalize(a->p[i],i<dim.intd,intern->num);
       if (exc) { boxXXX_set_bottom(a); break; }
     }
   }
@@ -77,10 +74,7 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 
 ap_dimension_t boxXXX_dimension(ap_manager_t* man, boxXXX_t* a)
 { 
-  ap_dimension_t res;
-  res.intdim = a->intdim;
-  res.realdim = a->realdim;
-  return res;
+  return a->dim;
 }
 
 /* ********************************************************************** */
@@ -98,7 +92,7 @@ bool boxXXX_is_top(ap_manager_t* man, boxXXX_t* a)
 {
   size_t i;
   bool res;
-  size_t nbdims = a->intdim + a->realdim;
+  size_t nbdims = a->dim.intd + a->dim.reald;
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -124,7 +118,7 @@ bool boxXXX_is_leq(ap_manager_t* man, boxXXX_t* a, boxXXX_t* b)
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  nbdims = a->intdim + a->realdim;
+  nbdims = a->dim.intd + a->dim.reald;
   if (a->p==NULL)
     return true;
   else if (b->p==NULL)
@@ -149,7 +143,7 @@ bool boxXXX_is_eq(ap_manager_t* man, boxXXX_t* a, boxXXX_t* b)
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  nbdims = a->intdim + a->realdim;
+  nbdims = a->dim.intd + a->dim.reald;
   if (a->p==NULL)
     return b->p==NULL;
   else if (b->p==NULL)
@@ -311,7 +305,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
   size_t i,j;
   ap_lincons0_t lincons0ref;
   boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
-  size_t nbdims = a->intdim + a->realdim;
+  size_t nbdims = a->dim.intd + a->dim.reald;
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -403,7 +397,7 @@ void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_
   man->result.flag_best = true;
   man->result.flag_exact = true;
   
-  size = a->intdim+a->realdim;
+  size = a->dim.intd+a->dim.reald;
   if (a->p==NULL){
     ap_lingen0_array_resize(array,0);
     return;
@@ -467,12 +461,12 @@ void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_
 	  ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
 	  if (iinf && isup){ /* line */
 	    tab->p[j]->gentyp =
-	      i<a->intdim ? AP_GEN_LINEMOD : AP_GEN_LINE;
+	      i<a->dim.intd ? AP_GEN_LINEMOD : AP_GEN_LINE;
 	    l++;
 	  }
 	  else { /* ray */
 	    tab->p[j]->gentyp = 
-	      i<a->intdim ? AP_GEN_RAYMOD : AP_GEN_RAY;
+	      i<a->dim.intd ? AP_GEN_RAYMOD : AP_GEN_RAY;
 	    r++;
 	  }
 	}
@@ -519,7 +513,7 @@ void boxXXX_to_box(ap_manager_t* man, ap_box0_t res, boxXXX_t* a)
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  nbdims = a->intdim+a->realdim;
+  nbdims = a->dim.intd+a->dim.reald;
   ap_box0_resize(res,nbdims);
   if (nbdims>0){
     man->result.flag_exact = 

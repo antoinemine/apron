@@ -132,7 +132,7 @@ static void set_bottom(ap_reducedproduct_internal_t* intern,
 	free(man,a->p[i]);
       }
       void* (*bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOTTOM];
-      a->p[i] = bottom(man, dim.intdim, dim.realdim);
+      a->p[i] = bottom(man, dim.intd, dim.reald);
     }
   }
   a->reduced = true;
@@ -650,7 +650,7 @@ ap_interval_t** ap_reducedproduct_to_box(ap_manager_t* manager, ap_reducedproduc
       gbox = box;
       ap_dimension_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
       ap_dimension_t dimension = ptr(man,a->p[i]);
-      nbdims = dimension.intdim+dimension.realdim;
+      nbdims = dimension.intd+dimension.reald;
     }
     else {
       for (j=0; j<nbdims;j++){

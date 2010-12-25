@@ -10,19 +10,18 @@
 /* ********************************************************************** */
 /* Internal functions */
 /* ********************************************************************** */
-boxXXX_t* boxXXX_alloc(size_t intdim, size_t realdim)
+boxXXX_t* boxXXX_alloc(ap_dimension_t dim)
 {
   boxXXX_t* itv = malloc(sizeof(boxXXX_t));
   itv->p = NULL;
-  itv->intdim = intdim;
-  itv->realdim = realdim;
+  itv->dim = dim;
   return itv;
 }
 
 void boxXXX_init(boxXXX_t* a)
 {
   size_t i;
-  size_t nbdims = a->intdim + a->realdim;
+  size_t nbdims = a->dim.intd + a->dim.reald;
   assert(a->p==NULL);
   a->p = eitvXXX_array_alloc(nbdims+1); 
   /* Add an unused dimension to differentiate
@@ -32,7 +31,7 @@ void boxXXX_init(boxXXX_t* a)
 void boxXXX_set_bottom(boxXXX_t* a)
 {
   if (a->p){
-    eitvXXX_array_free(a->p,a->intdim+a->realdim+1);
+    eitvXXX_array_free(a->p,a->dim.intd+a->dim.reald+1);
     a->p = NULL;
   }
 }
@@ -42,7 +41,7 @@ void boxXXX_set_top(boxXXX_t* a)
   size_t i;
   size_t nbdims;
   
-  nbdims = a->intdim + a->realdim;
+  nbdims = a->dim.intd + a->dim.reald;
   if (a->p==NULL){
     boxXXX_init(a);
   };
@@ -59,7 +58,7 @@ void boxXXX_set(boxXXX_t* a, boxXXX_t* b)
   if (b->p==NULL)
     return;
 
-  nbdims = b->intdim + b->realdim;
+  nbdims = b->dim.intd + b->dim.reald;
   if (a->p==NULL){
     boxXXX_init(a);
   };
@@ -77,9 +76,9 @@ void boxXXX_set(boxXXX_t* a, boxXXX_t* b)
 boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a)
 {
   size_t i;
-  size_t nbdims = a->intdim+a->realdim;
+  size_t nbdims = a->dim.intd+a->dim.reald;
 
-  boxXXX_t* b = boxXXX_alloc(a->intdim,a->realdim);
+  boxXXX_t* b = boxXXX_alloc(a->dim);
   if (a->p){
     b->p = malloc((nbdims+1)*sizeof(eitvXXX_t));
     for (i=0; i<nbdims; i++){
@@ -98,7 +97,7 @@ boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a)
 void boxXXX_free(ap_manager_t* man, boxXXX_t* a)
 {
   if (a->p){
-    eitvXXX_array_free(a->p,a->intdim+a->realdim+1);
+    eitvXXX_array_free(a->p,a->dim.intd+a->dim.reald+1);
     a->p = NULL;
   }
   free(a);
@@ -107,7 +106,7 @@ void boxXXX_free(ap_manager_t* man, boxXXX_t* a)
 /* Return the abstract size of an abstract value (see ap_manager_t) */
 size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a)
 {
-  return 2*(a->intdim+a->realdim);
+  return 2*(a->dim.intd+a->dim.reald);
 }
 
 /* ********************************************************************** */
@@ -136,7 +135,7 @@ void boxXXX_canonicalize(ap_manager_t* man, boxXXX_t* a)
 int boxXXX_hash(ap_manager_t* man, boxXXX_t* a)
 {
   int i,dec,size,res;
-  size = a->intdim +a->realdim;
+  size = a->dim.intd +a->dim.reald;
   res = size * 2999;
   
   if (a->p!=NULL){
@@ -174,10 +173,10 @@ void boxXXX_fprint(FILE* stream,
 	       char** name_of_dim)
 {
   size_t i;
-  size_t nbdims = a->intdim + a->realdim;
+  size_t nbdims = a->dim.intd + a->dim.reald;
 
   fprintf(stream,"interval of dim (%ld,%ld):",
-	  (long)a->intdim,(long)a->realdim);
+	  (long)a->dim.intd,(long)a->dim.reald);
   if (a->p){
     fprintf(stream,"\n");
     for(i=0; i<nbdims; i++){
@@ -202,10 +201,10 @@ void boxXXX_fdump(FILE* stream,
 	      boxXXX_t* a)
 {
   size_t i;
-  size_t nbdims = a->intdim + a->realdim;
+  size_t nbdims = a->dim.intd + a->dim.reald;
 
   fprintf(stream,"interval of dim (%ld,%ld):",
-	  (long)a->intdim,(long)a->realdim);
+	  (long)a->dim.intd,(long)a->dim.reald);
   if (a->p){
     fprintf(stream,"\n");
     for(i=0; i<nbdims; i++){
@@ -231,10 +230,10 @@ void boxXXX_fprintdiff(FILE* stream,
   size_t nbdims;
   char* str;
 
-  nbdims = a->intdim + a->realdim;
+  nbdims = a->dim.intd + a->dim.reald;
 
   fprintf(stream,"diff of 2 intervals of dim (%ld,%ld)",
-	  (long)a->intdim,(long)b->intdim);
+	  (long)a->dim.intd,(long)b->dim.intd);
   if (boxXXX_is_eq(man,a,b)){
     fprintf(stream," : none\n");
   }

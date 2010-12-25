@@ -305,13 +305,13 @@ static bool env_lce_dimchange(env_t* e1, env_t* e,
       if (sgn<0) return true;
       if (sgn==0) break;
       /* here, a new dimension to insert */
-      dimchange1->dim[offsetwrite+k1] = offsetread+i1;
+      dimchange1->p[offsetwrite+k1] = offsetread+i1;
       k1++;
     }
     if(sgn!=0) return true;
   }
   while (i<e->size){
-    dimchange1->dim[offsetwrite+k1] = offsetread+i1;
+    dimchange1->p[offsetwrite+k1] = offsetread+i1;
     i++;
     k1++;
   }
@@ -388,11 +388,11 @@ typedef struct denv_t {
 static denv_t denv_of_environment(ap_environment_t* env)
 {
   denv_t res;
-  res.envint = env_cons(env->var_of_dim,env->intdim);
+  res.envint = env_cons(env->var_of_dim,env->dim.intd);
   res.envreal = env_cons(env->var_of_dim ?
-			 &env->var_of_dim[env->intdim] :
+			 &env->var_of_dim[env->dim.intd] :
 			 NULL,
-			 env->realdim);
+			 env->dim.reald);
   return res;
 }
 
@@ -408,8 +408,8 @@ static ap_environment_t* environment_of_denv(denv_t* denv)
 	 denv->envreal.var_of_dim,denv->envreal.size*sizeof(ap_var_t));
   free(denv->envint.var_of_dim);
   free(denv->envreal.var_of_dim);
-  res->intdim = denv->envint.size;
-  res->realdim = denv->envreal.size;
+  res->dim.intd = denv->envint.size;
+  res->dim.reald = denv->envreal.size;
   res->count = 1;
   return res;
 }
@@ -419,12 +419,12 @@ static ap_environment_t* environment_of_denv(denv_t* denv)
 /* ========================================================================= */
 ap_dim_t ap_environment_dim_of_var(ap_environment_t* env, ap_var_t name){
   ap_var_t* res;
-  res = bsearch(&name,env->var_of_dim,env->intdim,sizeof(ap_var_t),var_cmp);
+  res = bsearch(&name,env->var_of_dim,env->dim.intd,sizeof(ap_var_t),var_cmp);
   if (res!=NULL){
     return ((long int)res - (long int)env->var_of_dim)/sizeof(ap_var_t);
   }
   else {
-    res = bsearch(&name,&env->var_of_dim[env->intdim],env->realdim,sizeof(ap_var_t),var_cmp);
+    res = bsearch(&name,&env->var_of_dim[env->dim.intd],env->dim.reald,sizeof(ap_var_t),var_cmp);
     if (res!=NULL){
       return ((long int)res - (long int)env->var_of_dim)/sizeof(ap_var_t);
     }
@@ -495,14 +495,14 @@ ap_environment_t* ap_environment_add_perm(ap_environment_t* env,
   denv_t denv2;
   denv_t denv1 = denv_of_environment(env);
 
-  nsize = env->intdim+intdim+env->realdim+realdim;
+  nsize = env->dim.intd+intdim+env->dim.reald+realdim;
   ap_dimperm_init(perm,nsize);
   denv2.envint = env_add(&denv1.envint, name_of_intdim, intdim,
-			 &(perm->dim[0]));
+			 &(perm->p[0]));
   denv2.envreal = env_add(&denv1.envreal, name_of_realdim, realdim,
-			  &(perm->dim[env->intdim+intdim]));
-  for (i=0;i<env->realdim+realdim;i++){
-    perm->dim[env->intdim + intdim + i] += env->intdim + intdim;
+			  &(perm->p[env->dim.intd+intdim]));
+  for (i=0;i<env->dim.reald+realdim;i++){
+    perm->p[env->dim.intd + intdim + i] += env->dim.intd + intdim;
   }
   res = environment_of_denv(&denv2);
   /* Check now that there is no problem */
@@ -539,7 +539,7 @@ ap_environment_t* ap_environment_remove(ap_environment_t* env,
       free(tvar2);
       return NULL;
     }
-    if (dim>=env->intdim){
+    if (dim>=env->dim.intd){
       intdim--;
       ap_var_t t = tvar2[i]; tvar2[i] = tvar2[intdim]; tvar2[intdim] = t;
     }
@@ -567,7 +567,7 @@ ap_environment_t* ap_environment_remove(ap_environment_t* env,
 ap_environment_t* ap_environment_alloc(ap_var_t* name_of_intdim, size_t intdim,
 				       ap_var_t* name_of_realdim, size_t realdim)
 {
-  ap_environment_t env = { NULL, 0,0,0 };
+  ap_environment_t env = { NULL, {0,0},0 };
   return ap_environment_add(&env,
 			    name_of_intdim, intdim,
 			    name_of_realdim, realdim);
@@ -581,7 +581,7 @@ void ap_environment_free2(ap_environment_t* env)
 {
   size_t i;
   if (env->var_of_dim){
-    for(i=0;i<env->intdim+env->realdim;i++){
+    for(i=0;i<env->dim.intd+env->dim.reald;i++){
       if(env->var_of_dim[i]){
 	ap_var_operations->free(env->var_of_dim[i]);env->var_of_dim[i]=NULL;
       }
@@ -597,9 +597,9 @@ void ap_environment_fdump(FILE* stream, ap_environment_t* env)
   char* name;
 
   fprintf(stream,"environment: dim = (%lu,%lu), count = %lu\n",
-	  (unsigned long)env->intdim,(unsigned long)env->realdim,
+	  (unsigned long)env->dim.intd,(unsigned long)env->dim.reald,
 	  (unsigned long)env->count);
-  for (i=0; i<env->intdim+env->realdim; i++){
+  for (i=0; i<env->dim.intd+env->dim.reald; i++){
     name = ap_var_operations->to_string(env->var_of_dim[i]);
     fprintf(stream,"%2lu: %s\n",(unsigned long)i,name);
     free(name);
@@ -609,7 +609,7 @@ void ap_environment_fdump(FILE* stream, ap_environment_t* env)
 ap_environment_name_of_dim_t* ap_environment_name_of_dim_alloc(ap_environment_t* env)
 {
   size_t i,size;
-  size = env->intdim+env->realdim;
+  size = env->dim.intd+env->dim.reald;
   ap_environment_name_of_dim_t* res = malloc(sizeof(ap_environment_name_of_dim_t)+size*sizeof(char*));
   res->size = size;
   for (i=0; i<size; i++){
@@ -636,11 +636,11 @@ bool ap_environment_is_eq(ap_environment_t* env1,
   bool res = (env1==env2);
   if (!res){
     res =
-      (env1->intdim==env2->intdim) &&
-      (env1->realdim==env2->realdim);
+      (env1->dim.intd==env2->dim.intd) &&
+      (env1->dim.reald==env2->dim.reald);
     if (res){
       size_t i;
-      for (i=0; i<env1->intdim+env1->realdim; i++){
+      for (i=0; i<env1->dim.intd+env1->dim.reald; i++){
 	if (ap_var_operations->compare(env1->var_of_dim[i],env2->var_of_dim[i])){
 	  res = false;
 	  break;
@@ -657,8 +657,8 @@ bool ap_environment_is_leq(ap_environment_t* env1,
   bool res = (env1==env2);
   if (!res){
     res =
-      (env1->intdim<=env2->intdim) &&
-      (env1->realdim<=env2->realdim);
+      (env1->dim.intd<=env2->dim.intd) &&
+      (env1->dim.reald<=env2->dim.reald);
     if (res){
       denv_t denv1 = denv_of_environment(env1);
       denv_t denv2 = denv_of_environment(env2);
@@ -695,8 +695,8 @@ int ap_environment_hash(ap_environment_t* env)
   int res;
   size_t size,i,dec;
 
-  res = 997*(7*env->intdim+11*env->realdim);
-  size = env->intdim+env->realdim;
+  res = 997*(7*env->dim.intd+11*env->dim.reald);
+  size = env->dim.intd+env->dim.reald;
   dec = 0;
   for (i=0; i<size; i += (size+3)/4){
     res += ap_var_operations->hash(env->var_of_dim[i]) << dec;
@@ -716,18 +716,17 @@ ap_dimchange_t* ap_environment_dimchange(ap_environment_t* env1,
   bool b;
   ap_dimchange_t* dimchange;
 
-  if (env->intdim < env1->intdim || env->realdim < env1->realdim) return NULL;
+  if (env->dim.intd < env1->dim.intd || env->dim.reald < env1->dim.reald) return NULL;
 
   denv_t denv1 = denv_of_environment(env1);
   denv_t denv = denv_of_environment(env);
 
-  dimchange = ap_dimchange_alloc(env->intdim - env1->intdim,
-				 env->realdim - env1->realdim);
+  dimchange = ap_dimchange_alloc(ap_dimension_sub(env->dim,env1->dim));
   b = env_lce_dimchange(&denv1.envint,&denv.envint,
 			dimchange, 0, 0);
   if (!b)
     b = env_lce_dimchange(&denv1.envreal,&denv.envreal,
-			  dimchange, dimchange->intdim, env1->intdim);
+			  dimchange, dimchange->dim.intd, env1->dim.intd);
   if (b){
     ap_dimchange_free(dimchange);
     dimchange = NULL;
@@ -766,23 +765,27 @@ ap_dimchange2_t* ap_environment_dimchange2(ap_environment_t* env1,
     denv.envint.size==denv2.envint.size &&
     denv.envreal.size==denv2.envreal.size;
   if (!eq1){
-    res->add = ap_dimchange_alloc(denv.envint.size-denv1.envint.size,
-				  denv.envreal.size-denv1.envreal.size);
+    res->add = ap_dimchange_alloc(ap_dimension_make(
+				      denv.envint.size-denv1.envint.size,
+				      denv.envreal.size-denv1.envreal.size
+				  ));
     env_lce_dimchange(&denv1.envint,&denv.envint,
 		      res->add, 0, 0);
     env_lce_dimchange(&denv1.envreal,&denv.envreal,
-		      res->add, res->add->intdim, denv1.envint.size);
+		      res->add, res->add->dim.intd, denv1.envint.size);
 
   }
   if (!eq2){
     /* First build (as for lce) the dimchange for adding dimensions from env2
        to env(lce), then invert it */
-    res->remove = ap_dimchange_alloc(denv.envint.size-denv2.envint.size,
-				     denv.envreal.size-denv2.envreal.size);
+    res->remove = ap_dimchange_alloc(ap_dimension_make(
+					 denv.envint.size-denv2.envint.size,
+					 denv.envreal.size-denv2.envreal.size
+				     ));
     env_lce_dimchange(&denv2.envint,&denv.envint,
 		      res->remove, 0,0);
     env_lce_dimchange(&denv2.envreal,&denv.envreal,
-		      res->remove, res->remove->intdim, denv2.envint.size);
+		      res->remove, res->remove->dim.intd, denv2.envint.size);
     ap_dimchange_add_invert(res->remove);
   }
   env_clear(&denv.envint);
@@ -829,23 +832,27 @@ ap_environment_t* ap_environment_lce(ap_environment_t* env1,
     *dimchange1 = NULL;
   }
   else {
-    *dimchange1 = ap_dimchange_alloc(denv.envint.size-denv1.envint.size,
-				     denv.envreal.size-denv1.envreal.size);
+    *dimchange1 = ap_dimchange_alloc(ap_dimension_make(
+					 denv.envint.size-denv1.envint.size,
+					 denv.envreal.size-denv1.envreal.size
+				     ));
     env_lce_dimchange(&denv1.envint,&denv.envint,
 		      *dimchange1, 0, 0);
     env_lce_dimchange(&denv1.envreal,&denv.envreal,
-		      *dimchange1, (*dimchange1)->intdim, denv1.envint.size);
+		      *dimchange1, (*dimchange1)->dim.intd, denv1.envint.size);
   }
   if (eq2){
     *dimchange2 = NULL;
   }
   else {
-    *dimchange2 = ap_dimchange_alloc(denv.envint.size-denv2.envint.size,
-				     denv.envreal.size-denv2.envreal.size);
+    *dimchange2 = ap_dimchange_alloc(ap_dimension_make(
+					 denv.envint.size-denv2.envint.size,
+					 denv.envreal.size-denv2.envreal.size
+				     ));
     env_lce_dimchange(&denv2.envint,&denv.envint,
 		      *dimchange2, 0,0);
     env_lce_dimchange(&denv2.envreal,&denv.envreal,
-		      *dimchange2, (*dimchange2)->intdim, denv2.envint.size);
+		      *dimchange2, (*dimchange2)->dim.intd, denv2.envint.size);
   }
   if (eq1){
     /* env=env1 */
@@ -878,7 +885,7 @@ ap_environment_t* ap_environment_lce(ap_environment_t* env1,
 
   - Dimensions to add before applying the permutation (according to the
   conventions of the function ap_abstract0_add_permute_dimensions) are implictly
-  given by env->intdim-env[i]->intdim and env->realdim - env[i]->realdim.
+  given by env->dim.intd-env[i]->dim.intd and env->dim.reald - env[i]->dim.reald.
 
   - If no dimensions to add to env[i], this implies that env is actually
   env[i]. In this case, (*ptdimchange)[i]==NULL. Otherwise, the function allocates
@@ -966,12 +973,14 @@ ap_environment_t* ap_environment_lce_array(ap_environment_t** tenv,
     }
     else {
       change = true;
-      (*ptdimchange)[i] = ap_dimchange_alloc(denv.envint.size-tdenv[i].envint.size,
-					     denv.envreal.size-tdenv[i].envreal.size);
+      (*ptdimchange)[i] = 
+	ap_dimchange_alloc(ap_dimension_make(
+			       denv.envint.size-tdenv[i].envint.size,
+			       denv.envreal.size-tdenv[i].envreal.size));
       env_lce_dimchange(&tdenv[i].envint,&denv.envint,
 			(*ptdimchange)[i],0,0);
       env_lce_dimchange(&tdenv[i].envreal,&denv.envreal,
-			(*ptdimchange)[i],(*ptdimchange)[i]->intdim, tdenv[i].envint.size);
+			(*ptdimchange)[i],(*ptdimchange)[i]->dim.intd, tdenv[i].envint.size);
     }
   }
   if (j>0){
@@ -1010,10 +1019,10 @@ ap_environment_t* ap_environment_rename(ap_environment_t* env,
   ap_environment_t* res;
   denv_t denv;
 
-  nbdims = env->intdim+env->realdim;
+  nbdims = env->dim.intd+env->dim.reald;
   res = malloc(sizeof(ap_environment_t));
-  res->intdim = env->intdim;
-  res->realdim = env->realdim;
+  res->dim.intd = env->dim.intd;
+  res->dim.reald = env->dim.reald;
   res->count = 1;
   res->var_of_dim = malloc(nbdims*sizeof(ap_var_t));
 
@@ -1038,10 +1047,10 @@ ap_environment_t* ap_environment_rename(ap_environment_t* env,
   /* Now we have to sort it and compute the permutation transformation */
   ap_dimperm_init(perm,nbdims);
   denv = denv_of_environment(res);
-  env_normalize(&denv.envint,perm->dim);
-  env_normalize(&denv.envreal,perm->dim+res->intdim);
-  for (i=0; i<res->realdim; i++){
-    perm->dim[res->intdim + i] += res->intdim;
+  env_normalize(&denv.envint,perm->p);
+  env_normalize(&denv.envreal,perm->p+res->dim.intd);
+  for (i=0; i<res->dim.reald; i++){
+    perm->p[res->dim.intd + i] += res->dim.intd;
   }
   if (ap_environment_check(res)){
     ap_environment_free(res);
