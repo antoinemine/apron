@@ -53,7 +53,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
       to_box(man,box,abs);
       exact = false;
       ap_linconsXXX_intlinearize_tcons0(lincons,cons,
-					box->p.XXX,dim.intdim,
+					box->p.XXX,dim.intd,
 					man->num);
     }
     if (quasilinearize){
@@ -119,7 +119,7 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
       to_box(man,box,abs);
       exact = false;
       ap_linexprXXX_intlinearize_texpr0(linexpr,expr,
-					box->p.XXX,dim.intdim,
+					box->p.XXX,dim.intd,
 					man->num);
     }
     if (quasilinearize){
@@ -303,7 +303,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
 	to_box(man,box,abs);
 	exact = false;
 	ap_linconsXXX_array_intlinearize_tcons0_array(arrayX,array,
-						      box->p.XXX,dim.intdim,
+						      box->p.XXX,dim.intd,
 						      man->num);
       }
       ap_linexpr_type_t typ = ap_linconsXXX_array_type(arrayX);
@@ -392,23 +392,22 @@ ap_generic_asssub_linexpr_array(bool assign,
   size = ap_linexpr0_array_size(texpr);
   /* 1. Compute the number of integer and real dimensions assigned */
   d = dimension(man,abs);
-  dsup.intdim = 0;
-  dsup.realdim = 0;
+  dsup = ap_dimension_make(0,0);
   for (i=0; i<size; i++){
-    if (tdim[i]<d.intdim)
-      dsup.intdim++;
+    if (tdim[i]<d.intd)
+      dsup.intd++;
     else
-      dsup.realdim++;
+      dsup.reald++;
   }
   /* 2. Build dimchange (for addition of primed dimensions) */
-  ap_dimchange_init(&dimchange,dsup.intdim,dsup.realdim);
-  for (i=0;i<dsup.intdim;i++)
-    dimchange.dim[i]=d.intdim;
-  for (i=dsup.intdim;i<dsup.intdim+dsup.realdim;i++)
-    dimchange.dim[i]=d.intdim+d.realdim;
+  ap_dimchange_init(&dimchange,dsup);
+  for (i=0;i<dsup.intd;i++)
+    dimchange.p[i]=d.intd;
+  for (i=dsup.intd;i<dsup.intd+dsup.reald;i++)
+    dimchange.p[i]=d.intd+d.reald;
 
   /* 3. Build permutation (exchanging primed and unprimed dimensions) */
-  ap_dimperm_init(&permutation,d.intdim+d.realdim+dsup.intdim+dsup.realdim);
+  ap_dimperm_init(&permutation,d.intd+d.reald+dsup.intd+dsup.reald);
   ap_dimperm_set_id(&permutation);
   {
     int index_int = 0;
@@ -416,16 +415,16 @@ ap_generic_asssub_linexpr_array(bool assign,
     for (i=0; i<size; i++){
       ap_dim_t dim = tdim[i];
       ap_dim_t dimp;
-      if (dim<d.intdim){
-	dimp = d.intdim+index_int;
+      if (dim<d.intd){
+	dimp = d.intd+index_int;
 	index_int++;
       } else {
-	dim += dsup.intdim;
-	dimp = d.intdim+dsup.intdim+d.realdim+index_real;
+	dim += dsup.intd;
+	dimp = d.intd+dsup.intd+d.reald+index_real;
 	index_real++;
       }
-      permutation.dim[dim] = dimp;
-      permutation.dim[dimp] = dim;
+      permutation.p[dim] = dimp;
+      permutation.p[dimp] = dim;
     }
   }
   /* 4. Add primed dimensions to abstract value */
@@ -449,7 +448,7 @@ ap_generic_asssub_linexpr_array(bool assign,
     eitvXXX_set_int(eitv,-1);
     for (i=0; i<size; i++){
       ap_dim_t dim = tdim[i];
-      ap_dim_t dimp = permutation.dim[dim];
+      ap_dim_t dimp = permutation.p[dim];
       ap_linexpr0_array_ref_index(linexpr0,texpr,i);
       exact = ap_linexprXXX_set_linexpr0(arrayXXX->p[i]->linexpr,linexpr0,man->num) && exact;
       ap_linexprXXX_add_dimensions(arrayXXX->p[i]->linexpr,
@@ -541,23 +540,23 @@ void* ap_generic_asssub_texpr_array(bool assign,
   size = ap_texpr0_array_size(texpr);  
   /* 1. Compute the number of integer and real dimensions assigned */
   d = dimension(man,abs);
-  dsup.intdim = 0;
-  dsup.realdim = 0;
+  dsup.intd = 0;
+  dsup.reald = 0;
   for (i=0; i<size; i++){
-    if (tdim[i]<d.intdim)
-      dsup.intdim++;
+    if (tdim[i]<d.intd)
+      dsup.intd++;
     else
-      dsup.realdim++;
+      dsup.reald++;
   }
   /* 2. Build dimchange (for addition of primed dimensions) */
-  ap_dimchange_init(&dimchange,dsup.intdim,dsup.realdim);
-  for (i=0;i<dsup.intdim;i++)
-    dimchange.dim[i]=d.intdim;
-  for (i=dsup.intdim;i<dsup.intdim+dsup.realdim;i++)
-    dimchange.dim[i]=d.intdim+d.realdim;
+  ap_dimchange_init(&dimchange,dsup);
+  for (i=0;i<dsup.intd;i++)
+    dimchange.p[i]=d.intd;
+  for (i=dsup.intd;i<dsup.intd+dsup.reald;i++)
+    dimchange.p[i]=d.intd+d.reald;
 
   /* 3. Build permutation (exchanging primed and unprimed dimensions) */
-  ap_dimperm_init(&permutation,d.intdim+d.realdim+dsup.intdim+dsup.realdim);
+  ap_dimperm_init(&permutation,d.intd+d.reald+dsup.intd+dsup.reald);
   ap_dimperm_set_id(&permutation);
   {
     int index_int = 0;
@@ -565,16 +564,16 @@ void* ap_generic_asssub_texpr_array(bool assign,
     for (i=0; i<size; i++){
       ap_dim_t dim = tdim[i];
       ap_dim_t dimp;
-      if (dim<d.intdim){
-	dimp = d.intdim+index_int;
+      if (dim<d.intd){
+	dimp = d.intd+index_int;
 	index_int++;
       } else {
-	dim += dsup.intdim;
-	dimp = d.intdim+dsup.intdim+d.realdim+index_real;
+	dim += dsup.intd;
+	dimp = d.intd+dsup.intd+d.reald+index_real;
 	index_real++;
       }
-      permutation.dim[dim] = dimp;
-      permutation.dim[dimp] = dim;
+      permutation.p[dim] = dimp;
+      permutation.p[dimp] = dim;
     }
   }
 
@@ -591,7 +590,7 @@ void* ap_generic_asssub_texpr_array(bool assign,
   array = ap_tcons0_array_make(size);
   for (i=0; i<size; i++){
     ap_dim_t dim = tdim[i];
-    ap_dim_t dimp = permutation.dim[dim];
+    ap_dim_t dimp = permutation.p[dim];
     ap_texpr0_t* expr = ap_texpr0_add_dimensions(texpr->p[i],&dimchange);
     expr = ap_texpr0_binop(AP_TEXPR_SUB, expr, ap_texpr0_dim(dimp),
 			   AP_RTYPE_REAL, AP_RDIR_RND);

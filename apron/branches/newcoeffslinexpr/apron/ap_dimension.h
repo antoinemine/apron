@@ -29,15 +29,14 @@ typedef unsigned int ap_dim_t;
 
 /* Datatype for specifying the dimensionality of an abstract value */
 typedef struct ap_dimension_t {
-  size_t intdim;
-  size_t realdim;
+  size_t intd;
+  size_t reald;
 } ap_dimension_t;
 
 /* Datatype for specifying change of dimension (addition or removal) */
 typedef struct ap_dimchange_t {
-  ap_dim_t* dim;  /* Assumed to be an array of size intdim+realdim */
-  size_t intdim ; /* Number of integer dimensions to add/remove */
-  size_t realdim; /* Number of real dimensions to add/remove */
+  ap_dim_t* p;  /* Assumed to be an array of size intdim+realdim */
+  ap_dimension_t dim ; /* Number of dimensions to add/remove */
 } ap_dimchange_t;
 
 /* The semantics is the following:
@@ -82,7 +81,7 @@ typedef struct ap_dimchange2_t {
 
 /* Datatype for permutations */
 typedef struct ap_dimperm_t {
-  ap_dim_t* dim;    /* Array assumed to be of size size */
+  ap_dim_t* p;    /* Array assumed to be of size size */
   size_t size;
 } ap_dimperm_t;
 /* Such an object represent the permutation
@@ -92,13 +91,23 @@ typedef struct ap_dimperm_t {
 /* Functions */
 /* ====================================================================== */
 
+static inline 
+ap_dimension_t ap_dimension_make(size_t intd, size_t reald)
+{ ap_dimension_t dim; dim.intd=intd; dim.reald=reald; return dim; }
+static inline 
+ap_dimension_t ap_dimension_add(ap_dimension_t a, ap_dimension_t b)
+{ return ap_dimension_make(a.intd+b.intd,a.reald+b.reald); }
+static inline 
+ap_dimension_t ap_dimension_sub(ap_dimension_t a, ap_dimension_t b)
+{ return ap_dimension_make(a.intd-b.intd,a.reald-b.reald); }
+
 /* ---------------------------------------------------------------------- */
 /* ap_dimchange_t */
 /* ---------------------------------------------------------------------- */
 
-void ap_dimchange_init(ap_dimchange_t* dimchange, size_t intdim, size_t realdim);
+void ap_dimchange_init(ap_dimchange_t* dimchange, ap_dimension_t dim);
   /* Initialize a dimchange structure (allocate internal array) */
-ap_dimchange_t* ap_dimchange_alloc(size_t intdim, size_t realdim);
+  ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim);
   /* Allocate and initialize a dimchange structure */
 
 static inline void ap_dimchange_clear(ap_dimchange_t* dimchange);
@@ -150,8 +159,8 @@ static inline void ap_dimperm_free(ap_dimperm_t* dimperm);
 void ap_dimperm_fprint(FILE* stream, ap_dimperm_t* perm);
   /* Print a permutation under the form:
      dimperm: size=...
-     0 -> perm->dim[0]
-     1 -> perm->dim[1]
+     0 -> perm->p[0]
+     1 -> perm->p[1]
      ...
  */
 
@@ -181,9 +190,9 @@ void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 /* ====================================================================== */
 static inline void ap_dimchange_clear(ap_dimchange_t* dimchange)
 {
-  if (dimchange->dim) free(dimchange->dim);
-  dimchange->intdim = dimchange->realdim = 0;
-  dimchange->dim = NULL;
+  if (dimchange->p) free(dimchange->p);
+  dimchange->dim.intd = dimchange->dim.reald = 0;
+  dimchange->p = NULL;
 }
 static inline void ap_dimchange_free(ap_dimchange_t* dimchange)
 {
@@ -194,9 +203,9 @@ static inline void ap_dimchange_free(ap_dimchange_t* dimchange)
 static inline
 void ap_dimperm_clear(ap_dimperm_t* dimperm)
 {
-  if (dimperm->dim) free(dimperm->dim);
+  if (dimperm->p) free(dimperm->p);
   dimperm->size = 0;
-  dimperm->dim = NULL;
+  dimperm->p = NULL;
 }
 static inline
 void ap_dimperm_free(ap_dimperm_t* dimperm)

@@ -1721,13 +1721,13 @@ void ap_linexprXXX_add_dimensions(ap_linexprXXX_t res,
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  dimsup = dimchange->intdim+dimchange->realdim;
+  dimsup = dimchange->dim.intd+dimchange->dim.reald;
   k=0;
   for (i=0; i<res->size; i++){
     ap_dim_t* pdim = &res->linterm[i]->dim;
     if (*pdim==AP_DIM_MAX)
       break;
-    while (k<dimsup && *pdim>=dimchange->dim[k]){
+    while (k<dimsup && *pdim>=dimchange->p[k]){
       k++;
     }
     *pdim += k;
@@ -1778,7 +1778,7 @@ void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
     ap_dim_t* pdim = &res->linterm[i]->dim;
     ap_dim_t dim = *pdim;
     if (*pdim==AP_DIM_MAX) continue;
-    *pdim = perm->dim[dim];
+    *pdim = perm->p[dim];
   }
   qsort(res->linterm,
 	res->size,

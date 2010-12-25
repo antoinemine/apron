@@ -14,8 +14,7 @@ extern "C" {
 
 struct boxXXX_t {
   eitvXXX_t* p;
-  size_t intdim;
-  size_t realdim;
+  ap_dimension_t dim;
 };
 typedef struct boxXXX_t boxXXX_t;
 
@@ -106,13 +105,13 @@ boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr);
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
+/* We assume that dimensions [0..dim.intd-1] correspond to integer variables,
+   and dimensions [dim.intd..dim.intd+dim.reald-1] to real variables */
 
-boxXXX_t* boxXXX_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+boxXXX_t* boxXXX_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */
 
-boxXXX_t* boxXXX_top(ap_manager_t* man, size_t intdim, size_t realdim);
+boxXXX_t* boxXXX_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
 boxXXX_t* boxXXX_of_box(ap_manager_t* man, 

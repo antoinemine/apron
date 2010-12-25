@@ -15,16 +15,15 @@
 /* ====================================================================== */
 
 /* Allocating a transformation */
-void ap_dimchange_init(ap_dimchange_t* dimchange, size_t intdim, size_t realdim)
+void ap_dimchange_init(ap_dimchange_t* dimchange, ap_dimension_t dim)
 {
-  dimchange->dim = intdim+realdim==0 ? NULL : malloc((intdim+realdim)*sizeof(ap_dim_t));
-  dimchange->intdim = intdim;
-  dimchange->realdim = realdim;
+  dimchange->p = dim.intd+dim.reald==0 ? NULL : malloc((dim.intd+dim.reald)*sizeof(ap_dim_t));
+  dimchange->dim = dim;
 }
-ap_dimchange_t* ap_dimchange_alloc(size_t intdim, size_t realdim)
+ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim)
 {
   ap_dimchange_t* res = malloc(sizeof(ap_dimchange_t));
-  ap_dimchange_init(res,intdim,realdim);
+  ap_dimchange_init(res,dim);
   return res;
 }
 
@@ -34,10 +33,10 @@ void ap_dimchange_fprint(FILE* stream, ap_dimchange_t* dimchange)
   size_t i;
 
   fprintf(stream,"dimchange: intdim=%lu, realdim=%lu\n           ",
-	  (unsigned long)dimchange->intdim,
-	  (unsigned long)dimchange->realdim);
-  for (i=0;i<dimchange->intdim+dimchange->realdim;i++){
-    fprintf(stream,"%2lu ",(unsigned long)dimchange->dim[i]);
+	  (unsigned long)dimchange->dim.intd,
+	  (unsigned long)dimchange->dim.reald);
+  for (i=0;i<dimchange->dim.intd+dimchange->dim.reald;i++){
+    fprintf(stream,"%2lu ",(unsigned long)dimchange->p[i]);
   }
   fprintf(stream,"\n");
 }
@@ -46,8 +45,8 @@ void ap_dimchange_fprint(FILE* stream, ap_dimchange_t* dimchange)
 void ap_dimchange_add_invert(ap_dimchange_t* dimchange)
 {
   size_t i;
-  for (i=0;i<dimchange->intdim+dimchange->realdim; i++){
-    dimchange->dim[i] += i;
+  for (i=0;i<dimchange->dim.intd+dimchange->dim.reald; i++){
+    dimchange->p[i] += i;
   }
 }
 
@@ -100,7 +99,7 @@ void ap_dimchange2_fprint(FILE* stream, ap_dimchange2_t* dimchange2)
 /* Allocating a permutation */
 void ap_dimperm_init(ap_dimperm_t* dimperm, size_t size)
 {
-  dimperm->dim = size==0 ? NULL : malloc(size*sizeof(ap_dim_t));
+  dimperm->p = size==0 ? NULL : malloc(size*sizeof(ap_dim_t));
   dimperm->size = size;
 }
 ap_dimperm_t* ap_dimperm_alloc(size_t size)
@@ -118,7 +117,7 @@ void ap_dimperm_fprint(FILE* stream, ap_dimperm_t* perm)
   fprintf(stream,"dimperm: size=%lu\n",(unsigned long)perm->size);
   for (i=0;i<perm->size;i++){
     fprintf(stream,"%2lu -> %2lu\n",(unsigned long)i,
-	    (unsigned long)perm->dim[i]);
+	    (unsigned long)perm->p[i]);
   }
 }
 
@@ -126,7 +125,7 @@ void ap_dimperm_fprint(FILE* stream, ap_dimperm_t* perm)
 void ap_dimperm_set_id(ap_dimperm_t* perm)
 {
   size_t i;
-  for (i=0; i<perm->size; i++) perm->dim[i] = i;
+  for (i=0; i<perm->size; i++) perm->p[i] = i;
 }
 
 /* Compose 2 permutations */
@@ -136,7 +135,7 @@ void ap_dimperm_compose(ap_dimperm_t* perm, ap_dimperm_t* perm1, ap_dimperm_t* p
 
   assert(perm->size==perm1->size && perm->size==perm2->size);
   for (i=0; i<perm->size; i++){
-    perm->dim[i] = perm2->dim[perm1->dim[i]];
+    perm->p[i] = perm2->p[perm1->p[i]];
   }
 }
 /* Invert a permutation */
@@ -146,7 +145,7 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm)
 
   assert(nperm->size==perm->size);
   for (i=0; i<perm->size; i++){
-    nperm->dim[perm->dim[i]] = i;
+    nperm->p[perm->p[i]] = i;
   }
 }
 

@@ -21,8 +21,8 @@ boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
   if (a->p==NULL){
     goto boxXXX_add_dimensions_exit;
   }
-  size = res->intdim+res->realdim;
-  dimsup = dimchange->intdim+dimchange->realdim;
+  size = res->dim.intd+res->dim.reald;
+  dimsup = dimchange->dim.intd+dimchange->dim.reald;
   res->p = realloc(res->p,(size+dimsup+1)*sizeof(eitvXXX_t));
   for (i=(int)size+1;i<(int)(size+dimsup+1);i++){
     eitvXXX_init(res->p[i]);
@@ -32,7 +32,7 @@ boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
     if (i<(int)size){
       eitvXXX_set(res->p[i+k],a->p[i]);
     }
-    while (k>=1 && dimchange->dim[k-1]==(ap_dim_t)i){
+    while (k>=1 && dimchange->p[k-1]==(ap_dim_t)i){
       k--;
       if (project){
 	eitvXXX_set_int(res->p[i+k],0);
@@ -43,8 +43,8 @@ boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
     }
   }  
  boxXXX_add_dimensions_exit:
-  res->intdim = a->intdim+dimchange->intdim;
-  res->realdim = a->realdim+dimchange->realdim;
+  res->dim.intd = a->dim.intd+dimchange->dim.intd;
+  res->dim.reald = a->dim.reald+dimchange->dim.reald;
   return res;
 }
 
@@ -63,11 +63,11 @@ boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
   if (a->p==NULL){
     goto boxXXX_remove_dimensions_exit;
   }
-  size = res->intdim+res->realdim;
-  dimsup = dimchange->intdim+dimchange->realdim;
+  size = res->dim.intd+res->dim.reald;
+  dimsup = dimchange->dim.intd+dimchange->dim.reald;
   k=0;
   for (i=0; i<size-dimsup; i++){
-    while (k<dimsup && dimchange->dim[k]==i+k){
+    while (k<dimsup && dimchange->p[k]==i+k){
       k++;
     }
     eitvXXX_set(res->p[i],a->p[i+k]);
@@ -78,8 +78,8 @@ boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
   }
   res->p = realloc(res->p,(size-dimsup+1)*sizeof(eitvXXX_t));
  boxXXX_remove_dimensions_exit:
-  res->intdim = a->intdim-dimchange->intdim;
-  res->realdim = a->realdim-dimchange->realdim;
+  res->dim.intd = a->dim.intd-dimchange->dim.intd;
+  res->dim.reald = a->dim.reald-dimchange->dim.reald;
   return res;
 }
 
@@ -98,9 +98,9 @@ boxXXX_t* boxXXX_permute_dimensions(ap_manager_t* man,
     return destructive ? a : boxXXX_copy(man,a);
   }
   res = boxXXX_copy(man,a);
-  size = res->intdim+res->realdim;
+  size = res->dim.intd+res->dim.reald;
   for (i=0;i<size;i++){
-    eitvXXX_set(res->p[perm->dim[i]],a->p[i]);
+    eitvXXX_set(res->p[perm->p[i]],a->p[i]);
   }
   if (destructive) boxXXX_free(man,a);
   return res;

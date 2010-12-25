@@ -366,8 +366,8 @@ void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a)
     size_t i;
     ap_coeff_t ref;
     ap_dimension_t d = _ap_abstract0_dimension(a);
-    ap_box0_resize(box, d.intdim+d.realdim);
-    for (i=0; i<d.intdim+d.realdim; i++){
+    ap_box0_resize(box, d.intd+d.reald);
+    for (i=0; i<d.intd+d.reald; i++){
       ap_box0_ref_index(ref,box,i);
       ap_coeff_set_top(ref);
     }
@@ -652,7 +652,7 @@ ap_abstract0_t* ap_abstract0_add_dimensions(ap_manager_t* man,
 					    ap_dimchange_t* dimchange,
 					    bool project)
 {
-  if (dimchange->intdim+dimchange->realdim==0){
+  if (dimchange->dim.intd+dimchange->dim.reald==0){
     if (destructive){
       return a;
     }
@@ -679,7 +679,7 @@ ap_abstract0_t* ap_abstract0_remove_dimensions(ap_manager_t* man,
 					       ap_abstract0_t* a,
 					       ap_dimchange_t* dimchange)
 {
-  if (dimchange->intdim+dimchange->realdim==0){
+  if (dimchange->dim.intd+dimchange->dim.reald==0){
     if (destructive){
       return a;
     }
@@ -698,8 +698,8 @@ ap_abstract0_t* ap_abstract0_remove_dimensions(ap_manager_t* man,
     else {
       if (destructive) _ap_abstract0_free(a);
       ap_dimension_t dim;
-      dim.intdim = dimension.intdim>=dimchange->intdim ? dimension.intdim-dimchange->intdim : 0;
-      dim.realdim = dimension.realdim>=dimchange->realdim ? dimension.realdim-dimchange->realdim : 0;
+      dim.intd = dimension.intd>=dimchange->dim.intd ? dimension.intd-dimchange->dim.intd : 0;
+      dim.reald = dimension.reald>=dimchange->dim.reald ? dimension.reald-dimchange->dim.reald : 0;
       return ap_abstract0_top(man,dim);
     }
   }
@@ -750,8 +750,8 @@ ap_abstract0_t* ap_abstract0_expand(ap_manager_t* man,
     else {
       if (destructive) _ap_abstract0_free(a);
       ap_dimension_t dimres;
-      dimres.intdim = dimension.intdim + (dim<dimension.intdim ? n : 0);
-      dimres.realdim = dimension.realdim + (dim<dimension.intdim ? 0 : n);
+      dimres.intd = dimension.intd + (dim<dimension.intd ? n : 0);
+      dimres.reald = dimension.reald + (dim<dimension.intd ? 0 : n);
       return ap_abstract0_top(man,dimres);
     }
   }
@@ -784,7 +784,7 @@ ap_abstract0_t* ap_abstract0_fold(ap_manager_t* man,
 	goto _ap_abstract0_fold_exc;
       }
     }
-    if (tdim[0]<dimension.intdim && tdim[size-1]>=dimension.intdim){
+    if (tdim[0]<dimension.intd && tdim[size-1]>=dimension.intd){
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 AP_FUNID_FOLD,
@@ -811,8 +811,8 @@ ap_abstract0_t* ap_abstract0_fold(ap_manager_t* man,
   _ap_abstract0_fold_exc:
     if (destructive) _ap_abstract0_free(a);
     ap_dimension_t dim;
-    dim.intdim = dimension.intdim - ( (size>0 && tdim[0]<dimension.intdim) ? (size-1) : 0);
-    dim.realdim = dimension.realdim - ( (size>0 && tdim[0]<dimension.intdim) ? 0 : (size-1));
+    dim.intd = dimension.intd - ( (size>0 && tdim[0]<dimension.intd) ? (size-1) : 0);
+    dim.reald = dimension.reald - ( (size>0 && tdim[0]<dimension.intd) ? 0 : (size-1));
     return ap_abstract0_top(man,dim);
   }
 }

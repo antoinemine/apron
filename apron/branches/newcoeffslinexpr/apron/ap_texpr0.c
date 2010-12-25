@@ -698,9 +698,9 @@ void ap_texpr0_add_dimensions_with(ap_texpr0_t* expr,
     return;
   case AP_TEXPR_DIM:
     {
-      size_t dimsup = dimchange->intdim+dimchange->realdim;
+      size_t dimsup = dimchange->dim.intd+dimchange->dim.reald;
       size_t k = 0;
-      while (k<dimsup && expr->val.dim>=dimchange->dim[k]){
+      while (k<dimsup && expr->val.dim>=dimchange->p[k]){
 	k++;
       }
       expr->val.dim += k;
@@ -730,7 +730,7 @@ void ap_texpr0_permute_dimensions_with(ap_texpr0_t* expr,
   case AP_TEXPR_CST:
     return;
   case AP_TEXPR_DIM:
-    expr->val.dim = perm->dim[expr->val.dim];
+    expr->val.dim = perm->p[expr->val.dim];
     return;
   case AP_TEXPR_NODE:
     ap_texpr0_permute_dimensions_with(expr->val.node->exprA,perm);
