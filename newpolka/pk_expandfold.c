@@ -40,7 +40,7 @@ matrix_t* matrix_expand(pk_internal_t* pk,
   ap_dimchange_t* dimchange;
   size_t i,j,row,col,nb;
   size_t nbrows, nbcols;
-  numint_t** p;
+  numintMPQ_t** p;
   matrix_t* nC;
 
   if (dimsup==0){
@@ -53,13 +53,13 @@ matrix_t* matrix_expand(pk_internal_t* pk,
   nb=0;
   p = C->p;
   for (i=0; i<nbrows; i++){
-    if (numint_sgn(p[i][col]))
+    if (numintMPQ_sgn(p[i][col]))
       nb++;
   }
   /* Redimension matrix */
   dimchange = ap_dimchange_alloc(0,dimsup);
   for (i=0;i<dimsup;i++){
-    dimchange->dim[i]=offset;
+    dimchange->p[i]=offset;
   }
   nC = matrix_add_dimensions(pk,destructive,C,dimchange);
   ap_dimchange_free(dimchange);
@@ -71,13 +71,13 @@ matrix_t* matrix_expand(pk_internal_t* pk,
   p = nC->p;
   row = nbrows;
   for (i=0; i<nbrows; i++){
-    if (numint_sgn(p[i][col])){
+    if (numintMPQ_sgn(p[i][col])){
       for (j=offset;j < offset+dimsup; j++){
 	vector_copy(p[row],
 		    p[i],
 		    nbcols+dimsup);
-	numint_set(p[row][pk->dec+j],p[row][col]);
-	numint_set_int(p[row][col],0);
+	numintMPQ_set(p[row][pk->dec+j],p[row][col]);
+	numintMPQ_set_int(p[row][col],0);
 	row++;
       }
     }
@@ -99,18 +99,18 @@ pk_t* pk_expand(ap_manager_t* man,
   pk_t* po;
 
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_EXPAND);
-  pk_internal_realloc_lazy(pk,pa->intdim+pa->realdim+dimsup);
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+dimsup);
   man->result.flag_best = man->result.flag_exact = true;   
 
-  if (dim<pa->intdim){
+  if (dim<pa->dim.intd){
     intdimsup = dimsup;
     realdimsup = 0;
   } else {
     intdimsup = 0;
     realdimsup = dimsup;
   }
-  nintdim = pa->intdim + intdimsup;
-  nrealdim = pa->realdim + realdimsup;
+  nintdim = pa->dim.intd + intdimsup;
+  nrealdim = pa->dim.reald + realdimsup;
 
   if (dimsup==0){
     return (destructive ? pa : pk_copy(man,pa));
@@ -124,8 +124,8 @@ pk_t* pk_expand(ap_manager_t* man,
 
   if (destructive){
     po = pa;
-    po->intdim+=intdimsup;
-    po->realdim+=realdimsup;
+    po->dim.intd+=intdimsup;
+    po->dim.reald+=realdimsup;
     po->status &= ~pk_status_consgauss & ~pk_status_gengauss & ~pk_status_minimaleps;
   }
   else {
@@ -158,9 +158,9 @@ pk_t* pk_expand(ap_manager_t* man,
   }
   po->C = matrix_expand(pk, destructive, pa->C, 
 			dim, 
-			(dim + dimsup < po->intdim ?
-			 po->intdim-dimsup :
-			 po->intdim+po->realdim-dimsup),
+			(dim + dimsup < po->dim.intd ?
+			 po->dim.intd-dimsup :
+			 po->dim.intd+po->dim.reald-dimsup),
 			dimsup);
   /* Minimize the result */
   if (pk->funopt->algorithm>0){
@@ -214,7 +214,7 @@ matrix_t* matrix_fold(pk_internal_t* pk,
 		     false );
   dimchange = ap_dimchange_alloc(0,dimsup);
   for (i=0;i<dimsup;i++){
-    dimchange->dim[i]=tdim[i+1];
+    dimchange->p[i]=tdim[i+1];
   }
   row = 0;
   for(i=0; i<nbrows; i++){
@@ -223,12 +223,12 @@ matrix_t* matrix_fold(pk_internal_t* pk,
     vector_normalize(pk,nF->p[row],nbcols-dimsup);
     row++;
     for (j=0;j<dimsup;j++){
-      if (numint_cmp(F->p[i][col],
+      if (numintMPQ_cmp(F->p[i][col],
 		     F->p[i][pk->dec+tdim[j+1]])!=0){
 	vector_remove_dimensions(pk,
 				 nF->p[row],F->p[i],nbcols,
 				 dimchange);
-	numint_set(nF->p[row][col],F->p[i][pk->dec+tdim[j+1]]);
+	numintMPQ_set(nF->p[row][col],F->p[i][pk->dec+tdim[j+1]]);
 	vector_normalize(pk,nF->p[row],nbcols-dimsup);
 	row++;
       }
@@ -254,7 +254,7 @@ pk_t* pk_fold(ap_manager_t* man,
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FOLD);
   man->result.flag_best = man->result.flag_exact = true;   
 
-  if (tdim[0]<pa->intdim){
+  if (tdim[0]<pa->dim.intd){
     intdimsup = size - 1;
     realdimsup = 0;
   } else {
@@ -268,11 +268,11 @@ pk_t* pk_fold(ap_manager_t* man,
 
   if (destructive){
     po = pa;
-    po->intdim -= intdimsup;
-    po->realdim -= realdimsup;
+    po->dim.intd -= intdimsup;
+    po->dim.reald -= realdimsup;
   }
   else {
-    po = poly_alloc(pa->intdim-intdimsup,pa->realdim-realdimsup);
+    po = poly_alloc(pa->dim.intd-intdimsup,pa->dim.reald-realdimsup);
   }
   if (pk->exn){
     pk->exn = AP_EXC_NONE;

@@ -31,18 +31,16 @@ OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 
 CCMODULES = \
 mf_qsort \
-pk_user pk_internal pk_bit pk_satmat pk_vector pk_matrix pk_cherni \
-pk_representation pk_approximate pk_constructor pk_test pk_extract \
+pk_bit pk_satmat pk_vector pk_matrix pk_cherni \
+pk_user pk_representation pk_approximate pk_constructor pk_test pk_extract \
 pk_meetjoin pk_assign pk_project pk_resize pk_expandfold \
-pk_widening pk_closure \
+pk_widening pk_closure pk_internal \
 pkeq
 
 CCINC = \
-pk_config.h pk.h pkeq.h \
-mf_qsort.h pk_internal.h \
-pk_user.h pk_bit.h pk_satmat.h pk_vector.h pk_matrix.h pk_cherni.h \
-pk_representation.h pk_constructor.h pk_test.h pk_extract.h \
-pk_meetjoin.h pk_assign.h pk_resize.h
+pk_num.h pk.h pkeq.h \
+mf_qsort.h pk_internal.h pk_cherni.h 
+
 
 CCSRC = $(CCINC) $(CCMODULES:%=%.c)
 
@@ -185,6 +183,20 @@ libpolka%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -I$(GMP_PREFIX)/include -c -o $@ $<
 %MPQ_debug.o: %.c $(CCINC)
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -I$(GMP_PREFIX)/include -c -o $@ $<
+
+#---------------------------------------
+# dependencies (generated with make dep)
+#---------------------------------------
+
+depend: $(CCSRC)
+	$(CC) $(ICFLAGS) -E -MM $(CCMODULES:%=%.c) >Makefile.depend
+
+-include Makefile.depend
+
+.PHONY: tags TAGS
+tags: TAGS
+TAGS: $(CCSRC)
+	etags $^
 
 #-----------------------------------
 # Caml part

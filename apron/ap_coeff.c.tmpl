@@ -133,6 +133,36 @@ bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern)
 }
 ENDMACRO
 
+bool ap_coeff_set_generic(num_internal_t intern, 
+			  ap_coeff_t a, ap_coeff_tag_t tag, va_list* va)
+{
+  bool res;
+  if (tag<AP_COEFF || tag>=AP_CST){
+    fprintf(stderr,
+	    "ap_coeff_set_generic: unknown tag\n");
+    abort();
+  }
+  if (tag==AP_COEFF){
+    ap_coeff_ptr b = va_arg(*va,ap_coeff_ptr);
+    res = ap_coeff_set(a,b,intern);
+  }
+  else {
+    SWITCH(a->discr)
+      res = eitvXXX_set_generic(intern,a->eitv.XXX,(eitv_tag_t)tag,va);
+    ENDSWITCH;
+  }
+  return res;
+}
+bool ap_coeff_set_val(num_internal_t intern, 
+		      ap_coeff_t a, ap_coeff_tag_t tag, ...)
+{
+  va_list va;
+  bool res;
+  va_start(va,tag);
+  res = ap_coeff_set_generic(intern,a,tag,&va);
+  va_end(va);
+  return res;
+}
 /* ====================================================================== */
 /* Tests */
 /* ====================================================================== */

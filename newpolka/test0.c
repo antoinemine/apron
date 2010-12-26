@@ -1525,7 +1525,7 @@ void pk_test_check(ap_manager_t* man, size_t intdim, size_t realdim,
   }
   dimchange = ap_dimchange_alloc(intdim,realdim);
   for (i=0;i<intdim+realdim;i++){
-    dimchange->dim[i]=i;
+    dimchange->p[i]=i;
   }
   
   p3 = pk_add_dimensions(man,false,p1,dimchange,true);

@@ -25,6 +25,73 @@ static const bool false = 0;
 static const bool true  = 1;
 #endif
 
+typedef enum itv_tag_t {
+  ITV_NUM,      /* waiting for 1 numXXX_t of same type */
+  ITV_NUM2,     /* waiting for 2 numXXX_t of same type */
+  ITV_ITV,	/* waiting for 1 itvXXX_t of same type */
+  ITV_ITVD,	/* waiting for 1 itvD_t */
+  ITV_ITVMPQ,	/* waiting for 1 itvMPQ_t */
+  ITV_ITVMPFR,	/* waiting for 1 itvMPFR_t */
+  ITV_NUMD,	/* waiting for 1 numD_t */
+  ITV_NUMMPQ,	/* waiting for 1 numMPQ_t */
+  ITV_NUMMPFR,	/* waiting for 1 numMPFR_t */
+  ITV_NUMD2,	/* waiting for 2 numD_t */
+  ITV_NUMMPQ2,	/* waiting for 2 numMPQ_t */
+  ITV_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  ITV_LINT,	/* waiting for 1 long int */
+  ITV_LINT2,	/* waiting for 2 long int */
+  ITV_LLINT,	/* waiting for 1 long long int */
+  ITV_LLINT2,	/* waiting for 2 long long int */
+  ITV_MPZ,	/* waiting for 1 mpz_t */
+  ITV_MPZ2,	/* waiting for 2 mpz_t */
+  ITV_LFRAC,	/* waiting for 2 long int */
+  ITV_LFRAC2,	/* waiting for 4 long int */
+  ITV_LLFRAC,	/* waiting for 2 long long int */
+  ITV_LLFRAC2,	/* waiting for 4 long long int */
+  ITV_MPQ,	/* waiting for 1 mpq_t */
+  ITV_MPQ2,	/* waiting for 2 mpq_t */
+  ITV_DOUBLE,	/* waiting for 1 double */
+  ITV_DOUBLE2,	/* waiting for 2 double */
+  ITV_LDOUBLE,	/* waiting for 1 long double */
+  ITV_LDOUBLE2,	/* waiting for 2 long double */
+  ITV_MPFR,	/* waiting for 1 mpfr_t */
+  ITV_MPFR2,	/* waiting for 2 mpfr_t double */
+} itv_tag_t;
+typedef enum eitv_tag_t {
+  EITV_NUM,             /* waiting for 1 numXXX_t of same type */
+  EITV_NUM2,            /* waiting for 2 numXXX_t of same type */
+  EITV_EITV,		/* waiting for 1 eitvXXX_t of same type */
+  EITV_EITVD,		/* waiting for 1 eitvD_t */
+  EITV_EITVMPQ,		/* waiting for 1 eitvMPQ_t */
+  EITV_EITVMPFR,	/* waiting for 1 eitvMPFR_t */
+  EITV_NUMD,		/* waiting for 1 numD_t */
+  EITV_NUMMPQ,		/* waiting for 1 numMPQ_t */
+  EITV_NUMMPFR,		/* waiting for 1 numMPFR_t */
+  EITV_NUMD2,		/* waiting for 2 numD_t */
+  EITV_NUMMPQ2,		/* waiting for 2 numMPQ_t */
+  EITV_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  EITV_LINT,		/* waiting for 1 long int */
+  EITV_LINT2,		/* waiting for 2 long int */
+  EITV_LLINT,		/* waiting for 1 long long int */
+  EITV_LLINT2,		/* waiting for 2 long long int */
+  EITV_MPZ,		/* waiting for 1 mpz_t */
+  EITV_MPZ2,		/* waiting for 2 mpz_t */
+  EITV_LFRAC,		/* waiting for 2 long int */
+  EITV_LFRAC2,		/* waiting for 4 long int */
+  EITV_LLFRAC,		/* waiting for 2 long long int */
+  EITV_LLFRAC2,		/* waiting for 4 long long int */
+  EITV_MPQ,		/* waiting for 1 mpq_t */
+  EITV_MPQ2,		/* waiting for 2 mpq_t */
+  EITV_DOUBLE,		/* waiting for 1 double */
+  EITV_DOUBLE2,		/* waiting for 2 double */
+  EITV_LDOUBLE,		/* waiting for 1 long double */
+  EITV_LDOUBLE2,	/* waiting for 2 long double */
+  EITV_MPFR,		/* waiting for 1 mpfr_t */
+  EITV_MPFR2,		/* waiting for 2 mpfr_t double */
+} eitv_tag_t;
+
+
+
 /* prints attempts to convert NaN and infinities to non floating-point types */
 #define DEBUG_SPECIAL fprintf(stderr,"invalid floating-point in %s\n",__func__)
 
@@ -266,6 +333,7 @@ typedef struct numZZZ_internal {
   boundZZZ_t boxize_lincons_bound;
   numZZZ_floatconst cst_half, cst_single, cst_double, cst_extended, cst_quad;
   eitvZZZ_t eitvZZZ_half; /* [-0.5,0.5] */
+  eitvZZZ_t generic_eitv;
   eitvZZZ_t eval_eitv;
   eitvZZZ_t eval_eitv2;
   eitvZZZ_t eval_eitv3;

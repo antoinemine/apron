@@ -5,11 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_bit.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
+#include "pk_internal.h"
 #include "pk_cherni.h"
 
 /* ********************************************************************** */
@@ -36,7 +32,7 @@ bool cherni_checksatmat(pk_internal_t* pk,
 		     pk->cherni_prod,
 		     F->p[i],
 		     C->p[j.index],F->nbcolumns);
-      s1 = numint_sgn(pk->cherni_prod);
+      s1 = numintMPQ_sgn(pk->cherni_prod);
       s2 = satmat_get(satC,i,j);
       if (s1<0 || (s1!=0 && s2==0) || (s1==0 && s2!=0)){
 	printf("cherni_checksatmat con_to_ray=%d: ray %lu, con %lu\n",
@@ -73,13 +69,13 @@ bool cherni_checksat(pk_internal_t* pk,
     for (j = bitindex_init(0); j.index < C->nbrows; bitindex_inc(&j)){
       if (satmat_get(satC,i,j)==0){
 	for (k=0;k<nbcols;k++){
-	  numint_set(mat->p[nb][k],C->p[j.index][k]);
+	  numintMPQ_set(mat->p[nb][k],C->p[j.index][k]);
 	}
 	nb++;
       }
     }
     rank = cherni_gauss(pk,mat,nb);
-    if (!( (numint_sgn(F->p[i][0])==0 && nb == C->nbrows)
+    if (!( (numintMPQ_sgn(F->p[i][0])==0 && nb == C->nbrows)
 	   || (rank==nbcols-2-nblines && nb >= rank))){
       printf("cherni_checksat con_to_ray=%d: wrong ray %lu; expected = %lu, effective = (%lu<=%lu)\n",
 	     con_to_ray,(unsigned long)i,(unsigned long)(nbcols-2-nblines),
@@ -96,13 +92,13 @@ bool cherni_checksat(pk_internal_t* pk,
     for (i=0; i<F->nbrows; i++){
       if (satmat_get(satC,i,j)==0){
 	for (k=0;k<nbcols;k++){
-	  numint_set(mat->p[nb][k],F->p[i][k]);
+	  numintMPQ_set(mat->p[nb][k],F->p[i][k]);
 	}
 	nb++;
       }
     }
     rank = cherni_gauss(pk,mat,nb);
-    if (!( (numint_sgn(C->p[j.index][0])==0 && nb == F->nbrows)
+    if (!( (numintMPQ_sgn(C->p[j.index][0])==0 && nb == F->nbrows)
 	   || (rank==nbcols-2-nbequations && nb >= rank))){
       printf("cherni_checksat con_to_ray=%d: wrong con %lu; expected = %lu, effective = (%lu<=%lu)\n",
 	     con_to_ray, (unsigned long)j.index, (unsigned long)(nbcols-2-nbequations), (unsigned long)rank,(unsigned long)nb);
@@ -185,7 +181,7 @@ size_t cherni_conversion(pk_internal_t* pk,
   k = bitindex_init(start);
   while (k.index < con->nbrows){
     /* Iteration sur les contraintes */
-    is_inequality = numint_sgn(con->p[k.index][0]);
+    is_inequality = numintMPQ_sgn(con->p[k.index][0]);
 
     /* Scalar product and index: */
     /*
@@ -200,7 +196,7 @@ size_t cherni_conversion(pk_internal_t* pk,
       vector_product(pk,ray->p[i][0],
 		     ray->p[i],
 		     con->p[k.index],nbcols);
-      if (index_non_zero == nbrows && numint_sgn(ray->p[i][0])!=0){
+      if (index_non_zero == nbrows && numintMPQ_sgn(ray->p[i][0])!=0){
 	index_non_zero = i;
       }
     }
@@ -217,19 +213,19 @@ size_t cherni_conversion(pk_internal_t* pk,
 	matrix_exch_rows(ray,index_non_zero,nbline);
       /* compute new lineality space */
       for (i=index_non_zero; i<nbline; i++)
-	if (numint_sgn(ray->p[i][0]) != 0){
+	if (numintMPQ_sgn(ray->p[i][0]) != 0){
 	  matrix_combine_rows(pk,ray,i,nbline,i,0);
 	  if (pk->exn) goto cherni_conversion_exit0;
 	}
 
       /* orient the new ray */
-      if (numint_sgn(ray->p[nbline][0]) < 0)
+      if (numintMPQ_sgn(ray->p[nbline][0]) < 0)
 	for (j=0; j<nbcols; j++)
-	  numint_neg(ray->p[nbline][j],ray->p[nbline][j]);
+	  numintMPQ_neg(ray->p[nbline][j],ray->p[nbline][j]);
 
       /* compute the new pointed cone */
       for (i=nbline+1; i<nbrows; i++)
-	if (numint_sgn(ray->p[i][0])){
+	if (numintMPQ_sgn(ray->p[i][0])){
 	  matrix_combine_rows(pk,ray,i,nbline,i,0);
 	  if (pk->exn) goto cherni_conversion_exit0;
 	}
@@ -266,7 +262,7 @@ size_t cherni_conversion(pk_internal_t* pk,
       sup_bound=nbline;
       inf_bound=nbrows;
       while (inf_bound>sup_bound) {
-	int s = numint_sgn(ray->p[sup_bound][0]);
+	int s = numintMPQ_sgn(ray->p[sup_bound][0]);
 	if (s==0){
 	  matrix_exch_rows(ray, sup_bound, equal_bound);
 	  satmat_exch_rows(satc, sup_bound, equal_bound);
@@ -377,10 +373,10 @@ size_t cherni_conversion(pk_internal_t* pk,
 
   /* status coefficient */
   for (i=0; i<nbline; i++){
-    numint_set_int(ray->p[i][0],0);
+    numintMPQ_set_int(ray->p[i][0],0);
   }
   for (i = nbline; i<nbrows; i++){
-    numint_set_int(ray->p[i][0],1);
+    numintMPQ_set_int(ray->p[i][0],1);
   }
   ray->nbrows = satc->nbrows = nbrows;
   bitstring_free(bitstringp);
@@ -411,13 +407,13 @@ size_t cherni_gauss(pk_internal_t* pk,
 		    matrix_t* con, size_t nbeq)
 {
   size_t i,j,k;
-  numint_t** p = con->p;
+  numintMPQ_t** p = con->p;
   size_t rank = 0;
   int s = 0;
   for (j = con->nbcolumns-1; j>=1; j--){
     /* find the first i such that p[i][j] is non zero */
     for (i=rank; i<nbeq; i++) {
-      s = numint_sgn(p[i][j]);
+      s = numintMPQ_sgn(p[i][j]);
       if (s) break;
     }
     if (i<nbeq) { /* was one found ? */
@@ -426,11 +422,11 @@ size_t cherni_gauss(pk_internal_t* pk,
       }
       if (s<0) {  /* normalize with positive coefficient */
 	for (k=1; k<con->nbcolumns; k++)
-	  numint_neg(p[rank][k],p[rank][k]);
+	  numintMPQ_neg(p[rank][k],p[rank][k]);
       }
-      numint_set_int(p[rank][0],0);
+      numintMPQ_set_int(p[rank][0],0);
       for (k=i+1; k<nbeq; k++) {
-	if (numint_sgn(p[k][j]))
+	if (numintMPQ_sgn(p[k][j]))
 	  matrix_combine_rows(pk,con,k,rank,k,j);
       }
       pk->cherni_intp[rank] = j;
@@ -457,11 +453,11 @@ void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank)
   for (k=(int)rank-1; k>=0; k--) {
     j = pk->cherni_intp[k];
     for (i=0; i<(size_t)k; i++) {
-      if (numint_sgn(con->p[i][j]))
+      if (numintMPQ_sgn(con->p[i][j]))
 	matrix_combine_rows(pk,con,i,(size_t)k,i,j);
     }
     for (i=k+1; i<con->nbrows; i++) {
-      if (numint_sgn(con->p[i][j]))
+      if (numintMPQ_sgn(con->p[i][j]))
 	matrix_combine_rows(pk,con,i,(size_t)k,i,j);
     }
   }
@@ -503,7 +499,7 @@ int cherni_simplify(pk_internal_t* pk,
 
   /* find the first inequality */
   for (nbeq=0; nbeq < nbcons; nbeq ++){
-    if (numint_sgn(con->p[nbeq][0])) break;
+    if (numintMPQ_sgn(con->p[nbeq][0])) break;
   }
 
   /* For each constraint,
@@ -511,7 +507,7 @@ int cherni_simplify(pk_internal_t* pk,
      - or set the status word to the number of rays that saturates the constraint,
   */
   for (i=nbeq; i < nbcons; i++){
-    is_equality = (numint_sgn(con->p[i][0])==0);
+    is_equality = (numintMPQ_sgn(con->p[i][0])==0);
     if (!is_equality){
       is_equality = true;
       for (w=0; w<satf->nbcolumns; w++){
@@ -522,7 +518,7 @@ int cherni_simplify(pk_internal_t* pk,
     }
     if (is_equality){
       /* we have an equality */
-      numint_set_int(con->p[i][0],0);
+      numintMPQ_set_int(con->p[i][0],0);
       matrix_exch_rows(con, i,nbeq);
       satmat_exch_rows(satf,i,nbeq);
       nbeq++;
@@ -536,7 +532,7 @@ int cherni_simplify(pk_internal_t* pk,
       }
       for (m=bitstring_msb; m!=nbrays.bit; m>>=1)
 	if ((satf->p[i][nbrays.word] & m)==0) nb++;
-      numint_set_int(con->p[i][0],(int)nb);
+      numintMPQ_set_int(con->p[i][0],(int)nb);
     }
   }
   /* remove redundant equalities and update nbeq */
@@ -559,7 +555,7 @@ int cherni_simplify(pk_internal_t* pk,
   /* remove trivially redundants inequalities (nb < nbcols-nbeq-2) */
   i = nbeq;
   while (i < nbcons){
-    int_set_numint(&nb, con->p[i][0]);
+    lint_set_numintMPQ(&nb, con->p[i][0],pk->num);
     if (nb < (long int)(nbcols-nbeq-2)){ /* redundant constraint */
       nbcons--;
       matrix_exch_rows(con, i,nbcons);
@@ -571,11 +567,11 @@ int cherni_simplify(pk_internal_t* pk,
   /* remove others redundants inequalities */
   i=nbeq;
   while (i < nbcons){
-    int_set_numint(&nb,con->p[i][0]);
+    lint_set_numintMPQ(&nb,con->p[i][0],pk->num);
     redundant = false;
     j = nbeq;
     while (j < nbcons){
-      int_set_numint(&nbj,con->p[j][0]);
+      lint_set_numintMPQ(&nbj,con->p[j][0],pk->num);
       if (nbj > nb){
 	/* does j saturates a strictly overset ? */
 	redundant = true;
@@ -619,7 +615,7 @@ int cherni_simplify(pk_internal_t* pk,
   }
   /* setting status coefficient */
   for (i=nbeq; i<nbcons; i++){
-    numint_set_int(con->p[i][0],1);
+    numintMPQ_set_int(con->p[i][0],1);
   }
   con->nbrows = satf->nbrows = nbcons;
 
@@ -679,7 +675,7 @@ void cherni_minimize(pk_internal_t* pk,
   satC = satmat_alloc(F->nbrows, bitindex_size(C->nbrows));
   F->nbrows = satC->nbrows = C->nbcolumns-1;
   for (i=0; i<C->nbcolumns-1; i++){
-    numint_set_int(F->p[i][i+1],1);
+    numintMPQ_set_int(F->p[i][i+1],1);
   }
   /* conversion */
   pk->exn = AP_EXC_NONE;
@@ -702,7 +698,7 @@ void cherni_minimize(pk_internal_t* pk,
     if (con_to_ray){
       special = true;
       for (i = po->nbline; i<F->nbrows; i++){
-	if (numint_sgn(F->p[i][pk->dec-1])>0){
+	if (numintMPQ_sgn(F->p[i][pk->dec-1])>0){
 	  special = false;
 	  break;
 	}
@@ -789,7 +785,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
     if (con_to_ray){ 
       special = true;
       for (i = po->nbline; i<F->nbrows; i++){
-	if (numint_sgn(F->p[i][pk->dec-1])>0){
+	if (numintMPQ_sgn(F->p[i][pk->dec-1])>0){
 	  special = false;
 	  break;
 	}
@@ -824,7 +820,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 
 
 void cherni_buildsatline(pk_internal_t* pk,
-			 matrix_t* con, numint_t* tab,
+			 matrix_t* con, numintMPQ_t* tab,
 			 bitstring_t* satline)
 {
   bitindex_t jx = bitindex_init(0);
@@ -832,7 +828,7 @@ void cherni_buildsatline(pk_internal_t* pk,
     vector_product(pk,pk->cherni_prod,
 		   con->p[jx.index],
 		   tab, con->nbcolumns);
-    if (numint_sgn(pk->cherni_prod)) bitstring_set(satline,jx);
+    if (numintMPQ_sgn(pk->cherni_prod)) bitstring_set(satline,jx);
     bitindex_inc(&jx);
   }
 }
@@ -880,9 +876,9 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
   /* Iterates on generators */
   k =  bitindex_init(po->nbline);
   while(k.index < Fnbrows){
-    if (numint_sgn(F->p[k.index][polka_eps])==0){
+    if (numintMPQ_sgn(F->p[k.index][polka_eps])==0){
       mask2[k.word] |= k.bit;
-      if (numint_sgn(F->p[k.index][polka_cst])>0){
+      if (numintMPQ_sgn(F->p[k.index][polka_cst])>0){
 	mask1[k.word] |= k.bit;
       }
     }
@@ -893,7 +889,7 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
   i = po->nbeq;
   while (i<C->nbrows){
     removed = false;
-    if (numint_sgn(C->p[i][polka_eps])<0 &&
+    if (numintMPQ_sgn(C->p[i][polka_eps])<0 &&
 	!vector_is_positivity_constraint(pk,C->p[i],C->nbcolumns)){
       /* 1. First tests if it does saturate no closure generator points */
       
@@ -913,7 +909,7 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
       else {
 	/* 2. Check if there is no another constraint that subsumes it */
 	for (j=po->nbeq; j<C->nbrows; j++){
-	  if (j != i && numint_sgn(C->p[j][polka_eps])<0){
+	  if (j != i && numintMPQ_sgn(C->p[j][polka_eps])<0){
 	    /* Iterates on closure points and rays */
 	    bool included = true;
 	    for (w=0; w<satFnbcols; w++){
@@ -958,15 +954,15 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
     if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
     /* Re-add positivity constraint (note: we are sure there is one free row */
     vector_clear(C->p[C->nbrows],C->nbcolumns);
-    numint_set_int(C->p[C->nbrows][0],1);
-    numint_set_int(C->p[C->nbrows][polka_cst],1);
-    numint_set_int(C->p[C->nbrows][polka_eps],-1);
+    numintMPQ_set_int(C->p[C->nbrows][0],1);
+    numintMPQ_set_int(C->p[C->nbrows][polka_cst],1);
+    numintMPQ_set_int(C->p[C->nbrows][polka_eps],-1);
     C->_sorted = false;
     C->nbrows++;
     change = true;
   }
   if (!(po->status & pk_status_conseps)){
-    bool change2 = matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
+    bool change2 = matrix_normalize_constraint(pk,po->C,po->dim);
     if (change2){
       if (po->F){ matrix_free(po->F); po->F = NULL; }
       if (po->satC){ satmat_free(po->satC); po->satC = NULL; }

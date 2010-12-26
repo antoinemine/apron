@@ -147,13 +147,13 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_best = man->result.flag_exact = false;
-    return pk_top(man,pa->intdim,pa->realdim);
+    return pk_top(man,pa->dim.intd,pa->dim.reald);
   }
   poly_chernikova2(man,pb,"of the second argument");
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_best = man->result.flag_exact = false;
-    return pk_top(man,pa->intdim,pa->realdim);
+    return pk_top(man,pa->dim.intd,pa->dim.reald);
   }
   if (!pa->C && !pa->F) /* pa is empty */
     return pk_copy(man,pb);
@@ -171,7 +171,7 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
     esatmat_sort_rows(tab,pa->satF);
     sat_nbcols = pa->satF->nbcolumns;
 
-    po = poly_alloc(pa->intdim,pa->realdim);
+    po = poly_alloc(pa->dim.intd,pa->dim.reald);
 
     po->C = matrix_alloc(pk->dec-1+pb->C->nbrows, pb->C->nbcolumns, false);
     matrix_fill_constraint_top(pk,po->C,0);
@@ -235,17 +235,17 @@ pk_t* pk_widening_threshold(ap_manager_t* man,
     case AP_CONS_SUPEQ:
     case AP_CONS_SUP:
       if (ap_linexpr0_is_linear(array->p[i].linexpr0)){
-	itv_lincons_set_ap_lincons0(pk->itv,
-				    &pk->poly_itv_lincons,
+	ap_linconsMPQ_set_ap_lincons0(pk->num,
+				    &pk->poly_ap_linconsMPQ,
 				    &array->p[i]);
-	vector_set_itv_lincons(pk,
+	vector_set_ap_linconsMPQ(pk,
 			       pk->poly_numintp,
-			       &pk->poly_itv_lincons,
-			       pa->intdim,pa->realdim,true);
+			       &pk->poly_ap_linconsMPQ,
+			       pa->dim.intd,pa->dim.reald,true);
 	if (do_generators_sat_vector(pk,pb->F,
 				     pk->poly_numintp,
 				     pk->strict && 
-				     numint_sgn(pk->poly_numintp[polka_eps])<0))
+				     numintMPQ_sgn(pk->poly_numintp[polka_eps])<0))
 	  {
 	    /* if the constraint is satisfied by pb, add it */
 	    vector_copy(po->C->p[nbrows],pk->poly_numintp,nbcols);

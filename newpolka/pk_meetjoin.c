@@ -59,7 +59,7 @@ bool poly_meet_matrix(bool meet,
 
   assert(mat->_sorted);
 
-  man->result.flag_best = (pa->intdim==0);
+  man->result.flag_best = (pa->dim.intd==0);
   man->result.flag_exact = meet;
 
   /* lazy behaviour */
@@ -203,8 +203,8 @@ void poly_meet(bool meet,
   pa_status = pa->status;
   /* Set the dimensions of po */
   if (po!=pa){
-    po->intdim = pa->intdim;
-    po->realdim = pa->realdim;
+    po->dim.intd = pa->dim.intd;
+    po->dim.reald = pa->dim.reald;
     assert(!po->C && !po->F && !po->satC && !po->satF);
   }
   /* Particular cases */
@@ -317,7 +317,7 @@ pk_t* poly_meet_array(bool meet,
 		      ap_manager_t* man,
 		      pk_t** po, size_t size)
 {
-  size_t intdim,realdim;
+  size_t dim;
   pk_t* poly;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
@@ -333,9 +333,9 @@ pk_t* poly_meet_array(bool meet,
     if (!meet) poly_dual(poly);
     return poly;    
   }
-  intdim = po[0]->intdim;
-  realdim = po[0]->realdim;
-  poly = poly_alloc(intdim,realdim);
+  dim.intd = po[0]->dim.intd;
+  dim.reald = po[0]->dim.reald;
+  poly = poly_alloc(dim);
   if (size==1){
     if (!lazy){
       poly_chernikova_dual(man,po[0],"of the single argument",meet);
@@ -415,7 +415,7 @@ pk_t* poly_meet_array(bool meet,
     }
     /* 2.1. lazy behaviour */
     if (lazy){
-      C = matrix_alloc(nbrows,pk->dec+intdim+realdim,true);
+      C = matrix_alloc(nbrows,pk->dec+dim.intd+dim.reald,true);
       C->nbrows = 0;
       C->_sorted = true;
       for (i=0; i<size; i++){
@@ -440,7 +440,7 @@ pk_t* poly_meet_array(bool meet,
 	  j=i;
       }
       /* Add the other polyehdra to the polyhedra of index j */
-      C = matrix_alloc(nbrows, pk->dec+intdim+realdim,true);
+      C = matrix_alloc(nbrows, pk->dec+dim.intd+dim.reald,true);
       C->nbrows = 0;
       C->_sorted = true;
       for (i=0; i<size; i++){
@@ -492,7 +492,7 @@ pk_t* pk_meet(ap_manager_t* man,
 	      bool destructive, pk_t* pa, pk_t* pb)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MEET);
-  pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
   poly_meet(true, pk->funopt->algorithm < 0,
 	    man,po,pa,pb);
   assert(poly_check(pk,po));
@@ -515,16 +515,16 @@ pk_t* pk_meet_array(ap_manager_t* man,
 
 /* ---------------------------------------------------------------------- */
 /* Factorized version */
-void poly_meet_itv_lincons_array(bool lazy,
+void poly_meet_ap_linconsMPQ_array(bool lazy,
 				 ap_manager_t* man,
 				 pk_t* po, pk_t* pa, 
-				 itv_lincons_array_t* array)
+				 ap_linconsMPQ_array_t* array)
 {
   matrix_t* mat;
   bool quasilinear;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
-  quasilinear = itv_lincons_array_is_quasilinear(array);
+  quasilinear = ap_linconsMPQ_array_is_quasilinear(array);
   
   /* Get the constraint systems */
   if (lazy && quasilinear){
@@ -550,12 +550,12 @@ void poly_meet_itv_lincons_array(bool lazy,
   /* quasilinearize if needed */
   if (!quasilinear){
     itv_t* env = matrix_to_box(pk,pa->F);
-    itv_quasilinearize_lincons_array(pk->itv,array,env,true);
-    itv_array_free(env,pa->intdim+pa->realdim);
+    itv_quasilinearize_lincons_array(pk->num,array,env,true);
+    itv_array_free(env,pa->dim.intd+pa->dim.reald);
   }
-  itv_linearize_lincons_array(pk->itv,array,true);
-  itv_lincons_array_reduce_integer(pk->itv,array,po->intdim);
-  bool exact = matrix_set_itv_lincons_array(pk,&mat,array,po->intdim,po->realdim,true);
+  itv_linearize_lincons_array(pk->num,array,true);
+  ap_linconsMPQ_array_reduce_integer(pk->num,array,po->dim.intd);
+  bool exact = matrix_set_ap_linconsMPQ_array(pk,&mat,array,po->dim.intd,po->dim.reald,true);
   matrix_sort_rows(pk,mat);
   if (!lazy) poly_obtain_satC(pa);
   poly_meet_matrix(true,lazy,man,po,pa,mat);
@@ -571,15 +571,15 @@ void poly_meet_itv_lincons_array(bool lazy,
 
 pk_t* pk_meet_lincons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_lincons0_array_t* array)
 {
-  itv_lincons_array_t tcons;
+  ap_linconsMPQ_array_t tcons;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
-  pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
 
-  itv_lincons_array_init(&tcons,array->size);
-  itv_lincons_array_set_ap_lincons0_array(pk->itv,&tcons,array);
-  poly_meet_itv_lincons_array(pk->funopt->algorithm<0,
+  ap_linconsMPQ_array_init(&tcons,array->size);
+  ap_linconsMPQ_array_set_ap_lincons0_array(pk->num,&tcons,array);
+  poly_meet_ap_linconsMPQ_array(pk->funopt->algorithm<0,
 			      man,po,pa,&tcons);
-  itv_lincons_array_clear(&tcons);  
+  ap_linconsMPQ_array_clear(&tcons);  
   assert(poly_check(pk,po));
   return po;
 }
@@ -602,7 +602,7 @@ pk_t* pk_meet_tcons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_tcon
 pk_t* pk_join(ap_manager_t* man, bool destructive, pk_t* pa, pk_t* pb)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_JOIN);
-  pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
 
   poly_dual(pa);
   if (pb!=pa) poly_dual(pb); /* We take care of possible alias */
@@ -679,7 +679,7 @@ pk_t* pk_join_array(ap_manager_t* man, pk_t** po, size_t size)
 static
 void poly_add_ray_array(bool lazy, 
 			ap_manager_t* man,
-			pk_t* po, pk_t* pa, ap_generator0_array_t* array)
+			pk_t* po, pk_t* pa, ap_lingen0_array_t* array)
 {
   bool exact;
   matrix_t* mat;
@@ -707,7 +707,7 @@ void poly_add_ray_array(bool lazy,
     poly_set(po,pa);
     return;
   }
-  exact = matrix_set_ap_generator0_array(pk,&mat,array,pa->intdim,pa->realdim);
+  exact = matrix_set_ap_lingen0_array(pk,&mat,array,pa->dim.intd,pa->dim.reald);
   matrix_sort_rows(pk,mat);
 
   if (!lazy) poly_obtain_satF(pa);
@@ -720,10 +720,10 @@ void poly_add_ray_array(bool lazy,
   man->result.flag_exact = exact;
 }
 
-pk_t* pk_add_ray_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_generator0_array_t* array)
+pk_t* pk_add_ray_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_lingen0_array_t* array)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY);
-  pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
   poly_add_ray_array(pk->funopt->algorithm<0,
 		     man,po,pa,array);
   assert(poly_check(pk,po));

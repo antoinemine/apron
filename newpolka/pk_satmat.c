@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "pk_satmat.h"
+#include "pk_internal.h"
 
 /* ********************************************************************** */
 /* I. basic operations: creation, destruction, copying and printing */

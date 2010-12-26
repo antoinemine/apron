@@ -5,6 +5,7 @@
 #ifndef _EITVXXX_H_
 #define _EITVXXX_H_
 
+#include <stdarg.h>
 #include <stdio.h>
 #include "num_types.h"
 #include "itvXXX.h"
@@ -144,6 +145,24 @@ void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern);
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
+
+bool eitvXXX_set_generic(num_internal_t intern,
+			 eitvXXX_t a, eitv_tag_t tag, va_list* va);
+bool eitvXXX_set_val(num_internal_t intern,
+		     eitvXXX_t a, eitv_tag_t tag, ...);
+  /* This function assigns the interval from a value defined by a number of
+     arguments as specified in the definition of the type eitv_tag_t
+
+     Returns true iff all conversions were exact.
+
+     Example:
+     eitvXXX_set_val(intern,eitv,EITV_LFRAC,7,9);
+     eitvXXX_set_val(intern,EITV_DOUBLE2,-3.0,4.5);
+     eitvXXX_set_val(intern,EITV_LLINT,3LL);
+     sets resp. eitv to 7/9, [-3,4.5], 3.
+     assuming that all the number conversions were exact.
+  */
+
 
 bool eitvXXX_set_lint(eitvXXX_t a, long int b, num_internal_t intern);
 bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, num_internal_t intern);
