@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "pk_bit.h"
+#include "pk_internal.h"
 
 /* ********************************************************************** */
 /* I. Bitindices */

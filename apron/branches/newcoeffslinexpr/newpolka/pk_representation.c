@@ -5,16 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
+#include "pk_internal.h"
 #include "pk_cherni.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_representation.h"
-#include "pk_extract.h"
-#include "pk_constructor.h"
 
 /* ********************************************************************** */
 /* Conversions */
@@ -38,7 +30,7 @@ ap_abstract0_t* pk_to_abstract0(ap_manager_t* man, pk_t* poly)
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,
 			       AP_FUNID_UNKNOWN,
 			       "pk_to_abstract0: attempt to extract a NewPolka polyhedra from an abstract value which is not a wrapper around a NewPolka polyhedra");
-    return ap_abstract0_top(man,poly->intdim,poly->realdim);
+    return ap_abstract0_top(man,poly->dim);
   }
   else {
     ap_abstract0_t* res = malloc(sizeof(ap_abstract0_t));
@@ -55,15 +47,15 @@ ap_abstract0_t* pk_to_abstract0(ap_manager_t* man, pk_t* poly)
 /* This internal function allocates a polyhedron and fills its records
    with null values. */
 
-pk_t* poly_alloc(size_t intdim, size_t realdim)
+pk_t* poly_alloc(ap_dimension_t dim)
 {
   pk_t* po = (pk_t*)malloc(sizeof(pk_t));
   po->C = NULL;
   po->F = NULL;
   po->satC = NULL;
   po->satF = NULL;
-  po->intdim = intdim;
-  po->realdim = realdim;
+  po->dim.intd = dim.intd;
+  po->dim.reald = dim.reald;
   po->nbeq = 0;
   po->nbline = 0;
   po->status = 0;
@@ -91,8 +83,8 @@ void poly_set(pk_t* pa, pk_t* pb)
 {
   if (pa!=pb){
     poly_clear(pa);
-    pa->intdim = pb->intdim;
-    pa->realdim = pb->realdim;
+    pa->dim.intd = pb->dim.intd;
+    pa->dim.reald = pb->dim.reald;
     pa->C = pb->C ? matrix_copy(pb->C) : NULL;
     pa->F = pb->F ? matrix_copy(pb->F) : NULL;
     pa->satC = pb->satC ? satmat_copy(pb->satC) : NULL;
@@ -107,7 +99,7 @@ void poly_set(pk_t* pa, pk_t* pb)
 /* Duplicate (recursively) a polyhedron. */
 pk_t* pk_copy(ap_manager_t* man, pk_t* po)
 {
-  pk_t* npo = poly_alloc(po->intdim,po->realdim);
+  pk_t* npo = poly_alloc(po->dim);
   npo->C = po->C ? matrix_copy(po->C) : 0;
   npo->F = po->F ? matrix_copy(po->F) : 0;
   npo->satC = po->satC ? satmat_copy(po->satC) : 0;
@@ -134,7 +126,7 @@ size_t pk_size(ap_manager_t* man, pk_t* po)
 
   s1 = (po->C) ? po->C->nbrows : 0;
   s2 = (po->F) ? po->F->nbrows : 0;
-  return (s1+s2)*(po->intdim + po->realdim);
+  return (s1+s2)*(po->dim.intd + po->dim.reald);
 }
 
 /* ********************************************************************** */
@@ -162,7 +154,7 @@ void poly_chernikova(ap_manager_t* man,
   else {
     if (po->C){
       if (!poly_is_conseps(pk,po) ){
-	matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
+	matrix_normalize_constraint(pk,po->C,po->dim);
       }
       matrix_sort_rows(pk,po->C);
       cherni_minimize(pk,true,po);
@@ -348,7 +340,7 @@ void pk_canonicalize(ap_manager_t* man, pk_t* po)
   }
   assert(poly_check(pk,po));
   man->result.flag_exact = man->result.flag_best =
-    po->intdim>0 && (po->C || po->F) ? false : true;
+    po->dim.intd>0 && (po->C || po->F) ? false : true;
 }
 
 int pk_hash(ap_manager_t* man, pk_t* po)
@@ -360,7 +352,7 @@ int pk_hash(ap_manager_t* man, pk_t* po)
 
   poly_chernikova3(man,po,NULL);
   assert(poly_check(pk,po));
-  res = 5*po->intdim + 7*po->realdim;
+  res = 5*po->dim.intd + 7*po->dim.reald;
   if (po->C!=NULL){
     res += po->C->nbrows*11 +  po->F->nbrows*13;
     for (i=0; i<po->C->nbrows; i += (po->C->nbrows+3)/4){
@@ -405,7 +397,7 @@ void pk_minimize(ap_manager_t* man, pk_t* po)
   }
   assert(poly_check(pk,po));
   man->result.flag_exact = man->result.flag_best =
-    po->intdim>0 && (po->C || po->F) ? false : true;
+    po->dim.intd>0 && (po->C || po->F) ? false : true;
 }
 
 /* ====================================================================== */
@@ -459,19 +451,21 @@ void pk_fprint(FILE* stream, ap_manager_t* man, pk_t* po,
   if (!po->C && !po->F){
     assert(pk->exn == AP_EXC_NONE);
     fprintf(stream,"empty polyhedron of dim (%lu,%lu)\n",
-	    (unsigned long)po->intdim,(unsigned long)po->realdim);
+	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
   }
   else {
     fprintf(stream,"polyhedron of dim (%lu,%lu)\n",
-	    (unsigned long)po->intdim,(unsigned long)po->realdim);
+	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
       fprintf(stream,"cannot display due to exception\n");
     }
     else {
-      ap_lincons0_array_t cons = pk_to_lincons_array(man,po);
-      ap_lincons0_array_fprint(stream,&cons,name_of_dim);
-      ap_lincons0_array_clear(&cons);
+      ap_lincons0_array_t cons;
+      ap_lincons0_array_init(cons,AP_SCALAR_MPQ,0);
+      pk_to_lincons_array(man,cons,po);
+      ap_lincons0_array_fprint(stream,cons,name_of_dim);
+      ap_lincons0_array_clear(cons);
     }
   }
 }
@@ -490,10 +484,10 @@ void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
   pk_init_from_manager(man,AP_FUNID_FDUMP);
   if (!po->C && !po->F)
     fprintf(stream,"empty polyhedron of dim (%lu,%lu)\n",
-	    (unsigned long)po->intdim,(unsigned long)po->realdim);
+	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
   else {
     fprintf(stream,"polyhedron of dim (%lu,%lu)\n",
-	    (unsigned long)po->intdim,(unsigned long)po->realdim);
+	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
     if (po->C){
       fprintf(stream,"Constraints: ");
       matrix_fprint(stream, po->C);
@@ -545,7 +539,7 @@ static bool matrix_check1cons(pk_internal_t* pk, matrix_t* mat)
   bool res;
   res = false;
   for (i = 0; i<mat->nbrows; i++){
-    if (numint_sgn(mat->p[i][pk->dec-1])>0){
+    if (numintMPQ_sgn(mat->p[i][pk->dec-1])>0){
       res = true;
       break;
     }
@@ -559,7 +553,7 @@ static bool matrix_check1ray(pk_internal_t* pk, matrix_t* mat)
   bool res;
   res = true;
   for (i = 0; i<mat->nbrows; i++){
-    if (numint_sgn(mat->p[i][pk->dec-1])<0){
+    if (numintMPQ_sgn(mat->p[i][pk->dec-1])<0){
       res = false;
       break;
     }
@@ -572,18 +566,18 @@ static bool matrix_check2(pk_internal_t* pk, matrix_t* mat)
 {
   size_t i;
   bool res;
-  numint_t gcd;
-  numint_init(gcd);
+  numintMPQ_t gcd;
+  numintMPQ_init(gcd);
 
   res = true;
   for (i=0; i<mat->nbrows; i++){
     vector_gcd(pk, &mat->p[i][1], mat->nbcolumns-1, gcd);
-    if (numint_cmp_int(gcd,1)>0){
+    if (numintMPQ_cmp_int(gcd,1)>0){
       res = false;
       break;
     }
   }
-  numint_clear(gcd);
+  numintMPQ_clear(gcd);
   return res;
 }
 
@@ -611,9 +605,9 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
 {
   bool res;
   size_t nbdim,nbcols;
-  nbdim = po->intdim + po->realdim;
+  nbdim = po->dim.intd + po->dim.reald;
   if (po->nbline+po->nbeq>nbdim){
-    fprintf(stderr,"poly_check: nbline+nbeq>intdim+realdim\n");
+    fprintf(stderr,"poly_check: nbline+nbeq>dim.intd+dim.reald\n");
     return false;
   }
   if (!po->C && !po->F)
@@ -621,7 +615,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
 
   nbcols = po->C ? po->C->nbcolumns : po->F->nbcolumns;
   if (nbcols != pk->dec+nbdim){
-    fprintf(stderr,"poly_check: pk->dec+intdim+realdim != nbcols\n");
+    fprintf(stderr,"poly_check: pk->dec+dim.intd+dim.reald != nbcols\n");
     return false;
   }
   if (po->C){
@@ -659,12 +653,12 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
     }
     /* In strict mode, check that it satisfies \xi-\epsilon>=0 */
     if (pk->strict){
-      numint_t* tab = pk->vector_numintp;
+      numintMPQ_t* tab = pk->vector_numintp;
       matrix_t* F = po->F;
       vector_clear(tab,F->nbcolumns);
-      numint_set_int(tab[0],1);
-      numint_set_int(tab[polka_cst],1);
-      numint_set_int(tab[polka_eps],-1);
+      numintMPQ_set_int(tab[0],1);
+      numintMPQ_set_int(tab[polka_cst],1);
+      numintMPQ_set_int(tab[polka_eps],-1);
       bool res = true;
       int sign;      /* sign of the scalar product */
       size_t i;
@@ -673,12 +667,12 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
 	vector_product(pk,pk->poly_prod,
 		       F->p[i],
 		       tab,F->nbcolumns);
-	sign = numint_sgn(pk->poly_prod);
+	sign = numintMPQ_sgn(pk->poly_prod);
 	if (sign<0){
 	  res = false; break;
 	}
 	else {
-	  if (numint_sgn(F->p[i][0])==0){
+	  if (numintMPQ_sgn(F->p[i][0])==0){
 	    /* line */
 	    if (sign!=0){ res = false; break; }
 	  }
@@ -746,12 +740,12 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
   if (pk->strict && (po->status & pk_status_conseps) && po->C){
     matrix_t* mat = po->C;
     size_t i;
-    numint_t* vec = vector_alloc(mat->nbcolumns);
+    numintMPQ_t* vec = vector_alloc(mat->nbcolumns);
     res = true;
     for (i=0; i<mat->nbrows; i++){
-      if (numint_sgn(mat->p[i][polka_eps])<=0){
+      if (numintMPQ_sgn(mat->p[i][polka_eps])<=0){
 	vector_copy(vec,mat->p[i],mat->nbcolumns);
-	if (vector_normalize_constraint(pk,vec,po->intdim,po->realdim)){
+	if (vector_normalize_constraint(pk,vec,po->dim)){
 	  res = false;
 	  break;
 	}

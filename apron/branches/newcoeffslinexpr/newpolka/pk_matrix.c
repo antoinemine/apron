@@ -5,10 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
+#include "pk_internal.h"
 #include "mf_qsort.h"
 
 /* ********************************************************************** */
@@ -28,7 +25,7 @@ matrix_t* _matrix_alloc_int(size_t nbrows, size_t nbcols, bool s)
   mat->nbrows = mat->_maxrows = nbrows;
   mat->nbcolumns = nbcols;
   mat->_sorted = s;
-  mat->p = (numint_t**)malloc(nbrows * sizeof(numint_t*));
+  mat->p = (numintMPQ_t**)malloc(nbrows * sizeof(numintMPQ_t*));
   for (i=0;i<nbrows;i++){
     mat->p[i] = _vector_alloc_int(nbcols);
   }
@@ -46,7 +43,7 @@ matrix_t* matrix_alloc(size_t nbrows, size_t nbcols, bool s)
   mat->nbrows = mat->_maxrows = nbrows;
   mat->nbcolumns = nbcols;
   mat->_sorted = s;
-  mat->p = (numint_t**)malloc(nbrows * sizeof(numint_t*));
+  mat->p = (numintMPQ_t**)malloc(nbrows * sizeof(numintMPQ_t*));
   for (i=0;i<nbrows;i++){
     mat->p[i] = vector_alloc(nbcols);
   }
@@ -61,7 +58,7 @@ void matrix_resize_rows(matrix_t* mat, size_t nbrows)
   assert (nbrows>0);
 
   if (nbrows > mat->_maxrows){
-    mat->p = (numint_t**)realloc(mat->p, nbrows * sizeof(numint_t*));
+    mat->p = (numintMPQ_t**)realloc(mat->p, nbrows * sizeof(numintMPQ_t*));
     for (i=mat->_maxrows; i<nbrows; i++){
       mat->p[i] = vector_alloc(mat->nbcolumns);
     }
@@ -71,7 +68,7 @@ void matrix_resize_rows(matrix_t* mat, size_t nbrows)
     for (i=nbrows; i<mat->_maxrows; i++){
       vector_free(mat->p[i],mat->nbcolumns);
     }
-    mat->p = (numint_t**)realloc(mat->p,nbrows * sizeof(numint_t*));
+    mat->p = (numintMPQ_t**)realloc(mat->p,nbrows * sizeof(numintMPQ_t*));
   }
   mat->_maxrows = nbrows;
   mat->nbrows = nbrows;
@@ -112,7 +109,7 @@ void matrix_clear(matrix_t* mat)
   size_t i,j;
   for (i=0; i<mat->nbrows; i++){
     for (j=0; j<mat->nbcolumns; j++){
-      numint_set_int(mat->p[i][j],0);
+      numintMPQ_set_int(mat->p[i][j],0);
       }
   }
 }
@@ -125,7 +122,7 @@ matrix_t* matrix_copy(matrix_t* mat)
   matrix_t* nmat = _matrix_alloc_int(mat->nbrows,mat->nbcolumns,mat->_sorted);
   for (i=0;i<mat->nbrows;i++){
     for (j=0; j<mat->nbcolumns; j++){
-      numint_init_set(nmat->p[i][j],mat->p[i][j]);
+      numintMPQ_init_set(nmat->p[i][j],mat->p[i][j]);
     }
   }
   return nmat;
@@ -142,7 +139,7 @@ bool matrix_equal(matrix_t* mata, matrix_t* matb)
   if (!res) return res;
   for (i=(int)mata->nbrows-1;i>=0;i--){
     for (j=0; j<mata->nbcolumns; j++){
-      res = numint_equal(mata->p[i][j],matb->p[i][j]);
+      res = numintMPQ_equal(mata->p[i][j],matb->p[i][j]);
       if (!res) return res;
     }
   }
@@ -157,7 +154,7 @@ void matrix_fprint(FILE* stream, matrix_t* mat)
 	  (unsigned long)mat->nbrows, (unsigned long)mat->nbcolumns);
   for (i=0;i<mat->nbrows;i++) {
     for (j=0;j<mat->nbcolumns;j++){
-      numint_fprint(stream,mat->p[i][j]);
+      numintMPQ_fprint(stream,mat->p[i][j]);
       fprintf(stream," ");
     }
     fprintf(stream,"\n");
@@ -201,7 +198,7 @@ void matrix_combine_rows(pk_internal_t* pk,
 }
 void matrix_exch_rows(matrix_t* mat, size_t l1, size_t l2)
 {
-  numint_t* aux=mat->p[l1];
+  numintMPQ_t* aux=mat->p[l1];
   mat->p[l1]=mat->p[l2];
   mat->p[l2]=aux;
 }
@@ -231,15 +228,15 @@ void matrix_move_rows(matrix_t* mat, size_t destrow, size_t orgrow, size_t size)
 
 bool matrix_normalize_constraint(pk_internal_t* pk,
 				 matrix_t* mat, 
-				 size_t intdim, size_t realdim)
+				 ap_dimension_t dim)
 {
   bool change1, change2;
   size_t i;
 
-  if ( pk->strict && realdim>0 ){
+  if ( pk->strict && dim.reald>0 ){
     change2=false;
     for (i=0; i<mat->nbrows; i++){
-      change1 = vector_normalize_constraint(pk,mat->p[i],intdim,realdim);
+      change1 = vector_normalize_constraint(pk,mat->p[i],dim);
       change2 = change2 || change1;
     }
     if (change2){
@@ -248,9 +245,9 @@ bool matrix_normalize_constraint(pk_internal_t* pk,
       size_t nbrows= mat->nbrows;
       matrix_resize_rows_lazy(mat,nbrows+1);
       vector_clear(mat->p[nbrows],mat->nbcolumns);
-      numint_set_int(mat->p[nbrows][0],1);
-      numint_set_int(mat->p[nbrows][polka_cst],1);
-      numint_set_int(mat->p[nbrows][polka_eps],-1);
+      numintMPQ_set_int(mat->p[nbrows][0],1);
+      numintMPQ_set_int(mat->p[nbrows][polka_cst],1);
+      numintMPQ_set_int(mat->p[nbrows][polka_eps],-1);
     }
     return change2;
   }
@@ -259,15 +256,15 @@ bool matrix_normalize_constraint(pk_internal_t* pk,
 }
 bool matrix_normalize_constraint_int(pk_internal_t* pk,
 				     matrix_t* mat, 
-				     size_t intdim, size_t realdim)
+				     ap_dimension_t dim)
 {
   bool change1, change2;
   size_t i;
   
-  if (intdim>0){
+  if (dim.intd>0){
     change2=false;
     for (i=0; i<mat->nbrows; i++){
-      change1 = vector_normalize_constraint_int(pk,mat->p[i],intdim,realdim);
+      change1 = vector_normalize_constraint_int(pk,mat->p[i],dim);
       change2 = change2 || change1;
     }
     if (change2)
@@ -296,8 +293,8 @@ typedef struct qsort_man_t {
 static int qsort_rows_compar(void* qsort_man, const void* pq1, const void* pq2)
 {
   qsort_man_t* qm = (qsort_man_t*)qsort_man;
-  numint_t* q1 = *((numint_t**)pq1);
-  numint_t* q2 = *((numint_t**)pq2);
+  numintMPQ_t* q1 = *((numintMPQ_t**)pq1);
+  numintMPQ_t* q2 = *((numintMPQ_t**)pq2);
   return vector_compare(qm->pk,q1,q2,qm->size);
 }
 
@@ -309,7 +306,7 @@ void matrix_sort_rows(pk_internal_t* pk,
   if (!mat->_sorted){
     qsort_man.pk = pk;
     qsort_man.size = mat->nbcolumns;
-    qsort2(mat->p, mat->nbrows, sizeof(numint_t*),
+    qsort2(mat->p, mat->nbrows, sizeof(numintMPQ_t*),
 	   qsort_rows_compar,
 	   &qsort_man);
     mat->_sorted = true;
@@ -320,7 +317,7 @@ void matrix_sort_rows(pk_internal_t* pk,
    There is here no handling of doublons. */
 
 typedef struct qsort_t {
-  numint_t* p;
+  numintMPQ_t* p;
   bitstring_t* satp;
 } qsort_t;
 
@@ -377,11 +374,11 @@ matrix_t* matrix_append(matrix_t* mata, matrix_t* matb)
   mat = _matrix_alloc_int(mata->nbrows+matb->nbrows,mata->nbcolumns,false);
   for (i=0;i<mata->nbrows; i++){
     for (l=0; l<mata->nbcolumns; l++)
-      numint_init_set(mat->p[i][l],mata->p[i][l]);
+      numintMPQ_init_set(mat->p[i][l],mata->p[i][l]);
   }
   for (i=0;i<matb->nbrows; i++){
     for (l=0; l<matb->nbcolumns; l++)
-      numint_init_set(mat->p[mata->nbrows+i][l],matb->p[i][l]);
+      numintMPQ_init_set(mat->p[mata->nbrows+i][l],matb->p[i][l]);
   }
   return mat;
 }
@@ -397,7 +394,7 @@ void matrix_append_with(matrix_t* mat, matrix_t* cmat)
   matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
   for (i=0;i<cmat->nbrows; i++){
     for (l=0; l<cmat->nbcolumns; l++)
-      numint_set(mat->p[nbrows+i][l],cmat->p[i][l]);
+      numintMPQ_set(mat->p[nbrows+i][l],cmat->p[i][l]);
   }
   mat->_sorted = false;
 }
@@ -416,13 +413,13 @@ void matrix_revappend_with(matrix_t* mat, matrix_t* cmat)
   matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
   for (i=nbrows-1; i>=0; i--){
     /* exchanging rows i and i+cmat->nbrows */
-    numint_t* q = mat->p[i+cmat->nbrows];
+    numintMPQ_t* q = mat->p[i+cmat->nbrows];
     mat->p[i+cmat->nbrows] = mat->p[i];
     mat->p[i] = q;
   }
   for (i=0; i<(int)cmat->nbrows; i++){
     for (l=0;l<cmat->nbcolumns; l++){
-      numint_set(mat->p[i][l],cmat->p[i][l]);
+      numintMPQ_set(mat->p[i][l],cmat->p[i][l]);
     }
   }
 }
@@ -457,13 +454,13 @@ matrix_t* matrix_merge_sort(pk_internal_t* pk,
 			       mat->nbcolumns);
       if (res<=0){
 	for (l=0; l<mat->nbcolumns; l++)
-	  numint_init_set(mat->p[i][l],mata->p[ia][l]);
+	  numintMPQ_init_set(mat->p[i][l],mata->p[ia][l]);
 	ia++;
 	if (res==0) ib++;
       }
       else {
 	for (l=0; l<mat->nbcolumns; l++)
-	  numint_init_set(mat->p[i][l],matb->p[ib][l]);
+	  numintMPQ_init_set(mat->p[i][l],matb->p[ib][l]);
 	ib++;
       }
       i++;
@@ -472,13 +469,13 @@ matrix_t* matrix_merge_sort(pk_internal_t* pk,
     if (ia < mata->nbrows) {
       do {
 	for (l=0; l<mat->nbcolumns; l++)
-	  numint_init_set(mat->p[i][l],mata->p[ia][l]);
+	  numintMPQ_init_set(mat->p[i][l],mata->p[ia][l]);
 	ia++; i++;
       } while (ia < mata->nbrows);
     } else {
       while (ib < matb->nbrows){
 	for (l=0; l<mat->nbcolumns; l++)
-	  numint_init_set(mat->p[i][l],matb->p[ib][l]);
+	  numintMPQ_init_set(mat->p[i][l],matb->p[ib][l]);
 	ib++; i++;
       }
     }
@@ -486,7 +483,7 @@ matrix_t* matrix_merge_sort(pk_internal_t* pk,
     /* initialize last rows of mat to zero */
     while (i<mat->nbrows){
       for (l=0; l<mat->nbcolumns; l++)
-	numint_init(mat->p[i][l]);
+	numintMPQ_init(mat->p[i][l]);
       i++;
     }
     mat->nbrows = nbrows;
@@ -503,7 +500,7 @@ void matrix_merge_sort_with(pk_internal_t* pk,
 			    matrix_t* mata, matrix_t* matb)
 {
   size_t i,ia,ib,j,k,nbrows,nbrowsa, nbcols;
-  numint_t** numintpp;
+  numintMPQ_t** numintpp;
   
   assert (mata->nbcolumns == matb->nbcolumns);
   assert (mata->_sorted && matb->_sorted);
@@ -515,12 +512,12 @@ void matrix_merge_sort_with(pk_internal_t* pk,
   /* one adds the coefficients of matb to mata */
   for (i=0; i<matb->nbrows; i++){
     for (j=0; j<nbcols; j++){
-      numint_set(mata->p[nbrowsa+i][j],matb->p[i][j]);
+      numintMPQ_set(mata->p[nbrowsa+i][j],matb->p[i][j]);
     }
   }
   /* now we fill numintpp, which will contain the unsorted rows */
   nbrows = nbrowsa + matb->nbrows;
-  numintpp = malloc(nbrows*sizeof(numint_t*));
+  numintpp = malloc(nbrows*sizeof(numintMPQ_t*));
   for (i=0; i<nbrows; i++){
     numintpp[i] = mata->p[i];
   }

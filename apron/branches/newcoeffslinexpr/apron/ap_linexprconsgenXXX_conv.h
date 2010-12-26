@@ -8,6 +8,7 @@
 #include "ap_linexprXXX.h"
 #include "ap_linconsXXX.h"
 #include "ap_lingenXXX.h"
+
 #include "ap_linexprD.h"
 #include "ap_linconsD.h"
 #include "ap_lingenD.h"
@@ -17,6 +18,32 @@
 #include "ap_linexprMPFR.h"
 #include "ap_linconsMPFR.h"
 #include "ap_lingenMPFR.h"
+
+/*
+#include "ap_linexprIl.h"
+#include "ap_linconsIl.h"
+#include "ap_lingenIl.h"
+
+#include "ap_linexprIll.h"
+#include "ap_linconsIll.h"
+#include "ap_lingenIll.h"
+
+#include "ap_linexprMPZ.h"
+#include "ap_linconsMPZ.h"
+#include "ap_lingenMPZ.h"
+
+#include "ap_linexprRl.h"
+#include "ap_linconsRl.h"
+#include "ap_lingenRl.h"
+
+#include "ap_linexprRll.h"
+#include "ap_linconsRll.h"
+#include "ap_lingenRll.h"
+
+#include "ap_linexprDl.h"
+#include "ap_linconsDl.h"
+#include "ap_lingenDl.h"
+*/
 
 #ifdef __cplusplus
 extern "C" {

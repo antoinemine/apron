@@ -30,7 +30,7 @@ bool pk_is_bottom(ap_manager_t* man, pk_t* po)
   }
   if (po->F){
       man->result.flag_exact = man->result.flag_best =
-	(po->intdim==0);
+	(po->dim.intd==0);
       return false;
   }
   else {
@@ -46,7 +46,7 @@ bool pk_is_bottom(ap_manager_t* man, pk_t* po)
 	return false;
       }
       man->result.flag_exact = man->result.flag_best =
-	po->intdim>0 && po->F ? false : true;
+	po->dim.intd>0 && po->F ? false : true;
       return (po->F == NULL);
     }
   }
@@ -91,17 +91,17 @@ This enables to test the satisfiability of a strict constraint in non-strict
 mode for the library.
 
 */
-bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numint_t* tab, bool is_strict)
+bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numintMPQ_t* tab, bool is_strict)
 {
   size_t i;
 
-  if (numint_sgn(tab[0])==0){
+  if (numintMPQ_sgn(tab[0])==0){
     /* 1. constraint is an equality */
     for (i=0; i<F->nbrows; i++){
       vector_product_strict(pk,pk->poly_prod,
 			    F->p[i],
 			    tab,F->nbcolumns);
-      if (numint_sgn(pk->poly_prod)) return false;
+      if (numintMPQ_sgn(pk->poly_prod)) return false;
     }
     return true;
   }
@@ -113,20 +113,20 @@ bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numint_t* tab, boo
       vector_product_strict(pk,pk->poly_prod,
 			    F->p[i],
 			    tab,F->nbcolumns);
-      sign = numint_sgn(pk->poly_prod);
+      sign = numintMPQ_sgn(pk->poly_prod);
 
       if (sign<0){
 	return false;
       }
       else {
-	if (numint_sgn(F->p[i][0])==0){
+	if (numintMPQ_sgn(F->p[i][0])==0){
 	  /* line */
 	  if (sign!=0) return false;
 	}
 	else {
 	  /* ray or vertex */
 	  if (is_strict && sign==0 &&
-	      (pk->strict ? numint_sgn(F->p[i][polka_eps])>0 : true))
+	      (pk->strict ? numintMPQ_sgn(F->p[i][polka_eps])>0 : true))
 	    return false;
 	}
       }
@@ -169,11 +169,11 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
     return false;
   }
   if (!pb->C){/* pb is empty */
-    man->result.flag_exact = man->result.flag_best = (pa->intdim==0);
+    man->result.flag_exact = man->result.flag_best = (pa->dim.intd==0);
     return false;
   }
   man->result.flag_exact = man->result.flag_best =
-    pa->intdim==0;
+    pa->dim.intd==0;
   /* if both are mininmal, check the dimensions */
   if (pa->C && pa->F && pb->C && pb->F
       && (pa->nbeq < pb->nbeq || pa->nbline > pb->nbline))
@@ -182,7 +182,7 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
      return false;
     }
   else {
-    man->result.flag_exact = man->result.flag_best = (pa->intdim==0);
+    man->result.flag_exact = man->result.flag_best = (pa->dim.intd==0);
     /* does the frames of pa satisfy constraints of pb ? */
     size_t i;
     for (i=0; i<pb->C->nbrows; i++){
@@ -190,7 +190,7 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
 					  pa->F,
 					  pb->C->p[i],
 					  pk->strict &&
-					  numint_sgn(pb->C->p[i][polka_eps])<0);
+					  numintMPQ_sgn(pb->C->p[i][polka_eps])<0);
       if (sat==false) return false;
     }
     return true;
@@ -205,7 +205,7 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_IS_EQ);
 
   man->result.flag_exact = man->result.flag_best =
-    (pa->intdim==0);
+    (pa->dim.intd==0);
   if (pa->C && pa->F && pb->C && pb->F &&
       (pa->nbeq != pb->nbeq || pa->nbline != pb->nbline) ){
     return false;
@@ -271,29 +271,29 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
     man->result.flag_exact = man->result.flag_best = false;
     return false;
   }
-  dim = po->intdim + po->realdim;
+  dim = po->dim.intd + po->dim.reald;
 
   if (!ap_linexpr0_is_quasilinear(lincons0->linexpr0)){
     itv_t* env = matrix_to_box(pk,po->F);
-    exact = itv_lincons_set_ap_lincons0(pk->itv,
-					&pk->poly_itv_lincons,
+    exact = ap_linconsMPQ_set_ap_lincons0(pk->num,
+					&pk->poly_ap_linconsMPQ,
 					lincons0);
-    exact = itv_quasilinearize_lincons(pk->itv,
-				       &pk->poly_itv_lincons,
+    exact = itv_quasilinearize_lincons(pk->num,
+				       &pk->poly_ap_linconsMPQ,
 				       env,
 				       false)
       && exact;
     itv_array_free(env,dim);
   }
   else {
-    exact = itv_lincons_set_ap_lincons0(pk->itv,
-					&pk->poly_itv_lincons,
+    exact = ap_linconsMPQ_set_ap_lincons0(pk->num,
+					&pk->poly_ap_linconsMPQ,
 					lincons0);
   }
-  sat = vector_set_itv_lincons_sat(pk,
+  sat = vector_set_ap_linconsMPQ_sat(pk,
 				   pk->poly_numintp,
-				   &pk->poly_itv_lincons,
-				   po->intdim, po->realdim, true);
+				   &pk->poly_ap_linconsMPQ,
+				   po->dim.intd, po->dim.reald, true);
   if (sat){
     sat = do_generators_sat_vector(pk,po->F,
 				   pk->poly_numintp,
@@ -304,7 +304,7 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
     true :
     (
      ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-       exact && ap_linexpr0_is_real(lincons0->linexpr0,po->intdim) ) ?
+       exact && ap_linexpr0_is_real(lincons0->linexpr0,po->dim.intd) ) ?
      true :
      false );
 
@@ -338,17 +338,17 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
     man->result.flag_exact = man->result.flag_best = false;
     return false;
   }
-  dim = po->intdim + po->realdim;
+  dim = po->dim.intd + po->dim.reald;
 
   itv_t* env = matrix_to_box(pk,po->F);
-  itv_intlinearize_ap_tcons0(pk->itv,&pk->poly_itv_lincons,
-			     cons,env,po->intdim);
-  itv_quasilinearize_lincons(pk->itv,&pk->poly_itv_lincons,env,false);
-  itv_array_free(env,po->intdim+po->realdim);
-  bool sat = vector_set_itv_lincons_sat(pk,
+  itv_intlinearize_ap_tcons0(pk->num,&pk->poly_ap_linconsMPQ,
+			     cons,env,po->dim.intd);
+  itv_quasilinearize_lincons(pk->num,&pk->poly_ap_linconsMPQ,env,false);
+  itv_array_free(env,po->dim.intd+po->dim.reald);
+  bool sat = vector_set_ap_linconsMPQ_sat(pk,
 					pk->poly_numintp,
-					&pk->poly_itv_lincons,
-					po->intdim, po->realdim, true);
+					&pk->poly_ap_linconsMPQ,
+					po->dim.intd, po->dim.reald, true);
   if (sat){
     sat = do_generators_sat_vector(pk,po->F,
 				   pk->poly_numintp,
@@ -378,7 +378,7 @@ tests if:
 */
 
 bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
-			     ap_dim_t dim, numrat_t bound,
+			     ap_dim_t dim, numMPQ_t bound,
 			     int sgn)
 {
   size_t i,index;
@@ -386,28 +386,28 @@ bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
 
   index  = pk->dec + dim;
   for (i=0; i<F->nbrows; i++){
-    sgn2 = numint_sgn(F->p[i][index]);
-    if (numint_sgn(F->p[i][0])==0){
+    sgn2 = numintMPQ_sgn(F->p[i][index]);
+    if (numintMPQ_sgn(F->p[i][0])==0){
       /* line */
       if (sgn2) return false;
     }
-    else if (numint_sgn(F->p[i][polka_cst])==0){
+    else if (numintMPQ_sgn(F->p[i][polka_cst])==0){
       /* ray */
       if ( (sgn>=0 && sgn2>0) || (sgn<=0 && sgn2<0) )
 	return false;
     }
     else {
       /* vertex */
-      numrat_set_numint2(pk->poly_numrat,
+      numMPQ_set_numint2(pk->poly_numrat,
 			 F->p[i][index],
 			 F->p[i][polka_cst]);
       if (sgn==0){
-	if (!numrat_equal(pk->poly_numrat,bound))
+	if (!numMPQ_equal(pk->poly_numrat,bound))
 	  return false;
       }
       else {
-	if (sgn<0) numrat_neg(pk->poly_numrat,pk->poly_numrat);
-	sgn2 = numrat_cmp(pk->poly_numrat,bound);
+	if (sgn<0) numMPQ_neg(pk->poly_numrat,pk->poly_numrat);
+	sgn2 = numMPQ_cmp(pk->poly_numrat,bound);
 	if (sgn2>0)
 	  return false;
       }
@@ -435,28 +435,28 @@ bool pk_sat_interval(ap_manager_t* man, pk_t* po,
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  itv_set_ap_interval(pk->itv,
+  itv_set_ap_interval(pk->num,
 		      pk->poly_itv, interval);
-  if (itv_is_point(pk->itv, pk->poly_itv)){
+  if (itv_is_point(pk->num, pk->poly_itv)){
     /* interval is a point */
     sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->sup,0);
   }
   else {
     sat = true;
     /* inferior bound */
-    if (!bound_infty(pk->poly_itv->inf)){
+    if (!boundMPQ_infty(pk->poly_itv->inf)){
       sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->inf,-1);
       if (!sat) goto poly_sat_interval_exit0;
     }
     /* superior bound */
-    if (!bound_infty(pk->poly_itv->sup)){
+    if (!boundMPQ_infty(pk->poly_itv->sup)){
       sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->sup,1);
     }
   }
  poly_sat_interval_exit0:
   man->result.flag_exact = man->result.flag_best =
     sat ? true :
-    (dim < po->intdim ? false : true);
+    (dim < po->dim.intd ? false : true);
   return sat;
 }
 
@@ -486,10 +486,10 @@ bool pk_is_dimension_unconstrained(ap_manager_t* man, pk_t* po,
   F = po->F;
   res = false;
   for (i=0; i<po->nbline; i++){
-    if (numint_sgn(F->p[i][pk->dec+dim])){
+    if (numintMPQ_sgn(F->p[i][pk->dec+dim])){
       res = true;
       for(j=pk->dec; j<F->nbcolumns; j++){
-	if (j!=pk->dec+dim && numint_sgn(F->p[i][j])){
+	if (j!=pk->dec+dim && numintMPQ_sgn(F->p[i][j])){
 	  res = false;
 	  break;
 	}

@@ -34,8 +34,7 @@ struct pk_t {
   struct matrix_t* F;
   struct satmat_t* satC;
   struct satmat_t* satF;
-  size_t intdim;
-  size_t realdim;
+  ap_dimension_t dim;
   size_t nbeq;
   size_t nbline;
   pk_status_t status;
@@ -217,19 +216,19 @@ pk_t* pk_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size);
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
+/* We assume that dimensions [0..intd-1] correspond to integer variables, and
+   dimensions [intdim..intd+realdim-1] to real variables */
 
-pk_t* pk_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+pk_t* pk_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */
 
-pk_t* pk_top(ap_manager_t* man, size_t intdim, size_t realdim);
+pk_t* pk_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
 
 pk_t* pk_of_box(ap_manager_t* man,
-		size_t intdim, size_t realdim,
-		ap_interval_t** tinterval);
+		ap_dimension_t dim,
+		ap_box0_t box);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
@@ -268,7 +267,7 @@ bool pk_is_eq(ap_manager_t* man, pk_t* a1, pk_t* a2);
      Use algorithm field of is_leq.
   */
 
-bool pk_sat_lincons(ap_manager_t* man, pk_t* a, ap_lincons0_t* lincons);
+bool pk_sat_lincons(ap_manager_t* man, pk_t* a, ap_lincons0_t lincons);
   /* Satisfiability of a linear constraint
      Is always strict
      algorithm > 0: (nearly always) compute canonical form
@@ -279,7 +278,7 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* a, ap_tcons0_t* cons);
   /* Satisfiability of a tree expression constraint. */
 
 bool pk_sat_interval(ap_manager_t* man, pk_t* a,
-		     ap_dim_t dim, ap_interval_t* interval);
+		     ap_dim_t dim, ap_coeff_t interval);
   /* Inclusion of a dimension in an interval
      Is always strict
      algorithm > 0: (nearly always) compute canonical form
@@ -298,22 +297,8 @@ bool pk_is_dimension_unconstrained(ap_manager_t* man, pk_t* po,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* pk_bound_linexpr(ap_manager_t* man,
-				pk_t* a, ap_linexpr0_t* expr);
-  /* Returns the interval taken by a linear expression
-     over the abstract value.
-
-     algorithm > 0: compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
-  */
-
-ap_interval_t* pk_bound_texpr(ap_manager_t* man,
-			      pk_t* a, ap_texpr0_t* expr);
-  /* Returns the interval taken by a tree expression
-     over the abstract value. */
-
-ap_interval_t* pk_bound_dimension(ap_manager_t* man,
-				  pk_t* a, ap_dim_t dim);
+void pk_bound_dimension(ap_manager_t* man,
+			ap_coeff_t interval, pk_t* a, ap_dim_t dim);
   /* Returns the interval taken by the dimension
      over the abstract value
 
@@ -321,7 +306,30 @@ ap_interval_t* pk_bound_dimension(ap_manager_t* man,
      algorithm <= 0: compute dual representation only if necessary
   */
 
-ap_lincons0_array_t pk_to_lincons_array(ap_manager_t* man, pk_t* a);
+void pk_bound_linexpr(ap_manager_t* man,
+		      ap_coeff_t interval, pk_t* a, ap_linexpr0_t expr);
+  /* Returns the interval taken by a linear expression
+     over the abstract value.
+
+     algorithm > 0: compute canonical form
+     algorithm <= 0: compute dual representation only if necessary
+  */
+
+void pk_bound_texpr(ap_manager_t* man,
+		    ap_coeff_t interval, pk_t* a, ap_texpr0_t* expr);
+  /* Returns the interval taken by a tree expression
+     over the abstract value. */
+
+void pk_to_box(ap_manager_t* man, ap_box0_t box, pk_t* a);
+  /* Converts an abstract value to an interval/hypercube.
+     The size of the resulting array is pk_dimension(man,a).  This
+     function can be reimplemented by using pk_bound_linexpr
+
+     algorithm >= 0: compute canonical form
+     algorithm < 0: compute dual representation only if necessary
+  */
+
+void pk_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, pk_t* a);
   /* Converts an abstract value to a polyhedra
      (conjunction of linear constraints).
 
@@ -331,19 +339,9 @@ ap_tcons0_array_t pk_to_tcons_array(ap_manager_t* man, pk_t* a);
   /* Converts an abstract value to a
      conjunction of tree expressions constraints. */
 
-ap_interval_t** pk_to_box(ap_manager_t* man, pk_t* a);
-  /* Converts an abstract value to an interval/hypercube.
-     The size of the resulting array is pk_dimension(man,a).  This
-     function can be reimplemented by using pk_bound_linexpr
-
-     algorithm >= 0: compute canonical form
-     algorithm < 0: compute dual representation only if necessary
-  */
-
-ap_generator0_array_t pk_to_generator_array(ap_manager_t* man, pk_t* a);
+void pk_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, pk_t* a);
   /* Converts an abstract value to a system of generators.
      Always consider canonical form. */
-
 
 /* ********************************************************************** */
 /* III. Operations */
@@ -371,7 +369,7 @@ pk_t* pk_meet_tcons_array(ap_manager_t* man,
 
 pk_t* pk_add_ray_array(ap_manager_t* man,
 		       bool destructive, pk_t* a,
-		       ap_generator0_array_t* array);
+		       ap_lingen0_array_t array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */
@@ -381,26 +379,22 @@ pk_t* pk_add_ray_array(ap_manager_t* man,
 pk_t* pk_assign_linexpr_array(ap_manager_t* man,
 			      bool destructive, pk_t* a,
 			      ap_dim_t* tdim,
-			      ap_linexpr0_t** texpr,
-			      size_t size,
+			      ap_linexpr0_array_t texpr,
 			      pk_t* dest);
 pk_t* pk_substitute_linexpr_array(ap_manager_t* man,
 				  bool destructive, pk_t* a,
 				  ap_dim_t* tdim,
-				  ap_linexpr0_t** texpr,
-				  size_t size,
+				  ap_linexpr0_array_t texpr,
 				  pk_t* dest);
 pk_t* pk_assign_texpr_array(ap_manager_t* man,
 			    bool destructive, pk_t* a,
 			    ap_dim_t* tdim,
-			    ap_texpr0_t** texpr,
-			    size_t size,
+			    ap_texpr0_array_t* texpr,
 			    pk_t* dest);
 pk_t* pk_substitute_texpr_array(ap_manager_t* man,
 				bool destructive, pk_t* a,
 				ap_dim_t* tdim,
-				ap_texpr0_t** texpr,
-				size_t size,
+				ap_texpr0_array_t* texpr,
 				pk_t* dest);
   /* Parallel Assignement and Substitution of several dimensions by interval
      expressons. */

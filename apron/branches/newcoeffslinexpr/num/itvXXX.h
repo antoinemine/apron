@@ -145,6 +145,22 @@ static inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t inter
 /* Conversions */
 /* ====================================================================== */
 
+bool itvXXX_set_generic(num_internal_t intern,
+			itvXXX_t a, itv_tag_t tag, va_list* va);
+bool itvXXX_set_val(num_internal_t intern,
+		    itvXXX_t a, itv_tag_t tag, ...);
+  /* This function assigns the interval from a value defined by a number of
+     arguments as specified in the definition of the type itv_tag_t
+
+     Returns true iff all conversions were exact.
+
+     Example:
+     itvXXX_set_val(intern,itv,ITV_LFRAC,7,9);
+     itvXXX_set_val(intern,ITV_DOUBLE2,-3.0,4.5);
+     itvXXX_set_val(intern,ITV_LLINT,3LL);
+     sets resp. itv to 7/9, [-3,4.5], 3.
+     assuming that all the number conversions were exact.
+  */
 static inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern);
 static inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern);
 static inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern);

@@ -11,11 +11,7 @@ from one representation to the dual one. */
 #ifndef __PK_CHERNI_H__
 #define __PK_CHERNI_H__
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
+#include "pk_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +102,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 			     size_t start);
 /* Misc */
 void cherni_buildsatline(pk_internal_t* pk,
-			 matrix_t* con, numint_t* tab,
+			 matrix_t* con, numintMPQ_t* tab,
 			 bitstring_t* satline);
 
 /* Library is supposed to be in strict mode (pk->strict==true), polyhedron is

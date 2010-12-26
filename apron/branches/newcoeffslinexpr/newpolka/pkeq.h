@@ -135,24 +135,24 @@ pkeq_t* pkeq_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size);
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
+/* We assume that dimensions [0..intd-1] correspond to integer variables, and
+   dimensions [intd+realdim-1] to real variables */
 
-pkeq_t* pkeq_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+pkeq_t* pkeq_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */
 
-pkeq_t* pkeq_top(ap_manager_t* man, size_t intdim, size_t realdim);
+pkeq_t* pkeq_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
 
 pkeq_t* pkeq_of_box(ap_manager_t* man,
-		    size_t intdim, size_t realdim,
+		    ap_dimension_t dim,
 		    ap_interval_t** tinterval);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
 pkeq_t* pkeq_of_lincons_array(ap_manager_t* man,
-			      size_t intdim, size_t realdim,
+			      ap_dimension_t dim,
 			      ap_lincons0_array_t* array);
   /* Abstract a convex polyhedra defined by the array of linear constraints
      of size size */
@@ -212,7 +212,7 @@ ap_interval_t** pkeq_to_box(ap_manager_t* man, pkeq_t* a);
      The size of the resulting array is pkeq_dimension(man,a).  This
      function can be reimplemented by using pkeq_bound_linexpr */
 
-ap_generator0_array_t pkeq_to_generator_array(ap_manager_t* man, pkeq_t* a);
+ap_lingen0_array_t pkeq_to_generator_array(ap_manager_t* man, pkeq_t* a);
   /* Converts an abstract value to a system of generators. */
 
 
@@ -242,7 +242,7 @@ pkeq_t* pkeq_meet_lincons_array(ap_manager_t* man,
 
 pkeq_t* pkeq_add_ray_array(ap_manager_t* man,
 			   bool destructive, pkeq_t* a,
-			   ap_generator0_array_t* array);
+			   ap_lingen0_array_t* array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */

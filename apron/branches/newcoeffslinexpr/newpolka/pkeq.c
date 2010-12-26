@@ -38,7 +38,7 @@ size_t pkeq_size(ap_manager_t* man, pkeq_t* po)
   assert (po->C ? (po->C->nbrows >=1) : true);
 
   s = (po->C) ? (po->C->nbrows-1) : 0;
-  return s*(po->intdim + po->realdim);
+  return s*(po->dim.intd + po->dim.reald);
 }
 
 /* ============================================================ */
@@ -144,7 +144,7 @@ pkeq_t* pkeq_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 /* Abstract an hypercube defined by the array of intervals of size
    intdim+realdim.  */
 pkeq_t* pkeq_of_box(ap_manager_t* man,
-			size_t intdim, size_t realdim,
+			ap_dimension_t dim,
 			ap_interval_t** array)
 {
   size_t i;
@@ -156,7 +156,7 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_OF_BOX);
   pk_internal_realloc_lazy(pk,intdim+realdim);
 
-  po = poly_alloc(intdim,realdim);
+  po = poly_alloc(dim);
   po->status =
     pk_status_conseps;
 
@@ -168,11 +168,11 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
   itv_init(itv);
   ok = false;
   for (i=0; i<dim; i++){
-    itv_set_ap_interval(pk->itv,itv,array[i]);
-    if (itv_is_point(pk->itv,itv)){
+    itv_set_ap_interval(pk->num,itv,array[i]);
+    if (itv_is_point(pk->num,itv)){
       ok = vector_set_dim_bound(pk,po->C->p[row],
-				 (ap_dim_t)i, bound_numref(itv->sup), 0,
-				 intdim,realdim,
+				 (ap_dim_t)i, boundMPQ_numref(itv->sup), 0,
+				 dim,
 				 true);
       if (!ok){
 	matrix_free(po->C);
@@ -216,7 +216,7 @@ bool pkeq_is_eq(ap_manager_t* man, pkeq_t* pa, pkeq_t* pb)
 	bool res = true;
 	for (i=0; i<mata->nbrows; i++){
 	  for (j=0; j<matb->nbcolumns; j++){
-	    if (numint_cmp(mata->p[i][j],matb->p[i][j])!=0){
+	    if (numintMPQ_cmp(mata->p[i][j],matb->p[i][j])!=0){
 	      res = false;
 	      goto _pkeq_is_eq_exit;
 	    }
@@ -303,7 +303,7 @@ pkeq_t* pkeq_join_array(ap_manager_t* man, pkeq_t** po, size_t size)
   return poly;
 }
 
-pkeq_t* pkeq_add_ray_array(ap_manager_t* man, bool destructive, pkeq_t* pa, ap_generator0_array_t* array)
+pkeq_t* pkeq_add_ray_array(ap_manager_t* man, bool destructive, pkeq_t* pa, ap_lingen0_array_t* array)
 {
   pkeq_t* po;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY);
@@ -327,12 +327,12 @@ pkeq_t* equality_asssub_linexpr(bool assign,
 {
   pkeq_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-  pk_internal_realloc_lazy(pk,pa->intdim+pa->realdim);
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald);
   
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
+    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
   }
   /* Choose the right technique */
   switch (linexpr->cst.discr){
@@ -346,12 +346,12 @@ pkeq_t* equality_asssub_linexpr(bool assign,
       /* Is the result exact or best ? */
       if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
 	man->result.flag_best = man->result.flag_exact = 
-	  (dim < pa->intdim || !ap_linexpr0_is_real(linexpr, pa->intdim)) ?
+	  (dim < pa->dim.intd || !ap_linexpr0_is_real(linexpr, pa->dim.intd)) ?
 	  false :
 	  true;
       }
       else {
-	man->result.flag_best = man->result.flag_exact = (pa->intdim==0);
+	man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
       }
     }
     break;
@@ -392,7 +392,7 @@ pkeq_t* equality_asssub_linexpr_array(bool assign,
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
+    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
   }
   /* Choose the right technique */
   tdimp = malloc(size*sizeof(ap_dim_t));
@@ -427,7 +427,7 @@ pkeq_t* equality_asssub_linexpr_array(bool assign,
   if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
     man->result.flag_best = true;
     for (i=0;i<size;i++){
-      if (tdim[i] < pa->intdim || !ap_linexpr0_is_real(texpr[i], pa->intdim)){
+      if (tdim[i] < pa->dim.intd || !ap_linexpr0_is_real(texpr[i], pa->dim.intd)){
 	man->result.flag_best = false;
 	break;
       }
@@ -435,7 +435,7 @@ pkeq_t* equality_asssub_linexpr_array(bool assign,
     man->result.flag_exact = man->result.flag_best;
   }
   else {
-    man->result.flag_best = man->result.flag_exact = (pa->intdim==0);
+    man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
   }
   free(tdimp);
   free(texprp); 

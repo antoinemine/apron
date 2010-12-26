@@ -666,6 +666,8 @@ static inline void numintRyyy_sqrt(numintRyyy_t up, numintRyyy_t down, numintRyy
 
 static inline void numintRyyy_divexact(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
               { numIyyy_divexact(a,b,c); }
+static inline void numintRyyy_mod(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
+              { numIyyy_mod(a,b,c); }
 static inline void numintRyyy_gcd(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
               { numIyyy_gcd(a,b,c); }
 static inline void numintRyyy_lcm(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
@@ -737,6 +739,90 @@ static inline size_t numintRyyy_deserialize_array(numintRyyy_t* dst, const void*
 
 static inline size_t numintRyyy_serialized_size_array(numintRyyy_t* src, size_t size)
 { return numIyyy_serialized_size_array(src,size); }
+
+/* ====================================================================== */
+/* Fits */
+/* ====================================================================== */
+
+static inline bool lint_fits_numintRyyy(long int a)
+{ return lint_fits_numIyyy(a); }
+static inline bool llint_fits_numintRyyy(long long int a)
+{ return llint_fits_numIyyy(a); }
+static inline bool mpz_fits_numintRyyy(mpz_t a)
+{ return mpz_fits_numIyyy(a); }
+static inline bool lfrac_fits_numintRyyy(long int i, long int j)
+{ return lfrac_fits_numIyyy(i,j); }
+static inline bool llfrac_fits_numintRyyy(long long int i, long long int j)
+{ return llfrac_fits_numIyyy(i,j); }
+static inline bool mpq_fits_numintRyyy(mpq_t a)
+{ return mpq_fits_numIyyy(a); }
+static inline bool double_fits_numintRyyy(double a)
+{ return double_fits_numIyyy(a); }
+static inline bool ldouble_fits_numintRyyy(long double a)
+{ return ldouble_fits_numIyyy(a); }
+static inline bool mpfr_fits_numintRyyy(mpfr_t a, num_internal_t intern)
+{ return mpfr_fits_numIyyy(a,intern); }
+
+static inline bool numintRyyy_fits_lint(numintRyyy_t a)
+{ return numIyyy_fits_lint(a); }
+static inline bool numintRyyy_fits_llint(numintRyyy_t a)
+{ return numIyyy_fits_llint(a); }
+static inline bool numintRyyy_fits_mpz(numintRyyy_t a)
+{ return numIyyy_fits_mpz(a); }
+static inline bool numintRyyy_fits_lfrac(numintRyyy_t a)
+{ return numIyyy_fits_lfrac(a); }
+static inline bool numintRyyy_fits_llfrac(numintRyyy_t a)
+{ return numIyyy_fits_llfrac(a); }
+static inline bool numintRyyy_fits_mpq(numintRyyy_t a)
+{ return numIyyy_fits_mpq(a); }
+static inline bool numintRyyy_fits_double(numintRyyy_t a)
+{ return numIyyy_fits_double(a); }
+static inline bool numintRyyy_fits_ldouble(numintRyyy_t a)
+{ return numIyyy_fits_ldouble(a); }
+static inline bool numintRyyy_fits_mpfr(numintRyyy_t a)
+{ return numIyyy_fits_mpfr(a); }
+
+/* ====================================================================== */
+/* Conversions */
+/* ====================================================================== */
+
+static inline bool numintRyyy_set_lint(numintRyyy_t a, long int b, num_internal_t intern)
+{ return numIyyy_set_lint(a,b,intern); }
+static inline bool numintRyyy_set_llint(numintRyyy_t a, long long int b, num_internal_t intern)
+{ return numIyyy_set_llint(a,b,intern); }
+static inline bool numintRyyy_set_mpz(numintRyyy_t a, mpz_t b, num_internal_t intern)
+{ return numIyyy_set_mpz(a,b,intern); }
+static inline bool numintRyyy_set_lfrac(numintRyyy_t a, long int i, long int j, num_internal_t intern)
+{ return numIyyy_set_lfrac(a,i,j,intern); }
+static inline bool numintRyyy_set_llfrac(numintRyyy_t a, long long int i, long long int j, num_internal_t intern)
+{ return numIyyy_set_llfrac(a,i,j,intern); }
+static inline bool numintRyyy_set_mpq(numintRyyy_t a, mpq_t b, num_internal_t intern)
+{ return numIyyy_set_mpq(a,b,intern); }
+static inline bool numintRyyy_set_double(numintRyyy_t a, double b, num_internal_t intern)
+{ return numIyyy_set_double(a,b,intern); }
+static inline bool numintRyyy_set_ldouble(numintRyyy_t a, long double b, num_internal_t intern)
+{ return numIyyy_set_ldouble(a,b,intern); }
+static inline bool numintRyyy_set_mpfr(numintRyyy_t a, mpfr_t b, num_internal_t intern)
+{ return numIyyy_set_mpfr(a,b,intern); }
+
+static inline bool lint_set_numintRyyy(long int* a, numintRyyy_t b, num_internal_t intern)
+{ return lint_set_numIyyy(a,b,intern); }
+static inline bool llint_set_numintRyyy(long long int* a, numintRyyy_t b, num_internal_t intern)
+{ return llint_set_numIyyy(a,b,intern); }
+static inline bool mpz_set_numintRyyy(mpz_t a, numintRyyy_t b, num_internal_t intern)
+{ return mpz_set_numIyyy(a,b,intern); }
+static inline bool lfrac_set_numintRyyy(long int* i, long int* j, numintRyyy_t b, num_internal_t intern)
+{ return lfrac_set_numIyyy(i,j,b,intern); }
+static inline bool llfrac_set_numintRyyy(long long int* i, long long int* j, numintRyyy_t b, num_internal_t intern)
+{ return llfrac_set_numIyyy(i,j,b,intern); }
+static inline bool mpq_set_numintRyyy(mpq_t a, numintRyyy_t b, num_internal_t intern)
+{ return mpq_set_numIyyy(a,b,intern); }
+static inline bool double_set_numintRyyy(double* a, numintRyyy_t b, num_internal_t intern)
+{ return double_set_numIyyy(a,b,intern); }
+static inline bool ldouble_set_numintRyyy(long double* a, numintRyyy_t b, num_internal_t intern)
+{ return ldouble_set_numIyyy(a,b,intern); }
+static inline bool mpfr_set_numintRyyy(mpfr_t a, numintRyyy_t b, num_internal_t intern)
+{ return mpfr_set_numIyyy(a,b,intern); }
 
 #ifdef __cplusplus
 }

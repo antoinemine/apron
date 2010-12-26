@@ -35,7 +35,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
   if (!pa->C && !pa->F){
     return destructive ? pa : pk_copy(man,pa);
   }
-  po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
   if (pk->exn){
     poly_set_top(pk,po);
     man->result.flag_best = man->result.flag_exact = false;
@@ -49,7 +49,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
   change = false;
   positivity = false;
   for (i=0;i<C->nbrows; i++){
-    if (numint_sgn(C->p[i][polka_eps])<0){
+    if (numintMPQ_sgn(C->p[i][polka_eps])<0){
       if (vector_is_positivity_constraint(pk,C->p[i],
 					  C->nbcolumns)){
 	/* we keep the positivity constraint epsilon<=1 */
@@ -57,23 +57,23 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
       }
       else {
 	change = true;
-	numint_set_int(C->p[i][polka_eps],0);
+	numintMPQ_set_int(C->p[i][polka_eps],0);
       }
     }
   }
   assert(change || positivity);
   if (change){
     if (!positivity){
-      numint_t* q;
+      numintMPQ_t* q;
       size_t nbrows;
       /* we should add it */
       nbrows = C->nbrows;
       matrix_resize_rows_lazy(C,C->nbrows+1);
       q = C->p[nbrows];
-      numint_set_int(q[0],1);
-      numint_set_int(q[polka_cst],1);
-      numint_set_int(q[polka_eps],-1);
-      for (i=3; i<C->nbcolumns; i++) numint_set_int(q[i],0);
+      numintMPQ_set_int(q[0],1);
+      numintMPQ_set_int(q[polka_cst],1);
+      numintMPQ_set_int(q[polka_eps],-1);
+      for (i=3; i<C->nbcolumns; i++) numintMPQ_set_int(q[i],0);
     }
     C->_sorted = false;
     if (destructive){

@@ -33,7 +33,7 @@ void poly_projectforget_array(bool project,
   matrix_t* mat;
   size_t i,j;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-  pk_internal_realloc_lazy(pk,pa->intdim+pa->realdim);
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald);
   
   res = false;
 
@@ -72,7 +72,7 @@ void poly_projectforget_array(bool project,
     mat = po->F;
     for (i=0; i<mat->nbrows; i++){
       for (j=0; j<size; j++){
-	numint_set_int(mat->p[i][pk->dec+tdim[j]],0);
+	numintMPQ_set_int(mat->p[i][pk->dec+tdim[j]],0);
       }
       matrix_normalize_row(pk,mat,(size_t)i);
     }
@@ -85,7 +85,7 @@ void poly_projectforget_array(bool project,
     /* Forget */
     mat = matrix_alloc(size,pa->F->nbcolumns,false);
     for (i=0; i<size; i++){
-      numint_set_int(mat->p[i][pk->dec+tdim[i]],1);
+      numintMPQ_set_int(mat->p[i][pk->dec+tdim[i]],1);
     }
     matrix_sort_rows(pk,mat);
     poly_dual(pa);
@@ -106,9 +106,9 @@ void poly_projectforget_array(bool project,
   }
   if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
     bool real = true;
-    if (pa->intdim>0){
+    if (pa->dim.intd>0){
       for (i=0; i<size; i++){
-	if (tdim[i]<pa->intdim){
+	if (tdim[i]<pa->dim.intd){
 	  real = false;
 	  break;
 	}
@@ -119,7 +119,7 @@ void poly_projectforget_array(bool project,
   }
   else {
     man->result.flag_best = man->result.flag_exact =
-      pa->intdim==0;
+      pa->dim.intd==0;
   }
 }
 
@@ -133,7 +133,7 @@ pk_t* pk_forget_array(ap_manager_t* man,
 		      bool project)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
-  pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
   poly_projectforget_array(project,
 			   pk->funopt->algorithm<=0,
 			   man,po,pa,tdim,size);

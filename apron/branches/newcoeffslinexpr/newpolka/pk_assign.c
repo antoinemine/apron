@@ -43,14 +43,14 @@ static
 matrix_t* matrix_assign_variable(pk_internal_t* pk,
 				 bool destructive,
 				 matrix_t* mat,
-				 ap_dim_t dim, numint_t* tab)
+				 ap_dim_t dim, numintMPQ_t* tab)
 {
   size_t i,j,var;
   bool den;
   matrix_t* nmat;
 
   var = pk->dec + dim;
-  den = numint_cmp_int(tab[0],1)>0;
+  den = numintMPQ_cmp_int(tab[0],1)>0;
 
   nmat =
     destructive ?
@@ -67,12 +67,12 @@ matrix_t* matrix_assign_variable(pk_internal_t* pk,
     /* columns != var */
     if (!destructive){
       /* Functional */
-      numint_init_set(nmat->p[i][0],mat->p[i][0]);
+      numintMPQ_init_set(nmat->p[i][0],mat->p[i][0]);
       for (j=1; j<mat->nbcolumns; j++){
 	if (j!=var){
-	  numint_init_set(nmat->p[i][j],mat->p[i][j]);
+	  numintMPQ_init_set(nmat->p[i][j],mat->p[i][j]);
 	  if (den){
-	    numint_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
+	    numintMPQ_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
 	  }
 	}
       }
@@ -82,17 +82,17 @@ matrix_t* matrix_assign_variable(pk_internal_t* pk,
       for (j=0; j<mat->nbcolumns; j++){
 	if (j!=var){
 	  if (den)
-	    numint_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
+	    numintMPQ_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
 	  else
-	    numint_set(nmat->p[i][j],mat->p[i][j]);
+	    numintMPQ_set(nmat->p[i][j],mat->p[i][j]);
 	}
       }
     }
     /* var column */
     if (!destructive)
-      numint_init_set(nmat->p[i][var],pk->matrix_prod);
+      numintMPQ_init_set(nmat->p[i][var],pk->matrix_prod);
     else
-      numint_set(nmat->p[i][var],pk->matrix_prod);
+      numintMPQ_set(nmat->p[i][var],pk->matrix_prod);
 
     matrix_normalize_row(pk,nmat,i);
   }
@@ -114,14 +114,14 @@ static
 matrix_t* matrix_substitute_variable(pk_internal_t* pk,
 				     bool destructive,
 				     matrix_t* mat,
-				     ap_dim_t dim, numint_t* tab)
+				     ap_dim_t dim, numintMPQ_t* tab)
 {
   size_t i,j,var;
   bool den;
   matrix_t* nmat;
 
   var = pk->dec + dim;
-  den = numint_cmp_int(tab[0],1)>0;
+  den = numintMPQ_cmp_int(tab[0],1)>0;
   nmat =
     destructive ?
     mat :
@@ -130,28 +130,28 @@ matrix_t* matrix_substitute_variable(pk_internal_t* pk,
   nmat->_sorted = false;
 
   for (i=0; i<mat->nbrows; i++) {
-    if (numint_sgn(mat->p[i][var])) {
+    if (numintMPQ_sgn(mat->p[i][var])) {
       /* The substitution must be done */
       if (!destructive){
 	/* Functional */
-	numint_init_set(nmat->p[i][0],mat->p[i][0]);
+	numintMPQ_init_set(nmat->p[i][0],mat->p[i][0]);
 	/* columns != var */
 	for (j=1; j<mat->nbcolumns; j++) {
 	  if (j!=var){
 	    if (den){
-	      numint_init(nmat->p[i][j]);
-	      numint_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
+	      numintMPQ_init(nmat->p[i][j]);
+	      numintMPQ_mul(nmat->p[i][j],mat->p[i][j],tab[0]);
 	    }
 	    else {
-	      numint_init_set(nmat->p[i][j],mat->p[i][j]);
+	      numintMPQ_init_set(nmat->p[i][j],mat->p[i][j]);
 	    }
-	    numint_mul(pk->matrix_prod,mat->p[i][var],tab[j]);
-	    numint_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
+	    numintMPQ_mul(pk->matrix_prod,mat->p[i][var],tab[j]);
+	    numintMPQ_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
 	  }
 	}
 	/* var column */
-	numint_init(nmat->p[i][var]);
-	numint_mul(nmat->p[i][var],mat->p[i][var],tab[var]);
+	numintMPQ_init(nmat->p[i][var]);
+	numintMPQ_mul(nmat->p[i][var],mat->p[i][var],tab[var]);
       }
       else {
 	/* Side-effect */
@@ -159,14 +159,14 @@ matrix_t* matrix_substitute_variable(pk_internal_t* pk,
 	for (j=1; j<mat->nbcolumns; j++) {
 	  if (j!=var){
 	    if (den){
-	      numint_mul(nmat->p[i][j],nmat->p[i][j],tab[0]);
+	      numintMPQ_mul(nmat->p[i][j],nmat->p[i][j],tab[0]);
 	    }
-	    numint_mul(pk->matrix_prod,mat->p[i][var],tab[j]);
-	    numint_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
+	    numintMPQ_mul(pk->matrix_prod,mat->p[i][var],tab[j]);
+	    numintMPQ_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
 	  }
 	}
 	/* var column */
-	numint_mul(nmat->p[i][var],nmat->p[i][var],tab[var]);
+	numintMPQ_mul(nmat->p[i][var],nmat->p[i][var],tab[var]);
       }
       matrix_normalize_row(pk,nmat,i);
     }
@@ -174,7 +174,7 @@ matrix_t* matrix_substitute_variable(pk_internal_t* pk,
       /* No substitution */
       if (!destructive){
 	for (j=0; j<mat->nbcolumns; j++) {
-	  numint_init_set(nmat->p[i][j],mat->p[i][j]);
+	  numintMPQ_init_set(nmat->p[i][j],mat->p[i][j]);
 	}
       }
     }
@@ -194,13 +194,13 @@ matrix_t* matrix_substitute_variable(pk_internal_t* pk,
 
 /* insertion sort for sorting the array tdim */
 static
-void pk_asssub_isort(ap_dim_t* tdim, numint_t** tvec, size_t size)
+void pk_asssub_isort(ap_dim_t* tdim, numintMPQ_t** tvec, size_t size)
 {
   size_t i,j;
 
   for (i=1; i<size; i++){
     ap_dim_t dim = tdim[i];
-    numint_t* vec = tvec[i];
+    numintMPQ_t* vec = tvec[i];
     for (j=i; j>0; j--){
       if (tdim[j-1]>dim){
 	tdim[j] = tdim[j-1];
@@ -223,28 +223,28 @@ static
 matrix_t* matrix_assign_variables(pk_internal_t* pk,
 				  matrix_t* mat,
 				  ap_dim_t* tdim,
-				  numint_t** tvec,
+				  numintMPQ_t** tvec,
 				  size_t size)
 {
   size_t i,j,eindex;
   matrix_t* nmat = _matrix_alloc_int(mat->nbrows, mat->nbcolumns,false);
-  numint_t den;
+  numintMPQ_t den;
 
   /* Computing common denominator */
-  numint_init_set(den,tvec[0][0]);
+  numintMPQ_init_set(den,tvec[0][0]);
   for (i=1; i<size; i++){
-    numint_mul(den,den,tvec[i][0]);
+    numintMPQ_mul(den,den,tvec[i][0]);
   }
 
-  if (numint_cmp_int(den,1)!=0){
+  if (numintMPQ_cmp_int(den,1)!=0){
     /* General case */
-    numint_t* vden = vector_alloc(size);
+    numintMPQ_t* vden = vector_alloc(size);
     for (i=0; i<size; i++){
-      numint_divexact(vden[i],den,tvec[i][0]);
+      numintMPQ_divexact(vden[i],den,tvec[i][0]);
     }
     /* Column 0: copy */
     for (i=0; i<mat->nbrows; i++){
-      numint_init_set(nmat->p[i][0],mat->p[i][0]);
+      numintMPQ_init_set(nmat->p[i][0],mat->p[i][0]);
     }
     /* Other columns */
     eindex = 0;
@@ -255,17 +255,17 @@ matrix_t* matrix_assign_variables(pk_internal_t* pk,
 	  vector_product(pk,pk->matrix_prod,
 			 mat->p[i],
 			 tvec[eindex],mat->nbcolumns);
-	  numint_mul(pk->matrix_prod,pk->matrix_prod,vden[eindex]);
+	  numintMPQ_mul(pk->matrix_prod,pk->matrix_prod,vden[eindex]);
 	  /* Put the result */
-	  numint_init_set(nmat->p[i][j],pk->matrix_prod);
+	  numintMPQ_init_set(nmat->p[i][j],pk->matrix_prod);
 	}
 	eindex++;
       }
       else {
 	/* We are on a normal column */
 	for (i=0; i<mat->nbrows; i++){ /* For each row */
-	  numint_init(nmat->p[i][j]);
-	  numint_mul(nmat->p[i][j],mat->p[i][j],den);
+	  numintMPQ_init(nmat->p[i][j]);
+	  numintMPQ_mul(nmat->p[i][j],mat->p[i][j],den);
 	}
       }
     }
@@ -275,7 +275,7 @@ matrix_t* matrix_assign_variables(pk_internal_t* pk,
     /* Special case: all denominators are 1 */
     /* Column 0: copy */
     for (i=0; i<mat->nbrows; i++){
-      numint_init_set(nmat->p[i][0],mat->p[i][0]);
+      numintMPQ_init_set(nmat->p[i][0],mat->p[i][0]);
     }
     /* Other columns */
     eindex = 0;
@@ -286,19 +286,19 @@ matrix_t* matrix_assign_variables(pk_internal_t* pk,
 	  vector_product(pk,pk->matrix_prod,
 			 mat->p[i],
 			 tvec[eindex],mat->nbcolumns);
-	  numint_init_set(nmat->p[i][j],pk->matrix_prod);
+	  numintMPQ_init_set(nmat->p[i][j],pk->matrix_prod);
 	}
 	eindex++;
       }
       else {
 	/* We are on a normal column */
 	for (i=0; i<mat->nbrows; i++){ /* For each row */
-	  numint_init_set(nmat->p[i][j],mat->p[i][j]);
+	  numintMPQ_init_set(nmat->p[i][j],mat->p[i][j]);
 	}
       }
     }
   }
-  numint_clear(den);
+  numintMPQ_clear(den);
   for (i=0; i<mat->nbrows; i++){
     matrix_normalize_row(pk,nmat,i);
   }
@@ -314,29 +314,29 @@ static
 matrix_t* matrix_substitute_variables(pk_internal_t* pk,
 				      matrix_t* mat,
 				      ap_dim_t* tdim,
-				      numint_t** tvec,
+				      numintMPQ_t** tvec,
 				      size_t size)
 {
   size_t i,j,eindex;
   matrix_t* nmat = matrix_alloc(mat->nbrows, mat->nbcolumns,false);
-  numint_t den;
+  numintMPQ_t den;
 
   /* Computing common denominator */
-  numint_init_set(den,tvec[0][0]);
+  numintMPQ_init_set(den,tvec[0][0]);
   for (i=1; i<size; i++){
-    numint_mul(den,den,tvec[i][0]);
+    numintMPQ_mul(den,den,tvec[i][0]);
   }
 
-  if (numint_cmp_int(den,1)!=0){
+  if (numintMPQ_cmp_int(den,1)!=0){
     /* General case */
-    numint_t* vden = vector_alloc(size);
+    numintMPQ_t* vden = vector_alloc(size);
     for (i=0; i<size; i++){
-      numint_divexact(vden[i],den,tvec[i][0]);
+      numintMPQ_divexact(vden[i],den,tvec[i][0]);
     }
     /* For each row */
     for (i=0; i<mat->nbrows; i++) {
       /* Column 0 */
-      numint_set(nmat->p[i][0],mat->p[i][0]);
+      numintMPQ_set(nmat->p[i][0],mat->p[i][0]);
       /* Other columns */
       /* First, copy the row and sets to zero substituted variables */
       eindex = 0;
@@ -344,17 +344,17 @@ matrix_t* matrix_substitute_variables(pk_internal_t* pk,
 	if (eindex < size && pk->dec + tdim[eindex] == j)
 	  eindex++;
 	else
-	  numint_mul(nmat->p[i][j],mat->p[i][j],den);
+	  numintMPQ_mul(nmat->p[i][j],mat->p[i][j],den);
       }
       /* Second, add things coming from substitution */
       for (j=1; j<mat->nbcolumns; j++){
 	for (eindex=0; eindex<size; eindex++){
-	  if (numint_sgn(mat->p[i][pk->dec + tdim[eindex]])) {
-	    numint_mul(pk->matrix_prod,
+	  if (numintMPQ_sgn(mat->p[i][pk->dec + tdim[eindex]])) {
+	    numintMPQ_mul(pk->matrix_prod,
 		       mat->p[i][pk->dec + tdim[eindex]],
 		       tvec[eindex][j]);
-	    numint_mul(pk->matrix_prod,pk->matrix_prod,vden[eindex]);
-	    numint_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
+	    numintMPQ_mul(pk->matrix_prod,pk->matrix_prod,vden[eindex]);
+	    numintMPQ_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
 	  }
 	}
       }
@@ -366,7 +366,7 @@ matrix_t* matrix_substitute_variables(pk_internal_t* pk,
     /* For each row */
     for (i=0; i<mat->nbrows; i++) {
       /* Column 0 */
-      numint_set(nmat->p[i][0],mat->p[i][0]);
+      numintMPQ_set(nmat->p[i][0],mat->p[i][0]);
       /* Other columns */
       /* First, copy the row and sets to zero substituted variables */
       eindex = 0;
@@ -374,22 +374,22 @@ matrix_t* matrix_substitute_variables(pk_internal_t* pk,
 	if (eindex < size && pk->dec + tdim[eindex] == j)
 	  eindex++;
 	else
-	  numint_set(nmat->p[i][j],mat->p[i][j]);
+	  numintMPQ_set(nmat->p[i][j],mat->p[i][j]);
       }
       /* Second, add things coming from substitution */
       for (j=1; j<mat->nbcolumns; j++){
 	for (eindex=0; eindex<size; eindex++){
-	  if (numint_sgn(mat->p[i][pk->dec + tdim[eindex]])) {
-	    numint_mul(pk->matrix_prod,
+	  if (numintMPQ_sgn(mat->p[i][pk->dec + tdim[eindex]])) {
+	    numintMPQ_mul(pk->matrix_prod,
 		       mat->p[i][pk->dec + tdim[eindex]],
 		       tvec[eindex][j]);
-	    numint_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
+	    numintMPQ_add(nmat->p[i][j],nmat->p[i][j],pk->matrix_prod);
 	  }
 	}
       }
     }
   }
-  numint_clear(den);
+  numintMPQ_clear(den);
   for (i=0; i<mat->nbrows; i++){
     matrix_normalize_row(pk,nmat,i);
   }
@@ -406,29 +406,29 @@ matrix_t* matrix_substitute_variables(pk_internal_t* pk,
 /* ====================================================================== */
 static
 void vector_invert_expr(pk_internal_t* pk,
-			numint_t* ntab,
+			numintMPQ_t* ntab,
 			ap_dim_t dim,
-			numint_t* tab,
+			numintMPQ_t* tab,
 			size_t size)
 {
   size_t i;
   size_t var = pk->dec+dim;
-  int sgn = numint_sgn(tab[var]);
+  int sgn = numintMPQ_sgn(tab[var]);
 
   assert(sgn!=0);
   if (sgn>0){
-    numint_set(ntab[0], tab[var]);
-    numint_set(ntab[var], tab[0]);
+    numintMPQ_set(ntab[0], tab[var]);
+    numintMPQ_set(ntab[var], tab[0]);
     for (i=1; i<size; i++){
       if (i!=var)
-	numint_neg(ntab[i],tab[i]);
+	numintMPQ_neg(ntab[i],tab[i]);
     }
   } else {
-    numint_neg(ntab[0], tab[var]);
-    numint_neg(ntab[var], tab[0]);
+    numintMPQ_neg(ntab[0], tab[var]);
+    numintMPQ_neg(ntab[var], tab[0]);
     for (i=1; i<size; i++){
       if (i!=var)
-	numint_set(ntab[i],tab[i]);
+	numintMPQ_set(ntab[i],tab[i]);
     }
   }
   vector_normalize_expr(pk,ntab,size);
@@ -452,13 +452,13 @@ pk_t* poly_asssub_linexpr_array_det(bool assign,
 {
   size_t i;
   ap_dim_t* tdim2;
-  numint_t** tvec;
+  numintMPQ_t** tvec;
   size_t nbcols;
   matrix_t* mat;
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
-  po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
 
   if (!assign) poly_dual(pa);
 
@@ -477,17 +477,17 @@ pk_t* poly_asssub_linexpr_array_det(bool assign,
     return po;
   }
   /* Convert linear expressions */
-  nbcols = pk->dec + pa->intdim + pa->realdim;
-  tvec = (numint_t**)malloc(size*sizeof(numint_t*));
+  nbcols = pk->dec + pa->dim.intd + pa->dim.reald;
+  tvec = (numintMPQ_t**)malloc(size*sizeof(numintMPQ_t*));
   for (i=0; i<size; i++){
     tvec[i] = vector_alloc(nbcols);
-    itv_linexpr_set_ap_linexpr0(pk->itv,
-				&pk->poly_itv_linexpr,
+    ap_linexprMPQ_set_ap_linexpr0(pk->num,
+				&pk->poly_ap_linexprMPQ,
 				texpr[i]);
-    vector_set_itv_linexpr(pk,
+    vector_set_ap_linexprMPQ(pk,
 			   tvec[i],
-			   &pk->poly_itv_linexpr,
-			   pa->intdim+pa->realdim,1);
+			   &pk->poly_ap_linexprMPQ,
+			   pa->dim.intd+pa->dim.reald,1);
   }
   /* Copy tdim because of sorting */
   tdim2 = (ap_dim_t*)malloc(size*sizeof(ap_dim_t));
@@ -545,14 +545,14 @@ pk_t* poly_asssub_linexpr_array(bool assign,
 	poly_set_top(pk,pa);
 	return pa;
       } else {
-	return pk_top(man,pa->intdim,pa->realdim);
+	return pk_top(man,pa->dim.intd,pa->dim.reald);
       }
     }
   }
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
+    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
   }
   /* Choose the right technique */
   if (ap_linexpr0_array_is_linear(texpr,size)){
@@ -579,7 +579,7 @@ pk_t* poly_asssub_linexpr_array(bool assign,
     size_t i;
     man->result.flag_best = true;
     for (i=0;i<size;i++){
-      if (tdim[i] < pa->intdim || !ap_linexpr0_is_real(texpr[i], pa->intdim)){
+      if (tdim[i] < pa->dim.intd || !ap_linexpr0_is_real(texpr[i], pa->dim.intd)){
 	man->result.flag_best = false;
 	break;
       }
@@ -587,7 +587,7 @@ pk_t* poly_asssub_linexpr_array(bool assign,
     man->result.flag_exact = man->result.flag_best;
   }
   else {
-    man->result.flag_best = man->result.flag_exact = (pa->intdim==0);
+    man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
   }
   return po;
 }
@@ -617,14 +617,14 @@ pk_t* poly_asssub_texpr_array(bool assign,
 	poly_set_top(pk,pa);
 	return pa;
       } else {
-	return pk_top(man,pa->intdim,pa->realdim);
+	return pk_top(man,pa->dim.intd,pa->dim.reald);
       }
     }
   }
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
+    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
   }
   /* Choose the right technique */
   if (ap_texpr0_array_is_scalar(texpr,size) && 
@@ -694,19 +694,19 @@ pk_t* poly_asssub_linexpr_det(bool assign,
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
-  po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
+  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
 
   if (!assign) poly_dual(pa);
 
   /* Convert linear expression */
-  itv_linexpr_set_ap_linexpr0(pk->itv,
-			      &pk->poly_itv_linexpr,
+  ap_linexprMPQ_set_ap_linexpr0(pk->num,
+			      &pk->poly_ap_linexprMPQ,
 			      linexpr0);
-  vector_set_itv_linexpr(pk,
+  vector_set_ap_linexprMPQ(pk,
 			 pk->poly_numintp,
-			 &pk->poly_itv_linexpr,
-			 pa->intdim+pa->realdim,1);
-  sgn = numint_sgn(pk->poly_numintp[pk->dec + dim]);
+			 &pk->poly_ap_linexprMPQ,
+			 pa->dim.intd+pa->dim.reald,1);
+  sgn = numintMPQ_sgn(pk->poly_numintp[pk->dec + dim]);
 
   if (!sgn){ /* Expression is not invertible */
     /* Get the needed matrix */
@@ -776,7 +776,7 @@ pk_t* poly_asssub_linexpr(bool assign,
 {
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-  pk_internal_realloc_lazy(pk,pa->intdim+pa->realdim+1);
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+1);
 
   /* Minimize the argument if option say so */
   if (!lazy){
@@ -788,14 +788,14 @@ pk_t* poly_asssub_linexpr(bool assign,
 	poly_set_top(pk,pa);
 	return pa;
       } else {
-	return pk_top(man,pa->intdim,pa->realdim);
+	return pk_top(man,pa->dim.intd,pa->dim.reald);
       }
     }
   }
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
+    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
   }
   /* Choose the right technique */
   if (ap_linexpr0_is_linear(linexpr)){
@@ -820,12 +820,12 @@ pk_t* poly_asssub_linexpr(bool assign,
   /* Is the result exact or best ? */
   if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
     man->result.flag_best = man->result.flag_exact =
-      (dim < pa->intdim || !ap_linexpr0_is_real(linexpr, pa->intdim)) ?
+      (dim < pa->dim.intd || !ap_linexpr0_is_real(linexpr, pa->dim.intd)) ?
       false :
       true;
   }
   else {
-    man->result.flag_best = man->result.flag_exact = (pa->intdim==0);
+    man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
   }
   return po;
 }

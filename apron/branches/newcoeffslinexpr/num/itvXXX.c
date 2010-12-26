@@ -2,9 +2,11 @@
 /* itvXXX.c: (unidimensional) intervals */
 /* ********************************************************************** */
 
-#include "math.h"
+#include <math.h>
+#include <stdarg.h>
 #include "itvXXX.h"
 #include "num_all.h"
+#include "numXXX_conv.h"
 
 /* ********************************************************************** */
 /* Normalization and tests */
@@ -494,3 +496,168 @@ bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t inter
   return boundXXX_set_numZZZ(a->sup,c,intern) && res;
 }
 ENDMACRO
+
+bool itvXXX_set_generic(num_internal_t intern,
+			itvXXX_t a, itv_tag_t tag, va_list* va)
+{
+  bool res;
+  switch (tag){
+  case ITV_NUM: 
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      itvXXX_set_num(a,b);
+      res = true; }
+    break;
+  case ITV_NUM2: 
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      numXXX_ptr c = va_arg(*va,numXXX_ptr);
+      itvXXX_set_num2(a,b,c);
+      res = true; }
+    break;
+  case ITV_ITV: 
+    { itvXXX_ptr b = va_arg(*va,itvXXX_ptr);
+      itvXXX_set(a,b);
+      res = true; }
+    break;
+  case ITV_ITVD: 
+    { itvD_ptr b = va_arg(*va,itvD_ptr);
+      res = itvXXX_set_itvD(a,b,intern); }
+    break;
+  case ITV_ITVMPQ: 
+    { itvMPQ_ptr b = va_arg(*va,itvMPQ_ptr);
+      res = itvXXX_set_itvMPQ(a,b,intern); }
+    break;
+  case ITV_ITVMPFR: 
+    { itvMPFR_ptr b = va_arg(*va,itvMPFR_ptr);
+      res = itvXXX_set_itvMPFR(a,b,intern); }
+    break;
+  case ITV_NUMD: 
+    { numD_ptr b = va_arg(*va,numD_ptr);
+      res = itvXXX_set_numD(a,b,intern); }
+    break;
+  case ITV_NUMMPQ: 
+    { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
+      res = itvXXX_set_numMPQ(a,b,intern); }
+    break;
+  case ITV_NUMMPFR: 
+    { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
+      res = itvXXX_set_numMPFR(a,b,intern); }
+    break;
+  case ITV_NUMD2: 
+    { numD_ptr b = va_arg(*va,numD_ptr);
+      numD_ptr c = va_arg(*va,numD_ptr);
+      res = itvXXX_set_numD2(a,b,c,intern); }
+    break;
+  case ITV_NUMMPQ2: 
+    { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
+      numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
+      res = itvXXX_set_numMPQ2(a,b,c,intern); }
+    break;
+  case ITV_NUMMPFR2: 
+    { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
+      numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
+      res = itvXXX_set_numMPFR2(a,b,c,intern); }
+    break;
+  case ITV_LINT: 
+    { long int b = va_arg(*va,long int);
+      res = itvXXX_set_lint(a,b,intern); }
+    break;
+  case ITV_LINT2: 
+    { long int b = va_arg(*va,long int);
+      long int c = va_arg(*va,long int);
+      res = itvXXX_set_lint2(a,b,c,intern); }
+    break;
+  case ITV_LLINT: 
+    { long long int b = va_arg(*va,long long int);
+      res = itvXXX_set_llint(a,b,intern); }
+    break;
+  case ITV_LLINT2: 
+    { long long int b = va_arg(*va,long long int);
+      long long int c = va_arg(*va,long long int);
+      res = itvXXX_set_llint2(a,b,c,intern); }
+    break;
+  case ITV_MPZ: 
+    { mpz_ptr b = va_arg(*va,mpz_ptr);
+      res = itvXXX_set_mpz(a,b,intern); }
+    break;
+  case ITV_MPZ2: 
+    { mpz_ptr b = va_arg(*va,mpz_ptr);
+      mpz_ptr c = va_arg(*va,mpz_ptr);
+      res = itvXXX_set_mpz2(a,b,c,intern); }
+    break;
+  case ITV_LFRAC: 
+    { long int i = va_arg(*va,long int);
+      long int j = va_arg(*va,long int);
+      res = itvXXX_set_lfrac(a,i,j,intern); }
+    break;
+  case ITV_LFRAC2: 
+    { long int i = va_arg(*va,long int);
+      long int j = va_arg(*va,long int);
+      long int k = va_arg(*va,long int);
+      long int l = va_arg(*va,long int);
+      res = itvXXX_set_lfrac2(a,i,j,k,l,intern); }
+    break;
+  case ITV_LLFRAC: 
+    { long long int i = va_arg(*va,long long int);
+      long long int j = va_arg(*va,long long int);
+      res = itvXXX_set_llfrac(a,i,j,intern); }
+    break;
+  case ITV_LLFRAC2: 
+    { long long int i = va_arg(*va,long long int);
+      long long int j = va_arg(*va,long long int);
+      long long int k = va_arg(*va,long long int);
+      long long int l = va_arg(*va,long long int);
+      res = itvXXX_set_llfrac2(a,i,j,k,l,intern); }
+    break;
+  case ITV_MPQ: 
+    { mpq_ptr b = va_arg(*va,mpq_ptr);
+      res = itvXXX_set_mpq(a,b,intern); }
+    break;
+  case ITV_MPQ2: 
+    { mpq_ptr b = va_arg(*va,mpq_ptr);
+      mpq_ptr c = va_arg(*va,mpq_ptr);
+      res = itvXXX_set_mpq2(a,b,c,intern); }
+    break;
+  case ITV_DOUBLE: 
+    { double b = va_arg(*va,double);
+      res = itvXXX_set_double(a,b,intern); }
+    break;
+  case ITV_DOUBLE2: 
+    { double b = va_arg(*va,double);
+      double c = va_arg(*va,double);
+      res = itvXXX_set_double2(a,b,c,intern); }
+    break;
+  case ITV_LDOUBLE: 
+    { long double b = va_arg(*va,long double);
+      res = itvXXX_set_ldouble(a,b,intern); }
+    break;
+  case ITV_LDOUBLE2: 
+    { long double b = va_arg(*va,long double);
+      long double c = va_arg(*va,long double);
+      res = itvXXX_set_ldouble2(a,b,c,intern); }
+    break;
+  case ITV_MPFR: 
+    { mpfr_ptr b = va_arg(*va,mpfr_ptr);
+      res = itvXXX_set_mpfr(a,b,intern); }
+    break;
+  case ITV_MPFR2: 
+    { mpfr_ptr b = va_arg(*va,mpfr_ptr);
+      mpfr_ptr c = va_arg(*va,mpfr_ptr);
+      res = itvXXX_set_mpfr2(a,b,c,intern); }
+    break;
+  default:
+    fprintf(stderr,
+	    "itvXXX_set_generic: unknown tag\n");
+    abort();
+  }
+  return res;
+}
+bool itvXXX_set_val(num_internal_t intern,
+		    itvXXX_t a, itv_tag_t tag, ...)
+{
+  va_list va;  
+  bool res;
+  va_start(va,tag);
+  res = itvXXX_set_generic(intern,a,tag,&va);
+  va_end(va);
+  return res;
+}

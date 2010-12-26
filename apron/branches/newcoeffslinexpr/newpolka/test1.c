@@ -64,7 +64,7 @@ void test_environment()
 		       name_of_realdim1,3);
   printf("env 4\n");
   ap_environment_fdump(stdout,e4);
-  for(i=0; i<e4->intdim+e4->realdim; i++){
+  for(i=0; i<e4->dim.intd+e4->dim.reald; i++){
     ap_var_t var = ap_environment_var_of_dim(e4,i);
     ap_dim_t dim = ap_environment_dim_of_var(e4,var);
     char* name = ap_var_operations->to_string(var);
@@ -252,7 +252,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
     ap_interval_free(itv);
   }
   /* dimensions */
-  for (i=0; i<env->intdim+env->realdim; i++){
+  for (i=0; i<env->dim.intd+env->dim.reald; i++){
     expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,1);
     ap_linexpr1_set_cst_scalar_double(&expr,0.0);
     ap_linexpr1_set_coeff_scalar_int(&expr,ap_environment_var_of_dim(env,i),1);

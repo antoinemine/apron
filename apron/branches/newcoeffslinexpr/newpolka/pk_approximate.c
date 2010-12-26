@@ -5,16 +5,11 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
+
+#include "pk_internal.h"
 #include "pk_cherni.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_representation.h"
-#include "pk_extract.h"
-#include "pk_constructor.h"
+#include "pk_num.h"
+#include "eitvMPQ.h"
 
 static
 void poly_set_save_C(pk_t* po, pk_t* pa)
@@ -36,7 +31,7 @@ void poly_set_save_C(pk_t* po, pk_t* pa)
 static
 bool poly_approximate_n1(ap_manager_t* man, pk_t* po, pk_t* pa, int algorithm)
 {
-  if (po->intdim>0){
+  if (po->dim.intd>0){
     pk_internal_t* pk = (pk_internal_t*)man->internal;
     bool change;
 
@@ -48,7 +43,7 @@ bool poly_approximate_n1(ap_manager_t* man, pk_t* po, pk_t* pa, int algorithm)
     if (po!=pa){
       po->C = matrix_copy(pa->C);
     }
-    change = matrix_normalize_constraint_int(pk,po->C,po->intdim,po->realdim);
+    change = matrix_normalize_constraint_int(pk,po->C,po->dim);
     if (change){
       {
 	/* Add positivity and strictness that may not be implied any more */
@@ -84,9 +79,9 @@ bool matrix_approximate_constraint_1(pk_internal_t* pk, matrix_t* C)
   bool change;
   change = false;
   for (i=0;i<C->nbrows; i++){
-    if (numint_sgn(C->p[i][0])){
+    if (numintMPQ_sgn(C->p[i][0])){
       for (j=pk->dec; j<C->nbcolumns; j++){
-	if (numint_size2(C->p[i][j]) > pk->approximate_max_coeff_size){
+	if (numintMPQ_size2(C->p[i][j]) > pk->approximate_max_coeff_size){
 	  change = true;
 	  C->nbrows--;
 	  matrix_exch_rows(C,i,C->nbrows);
@@ -154,9 +149,9 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
     ap_dim_t dim;
     ap_dim_t i,j;
     int sgn, sgny;
-    itv_t itv;
+    eitvMPQ_t eitv;
 
-    pk_t* pa = poly_alloc(po->intdim,po->realdim);
+    pk_t* pa = poly_alloc(po->dim);
 
     change = poly_approximate_1(man,pa,po);
     if (!change){
@@ -178,29 +173,27 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
       }
       return;
     }
-    dim = pa->intdim + pa->realdim;
+    dim = pa->dim.intd + pa->dim.reald;
     nbrows = pa->C->nbrows;
-    itv_init(itv);
+    eitvMPQ_init(eitv);
     if (algorithm>=2){ /* Add interval constraints */
       nbrows2 = 2*dim;
       matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
       pa->C->_sorted = false;
       for (i=0; i<dim;i++){
-	matrix_bound_dimension(pk,itv,i,po->F);
-	if (!bound_infty(itv->inf)){
+	matrix_bound_dimension(pk,eitv,i,po->F);
+	if (!boundMPQ_infty(eitv->itv->neginf)){
 	  vector_set_dim_bound(pk, 
 			       pa->C->p[nbrows], 
-			       i, bound_numref(itv->inf),
-			       -1,
-			       po->intdim, po->realdim, false);
+			       i, boundMPQ_numref(eitv->itv->neginf),
+			       -1, po->dim, false);
 	  nbrows++;
 	}
-	if (!bound_infty(itv->sup)){
+	if (!boundMPQ_infty(eitv->itv->sup)){
 	  vector_set_dim_bound(pk, 
 			       pa->C->p[nbrows], 
-			       i, bound_numref(itv->sup), 
-			       1,
-			       po->intdim, po->realdim, false);
+			       i, boundMPQ_numref(eitv->itv->sup), 
+			       1, po->dim, false);
 	  nbrows++;
 	}
       }
@@ -208,37 +201,35 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
     pa->C->nbrows = nbrows;
     if (algorithm>=3){ /* Add octagonal constraints */
       vector_clear(pk->poly_numintp,po->F->nbcolumns);
-      numint_set_int(pk->poly_numintp[0],1);
+      numintMPQ_set_int(pk->poly_numintp[0],1);
       for (i=0; i<dim;i++){
-	numint_set_int(pk->poly_numintp[pk->dec+i],1);
+	numintMPQ_set_int(pk->poly_numintp[pk->dec+i],1);
 	nbrows2 = 2*(dim-i-1);
 	matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
 	for (j=i+1; j<dim;j++){
 	  for (sgny=-1; sgny<=1; sgny += 2){
-	    numint_set_int(pk->poly_numintp[pk->dec+j],sgny);
-	    matrix_bound_vector(pk,itv,pk->poly_numintp,po->F);
-	    if (!bound_infty(itv->inf)){
+	    numintMPQ_set_int(pk->poly_numintp[pk->dec+j],sgny);
+	    matrix_bound_vector(pk,eitv,pk->poly_numintp,po->F);
+	    if (!boundMPQ_infty(eitv->itv->neginf)){
 	      vector_set_linexpr_bound(pk, 
 				       pa->C->p[nbrows], pk->poly_numintp,
-				       itv->inf, -1,
-				       po->intdim, po->realdim, false);
+				       eitv->itv->neginf, -1, po->dim, false);
 	      nbrows++;
 	    }
-	    if (!bound_infty(itv->sup)){
+	    if (!boundMPQ_infty(eitv->itv->sup)){
 	      vector_set_linexpr_bound(pk, 
 				       pa->C->p[nbrows], pk->poly_numintp,
-				       itv->sup, 1,
-				       po->intdim, po->realdim, false);
+				       eitv->itv->sup, 1, po->dim, false);
 	      nbrows++;
 	    }
 	  }
-	  numint_set_int(pk->poly_numintp[pk->dec+j],0);
+	  numintMPQ_set_int(pk->poly_numintp[pk->dec+j],0);
 	}
-	numint_set_int(pk->poly_numintp[pk->dec+i],0);
+	numintMPQ_set_int(pk->poly_numintp[pk->dec+i],0);
       }
       pa->C->nbrows = nbrows;
     }   
-    itv_clear(itv);
+    eitvMPQ_clear(eitv);
     poly_clear(po);
     *po = *pa;
     free(pa);
@@ -254,19 +245,19 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
 {
   size_t i,j,size;
   bool change,removed;
-  itv_t itv;
+  eitvMPQ_t eitv;
 
-  itv_init(itv);
+  eitvMPQ_init(eitv);
   change = false;
   i = 0;
   while (i<C->nbrows){
     removed = false;
-    if (numint_sgn(C->p[i][0]) && 
-	(pk->strict ? numint_sgn(C->p[i][polka_eps])<=0 : true)){
+    if (numintMPQ_sgn(C->p[i][0]) && 
+	(pk->strict ? numintMPQ_sgn(C->p[i][polka_eps])<=0 : true)){
       /* Look for a too big coefficient in the row */
       size=0; /* for next test */
       for (j=pk->dec; j<C->nbcolumns; j++){
-	size = numint_size2(C->p[i][j]);
+	size = numintMPQ_size2(C->p[i][j]);
 	if (size > pk->approximate_max_coeff_size){
 	  /* Too big coefficient detected in the row */
 	  break;
@@ -277,23 +268,23 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	/* A. Compute maximum magnitude */
 	size_t maxsize = size;
 	for (j=j+1; j<C->nbcolumns; j++){
-	  size = numint_size2(C->p[i][j]);
+	  size = numintMPQ_size2(C->p[i][j]);
 	  if (size>maxsize) maxsize=size;
 	}
 	/* B. Relax if constraint is strict */
 	if (pk->strict){
-	  numint_set_int(C->p[i][polka_eps],0);
+	  numintMPQ_set_int(C->p[i][polka_eps],0);
 	}
 	/* C. Perform rounding of non constant coefficients */
 	size = maxsize - pk->approximate_max_coeff_size;
 	for (j=pk->dec; j<C->nbcolumns; j++){
-	  numint_fdiv_q_2exp(C->p[i][j],C->p[i][j], size);
+	  numintMPQ_fdiv_q_2exp(C->p[i][j],C->p[i][j], size);
 	}
 	/* D. Compute new constant coefficient */
-	numint_set_int(C->p[i][0],1);
-	numint_set_int(C->p[i][polka_cst],0);
-	matrix_bound_vector(pk,itv,C->p[i],F);
-	if (bound_infty(itv->inf)){
+	numintMPQ_set_int(C->p[i][0],1);
+	numintMPQ_set_int(C->p[i][polka_cst],0);
+	matrix_bound_vector(pk,eitv,C->p[i],F);
+	if (boundMPQ_infty(eitv->itv->neginf)){
 	  /* If no bound, we remove the constraint */
 	  C->nbrows--;
 	  matrix_exch_rows(C,i,C->nbrows);
@@ -301,11 +292,11 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	}
 	else {
 	  /* Otherwise, we round the constant to an integer */
-	  bound_neg(itv->inf,itv->inf);
-	  numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
-			numrat_numref(bound_numref(itv->inf)),
-			numrat_denref(bound_numref(itv->inf)));
-	  numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
+	  boundMPQ_neg(eitv->itv->neginf,eitv->itv->neginf);
+	  numintMPQ_fdiv_q(numMPQ_numref(boundMPQ_numref(eitv->itv->neginf)),
+			numMPQ_numref(boundMPQ_numref(eitv->itv->neginf)),
+			numMPQ_denref(boundMPQ_numref(eitv->itv->neginf)));
+	  numintMPQ_neg(C->p[i][polka_cst],numMPQ_numref(boundMPQ_numref(eitv->itv->neginf)));
 	  vector_normalize(pk,C->p[i],C->nbcolumns);
 	}
       	change = true;
@@ -320,7 +311,7 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
     matrix_fill_constraint_top(pk,C,nbrows);
     C->_sorted = false;
   }
-  itv_clear(itv);
+  eitvMPQ_clear(eitv);
   return change;
 }
 static
@@ -382,7 +373,7 @@ void pk_approximate(ap_manager_t* man, pk_t* po, int algorithm)
 
   switch (algorithm){
   case -1:
-    if (po->intdim>0)
+    if (po->dim.intd>0)
       poly_approximate_n1(man,po,po,algorithm);
     break;
   case 1:

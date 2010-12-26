@@ -5,11 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
 #include "pk_internal.h"
-#include "pk_vector.h"
-#include "pk_matrix.h"
-#include "pk_satmat.h"
 
 /* ********************************************************************** */
 /* I. Constructor and destructor for internal */
@@ -34,19 +30,20 @@ void pk_internal_init(pk_internal_t* pk, size_t maxdims)
   pk->vector_tmp = vector_alloc(5);
 
   pk->matrix_dimp = malloc(pk->maxdims*sizeof(ap_dim_t));
-  numint_init(pk->matrix_acc);
-  numint_init(pk->matrix_prod);
+  numintMPQ_init(pk->matrix_acc);
+  numintMPQ_init(pk->matrix_prod);
 
   /* pk->cherni_bitstringp = bitstring_alloc(bitindex_size(pk->maxrows));*/
   pk->cherni_intp = (int*)malloc(pk->maxcols * sizeof(int));
-  numint_init(pk->cherni_prod);
+  numintMPQ_init(pk->cherni_prod);
 
-  pk->itv = itv_internal_alloc();
-  bound_init(pk->poly_bound);
+  pk->num = NULL;
+  boundMPQ_init(pk->poly_bound);
   itv_init(pk->poly_itv);
-  itv_linexpr_init(&pk->poly_itv_linexpr,maxdims);
-  itv_lincons_init(&pk->poly_itv_lincons);
-  numrat_init(pk->poly_numrat);
+  ap_linexprMPQ_init(pk->poly_ap_linexprMPQ,maxdims);
+  ap_linconsMPQ_init(pk->poly_ap_linconsMPQ);
+  ap_lingenMPQ_init(pk->poly_ap_lingenMPQ);
+  numMPQ_init(pk->poly_numrat);
   pk->poly_numintp = vector_alloc(pk->maxcols);
   pk->poly_numintp2 = vector_alloc(pk->maxcols);
   pk->poly_dimp = malloc(pk->maxdims*sizeof(ap_dim_t));
@@ -54,7 +51,7 @@ void pk_internal_init(pk_internal_t* pk, size_t maxdims)
   pk->poly_fold_dimp = malloc(pk->maxdims*sizeof(ap_dim_t));
   /* pk->poly_bitstringp = bitstring_alloc(bitindex_size(pk->maxrows)); */
   pk->poly_matspecial = matrix_alloc(1,pk->maxcols,true);
-  numint_init(pk->poly_prod);
+  numintMPQ_init(pk->poly_prod);
 }
 
 /* Allocates pk and initializes it with a default size */
@@ -93,8 +90,8 @@ void pk_internal_clear(pk_internal_t* pk)
   if (pk->matrix_dimp) free(pk->matrix_dimp);
   pk->matrix_dimp = 0;
 
-  numint_clear(pk->matrix_acc);
-  numint_clear(pk->matrix_prod);
+  numintMPQ_clear(pk->matrix_acc);
+  numintMPQ_clear(pk->matrix_prod);
 
   /*  if (pk->cherni_bitstringp) free(pk->cherni_bitstringp);
   pk->cherni_bitstringp = 0;
@@ -102,15 +99,15 @@ void pk_internal_clear(pk_internal_t* pk)
   if (pk->cherni_intp) free(pk->cherni_intp);
   pk->cherni_intp = 0;
 
-  numint_clear(pk->cherni_prod);
+  numintMPQ_clear(pk->cherni_prod);
 
-  if (pk->itv) itv_internal_free(pk->itv);
-  pk->itv = 0;
-  bound_clear(pk->poly_bound);
+  pk->num = NULL;
+  boundMPQ_clear(pk->poly_bound);
   itv_clear(pk->poly_itv);
-  itv_linexpr_clear(&pk->poly_itv_linexpr);
-  itv_lincons_clear(&pk->poly_itv_lincons);
-  numrat_clear(pk->poly_numrat);
+  ap_linexprMPQ_clear(pk->poly_ap_linexprMPQ);
+  ap_linconsMPQ_clear(pk->poly_ap_linconsMPQ);
+  ap_lingenMPQ_clear(pk->poly_ap_lingenMPQ);
+  numMPQ_clear(pk->poly_numrat);
   if (pk->poly_numintp) vector_free(pk->poly_numintp, pk->maxcols);
   pk->poly_numintp = 0; 
 
@@ -130,7 +127,7 @@ void pk_internal_clear(pk_internal_t* pk)
   if (pk->poly_matspecial) matrix_free(pk->poly_matspecial);
   pk->poly_matspecial = 0;
 
-  numint_clear(pk->poly_prod);
+  numintMPQ_clear(pk->poly_prod);
 
   pk->maxdims = 0;
   pk->maxrows = 0;
@@ -197,16 +194,18 @@ ap_manager_t* pk_manager_alloc(bool strict)
   pk = pk_internal_alloc(strict);
   pk_set_approximate_max_coeff_size(pk, 1);
   man = ap_manager_alloc(strict ? "polka, strict mode" : "polka, loose mode",
-#if defined(NUMINT_LONGINT)
-		      "3.0 with NUMINT_LONGINT",
-#elif defined(NUMINT_LONGLONGINT)
-		      "3.0 with NUMINT_LONGLONGINT",
-#elif defined(NUMINT_MPZ)
-		      "3.0 with NUMINT_MPZ",
+#if defined(NUMXXX_LONGINT)
+		      "3.0 with NUMXXX_LONGINT",
+#elif defined(NUMXXX_LONGLONGINT)
+		      "3.0 with NUMXXX_LONGLONGINT",
+#elif defined(NUMXXX_MPZ)
+		      "3.0 with NUMXXX_MPZ",
 #else
 #error "here"
 #endif
 		      pk, (void (*)(void*))pk_internal_free);
+  pk->num = man->num;
+
   funptr = man->funptr;
   
   funptr[AP_FUNID_COPY] = &pk_copy;

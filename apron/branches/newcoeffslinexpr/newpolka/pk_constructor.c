@@ -5,18 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_representation.h"
-#include "pk_constructor.h"
-#include "pk_meetjoin.h"
-
-#include "itv.h"
-#include "itv_linexpr.h"
+#include "pk_internal.h"
+#include "eitvMPQ.h"
 #include "ap_generic.h"
 
 /* ********************************************************************** */
@@ -44,11 +34,11 @@ The empty polyhedron is just defined by the absence of both
 constraints matrix and frames matrix.
 */
 
-pk_t* pk_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
+pk_t* pk_bottom(ap_manager_t* man, ap_dimension_t dim)
 {
-  pk_t* po = poly_alloc(intdim,realdim);
+  pk_t* po = poly_alloc(dim);
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_BOTTOM);
-  pk_internal_realloc_lazy(pk,intdim+realdim);
+  pk_internal_realloc_lazy(pk,dim.intd+dim.reald);
   po->status = pk_status_conseps | pk_status_minimaleps;
   man->result.flag_exact = man->result.flag_best = true;
   return po;
@@ -64,17 +54,17 @@ void matrix_fill_constraint_top(pk_internal_t* pk, matrix_t* C, size_t start)
     /* constraints epsilon and xi-epsilon*/
     vector_clear(C->p[start+0],C->nbcolumns);
     vector_clear(C->p[start+1],C->nbcolumns);
-    numint_set_int(C->p[start+0][0],1);
-    numint_set_int(C->p[start+0][polka_eps],1);
-    numint_set_int(C->p[start+1][0],1);
-    numint_set_int(C->p[start+1][polka_cst],1);
-    numint_set_int(C->p[start+1][polka_eps],(-1));
+    numintMPQ_set_int(C->p[start+0][0],1);
+    numintMPQ_set_int(C->p[start+0][polka_eps],1);
+    numintMPQ_set_int(C->p[start+1][0],1);
+    numintMPQ_set_int(C->p[start+1][polka_cst],1);
+    numintMPQ_set_int(C->p[start+1][polka_eps],(-1));
   }
   else {
     /* constraint \xi \geq 0 */
     vector_clear(C->p[start+0],C->nbcolumns);
-    numint_set_int(C->p[start+0][0],1);
-    numint_set_int(C->p[start+0][polka_cst],1);
+    numintMPQ_set_int(C->p[start+0][0],1);
+    numintMPQ_set_int(C->p[start+0][polka_cst],1);
   }
 }
 
@@ -95,7 +85,7 @@ void poly_set_top(pk_internal_t* pk, pk_t* po)
     pk_status_minimaleps
     ;
 
-  dim = po->intdim + po->realdim;
+  dim = po->dim.intd + po->dim.reald;
 
   po->C = matrix_alloc(pk->dec-1, pk->dec+dim,true);
   po->F = matrix_alloc(pk->dec+dim-1,pk->dec+dim,true);
@@ -111,36 +101,36 @@ void poly_set_top(pk_internal_t* pk, pk_t* po)
   /* generators */
   /* lines $x_i$ */
   for(i=0; i<dim; i++){
-    numint_set_int(po->F->p[i][pk->dec+dim-1-i],1);
+    numintMPQ_set_int(po->F->p[i][pk->dec+dim-1-i],1);
   }
   if (pk->strict){
     /* rays xi and xi+epsilon */
-    numint_set_int(po->F->p[dim][0],1);
-    numint_set_int(po->F->p[dim][polka_cst],1);
-    numint_set_int(po->F->p[dim+1][0],1);
-    numint_set_int(po->F->p[dim+1][polka_cst],1);
-    numint_set_int(po->F->p[dim+1][polka_eps],1);
+    numintMPQ_set_int(po->F->p[dim][0],1);
+    numintMPQ_set_int(po->F->p[dim][polka_cst],1);
+    numintMPQ_set_int(po->F->p[dim+1][0],1);
+    numintMPQ_set_int(po->F->p[dim+1][polka_cst],1);
+    numintMPQ_set_int(po->F->p[dim+1][polka_eps],1);
     /* saturation matrix */
     po->satC->p[dim][0] = bitstring_msb >> 1;
     po->satC->p[dim+1][0] = bitstring_msb;
   }
   else {
     /* ray xi */
-    numint_set_int(po->F->p[dim][0],1);
-    numint_set_int(po->F->p[dim][polka_cst],1);
+    numintMPQ_set_int(po->F->p[dim][0],1);
+    numintMPQ_set_int(po->F->p[dim][polka_cst],1);
     /* saturation matrix */
     po->satC->p[dim][0] = bitstring_msb;
   }
   assert(poly_check(pk,po));
 }
 
-pk_t* pk_top(ap_manager_t* man, size_t intdim, size_t realdim)
+pk_t* pk_top(ap_manager_t* man, ap_dimension_t dim)
 {
   pk_t* po;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TOP);
-  pk_internal_realloc_lazy(pk,intdim+realdim);
+  pk_internal_realloc_lazy(pk,dim.intd+dim.reald);
 
-  po = poly_alloc(intdim,realdim);
+  po = poly_alloc(dim);
   poly_set_top(pk,po);
   man->result.flag_exact = man->result.flag_best = true;
   return po;
@@ -154,10 +144,10 @@ pk_t* pk_top(ap_manager_t* man, size_t intdim, size_t realdim)
 /* The matrix is supposed to be big enough */
 static 
 int matrix_fill_constraint_box(pk_internal_t* pk,
-				matrix_t* C, size_t start,
-				ap_interval_t** box,
-				size_t intdim, size_t realdim,
-				bool integer)
+			       matrix_t* C, size_t start,
+			       ap_interval_t** box,
+			       ap_dimension_t dim,
+			       bool integer)
 {
   size_t k;
   ap_dim_t i;
@@ -166,12 +156,12 @@ int matrix_fill_constraint_box(pk_internal_t* pk,
   k = start;
 
   itv_init(itv);
-  for (i=0; i<intdim+realdim; i++){
-    itv_set_ap_interval(pk->itv,itv,box[i]);
-    if (itv_is_point(pk->itv,itv)){
+  for (i=0; i<dim.intd+dim.reald; i++){
+    itv_set_ap_interval(pk->num,itv,box[i]);
+    if (itv_is_point(pk->num,itv)){
       ok = vector_set_dim_bound(pk,C->p[k],
-				 (ap_dim_t)i, bound_numref(itv->sup), 0,
-				 intdim,realdim,
+				 (ap_dim_t)i, boundMPQ_numref(itv->sup), 0,
+				 dim,
 				 integer);
       if (!ok){
 	itv_clear(itv);
@@ -181,18 +171,18 @@ int matrix_fill_constraint_box(pk_internal_t* pk,
     }
     else {
       /* inferior bound */
-      if (!bound_infty(itv->inf)){
+      if (!boundMPQ_infty(itv->inf)){
 	vector_set_dim_bound(pk,C->p[k],
-			     (ap_dim_t)i, bound_numref(itv->inf), -1,
-			     intdim,realdim,
+			     (ap_dim_t)i, boundMPQ_numref(itv->inf), -1,
+			     dim,
 			     integer);
 	k++;
       }
       /* superior bound */
-      if (!bound_infty(itv->sup)){
+      if (!boundMPQ_infty(itv->sup)){
 	vector_set_dim_bound(pk,C->p[k],
-			     (ap_dim_t)i, bound_numref(itv->sup), 1,
-			     intdim,realdim,
+			     (ap_dim_t)i, boundMPQ_numref(itv->sup), 1,
+			     dim,
 			     integer);
 	k++;
       }
@@ -203,10 +193,10 @@ int matrix_fill_constraint_box(pk_internal_t* pk,
 }
 
 /* Abstract an hypercube defined by the array of intervals of size
-   intdim+realdim.  */
+   dim.intd+dim.reald.  */
 
 pk_t* pk_of_box(ap_manager_t* man,
-		size_t intdim, size_t realdim,
+		ap_dimension_t dim,
 		ap_interval_t** array)
 {
   int k;
@@ -214,18 +204,18 @@ pk_t* pk_of_box(ap_manager_t* man,
   pk_t* po;
 
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_OF_BOX);
-  pk_internal_realloc_lazy(pk,intdim+realdim);
+  pk_internal_realloc_lazy(pk,dim.intd+dim.reald);
 
-  dim = intdim + realdim;
-  po = poly_alloc(intdim,realdim);
+  dim = dim.intd + dim.reald;
+  po = poly_alloc(dim);
   po->status = pk_status_conseps;
 
-  dim = intdim + realdim;
+  dim = dim.intd + dim.reald;
   po->C = matrix_alloc(pk->dec-1 + 2*dim, pk->dec + dim, false);
 
   /* constraints */
   matrix_fill_constraint_top(pk,po->C,0);
-  k = matrix_fill_constraint_box(pk,po->C,pk->dec-1,array,intdim,realdim,true);
+  k = matrix_fill_constraint_box(pk,po->C,pk->dec-1,array,dim,true);
   if (k==-1){
     matrix_free(po->C);
     po->C = NULL;
@@ -245,8 +235,8 @@ pk_t* pk_of_box(ap_manager_t* man,
 /* Return the dimensions of the polyhedra */
 ap_dimension_t pk_dimension(ap_manager_t* man, pk_t* po){
   ap_dimension_t res;
-  res.intdim = po->intdim;
-  res.realdim = po->realdim;
+  res.intd = po->dim.intd;
+  res.reald = po->dim.reald;
   return res;
 }
 

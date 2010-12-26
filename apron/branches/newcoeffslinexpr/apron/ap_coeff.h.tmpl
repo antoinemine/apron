@@ -40,7 +40,7 @@ typedef ap_coeff_struct* ap_coeff_ptr;
 typedef ap_coeff_struct ap_coeff_t[1];
 
 typedef enum ap_coeff_tag_t {
-  AP_COEFF,		/* waiting for 1 ap_coeff_t* and a dimension/var */
+  AP_COEFF=EITV_EITV,	/* waiting for 1 ap_coeff_t* and a dimension/var */
   AP_COEFF_EITVD,	/* waiting for 1 eitvD_t and a dimension/var */
   AP_COEFF_EITVMPQ,	/* waiting for 1 eitvMPQ_t and a dimension/var */
   AP_COEFF_EITVMPFR,	/* waiting for 1 eitvMPFR_t and a dimension/var */
@@ -125,6 +125,11 @@ static inline void ap_coeff_swap(ap_coeff_t a, ap_coeff_t b)
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
+
+bool ap_coeff_set_generic(num_internal_t intern, 
+			  ap_coeff_t a, ap_coeff_tag_t tag, va_list* va);
+bool ap_coeff_set_val(num_internal_t intern, 
+		      ap_coeff_t a, ap_coeff_tag_t tag, ...);
 
 MACRO_ALLZ
 bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, num_internal_t intern);

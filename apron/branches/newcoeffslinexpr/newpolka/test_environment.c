@@ -62,7 +62,7 @@ int main(int argc, char**argv)
 		       name_of_realdim1,3);
   environment_ref(e4);
   environment_fdump(stdout,e4);
-  for(i=0; i<e4->intdim+e4->realdim; i++){
+  for(i=0; i<e4->dim.intd+e4->dim.reald; i++){
     var_t var = environment_var_of_dim(e4,i);
     dim_t dim = environment_dim_of_var(e4,var);
     printf("i=%d, var=%s, dim=%d\n",i,var,dim);
@@ -80,8 +80,8 @@ int main(int argc, char**argv)
   e3 = environment_lce(e1,e2,&perm1,&perm2);
   environment_ref(e3);
   environment_fdump(stdout,e3);
-  permutation_fprint(stdout,perm1,e3->intdim+e3->realdim);
-  permutation_fprint(stdout,perm2,e3->intdim+e3->realdim);
+  permutation_fprint(stdout,perm1,e3->dim.intd+e3->dim.reald);
+  permutation_fprint(stdout,perm2,e3->dim.intd+e3->dim.reald);
   free(perm1);
   free(perm2);
 
@@ -90,7 +90,7 @@ int main(int argc, char**argv)
   environment_ref(e4);
   environment_fdump(stdout,e4);
   assert(perm1==NULL);
-  permutation_fprint(stdout,perm2,e3->intdim+e3->realdim);
+  permutation_fprint(stdout,perm2,e3->dim.intd+e3->dim.reald);
   free(perm2);
   environment_deref(e3);
   environment_deref(e4);
@@ -98,8 +98,8 @@ int main(int argc, char**argv)
   e3 = environment_lce(e1,e5,&perm1,&perm2);
   environment_ref(e3);
   environment_fdump(stdout,e3);
-  permutation_fprint(stdout,perm1,e3->intdim+e3->realdim);
-  permutation_fprint(stdout,perm2,e3->intdim+e3->realdim);
+  permutation_fprint(stdout,perm1,e3->dim.intd+e3->dim.reald);
+  permutation_fprint(stdout,perm2,e3->dim.intd+e3->dim.reald);
   free(perm1);
   free(perm2);
   environment_deref(e3);

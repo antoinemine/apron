@@ -77,6 +77,7 @@ void numZZZ_internal_init(numZZZ_internal* intern)
   eitvZZZ_init(intern->eitvZZZ_half);
   eitvZZZ_set_int2(intern->eitvZZZ_half,-1,1);
   eitvZZZ_mul_2exp(intern->eitvZZZ_half,intern->eitvZZZ_half,-1);
+  eitvZZZ_init(intern->generic_eitv);
   eitvZZZ_init(intern->eval_eitv);
   eitvZZZ_init(intern->eval_eitv2);
   eitvZZZ_init(intern->eval_eitv3);
@@ -107,6 +108,7 @@ void numZZZ_internal_clear(numZZZ_internal* intern)
   numZZZ_floatconst_clear(&intern->cst_extended);
   numZZZ_floatconst_clear(&intern->cst_quad);
   eitvZZZ_clear(intern->eitvZZZ_half);
+  eitvZZZ_clear(intern->generic_eitv);
   eitvZZZ_clear(intern->eval_eitv);
   eitvZZZ_clear(intern->eval_eitv2);
   eitvZZZ_clear(intern->eval_eitv3);
