@@ -27,6 +27,8 @@ t1p_t* t1p_alloc(ap_manager_t* man, size_t intdim, size_t realdim)
     res->abs = ap_abstract0_top(pr->manNS, 0, 0);
     res->hypercube = true;
     res->box = itv_array_alloc(intdim + realdim);
+    res->gn = 0;
+    res->g = NULL;
     checked_malloc(res->paf, t1p_aff_t*, res->dims, abort(););
 #ifdef _T1P_DEBUG
 //    fprintf(stdout, "********* alloc %tx*********\n",(intptr_t)res);
@@ -204,6 +206,7 @@ void t1p_fprint(FILE* stream,
     else if (t1p_is_top(man, a)) fprintf(stream,"top\n");
     else {
 	for (i=0; i<a->dims; i++) {
+	    if (a->paf[i]) {
 #ifdef _T1P_DEBUG
     fprintf(stdout, "[[pby %zu]]   ",a->paf[i]->pby);
 #endif
@@ -216,6 +219,9 @@ void t1p_fprint(FILE* stream,
 	    t1p_aff_fprint(pr, stream, a->paf[i]);
 	    itv_fprint(stdout, a->box[i]);
 	    fprintf(stream,"\n");
+	} else {
+	    fprintf(stream, "[[NULL]]\n");
+	}
 	}
     }
     size_t size = t1p_nsymcons_get_dimension(pr, a);

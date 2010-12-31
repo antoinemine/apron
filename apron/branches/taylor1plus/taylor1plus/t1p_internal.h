@@ -91,7 +91,7 @@ typedef struct optpr_indexinfo_t {
 typedef struct optpr_point_t {
     itv_t u0;
     itv_t lambda;
-    int* ui; /* table of (-1) or (0) or (+1) with size J, if (-1) min{a,b} = a; if (0) min{a,b} = a = b; if (+1), min{a,b} = +1 */
+    int* ui; /* table of (-1) or (0) or (+1) with size J, if (-1) min{a,b} = a; if (0) min{a,b} = a = b; if (+1), min{a,b} = b */
 } optpr_point_t;
 
 typedef struct optpr_problem_t {
@@ -141,6 +141,7 @@ typedef struct _t1p_internal_t {
     Tobj2 mubGlobal;
     size_t* inputns;
     size_t epssize;
+    size_t it;	/* compteur d'iterations à la Kleene */
 } t1p_internal_t;
 
 /***********/
@@ -156,6 +157,8 @@ typedef struct _t1p_t {
     ap_interval_t**	gamma;		/* pointer to an array which contains the concretisations of constrained noise symbols if any */
     size_t		size;		/* size of nsymcons and gamma */
     bool		hypercube;	/* true if no constrained nsym */
+    itv_t**		g;	/* array of the generators of the zonotope */
+    size_t		gn;		/* size of generators */
 } t1p_t;
 
 /* special object to store and compute meet with lincons */
@@ -255,6 +258,7 @@ static inline void t1p_aff_bound(t1p_internal_t* pr, itv_t res, t1p_aff_t *expr,
 static inline ap_linexpr0_t* t1p_ap_linexpr0_set_aff(t1p_internal_t* pr, t1p_aff_t* aff, t1p_t* a);
 static inline void t1p_update_nsymcons_gamma(t1p_internal_t* pr, t1p_t* a);
 
+static inline double t1p_aff_distance(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, t1p_t* obj);
 /*********************/
 /* Lattice operators */
 /*********************/
@@ -271,7 +275,7 @@ static inline t1p_aff_t* t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_t
 static inline t1p_aff_t* t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
 
 static inline t1p_aff_t* t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_t* expA, t1p_aff_t* expB, t1p_t *a, t1p_t *b, t1p_t *res);
-static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_dim_t dim, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab);
+static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab);
 
 static inline t1p_aff_t* t1p_aff_widening_constrained6(t1p_internal_t* pr, t1p_aff_t* exp1, t1p_aff_t* exp2, t1p_t* a, t1p_t* b, t1p_t* ab);
 static inline t1p_aff_t* t1p_aff_widening_constrained6bis(t1p_internal_t* pr, t1p_aff_t* exp1, t1p_aff_t* exp2, t1p_t* a, t1p_t* b, t1p_t* ab);
@@ -766,8 +770,12 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
     bool res = false;
     size_t i = 0;
 
+    /* b = [] either cst or has infinite bounds */
     if (!b->q) res = itv_is_leq(a->itv, b->c);
-    else if (!a->q) res = false;
+    /* b is a form and a = [] ... [] should be a point otherwise the test returns false */
+    else if (!a->q) 
+	if (itv_is_point(pr->itv,a->c)) res = itv_is_leq(a->c, b->itv);
+	else res = false;
     else 
       {
 	itv_t mid; itv_init(mid);
@@ -782,13 +790,17 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
 	itv_t betaB; itv_init(betaB);
 	itv_t tmp; itv_init(tmp);
 	t1p_aaterm_t *p, *q, *ptr;
-	if (!itv_is_eq(a->c, b->c)) itv_sub(c, a->c, b->c);
+	/* we do not compute here the difference (a->c - b->c) 
+	   to mime exactly the operations of computing the join.
+	   This ensures a <= a U b and b <= a U b when using doubles (non deterministic).
+	 */
+	itv_set(c,a->c);
 	if (a->q || b->q) {
 	    ptr = t1p_aaterm_alloc_init();
 	    for(p = a->q, q = b->q; p || q;) {
 		if (p && q) {
 		    if (p->pnsym->index == q->pnsym->index) {
-			if (!itv_is_eq(p->coeff, q->coeff)) itv_sub(ptr->coeff, p->coeff, q->coeff);
+			if (!itv_is_eq(p->coeff, q->coeff)) {itv_sub(ptr->coeff, p->coeff, q->coeff);}
 			ptr->pnsym = p->pnsym;
 			if (ptr->pnsym->type == UN) {
 			    t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
@@ -842,14 +854,7 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
 			t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
 			itv_mul(pr->itv, tmp, tmp, ptr->coeff);
 			itv_add(c, c, tmp);
-			/*
-			itv_middev(pr->itv, mid, dev, tmp);
-			itv_mul(pr->itv, tmp, mid, ptr->coeff);
-			itv_add(c, c, tmp);
-			itv_abs(ptr->coeff, ptr->coeff);
-			itv_mul(pr->itv, tmp, ptr->coeff, dev);
-			itv_add(d, d, tmp);
-			*/
+			itv_set_int(ptr->coeff,0);
 		    }
 		}
 	    }
@@ -859,11 +864,27 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
 	itv_middev(pr->itv, c2, d2, betaB);
 	itv_sub(tmp,c1,c2);
 	itv_add(c,c,tmp);
+	itv_sub(c,c,b->c);
 	itv_abs(c,c);
-	//itv_add(c,c,d);
-	itv_sub(d, d2, d1);
-	/* [c] <= ? [d] */
-	res = itv_cmp(c,d);
+	itv_add(d1,c,d1);
+	/* [d1] <= ? [d2] */
+#ifdef _T1P_DEBUG
+	printf("##########################################\n");
+	double ddebug;
+	double_set_num(&ddebug,bound_numref(d1->inf));
+	printf("[%.20f,",-1*ddebug);
+	double_set_num(&ddebug,bound_numref(d1->sup));
+	printf("%.20f]\n",ddebug);
+	//itv_print(d1);
+	//printf("\n");
+	//itv_print(d2);
+	double_set_num(&ddebug,bound_numref(d2->inf));
+	printf("[%.20f,",-1*ddebug);
+	double_set_num(&ddebug,bound_numref(d2->sup));
+	printf("%.20f]\n",ddebug);
+	printf("\n########################################\n");
+#endif
+	res = itv_cmp(d1,d2);
 
 	itv_clear(tmp);
 	itv_clear(c);
@@ -963,27 +984,28 @@ static inline bool t1p_aff_reduce(t1p_internal_t* pr, t1p_aff_t *expr)
 }
 
 /* fetch the interval concretisation of constrained symbol from the abstract object, then compute gamma(expr) and store it in res */
-static inline void t1p_aff_boxize(t1p_internal_t* pr, itv_t res, t1p_aff_t *expr, t1p_t* a)
+static inline void t1p_aff_boxize(t1p_internal_t* pr, itv_t res, t1p_aff_t *exp, t1p_t* a)
+{
+    if (exp->q == NULL) {
+	itv_set(res,exp->c);
+	return;
+    } else {
+	itv_t nsymItv1; itv_init(nsymItv1);
+	itv_t tmp; itv_init(tmp);
+	t1p_aaterm_t *p;
+	itv_set(res,exp->c);
+	for (p=exp->q;p;p=p->n) {
+	    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+	    itv_mul(pr->itv,tmp,nsymItv1,p->coeff);
+	    itv_add(res,res,tmp);
+	}
+    }
+}
+/*
 {
 
-    /*
-    size_t j = 0;
-fprintf(stdout, "\n");
-fprintf(stdout, "t1p_t* %x\n", (unsigned int)a);
-    size_t size = t1p_nsymcons_get_dimension(pr, a);
-ap_abstract0_fprint(stdout, pr->manNS, a->abs, 0x0);
-for (j=0; j<size; j++) {
-    fprintf(stdout, "a->nsymcons[%d]=%d\n", j, a->nsymcons[j]);
-fprintf(stdout, "a->gamma[%d] = %x\n", j, (unsigned int)a->gamma[j]);
-    ap_interval_fprint(stdout, a->gamma[j]);}
-fprintf(stdout, "\n");
-*/
-
-    //if (itv_has_infty_bound(expr->c)) {
-//	itv_set(res, expr->c);
-//	return;
-	if (itv_is_top(expr->c)) {
-	    itv_set_top(res);
+    if (itv_is_top(expr->c)) {
+	itv_set_top(res);
 	return;
     } else {
 	ap_dim_t dim;
@@ -1010,7 +1032,7 @@ fprintf(stdout, "\n");
 	}
 	itv_clear(tmp); itv_clear(eps_itv);
     }
-}
+}*/
 
 static inline void t1p_aff_bound(t1p_internal_t* pr, itv_t res, t1p_aff_t *expr, t1p_t* a)
 {
@@ -1189,6 +1211,7 @@ static inline t1p_aff_t * t1p_aff_join(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_
  */
 static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
+    clock_t start = clock();
     arg_assert(exp1 && exp2, abort(););
 
     t1p_aff_t * res = t1p_aff_alloc_init(pr);
@@ -1243,7 +1266,6 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
 			    itv_set(qmptr,q->coeff); 
 			    itv_set(pmptr,p->coeff);
 			}
-			 //   itv_sub(qmptr, q->coeff, ptr->coeff);
 		    }
 		    p = p->n ;
 		    q = q->n ;
@@ -1297,9 +1319,9 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
 		t1p_delete_constrained_nsym(pr, q->pnsym->index, ab);
 		q = q->n;
 	    }
-	    itv_mul(pr->itv, tmp1, pmptr, nsymItv1);
+	    itv_mul(pr->itv, tmp1, nsymItv1, pmptr);
 	    itv_add(c1, c1, tmp1);
-	    itv_mul(pr->itv, tmp2, qmptr, nsymItv2);
+	    itv_mul(pr->itv, tmp2, nsymItv2, qmptr);
 	    itv_add(c2, c2, tmp2);
 	    itv_set_int(pmptr,0);
 	    itv_set_int(qmptr,0);
@@ -1401,12 +1423,12 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
 	    else res = exp1;
 	} else t1p_aff_nsym_create(pr, res, beta, UN);
 
-	num_clear(c0); num_clear(min); num_clear(max); num_clear(dmin); num_clear(dmax);
 	num_clear(array[0]);
 	num_clear(array[1]);
 	num_clear(array[2]);
 	num_clear(array[3]);
 	itv_clear(beta);
+	num_clear(c0); num_clear(min); num_clear(max); num_clear(dmin); num_clear(dmax);
     } else {
 	t1p_aff_add_itv(pr, res, res->itv, UN);
     }
@@ -1425,6 +1447,27 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     itv_clear(qmptr);
     itv_clear(mid);
     itv_clear(dev);
+
+
+    clock_t end = clock();
+    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
+    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
+//    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_beta.txt", "a+");
+    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_time.txt", "a+");
+    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_distance.txt", "a+");
+    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_survivors.txt", "a+");
+    double perturbation = 0;
+    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
+    fprintf(streamB,"\t%f",perturbation);
+    fprintf(streamT,"\t%f",time);
+    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
+    fprintf(streamS,"\t%d",-1+res->l);
+    fclose(streamB);
+    fclose(streamT);
+    fclose(streamD);
+    fclose(streamS);
     return res;
 }
 
@@ -1443,7 +1486,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
 {
     arg_assert(exp1 && exp2, abort(););
 
-    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+    clock_t start = clock();
+    double ddebug = 0;
 
     itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
     itv_t c1, c2, d1, d2, c, d;
@@ -1465,39 +1509,126 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     itv_t midgx, midgy;
 
     itv_init(midgx); itv_init(midgy); /* TODO: to clear later */
-    /* !!!!!!!!!!!!!!!!! SUPPOSES THAT exp->itv contains always the interval concretisation of the form, not its interval in Reduced Product !!!!!!!!!!!!!!!!!!!!!!!!!! */
-    itv_middev(pr->itv, midgx, dev, exp1->itv);
-    itv_middev(pr->itv, midgy, dev, exp2->itv);
 
     itv_t alpha0; itv_init(alpha0); /* TODO: clear alpha0 */
-
     itv_t(alphaix); itv_t(alphaiy); itv_init(alphaix); itv_init(alphaiy);
 
     t1p_nsym_t* pnsym = NULL;
-
     t1p_aaterm_t *p, *q;
 
-    if (exp1->q || exp2->q) {
-	optpr_init(pr);
-	for(p = exp1->q, q = exp2->q; p || q;) {
-	    if (p && q) {
-		if (p->pnsym->index == q->pnsym->index) {
-		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
-		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
-		    if (p->pnsym->type == UN) {
-			pnsym = NULL;
-			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
-			itv_add(betaA, betaA, tmp);
-			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
-			itv_add(betaB, betaB, tmp);
-		    } else if (p->pnsym->type == IN) {
-			pnsym = p->pnsym;
-			itv_set(alphaix, p->coeff);
-			itv_set(alphaiy, q->coeff);
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+
+    if (t1p_aff_is_leq_constrained(pr, exp1, exp2, a, b)) {
+	itv_set(res->c, exp2->c);
+	if (exp2->q) {
+	    res->q = q = t1p_aaterm_alloc_init();
+	    res->l++;
+	    for (p=exp2->q; p; p=p->n) {
+		if (p->pnsym->type == UN) {
+		    t1p_nsymcons_get_gamma(pr, tmp1, p->pnsym->index, b);
+		    itv_mul(pr->itv, tmp1, tmp1, p->coeff);
+		    itv_add(betaA, betaA, tmp1);
+		} else {
+		    itv_set(q->coeff, p->coeff);
+		    q->pnsym = p->pnsym;
+		    if (p->n && p->n->pnsym->type == IN) {	
+			/* continue */
+			q->n = t1p_aaterm_alloc_init();
+			q = q->n;
+			res->l++;
+		    } else {
+			/* last iteration */
+			res->end = q;
 		    }
-		    p = p->n ;
-		    q = q->n ;
-		} else if (p->pnsym->index < q->pnsym->index) {
+		}
+	    }
+	}
+	itv_middev(pr->itv,mid,dev,betaA);
+	itv_add(res->c,res->c,mid);
+	t1p_aff_nsym_create(pr, res, dev, UN);
+    } else if (t1p_aff_is_leq_constrained(pr, exp2, exp1, b, a)) {
+	itv_set(res->c, exp1->c);
+	if (exp1->q) {
+	    res->q = q = t1p_aaterm_alloc_init();
+	    res->l++;
+	    for (p=exp1->q; p; p=p->n) {
+		if (p->pnsym->type == UN) {
+		    t1p_nsymcons_get_gamma(pr, tmp1, p->pnsym->index, a);
+		    itv_mul(pr->itv, tmp1, tmp1, p->coeff);
+		    itv_add(betaA, betaA, tmp1);
+		} else {
+		    itv_set(q->coeff, p->coeff);
+		    q->pnsym = p->pnsym;
+		    if (p->n && p->n->pnsym->type == IN) {	
+			/* continue */
+			q->n = t1p_aaterm_alloc_init();
+			q = q->n;
+			res->l++;
+		    } else {
+			/* last iteration */
+			res->end = q;
+		    }
+		}
+	    }
+	}
+	itv_middev(pr->itv,mid,dev,betaA);
+	itv_add(res->c,res->c,mid);
+	t1p_aff_nsym_create(pr, res, dev, UN);
+    } else {
+	/* TODO: y a peut etre moyen d'eviter de boxizer a chaque fois ... */
+	t1p_aff_boxize(pr, exp1->itv, exp1, a);
+	t1p_aff_boxize(pr, exp2->itv, exp2, b);
+	itv_middev(pr->itv, midgx, dev, exp1->itv);
+	itv_middev(pr->itv, midgy, dev, exp2->itv);
+
+	if (exp1->q || exp2->q) {
+	    optpr_init(pr);
+	    for(p = exp1->q, q = exp2->q; p || q;) {
+		if (p && q) {
+		    if (p->pnsym->index == q->pnsym->index) {
+			t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+			t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+			if (p->pnsym->type == UN) {
+			    pnsym = NULL;
+			    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			    itv_add(betaA, betaA, tmp);
+			    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			    itv_add(betaB, betaB, tmp);
+			} else if (p->pnsym->type == IN) {
+			    pnsym = p->pnsym;
+			    itv_set(alphaix, p->coeff);
+			    itv_set(alphaiy, q->coeff);
+			}
+			p = p->n ;
+			q = q->n ;
+		    } else if (p->pnsym->index < q->pnsym->index) {
+			t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+			t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+			if (p->pnsym->type == UN) {
+			    pnsym = NULL;
+			    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			    itv_add(betaA, betaA, tmp);
+			} else if (p->pnsym->type == IN) {
+			    pnsym = p->pnsym;
+			    itv_set(alphaix,p->coeff);
+			    itv_set_int(alphaiy,0);
+			}
+			p = p->n;
+		    } else {
+			t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+			t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+			if (q->pnsym->type == UN) {
+			    pnsym = NULL;
+			    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			    itv_add(betaB, betaB, tmp);
+			} else if (q->pnsym->type == IN) {
+			    pnsym = q->pnsym;
+			    itv_set_int(alphaix,0);
+			    itv_set(alphaiy,q->coeff);
+			}
+			q = q->n;
+		    }
+		} else if (p) {
 		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
 		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
 		    if (p->pnsym->type == UN) {
@@ -1524,92 +1655,66 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
 		    }
 		    q = q->n;
 		}
-	    } else if (p) {
-		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
-		t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
-		if (p->pnsym->type == UN) {
-		    pnsym = NULL;
-		    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
-		    itv_add(betaA, betaA, tmp);
-		} else if (p->pnsym->type == IN) {
-		    pnsym = p->pnsym;
-		    itv_set(alphaix,p->coeff);
-		    itv_set_int(alphaiy,0);
-		}
-		p = p->n;
-	    } else {
-		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
-		t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
-		if (q->pnsym->type == UN) {
-		    pnsym = NULL;
-		    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
-		    itv_add(betaB, betaB, tmp);
-		} else if (q->pnsym->type == IN) {
-		    pnsym = q->pnsym;
-		    itv_set_int(alphaix,0);
-		    itv_set(alphaiy,q->coeff);
-		}
-		q = q->n;
-	    }
-	    if (pnsym) {
-		if (itv_is_point(pr->itv, nsymItv1) && itv_is_point(pr->itv, nsymItv2)) {
-		    /* I^{xy} */
-		    if (itv_is_eq(nsymItv1,nsymItv2)) {
-			/* u0 != 0 */
+		if (pnsym) {
+		    if (itv_is_point(pr->itv, nsymItv1) && itv_is_point(pr->itv, nsymItv2)) {
+			/* I^{xy} */
+			if (itv_is_eq(nsymItv1,nsymItv2)) {
+			    /* u0 != 0 */
+			    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+			    //itv_mul(pr->itv, tmp, tmp, nsymItv1); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
+			    //itv_add(alpha0,alpha0,tmp);
+			    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IXY);
+			} else {
+			    /* u0 = 0 */
+			    itv_set_int(alpha0,0);
+			    optpr_u0_iszero(pr);
+			    // solve a much simpler problem
+			}
+		    } else if (itv_is_point(pr->itv, nsymItv1)) {
+			/* I^x */
 			//itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
 			//itv_mul(pr->itv, tmp, tmp, nsymItv1); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
 			//itv_add(alpha0,alpha0,tmp);
-			optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IXY);
+			optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IX);
+		    } else if (itv_is_point(pr->itv, nsymItv2)) {
+			/* I^y */
+			//itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+			//itv_mul(pr->itv, tmp, tmp, nsymItv2); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
+			//itv_add(alpha0,alpha0,tmp);
+			optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IY);
 		    } else {
-			/* u0 = 0 */
-			itv_set_int(alpha0,0);
-			optpr_u0_iszero(pr);
-			// solve a much simpler problem
+			/* J */
+			//itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
+			optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, J); /* construire le problème à résoudre */
 		    }
-		} else if (itv_is_point(pr->itv, nsymItv1)) {
-		    /* I^x */
-		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
-		    //itv_mul(pr->itv, tmp, tmp, nsymItv1); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
-		    //itv_add(alpha0,alpha0,tmp);
-		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IX);
-		} else if (itv_is_point(pr->itv, nsymItv2)) {
-		    /* I^y */
-		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
-		    //itv_mul(pr->itv, tmp, tmp, nsymItv2); /* (alpha_i^x - alpha_i^y)mid(eps_i^x) */
-		    //itv_add(alpha0,alpha0,tmp);
-		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, IY);
-		} else {
-		    /* J */
-		    //itv_sub(tmp, alphaix, alphaiy); /* alpha_i^x - alpha_i^y */
-		    optpr_build(pr, alphaix, alphaiy, pnsym, nsymItv1, nsymItv2, J); /* construire le problème à résoudre */
+		    pnsym = NULL;
 		}
-		pnsym = NULL;
 	    }
+
+	    itv_middev(pr->itv, mid, dev, betaA);
+	    itv_t taux; itv_init(taux);
+	    itv_set(taux, dev);
+	    itv_t cx; itv_init(cx);
+	    itv_add(cx, exp1->c, mid);
+
+	    itv_middev(pr->itv, mid, dev, betaB);
+	    itv_t tauy; itv_init(tauy);
+	    itv_set(tauy, dev);
+	    itv_t cy; itv_init(cy);
+	    itv_add(cy, exp2->c, mid);
+
+	    itv_sub(tmp, cx, cy);
+	    itv_clear(cx); itv_clear(cy);
+	    itv_add(alpha0, alpha0, tmp);
+
+	    optpr_solve(pr, exp1->c, alpha0, midgx, midgy, taux, tauy, res);
+	    itv_clear(taux);
+	    itv_clear(tauy);
+
+	    optpr_clear(pr); pr->optpr = NULL;
+	} else {
+	    t1p_aff_add_itv(pr, res, res->itv, UN);
 	}
-
-	itv_middev(pr->itv, mid, dev, betaA);
-	itv_t taux; itv_init(taux);
-	itv_set(taux, dev);
-	itv_t cx; itv_init(cx);
-	itv_add(cx, exp1->c, mid);
-
-	itv_middev(pr->itv, mid, dev, betaB);
-	itv_t tauy; itv_init(tauy);
-	itv_set(tauy, dev);
-	itv_t cy; itv_init(cy);
-	itv_add(cy, exp2->c, mid);
-
-	itv_sub(tmp, cx, cy);
-	itv_clear(cx); itv_clear(cy);
-	itv_add(alpha0, alpha0, tmp);
-
-	optpr_solve(pr, exp1->c, alpha0, midgx, midgy, taux, tauy, res);
-	itv_clear(taux);
-	itv_clear(tauy);
-
-	optpr_clear(pr); pr->optpr = NULL;
-    } else {
-	t1p_aff_add_itv(pr, res, res->itv, UN);
     }
     itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
     itv_clear(betaA); itv_clear(betaB);
@@ -1626,6 +1731,28 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     itv_clear(qmptr);
     itv_clear(mid);
     itv_clear(dev);
+
+    clock_t end = clock();
+    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
+    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
+    //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_beta.txt", "a+");
+    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_time.txt", "a+");
+    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_distance.txt", "a+");
+    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_survivors.txt", "a+");
+    double perturbation = 0;
+    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
+    fprintf(streamB,"\t%f",perturbation);
+    fprintf(streamT,"\t%f",time);
+    fprintf(stdout,"total: %f\n",time);
+    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
+    fprintf(streamS,"\t%d",-1+res->l);
+    fclose(streamB);
+    fclose(streamT);
+    fclose(streamD);
+    fclose(streamS);
+
     return res;
 }
 
@@ -2152,7 +2279,7 @@ static inline t1p_aff_t * t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_
     return res;
 }
 /* mub global avec beaucoup moins de eta (ss contraintes) */
-static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_dim_t dim, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
+static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
     arg_assert(exp1 && exp2, abort(););
 
@@ -2457,7 +2584,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_di
 		    //	res->end->pnsym = pr->mubGlobal.p[p->pnsym->index].x;
 		    //  }
 		}
-		t1p_aff_nsym_add(pr, res, d1, pr->mubGlobal.p[dim+pr->epssize].x);
+		//t1p_aff_nsym_add(pr, res, d1, pr->mubGlobal.p[dim+pr->epssize].x);
+		t1p_aff_nsym_create(pr, res, d1, UN);
 	    } else if (s == 1) {
 		//res = exp2;
 		itv_set(res->c, exp2->c);
@@ -2468,7 +2596,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_di
 		    //	res->end->pnsym = pr->mubGlobal.p[p->pnsym->index].x;
 		    //  }
 		}
-		t1p_aff_nsym_add(pr, res, d2, pr->mubGlobal.p[dim+pr->epssize].x);
+		//t1p_aff_nsym_add(pr, res, d2, pr->mubGlobal.p[dim+pr->epssize].x);
+		t1p_aff_nsym_create(pr, res, d2, UN);
 	    } else if (s == -1) {
 		//res = exp1;
 		itv_set(res->c, exp1->c);
@@ -2479,7 +2608,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_di
 		    //	res->end->pnsym = pr->mubGlobal.p[p->pnsym->index].x;
 		    //  }
 		}
-		t1p_aff_nsym_add(pr, res, d1, pr->mubGlobal.p[dim+pr->epssize].x);
+		//t1p_aff_nsym_add(pr, res, d1, pr->mubGlobal.p[dim+pr->epssize].x);
+		t1p_aff_nsym_create(pr, res, d1, UN);
 	    } else {
 		fatal("sign pas connu \n");
 	    }
@@ -2522,7 +2652,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, ap_di
 	    }
 	    itv_add(tmp, d1, d2);
 	    itv_mul_2exp(tmp, tmp, -1);
-	    t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[dim+pr->epssize].x);
+	    //t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[dim+pr->epssize].x);
+	    t1p_aff_nsym_create(pr, res, tmp, UN);
 	}
 
 	free(T);
@@ -2793,7 +2924,6 @@ static inline t1p_aff_t * t1p_aff_join_constrained6bis(t1p_internal_t* pr, t1p_a
     itv_clear(dev);
     return res;
 }
-
 /* ub global version arXiv2 */
 static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
@@ -2899,7 +3029,6 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp
     itv_clear(dev);
     return res;
 }
-
 /* mub global mean value formula */
 static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
@@ -3243,15 +3372,15 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 			ptr=ptr->n;
 		    }
 		    /*
-		    if (itv_is_eq(mid,T[i].coeffx)) itv_set_int(T[i].coeffx,0);
-		    else {
-			itv_sub(T[i].coeffx,mid,T[i].coeffx);
-		    }
-		    if (itv_is_eq(mid,T[i].coeffy)) itv_set_int(T[i].coeffy,0);
-		    else {
-			itv_sub(T[i].coeffy,mid,T[i].coeffy);
-		    }
-		    */
+		       if (itv_is_eq(mid,T[i].coeffx)) itv_set_int(T[i].coeffx,0);
+		       else {
+		       itv_sub(T[i].coeffx,mid,T[i].coeffx);
+		       }
+		       if (itv_is_eq(mid,T[i].coeffy)) itv_set_int(T[i].coeffy,0);
+		       else {
+		       itv_sub(T[i].coeffy,mid,T[i].coeffy);
+		       }
+		     */
 		}
 	    } else {
 		for (i=0;i<size;i++) {
@@ -3267,15 +3396,15 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 		    if (i==0) itv_set(res->c, mid);
 		    else t1p_aff_nsym_add(pr, res, mid, T[i].pnsym);
 		    /*
-		    if (itv_is_eq(tmp,T[i].coeffx)) itv_set_int(T[i].coeffx,0);
-		    else {
-			itv_sub(T[i].coeffx,mid,T[i].coeffx);
-		    }
-		    if (itv_is_eq(mid,T[i].coeffy)) itv_set_int(T[i].coeffy,0);
-		    else {
-			itv_sub(T[i].coeffy,mid,T[i].coeffy);
-		    }
-		    */
+		       if (itv_is_eq(tmp,T[i].coeffx)) itv_set_int(T[i].coeffx,0);
+		       else {
+		       itv_sub(T[i].coeffx,mid,T[i].coeffx);
+		       }
+		       if (itv_is_eq(mid,T[i].coeffy)) itv_set_int(T[i].coeffy,0);
+		       else {
+		       itv_sub(T[i].coeffy,mid,T[i].coeffy);
+		       }
+		     */
 		}
 	    }
 	    ap_abstract0_free(pk, obj1);
@@ -3317,7 +3446,7 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
     itv_clear(pmq);
     return res;
 }
-/* ub global en prenant le box qui englobe P^X et P^Y */
+/* ub global en prenant le zonotope qui englobe P^X et P^Y */
 static inline t1p_aff_t * t1p_aff_join_arXiv2ter(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
     arg_assert(exp1 && exp2, abort(););
@@ -3502,353 +3631,1037 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2ter(t1p_internal_t* pr, t1p_aff_t *
     itv_clear(dev);
     return res;
 }
+/* ub global avec 1/2(P^X + P^Y) + 1/2(P^X - P^Y) en prenant le zonotope qui englobe P^X et P^Y */
+static inline t1p_aff_t * t1p_aff_join_bub(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
+{
+    arg_assert(exp1 && exp2, abort(););
+
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+    itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
+    itv_t c1, c2, d1, d2, c, d;
+    itv_init(tmp); itv_init(tmp1); itv_init(tmp2);
+    itv_init(betaA); itv_init(betaB);
+    itv_init(c);
+    itv_init(c1);
+    itv_init(c2);
+    itv_init(d);
+    itv_init(d1);
+    itv_init(d2);
+    itv_init(mid);
+    itv_init(dev);
+    itv_t nsymItv1; itv_init(nsymItv1);
+    itv_t nsymItv2; itv_init(nsymItv2);
+    itv_t pmptr; itv_init(pmptr);
+    itv_t qmptr; itv_init(qmptr);
+    itv_t argminpq; itv_init(argminpq);
+    itv_t cst, pmq;
+    itv_t min, max, zero;
+    itv_init(cst);
+    itv_init(pmq);
+    itv_init(min);
+    itv_init(max);
+    itv_init(zero);
+
+    itv_join(res->itv, exp1->itv, exp2->itv);
+    size_t i = 0;
+
+    t1p_aaterm_t *p, *q, *ptr;
+
+    ptr = NULL;
+
+    int s = 0;
+
+    size_t old = pr->dim;
+
+    if (exp1->q || exp2->q) {
+	itv_set(c1, exp1->c);
+	itv_set(c2, exp2->c);
+	size_t size = 0;
+	size_t sizeZ = 0;
+	size_t nbcons = 0;
+
+	Tobj* T = (Tobj*)calloc((1+pr->epssize),sizeof(Tobj));
+	Tobj* Z = (Tobj*)calloc((pr->dim - 2*(1+pr->epssize)),sizeof(Tobj));
+	itv_init(T[size].coeffx);
+	itv_init(T[size].coeffy);
+	itv_set(T[size].coeffx,exp1->c);
+	itv_set(T[size].coeffy,exp2->c);
+	size++;
+	bool ok = false;
+	for(p = exp1->q, q = exp2->q; p || q;) {
+	    if (p && q) {
+		if (p->pnsym->index == q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_set(Z[sizeZ].coeffx,p->coeff);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffy,q->coeff);
+			Z[sizeZ].pnsym = p->pnsym;
+			sizeZ++;
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (p->pnsym->type == IN) {
+			ok = true;
+			T[size].pnsym = p->pnsym;
+			itv_init(T[size].coeffx);
+			itv_init(T[size].coeffy);
+			itv_set(T[size].coeffx,p->coeff);
+			itv_set(T[size].coeffy,q->coeff);
+		    }
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffx,p->coeff);
+			Z[sizeZ].pnsym = p->pnsym;
+			sizeZ++;
+			itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+			itv_add(betaA, betaA, tmp);
+		    } else if (p->pnsym->type == IN) {
+			ok = true;
+			s = itv_sign(pr->itv, p->coeff, zero);
+			T[size].pnsym = p->pnsym;
+			itv_init(T[size].coeffx);
+			itv_set(T[size].coeffx,p->coeff);
+		    }
+		    p = p->n;
+		} else {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		    if (q->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffy,q->coeff);
+			Z[sizeZ].pnsym = q->pnsym;
+			sizeZ++;
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (q->pnsym->type == IN) {
+			ok = true;
+			T[size].pnsym = q->pnsym;
+			itv_init(T[size].coeffy);
+			itv_set(T[size].coeffy,q->coeff);
+		    }
+		    q = q->n;
+		}
+	    } else if (p) {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		if (p->pnsym->type == UN) {
+		    itv_init(Z[sizeZ].coeffx);
+		    itv_init(Z[sizeZ].coeffy);
+		    itv_set(Z[sizeZ].coeffx,p->coeff);
+		    Z[sizeZ].pnsym = p->pnsym;
+		    sizeZ++;
+		    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+		    itv_add(betaA, betaA, tmp);
+		} else if (p->pnsym->type == IN) {
+		    ok = true;
+		    T[size].pnsym = p->pnsym;
+		    itv_init(T[size].coeffx);
+		    itv_set(T[size].coeffx,p->coeff);
+		}
+		p = p->n;
+	    } else {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		if (q->pnsym->type == UN) {
+		    itv_init(Z[sizeZ].coeffx);
+		    itv_init(Z[sizeZ].coeffy);
+		    itv_set(Z[sizeZ].coeffy,q->coeff);
+		    Z[sizeZ].pnsym = q->pnsym;
+		    sizeZ++;
+		    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+		    itv_add(betaB, betaB, tmp);
+		} else if (q->pnsym->type == IN) {
+		    ok = true;
+		    s = itv_sign(pr->itv,zero,q->coeff); 
+		    T[size].s = s;
+		    T[size].pnsym = q->pnsym;
+		    itv_init(T[size].coeffy);
+		    itv_set(T[size].coeffy,q->coeff);
+		}
+		q = q->n;
+	    }
+	    if (ok) {
+		size++;
+		ok = false;
+	    }
+	}
+	itv_middev(pr->itv, mid, dev, betaA);
+	itv_set(d1, dev);
+	itv_add(c1, c1, mid);
+
+	itv_middev(pr->itv, mid, dev, betaB);
+	itv_set(d2, dev);
+	itv_add(c2, c2, mid);
+
+	/* C^Z */
+	for (i=0;i<size;i++) {
+	    itv_neg(tmp,T[i].coeffx);
+	    if (itv_is_eq(tmp, T[i].coeffy)) itv_set_int(tmp,0);
+	    else itv_add(tmp,T[i].coeffx,T[i].coeffy);
+	    itv_mul_2exp(tmp, tmp, -1);
+	    if (i==0) {
+		itv_set(res->c, tmp);
+	    } else {
+		t1p_aff_nsym_add(pr, res, tmp, T[i].pnsym);
+	    }
+	}
+	/* 1/2(P^X + P^Y) & 1/2(P^X - P^Y) */
+	for (i=0;i<sizeZ;i++) {
+	    itv_neg(tmp,Z[i].coeffx);
+	    if (itv_is_eq(tmp, Z[i].coeffy)) itv_set_int(tmp,0);
+	    else itv_add(tmp,Z[i].coeffx, Z[i].coeffy);
+	    itv_mul_2exp(tmp, tmp, -1);
+	    t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[Z[i].pnsym->index].x);
+	}
+	for (i=0;i<sizeZ;i++) {
+	    if (itv_is_eq(Z[i].coeffx,Z[i].coeffy)) itv_set_int(tmp,0);
+	    else itv_sub(tmp,Z[i].coeffx, Z[i].coeffy);
+	    itv_mul_2exp(tmp, tmp, -1);
+	    t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[Z[i].pnsym->index].y);
+	    itv_clear(Z[i].coeffx);
+	    itv_clear(Z[i].coeffy);
+	}
+	/* 1/2(C^X - C^Y) */
+	for (i=0;i<size;i++) {
+	    if (itv_is_eq(T[i].coeffx, T[i].coeffy)) itv_set_int(tmp,0);
+	    else itv_sub(tmp,T[i].coeffx, T[i].coeffy);
+	    itv_mul_2exp(tmp, tmp, -1);
+	    if (i==0) t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.cx);
+	    else t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[T[i].pnsym->index].x);
+	    itv_clear(T[i].coeffx);
+	    itv_clear(T[i].coeffy);
+	}
+	free(T);
+	free(Z);
+    } else {
+	t1p_aff_add_itv(pr, res, res->itv, UN);
+    }
+    itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
+    itv_clear(betaA); itv_clear(betaB);
+    itv_clear(c);
+    itv_clear(c1);
+    itv_clear(c2);
+    itv_clear(d);
+    itv_clear(d1);
+    itv_clear(d2);
+    itv_clear(nsymItv1);
+    itv_clear(nsymItv2);
+    itv_clear(argminpq);
+    itv_clear(pmptr);
+    itv_clear(qmptr);
+    itv_clear(mid);
+    itv_clear(dev);
+    itv_clear(cst);
+    itv_clear(pmq);
+    return res;
+}
+/* ub global argmin formula instead of mean value formula (if possible) */
+static inline t1p_aff_t * t1p_aff_join_bub_argmin(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
+{
+    arg_assert(exp1 && exp2, abort(););
+
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+    itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
+    itv_t c1, c2, d1, d2, c, d;
+    itv_init(tmp); itv_init(tmp1); itv_init(tmp2);
+    itv_init(betaA); itv_init(betaB);
+    itv_init(c);
+    itv_init(c1);
+    itv_init(c2);
+    itv_init(d);
+    itv_init(d1);
+    itv_init(d2);
+    itv_init(mid);
+    itv_init(dev);
+    itv_t nsymItv1; itv_init(nsymItv1);
+    itv_t nsymItv2; itv_init(nsymItv2);
+    itv_t pmptr; itv_init(pmptr);
+    itv_t qmptr; itv_init(qmptr);
+    itv_t argminpq; itv_init(argminpq);
+    itv_t cst, pmq;
+    itv_t min, max, zero;
+    itv_init(cst);
+    itv_init(pmq);
+    itv_init(min);
+    itv_init(max);
+    itv_init(zero);
+
+    itv_join(res->itv, exp1->itv, exp2->itv);
+    size_t i = 0;
+
+    t1p_aaterm_t *p, *q, *ptr;
+
+    ptr = NULL;
+    int s = 0;
+    size_t old = pr->dim;
+
+    if (exp1->q || exp2->q) {
+	itv_set(c1, exp1->c);
+	itv_set(c2, exp2->c);
+	size_t size = 0;
+	size_t sizeZ = 0;
+	size_t nbcons = 0;
+	ap_interval_t * itv = ap_interval_alloc();
+	ap_manager_t* pk = box_manager_alloc();
+	ap_lincons0_array_t array1;
+	array1.size = 1;
+	array1.p = (ap_lincons0_t*)malloc(array1.size*sizeof(ap_lincons0_t));
+
+	ap_interval_t** tinterval = malloc((1+pr->epssize)*sizeof(ap_interval_t*));
+	Tobj* T = (Tobj*)calloc((1+pr->epssize),sizeof(Tobj));
+	Tobj* Z = (Tobj*)calloc((pr->dim - 2*(1+pr->epssize)),sizeof(Tobj));
+	s = itv_sign(pr->itv, exp1->c, exp2->c);
+	T[size].s = s;
+	itv_init(T[size].coeffx);
+	itv_init(T[size].coeffy);
+	itv_set(T[size].coeffx,exp1->c);
+	itv_set(T[size].coeffy,exp2->c);
+	if (s == 1) {
+	    itv_neg(tmp,exp2->c);
+	    if (!itv_is_eq(tmp,exp1->c)) itv_add(tmp,exp1->c,exp2->c);
+	    else itv_set_int(tmp,0);
+	    itv_neg(cst,tmp);
+	    //itv_sub(cst,cst,tmp);
+	    itv_set(min,exp1->c);
+	    itv_set(max,exp2->c);
+	} else if (s == -1) {
+	    itv_neg(tmp,exp2->c);
+	    if (!itv_is_eq(tmp,exp1->c)) itv_add(tmp,exp1->c,exp2->c);
+	    else itv_set_int(tmp,0);
+	    itv_set(cst,tmp);
+	    //itv_add(cst,cst,tmp);
+	    itv_set(min,exp2->c);
+	    itv_set(max,exp1->c);
+	} else if (s == 0) {
+	    itv_set(min,exp1->c);
+	    itv_set(max,exp2->c);
+	} else {
+	    printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+	    printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+	    itv_add(tmp,exp1->c,exp2->c);
+	    itv_mul_2exp(tmp, tmp, -1);
+	    itv_set(min,tmp);
+	    itv_set(max,tmp);
+	    T[size].s = 0;
+	    //fatal("Que faire dans ce cas ????\n");
+	}
+	tinterval[size] = ap_interval_alloc();
+	itv_join(tmp, min, max);
+	ap_interval_set_itv(pr->itv, tinterval[size], tmp);
+	size++;
+	bool ok = false;
+	for(p = exp1->q, q = exp2->q; p || q;) {
+	    if (p && q) {
+		if (p->pnsym->index == q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_set(Z[sizeZ].coeffx,p->coeff);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffy,q->coeff);
+			Z[sizeZ].pnsym = p->pnsym;
+			sizeZ++;
+		    }  else if (p->pnsym->type == IN) {
+			ok = true;
+			s = itv_sign(pr->itv, p->coeff,q->coeff);
+			T[size].pnsym = p->pnsym;
+			T[size].s = s;
+			itv_init(T[size].coeffx);
+			itv_init(T[size].coeffy);
+			itv_set(T[size].coeffx,p->coeff);
+			itv_set(T[size].coeffy,q->coeff);
+			if (s == 1) {
+			    itv_neg(tmp,p->coeff);
+			    if (!itv_is_eq(tmp,q->coeff)) itv_add(tmp,p->coeff,q->coeff);
+			    else itv_set_int(tmp,0);
+			    //		    itv_add(tmp,p->coeff,q->coeff);
+			    itv_sub(cst,cst,tmp);
+			    itv_set(min,p->coeff);
+			    itv_set(max,q->coeff);
+			} else if (s == -1) {
+			    itv_neg(tmp,p->coeff);
+			    if (!itv_is_eq(tmp,q->coeff)) itv_add(tmp,p->coeff,q->coeff);
+			    else itv_set_int(tmp,0);
+			    //		    itv_add(tmp,p->coeff,q->coeff);
+			    itv_add(cst,cst,tmp);
+			    itv_set(min,q->coeff);
+			    itv_set(max,p->coeff);
+			} else if (s == 0) {
+			    itv_set(min,p->coeff);
+			    itv_set(max,q->coeff);
+			} else {
+			    printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+			    printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+			    itv_add(tmp,p->coeff,q->coeff);
+			    itv_mul_2exp(tmp, tmp, -1);
+			    itv_set(min,tmp);
+			    itv_set(max,tmp);
+			    T[size].s = 0;
+			    //	    fatal("Que faire dans ce cas ????\n");
+			}
+		    }
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		    if (p->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffx,p->coeff);
+			Z[sizeZ].pnsym = p->pnsym;
+			sizeZ++;
+		    } else if (p->pnsym->type == IN) {
+			ok = true;
+			s = itv_sign(pr->itv, p->coeff, zero);
+			T[size].s = s;
+			T[size].pnsym = p->pnsym;
+			itv_init(T[size].coeffx);
+			itv_set(T[size].coeffx,p->coeff);
+		    itv_init(T[size].coeffy);
+			if (s == 1) {
+			    itv_sub(cst,cst,p->coeff);
+			    itv_set_int(max,0);
+			    itv_set(min,p->coeff);
+			} else if (s == -1) {
+			    itv_add(cst,cst,p->coeff);
+			    itv_set_int(min,0);
+			    itv_set(max,p->coeff);
+			} else if (s == 0) {
+			    itv_set_int(min,0);
+			    itv_set(max,p->coeff);
+			} else {
+			    //		    fatal("Que faire dans ce cas ????\n");
+			    printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+			    printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+			    itv_mul_2exp(tmp, p->coeff, -1);
+			    itv_set(min,tmp);
+			    itv_set(max,tmp);
+			    T[size].s = 0;
+			}
+		    }
+		    p = p->n;
+		} else {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		    if (q->pnsym->type == UN) {
+			itv_init(Z[sizeZ].coeffx);
+			itv_init(Z[sizeZ].coeffy);
+			itv_set(Z[sizeZ].coeffy,q->coeff);
+			Z[sizeZ].pnsym = q->pnsym;
+			sizeZ++;
+			itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+			itv_add(betaB, betaB, tmp);
+		    } else if (q->pnsym->type == IN) {
+			ok = true;
+			s = itv_sign(pr->itv,zero,q->coeff); 
+			T[size].s = s;
+			T[size].pnsym = q->pnsym;
+			itv_init(T[size].coeffy);
+			itv_set(T[size].coeffy,q->coeff);
+		    itv_init(T[size].coeffx);
+			if (s == 1) {
+			    itv_sub(cst,cst,q->coeff);
+			    itv_set_int(min,0);
+			    itv_set(max,q->coeff);
+			} else if (s == -1) {
+			    itv_add(cst,cst,q->coeff);
+			    itv_set_int(max,0);
+			    itv_set(min,q->coeff);
+			} else if (s == 0) {
+			    itv_set_int(min,0);
+			    itv_set(max,q->coeff);
+			} else {
+			    //		    fatal("Que faire dans ce cas ????\n");
+			    printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+			    printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+			    itv_mul_2exp(tmp, q->coeff, -1);
+			    itv_set(min,tmp);
+			    itv_set(max,tmp);
+			    T[size].s = 0;
+			}
+		    }
+		    q = q->n;
+		}
+	    } else if (p) {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, p->pnsym->index, b);
+		if (p->pnsym->type == UN) {
+		    itv_init(Z[sizeZ].coeffx);
+		    itv_init(Z[sizeZ].coeffy);
+		    itv_set(Z[sizeZ].coeffx,p->coeff);
+		    Z[sizeZ].pnsym = p->pnsym;
+		    sizeZ++;
+		    itv_mul(pr->itv, tmp, nsymItv1, p->coeff);
+		    itv_add(betaA, betaA, tmp);
+		} else if (p->pnsym->type == IN) {
+		    ok = true;
+		    s = itv_sign(pr->itv, p->coeff, zero);
+		    T[size].s = s;
+		    T[size].pnsym = p->pnsym;
+		    itv_init(T[size].coeffx);
+		    itv_set(T[size].coeffx,p->coeff);
+		    itv_init(T[size].coeffy);
+		    if (s == 1) {
+			itv_sub(cst,cst,p->coeff);
+			itv_set_int(max,0);
+			itv_set(min,p->coeff);
+		    } else if (s == -1) {
+			itv_add(cst,cst,p->coeff);
+			itv_set_int(min,0);
+			itv_set(max,p->coeff);
+		    } else if (s == 0) {
+			itv_set_int(min,0);
+			itv_set(max,p->coeff);
+		    } else {
+			//		fatal("Que faire dans ce cas ????\n");
+			printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+			printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+			itv_mul_2exp(tmp, p->coeff, -1);
+			itv_set(min,tmp);
+			itv_set(max,tmp);
+			T[size].s = 0;
+		    }
+		}
+		p = p->n;
+	    } else {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, a);
+		t1p_nsymcons_get_gamma(pr, nsymItv2, q->pnsym->index, b);
+		if (q->pnsym->type == UN) {
+		    itv_init(Z[sizeZ].coeffx);
+		    itv_init(Z[sizeZ].coeffy);
+		    itv_set(Z[sizeZ].coeffy,q->coeff);
+		    Z[sizeZ].pnsym = q->pnsym;
+		    sizeZ++;
+		    itv_mul(pr->itv, tmp, nsymItv2, q->coeff);
+		    itv_add(betaB, betaB, tmp);
+		} else if (q->pnsym->type == IN) {
+		    ok = true;
+		    s = itv_sign(pr->itv,zero,q->coeff); 
+		    T[size].s = s;
+		    T[size].pnsym = q->pnsym;
+		    itv_init(T[size].coeffx);
+		    itv_init(T[size].coeffy);
+		    itv_set(T[size].coeffy,q->coeff);
+		    if (s == 1) {
+			itv_sub(cst,cst,q->coeff);
+			itv_set_int(min,0);
+			itv_set(max,q->coeff);
+		    } else if (s == -1) {
+			itv_add(cst,cst,q->coeff);
+			itv_set_int(max,0);
+			itv_set(min,q->coeff);
+		    } else if (s == 0) {
+			itv_set_int(min,0);
+			itv_set(max,q->coeff);
+		    } else {
+			//		fatal("Que faire dans ce cas ????\n");
+			printf("%d : ",s);itv_print(exp1->c);printf("\t");itv_print(exp2->c);printf("\n");
+			printf("sign is undef, fixing alphaz to (alphax+alphay)/2 \n");
+			itv_mul_2exp(tmp, q->coeff, -1);
+			itv_set(min,tmp);
+			itv_set(max,tmp);
+			T[size].s = 0;
+		    }
+		}
+		q = q->n;
+	    }
+	    if (ok) {
+		tinterval[size] = ap_interval_alloc();
+		itv_join(tmp, min, max);
+		ap_interval_set_itv(pr->itv, tinterval[size], tmp);
+		size++;
+		ok = false;
+	    }
+	}
+	itv_mul_2exp(cst, cst, -1);
+
+	array1.p[0].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, size);
+	array1.p[0].constyp = AP_CONS_EQ;
+	array1.p[0].scalar = NULL;
+	for (i=0; i<size; i++) {
+	    ap_linexpr0_set_coeff_scalar_int(array1.p[0].linexpr0, (ap_dim_t)(i), (-1*T[i].s));
+	}
+	itv_neg(tmp,cst);
+	ap_interval_set_itv(pr->itv, itv, tmp);
+	ap_linexpr0_set_cst_interval(array1.p[0].linexpr0, itv);
+	ap_abstract0_t* obj = ap_abstract0_of_box(pk, 0, size, tinterval);
+	ap_abstract0_meet_lincons_array(pk, true, obj, &array1);
+	//ap_abstract0_fprint(stdout, pk, obj, NULL);
+	if (false) {
+	    /* on a soit x<y ou y<x on va retourner celui qui a le plus grand mub */
+	    printf("d1: ");itv_print(d1);printf("\t d2:");itv_print(d2);printf("\n");		
+	    s = itv_sign(pr->itv, d1, d2);
+	    printf("s : %d\n",s);
+	    if (s == 0) {
+		//t1p_aff_free(pr, res);
+		//res = exp1;
+		itv_set(res->c, exp1->c);
+		itv_set(res->itv, exp1->itv);
+		for(p = exp1->q; p; p=p->n) {
+		    t1p_aff_nsym_add(pr, res, p->coeff, p->pnsym);
+		}
+	    } else if (s == 1) {
+		//t1p_aff_free(pr, res);
+		//res = exp2;
+		itv_set(res->c, exp2->c);
+		itv_set(res->itv, exp2->itv);
+		for(p = exp1->q; p; p=p->n) {
+		    t1p_aff_nsym_add(pr, res, p->coeff, p->pnsym);
+		}
+	    } else if (s == -1) {
+		//t1p_aff_free(pr, res);
+		//res = exp1;
+		itv_set(res->c, exp1->c);
+		itv_set(res->itv, exp1->itv);
+		for(p = exp1->q; p; p=p->n) {
+		    t1p_aff_nsym_add(pr, res, p->coeff, p->pnsym);
+		}
+	    } else {
+		fatal("sign pas connu \n");
+	    }
+	} else {
+	    for (i=1;i<size;i++) {
+		itv = ap_abstract0_bound_dimension(pk, obj, (ap_dim_t)i);
+		itv_set_ap_interval(pr->itv, tmp, itv);
+		itv_set_num(tmp1, bound_numref(tmp->sup));
+		itv_set_num(tmp2, bound_numref(tmp->inf));
+		itv_neg(tmp2,tmp2);
+		argmin(pr, tmp, tmp1, tmp2);
+		ap_interval_set_itv(pr->itv, tinterval[i], tmp);
+	    }
+	    ap_abstract0_t* obj1 = ap_abstract0_of_box(pk, 0, size, tinterval);
+	    ap_abstract0_meet_lincons_array(pk, true, obj1, &array1);
+	    printf("\n******************* obj1 ***************************\n");
+	    ap_abstract0_fprint(stdout, pk, obj1, NULL);
+	    printf("\n**********************************************\n");
+	    /* C^Z */
+	    if (ap_abstract0_is_bottom(pk, obj1)) {
+		/* mean value solution */
+		for (i=0;i<size;i++) {
+		    itv_neg(tmp,T[i].coeffx);
+		    if (itv_is_eq(tmp, T[i].coeffy)) itv_set_int(tmp,0);
+		    else itv_add(tmp,T[i].coeffx,T[i].coeffy);
+		    itv_mul_2exp(tmp, tmp, -1);
+		    if (i==0) {
+			itv_set(res->c, tmp);
+		    } else {
+			t1p_aff_nsym_add(pr, res, tmp, T[i].pnsym);
+		    }
+		}
+	    } else {
+		for (i=0;i<size;i++) {
+		    if (!itv_is_eq(T[i].coeffx,T[i].coeffy)) {
+			itv_sub(tmp,T[i].coeffx,T[i].coeffy);
+			itv_abs(tmp,tmp);
+		    } else itv_set_int(tmp,0);
+		    itv = ap_abstract0_bound_dimension(pk, obj1, (ap_dim_t)i);
+		    itv_set_ap_interval(pr->itv, tmp, itv);
+		    if (i==0) itv_set(res->c, tmp);
+		    else t1p_aff_nsym_add(pr, res, tmp, T[i].pnsym);
+		}
+	    }
+	    ap_abstract0_free(pk, obj1);
+	    /* 1/2(P^X + P^Y) & 1/2(P^X - P^Y) */
+	    for (i=0;i<sizeZ;i++) {
+		itv_neg(tmp,Z[i].coeffx);
+		if (itv_is_eq(tmp, Z[i].coeffy)) itv_set_int(tmp,0);
+		else itv_add(tmp,Z[i].coeffx, Z[i].coeffy);
+		itv_mul_2exp(tmp, tmp, -1);
+		t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[Z[i].pnsym->index].x);
+	    }
+	    for (i=0;i<sizeZ;i++) {
+		if (itv_is_eq(Z[i].coeffx,Z[i].coeffy)) itv_set_int(tmp,0);
+		else itv_sub(tmp,Z[i].coeffx, Z[i].coeffy);
+		itv_mul_2exp(tmp, tmp, -1);
+		t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[Z[i].pnsym->index].y);
+		itv_clear(Z[i].coeffx);
+		itv_clear(Z[i].coeffy);
+	    }
+	    /* 1/2(C^X - C^Y) */
+	    for (i=0;i<size;i++) {
+		if (itv_is_eq(T[i].coeffx, T[i].coeffy)) itv_set_int(tmp,0);
+		else itv_sub(tmp,T[i].coeffx, T[i].coeffy);
+		itv_mul_2exp(tmp, tmp, -1);
+		if (i==0) t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.cx);
+		else t1p_aff_nsym_add(pr, res, tmp, pr->mubGlobal.p[T[i].pnsym->index].x);
+		itv_clear(T[i].coeffx);
+		itv_clear(T[i].coeffy);
+	    }
+	}
+	free(T);
+	free(Z);
+	for (i=0;i<size;i++) ap_interval_free(tinterval[i]);
+	ap_interval_free(itv);
+	free(tinterval);
+	ap_lincons0_array_clear(&array1);
+	ap_abstract0_free(pk, obj);
+	ap_manager_free(pk);
+    } else {
+	t1p_aff_add_itv(pr, res, res->itv, UN);
+    }
+    itv_clear(tmp); itv_clear(tmp1); itv_clear(tmp2);
+    itv_clear(betaA); itv_clear(betaB);
+    itv_clear(c);
+    itv_clear(c1);
+    itv_clear(c2);
+    itv_clear(d);
+    itv_clear(d1);
+    itv_clear(d2);
+    itv_clear(nsymItv1);
+    itv_clear(nsymItv2);
+    itv_clear(argminpq);
+    itv_clear(pmptr);
+    itv_clear(qmptr);
+    itv_clear(mid);
+    itv_clear(dev);
+    itv_clear(cst);
+    itv_clear(pmq);
+    return res;
+}
 /* draft CAV 2010 *
  * computes mub with minimal interval concretisation
  */
-//static inline t1p_aff_t * t1p_aff_join_constrained1(t1p_internal_t* pr, t1p_aff_t *exp_a, t1p_aff_t *exp_b, t1p_t* a, t1p_t* b, t1p_t* ab) 
-//{
-//    t1p_aff_t *exp1 = exp_a;
-//    t1p_aff_t *exp2 = exp_b;
-//    itv_t *gammaa = gamma_a;
-//    itv_t *gammab = gamma_b;	
-//    itv_t *gamma = gamma_ab;
-//    ap_dim_t* nsymconsa = nsymcons_a;
-//    ap_dim_t* nsymconsb = nsymcons_b;
-//    ap_dim_t* nsymcons = nsymcons_res;
-//
-//    arg_assert(exp1 && exp2, abort(););
-//    t1p_aff_t * res = t1p_aff_alloc_init(pr);
-//    void * ptmp = NULL;	/* needed for swap */
-//    itv_t mid, dev;
-//    itv_t mid1, dev1; itv_init(mid1); itv_init(dev1);	/* TODO: verifier les clear apres */
-//    itv_t mid2, dev2; itv_init(mid2); itv_init(dev2);
-//    itv_t itv, itv1, itv2;
-//    itv_init(itv); itv_init(itv1); itv_init(itv2);
-//    itv_t tmp, abscoeff, beta;
-//    itv_init(tmp); itv_init(abscoeff); itv_init(beta);
-//    t1p_aaterm_t *lastu = NULL;
-//    t1p_aaterm_t *p, *q, *ptr;
-//
-//    t1p_aff_boxize(pr, itv1, exp1, a);			/* gamma(exp1) */
-//    t1p_aff_boxize(pr, itv2, exp2, b);			/* gamma(exp2) */
-//    itv_middev(pr->itv, mid1, dev1, itv1);
-//    itv_middev(pr->itv, mid2, dev2, itv2);
-//    itv_join(itv, itv1, itv2);
-//    itv_middev(pr->itv, mid, dev, itv);
-//    if (itv_cmp(mid1, mid2)) {;} 
-//    else {
-//	/* swap exp1 and exp2 */
-//	ptmp = (void*)exp1;
-//	exp1 = exp2;
-//	exp2 = (t1p_aff_t*)ptmp;
-//	/* swap gammaa and gammab */
-//	ptmp = (void*)a;
-//	a = b;
-//	b = (itv_t*)ptmp;
-//	itv_swap(itv1, itv2);
-//	itv_swap(mid1, mid2);
-//	itv_swap(dev1, dev2);
-//    }
-//    if (!(itv_is_generic(itv1, itv2))) {
-//	itv_set(beta, dev);
-//	itv_set(res->c, mid);
-//	t1p_aff_nsym_create(pr, res, beta);
-//	res->lastu = res->end;
-//	return res;
-//    } else {
-//	/* exp1 and exp2 are in generic position and mid(exp1) \leq mid(exp2) */
-//	itv_t argminpq; itv_init(argminpq);
-//	ptr = NULL;
-//
-//	if (exp1->q && exp2->q) {
-//	    itv_t nsym_gammaa, nsym_gammab, nsym_gamma_res;
-//	    itv_init(nsym_gammaa); itv_init(nsym_gammab); itv_init(nsym_gamma_res);
-//	    itv_t suma, sumb; itv_init(suma); itv_init(sumb);
-//	    itv_t mida, midb, midab, deva, devb, devab, tmpa, tmpb;
-//	    itv_init(mida); itv_init(midb); itv_init(midab); itv_init(deva); itv_init(devb); itv_init(devab);
-//	    itv_init(tmpa);itv_init(tmpb);
-//	    itv_t* hypercube = itv_array_alloc(exp1->l + exp2->l);
-//	    ap_linexpr0_t* a_linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);
-//	    ap_linexpr0_t* b_linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);
-//	    a_linexpr0->p.linterm = (ap_linterm_t*)malloc((exp1->l + exp2->l)*sizeof(ap_linterm_t));
-//	    b_linexpr0->p.linterm = (ap_linterm_t*)malloc((exp1->l + exp2->l)*sizeof(ap_linterm_t));
-//	    a_linexpr0->size = exp1->l + exp2->l;
-//	    b_linexpr0->size = exp1->l + exp2->l;
-//	    ap_coeff_t* coeff = ap_coeff_alloc(AP_COEFF_INTERVAL);
-//	    itv_sub(tmp, mid, mid1);
-//	    ap_coeff_set_itv(pr->itv, coeff, tmp);
-//	    itv_set(suma, tmp);
-//	    ap_linexpr0_set_cst(a_linexpr0, coeff);
-//	    itv_sub(tmp, mid2, mid);
-//	    ap_coeff_set_itv(pr->itv, coeff, tmp);
-//	    itv_set(sumb, tmp);
-//	    ap_linexpr0_set_cst(b_linexpr0, coeff);
-//	    ap_dim_t dim_nsym_a, dim_nsym_b, dim_nsym_res;
-//	    for(p = exp1->q, q = exp2->q; p && q;) {
-//		if (p->pnsym->index == q->pnsym->index) {				/* coeff of the same noise symbol */
-//		    if (t1p_nsymcons_get_dim(pr, &dim_nsym_a, p->pnsym->index, nsymconsa, sizeofa_abs)) itv_set(nsym_gammaa, gammaa[dim_nsym_a]);
-//		    else itv_set(nsym_gammaa, pr->muu);
-//		    if (t1p_nsymcons_get_dim(pr, &dim_nsym_b, p->pnsym->index, nsymconsb, sizeofb_abs)) itv_set(nsym_gammab, gammab[dim_nsym_b]);
-//		    else itv_set(nsym_gammab, pr->muu);
-//		    //if (dim_nsym_a == -1) {itv_set(nsym_gammaa, pr->muu);}
-//		    //else {itv_set(nsym_gammaa, gammaa[dim_nsym_a]);}
-//		    //if (dim_nsym_b == -1) {itv_set(nsym_gammab, pr->muu);}
-//		    //else {itv_set(nsym_gammab, gammab[dim_nsym_b]);}
-//		    if (itv_is_generic(nsym_gammaa, nsym_gammab)) {
-//			/* eps_i^a et eps_i^b sont en pos generique */
-//			if (t1p_nsymcons_get_dim(pr, &dim_nsym_res, p->pnsym->index, nsymcons, sizeofres_abs)) itv_set(nsym_gamma_res, gamma[dim_nsym_res]);
-//			else itv_set(nsym_gamma_res, pr->muu);
-//			//dim_nsym_res = t1p_nsymcons_get_dim(pr, p->pnsym->index, nsymcons, sizeofres_abs);
-//			//if (dim_nsym_res == -1) {itv_set(nsym_gamma_res, pr->muu);}
-//			//else {itv_set(nsym_gamma_res, gamma[dim_nsym_res]);}
-//			itv_middev(pr->itv, mida, deva, nsym_gammaa);
-//			itv_middev(pr->itv, midb, devb, nsym_gammab);
-//			itv_middev(pr->itv, midab, devab, nsym_gamma_res);
-//			itv_sub(tmpa, mida, midab);
-//			itv_sub(tmpb, midb, midab);
-//			if (itv_is_pos(p->coeff) && itv_is_pos(q->coeff)) {
-//			    /* \alpha_i^a et \alpha_i^b sont pos -> \alpha_i^c est pos */
-//			    if (itv_is_neg(tmpa) && itv_is_pos(tmpb)) {
-//				/* \alpha_i^c <> 0 */
-//				if (argmin(pr, argminpq, p->coeff, q->coeff)) {
-//				    if (res->q == NULL) {
-//					res->q = ptr = t1p_aaterm_alloc_init();			/* allocate the first element of res->q */
-//					res->l++;
-//				    } else {
-//					ptr->n = t1p_aaterm_alloc_init();
-//					res->l++;
-//					ptr = ptr->n;
-//				    }
-//				    if (exp1->lastu && exp2->lastu) {				/* keep track of the perturbation noise symbol */
-//					if (exp1->lastu == p && exp2->lastu == q) lastu = ptr;	/* only if exp1->lastu and exp2->lastu resist to argmin formula */
-//				    } 
-//				    ptr->pnsym = p->pnsym;						/* set the index of the noise symbol */
-//				    itv_set(ptr->coeff, argminpq);					/* set the coefficient as the argmin of the two other coefficients */
-//				    itv_set(hypercube[-1 + res->l],argminpq);
-//				    bound_init(hypercube[-1 + res->l]->inf);			/* store [0, argmin] in hypercube[-1 + res->l] */
-//				    ap_coeff_init(&a_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
-//				    ap_coeff_set_itv(pr->itv, &a_linexpr0->p.linterm[-1 + res->l].coeff, tmpa);
-//				    a_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
-//				    itv_mul(pr->itv, tmp, ptr->coeff, tmpa);
-//				    itv_add(suma, suma, tmp);
-//				    ap_coeff_init(&b_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
-//				    itv_neg(tmpb,tmpb);
-//				    ap_coeff_set_itv(pr->itv, &b_linexpr0->p.linterm[-1 + res->l].coeff, tmpb);
-//				    b_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
-//				    itv_mul(pr->itv, tmp, ptr->coeff, tmpb);
-//				    itv_add(sumb, sumb, tmp);
-//				} else {
-//				    add_dim_to_remove(pr, p->pnsym->index);
-//				}
-//			    } else {
-//				add_dim_to_remove(pr, p->pnsym->index);
-//			    }
-//			} else if (itv_is_neg(p->coeff) && itv_is_neg(q->coeff)) {
-//			    /* \alpha_i^a et \alpha_i^b sont neq -> \alpha_i^c est neg */
-//			    if (itv_is_pos(tmpa) && itv_is_neg(tmpb)) {
-//				/* \alpha_i^c <> 0 */
-//				if (argmin(pr, argminpq, p->coeff, q->coeff)) {
-//				    if (res->q == NULL) {
-//					res->q = ptr = t1p_aaterm_alloc_init();			/* allocate the first element of res->q */
-//					res->l++;
-//				    } else {
-//					ptr->n = t1p_aaterm_alloc_init();
-//					res->l++;
-//					ptr = ptr->n;
-//				    }
-//				    if (exp1->lastu && exp2->lastu) {				/* keep track of the perturbation noise symbol */
-//					if (exp1->lastu == p && exp2->lastu == q) lastu = ptr;	/* only if exp1->lastu and exp2->lastu resist to argmin formula */
-//				    } 
-//				    ptr->pnsym = p->pnsym;					/* set the index of the noise symbol */
-//				    itv_set(ptr->coeff, argminpq);				/* set the coefficient as the argmin of the two other coefficients */
-//				    itv_set(hypercube[-1 + res->l], argminpq);
-//				    bound_init(hypercube[-1 + res->l]->sup);				/* store [argmin, 0] in hypercube[-1 + res->l] */
-//				    ap_coeff_init(&a_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
-//				    ap_coeff_set_itv(pr->itv, &a_linexpr0->p.linterm[-1 + res->l].coeff, tmpa);
-//				    a_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
-//				    itv_mul(pr->itv, tmp, ptr->coeff, tmpa);
-//				    itv_add(suma, suma, tmp);
-//				    ap_coeff_init(&b_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
-//				    itv_neg(tmpb,tmpb);
-//				    ap_coeff_set_itv(pr->itv, &b_linexpr0->p.linterm[-1 + res->l].coeff, tmpb);
-//				    b_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
-//				    itv_mul(pr->itv, tmp, ptr->coeff, tmpb);
-//				    itv_add(sumb, sumb, tmp);
-//				} else {
-//				    add_dim_to_remove(pr, p->pnsym->index);
-//				}
-//			    } else {
-//				add_dim_to_remove(pr, p->pnsym->index);
-//			    }
-//			} else {
-//			    add_dim_to_remove(pr, p->pnsym->index);
-//			}
-//		    } else {
-//			add_dim_to_remove(pr, p->pnsym->index);
-//		    }
-//		    p = p->n ;
-//		    q = q->n ;
-//		} else if (p->pnsym->index < q->pnsym->index) {
-//		    p = p->n ;
-//		    add_dim_to_remove(pr, p->pnsym->index);
-//		} else {
-//		    q = q->n ;
-//		    add_dim_to_remove(pr, q->pnsym->index);
-//		}
-//		/*
-//		   if (p && q) {
-//		   if (p->pnsym->index == q->pnsym->index && res->q) {
-//		   if (argmin(pr, argminpq, p->coeff, q->coeff)) {
-//		   ptr->n = t1p_aaterm_alloc_init();			//allocate the next element of res->q
-//		   res->l++;
-//		   ptr=ptr->n;
-//		   }
-//		   }
-//		   }*/
-//	    }
-//	    if (ptr) {
-//		ptr->n = NULL;
-//		res->end = ptr;
-//	    }
-//	    /* Delete the join symbol if exists.
-//	     * This is done simply by setting the coeff to zero, hence this will not appear while computing the norm.
-//	     * TODO: what if the perturbation coeff isupports constraints ?
-//	     */
-//	    if (lastu) {
-//		itv_init(lastu->coeff);
-//	    }
-//	    ap_lincons0_array_t hyperplane = ap_lincons0_array_make(1);
-//	    //itv_fprint(stdout,suma); printf("\n");
-//	    //itv_fprint(stdout,sumb); printf("\n");
-//	    num_t eps;
-//	    itv_t err; itv_init(err);
-//	    num_set_double(eps,(double)1000*1.11022302462515654042e-16); /* threshold : 1000*last bit in the mantissa in double precision */
-//	    itv_set_unit_num(err, eps);
-//	    //printf("err: ");itv_fprint(stdout,err); printf("\n");
-//	    size_t k = 0;
-//	    if (bound_cmp(suma->inf,eps) <= 0) {
-//		//if (itv_is_pos(suma)) 
-//		if (bound_cmp(sumb->inf,eps)) {
-//		    //if (itv_is_pos(sumb)) 
-//		    //printf("here\n");
-//		    /* argmin solution is ok */
-//		    /* compute beta and alpha_0 */
-//		} else {
-//		    /* compute intersection with cons b_linexpr0 */
-//		    itv_t midi, devi;
-//		    itv_init(midi); itv_init(devi);
-//		    b_linexpr0->p.linterm = (ap_linterm_t*)realloc(b_linexpr0->p.linterm, (res->l)*sizeof(ap_linterm_t));
-//		    b_linexpr0->size = res->l;
-//		    hyperplane.p[0] = ap_lincons0_make(AP_CONS_EQ, b_linexpr0, NULL);
-//		    ap_interval_t** tinterval = ap_interval_array_alloc(res->l);
-//		    for (k=0; k<res->l; k++) {
-//			ap_interval_set_itv(pr->itv, tinterval[k], hypercube[k]);
-//		    }
-//		    ap_abstract0_t* abs = ap_abstract0_of_box(pr->box, 0, res->l, tinterval);
-//		    ap_abstract0_t* abs1 = ap_abstract0_meet_lincons_array(pr->box, false, abs, &hyperplane);
-//		    ap_interval_t** tinterval2 = ap_abstract0_to_box(pr->box, abs1);
-//		    k = 0;
-//		    for (p=res->q; p; p=p->n) {
-//			itv_set_ap_interval(pr->itv, tmp, tinterval2[k]);
-//			itv_middev(pr->itv, midi, devi, tmp);
-//			itv_set(p->coeff, midi);
-//			k++;
-//		    }
-//		    itv_clear(midi); itv_clear(devi);
-//		    ap_abstract0_free(pr->box, abs1);
-//		    ap_abstract0_free(pr->box, abs);
-//		    ap_interval_array_free(tinterval2, res->l);
-//		    ap_interval_array_free(tinterval, res->l);
-//		}
-//	    } else {
-//		//if (itv_is_pos(sumb)) 
-//		if (bound_cmp(sumb->inf, eps)) {
-//		    /* compute intersection with cons c_x */
-//		    itv_t midi, devi;
-//		    itv_init(midi); itv_init(devi);
-//		    a_linexpr0->p.linterm = (ap_linterm_t*)realloc(a_linexpr0->p.linterm, (res->l)*sizeof(ap_linterm_t));
-//		    a_linexpr0->size = res->l;
-//		    hyperplane.p[0] = ap_lincons0_make(AP_CONS_EQ, a_linexpr0, NULL);
-//		    ap_interval_t** tinterval = ap_interval_array_alloc(res->l);
-//		    for (k=0; k<res->l; k++) {
-//			ap_interval_set_itv(pr->itv, tinterval[k], hypercube[k]);
-//		    }
-//		    ap_abstract0_t* abs = ap_abstract0_of_box(pr->box, 0, res->l, tinterval);
-//		    ap_abstract0_t* abs1 = ap_abstract0_meet_lincons_array(pr->box, false, abs, &hyperplane);
-//		    ap_interval_t** tinterval2 = ap_abstract0_to_box(pr->box, abs1);
-//		    k = 0;
-//		    for (p=res->q; p; p=p->n) {
-//			itv_set_ap_interval(pr->itv, tmp, tinterval2[k]);
-//			itv_middev(pr->itv, midi, devi, tmp);
-//			itv_set(p->coeff, midi);
-//			k++;
-//		    }
-//		    itv_clear(suma); itv_clear(sumb);
-//		    itv_clear(mida); itv_clear(midb); itv_clear(midab); itv_clear(deva); itv_clear(devb); itv_clear(devab);
-//		    itv_clear(tmpa);itv_clear(tmpb);
-//		    itv_clear(midi); itv_clear(devi);
-//		    ap_abstract0_free(pr->box, abs1);
-//		    ap_abstract0_free(pr->box, abs);
-//		    ap_interval_array_free(tinterval2, res->l);
-//		    ap_interval_array_free(tinterval, res->l);
-//		} else {
-//		    /* both intersects return degenerate mub */
-//		    t1p_aff_clear(pr, res);
-//		    itv_set(beta, dev);
-//		    itv_set(res->c, mid);
-//		    t1p_aff_nsym_create(pr, res, beta);
-//		    res->lastu = res->end;
-//		    return res;
-//		}
-//	    }
-//	    /* compute \beta and \alpha_0^c */
-//	    itv_set(beta, dev);
-//	    itv_set(res->c, mid);
-//	    //if (gamma_ab == NULL) {		/* use the hypercube [-1,1]^dim */
-//	    //	for (q=res->q; q; q=q->n) {
-//	    //	    itv_abs(abscoeff, q->coeff);
-//	    //	    itv_sub(beta, beta, abscoeff);
-//	    //	}
-//	    //  } else {
-//	    itv_t midi, devi;
-//	    itv_init(midi);
-//	    itv_init(devi);
-//	    for (q=res->q; q; q=q->n) {
-//		if (t1p_nsymcons_get_dim(pr, &dim_nsym_res, q->pnsym->index, nsymcons, sizeofres_abs)) itv_set(nsym_gamma_res, gamma[dim_nsym_res]);
-//		else itv_set(nsym_gamma_res, pr->muu);
-//		//if (dim_nsym_res == -1) {itv_set(nsym_gamma_res, pr->muu);}
-//		//else {itv_set(nsym_gamma_res, gamma[dim_nsym_res]);}
-//		itv_middev(pr->itv, midi, devi, nsym_gamma_res);    /* supposes that gamma has the newest interval concretisations */
-//		itv_mul(pr->itv, tmp, midi, q->coeff);       		/* alpha_i mid(epsilon_i) */
-//		itv_sub(res->c, res->c, tmp);               		/* center - alpha_i mid(epsilon_i) */
-//		itv_abs(abscoeff, q->coeff);                		/* |alpha_i| */
-//		itv_mul(pr->itv, tmp, devi, abscoeff);       		/* |alpha_i| dev(epsilon_i) */
-//		itv_sub(beta, beta, tmp);
-//	    }
-//	    itv_clear(midi);
-//	    itv_clear(devi);
-//	    //}
-//	    if (itv_is_pos(beta)) {
-//		if (!(itv_is_zero(beta))) {
-//		    t1p_aff_nsym_create(pr, res, beta);
-//		    res->lastu = res->end;
-//		}
-//	    } else {
-//		fatal("aïe, aïe, aïe, le beta est négatif !\n");
-//	    }
-//	    itv_array_free(hypercube,exp1->l+exp2->l);
-//	    ap_lincons0_array_clear(&hyperplane);
-//	    //free(Uhypercube);
-//	    return res;
-//	} else {
-//	    itv_set(beta, dev);
-//	    itv_set(res->c, mid);
-//	    t1p_aff_nsym_create(pr, res, beta);
-//	    res->lastu = res->end;
-//	    return res;
-//	}
-//    }
-//}
+static inline t1p_aff_t * t1p_aff_join_constrained1(t1p_internal_t* pr, t1p_aff_t *exp_a, t1p_aff_t *exp_b, t1p_t* a, t1p_t* b, t1p_t* ab) 
+{
+    t1p_aff_t *exp1 = exp_a;
+    t1p_aff_t *exp2 = exp_b;
+
+    arg_assert(exp1 && exp2, abort(););
+    t1p_aff_t * res = t1p_aff_alloc_init(pr);
+    void * ptmp = NULL;	/* needed for swap */
+    itv_t mid, dev; itv_init(mid); itv_init(dev);
+    itv_t mid1, dev1; itv_init(mid1); itv_init(dev1);	/* TODO: verifier les clear apres */
+    itv_t mid2, dev2; itv_init(mid2); itv_init(dev2);
+    itv_t itv, itv1, itv2;
+    itv_init(itv); itv_init(itv1); itv_init(itv2);
+    itv_t tmp, abscoeff, beta;
+    itv_init(tmp); itv_init(abscoeff); itv_init(beta);
+    t1p_aaterm_t *lastu = NULL;
+    t1p_aaterm_t *p, *q, *ptr;
+
+    //t1p_aff_boxize(pr, itv1, exp1, a);			/* gamma(exp1) */
+    //t1p_aff_boxize(pr, itv2, exp2, b);			/* gamma(exp2) */
+    itv_set(itv1,exp1->itv);
+    itv_set(itv2,exp2->itv);
+
+    itv_middev(pr->itv, mid1, dev1, itv1);
+    itv_middev(pr->itv, mid2, dev2, itv2);
+    itv_join(itv, itv1, itv2);
+    itv_middev(pr->itv, mid, dev, itv);
+    if (itv_cmp(mid1, mid2)) {;} 
+    else {
+	/* swap exp1 and exp2 */
+	ptmp = (void*)exp1;
+	exp1 = exp2;
+	exp2 = (t1p_aff_t*)ptmp;
+	/* swap gammaa and gammab */
+	ptmp = (void*)a;
+	a = b;
+	b = (t1p_t*)ptmp;
+	itv_swap(itv1, itv2);
+	itv_swap(mid1, mid2);
+	itv_swap(dev1, dev2);
+    }
+    if (!(itv_is_generic(itv1, itv2))) {
+	itv_set(beta, dev);
+	itv_set(res->c, mid);
+	t1p_aff_nsym_create(pr, res, beta, UN);
+	res->lastu = res->end;
+	return res;
+    } else {
+	/* exp1 and exp2 are in generic position and mid(exp1) \leq mid(exp2) */
+	itv_t argminpq; itv_init(argminpq);
+	ptr = NULL;
+
+	if (exp1->q && exp2->q) {
+	    itv_t nsym_gammaa, nsym_gammab, nsym_gamma_res;
+	    itv_init(nsym_gammaa); itv_init(nsym_gammab); itv_init(nsym_gamma_res);
+	    itv_t suma, sumb; itv_init(suma); itv_init(sumb);
+	    itv_t mida, midb, midab, deva, devb, devab, tmpa, tmpb;
+	    itv_init(mida); itv_init(midb); itv_init(midab); itv_init(deva); itv_init(devb); itv_init(devab);
+	    itv_init(tmpa);itv_init(tmpb);
+	    itv_t* hypercube = itv_array_alloc(exp1->l + exp2->l);
+	    ap_linexpr0_t* a_linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);
+	    ap_linexpr0_t* b_linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);
+	    a_linexpr0->p.linterm = (ap_linterm_t*)malloc((exp1->l + exp2->l)*sizeof(ap_linterm_t));
+	    b_linexpr0->p.linterm = (ap_linterm_t*)malloc((exp1->l + exp2->l)*sizeof(ap_linterm_t));
+	    a_linexpr0->size = exp1->l + exp2->l;
+	    b_linexpr0->size = exp1->l + exp2->l;
+	    ap_coeff_t* coeff = ap_coeff_alloc(AP_COEFF_INTERVAL);
+	    itv_sub(tmp, mid, mid1);
+	    ap_coeff_set_itv(pr->itv, coeff, tmp);
+	    itv_set(suma, tmp);
+	    ap_linexpr0_set_cst(a_linexpr0, coeff);
+	    itv_sub(tmp, mid2, mid);
+	    ap_coeff_set_itv(pr->itv, coeff, tmp);
+	    itv_set(sumb, tmp);
+	    ap_linexpr0_set_cst(b_linexpr0, coeff);
+	    ap_dim_t dim_nsym_a, dim_nsym_b, dim_nsym_res;
+	    for(p = exp1->q, q = exp2->q; p && q;) {
+		if (p->pnsym->index == q->pnsym->index) {				/* coeff of the same noise symbol */
+		    t1p_nsymcons_get_gamma(pr, nsym_gammaa, p->pnsym->index, a);
+		    t1p_nsymcons_get_gamma(pr, nsym_gammab, p->pnsym->index, b);
+		    if (itv_is_generic(nsym_gammaa, nsym_gammab)) {
+			/* eps_i^a et eps_i^b sont en pos generique */
+			t1p_nsymcons_get_gamma(pr, nsym_gamma_res, p->pnsym->index, ab);
+			itv_middev(pr->itv, mida, deva, nsym_gammaa);
+			itv_middev(pr->itv, midb, devb, nsym_gammab);
+			itv_middev(pr->itv, midab, devab, nsym_gamma_res);
+			itv_sub(tmpa, mida, midab);
+			itv_sub(tmpb, midb, midab);
+			if (itv_is_pos(p->coeff) && itv_is_pos(q->coeff)) {
+			    /* \alpha_i^a et \alpha_i^b sont pos -> \alpha_i^c est pos */
+			    if (itv_is_neg(tmpa) && itv_is_pos(tmpb)) {
+				/* \alpha_i^c <> 0 */
+				if (argmin(pr, argminpq, p->coeff, q->coeff) != 0) {
+				    if (res->q == NULL) {
+					res->q = ptr = t1p_aaterm_alloc_init();			/* allocate the first element of res->q */
+					res->l++;
+				    } else {
+					ptr->n = t1p_aaterm_alloc_init();
+					res->l++;
+					ptr = ptr->n;
+				    }
+				    if (exp1->lastu && exp2->lastu) {				/* keep track of the perturbation noise symbol */
+					if (exp1->lastu == p && exp2->lastu == q) lastu = ptr;	/* only if exp1->lastu and exp2->lastu resist to argmin formula */
+				    } 
+				    ptr->pnsym = p->pnsym;						/* set the index of the noise symbol */
+				    itv_set(ptr->coeff, argminpq);					/* set the coefficient as the argmin of the two other coefficients */
+				    itv_set(hypercube[-1 + res->l],argminpq);
+				    bound_init(hypercube[-1 + res->l]->inf);			/* store [0, argmin] in hypercube[-1 + res->l] */
+				    ap_coeff_init(&a_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
+				    ap_coeff_set_itv(pr->itv, &a_linexpr0->p.linterm[-1 + res->l].coeff, tmpa);
+				    a_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
+				    itv_mul(pr->itv, tmp, ptr->coeff, tmpa);
+				    itv_add(suma, suma, tmp);
+				    ap_coeff_init(&b_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
+				    itv_neg(tmpb,tmpb);
+				    ap_coeff_set_itv(pr->itv, &b_linexpr0->p.linterm[-1 + res->l].coeff, tmpb);
+				    b_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
+				    itv_mul(pr->itv, tmp, ptr->coeff, tmpb);
+				    itv_add(sumb, sumb, tmp);
+				} else {
+				    t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+				}
+			    } else {
+				t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+			    }
+			} else if (itv_is_neg(p->coeff) && itv_is_neg(q->coeff)) {
+			    /* \alpha_i^a et \alpha_i^b sont neq -> \alpha_i^c est neg */
+			    if (itv_is_pos(tmpa) && itv_is_neg(tmpb)) {
+				/* \alpha_i^c <> 0 */
+				if (argmin(pr, argminpq, p->coeff, q->coeff) != 0) {
+				    if (res->q == NULL) {
+					res->q = ptr = t1p_aaterm_alloc_init();			/* allocate the first element of res->q */
+					res->l++;
+				    } else {
+					ptr->n = t1p_aaterm_alloc_init();
+					res->l++;
+					ptr = ptr->n;
+				    }
+				    if (exp1->lastu && exp2->lastu) {				/* keep track of the perturbation noise symbol */
+					if (exp1->lastu == p && exp2->lastu == q) lastu = ptr;	/* only if exp1->lastu and exp2->lastu resist to argmin formula */
+				    } 
+				    ptr->pnsym = p->pnsym;					/* set the index of the noise symbol */
+				    itv_set(ptr->coeff, argminpq);				/* set the coefficient as the argmin of the two other coefficients */
+				    itv_set(hypercube[-1 + res->l], argminpq);
+				    bound_init(hypercube[-1 + res->l]->sup);				/* store [argmin, 0] in hypercube[-1 + res->l] */
+				    ap_coeff_init(&a_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
+				    ap_coeff_set_itv(pr->itv, &a_linexpr0->p.linterm[-1 + res->l].coeff, tmpa);
+				    a_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
+				    itv_mul(pr->itv, tmp, ptr->coeff, tmpa);
+				    itv_add(suma, suma, tmp);
+				    ap_coeff_init(&b_linexpr0->p.linterm[-1 + res->l].coeff, AP_COEFF_INTERVAL);
+				    itv_neg(tmpb,tmpb);
+				    ap_coeff_set_itv(pr->itv, &b_linexpr0->p.linterm[-1 + res->l].coeff, tmpb);
+				    b_linexpr0->p.linterm[-1 + res->l].dim = -1 + res->l;
+				    itv_mul(pr->itv, tmp, ptr->coeff, tmpb);
+				    itv_add(sumb, sumb, tmp);
+				} else {
+				    t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+				}
+			    } else {
+				t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+			    }
+			} else {
+			    t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+			}
+		    } else {
+			t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+		    }
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_delete_constrained_nsym(pr, p->pnsym->index, ab);
+		    p = p->n ;
+		} else {
+		    t1p_delete_constrained_nsym(pr, q->pnsym->index, ab);
+		    q = q->n ;
+		}
+		/*
+		   if (p && q) {
+		   if (p->pnsym->index == q->pnsym->index && res->q) {
+		   if (argmin(pr, argminpq, p->coeff, q->coeff)) {
+		   ptr->n = t1p_aaterm_alloc_init();			//allocate the next element of res->q
+		   res->l++;
+		   ptr=ptr->n;
+		   }
+		   }
+		   }*/
+	    }
+	    if (ptr) {
+		ptr->n = NULL;
+		res->end = ptr;
+	    }
+	    /* Delete the join symbol if exists.
+	     * This is done simply by setting the coeff to zero, hence this will not appear while computing the norm.
+	     * TODO: what if the perturbation coeff isupports constraints ?
+	     */
+	    if (lastu) {
+		itv_init(lastu->coeff);
+	    }
+	    ap_lincons0_array_t hyperplane = ap_lincons0_array_make(1);
+	    //itv_fprint(stdout,suma); printf("\n");
+	    //itv_fprint(stdout,sumb); printf("\n");
+	    num_t eps; num_init(eps);
+	    itv_t err; itv_init(err);
+	    num_set_double(eps,(double)1000*1.11022302462515654042e-16); /* threshold : 1000*last bit in the mantissa in double precision */
+	    itv_set_unit_num(err, eps);
+	    //printf("err: ");itv_fprint(stdout,err); printf("\n");
+	    size_t k = 0;
+	    if (bound_cmp(suma->inf,eps) <= 0) {
+		//if (itv_is_pos(suma))
+		if (bound_cmp(sumb->inf,eps)) {
+		    //if (itv_is_pos(sumb)) 
+		    //printf("here\n");
+		    /* argmin solution is ok */
+		    /* compute beta and alpha_0 */
+		} else {
+		    /* compute intersection with cons b_linexpr0 */
+		    itv_t midi, devi;
+		    itv_init(midi); itv_init(devi);
+		    b_linexpr0->p.linterm = (ap_linterm_t*)realloc(b_linexpr0->p.linterm, (res->l)*sizeof(ap_linterm_t));
+		    b_linexpr0->size = res->l;
+		    hyperplane.p[0] = ap_lincons0_make(AP_CONS_EQ, b_linexpr0, NULL);
+		    ap_interval_t** tinterval = ap_interval_array_alloc(res->l);
+		    for (k=0; k<res->l; k++) {
+			ap_interval_set_itv(pr->itv, tinterval[k], hypercube[k]);
+		    }
+		    ap_abstract0_t* abs = ap_abstract0_of_box(pr->box, 0, res->l, tinterval);
+		    ap_abstract0_t* abs1 = ap_abstract0_meet_lincons_array(pr->box, false, abs, &hyperplane);
+		    ap_interval_t** tinterval2 = ap_abstract0_to_box(pr->box, abs1);
+		    k = 0;
+		    for (p=res->q; p; p=p->n) {
+			itv_set_ap_interval(pr->itv, tmp, tinterval2[k]);
+			itv_middev(pr->itv, midi, devi, tmp);
+			itv_set(p->coeff, midi);
+			k++;
+		    }
+		    itv_clear(midi); itv_clear(devi);
+		    ap_abstract0_free(pr->box, abs1);
+		    ap_abstract0_free(pr->box, abs);
+		    ap_interval_array_free(tinterval2, res->l);
+		    ap_interval_array_free(tinterval, res->l);
+		}
+	    } else {
+		//if (itv_is_pos(sumb)) 
+		if (bound_cmp(sumb->inf, eps)) {
+		    /* compute intersection with cons c_x */
+		    itv_t midi, devi;
+		    itv_init(midi); itv_init(devi);
+		    a_linexpr0->p.linterm = (ap_linterm_t*)realloc(a_linexpr0->p.linterm, (res->l)*sizeof(ap_linterm_t));
+		    a_linexpr0->size = res->l;
+		    hyperplane.p[0] = ap_lincons0_make(AP_CONS_EQ, a_linexpr0, NULL);
+		    ap_interval_t** tinterval = ap_interval_array_alloc(res->l);
+		    for (k=0; k<res->l; k++) {
+			ap_interval_set_itv(pr->itv, tinterval[k], hypercube[k]);
+		    }
+		    ap_abstract0_t* abs = ap_abstract0_of_box(pr->box, 0, res->l, tinterval);
+		    ap_abstract0_t* abs1 = ap_abstract0_meet_lincons_array(pr->box, false, abs, &hyperplane);
+		    ap_interval_t** tinterval2 = ap_abstract0_to_box(pr->box, abs1);
+		    k = 0;
+		    for (p=res->q; p; p=p->n) {
+			itv_set_ap_interval(pr->itv, tmp, tinterval2[k]);
+			itv_middev(pr->itv, midi, devi, tmp);
+			itv_set(p->coeff, midi);
+			k++;
+		    }
+		    itv_clear(suma); itv_clear(sumb);
+		    itv_clear(mida); itv_clear(midb); itv_clear(midab); itv_clear(deva); itv_clear(devb); itv_clear(devab);
+		    itv_clear(tmpa);itv_clear(tmpb);
+		    itv_clear(midi); itv_clear(devi);
+		    ap_abstract0_free(pr->box, abs1);
+		    ap_abstract0_free(pr->box, abs);
+		    ap_interval_array_free(tinterval2, res->l);
+		    ap_interval_array_free(tinterval, res->l);
+		} else {
+		    /* both intersects return degenerate mub */
+		    t1p_aff_clear(pr, res);
+		    itv_set(beta, dev);
+		    itv_set(res->c, mid);
+		    t1p_aff_nsym_create(pr, res, beta, UN);
+		    res->lastu = res->end;
+		    return res;
+		}
+	    }
+	    /* compute \beta and \alpha_0^c */
+	    itv_set(beta, dev);
+	    itv_set(res->c, mid);
+	    //if (gamma_ab == NULL) {		/* use the hypercube [-1,1]^dim */
+	    //	for (q=res->q; q; q=q->n) {
+	    //	    itv_abs(abscoeff, q->coeff);
+	    //	    itv_sub(beta, beta, abscoeff);
+	    //	}
+	    //  } else {
+	    itv_t midi, devi;
+	    itv_init(midi);
+	    itv_init(devi);
+	    for (q=res->q; q; q=q->n) {
+		t1p_nsymcons_get_gamma(pr, nsym_gammaa, q->pnsym->index, ab);
+		itv_middev(pr->itv, midi, devi, nsym_gamma_res);    /* supposes that gamma has the newest interval concretisations */
+		itv_mul(pr->itv, tmp, midi, q->coeff);       		/* alpha_i mid(epsilon_i) */
+		itv_sub(res->c, res->c, tmp);               		/* center - alpha_i mid(epsilon_i) */
+		itv_abs(abscoeff, q->coeff);                		/* |alpha_i| */
+		itv_mul(pr->itv, tmp, devi, abscoeff);       		/* |alpha_i| dev(epsilon_i) */
+		itv_sub(beta, beta, tmp);
+	    }
+	    itv_clear(midi);
+	    itv_clear(devi);
+	    //}
+	    if (itv_is_pos(beta)) {
+		if (!(itv_is_zero(beta))) {
+		    t1p_aff_nsym_create(pr, res, beta, UN);
+		    res->lastu = res->end;
+		}
+	    } else {
+		fatal("aïe, aïe, aïe, le beta est négatif !\n");
+	    }
+	    itv_array_free(hypercube,exp1->l+exp2->l);
+	    ap_lincons0_array_clear(&hyperplane);
+	    //free(Uhypercube);
+	    return res;
+	} else {
+	    itv_set(beta, dev);
+	    itv_set(res->c, mid);
+	    t1p_aff_nsym_create(pr, res, beta, UN);
+	    res->lastu = res->end;
+	    return res;
+	}
+    }
+}
 
 /* CAV 2010 
  * computes lambda such as z = x = y with minimal interval range, if the constraint is "y - x = 0"
@@ -4302,6 +5115,7 @@ static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
     pr->mubGlobal.cx = NULL;
     pr->mubGlobal.cy = NULL;
     pr->mubGlobal.p = NULL;
+    pr->it = 0;
     return pr;
 }
 
@@ -4343,6 +5157,7 @@ static inline void t1p_internal_free(t1p_internal_t* pr)
 	pr->mubGlobal.cx = NULL;
 	pr->mubGlobal.cy = NULL;
 	pr->mubGlobal.p = NULL;
+	pr->it = 0;
 	free(pr);
     }
 }
@@ -4380,7 +5195,7 @@ static inline bool findKR(size_t *res, size_t x, size_t* tab, size_t size)
 	    return true;
 	}
     }
-    *res = mid;
+    *res = low;
     return false;
 }
 
@@ -4535,7 +5350,7 @@ static inline void t1p_update_nsymcons_gamma(t1p_internal_t* pr, t1p_t* a)
 	ap_abstract0_free(pr->manNS, a->abs);
 	a->abs = ap_abstract0_top(pr->manNS, 0,0);
 	for (i=0; i<nsymcons_size; i++) {
-	    if (a->gamma[i] != pr->ap_muu) ap_interval_free(a->gamma[i]);
+	    if (a->gamma[i] != pr->ap_muu && a->gamma[i]) ap_interval_free(a->gamma[i]);
 	    a->gamma[i] = NULL;
 	}
 	//memset((void*)a->gamma, 0, nsymcons_size*sizeof(ap_interval_t*));
@@ -4588,6 +5403,87 @@ static inline void t1p_aff_canonical(t1p_internal_t* pr, t1p_aff_t* aff)
 	    }
 	} while (!ok);
     }
+}
+
+static inline double t1p_aff_distance(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, t1p_t* obj)
+{
+    double res = 0;
+    itv_t d; itv_init(d);
+    itv_t mid; itv_t dev; itv_init(mid); itv_init(dev);
+    itv_t nsymItv1; itv_init(nsymItv1);
+    itv_t tmp; itv_init(tmp);
+    itv_t c; itv_init(c);
+    itv_sub(c,a->c,b->c);
+
+    t1p_aaterm_t *p, *q;
+    p = q = NULL;
+    itv_square(pr->itv,d,d);
+    if (a->q || b->q) {
+	for(p = a->q, q = b->q; p || q;) {
+	    if (p && q) {
+		if (p->pnsym->index == q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, obj);
+		    itv_middev(pr->itv, mid, dev, nsymItv1);
+		    if (!itv_is_eq(p->coeff, q->coeff)) itv_sub(tmp, p->coeff, q->coeff);
+		    else itv_set_int(tmp,0);
+		    itv_mul(pr->itv,mid,tmp,mid);
+		    itv_add(c,c,mid);
+		    itv_mul(pr->itv,tmp,tmp,dev);
+		    itv_square(pr->itv,tmp,tmp);
+		    itv_add(d,d,tmp);
+		    p = p->n ;
+		    q = q->n ;
+		} else if (p->pnsym->index < q->pnsym->index) {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, obj);
+		    itv_middev(pr->itv, mid, dev, nsymItv1);
+		    itv_mul(pr->itv,mid,p->coeff,mid);
+		    itv_add(c,c,mid);
+		    itv_mul(pr->itv,dev,p->coeff,dev);
+		    itv_square(pr->itv,tmp,dev);
+		    itv_add(d,d,tmp);
+		    p = p->n ;
+		} else {
+		    t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, obj);
+		    itv_middev(pr->itv, mid, dev, nsymItv1);
+		    itv_neg(tmp,q->coeff);
+		    itv_mul(pr->itv,mid,tmp,mid);
+		    itv_add(c,c,mid);
+		    itv_mul(pr->itv,dev,tmp,dev);
+		    itv_square(pr->itv,tmp,dev);
+		    itv_add(d,d,tmp);
+		    q = q->n ;
+		}
+	    } else if (p) {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, p->pnsym->index, obj);
+		itv_middev(pr->itv, mid, dev, nsymItv1);
+		itv_mul(pr->itv,mid,p->coeff,mid);
+		itv_add(c,c,mid);
+		itv_mul(pr->itv,dev,p->coeff,dev);
+		itv_square(pr->itv,tmp,dev);
+		itv_add(d,d,tmp);
+		p = p->n ;
+	    } else {
+		t1p_nsymcons_get_gamma(pr, nsymItv1, q->pnsym->index, obj);
+		itv_middev(pr->itv, mid, dev, nsymItv1);
+		itv_neg(tmp,q->coeff);
+		itv_mul(pr->itv,mid,tmp,mid);
+		itv_add(c,c,mid);
+		itv_mul(pr->itv,dev,tmp,dev);
+		itv_square(pr->itv,tmp,dev);
+		itv_add(d,d,tmp);
+		q = q->n ;
+	    }
+	}
+    }
+    itv_sub(tmp,a->c,b->c);
+    itv_add(c,c,tmp);
+    itv_square(pr->itv,tmp,c);
+    itv_add(d,d,tmp);
+    itv_sqrt(pr->itv,d,d);
+    double_set_num(&res,bound_numref(d->sup));
+    itv_clear(d);
+    itv_clear(tmp);
+    return res;
 }
 
 #endif

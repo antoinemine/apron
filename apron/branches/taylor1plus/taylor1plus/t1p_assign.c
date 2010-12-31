@@ -98,7 +98,7 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
     man->result.flag_exact = tbool_top;
 #ifdef _T1P_DEBUG
     fprintf(stdout, "### RESULT OF ASSIGN TEXPR ARRAY (des %d) [%x] ###\n", destructive, (intptr_t)res);
-    //t1p_fprint(stdout, man, res, NULL);
+    t1p_fprint(stdout, man, res, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
     return res;

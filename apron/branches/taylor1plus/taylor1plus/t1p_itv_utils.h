@@ -121,4 +121,10 @@ static inline int itv_sign(itv_internal_t *itv, itv_t a, itv_t b)
     itv_clear(meet);
     return res;
 }
+
+static inline void itv_square(itv_internal_t *itv, itv_t res, itv_t a)
+{
+    itv_mul(itv,res,a,a);
+    if (bound_cmp_int(res->inf,0) >= 0) {bound_set_int(res->inf,0);}
+}
 #endif

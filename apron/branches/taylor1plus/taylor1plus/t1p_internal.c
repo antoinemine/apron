@@ -277,6 +277,7 @@ void optpr_build(t1p_internal_t* pr, itv_t alphaix, itv_t alphaiy, t1p_nsym_t* p
 	opt->T[opt->size].sign = 1;
     } else if (itv_is_leq(tmp, alphaixMalphaiy)) {
 	/* [0,0] \in alphaixMalphaiy <-> sign indefini */
+	printf("\n");itv_print(alphaixMalphaiy);printf("\n");
 	fatal("Sign de (alphaix - alphaiy) indefini \n");
     } else if (itv_is_pos(alphaixMalphaiy)) {
 	opt->T[opt->size].sign = 1;
@@ -420,18 +421,20 @@ int optpr_cramer(t1p_internal_t* pr, itv_t lambda, itv_t u0, itv_t * l1, itv_t *
 	itv_mul(pr->itv,bc,l2[0],l1[1]);
 	itv_sub(det, ad, bc);
 
-	/* est ce que [0,0] est dan det ? (ici tmp1 = [0,0]) */
+	/* est ce que [0,0] est dans det ? (ici tmp1 = [0,0]) */
 	if (itv_is_leq(tmp1,det)) {
 	    if (itv_is_zero(det)) {
 		/* l1 // l2  */
 		return -1;
 	    } else {
 		/* matrice foireuse */
-		fatal("Matrice de Cramer foireuse ... \n");
+		//fatal("Matrice de Cramer foireuse ... \n");
+		printf("Cramer: considere les deux droites comme // et continuer ...\n");
+		return -1;
 	    }
 	}
 	else {
-	/* secants */
+	    /* secants */
 	    itv_mul(pr->itv,tmp1,l2[1],l1[2]);
 	    itv_mul(pr->itv,tmp2,l1[1],l2[2]);
 	    itv_sub(lambda,tmp1,tmp2);
@@ -474,10 +477,26 @@ bool optpr_isfeasible(t1p_internal_t* pr, itv_t lambda, itv_t u0)
     itv_mul(pr->itv,cond2, cond2,opt->beta);
     itv_abs(abs, u0);
 
-    /* TODO: faut voir si c'est 100% ok comme ca */
-    res &= itv_cmp(abs, cond1);
-    res &= itv_cmp(abs, cond2);
+    /* TODO: semble etre une bonne heuristique pour les flottant (doubles) -- pas de sol deterministe malheureusement */
+    /* on prend quand meme ces solutions meme si on n'est pas sur a 100% qu'ils soient fesables, ils sont tres tres proche du domaine */
+    //bool a = itv_is_leq(abs, cond1);
+    //bool b = itv_is_leq(abs, cond2);
+    //bool a = itv_cmp(cond1, abs);
+    //bool b = itv_cmp(cond2, abs);
 
+    bool a = bound_cmp(bound_numref(abs->sup),bound_numref(cond1->sup)) <= 0;//itv_is_leq(abs, cond1);
+    bool b = bound_cmp(bound_numref(abs->sup),bound_numref(cond2->sup)) <= 0;//itv_is_leq(abs, cond2);
+    /* la solution est fesable si (c&&d) */
+    bool c = itv_cmp(abs, cond1) || itv_is_leq(cond1, abs);
+    bool d = itv_cmp(abs, cond2) || itv_is_leq(cond2, abs);
+
+    itv_t tmp; itv_init(tmp);
+    itv_mul_2exp(tmp,lambda,1);
+    //res &= ((bound_cmp_int(bound_numref(tmp->sup),1) <= 0) && (~a)) || ((bound_cmp_int(bound_numref(tmp->sup),1) >= 0) && (~b));
+    res &= ((bound_cmp_int(bound_numref(tmp->sup),1) <= 0) && (a || c)) || ((bound_cmp_int(bound_numref(tmp->sup),1) >= 0) && (b || d));
+    //res &= (a && b) || (a && d) || (b && c) || (c && d);
+
+    itv_clear(tmp);
     itv_clear(zun); itv_clear(un);
     itv_clear(cond1); itv_clear(cond2);
     itv_clear(abs);
@@ -565,54 +584,71 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 	itv_init(cooruSave[i]);
 	pcooruSave[i] = &cooruSave[i];
     }
-
+    double d = 0; /* debug: used to print readable intervlles when MPQ is used */
+    /* used to compare the number of feasible solutions in MPQ and D */
+    int countdebug_cramer = 0; /* debug: count the nbof calls to cramer*/
+    int countdebug_feas = 0; /* debug:  count the nbof calls to isfeasable routine  */
     /* complexité (opt->sizeJ)^3 */
     for (i=0; i<opt->sizeJ; i++) {
 	for (j=i+1; j<opt->sizeJ; j++) {
 	    /* TODO: pour le moment on ne fait rien si deux lignes sont identiques: à optimiser */
 	    if (optpr_cramer(pr, lambda, u0, opt->litab[i].abc, opt->litab[j].abc) > 0) {
+		countdebug_cramer++;
 		/* secant lines */
 		if (optpr_isfeasible(pr, lambda, u0)) {
+		    countdebug_feas++;
 		    itv_init(P[nbP].u0);
 		    itv_init(P[nbP].lambda);
 		    itv_set(P[nbP].u0, u0);
 		    itv_set(P[nbP].lambda, lambda);
+		    /* DEBUG: print (u0,lambda) */
+#ifdef _T1P_DEBUG
+		       double_set_num(&d,bound_numref(u0->inf));
+		       printf("u0 = [%f,",-1*d);
+		       double_set_num(&d,bound_numref(u0->sup));
+		       printf("%f]\t",d);
+		       double_set_num(&d,bound_numref(lambda->inf));
+		       printf("lambda = [%f,",-1*d);
+		       double_set_num(&d,bound_numref(lambda->sup));
+		       printf("%f]\t",d);
+#endif
+		     
 		    /*	         (6)
-		          (7) B4 /\ B2 (5)
-		                /  \
-		              (0) (4)
-		                \  /
-		          (1) B3 \/ B1 (3)
-			         (2)
-				(8) strictly feasible 
-		    */
+				 (7) B4 /\ B2 (5)
+				 /  \
+				 (0) (4)
+				 \  /
+				 (1) B3 \/ B1 (3)
+				 (2)
+				 (8) strictly feasible 
+		     */
 		    /*
-		    if (j == opt->sizeJ - 4) {
-			if (i == opt->sizeJ - 3) {
-			    P[nbP].pos = 0;
-			} else if (i == opt->sizeJ - 2) {
-			    P[nbP].pos = 6;
-			} else {
-			    P[nbP].pos = 7;
-			}
-		    } else if (j == opt->sizeJ - 3) {
-			if (i == opt->sizeJ - 1) {
-			    P[nbP].pos = 2;
-			} else {
-			    P[nbP].pos = 1;
-			}
-		    } else if (j == opt->sizeJ - 2) {
-			if (i == opt->sizeJ - 1) {
-			    P[nbP].pos = 4;
-			} else {
-			    P[nbP].pos = 5;
-			}
-		    } else if (j == opt->sizeJ - 1) {
-			P[nbP].pos = 3;
-		    } else {
-			P[nbP].pos = 8;
-		    }
-		    */
+		       if (j == opt->sizeJ - 4) {
+		       if (i == opt->sizeJ - 3) {
+		       P[nbP].pos = 0;
+		       } else if (i == opt->sizeJ - 2) {
+		       P[nbP].pos = 6;
+		       } else {
+		       P[nbP].pos = 7;
+		       }
+		       } else if (j == opt->sizeJ - 3) {
+		       if (i == opt->sizeJ - 1) {
+		       P[nbP].pos = 2;
+		       } else {
+		       P[nbP].pos = 1;
+		       }
+		       } else if (j == opt->sizeJ - 2) {
+		       if (i == opt->sizeJ - 1) {
+		       P[nbP].pos = 4;
+		       } else {
+		       P[nbP].pos = 5;
+		       }
+		       } else if (j == opt->sizeJ - 1) {
+		       P[nbP].pos = 3;
+		       } else {
+		       P[nbP].pos = 8;
+		       }
+		     */
 		    /* eval objfunc */
 		    itv_mul(pr->itv, f, opt->alpha0, u0);
 		    for (k=0; k<opt->sizeJ-4; k++) {
@@ -672,11 +708,21 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 			itv_mul(pr->itv, tmp3, tmp3, abs);
 			itv_add(f,f,tmp3);
 		    }
+    itv_mul(pr->itv, tmp1, lambda, taux);
+    itv_mul(pr->itv, tmp2, ulambda, tauy);
+    itv_add(tmp3, tmp1, tmp2);
+    itv_add(f, f, tmp3);
 		    /* comparer f avec le max */
-		    //itv_print(f);
-		    //printf("\n");
-		    
-		    if (itv_cmp(opt->optval,f)) {
+		    /* DEBUG: print f (objval) */
+#ifdef _T1P_DEBUG
+		       double_set_num(&d,bound_numref(f->inf));
+		       printf("f = [%f,",-1*d);
+		       double_set_num(&d,bound_numref(f->sup));
+		       printf("%f]\n",d);
+#endif
+
+		       /* lambda doit etre # de 0 et de 1 */
+		    if (itv_cmp(opt->optval,f) && (!itv_is_zero(lambda)) && (!itv_is_eq(lambda,un))) {
 			/* toutes les valeurs de f >= toutes les valeurs de max */
 			itv_set(opt->optval,f);
 			/* store the point */
@@ -710,7 +756,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     /* creer deux linexp pour la dimension 0 */
     ap_manager_t* pk = pk_manager_alloc(false);
     /* nb of constraints in the worst case */
-    ap_lincons0_array_t array = ap_lincons0_array_make(1 + 2*(opt->size));
+    ap_lincons0_array_t array = ap_lincons0_array_make(3 + 2*(opt->size));
 
     array.p[0].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (size_t)(1+opt->size));
     array.p[1].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (size_t)(1+opt->size));
@@ -790,42 +836,65 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     ap_linexpr0_set_cst_interval(array.p[1].linexpr0, itv);
 
     /* continuer le calcul de la constante de l'hyperplan */
-    itv_mul(pr->itv,tmp1,lambda,opt->optval);
+    itv_sub(tmp1,opt->optval,taux);
+    itv_mul(pr->itv,tmp1,lambda,tmp1);
     itv_sub(cst,cst,tmp1);
-    itv_mul(pr->itv,tmp1,lambda,ulambda);
-    itv_sub(tmp2, taux, tauy);
-    itv_mul(pr->itv, tmp3, tmp1, tmp2);
-    itv_add(cst,cst, tmp3);
     itv_neg(cst,cst);
-    itv_middev(pr->itv, tmp2, tmp3, cst);
-    ap_interval_set_itv(pr->itv, itv, tmp2);
+    /* aucune raison de prendre le midpoint de cst */
+    //itv_middev(pr->itv, tmp2, tmp3, cst);
+    ap_interval_set_itv(pr->itv, itv, cst);
     ap_linexpr0_set_cst_interval(array.p[2].linexpr0, itv);
     array.p[2].constyp = AP_CONS_EQ;
     array.p[2].scalar = NULL;
 
-
+    itv_div(pr->itv, tmp1, u0, lambda);
+    itv_div(pr->itv, tmp2, u0, ulambda);
+    /* tmp1 = u0/lambda */
     if (itv_is_leq(un,tmp1)) {
 	/* rajouter contrainte hyperplan */
+	array.p[0].constyp = AP_CONS_SUPEQ;
+	array.p[0].scalar = NULL;
     } else if (itv_is_leq(mun,tmp1)) {
 	/* rajouter contrainte hyperplan */
+	/* negate array.p[0].linexpr0 */
+	ap_coeff_neg(&array.p[0].linexpr0->cst,&array.p[0].linexpr0->cst);
+	for (i=0;i<array.p[0].linexpr0->size;i++) ap_coeff_neg(&array.p[0].linexpr0->p.coeff[i],&array.p[0].linexpr0->p.coeff[i]);
+	array.p[0].constyp = AP_CONS_SUPEQ;
+	array.p[0].scalar = NULL;
     } else {
 	/* considerer que ce n'est ni un ni mun , machin = 0 */
 	array.p[0].constyp = AP_CONS_EQ;
 	array.p[0].scalar = NULL;
+    }
+    /* tmp2 = u0/(1-lambda) */
+    if (itv_is_leq(un,tmp2)) {
+	/* rajouter contrainte hyperplan */
+	array.p[1].constyp = AP_CONS_SUPEQ;
+	array.p[1].scalar = NULL;
+    } else if (itv_is_leq(mun,tmp2)) {
+	/* rajouter contrainte hyperplan */
+	/* negate array.p[0].linexpr0 */
+	ap_coeff_neg(&array.p[1].linexpr0->cst,&array.p[1].linexpr0->cst);
+	for (i=0;i<array.p[1].linexpr0->size;i++) ap_coeff_neg(&array.p[1].linexpr0->p.coeff[i],&array.p[1].linexpr0->p.coeff[i]);
+	array.p[1].constyp = AP_CONS_SUPEQ;
+	array.p[1].scalar = NULL;
+    } else {
+	/* considerer que ce n'est ni un ni mun , machin = 0 */
 	array.p[1].constyp = AP_CONS_EQ;
 	array.p[1].scalar = NULL;
     }
-    if (itv_is_leq(un,tmp2)) {
-	/* rajouter contrainte hyperplan */
-    } else if (itv_is_leq(mun,tmp2)) {
-	/* rajouter contrainte hyperplan */
-    } else {
-	/* considerer que ce n'est ni un ni mun , machin = 0 */
-    }
+
     size_t Nbcons = 3;
     for (i=0; i<opt->size; i++) {
 	if (opt->T[i].sign == 0) {
 	    /* alphaiz = alphaix = alphaiy */
+	    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+	    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+	    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+	    array.p[Nbcons].constyp = AP_CONS_EQ;
+	    array.p[Nbcons].scalar = NULL;
+	    Nbcons++;
 	} else {
 	    itv_middev(pr->itv, midx, devx, opt->T[i].nsymitvx);
 	    itv_middev(pr->itv, midy, devy, opt->T[i].nsymitvy);
@@ -862,7 +931,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 		      }
 		case IXY:
 		      {
-			/* no information */
+			/* no information is usuful in that casse */
 			break;
 		      }
 		case J:
@@ -887,7 +956,14 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				Nbcons++;
 			    } else if (opt->optsol.ui[i] == 1) {
 				/* contrainte alphaiz >= alphaiy */
-
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				itv_neg(tmp1, opt->T[i].alphaiy);
+				ap_interval_set_itv(pr->itv, itv, tmp1);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
 				/* faut calculer l'autre signe */
 				itv_mul(pr->itv, tmp1, midxMmidy, u0);
 				itv_neg(tmp1,tmp1);
@@ -896,15 +972,43 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				itv_mul(pr->itv, tmp3, lambda, devx);
 				itv_div(pr->itv, tmp2, tmp1, tmp3);
 				if (itv_is_leq(un, tmp2)) {
-				    /* impossible */
+				    /* rajouter la contrainte alphaiz <= alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				} else if (itv_is_leq(mun, tmp2)) {
 				    /* rajouter la contrainte alphaiz >= alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				    itv_neg(tmp1, opt->T[i].alphaix);
+				    ap_interval_set_itv(pr->itv, itv, tmp1);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_EQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				}
 			    } else if (opt->optsol.ui[i] == -1) {
 				/* contrainte alphaiz <= alphaix */
-
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
 				/* faut calculer l'autre signe */
 				itv_mul(pr->itv, tmp1, midxMmidy, u0);
 				itv_mul(pr->itv, tmp3, lambda, devx);
@@ -912,11 +1016,142 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				itv_mul(pr->itv, tmp2, devy, ulambda);
 				itv_div(pr->itv, tmp3, tmp1, tmp2);
 				if (itv_is_leq(un, tmp3)) {
-				    /* impossible */
+				    /* rajouter la contrainte alphaiz >= alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				    itv_neg(tmp1, opt->T[i].alphaiy);
+				    ap_interval_set_itv(pr->itv, itv, tmp1);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				} else if (itv_is_leq(mun, tmp3)) {
 				    /* rajouter la contrainte alphaiz <= alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_EQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				}
+			    }
+			} else if (opt->T[i].sign == -1) {
+			    if (opt->optsol.ui[i] == 0) {
+				/* alphaiy >= alphaiz >= alphaix */
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				itv_neg(tmp1, opt->T[i].alphaix);
+				ap_interval_set_itv(pr->itv, itv, tmp1);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
+			    } else if (opt->optsol.ui[i] == 1) {
+				/* contrainte alphaiz <= alphaiy */
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
+				/* faut calculer l'autre signe */
+				itv_mul(pr->itv, tmp1, midxMmidy, u0);
+				itv_neg(tmp1,tmp1);
+				itv_mul(pr->itv, tmp2, devy, ulambda);
+				itv_sub(tmp1, tmp1, tmp2);
+				itv_mul(pr->itv, tmp3, lambda, devx);
+				itv_div(pr->itv, tmp2, tmp1, tmp3);
+				if (itv_is_leq(un, tmp2)) {
+				    /* rajouter la contrainte alphaiz <= alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				} else if (itv_is_leq(mun, tmp2)) {
+				    /* rajouter la contrainte alphaiz >= alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				    itv_neg(tmp1, opt->T[i].alphaix);
+				    ap_interval_set_itv(pr->itv, itv, tmp1);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				} else {
+				    /* alphaiz = alphaix */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_EQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				}
+			    } else if (opt->optsol.ui[i] == -1) {
+				/* contrainte alphaiz >= alphaix */
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				itv_neg(tmp1, opt->T[i].alphaix);
+				ap_interval_set_itv(pr->itv, itv, tmp1);
+				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				array.p[Nbcons].scalar = NULL;
+				Nbcons++;
+				/* faut calculer l'autre signe */
+				itv_mul(pr->itv, tmp1, midxMmidy, u0);
+				itv_mul(pr->itv, tmp3, lambda, devx);
+				itv_sub(tmp1, tmp1, tmp3);
+				itv_mul(pr->itv, tmp2, devy, ulambda);
+				itv_div(pr->itv, tmp3, tmp1, tmp2);
+				if (itv_is_leq(un, tmp3)) {
+				    /* rajouter la contrainte alphaiz >= alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
+				    itv_neg(tmp1, opt->T[i].alphaiy);
+				    ap_interval_set_itv(pr->itv, itv, tmp1);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				} else if (itv_is_leq(mun, tmp3)) {
+				    /* rajouter la contrainte alphaiz <= alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_SUPEQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
+				} else {
+				    /* alphaiz = alphaiy */
+				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
+				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
+				    ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
+				    array.p[Nbcons].constyp = AP_CONS_EQ;
+				    array.p[Nbcons].scalar = NULL;
+				    Nbcons++;
 				}
 			    }
 			}
@@ -926,71 +1161,115 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 	    }
 	}
     }
-    printf("\n");
-    ap_lincons0_print(&array.p[0], NULL);
-    printf("\n");
-    ap_lincons0_print(&array.p[1], NULL);
-    printf("\n");
-    ap_lincons0_print(&array.p[2], NULL);
-    printf("\n");
+
+    /*
+       printf("\n");
+       ap_lincons0_print(&array.p[0], NULL);
+       printf("\n");
+       ap_lincons0_print(&array.p[1], NULL);
+       printf("\n");
+       ap_lincons0_print(&array.p[2], NULL);
+       printf("\n");
+     */
+#ifdef _T1P_DEBUG
     array.size = Nbcons;
+    ap_lincons0_array_fprint(stdout,&array,NULL);
+#endif
+
+    /* rq: avec boxD et t1pD il est preferable de faire le meet en plus du of_lincons_array a cause des linexp avec coeff intervalles (ce qui peut etre tres couteux en temps !).
+       avec boxMPQ et t1pMPQ, le meet seul suffit.
+     */
+    clock_t start = clock();
+#if defined(NUM_DOUBLE) || defined(NUM_LONGDOUBLE) || defined(NUM_MPFR)
     ap_abstract0_t* obj = ap_abstract0_of_lincons_array(pk,0,(1+opt->size),&array);
     ap_abstract0_meet_lincons_array(pk, true, obj, &array);
+#else
+    ap_abstract0_t* obj = ap_abstract0_top(pk,0,(1+opt->size));
+    ap_abstract0_meet_lincons_array(pk, true, obj, &array);
+#endif
+    clock_t end = clock();
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    fprintf(stdout,"poly: %f\n",time);
     //ap_abstract0_fprint(stdout, pk, obj, NULL);
 
-    double inf = 0.0; double sup = 0.0;
-    for (i=0; i<3; i++) {
-        ap_interval_t* gamma = ap_abstract0_bound_dimension(pk, obj, i);
-	ap_double_set_scalar(&inf, gamma->inf, GMP_RNDU);
-	ap_double_set_scalar(&sup, gamma->sup, GMP_RNDU);
-	printf("x%d : [%f,%f]\n", i, inf, sup);
-    }
+    /* DEBUG: print the concretisations of \alphaiz */
+#ifdef _T1P_DEBUG
+       double inf = 0.0; double sup = 0.0;
+       for (i=0; i<1+opt->size; i++) {
+	   ap_interval_t* gamma = ap_abstract0_bound_dimension(pk, obj, i);
+	   ap_double_set_scalar(&inf, gamma->inf, GMP_RNDU);
+	   ap_double_set_scalar(&sup, gamma->sup, GMP_RNDU);
+	   printf("x%d : [%f,%f]\n", i, inf, sup);
+       }
+#endif
 
     /* on doit construire la forme finale puis calculer tau^z */
-    /* calcul de tauz */
+    /* calcul de tauz est la sol optimale du probleme */
     itv_t tauz; itv_init(tauz);
-    itv_mul(pr->itv, tmp1, lambda, taux);
-    itv_mul(pr->itv, tmp2, ulambda, tauy);
-    itv_add(tmp3, tmp1, tmp2);
-    itv_add(tauz, opt->optval, tmp3);
-    printf("tauZ: ");itv_print(tauz);printf("\n");
+    itv_set(tauz,opt->optval);
+
+    /* DEBUG: print tauz */
+//#ifdef _T1P_DEBUG
+    double_set_num(&d,bound_numref(tauz->inf));
+    printf("tauz = [%f,",-1*d);
+    double_set_num(&d,bound_numref(tauz->sup));
+    printf("%f]\n",d);
+//#endif
+
     /*
-    itv_print(opt->optval);
-    printf("\n");
-    itv_print(opt->optsol.lambda);
-    printf("\n");
-    itv_print(opt->optsol.u0);
-    printf("\n");
-    for (i=0;i<opt->sizeJ;i++) {
-	printf("%d \t", opt->optsol.ui[i]);
-    }
-    printf("\n");
-    */
+       itv_print(opt->optval);
+       printf("\n");
+       itv_print(opt->optsol.lambda);
+       printf("\n");
+       itv_print(opt->optsol.u0);
+       printf("\n");
+       for (i=0;i<opt->sizeJ;i++) {
+       printf("%d \t", opt->optsol.ui[i]);
+       }
+       printf("\n");
+     */
+
     /* construction de la forme finale */
     t1p_aaterm_t *ptr = NULL;
-    res = t1p_aff_alloc_init(pr);
+    /* already allocated by the caller ! */
+    //res = t1p_aff_alloc_init(pr);
     res->q = ptr = t1p_aaterm_alloc_init();
     ap_interval_t* itv_dim = NULL;
-    for (i=0;i<opt->size+1;i++) {
+    for (i=0;i<1+opt->size;i++) {
 	itv_dim = ap_abstract0_bound_dimension(pk, obj, (ap_dim_t)i);
 	itv_set_ap_interval(pr->itv, tmp1, itv_dim);
+	/* le midpoint du convex hull d'un polyhedre est dans le polyhedre, on prend donc ce point trivial */
 	itv_middev(pr->itv, tmp2,tmp3,tmp1);
+	/* all calculation approximations are accumulated in tauz ? ... not a good solution since deviations may be significant -- add instead 10^-6 (seems to be a good heuristic) */
+	//itv_add(tauz,tauz,tmp3);
 	if (i==0) itv_set(res->c,tmp2);
 	else {
-	    itv_set(ptr->coeff,tmp2);
-	    ptr->pnsym = opt->T[i-1].pnsym;
-	    res->end = ptr;
-	    res->l++;
-	    ptr->n = t1p_aaterm_alloc_init();
-	    ptr=ptr->n;
+	    if (!itv_is_zero(tmp2)){
+		itv_set(ptr->coeff,tmp2);
+		ptr->pnsym = opt->T[i-1].pnsym;
+		res->end = ptr;
+		res->l++;
+		ptr->n = t1p_aaterm_alloc_init();
+		ptr=ptr->n;
+	    }
 	}
     }
     t1p_aaterm_free(pr, ptr);
     if (res->end) res->end->n = NULL;
 
+#if defined(NUM_DOUBLE) || defined(NUM_LONGDOUBLE) || defined(NUM_MPFR)
+    num_t err;
+    num_init(err);
+    num_set_double(err,(double)1e-6);
+    itv_add_num(tauz,tauz,err);
+    num_clear(err);
+#endif
+
+    itv_set_num(tauz,bound_numref(tauz->sup));
     t1p_aff_nsym_create(pr, res, tauz, UN);
 
-    t1p_aff_fprint(pr, stdout, res);
+    //t1p_aff_fprint(pr, stdout, res);
+    //printf("\n*********************\n");itv_print(tauz); printf("\t"); itv_print(opt->optval); printf("\n*********************\n");
 
     /* free optimal solution structure */
     ap_interval_free(itv);
@@ -1008,7 +1287,8 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     itv_clear(un); 
     itv_clear(mun); 
     itv_clear(midxMmidy);
-    array.size = 1 + 2*(opt->size);
+    /* le _clear fait un free de la constrainte, je mets ici le nb exact des contraintes allouees avant d'appeler le array_clear */
+    array.size = Nbcons;
     ap_lincons0_array_clear(&array);
     ap_manager_free(pk);
 }
