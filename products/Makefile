@@ -26,10 +26,10 @@ OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl -I ../newpolka -I ../ppl
 # Files
 #---------------------------------------
 
-CCMODULES = ap_pkgrid
+CCMODULES = ap_pkgrid ap_disjpk
 CCSRC = $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
-CCINC_TO_INSTALL = ap_pkgrid.h
+CCINC_TO_INSTALL = ap_pkgrid.h ap_disjpk.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libap_pkgrid.a libap_pkgrid_debug.a \
