@@ -28,7 +28,7 @@ ap_config.h \
 ap_scalar.h ap_interval.h ap_coeff.h ap_dimension.h \
 ap_linexpr0.h ap_lincons0.h ap_generator0.h \
 ap_texpr0.h ap_tcons0.h ap_expr0.h \
-ap_manager.h ap_abstract0.h ap_generic.h \
+ap_manager.h ap_abstract0.h ap_policy.h ap_generic.h \
 ap_var.h ap_environment.h \
 ap_linexpr1.h ap_lincons1.h ap_generator1.h \
 ap_texpr1.h ap_tcons1.h ap_expr1.h \
