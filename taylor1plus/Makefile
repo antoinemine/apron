@@ -84,7 +84,9 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON
 # depend doc install
 # and the following one
 
-all: allMPQ allD allMPFR testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug 
+all: allMPQ allD allMPFR
+
+test: testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug 
 
 
 
