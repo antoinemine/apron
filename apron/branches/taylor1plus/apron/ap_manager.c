@@ -156,7 +156,7 @@ void ap_result_clear(ap_result_t* result)
 /* ********************************************************************** */
 
 /* Constructor and destructor for manager */
-ap_manager_t* ap_manager_alloc(char* library, char* version, 
+ap_manager_t* ap_manager_alloc(const char* library, const char* version, 
 			       void* internal, 
 			       void (*internal_free)(void*))
 {
