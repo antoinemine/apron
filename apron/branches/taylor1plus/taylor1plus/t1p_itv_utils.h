@@ -13,6 +13,7 @@ static inline int itv_sign(itv_internal_t *itv, itv_t a, itv_t b);
 
 /* mid = RND_NEAREST((sup(a) + inf(a))/2). dev = max(sup(a)-mid, mid-inf(a)) */
 static inline void itv_middev(itv_internal_t *itv, itv_t mid, itv_t dev, itv_t a);
+static inline void itv_middev_regular(itv_internal_t *itv, itv_t mid, itv_t dev, itv_t a);
 
 static inline bool itv_has_infty_bound(itv_t itv)
 {
@@ -127,4 +128,31 @@ static inline void itv_square(itv_internal_t *itv, itv_t res, itv_t a)
     itv_mul(itv,res,a,a);
     if (bound_cmp_int(res->inf,0) >= 0) {bound_set_int(res->inf,0);}
 }
+
+/* mid contient a coup sur le mid reel, pareil pour dev, utilise surtout quand on a besoin de ses valeurs reelles */
+static inline void itv_middev_regular(itv_internal_t *itv, itv_t mid, itv_t dev, itv_t a)
+{
+    itv_t minf, sup;
+    itv_init(minf);
+    itv_init(sup);
+    if (itv_is_point(itv, a)) {
+	itv_set(mid,a);
+	itv_set_int(dev,0);
+    } else if (itv_has_infty_bound(a) || itv_is_bottom(itv, a)) {
+	itv_set_top(mid);
+	itv_set_top(dev);
+    } else {
+	itv_set_num(sup,bound_numref(a->sup));
+	itv_set_num(minf,bound_numref(a->inf));
+	/* mid */
+	itv_sub(mid,sup,minf);
+	itv_mul_2exp(mid,mid,-1);
+	/* dev */
+	itv_add(dev,sup,minf);
+	itv_mul_2exp(dev,dev,-1);
+    }
+    itv_clear(sup);
+    itv_clear(minf);
+}
+
 #endif

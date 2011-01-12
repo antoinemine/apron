@@ -1211,8 +1211,9 @@ static inline t1p_aff_t * t1p_aff_join(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_
  */
 static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_t *exp1, t1p_aff_t *exp2, t1p_t* a, t1p_t* b, t1p_t* ab) 
 {
-    clock_t start = clock();
     arg_assert(exp1 && exp2, abort(););
+
+    clock_t start = clock();
 
     t1p_aff_t * res = t1p_aff_alloc_init(pr);
     itv_t mid, dev, tmp, tmp1, tmp2, betaA, betaB;
@@ -1578,8 +1579,8 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
 	/* TODO: y a peut etre moyen d'eviter de boxizer a chaque fois ... */
 	t1p_aff_boxize(pr, exp1->itv, exp1, a);
 	t1p_aff_boxize(pr, exp2->itv, exp2, b);
-	itv_middev(pr->itv, midgx, dev, exp1->itv);
-	itv_middev(pr->itv, midgy, dev, exp2->itv);
+	itv_middev_regular(pr->itv, midgx, dev, exp1->itv);
+	itv_middev_regular(pr->itv, midgy, dev, exp2->itv);
 
 	if (exp1->q || exp2->q) {
 	    optpr_init(pr);

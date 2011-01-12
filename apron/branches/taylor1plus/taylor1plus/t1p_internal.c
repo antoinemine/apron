@@ -363,8 +363,8 @@ void optpr_build(t1p_internal_t* pr, itv_t alphaix, itv_t alphaiy, t1p_nsym_t* p
 	      }
 	case J:
 	      {
-		itv_middev(pr->itv, midx, devx, nsymItv1);
-		itv_middev(pr->itv, midy, devy, nsymItv2);
+		itv_middev_regular(pr->itv, midx, devx, nsymItv1);
+		itv_middev_regular(pr->itv, midy, devy, nsymItv2);
 		opt->litab[opt->sizeJ].i = opt->size;
 		if (opt->T[opt->size].sign == 1) {
 		    /* alphaix > alphaiy */
@@ -884,10 +884,21 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 	array.p[1].scalar = NULL;
     }
 
+    ap_coeff_t* coeff = ap_coeff_alloc(AP_COEFF_INTERVAL);
+
+    itv_t cst0, cst1, cst2;
+    itv_init(cst0);
+    itv_init(cst1);
+    itv_init(cst2);
+
+    itv_t** alphaz = (itv_t**)calloc(1+opt->size,sizeof(itv_t*));
+
     size_t Nbcons = 3;
+    size_t equalities = 0;
     for (i=0; i<opt->size; i++) {
 	if (opt->T[i].sign == 0) {
 	    /* alphaiz = alphaix = alphaiy */
+	    /*
 	    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
 	    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 	    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
@@ -895,9 +906,31 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 	    array.p[Nbcons].constyp = AP_CONS_EQ;
 	    array.p[Nbcons].scalar = NULL;
 	    Nbcons++;
+	    */
+	    /* mise a jour des trois premieres contraintes */
+	    equalities++;
+	    ap_linexpr0_get_coeff(coeff, array.p[0].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst0,cst0,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[0].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[1].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst1,cst1,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[1].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[2].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst2,cst2,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[2].linexpr0, (ap_dim_t)(i+1), 0);
+	    /* stockage de la valeur */
+	    alphaz[i+1] = malloc(sizeof(itv_t));
+	    itv_init(*alphaz[i+1]);
+	    itv_set(*alphaz[i+1],opt->T[i].alphaix);
 	} else {
-	    itv_middev(pr->itv, midx, devx, opt->T[i].nsymitvx);
-	    itv_middev(pr->itv, midy, devy, opt->T[i].nsymitvy);
+	    itv_middev_regular(pr->itv, midx, devx, opt->T[i].nsymitvx);
+	    itv_middev_regular(pr->itv, midy, devy, opt->T[i].nsymitvy);
 	    itv_sub(midxMmidy, midx, midy);
 	    switch (opt->T[i].I) {
 		case IX: 
@@ -992,6 +1025,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaix */
+				    /*
 				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
 				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
@@ -999,6 +1033,29 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    array.p[Nbcons].constyp = AP_CONS_EQ;
 				    array.p[Nbcons].scalar = NULL;
 				    Nbcons++;
+				    */
+	    equalities++;
+	    ap_linexpr0_get_coeff(coeff, array.p[0].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst0,cst0,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[0].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[1].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst1,cst1,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[1].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[2].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst2,cst2,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[2].linexpr0, (ap_dim_t)(i+1), 0);
+	    alphaz[i+1] = malloc(sizeof(itv_t));
+	    itv_init(*alphaz[i+1]);
+	    itv_set(*alphaz[i+1],opt->T[i].alphaix);
+	    /* plus besoin d'aucune contrainte sur cette variable determinee */
+	    ap_lincons0_clear(&array.p[Nbcons-1]);
+	    Nbcons--;
 				}
 			    } else if (opt->optsol.ui[i] == -1) {
 				/* contrainte alphaiz <= alphaix */
@@ -1036,6 +1093,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaiy */
+				    /*
 				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
 				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
@@ -1043,6 +1101,28 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    array.p[Nbcons].constyp = AP_CONS_EQ;
 				    array.p[Nbcons].scalar = NULL;
 				    Nbcons++;
+				    */
+	    equalities++;
+	    ap_linexpr0_get_coeff(coeff, array.p[0].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst0,cst0,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[0].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[1].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst1,cst1,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[1].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[2].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst2,cst2,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[2].linexpr0, (ap_dim_t)(i+1), 0);
+	    alphaz[i+1] = malloc(sizeof(itv_t));
+	    itv_init(*alphaz[i+1]);
+	    itv_set(*alphaz[i+1],opt->T[i].alphaiy);
+	    ap_lincons0_clear(&array.p[Nbcons-1]);
+	    Nbcons--;
 				}
 			    }
 			} else if (opt->T[i].sign == -1) {
@@ -1100,6 +1180,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaix */
+				    /*
 				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
 				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
@@ -1107,6 +1188,28 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    array.p[Nbcons].constyp = AP_CONS_EQ;
 				    array.p[Nbcons].scalar = NULL;
 				    Nbcons++;
+				    */
+	    equalities++;
+	    ap_linexpr0_get_coeff(coeff, array.p[0].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst0,cst0,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[0].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[1].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst1,cst1,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[1].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[2].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaix);
+	    itv_add(cst2,cst2,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[2].linexpr0, (ap_dim_t)(i+1), 0);
+	    alphaz[i+1] = malloc(sizeof(itv_t));
+	    itv_init(*alphaz[i+1]);
+	    itv_set(*alphaz[i+1],opt->T[i].alphaix);
+	    ap_lincons0_clear(&array.p[Nbcons-1]);
+	    Nbcons--;
 				}
 			    } else if (opt->optsol.ui[i] == -1) {
 				/* contrainte alphaiz >= alphaix */
@@ -1145,6 +1248,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    Nbcons++;
 				} else {
 				    /* alphaiz = alphaiy */
+				    /*
 				    array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
 				    ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 				    ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaiy);
@@ -1152,6 +1256,28 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 				    array.p[Nbcons].constyp = AP_CONS_EQ;
 				    array.p[Nbcons].scalar = NULL;
 				    Nbcons++;
+				    */
+	    equalities++;
+	    ap_linexpr0_get_coeff(coeff, array.p[0].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst0,cst0,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[0].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[1].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst1,cst1,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[1].linexpr0, (ap_dim_t)(i+1), 0);
+	    ap_linexpr0_get_coeff(coeff, array.p[2].linexpr0, (ap_dim_t)(i+1));
+	    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+	    itv_mul(pr->itv,tmp1,tmp1,opt->T[i].alphaiy);
+	    itv_add(cst2,cst2,tmp1);
+	    ap_linexpr0_set_coeff_scalar_int(array.p[2].linexpr0, (ap_dim_t)(i+1), 0);
+	    alphaz[i+1] = malloc(sizeof(itv_t));
+	    itv_init(*alphaz[i+1]);
+	    itv_set(*alphaz[i+1],opt->T[i].alphaiy);
+	    ap_lincons0_clear(&array.p[Nbcons-1]);
+	    Nbcons--;
 				}
 			    }
 			}
@@ -1162,6 +1288,25 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 	}
     }
 
+    /* recalculer les constantes des trois premieres contraintes */
+    ap_linexpr0_get_cst(coeff, array.p[0].linexpr0);
+    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+    itv_add(cst0,cst0,tmp1);
+    ap_coeff_set_itv(pr->itv, coeff, cst0);
+    ap_linexpr0_set_cst(array.p[0].linexpr0, coeff);
+
+    ap_linexpr0_get_cst(coeff, array.p[1].linexpr0);
+    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+    itv_add(cst1,cst1,tmp1);
+    ap_coeff_set_itv(pr->itv, coeff, cst1);
+    ap_linexpr0_set_cst(array.p[1].linexpr0, coeff);
+
+    ap_linexpr0_get_cst(coeff, array.p[2].linexpr0);
+    itv_set_ap_coeff(pr->itv, tmp1, coeff);
+    itv_add(cst2,cst2,tmp1);
+    ap_coeff_set_itv(pr->itv, coeff, cst2);
+    ap_linexpr0_set_cst(array.p[2].linexpr0, coeff);
+
     /*
        printf("\n");
        ap_lincons0_print(&array.p[0], NULL);
@@ -1170,11 +1315,16 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
        printf("\n");
        ap_lincons0_print(&array.p[2], NULL);
        printf("\n");
-     */
-#ifdef _T1P_DEBUG
+       */
     array.size = Nbcons;
+#ifdef _T1P_DEBUG
     ap_lincons0_array_fprint(stdout,&array,NULL);
 #endif
+
+    ap_coeff_free(coeff);
+    itv_clear(cst0);
+    itv_clear(cst1);
+    itv_clear(cst2);
 
     /* rq: avec boxD et t1pD il est preferable de faire le meet en plus du of_lincons_array a cause des linexp avec coeff intervalles (ce qui peut etre tres couteux en temps !).
        avec boxMPQ et t1pMPQ, le meet seul suffit.
@@ -1189,7 +1339,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 #endif
     clock_t end = clock();
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    fprintf(stdout,"poly: %f\n",time);
+    fprintf(stdout,"poly (%d var): %f\n",(1+opt->size)-equalities,time);
     //ap_abstract0_fprint(stdout, pk, obj, NULL);
 
     /* DEBUG: print the concretisations of \alphaiz */
@@ -1209,12 +1359,12 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     itv_set(tauz,opt->optval);
 
     /* DEBUG: print tauz */
-//#ifdef _T1P_DEBUG
+#ifdef _T1P_DEBUG
     double_set_num(&d,bound_numref(tauz->inf));
     printf("tauz = [%f,",-1*d);
     double_set_num(&d,bound_numref(tauz->sup));
     printf("%f]\n",d);
-//#endif
+#endif
 
     /*
        itv_print(opt->optval);
@@ -1236,12 +1386,18 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     res->q = ptr = t1p_aaterm_alloc_init();
     ap_interval_t* itv_dim = NULL;
     for (i=0;i<1+opt->size;i++) {
-	itv_dim = ap_abstract0_bound_dimension(pk, obj, (ap_dim_t)i);
-	itv_set_ap_interval(pr->itv, tmp1, itv_dim);
-	/* le midpoint du convex hull d'un polyhedre est dans le polyhedre, on prend donc ce point trivial */
-	itv_middev(pr->itv, tmp2,tmp3,tmp1);
-	/* all calculation approximations are accumulated in tauz ? ... not a good solution since deviations may be significant -- add instead 10^-6 (seems to be a good heuristic) */
-	//itv_add(tauz,tauz,tmp3);
+	if (alphaz[i] == NULL) {
+	    itv_dim = ap_abstract0_bound_dimension(pk, obj, (ap_dim_t)i);
+	    itv_set_ap_interval(pr->itv, tmp1, itv_dim);
+	    /* le midpoint du convex hull d'un polyhedre est dans le polyhedre, on prend donc ce point trivial */
+	    itv_middev(pr->itv, tmp2,tmp3,tmp1);
+	    /* all calculation approximations are accumulated in tauz ? ... not a good solution since deviations may be significant -- add instead 10^-6 (seems to be a good heuristic) */
+	    //itv_add(tauz,tauz,tmp3);
+	} else {
+	    itv_set(tmp2,*alphaz[i]);
+	    itv_clear(*alphaz[i]);
+	    free(alphaz[i]);
+	}
 	if (i==0) itv_set(res->c,tmp2);
 	else {
 	    if (!itv_is_zero(tmp2)){
@@ -1256,6 +1412,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     }
     t1p_aaterm_free(pr, ptr);
     if (res->end) res->end->n = NULL;
+    free(alphaz);
 
 #if defined(NUM_DOUBLE) || defined(NUM_LONGDOUBLE) || defined(NUM_MPFR)
     num_t err;
