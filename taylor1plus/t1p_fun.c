@@ -100,14 +100,14 @@ t1p_aff_t* t1p_aff_sub(t1p_internal_t* pr, t1p_aff_t* exprA, t1p_aff_t* exprB, t
     itv_t tmp; itv_init(tmp);
     t1p_aff_t* res = t1p_aff_alloc_init(pr);
     t1p_aaterm_t *p, *q, *ptr;
-    itv_sub(res->c, exprA->c, exprB->c);
+    if (!itv_is_eq(exprA->c, exprB->c)) itv_sub(res->c, exprA->c, exprB->c);
     itv_set(box, res->c);
     if (exprA->q || exprB->q) {
 	ptr = t1p_aaterm_alloc_init();
 	for(p = exprA->q, q = exprB->q; p || q;) {
 	    if (p && q) {
 		if (p->pnsym->index == q->pnsym->index) {
-		    itv_sub(ptr->coeff, p->coeff, q->coeff);
+		    if (!itv_is_eq(p->coeff, q->coeff)) itv_sub(ptr->coeff, p->coeff, q->coeff);
 		    ptr->pnsym = p->pnsym;
 		    p = p->n ;
 		    q = q->n ;

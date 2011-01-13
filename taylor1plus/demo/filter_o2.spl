@@ -1,21 +1,37 @@
 /* SIMPLE LANGUAGE : http://pop-art.inrialpes.fr/people/bjeannet/bjeannet-forge/interproc/manual_3.html */
 
-var E:real, E0:real, S:real, S0:real, E1:real, S1:real, i:int;
+var E:real, E0:real, A:real, S0:real, E1:real, S1:real;
 begin
- S = 0.0;
+ A = 0.0;
  S0 = 0.0;
  E = random;
  assume E>=0 and E<=1;
  E0 = random;
  assume E0>=0 and E0<=1;
- i = 1;
+
+ E1 = E0;
+ E0 = E;
+ E = random;
+ assume E>=0 and E<=1;
+ S1 = S0;
+ S0 = A;
+ A = 7/10*E - 13/10*E0 + 11/10*E1 + 14/10*S0 - 7/10*S1;
+
+ E1 = E0;
+ E0 = E;
+ E = random;
+ assume E>=0 and E<=1;
+ S1 = S0;
+ S0 = A;
+ A = 7/10*E - 13/10*E0 + 11/10*E1 + 14/10*S0 - 7/10*S1;
+
  while (true) do
 	 E1 = E0;
 	 E0 = E;
 	 E = random;
 	 assume E>=0 and E<=1;
 	 S1 = S0;
-	 S0 = S;
-	 S = 0.7*E - 1.3*E0 + 1.1*E1 + 1.4*S0 - 0.7*S1;
+	 S0 = A;
+	 A = 7/10*E - 13/10*E0 + 11/10*E1 + 14/10*S0 - 7/10*S1;
  done;
 end

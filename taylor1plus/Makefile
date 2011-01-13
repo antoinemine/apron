@@ -73,8 +73,8 @@ dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so \
 dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron -L../newpolka -lpolkaMPQ -L../box -lboxMPQ 
-LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron_debug -L../newpolka -lpolkaMPQ_debug -L../box -lboxMPQ_debug
+LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
+LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron_debug
 
 #---------------------------------------
 # Rules
@@ -84,10 +84,9 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON
 # depend doc install
 # and the following one
 
-all: allMPQ allD allMPFR
-
-test: testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug 
-
+all: allMPQ allD allMPFR 
+# testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug test_joinD_debug test_joinMPQ_debug test_joinMPFR_debug 
+	
 
 
 allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
@@ -99,14 +98,15 @@ allD: libt1pD.so libt1pD_debug.so
 allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
 
-test%: t1p_test_eval_texp%.o
-	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $< -L. -lt1p$* -lbox$* $(LIBS)
+#test%: t1p_test_eval_texp%.o
+#	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron t1p_internal$*.o t1p_representation$*.o
 
-test%_debug: t1p_test_eval_texp%_debug.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $< -L. -lt1p$*_debug -lbox$*_debug $(LIBS_DEBUG)
+#test%_debug: t1p_test_eval_texp%_debug.o
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
 
-test_join%: t1p_test_join%.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@-L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug $(LIBS) 
+
+#test_join%: t1p_test_join%.o
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
