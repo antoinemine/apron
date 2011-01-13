@@ -96,12 +96,12 @@ bool poly_meet_matrix(bool meet,
     }
     cherni_add_and_minimize(pk,meet,po,start);
     if (pk->exn) goto _poly_meet_matrix_exit0;
-    po->status = 
+    po->status =
       meet
       ?
-      ( pk_status_consgauss ) 
+      ( pk_status_consgauss )
       :
-      ( pk_status_gengauss ) 
+      ( pk_status_gengauss )
       ;
     assert( poly_check_dual(pk,po,meet) );
   }
@@ -162,19 +162,20 @@ bool poly_meet_particularcases(bool meet, bool lazy,
     }
     /* if one want information about exactness, also test inclusion */
     if (pk->funopt->flag_exact_wanted){
+      bool res1=false,res2=false;
       poly_dual(pa);
       poly_dual(pb);
-      if (pk_is_leq(man,pa,pb)){
+      res1 = pk_is_leq(man,pa,pb);
+      res2 = res1 ? false : pk_is_leq(man,pb,pa);
+      poly_dual(pa);
+      poly_dual(pb);
+      if (res1){
 	poly_set(po,pb);
-	goto _poly_meet_particularcases_exit;
+        return true;
       }
-      else if (pk_is_leq(man,pb,pa)){
-	poly_set(po,pa);
-      _poly_meet_particularcases_exit:
-	poly_dual(pa);
-	poly_dual(pb);
-	if (po!=pa) poly_dual(po);
-	return true;
+      else if (res2){
+        poly_set(po,pa);
+        return true;
       }
     }
   }
@@ -198,8 +199,8 @@ void poly_meet(bool meet,
     poly_set(po,pa);
     man->result.flag_exact = true;
     return;
-  }   
-  
+  }
+
   pa_status = pa->status;
   /* Set the dimensions of po */
   if (po!=pa){
@@ -234,7 +235,7 @@ void poly_meet(bool meet,
   /* Particular cases again */
   if (poly_meet_particularcases(meet,lazy,man,po,pa,pb))
     return;
-  
+
   /* lazy behaviour */
   if (lazy){
   _poly_meet_entry0:
@@ -331,7 +332,7 @@ pk_t* poly_meet_array(bool meet,
     man->result.flag_best = man->result.flag_exact = false;
     poly = pk_top(man,0,1);
     if (!meet) poly_dual(poly);
-    return poly;    
+    return poly;
   }
   intdim = po[0]->intdim;
   realdim = po[0]->realdim;
@@ -365,16 +366,16 @@ pk_t* poly_meet_array(bool meet,
       sprintf(str,"of the %lu argument",(unsigned long)i);
       if (lazy)
 	poly_obtain_C_dual(man,po[i],str,meet);
-      else 
+      else
 	poly_chernikova_dual(man,po[i],str,meet);
       if (pk->exn){
 	pk->exn = AP_EXC_NONE;
-	if (!po[i]->C){ 
+	if (!po[i]->C){
 	  man->result.flag_best = man->result.flag_exact = false;
 	  poly_set_top(pk, poly);
 	  if (!meet) poly_dual(poly);
 	  return poly;
-	} 
+	}
       }
       if (!po[i]->C){
 	/* one polyhedron is empty */
@@ -382,7 +383,7 @@ pk_t* poly_meet_array(bool meet,
 	  /* We return with bottom */
 	  poly_set_bottom(pk,poly);
 	  return poly;
-	} 
+	}
 	else {
 	  /* We exchange po[i] and po[size-1] */
 	  size--;
@@ -399,11 +400,11 @@ pk_t* poly_meet_array(bool meet,
     /* if size has been decreased */
     if (size<=2){
       assert(!meet);
-      if (size==0){ 
+      if (size==0){
 	man->result.flag_exact = true;
 	poly_set_bottom(pk,poly);
 	poly_dual(poly);
-      } 
+      }
       else if (size==1){
 	man->result.flag_exact = true;
 	poly_set(poly,po[0]);
@@ -460,7 +461,7 @@ pk_t* poly_meet_array(bool meet,
       poly->nbline = po[j]->nbline;
       cherni_add_and_minimize(pk,meet,poly,po[j]->C->nbrows);
       if (pk->exn) goto _poly_meet_array_exit0;
-      poly->status = 
+      poly->status =
 	meet ?
 	( pk_status_consgauss ) :
 	( pk_status_gengauss ) ;
@@ -488,7 +489,7 @@ pk_t* poly_meet_array(bool meet,
 /* II.1 Meet of two or more polyhedra */
 /* ********************************************************************** */
 
-pk_t* pk_meet(ap_manager_t* man, 
+pk_t* pk_meet(ap_manager_t* man,
 	      bool destructive, pk_t* pa, pk_t* pb)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MEET);
@@ -517,7 +518,7 @@ pk_t* pk_meet_array(ap_manager_t* man,
 /* Factorized version */
 void poly_meet_itv_lincons_array(bool lazy,
 				 ap_manager_t* man,
-				 pk_t* po, pk_t* pa, 
+				 pk_t* po, pk_t* pa,
 				 itv_lincons_array_t* array)
 {
   matrix_t* mat;
@@ -525,7 +526,7 @@ void poly_meet_itv_lincons_array(bool lazy,
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
   quasilinear = itv_lincons_array_is_quasilinear(array);
-  
+
   /* Get the constraint systems */
   if (lazy && quasilinear){
     poly_obtain_C(man,pa,"of the argument");
@@ -579,7 +580,7 @@ pk_t* pk_meet_lincons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_li
   itv_lincons_array_set_ap_lincons0_array(pk->itv,&tcons,array);
   poly_meet_itv_lincons_array(pk->funopt->algorithm<0,
 			      man,po,pa,&tcons);
-  itv_lincons_array_clear(&tcons);  
+  itv_lincons_array_clear(&tcons);
   assert(poly_check(pk,po));
   return po;
 }
@@ -645,7 +646,7 @@ pk_t* pk_join_array(ap_manager_t* man, pk_t** po, size_t size)
   tpoly = malloc(size*sizeof(pk_t*));
   memcpy(tpoly, po, size*sizeof(pk_t*));
   qsort(tpoly,size,sizeof(pk_t*),poly_cmp);
- 
+
   /* remove doublons */
   for(i=0;i<size-1;i++){
     if (tpoly[i]==tpoly[i+1]){
@@ -677,7 +678,7 @@ pk_t* pk_join_array(ap_manager_t* man, pk_t** po, size_t size)
 /* ---------------------------------------------------------------------- */
 /* Factorized version */
 static
-void poly_add_ray_array(bool lazy, 
+void poly_add_ray_array(bool lazy,
 			ap_manager_t* man,
 			pk_t* po, pk_t* pa, ap_generator0_array_t* array)
 {
@@ -729,4 +730,3 @@ pk_t* pk_add_ray_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_generat
   assert(poly_check(pk,po));
   return po;
 }
-
