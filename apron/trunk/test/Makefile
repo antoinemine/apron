@@ -27,21 +27,21 @@ bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa polkaMPQ.cmxa octD.cmxa ppl.cmxa p
 all: C
 
 # C examples
-.PRECIOUS: %.o %_debug.o
+.PRECIOUS: %.c %.o %_debug.o
 
 C: ctest1
 
-%: %.o
+ctest%: ctest%.o
 	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
 	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
 
-%_debug: %_debug.o
+ctest%_debug: ctest%_debug.o
 	$(CXX) -g $(ICFLAGS) $(LCFLAGS) -o $@  $< \
 	-lap_pkgrid_debug -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -lmpfr -lgmp
 
-%.o : %.c
+ctest%.o : ctest%.c
 	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
-%_debug.o: %.c
+ctest%_debug.o: ctest%.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
 
 # OCaml examples
