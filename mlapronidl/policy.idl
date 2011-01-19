@@ -52,7 +52,6 @@ quote(MLMLI,"(* ****************************************************************
 
 ap_manager_ptr ap_policy_manager_get_manager(ap_policy_manager_ptr pman)
   quote(call,"_res  = ap_manager_copy(pman->man);");
-ap_policy_manager_ptr ap_policy_manager_copy(ap_policy_manager_ptr man);
 
 quote(MLMLI,"(* ********************************************************************** *)")
 quote(MLMLI,"(** {2 Policy, general} *)")

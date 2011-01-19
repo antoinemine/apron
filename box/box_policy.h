@@ -40,25 +40,25 @@ typedef struct box_policy_t {
 
 ap_policy_manager_t* box_policy_manager_alloc(ap_manager_t* man);
 
-ap_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims);
-void box_policy_free(ap_policy_manager_t* man, ap_policy_t* policy);
-ap_policy_t* box_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy);
-void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy);
-bool box_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2);
+box_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims);
+void box_policy_free(ap_policy_manager_t* man, box_policy_t* policy);
+box_policy_t* box_policy_copy(ap_policy_manager_t* man, box_policy_t* policy);
+void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* policy);
+bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* policy1, box_policy_t* policy2);
 
-box_t* box_policy_meet(ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,
 		       bool destructive, box_t* a1, box_t* a2);
 
-box_t* box_policy_meet_array(ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet_array(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,
 			     box_t** tab, size_t size);
 
-box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,
 				     bool destructive,
 				     box_t* a,
 				     ap_lincons0_array_t* array);
   /* Meet of an box value with a set of constraints */
 box_t*
-box_policy_meet_tcons_array(ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
+box_policy_meet_tcons_array(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,
 			    bool destructive, box_t* a, ap_tcons0_array_t* array);
   /* Meet of an box value with a set of tree expressions constraints */
 
