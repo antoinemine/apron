@@ -69,39 +69,30 @@ void box_policy_resize(box_policy_t* boxpolicy, size_t nbdims, size_t size)
   boxpolicy->size = size;
   boxpolicy->first = false;
 }
-ap_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims)
+box_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims)
 {
-  ap_policy_t* policy;
   box_policy_t* boxpolicy = (box_policy_t*)malloc(sizeof(box_policy_t));
   boxpolicy->p = NULL;
   boxpolicy->size = 0;
   boxpolicy->first = true;
   box_policy_resize(boxpolicy,nbdims,1);
   boxpolicy->first = true;
-  policy = (ap_policy_t*)malloc(sizeof(ap_policy_t));
-  policy->value = (void*)boxpolicy;
-  policy->man = ap_policy_manager_copy(man);
-  return policy;
+  return boxpolicy;
 }
-void box_policy_free(ap_policy_manager_t* man, ap_policy_t* policy)
+void box_policy_free(ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
   size_t i;
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
   for (i=0; i<boxpolicy->size; i++){
     free(boxpolicy->p[i].p);
     boxpolicy->p[i].p = NULL;
   }
   free(boxpolicy->p); boxpolicy->p = NULL;
-  free(boxpolicy); policy->value=NULL;
-  ap_policy_manager_free(policy->man); policy->man = NULL;
-  free(policy);
+  free(boxpolicy);
 }
-ap_policy_t* box_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy)
+box_policy_t* box_policy_copy(ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
   size_t i,j,nbdims;
-  ap_policy_t* npolicy;
   box_policy_t* nboxpolicy = (box_policy_t*)malloc(sizeof(box_policy_t));
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
   nboxpolicy->p = NULL;
   nboxpolicy->size = 0;
   nboxpolicy->first = true;
@@ -115,10 +106,7 @@ ap_policy_t* box_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy)
       }
     }
   }
-  npolicy = (ap_policy_t*)malloc(sizeof(ap_policy_t));
-  npolicy->value = (void*)nboxpolicy;
-  npolicy->man = ap_policy_manager_copy(policy->man);
-  return npolicy;
+  return nboxpolicy;
 }
 
 static inline
@@ -148,9 +136,8 @@ void box_policy_one_fprint(FILE* stdout, box_policy_one_t* policy)
     fputc(' ', stdout);
   }
 }
-void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy)
+void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
   for (size_t i=0; i < boxpolicy->size; i++){
     fprintf(stdout, "%zi=", i);
     box_policy_one_fprint(stdout,&boxpolicy->p[i]);
@@ -174,18 +161,13 @@ bool box_policy_one_equal(box_policy_one_t* policy1, box_policy_one_t* policy2)
     if (!res) return res;
   }
   return res;
-} 
+}
 
-bool box_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2)
+bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* boxpolicy1, box_policy_t* boxpolicy2)
 {
-  if (policy1==policy2) 
+  if (boxpolicy1==boxpolicy2)
     return true;
-  if (policy1->man->man!=policy2->man->man &&
-      strcmp(policy1->man->man->library,policy2->man->man->library)!=0)
-    return false;
-  
-  box_policy_t* boxpolicy1 = (box_policy_t*)policy1->value;
-  box_policy_t* boxpolicy2 = (box_policy_t*)policy2->value;
+
   bool res;
   size_t i;
 
@@ -283,28 +265,26 @@ box_t* box_policy_meet_internal(ap_manager_t* man,
   return res;
 }
 box_t* box_policy_meet(ap_policy_manager_t* pman,
-		       ap_policy_t* policy, ap_policy_mode_t mode,
+		       box_policy_t* boxpolicy, ap_policy_mode_t mode,
 		       bool destructive, box_t* a1, box_t* a2)
 {
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
   return box_policy_meet_internal(pman->man,
 				  &boxpolicy->p[0],mode,
 				  destructive,a1,a2);
 }
-box_t* box_policy_meet_array(ap_policy_manager_t* pman, 
-			     ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet_array(ap_policy_manager_t* pman,
+			     box_policy_t* boxpolicy, ap_policy_mode_t mode,
 			     box_t** tab, size_t size)
 {
   size_t i;
   box_t* res;
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
 
   pman->man->result.flag_best = false;
   pman->man->result.flag_exact = false;
   if (size==1)
     return box_copy(pman->man,tab[0]);
   else if (size==2)
-    return box_policy_meet(pman,policy,mode,false,tab[0],tab[1]);
+    return box_policy_meet(pman,boxpolicy,mode,false,tab[0],tab[1]);
 
   box_policy_resize(boxpolicy,boxpolicy->p[0].nbdims,size-1);
   res = box_copy(pman->man,tab[0]);
@@ -612,8 +592,8 @@ void box_policy_meet_lincons_internal(box_internal_t* intern,
   }
 }
 
-box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman, 
-				     ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman,
+				     box_policy_t* boxpolicy, ap_policy_mode_t mode,
 				     bool destructive,
 				     box_t* a,
 				     ap_lincons0_array_t* array)
@@ -623,7 +603,6 @@ box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman,
   itv_lincons_array_t tlincons;
   ap_manager_t* man = pman->man;
   box_internal_t* intern = (box_internal_t*)man->internal;
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
 
   man->result.flag_best = false;
   man->result.flag_exact = false;
@@ -657,7 +636,7 @@ box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman,
   return res;
 }
 
-box_t* box_policy_meet_tcons_array(ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
+box_t* box_policy_meet_tcons_array(ap_policy_manager_t* pman, box_policy_t* boxpolicy, ap_policy_mode_t mode,
 				   bool destructive,
 				   box_t* a,
 				   ap_tcons0_array_t* array)
@@ -667,7 +646,6 @@ box_t* box_policy_meet_tcons_array(ap_policy_manager_t* pman, ap_policy_t* polic
   itv_lincons_array_t tlincons;
   ap_manager_t* man = pman->man;
   box_internal_t* intern = (box_internal_t*)man->internal;
-  box_policy_t* boxpolicy = (box_policy_t*)policy->value;
 
   man->result.flag_best = false;
   man->result.flag_exact = false;

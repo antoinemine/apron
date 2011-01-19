@@ -20,13 +20,13 @@ void ex1(ap_manager_t* man)
   printf("Library %s, version %s\n",man->library,man->version);
   printf("******************************\n");
 
-  ap_var_t name_of_dim[6] = {    
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
   };
   ap_environment_t* env = ap_environment_alloc(&name_of_dim[0],3,&name_of_dim[3],3);
 
   /* =================================================================== */
-  /* Creation of polyhedra 
+  /* Creation of polyhedra
      1/2x+2/3y=1, [1,2]<=z+2w<=4 */
   /* =================================================================== */
 
@@ -36,9 +36,9 @@ void ex1(ap_manager_t* man)
   /* 1.a Creation of an equality constraint 1/2x+2/3y=1 */
   ap_linexpr1_t expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   ap_lincons1_t cons = ap_lincons1_make(AP_CONS_EQ,&expr,NULL);
-    /* Now expr is memory-managed by cons */ 
+    /* Now expr is memory-managed by cons */
 
-  /* 1.b Fill the constraint */ 
+  /* 1.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_FRAC,1,2,"x",
 		       AP_COEFF_S_FRAC,2,3,"y",
@@ -46,14 +46,14 @@ void ex1(ap_manager_t* man)
 		       AP_END);
   /* 1.c Put in the array */
   ap_lincons1_array_set(&array,0,&cons);
-    /* Now cons is memory-managed by array */ 
+    /* Now cons is memory-managed by array */
 
   /* 2.a Creation of an inequality constraint [1,2]<=z+2w */
   expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 2.b Fill the constraint */ 
+  /* 2.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,1,"z",
 		       AP_COEFF_S_DOUBLE,2.0,"w",
@@ -61,13 +61,13 @@ void ex1(ap_manager_t* man)
 		       AP_END);
   /* 2.c Put in the array */
   ap_lincons1_array_set(&array,1,&cons);
-  
+
   /* 2.a Creation of an inequality constraint */
   expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 2.b Fill the constraint */ 
+  /* 2.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,1,"z",
 		       AP_COEFF_S_DOUBLE,2.0,"w",
@@ -75,11 +75,11 @@ void ex1(ap_manager_t* man)
 		       AP_END);
   /* 2.c Put in the array */
   ap_lincons1_array_set(&array,1,&cons);
-  
+
   /* 3.a Creation of an inequality constraint by duplication and
        modification z+2w<=4 */
   cons = ap_lincons1_copy(&cons);
-  /* 3.b Fill the constraint (by negating the existing coefficients) */ 
+  /* 3.b Fill the constraint (by negating the existing coefficients) */
   expr = ap_lincons1_linexpr1ref(&cons);
   {
     ap_coeff_t* pcoeff;
@@ -95,15 +95,15 @@ void ex1(ap_manager_t* man)
 
   /* 4. Creation of an abstract value */
   ap_abstract1_t abs = ap_abstract1_of_lincons_array(man,env,&array);
-  
+
   fprintf(stdout,"Abstract value:\n");
   ap_abstract1_fprint(stdout,man,&abs);
 
   /* deallocation */
   ap_lincons1_array_clear(&array);
-  
+
   /* =================================================================== */
-  /* Creation of polyhedra 
+  /* Creation of polyhedra
      x+y+z+w+u=0, 0<= w <= 5, -5<=u<=0, x+y-z-w>=0, */
   /* =================================================================== */
   array = ap_lincons1_array_make(env,6);
@@ -144,7 +144,7 @@ void ex1(ap_manager_t* man)
   ap_lincons1_array_set(&array,5,&cons);
 
   ap_abstract1_t abs2 = ap_abstract1_of_lincons_array(man,env,&array);
-  
+
   fprintf(stdout,"Abstract value 2:\n");
   ap_abstract1_fprint(stdout,man,&abs2);
 
@@ -153,7 +153,7 @@ void ex1(ap_manager_t* man)
   /* =================================================================== */
   /* Meet and Join */
   /* =================================================================== */
- 
+
   ap_abstract1_t res = ap_abstract1_meet(man,false,&abs,&abs2);
   fprintf(stdout,"Meet:\n");
   ap_abstract1_fprint(stdout,man,&res);
@@ -167,7 +167,7 @@ void ex1(ap_manager_t* man)
   /* =================================================================== */
   /* Assignement */
   /* =================================================================== */
- 
+
   expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,0);
   ap_linexpr1_set_list(&expr,
 		       AP_COEFF_S_INT,-3,"w",
@@ -198,16 +198,16 @@ void ex2(ap_manager_t* man)
   printf("ex2\n");
   printf("Library %s, version %s\n",man->library,man->version);
   printf("******************************\n");
-  ap_var_t name_of_dim[6] = {    
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
   };
-  ap_var_t tab[2] = {    
+  ap_var_t tab[2] = {
     "x","y"
   };
   ap_environment_t* env = ap_environment_alloc(&name_of_dim[0],3,&name_of_dim[3],3);
 
   /* =================================================================== */
-  /* Creation of polyhedra 
+  /* Creation of polyhedra
      -39x + 40y >= 0
      -6x - 20y + 85 >= 0
      x >= 0  */
@@ -219,9 +219,9 @@ void ex2(ap_manager_t* man)
   /* 1.a Creation of constraint -39x + 40y >= 0 */
   ap_linexpr1_t expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   ap_lincons1_t cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
-    /* Now expr is memory-managed by cons */ 
+    /* Now expr is memory-managed by cons */
 
-  /* 1.b Fill the constraint */ 
+  /* 1.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,-39,"x",
 		       AP_COEFF_S_INT,40,"y",
@@ -229,14 +229,14 @@ void ex2(ap_manager_t* man)
 		       AP_END);
   /* 1.c Put in the array */
   ap_lincons1_array_set(&array,0,&cons);
-    /* Now cons is memory-managed by array */ 
+    /* Now cons is memory-managed by array */
 
   /* 2.a Creation of an inequality constraint -6x - 20y + 85 >= 0 */
   expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 2.b Fill the constraint */ 
+  /* 2.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,-6,"x",
 		       AP_COEFF_S_INT,-20,"y",
@@ -250,14 +250,14 @@ void ex2(ap_manager_t* man)
   cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 3.b Fill the constraint */ 
+  /* 3.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,1,"x",
 		       AP_CST_S_INT,0,
 		       AP_END);
   /* 3.c Put in the array */
   ap_lincons1_array_set(&array,2,&cons);
-  
+
   ap_abstract1_t abs = ap_abstract1_of_lincons_array(man,env,&array);
   fprintf(stdout,"Abstract value:\n");
   ap_abstract1_fprint(stdout,man,&abs);
@@ -280,18 +280,18 @@ void ex3(ap_manager_t* man)
   printf("ex3\n");
   printf("Library %s, version %s\n",man->library,man->version);
   printf("******************************\n");
-  ap_var_t name_of_dim[6] = {    
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
   };
-  ap_var_t tab[2] = {    
+  ap_var_t tab[2] = {
     "x","y"
   };
   ap_environment_t* env = ap_environment_alloc(&name_of_dim[0],6,NULL,0);
   /* =================================================================== */
-  /* Creation of polyhedra 
+  /* Creation of polyhedra
      -39x + 40y = 0
      -3x - 10z + 43 = 0
-     -6x - 20y + 86 >= 0 
+     -6x - 20y + 86 >= 0
   */
   /* =================================================================== */
 
@@ -301,9 +301,9 @@ void ex3(ap_manager_t* man)
   /* 1.a Creation of constraint -39x + 40y = 0 */
   ap_linexpr1_t expr = ap_linexpr1_make(env,AP_LINEXPR_SPARSE,2);
   ap_lincons1_t cons = ap_lincons1_make(AP_CONS_EQ,&expr,NULL);
-    /* Now expr is memory-managed by cons */ 
+    /* Now expr is memory-managed by cons */
 
-  /* 1.b Fill the constraint */ 
+  /* 1.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,-39,"x",
 		       AP_COEFF_S_INT,40,"y",
@@ -311,7 +311,7 @@ void ex3(ap_manager_t* man)
 		       AP_END);
   /* 1.c Put in the array */
   ap_lincons1_array_set(&array,0,&cons);
-    /* Now cons is memory-managed by array */ 
+    /* Now cons is memory-managed by array */
 
   ap_abstract1_t abs = ap_abstract1_of_lincons_array(man,env,&array);
   fprintf(stdout,"Abstract value:\n");
@@ -325,7 +325,7 @@ void ex3(ap_manager_t* man)
   cons = ap_lincons1_make(AP_CONS_EQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 2.b Fill the constraint */ 
+  /* 2.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,-3,"x",
 		       AP_COEFF_S_INT,-10,"z",
@@ -335,7 +335,7 @@ void ex3(ap_manager_t* man)
   ap_lincons1_array_set(&array,0,&cons);
 
   fprintf(stdout,"Adding constraints:\n");
-  ap_lincons1_array_fprint(stdout,&array);  
+  ap_lincons1_array_fprint(stdout,&array);
   abs = ap_abstract1_meet_lincons_array(man,true,&abs,&array);
   fprintf(stdout,"Abstract value:\n");
   ap_abstract1_fprint(stdout,man,&abs);
@@ -345,7 +345,7 @@ void ex3(ap_manager_t* man)
   cons = ap_lincons1_make(AP_CONS_SUPEQ,&expr,NULL);
     /* The old cons is not lost, because it is stored in the array.
        It would be an error to clear it (same for expr). */
-  /* 2.b Fill the constraint */ 
+  /* 2.b Fill the constraint */
   ap_lincons1_set_list(&cons,
 		       AP_COEFF_S_INT,-6,"x",
 		       AP_COEFF_S_INT,-20,"y",
@@ -354,20 +354,20 @@ void ex3(ap_manager_t* man)
   /* 2.c Put in the array */
   ap_lincons1_array_set(&array,0,&cons);
   fprintf(stdout,"Adding constraints:\n");
-  ap_lincons1_array_fprint(stdout,&array);  
+  ap_lincons1_array_fprint(stdout,&array);
   abs = ap_abstract1_meet_lincons_array(man,true,&abs,&array);
   fprintf(stdout,"Abstract value:\n");
   ap_abstract1_fprint(stdout,man,&abs);
 
   ap_lincons1_array_clear(&array);
 
-     
+
   /* =================================================================== */
-  /* Creation of polyhedra 
+  /* Creation of polyhedra
      -39x + 40u = 0
      u = y
      v = x+z
-     -6v - 14z + 86 = 0 
+     -6v - 14z + 86 = 0
   */
   /* =================================================================== */
 
@@ -462,18 +462,18 @@ int main()
   ex2(man);
   ex3(man);
   ap_manager_free(man);
-  
+
   man = ap_ppl_poly_manager_alloc(true);
   ex1(man);
   ex2(man);
   ex3(man);
   ap_manager_free(man);
-  
+
   man = pkeq_manager_alloc();
   ex2(man);
   ex3(man);
   ap_manager_free(man);
-  
+
   man = ap_ppl_grid_manager_alloc();
   ex2(man);
   ex3(man);
