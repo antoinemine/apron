@@ -136,6 +136,56 @@ public class Texpr0BinNode
         return l + " " + o + suf + " " + r;
     }
 
+    public int getOperation()
+    {
+        return op;
+    }
+
+    public void setOperation(int o)
+    {
+        op = o;
+    }
+
+    public int getRoundingType()
+    {
+        return rtype;
+    }
+    
+    public void setRoundingType(int t)
+    {
+        rtype = t;
+    }
+
+    public int getRoundingDirection()
+    {
+        return rdir;
+    }
+
+    public void setRoundingDirection(int d)
+    {
+        rdir = d;
+    }
+
+    public Texpr0Node getLeftArgument()
+    {
+        return lArg;
+    }
+
+    public void setLeftArgument(Texpr0Node n)
+    {
+        lArg = n;
+    }
+
+    public Texpr0Node getRightArgument()
+    {
+        return rArg;
+    }
+
+    public void setRightArgument(Texpr0Node n)
+    {
+        rArg = n;
+    }
+
     public int getDepth()
     { 
         int m1 = lArg.getDepth();

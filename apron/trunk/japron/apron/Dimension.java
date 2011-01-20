@@ -56,4 +56,25 @@ public class Dimension
     {
         return (x instanceof Dimension) && (isEqual((Dimension)x));
     }
+
+    public int getIntegerDimension()
+    {
+        return intDim;
+    }
+
+    public int getRealDimension()
+    {
+        return realDim;
+    }
+
+    public void setIntegerDimension(int d)
+    {
+        intDim = d;
+    }
+
+    public void setRealDimension(int d)
+    {
+        realDim = d;
+    }
+
 }

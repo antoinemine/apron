@@ -67,7 +67,7 @@ public class Tcons0
      *
      * <p> e is referenced, not copied.
      */
-    Tcons0(int k, Texpr0Intern e)
+    public Tcons0(int k, Texpr0Intern e)
     { 
         this(k, e, null);
     }
@@ -78,7 +78,7 @@ public class Tcons0
      *
      * <p> e and s are referenced, not copied.
      */
-    Tcons0(int k, Texpr0Intern e, Scalar s)
+    public Tcons0(int k, Texpr0Intern e, Scalar s)
     { 
         expr = e; 
         kind = k;
@@ -91,7 +91,7 @@ public class Tcons0
      * <p> e is converted to an opaque {@link apron.Texpr0Intern}
      * Apron expression tree.
      */
-    Tcons0(int k, Texpr0Node e)
+    public Tcons0(int k, Texpr0Node e)
     {
         this(k, new Texpr0Intern(e), null);
     }
@@ -103,7 +103,7 @@ public class Tcons0
      * <p> e is converted to an opaque {@link apron.Texpr0Intern}
      * Apron expression tree.
      */
-    Tcons0(int k, Texpr0Node e, Scalar s)
+    public Tcons0(int k, Texpr0Node e, Scalar s)
     { 
         this(k, new Texpr0Intern(e), s);
     }
@@ -112,7 +112,7 @@ public class Tcons0
      *
      * <p> The left member expression and the optional scalar are copied.
      */
-    Tcons0(Tcons0 c)
+    public Tcons0(Tcons0 c)
     { 
         this(c.kind, new Texpr0Intern(c.expr),
              (c.scalar==null) ? null : c.scalar.copy());
@@ -121,7 +121,7 @@ public class Tcons0
     /**
      * Converts a linear constraint to a comb-line tree expression constraint. 
      */
-    Tcons0(Lincons0 c)
+    public Tcons0(Lincons0 c)
     { 
         this(c.kind, new Texpr0Intern(c.expr),
              (c.scalar==null) ? null : c.scalar.copy());
@@ -289,6 +289,7 @@ public class Tcons0
         return expr.toTexpr0Node();
     }
 
+
     /** Returns the depth of the expression tree. */
     public int getDepth()
     {
@@ -319,6 +320,12 @@ public class Tcons0
         return expr.getDims();
     }
 
+    /** Returns the left expression. */
+    public Texpr0Intern getExpression()
+    {
+        return expr;
+    }
+
     /** Returns the constraint kind. */
     public int getKind()
     {
@@ -334,6 +341,12 @@ public class Tcons0
 
     // Set functions
     ////////////////
+
+    /** Sets the left expression. */
+    public void setExpression(Texpr0Intern e)
+    {
+        expr = e;
+    }
 
     /** Sets the constraint kind. */
     public void setKind(int k)

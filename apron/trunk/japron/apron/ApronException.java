@@ -45,4 +45,14 @@ public class ApronException
         funid = fid;
     }
 
+    public int getFunctionID()
+    {
+        return funid;
+    }
+
+    public Manager getManager()
+    {
+        return manager;
+    }
+
 }
