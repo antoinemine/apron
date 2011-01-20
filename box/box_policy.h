@@ -36,6 +36,7 @@ typedef struct box_policy_t {
   box_policy_one_t* p;
   size_t size;
   bool first;
+  size_t nbdims;
 } box_policy_t;
 
 ap_policy_manager_t* box_policy_manager_alloc(ap_manager_t* man);
@@ -44,6 +45,7 @@ box_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_
 void box_policy_free(ap_policy_manager_t* man, box_policy_t* policy);
 box_policy_t* box_policy_copy(ap_policy_manager_t* man, box_policy_t* policy);
 void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* policy);
+size_t box_policy_dimension(ap_policy_manager_t* man, box_policy_t* policy);
 bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* policy1, box_policy_t* policy2);
 
 box_t* box_policy_meet(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,

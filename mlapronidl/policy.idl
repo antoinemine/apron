@@ -60,6 +60,8 @@ quote(MLMLI,"(* ****************************************************************
 ap_policy_ptr ap_policy_copy(ap_policy_manager_ptr man, ap_policy_ptr policy);
 void ap_policy_fdump(ap_policy_manager_ptr man, ap_policy_ptr policy)
   quote(call,"ap_policy_fprint(stdout,man, policy); fflush(stdout);");
+int ap_policy_dimension(ap_policy_manager_ptr man, ap_policy_ptr policy)
+  quote(call,"_res = (int)ap_policy_dimension(man,policy);");
 boolean ap_policy_equal(ap_policy_manager_ptr man, ap_policy_ptr policy1, ap_policy_ptr policy2);
 
 quote(MLMLI,"(* ********************************************************************** *)")

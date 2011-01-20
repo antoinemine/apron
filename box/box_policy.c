@@ -39,6 +39,7 @@ box_policy_manager_alloc: the standard manager given in argument is not a box ma
   funptr[AP_FUNPOLICYID_COPY] = box_policy_copy;
   funptr[AP_FUNPOLICYID_FREE] = box_policy_free;
   funptr[AP_FUNPOLICYID_FPRINT] = box_policy_fprint;
+  funptr[AP_FUNPOLICYID_DIMENSION] = box_policy_dimension;
   funptr[AP_FUNPOLICYID_EQUAL] = box_policy_equal;
   funptr[AP_FUNPOLICYID_MEET] = box_policy_meet;
   funptr[AP_FUNPOLICYID_MEET_ARRAY] = box_policy_meet_array;
@@ -47,17 +48,18 @@ box_policy_manager_alloc: the standard manager given in argument is not a box ma
   return pman;
 }
 
-void box_policy_resize(box_policy_t* boxpolicy, size_t nbdims, size_t size)
+void box_policy_resize(box_policy_t* boxpolicy, size_t size)
 {
   size_t i,j;
 
   if (boxpolicy->size==size)
     return;
-  else if (boxpolicy->size > size || boxpolicy->first==false){
+  else if (boxpolicy->first==false){
     fprintf(stderr,"\nFunction %s in %s at line %i\n",__func__,__FILE__,__LINE__);
     abort();
   }
   boxpolicy->p = (box_policy_one_t*)realloc(boxpolicy->p,size*sizeof(box_policy_one_t));
+  const size_t nbdims = boxpolicy->nbdims;
   for (i=boxpolicy->size; i<size; i++){
     boxpolicy->p[i].p = (box_policy_dim_t*)malloc(nbdims*sizeof(box_policy_dim_t));
     boxpolicy->p[i].nbdims = nbdims;
@@ -75,8 +77,7 @@ box_policy_t* box_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_
   boxpolicy->p = NULL;
   boxpolicy->size = 0;
   boxpolicy->first = true;
-  box_policy_resize(boxpolicy,nbdims,1);
-  boxpolicy->first = true;
+  boxpolicy->nbdims = nbdims;
   return boxpolicy;
 }
 void box_policy_free(ap_policy_manager_t* man, box_policy_t* boxpolicy)
@@ -96,17 +97,21 @@ box_policy_t* box_policy_copy(ap_policy_manager_t* man, box_policy_t* boxpolicy)
   nboxpolicy->p = NULL;
   nboxpolicy->size = 0;
   nboxpolicy->first = true;
+  nboxpolicy->nbdims = boxpolicy->nbdims;
   if (boxpolicy->size>0){
-    nbdims = boxpolicy->p[0].nbdims;
-    box_policy_resize(nboxpolicy,nbdims,boxpolicy->size);
+    box_policy_resize(nboxpolicy,boxpolicy->size);
     nboxpolicy->first = true;
     for (i=0; i<nboxpolicy->size; i++){
-      for (j=0; j<nbdims; j++){
+      for (j=0; j<nboxpolicy->nbdims; j++){
 	nboxpolicy->p[i].p[j] = boxpolicy->p[i].p[j];
       }
     }
   }
   return nboxpolicy;
+}
+size_t box_policy_dimension(ap_policy_manager_t* man, box_policy_t* policy)
+{
+  return policy->nbdims;
 }
 
 static inline
@@ -268,6 +273,7 @@ box_t* box_policy_meet(ap_policy_manager_t* pman,
 		       box_policy_t* boxpolicy, ap_policy_mode_t mode,
 		       bool destructive, box_t* a1, box_t* a2)
 {
+  box_policy_resize(boxpolicy,1);
   return box_policy_meet_internal(pman->man,
 				  &boxpolicy->p[0],mode,
 				  destructive,a1,a2);
@@ -286,7 +292,7 @@ box_t* box_policy_meet_array(ap_policy_manager_t* pman,
   else if (size==2)
     return box_policy_meet(pman,boxpolicy,mode,false,tab[0],tab[1]);
 
-  box_policy_resize(boxpolicy,boxpolicy->p[0].nbdims,size-1);
+  box_policy_resize(boxpolicy,size-1);
   res = box_copy(pman->man,tab[0]);
   for (i=1;i<size;i++){
     box_policy_meet_internal(pman->man,&boxpolicy->p[i-1],mode,true,res,tab[i]);
@@ -610,7 +616,7 @@ box_t* box_policy_meet_lincons_array(ap_policy_manager_t* pman,
   if (a->p!=NULL){
     kmax = man->option.funopt[AP_FUNID_MEET_LINCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
-    box_policy_resize(boxpolicy,boxpolicy->p[0].nbdims,kmax*array->size);
+    box_policy_resize(boxpolicy,kmax*array->size);
 
     itv_lincons_array_init(&tlincons,array->size);
     itv_lincons_array_set_ap_lincons0_array(intern->itv,&tlincons,array);
@@ -653,7 +659,7 @@ box_t* box_policy_meet_tcons_array(ap_policy_manager_t* pman, box_policy_t* boxp
   if (a->p!=NULL){
     kmax = man->option.funopt[AP_FUNID_MEET_LINCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
-    box_policy_resize(boxpolicy,boxpolicy->p[0].nbdims,kmax*array->size);
+    box_policy_resize(boxpolicy,kmax*array->size);
 
     itv_lincons_array_init(&tlincons,array->size);
     itv_intlinearize_ap_tcons0_array(intern->itv,&tlincons,
