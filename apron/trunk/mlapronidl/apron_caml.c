@@ -404,10 +404,10 @@ void camlidl_apron_policy_ptr_finalize(value v)
 {
   ap_policy_ptr* p = (ap_policy_ptr *) Data_custom_val(v);
   ap_policy_t* a = *p;
-  ap_policy_free(a->man,a);
+  ap_policy_free(a->pman,a);
 }
 
-static 
+static
 int camlidl_apron_policy_ptr_compare(value v1, value v2)
 {
   ap_policy_ptr* p1 = (ap_policy_ptr *) Data_custom_val(v1);
@@ -415,8 +415,8 @@ int camlidl_apron_policy_ptr_compare(value v1, value v2)
   ap_policy_t* a1 = *p1;
   ap_policy_t* a2 = *p2;
   int res;
-  
-  res = ap_policy_equal(a1->man,a1,a2);
+
+  res = ap_policy_equal(a1->pman,a1,a2);
   if (res!=0)
     res = (int)(a1-a2);
   return res;
