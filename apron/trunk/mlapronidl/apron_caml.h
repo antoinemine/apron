@@ -140,32 +140,32 @@ value camlidl_apron_texpr0_ptr_c2ml(ap_texpr0_ptr* p)
   return v;
 }
 
-static inline 
+static inline
 void camlidl_apron_texpr_unop_t_ml2c(value v, ap_texpr_op_t* op)
-{ 
-  *op = AP_TEXPR_NEG + Int_val(v); assert(*op>=AP_TEXPR_NEG && *op<=AP_TEXPR_SQRT); 
+{
+  *op = AP_TEXPR_NEG + Int_val(v); assert(*op>=AP_TEXPR_NEG && *op<=AP_TEXPR_SQRT);
 }
 static inline
 value camlidl_apron_texpr_unop_t_c2ml(ap_texpr_op_t* op)
 {
   assert(*op>=AP_TEXPR_NEG && *op<=AP_TEXPR_SQRT); return Val_int((*op)-AP_TEXPR_NEG);
 }
-static inline 
+static inline
 void camlidl_apron_texpr_binop_t_ml2c(value v, ap_texpr_op_t* op)
-{ 
+{
   *op = Int_val(v); assert(*op<=AP_TEXPR_MOD); }
 static inline
 value camlidl_apron_texpr_binop_t_c2ml(ap_texpr_op_t* op)
 {
   assert(*op<=AP_TEXPR_MOD); return Val_int((*op));
 }
-static inline 
+static inline
 void camlidl_apron_texpr_rtype_t_ml2c(value v, ap_texpr_rtype_t* op)
 { *op = Int_val(v); assert(*op<=AP_RTYPE_QUAD); }
 static inline
 value camlidl_apron_texpr_rtype_t_c2ml(ap_texpr_rtype_t* op)
 { assert(*op<=AP_RTYPE_QUAD); return Val_int(*op); }
-static inline 
+static inline
 void camlidl_apron_texpr_rdir_t_ml2c(value v, ap_texpr_rdir_t* op)
 { *op = Int_val(v); assert(*op<=AP_RDIR_RND); }
 static inline
@@ -188,7 +188,7 @@ static inline
 value camlidl_apron_manager_ptr_c2ml(ap_manager_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_manager_ptr, sizeof(ap_manager_ptr), 
+  v = alloc_custom(&camlidl_apron_custom_manager_ptr, sizeof(ap_manager_ptr),
 		   0,1);
   *((ap_manager_ptr *) Data_custom_val(v)) = *p;
   return v;
@@ -219,8 +219,8 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 {
   value v;
   assert((*p)->man!=NULL);
-  v = alloc_custom(&camlidl_apron_custom_abstract0_ptr, sizeof(ap_abstract0_ptr), 
-		   ap_abstract0_size((*p)->man,(*p)), 
+  v = alloc_custom(&camlidl_apron_custom_abstract0_ptr, sizeof(ap_abstract0_ptr),
+		   ap_abstract0_size((*p)->man,(*p)),
 		   camlidl_apron_heap);
   *((ap_abstract0_ptr *) Data_custom_val(v)) = *p;
   return v;
@@ -261,8 +261,8 @@ int ap_var_hash(ap_var_t pp)
 static inline
 ap_var_t ap_var_copy(ap_var_t pp){
   apron_var_ptr p = (apron_var_ptr)pp;
-  p->count++; 
-  return (ap_var_t)p; 
+  p->count++;
+  return (ap_var_t)p;
 }
 static inline
 void ap_var_free(ap_var_t pp){
@@ -343,7 +343,7 @@ static inline
 value camlidl_apron_policy_manager_ptr_c2ml(ap_policy_manager_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_policy_manager_ptr, sizeof(ap_policy_manager_ptr), 
+  v = alloc_custom(&camlidl_apron_custom_policy_manager_ptr, sizeof(ap_policy_manager_ptr),
 		   0,1);
   *((ap_policy_manager_ptr *) Data_custom_val(v)) = *p;
   return v;
@@ -362,7 +362,7 @@ value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
 {
   value v;
   assert((*p)->man!=NULL);
-  v = alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr), 
+  v = alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr),
 		   0,1);
   *((ap_policy_ptr *) Data_custom_val(v)) = *p;
   return v;

@@ -26,6 +26,7 @@ typedef enum ap_funpolicyid_t {
   AP_FUNPOLICYID_COPY,
   AP_FUNPOLICYID_FREE,
   AP_FUNPOLICYID_FPRINT,
+  AP_FUNPOLICYID_DIMENSION,
   AP_FUNPOLICYID_EQUAL,
   AP_FUNPOLICYID_MEET,
   AP_FUNPOLICYID_MEET_ARRAY,
@@ -54,7 +55,7 @@ typedef struct ap_policy_manager_t {
 
 typedef struct ap_policy_t {
   void* value; /* Abstract policy of the underlying library */
-  ap_policy_manager_t* man; /* There for dynamic typing and GC purposes */
+  ap_policy_manager_t* pman; /* There for dynamic typing and GC purposes */
 } ap_policy_t;
 
 ap_policy_manager_t* ap_policy_manager_alloc(ap_manager_t* man,
@@ -81,6 +82,7 @@ void ap_policy_free(ap_policy_manager_t* man, ap_policy_t* policy);
 ap_policy_t* ap_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy);
 void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy);
 bool ap_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2);
+size_t ap_policy_dimension(ap_policy_manager_t* man, ap_policy_t* policy);
 
 /* ********************************************************************** */
 /* III. Policy, level 0 */
