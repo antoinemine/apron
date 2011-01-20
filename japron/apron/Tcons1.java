@@ -74,7 +74,7 @@ public class Tcons1
      *
      * <p> e is copied.
      */
-    Tcons1(int k, Texpr1Intern e)
+    public Tcons1(int k, Texpr1Intern e)
     { 
         cons = new Tcons0(k, e.getTexpr0Intern());
         env = e.getEnvironment();
@@ -86,14 +86,14 @@ public class Tcons1
      *
      * <p> e is copied, s is referenced.
      */
-    Tcons1(int k, Texpr1Intern e, Scalar s)
+    public Tcons1(int k, Texpr1Intern e, Scalar s)
     { 
         cons = new Tcons0(k, e.getTexpr0Intern(), s);
         env = e.getEnvironment();
    }
 
     /** Constructs a constraint with given kind and e as left member. */
-    Tcons1(Environment v, int k, Texpr1Node e)
+    public Tcons1(Environment v, int k, Texpr1Node e)
     {
         cons = new Tcons0(k, e.toTexpr0Node(v));
         env = v;
@@ -103,7 +103,7 @@ public class Tcons1
      * Constructs a constraint with given kind, e as left member, and
      * s as modulo factor.
      */
-    Tcons1(Environment v, int k, Texpr1Node e, Scalar s)
+    public Tcons1(Environment v, int k, Texpr1Node e, Scalar s)
      {
          cons = new Tcons0(k, e.toTexpr0Node(v), s);
          env = v;
@@ -114,7 +114,7 @@ public class Tcons1
      *
      * <p> The left member expression and the optional scalar are copied.
      */
-    Tcons1(Tcons1 c)
+    public Tcons1(Tcons1 c)
     { 
         cons = new Tcons0(c.cons);
         env = c.env;
@@ -123,7 +123,7 @@ public class Tcons1
     /**
      * Converts a linear constraint to a comb-line tree expression constraint. 
      */
-    Tcons1(Lincons1 c)
+    public Tcons1(Lincons1 c)
     { 
         cons = new Tcons0(c.getLincons0Ref());
         env = c.getEnvironment();

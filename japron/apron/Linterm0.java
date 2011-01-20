@@ -90,4 +90,25 @@ public class Linterm0
     {
         return (x instanceof Linterm0) && (isEqual((Linterm0)x));
     }
+
+    public int getDimension()
+    {
+        return dim;
+    }
+
+    public Coeff getCoefficient()
+    {
+        return coeff;
+    }
+
+    public void setDimension(int d)
+    {
+        if (d<0) throw new IllegalArgumentException("negative dimension");
+        dim = d;
+    }
+
+    public void setCoeffcient(Coeff c)
+    {
+        coeff = c;
+    }
 }

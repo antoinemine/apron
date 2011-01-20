@@ -38,6 +38,9 @@ public abstract class Texpr1Node
     /** Deep copy. */
     public abstract Texpr1Node deepCopy();
 
+    /** No constructor: use constructors from a sub-class. */
+    protected Texpr1Node() { }
+
 
     /**
      * Constructs an expression tree from a linear expression.

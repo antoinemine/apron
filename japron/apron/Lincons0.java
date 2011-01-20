@@ -118,6 +118,12 @@ public class Lincons0
     // Set functions
     ////////////////
 
+    /** Sets the left expression. */
+    public void setExpression(Linexpr0 e)
+    {
+        expr = e;
+    }
+
     /** Sets the coefficient of dimension dim to c. */
     public void setCoeff(int dim, Coeff c)
     {
@@ -151,6 +157,12 @@ public class Lincons0
  
    // Get functions
     ////////////////
+
+    /** Returns the left expression. */
+    public Linexpr0 getExpression()
+    {
+        return expr;
+    }
 
     /** Returns the constraint kind. */
     public int getKind()

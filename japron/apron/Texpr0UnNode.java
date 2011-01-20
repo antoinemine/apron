@@ -120,6 +120,46 @@ public class Texpr0UnNode
         else return o + suf + "(" + a + ")"; 
     }
 
+    public int getOperation()
+    {
+        return op;
+    }
+
+    public void setOperation(int o)
+    {
+        op = o;
+    }
+
+    public int getRoundingType()
+    {
+        return rtype;
+    }
+    
+    public void setRoundingType(int t)
+    {
+        rtype = t;
+    }
+
+    public int getRoundingDirection()
+    {
+        return rdir;
+    }
+
+    public void setRoundingDirection(int d)
+    {
+        rdir = d;
+    }
+
+    public Texpr0Node getArgument()
+    {
+        return arg;
+    }
+
+    public void setArgument(Texpr0Node n)
+    {
+        arg = n;
+    }
+
     public int getDepth()
     { 
         return arg.getDepth() + 1;

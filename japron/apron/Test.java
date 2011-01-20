@@ -418,6 +418,7 @@ public class Test
     public static void main(String[] args)
         throws ApronException, CloneNotSupportedException
     {
+
         /* level 0 */
 
         System.out.println("Dimperm test");
