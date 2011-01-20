@@ -361,7 +361,7 @@ static inline
 value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
 {
   value v;
-  assert((*p)->man!=NULL);
+  assert((*p)->pman!=NULL);
   v = alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr),
 		   0,1);
   *((ap_policy_ptr *) Data_custom_val(v)) = *p;
