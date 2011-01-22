@@ -78,6 +78,7 @@ static int japron_cached = 0;
 void japron_cache(JNIEnv *env) 
 {
   if (japron_cached) return;
+  jgmp_cache(env);
   cache_class(japron_string,       "java/lang/String");
   cache_class(japron_mpqscalar,    "apron/MpqScalar");
   cache_class(japron_mpfrscalar,   "apron/MpfrScalar");

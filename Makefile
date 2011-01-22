@@ -14,6 +14,9 @@ endif
 ifneq ($(HAS_CPP),)
 all: cxx
 endif
+ifneq ($(HAS_JAVA),)
+all: java
+endif
 
 c:
 	(cd num; make all)
@@ -30,6 +33,9 @@ endif
 
 cxx:
 	(cd apronxx; make)
+
+java:
+	(cd japron; make)
 
 ml:
 	(cd mlapronidl; make all)

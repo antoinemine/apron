@@ -55,7 +55,7 @@ public class Test
         /* build some expressions */
 
         /* level 0 */
-        Interval[] box = { new Interval(1,2), new Interval(-3,5), new Interval(3,4,5,6) };
+        Interval[] box = { new Interval(1,2), new Interval(-3,5), new Interval(3,4,6,5) };
         Linterm0[] ltrms =
             { new Linterm0(1, new MpqScalar(-5)),
               new Linterm0(0, new Interval(0.1,0.6)),
@@ -80,7 +80,7 @@ public class Test
         Lincons0 lincons2 = new Lincons0( Lincons0.EQ, linexp2);
         Lincons0[] linconss = { lincons, lincons2 };
         Tcons0 tcons = new Tcons0(Tcons0.SUPEQ, texp);
-        Generator0 gen = new Generator0(Generator0.RAY, linexp);
+        Generator0 gen = new Generator0(Generator0.RAY, linexp2);
         Generator0[] gens = { gen };
 
         int[] chgtab = { 0,1,2 };
@@ -123,7 +123,7 @@ public class Test
         Lincons1 xlincons2 = new Lincons1( Lincons1.EQ, xlinexp2);
         Lincons1[] xlinconss = { xlincons, xlincons2 };
         Tcons1 xtcons = new Tcons1(Tcons1.SUPEQ, xtexp);
-        Generator1 xgen = new Generator1(Generator1.RAY, xlinexp);
+        Generator1 xgen = new Generator1(Generator1.RAY, xlinexp2);
         Generator1[] xgens = { xgen };
 
 
@@ -721,7 +721,7 @@ public class Test
         testDomain(new Polka(false));
         System.out.println("");
         testDomain(new Polka(true));
-
+        /*
         System.out.println("");
         System.out.println("PPL Polyhedra");
         System.out.println("=============");
@@ -740,7 +740,7 @@ public class Test
         testDomain(new PolkaGrid(false));
         System.out.println("");
         testDomain(new PolkaGrid(true));
-
+        */
 
         System.gc();
         System.runFinalization();
