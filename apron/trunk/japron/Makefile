@@ -53,7 +53,7 @@ GMPMODS = Mpz MpzRef Mpq Mpfr RandState
 # lone .java
 GMPJAVA = Test
 
-APRONLIBS = -ljgmp -lboxD -loctD -lpolkaMPQ -lapron_debug $(GMPLIBS)
+APRONLIBS = -ljgmp -lboxD -loctD -lpolkaMPQ -lapron $(GMPLIBS)
 
 # .java / .c pairs
 APRONMODS = Dimchange Dimperm Linexpr0 Lincons0 \
@@ -95,10 +95,10 @@ GMPALL     = $(GMPCLASS) $(GMPH) libjgmp.so
 APRONALL   = $(APRONCLASS) $(APRONH) $(APRONO) libjapron.so
 
 
-# built, not installed
+# built and installed in JAVA_PREFIX
 JAVAINST   = gmp.jar apron.jar
 
-# built and installed
+# built and installed in LIBDIR
 SOINST     = libjgmp.so libjapron.so
 
 ############################
@@ -146,18 +146,24 @@ doc:
 	$(JAVADOC) -d doc gmp apron
 
 install:
-	$(INSTALLd) $(LIBDIR)
+	$(INSTALLd) $(LIBDIR); \
 	for i in $(SOINST); do \
 		$(INSTALL) $$i $(LIBDIR); \
+	done; \
+	$(INSTALLd) $(JAVA_PREFIX); \
+	for i in $(JAVAINST); do \
+		$(INSTALL) $$i $(JAVA_PREFIX); \
 	done
 
 uninstall:
 	for i in $(SOINST); do \
 		/bin/rm -f $(LIBDIR)/$$i; \
+	done; \
+	for i in $(JAVAINST); do \
+		/bin/rm -f $(JAVA_PREFIX)/$$i; \
 	done
 
 mostlyclean: clean
-	rm -f $(JAVAINST)
 
 distclean: uninstall mostlyclean
 
@@ -170,7 +176,7 @@ dist: $(GMPJ) $(APRONJ) $(GMPC) $(APRONC) apron/japron.c apron/japron.h gmp/jgmp
 
 
 clean:
-	rm -f *~ \#* */*~ *.o *.class *.so */\#* */*.o */*.class */*.so $(GMPH) $(APRONH)
+	rm -f *~ \#* */*~ *.o *.class *.so *.jar */\#* */*.o */*.class */*.so $(GMPH) $(APRONH)
 	rm -rf doc
 
 .PHONY: clean doc install unsintall distclean dist

@@ -43,6 +43,10 @@ APRON_PREFIX = /tmp
 #
 MLGMPIDL_PREFIX = /tmp
 
+# Where to install Java .jar files
+#
+JAVA_PREFIX = /tmp
+
 # Where to find GMP ($(GMP_PREFIX)/include, ($GMP_PREFIX)/lib
 #
 GMP_PREFIX = /usr
@@ -68,22 +72,22 @@ CAMLIDL_PREFIX = /usr
 ######################################################################
 
 # Java launcher
-# JAVA      = java
+JAVA      = java
 
 # Java compiler
-# JAVAC     = javac -Xlint:unchecked
+JAVAC     = javac -Xlint:unchecked
 
 # Java header compiler
-# JAVAH     = javah
+JAVAH     = javah
 
 # Java documentation generator
-# JAVADOC   = javadoc
+JAVADOC   = javadoc
 
 # Java archive tool
-# JAR       = jar
+JAR       = jar
 
 # preprocessing directives to find JNI headers
-# JNIINC    = -I/java/include
+JNIINC    = -I/java/include
 
 ######################################################################
 # Tools and Flags
