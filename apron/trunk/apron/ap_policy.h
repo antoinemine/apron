@@ -67,28 +67,28 @@ ap_policy_manager_t* ap_policy_manager_alloc(ap_manager_t* man,
 /* I. Policy managers */
 /* ********************************************************************** */
 
-void ap_policy_manager_free(ap_policy_manager_t* man);
+void ap_policy_manager_free(ap_policy_manager_t* pman);
   /* dereference the counter, and possibly free internal field if it is not
      yet put to NULL */
 static inline
-ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* man);
+ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman);
   /* Increment the reference counter and return its argument */
 
 /* ********************************************************************** */
 /* II. Policy, general */
 /* ********************************************************************** */
 
-void ap_policy_free(ap_policy_manager_t* man, ap_policy_t* policy);
-ap_policy_t* ap_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy);
-void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy);
-bool ap_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2);
-size_t ap_policy_dimension(ap_policy_manager_t* man, ap_policy_t* policy);
+void ap_policy_free(ap_policy_manager_t* pman, ap_policy_t* policy);
+ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy);
+void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy);
+bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_t* policy2);
+size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy);
 
 /* ********************************************************************** */
 /* III. Policy, level 0 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract0_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims);
+ap_policy_t* ap_abstract0_policy_alloc(ap_policy_manager_t* pman, ap_funid_t funid, size_t nbdims);
 
 ap_abstract0_t*
 ap_abstract0_policy_meet(ap_policy_manager_t* pman,
@@ -117,7 +117,7 @@ ap_abstract0_policy_meetjoin(ap_funpolicyid_t funid,
 /* IV. Policy, level 1 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* man,
+ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* pman,
 				       ap_funid_t funid, ap_environment_t* env);
 
 ap_abstract1_t
@@ -143,10 +143,11 @@ ap_abstract1_policy_meet_tcons_array(ap_policy_manager_t* pman,
 /* Definition of inline functions */
 /* ********************************************************************** */
 static inline
-ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* man)
+ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman)
 {
-    man->count++;
-    return man;
+  ap_manager_copy(pman->man);
+  pman->count++;
+  return pman;
 }
 
 #ifdef __cplusplus
