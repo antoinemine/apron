@@ -176,6 +176,8 @@ bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* boxpolicy1, box_po
   bool res;
   size_t i;
 
+  res = (boxpolicy1->nbdims == boxpolicy2->nbdims);
+  if (!res) return res;
   res = (boxpolicy1->size == boxpolicy2->size);
   if (!res) return res;
   for (i=0; i<boxpolicy1->size; i++){
