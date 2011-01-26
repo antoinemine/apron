@@ -213,8 +213,12 @@ dep: $(H_FILES)
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -I../num -I../itv -I. -c -o $@ $< -o $@
 
 #---------------------------------------
-# dependencies (generated with make dep)
+# dependencies (generated with make depend)
 #---------------------------------------
+
+depend: $(C_FILES) $(H_FILES)
+	$(CC) $(ICFLAGS) -I../num -E -MM $(C_FILES)
+
 
 ap_scalar.o: ap_scalar.c ap_scalar.h ap_config.h
 ap_interval.o: ap_interval.c ap_interval.h \
@@ -311,6 +315,12 @@ ap_reducedproduct.o: ap_reducedproduct.c ap_global0.h ap_config.h \
   ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
   ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
   ap_linearize.h ap_reducedproduct.h
+ap_policy.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
+  ap_scalar.h ap_interval.h \
+  ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
+  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract1.h \
+  ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h ap_lincons1.h \
+  ap_generator1.h ap_texpr1.h ap_tcons1.h
 
 ap_scalar_debug.o: ap_scalar.c ap_scalar.h ap_config.h
 ap_interval_debug.o: ap_interval.c ap_interval.h \
@@ -407,3 +417,9 @@ ap_reducedproduct_debug.o: ap_reducedproduct.c ap_global0.h ap_config.h \
   ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
   ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
   ap_linearize.h ap_reducedproduct.h
+ap_policy_debug.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
+  ap_scalar.h ap_interval.h \
+  ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
+  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract1.h \
+  ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h ap_lincons1.h \
+  ap_generator1.h ap_texpr1.h ap_tcons1.h
