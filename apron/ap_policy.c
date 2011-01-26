@@ -42,42 +42,42 @@ void ap_policy_manager_free(ap_policy_manager_t* pman)
 /* II. Policy, general */
 /* ********************************************************************** */
 
-void ap_policy_free(ap_policy_manager_t* man, ap_policy_t* policy)
+void ap_policy_free(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef void (*funptr)(ap_policy_manager_t* man, void* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_FREE];
-  (*ptr)(man,policy->value);
+  typedef void (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FREE];
+  (*ptr)(pman,policy->value);
   ap_policy_manager_free(policy->pman);
   policy->value = NULL;
   policy->pman = NULL;
   free(policy);
 }
-ap_policy_t* ap_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy)
+ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef void* (*funptr)(ap_policy_manager_t* man, void* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_COPY];
+  typedef void* (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_COPY];
   ap_policy_t* res = malloc(sizeof(ap_policy_t));
-  res->value = (*ptr)(man,policy->value);
+  res->value = (*ptr)(pman,policy->value);
   res->pman = ap_policy_manager_copy(policy->pman);
   return res;
 }
-void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy)
+void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef void (*funptr)(FILE* stdout, ap_policy_manager_t* man, void* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_FPRINT];
-  return (*ptr)(stdout,man,policy->value);
+  typedef void (*funptr)(FILE* stdout, ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FPRINT];
+  return (*ptr)(stdout,pman,policy->value);
 }
-size_t ap_policy_dimension(ap_policy_manager_t* man, ap_policy_t* policy)
+size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef size_t (*funptr)(ap_policy_manager_t* man, void* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_DIMENSION];
-  return (*ptr)(man,policy->value);
+  typedef size_t (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_DIMENSION];
+  return (*ptr)(pman,policy->value);
 }
-bool ap_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2)
+bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_t* policy2)
 {
-  typedef bool (*funptr)(ap_policy_manager_t* man, void* policy1, void* policy2);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_EQUAL];
-  return (*ptr)(man,policy1->value,policy2->value);
+  typedef bool (*funptr)(ap_policy_manager_t* pman, void* policy1, void* policy2);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_EQUAL];
+  return (*ptr)(pman,policy1->value,policy2->value);
 }
 
 /* ********************************************************************** */
@@ -395,9 +395,9 @@ ap_abstract0_policy_assign_texpr(ap_manager_t* man,
 /* IV. Policy, level 1 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* man,
+ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* pman,
 				       ap_funid_t funid, ap_environment_t* env)
-{ return ap_abstract0_policy_alloc(man,funid,env->intdim+env->realdim); }
+{ return ap_abstract0_policy_alloc(pman,funid,env->intdim+env->realdim); }
 
 ap_abstract1_t
 ap_abstract1_policy_meetjoin(ap_funpolicyid_t funid,
