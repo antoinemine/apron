@@ -145,7 +145,6 @@ ap_abstract1_policy_meet_tcons_array(ap_policy_manager_t* pman,
 static inline
 ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman)
 {
-  ap_manager_copy(pman->man);
   pman->count++;
   return pman;
 }

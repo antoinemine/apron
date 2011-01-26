@@ -391,7 +391,7 @@ void camlidl_apron_policy_manager_ptr_finalize(value v)
 
 struct custom_operations camlidl_apron_custom_policy_manager_ptr = {
   "appolicyman",
-  camlidl_apron_manager_ptr_finalize,
+  camlidl_apron_policy_manager_ptr_finalize,
   custom_compare_default,
   custom_hash_default,
   custom_serialize_default,

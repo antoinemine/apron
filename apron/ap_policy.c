@@ -25,6 +25,7 @@ ap_policy_manager_t* ap_policy_manager_alloc(ap_manager_t* man,
 }
 void ap_policy_manager_free(ap_policy_manager_t* pman)
 {
+  assert(pman->count>=1 && pman->man->count>=1);
   if (pman->count>1){
     pman->count--;
   }
@@ -34,6 +35,8 @@ void ap_policy_manager_free(ap_policy_manager_t* pman)
       pman->internal_free(pman->internal);
       pman->internal = NULL;
     }
+    pman->count = 0;
+    pman->man = NULL;
     free(pman);
   }
 }
