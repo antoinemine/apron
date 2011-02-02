@@ -28,6 +28,9 @@ HAS_OCAMLOPT = 1
 # If defined to non-empty value, compiles the Java interface
 # HAS_JAVA = 1
 
+# If defined to non-empty value, assumed to be the right executable,
+# use FINDLIB/ocamlfind package system
+# OCAMLFIND = ocamlfind
 
 ######################################################################
 # Directories
@@ -40,7 +43,7 @@ APRON_PREFIX = /tmp
 
 # Where to install and to find MLGMPIDL
 # ($(MLGMPIDL_PREFIX)/lib)
-#
+# Only if you do not use FINDLIB
 MLGMPIDL_PREFIX = /tmp
 
 # Where to install Java .jar files
@@ -61,11 +64,11 @@ PPL_PREFIX = /tmp
 
 # Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
 #
-CAML_PREFIX = /usr
+CAML_PREFIX = $(dir $(shell which ocamlc))/..
 
 # Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
 #
-CAMLIDL_PREFIX = /usr
+CAMLIDL_PREFIX = $(dir $(shell which camlidl))/..
 
 ######################################################################
 # Java binaries and directories
@@ -112,6 +115,14 @@ CFLAGS_DEBUG = \
 -std=c99  -U__STRICT_ANSI__ \
 -fPIC -g -O0 -UNDEBUG
 
+# C compilation flags in profiling mode
+CFLAGS_PROF = \
+-Wcast-qual -Wswitch -Werror-implicit-function-declaration \
+-Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
+-Wno-unused \
+-std=c99 \
+-fPIC -O3 -DNDEBUG -g -pg
+
 # Examples of CFLAGS
 # CFLAGS = -Wswitch -Werror-implicit-function-declaration -Wall -std=c99	\
 #	   -O3 -DNDEBUG \
@@ -140,7 +151,7 @@ M4 = m4
 INSTALL = install
 INSTALLd = install -d
 
-
+OCAMLFIND = ocamlfind
 OCAMLC = $(CAML_PREFIX)/bin/ocamlc.opt
 OCAMLOPT = $(CAML_PREFIX)/bin/ocamlopt.opt
 

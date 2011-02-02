@@ -4,6 +4,14 @@ PREFIX = $(APRON_PREFIX)
 
 SRCDIR = $(shell pwd)
 
+ifneq ($(OCAMLFIND),)
+MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
+
 #---------------------------------------
 # Programs
 #---------------------------------------
@@ -14,7 +22,7 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include \
+-I$(MLGMPIDL_INCLUDE) \
 -I../num \
 -I../itv \
 -I../apron \
@@ -23,7 +31,7 @@ ICFLAGS = \
 -I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -62,11 +70,7 @@ boxD.cmxa boxD.a \
 boxMPFR.cmxa boxMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
-libboxMPQ_caml.so libboxD_caml.so libboxMPFR_caml.so \
-libboxMPQ_caml_debug.so libboxD_caml_debug.so libboxMPFR_caml_debug.so \
-dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so \
-dllboxMPQ_caml_debug.so dllboxD_caml_debug.so dllboxMPFR_caml_debug.so
+CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so 
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
@@ -102,16 +106,16 @@ mlD: boxD.cmxa boxD.a
 mlMPFR: boxMPFR.cmxa boxMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: libboxMPQ_caml.so libboxMPQ_caml_debug.so dllboxMPQ_caml.so dllboxMPQ_caml_debug.so
-mlD: libboxD_caml.so libboxD_caml_debug.so dllboxD_caml.so dllboxD_caml_debug.so
-mlMPFR: libboxMPFR_caml.so libboxMPFR_caml_debug.so dllboxMPFR_caml.so dllboxMPFR_caml_debug.so
+mlMPQ: dllboxMPQ_caml.so 
+mlD: dllboxD_caml.so
+mlMPFR: dllboxMPFR_caml.so
 endif
 
 mlexample%.byte: mlexample.ml box%.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma box$*.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma box$*.cma $<
 
 mlexample%.opt: mlexample.ml box%.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmxa *.byte *.opt
@@ -154,7 +158,7 @@ dist: $(CCSRC) Makefile sedscript_caml box.texi box.idl box.ml box.mli box_caml.
 .SUFFIXES: .tex .c .h .a .o
 
 .PRECIOUS: libbox%.a libbox%_debug.a libbox%.so libbox%_debug.so
-.PRECIOUS: libbox%_caml.a libbox%_caml_debug.a libbox%_caml.so libbox%_caml_debug.so
+.PRECIOUS: libbox%_caml.a libbox%_caml_debug.a dllbox%_caml.so
 .PRECIOUS: %MPQ.o %D.o %MPFR.o
 .PRECIOUS: %MPQ_debug.o %D_debug.o %MPFR_debug.o
 .PRECIOUS: %.cmo %.cmx
@@ -202,15 +206,8 @@ libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 	$(AR) rcs $@ $<
 	$(RANLIB) $@
 
-libbox%_caml.so: box_caml.o libbox%.so
+dllbox%_caml.so: box_caml.o libbox%.so
 	$(CC) $(CFLAGS) -shared -o $@ box_caml.o  $(LIBS) -L. -lbox$*
-libbox%_caml_debug.so: box_caml_debug.o libbox%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ box_caml_debug.o $(LIBS_DEBUG) -L. -lbox$*_debug
-
-dllbox%_caml.so: libbox%_caml.so
-	ln -s -f $^ $@
-dllbox%_caml_debug.so: libbox%_caml_debug.so
-	ln -s -f $^ $@
 
 box_caml.o: box_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -I../apron -DNUM_MPQ -c -o $@ $<

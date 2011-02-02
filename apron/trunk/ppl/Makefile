@@ -19,6 +19,14 @@ CAMLDIR = $(PREFIX)/lib
 
 SRCDIR = $(shell pwd)
 
+ifneq ($(OCAMLFIND),)
+MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
+
 #---------------------------------------
 # Programs
 #---------------------------------------
@@ -29,7 +37,7 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include \
+-I$(MLGMPIDL_INCLUDE) \
 -I../newpolka \
 -I../apron \
 -I../mlapronidl \
@@ -41,7 +49,7 @@ ICFLAGS = \
 
 ICXXFLAGS = \
 -I../newpolka \
--I$(MLGMPIDL_PREFIX)/include \
+-I$(MLGMPIDL_INCLUDE) \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -51,7 +59,7 @@ ICXXFLAGS = \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -74,10 +82,10 @@ all: libap_ppl.so libap_ppl_debug.so
 endif
 
 mlexample.byte: mlexample.ml ppl.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma ppl.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma ppl.cma $<
 
 mlexample.opt: mlexample.ml ppl.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa ppl.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa ppl.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so ap_ppl_test
@@ -93,12 +101,9 @@ install:
 	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.so libap_ppl_debug.so; do \
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
-	for i in libap_ppl_caml*.a libap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
+	for i in libap_ppl_caml*.a dllap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
-	for i in dllap_ppl*.so; do \
-		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
-	done	
 	for i in ap_ppl_test pplrun ppltop; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
@@ -166,7 +171,7 @@ ml: ppl.cmxa ppl.a
 endif
 
 ifneq ($(HAS_SHARED),)
-ml: libap_ppl_caml.so libap_ppl_caml_debug.so dllap_ppl_caml.so dllap_ppl_caml_debug.so
+ml: dllap_ppl_caml.so
 endif
 
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a
@@ -185,14 +190,8 @@ libap_ppl_caml.a: ap_ppl_caml.o
 libap_ppl_caml_debug.a: ap_ppl_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libap_ppl_caml.so: ap_ppl_caml.o libap_ppl.so
+dllap_ppl_caml.so: ap_ppl_caml.o libap_ppl.so
 	$(CXX) $(CXXFLAGS) -shared -o $@ $<  -L. -lap_ppl $(LIBS)
-libap_ppl_caml_debug.so: ap_ppl_caml_debug.o libap_ppl_debug.so
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $< $(LIBS_DEBUG) -L. -lap_ppl_debug
-dllap_ppl_caml.so: libap_ppl_caml.so
-	ln -s -f $^ $@
-dllap_ppl_caml_debug.so: libap_ppl_caml_debug.so
-	ln -s -f $^ $@
 
 ppl.cma: ppl.cmo libap_ppl_caml.a
 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmo $(LIBS) -L. -lap_ppl
@@ -211,7 +210,7 @@ rebuild: manager.idl ppl.idl
 	sed -f sedscript_caml tmp/ppl.ml >ppl.ml
 	sed -f sedscript_caml tmp/ppl.mli >ppl.mli
 
-.PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a libap_ppl_caml.so ppl.cmx ppl.cmo
+.PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a dllap_ppl_caml.so ppl.cmx ppl.cmo
 
 
 #---------------------------------------

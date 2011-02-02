@@ -18,6 +18,14 @@ BINDIR = $(PREFIX)/bin
 
 SRCDIR = $(shell pwd)
 
+ifneq ($(OCAMLFIND),)
+MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
+
 #---------------------------------------
 # Programs
 #---------------------------------------
@@ -28,7 +36,7 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include \
+-I$(MLGMPIDL_INCLUDE) \
 -I../newpolka \
 -I../apron \
 -I../mlapronidl \
@@ -38,7 +46,7 @@ ICFLAGS = \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -110,10 +118,10 @@ MPFR: liboctMPFR.so liboctMPFR_debug.so
 endif
 
 mlexample%.byte: mlexample.ml oct%.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma oct$*.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma oct$*.cma $<
 
 mlexample%.opt: mlexample.ml oct%.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa oct$*.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa oct$*.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so octtest*
@@ -237,7 +245,7 @@ octtest%: liboct%_debug.a oct_test%.o
 # TODO: mpfr ?
 
 .PRECIOUS: liboct%.a liboct%_debug.a liboct%.so liboct%_debug.so
-.PRECIOUS: liboct%_caml.a liboct%_caml_debug.a liboct%_caml.so liboct%_caml_debug.so
+.PRECIOUS: liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.so
 .PRECIOUS: %Il.o %Ill.o %MPZ.o %Ri.o %Rll.o %MPQ.o %D.o %Dl.o %MPFR.o
 .PRECIOUS: %Il_debug.o %Ill_debug.o %MPZ_debug.o %Ri_debug.o %Rll_debug.o %MPQ_debug.o %D_debug.o %Dl_debug.o %MPFR_debug.o
 
@@ -267,14 +275,14 @@ mlDl: octDl.cmxa octDl.a
 mlMPFR: octMPFR.cmxa octMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-mlIl: liboctIl_caml.so liboctIl_caml_debug.so dlloctIl_caml.so dlloctIl_caml_debug.so 
-mlIll:liboctIll_caml.so liboctIll_caml_debug.so dlloctIll_caml.so dlloctIll_caml_debug.so 
-mlMPZ:liboctMPZ_caml.so liboctMPZ_caml_debug.so dlloctMPZ_caml.so dlloctMPZ_caml_debug.so 
-mlRll:liboctRll_caml.so liboctRll_caml_debug.so dlloctRll_caml.so dlloctRll_caml_debug.so 
-mlMPQ:liboctMPQ_caml.so liboctMPQ_caml_debug.so dlloctMPQ_caml.so dlloctMPQ_caml_debug.so 
-mlD:liboctD_caml.so liboctD_caml_debug.so dlloctD_caml.so dlloctD_caml_debug.so 
-mlDl:liboctDl_caml.so liboctDl_caml_debug.so dlloctDl_caml.so dlloctDl_caml_debug.so 
-mlMPFR:liboctMPFR_caml.so liboctMPFR_caml_debug.so dlloctMPFR_caml.so dlloctMPFR_caml_debug.so 
+mlIl: dlloctIl_caml.so 
+mlIll:dlloctIll_caml.so
+mlMPZ:dlloctMPZ_caml.so 
+mlRll:dlloctRll_caml.so
+mlMPQ:dlloctMPQ_caml.so
+mlD:dlloctD_caml.so
+mlDl:dlloctDl_caml.so
+mlMPFR:dlloctMPFR_caml.so
 endif
 
 #octtop%: oct.cma liboct_caml.a liboct%.a
@@ -295,14 +303,8 @@ liboct%_caml.a: oct_caml.o liboct%.a
 liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
 	$(AR) rcs $@ $<
 	$(RANLIB) $@
-liboct%_caml.so: oct_caml.o liboct%.so
+dlloct%_caml.so: oct_caml.o liboct%.so
 	$(CC) $(CFLAGS) -shared -o $@ oct_caml.o $(LIBS) -L. -loct$*
-liboct%_caml_debug.so: oct_caml_debug.o liboct%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ oct_caml_debug.o $(LIBS_DEBUG) -L. -loct$*_debug
-dlloct%_caml.so: liboct%_caml.so
-	ln -s -f $^ $@
-dlloct%_caml_debug.so: liboct%_caml_debug.so
-	ln -s -f $^ $@
 
 rebuild: oct.idl
 	mkdir -p tmp
@@ -313,7 +315,7 @@ rebuild: oct.idl
 	$(SED) -f sedscript_caml tmp/oct.ml >oct.ml
 	$(SED) -f sedscript_caml tmp/oct.mli >oct.mli
 
-.PRECIOUS: %_caml.c %.ml %.mli %.cmi liboct%_caml.a liboct%_caml.so oct.cmx oct.cmo
+.PRECIOUS: %_caml.c %.ml %.mli %.cmi liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.so oct.cmx oct.cmo
 
 #---------------------------------------
 # ML generic rules
