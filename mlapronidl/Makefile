@@ -9,18 +9,25 @@ SRCDIR = $(shell pwd)
 #
 PREFIX = $(APRON_PREFIX)
 #
+ifneq ($(OCAMLFIND),)
+MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
 
 #---------------------------------------
 # CAML part
 #---------------------------------------
 
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib
+OCAMLINC = -I $(MLGMPIDL_LIB)
 
 #---------------------------------------
 # C part
 #---------------------------------------
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include -I../apron \
+-I$(MLGMPIDL_INCLUDE) -I../apron \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
@@ -48,15 +55,17 @@ MLOBJ = $(MLMODULES:%=%.cmo)
 MLOBJx = $(MLMODULES:%=%.cmx)
 MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) apron.cmi apron.cma
 ifneq ($(HAS_OCAMLOPT),)
-MLLIB_TOINSTALL := $(MLLIB_TOINSTALL) apron.cmxa apron.a
+MLLIB_TOINSTALL += apron.cmxa apron.a
+endif
+ifneq ($(OCAMLPACK),)
+MLLIB_TOINSTALL += apron_ocamldoc.mli
 endif
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
 CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a 
 ifneq ($(HAS_SHARED),)
-CCLIB_TOINSTALL := $(CCLIB_TOINSTALL) \
-libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
+CCLIB_TOINSTALL += dllapron_caml.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
@@ -74,7 +83,11 @@ all: apron.cmxa apron.a
 endif
 
 ifneq ($(HAS_SHARED),)
-all: libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
+all: dllapron_caml.so
+endif
+
+ifneq ($(OCAMLPACK),)
+all: apron_ocamldoc.mli
 endif
 
 mldep: $(MLSRC)
@@ -103,7 +116,7 @@ mostlyclean: clean
 
 distclean:
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
+	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%) libapron*.so
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
 
 install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
@@ -129,16 +142,8 @@ libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
-libapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
+dllapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
 	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) $(LIBS)
-
-libapron_caml_debug.so: $(CCMODULES:%=%_debug.o) ../apron/libapron_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) $(LIBS_DEBUG)
-
-dllapron_caml.so: libapron_caml.so
-	ln -sf $^ $@
-dllapron_caml_debug.so: libapron_caml_debug.so
-	ln -sf $^ $@
 
 #---------------------------------------
 # CAML rules
@@ -161,21 +166,25 @@ apron_parser.ml apron_parser.mli: apron_parser.mly
 
 .PHONY: html
 
+apron_ocamldoc.mli: introduction.odoc $(MLMODULES:%=%.mli)
+	$(OCAMLPACK) -o apron_ocamldoc -title "APRON library" -intro introduction.odoc -intf $(MLMODULES)
+	$(SED) -i -e 's/{5/{6/g;s/{4/{5/g;s/{3/{4/g;s/{2/{3/g;s/{1/{2/g' $@
+
 mlapronidl.pdf: mlapronidl.dvi
 	$(DVIPDF) mlapronidl.dvi
 
-mlapronidl.dvi: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
+mlapronidl.dvi: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 	$(OCAMLDOC) $(OCAMLINC) -I ../newpolka -I ../ppl \
-	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
+	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 	$(LATEX) mlapronidl
 	$(MAKEINDEX) mlapronidl
 	$(LATEX) mlapronidl
 	$(LATEX) mlapronidl
 
-html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
+html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 	mkdir -p html
 	$(OCAMLDOC) $(OCAMLINC)  -I ../newpolka -I ../ppl \
--html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
+-html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
@@ -196,9 +205,9 @@ html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODU
 # IDL generic rules
 #---------------------------------------
 
-mpz.idl: $(MLGMPIDL_PREFIX)/lib/mpz.idl
+mpz.idl: $(MLGMPIDL_LIB)/mpz.idl
 	ln -sf $^ $@
-mpq.idl: $(MLGMPIDL_PREFIX)/lib/mpq.idl
+mpq.idl: $(MLGMPIDL_LIB)/mpq.idl
 	ln -sf $^ $@
 
 # Generate for each %.idl: %i.ml, %i.mli, %_caml.c
