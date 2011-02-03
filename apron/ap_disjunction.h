@@ -25,12 +25,7 @@ typedef struct ap_disjunction_t {
 
 /* internal fields of manager */
 typedef struct ap_disjunction_internal_t {
-	 /* merge function */
-  void (*merge)(ap_manager_t*, ap_disjunction_t*);
-     /* widening function */
-  void (*widening)(ap_manager_t*, ap_disjunction_t*, ap_disjunction_t*);
-     /* approximate function */
-  void (*approximate)(ap_manager_t*, ap_disjunction_t*, int n);
+  void (*merge)(ap_manager_t*, ap_disjunction_t*); /* merge function */
   char* library;               /* (constructed) library name  */
   ap_manager_t* manager;   /* Manager of the base domain */
 } ap_disjunction_internal_t;
@@ -42,14 +37,8 @@ typedef struct ap_disjunction_internal_t {
 ap_manager_t* ap_disjunction_manager_alloc
 (
     ap_manager_t* underlying,  /* Array of managers */
-    void (*merge)(ap_manager_t*, ap_disjunction_t*),
+    void (*merge)(ap_manager_t*, ap_disjunction_t*)
     /* merge function */
-    
-    void (*widening)(ap_manager_t*, ap_disjunction_t*, ap_disjunction_t*),
-    /* widening function */
-    
-    void (*approximate)(ap_manager_t*, ap_disjunction_t*, int n)
-    /* approximate function */
 );
 
 /* ============================================================ */
@@ -60,7 +49,7 @@ ap_lincons0_array_t ap_disjunction_to_lincons_set(ap_manager_t* manager,
 						  ap_disjunction_t* a);
 
 
-/* ap_abstract0_t */ 
+/* ap_abstract0_t */
 void** ap_disjunction_decompose(ap_manager_t* manager, bool destructive,
 				ap_disjunction_t* a, size_t* psize);
   /* Decompose a disjunctive abstract value into an array of abstract values
@@ -75,7 +64,7 @@ void** ap_disjunction_decompose(ap_manager_t* manager, bool destructive,
   */
 
 ap_disjunction_t* ap_disjunction_compose(ap_manager_t* manager, bool destructive, void** tabs, size_t size);
-				
+
   /* Create a disjunctive abstract value from an array of size "size".
 
      Be cautious: no type checking is performed.

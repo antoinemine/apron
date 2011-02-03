@@ -1,0 +1,53 @@
+/* -*- mode: c -*- */
+
+quote(C,"#include \"ap_global0.h\"")
+quote(C,"#include \"apron_caml.h\"")
+quote(C,"#include \"ap_pkgrid.h\"")
+quote(C,"#include \"ap_disjpk.h\"")
+
+import "manager.idl";
+import "abstract0.idl";
+
+quote(MLMLI,"(** Disjunctions of NewPolka polyhedra *)")
+
+quote(MLMLI,"
+type 'a t
+")
+
+ap_manager_ptr ap_disjpk_manager_alloc(ap_manager_ptr manpk)
+quote(call,"
+_res = ap_disjpk_manager_alloc(manpk);
+if (_res==NULL) caml_failwith(\"DisjPk.manager_alloc\");
+{ ap_exc_t i;
+for (i=1; i<AP_EXC_SIZE; i++){
+ap_manager_set_abort_if_exception(_res,i,false);
+}}
+");
+
+struct ap_lincons0_array_t ap_disjpk_to_lincons_set(ap_manager_ptr man, ap_abstract0_ptr a)
+     quote(dealloc,"free(_res.p); I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Decompose an abstract value *)")
+
+[size_is(size)] ap_abstract0_ptr* ap_disjpk__decompose(ap_manager_ptr man, ap_abstract0_ptr abs, [out]int size)
+quote(call,"
+{
+  ap_disjunction_internal_t* intern = abs->man->internal;
+  ap_manager_t* man = intern->manager;
+  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  ap_disjunction_t* a = (ap_disjunction_t*)abs->value;
+
+  size = (int)a->size;
+  ap_abstract0_ptr* _res = malloc(a->size*sizeof(ap_abstract0_ptr));
+  int i;
+
+  for (i=0; i<size; i++){
+    _res[i]->man = ap_manager_copy(man);
+    _res[i]->value = copy(man,a->p[i]);
+  }
+}
+")
+quote(dealloc,"free(_res);");
+
+quote(ML,"let decompose man abs = fst(_decompose man abs)")
+quote(MLI,"val decompose : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> 'a Apron.Abstract0.t array")
