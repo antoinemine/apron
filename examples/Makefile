@@ -70,5 +70,7 @@ clean:
 
 distclean: clean
 
+uninstall:
+
 dist: example1.c mlexample1.ml mlexample2.ml mlexample3.ml Makefile README
 	(cd ..; tar zcvf examples.tgz $(^:%=examples/%))

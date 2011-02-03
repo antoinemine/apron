@@ -144,31 +144,33 @@ clean:
 	(cd test; make clean)
 	rm -fr online tmp apron*run aprontop apronppltop
 
-mostlyclean: clean
-	(cd mlapronidl; make mostlyclean)
-	(cd box; make mostlyclean)
-	(cd octagons; make mostlyclean)
-	(cd taylor1plus; make mostlyclean)
-	(cd newpolka; make mostlyclean)
-	(cd ppl; make mostlyclean)
-	(cd products; make mostlyclean)
-	(cd apronxx; make mostlyclean)
-
-uninstall: distclean
-
-distclean:
-	(cd num; make distclean)
-	(cd itv; make distclean)
-	(cd apron; make distclean)
+distclean: clean
+	(cd num; make uninstall)
+	(cd itv; make uninstall)
+	(cd apron; make uninstall)
 	(cd mlapronidl; make distclean)
 	(cd box; make distclean)
-	(cd newpolka; make distclean)
 	(cd octagons; make distclean)
-	(cd taylor1plus; make uninstall)
-	(cd examples; make distclean)
+	(cd taylor1plus; make distclean)
+	(cd newpolka; make distclean)
 	(cd ppl; make distclean)
 	(cd products; make distclean)
+	(cd examples; make distclean)
 	(cd apronxx; make distclean)
+
+uninstall: 
+	(cd num; make uninstall)
+	(cd itv; make uninstall)
+	(cd apron; make uninstall)
+	(cd mlapronidl; make uninstall)
+	(cd box; make uninstall)
+	(cd newpolka; make uninstall)
+	(cd octagons; make uninstall)
+	(cd taylor1plus; make uninstall)
+	(cd examples; make uninstall)
+	(cd ppl; make uninstall)
+	(cd products; make uninstall)
+	(cd apronxx; make uninstall)
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 ifneq ($(OCAMLFIND),)
 	$(OCAMLFIND) remove apron

@@ -132,9 +132,10 @@ clean:
 	/bin/rm -f manager.idl
 	/bin/rm -fr tmp
 
-mostlyclean: clean
+distclean: clean
 	/bin/rm -f manager.idl
 	/bin/rm -fr polka_caml.* polka.ml polka.mli
+	/bin/rm -f Makefile.depend
 
 install:
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -155,8 +156,6 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/dllpolka*.so $(PREFIX)/lib/dlloct*_debug.so
 	/bin/rm -f $(PREFIX)/lib/polka.mli $(PREFIX)/lib/polka.ml $(PREFIX)/lib/polka.cm[ix] $(PREFIX)/lib/polka.idl $(PREFIX)/lib/polka*.cma $(PREFIX)/lib/polka*.cmxa $(PREFIX)/lib/polka*.a
 
-distclean: uninstall
-	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) Makefile sedscript_caml newpolka.texi polka.idl polka.ml polka.mli polka_caml.c COPYING README
 	(cd ..; tar zcvf newpolka.tgz $(^:%=newpolka/%))

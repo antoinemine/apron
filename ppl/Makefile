@@ -92,7 +92,7 @@ clean:
 	/bin/rm -f *.annot *.cm[ioax] *.cmxa pplrun ppltop manager.idl
 	/bin/rm -fr *~ \#*\# tmp
 
-mostlyclean:
+distclean: clean
 	/bin/rm -f ap_ppl_caml.c ppl.ml ppl.mli
 
 install:
@@ -113,8 +113,6 @@ uninstall:
 	/bin/rm -f $(LIBDIR)/libap_ppl* $(LIBDIR)/dllap_ppl* $(LIBDIR)/ppl.a $(LIBDIR)/ppl.idl $(LIBDIR)/ppl.cm*
 	/bin/rm -f $(BINDIR)/*ap_ppl*
 	/bin/rm -f $(BINDIR)/pplrun $(BINDIR)/ppltop
-
-distclean: uninstall
 
 dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) ppl.idl sedscript_caml ap_ppl_caml.c ppl.ml ppl.mli ppl.patch
 	(cd ..; tar zcvf ppl.tgz $(^:%=ppl/%))
