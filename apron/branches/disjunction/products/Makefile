@@ -34,14 +34,19 @@ CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libap_pkgrid.a libap_pkgrid_debug.a \
 polkaGrid.mli polkaGrid.cmi polkaGrid.cma \
-libpolkaGrid_caml.a libpolkaGrid_caml_debug.a
+libpolkaGrid_caml.a libpolkaGrid_caml_debug.a \
+libap_disjpk.a libap_disjpk_debug.a \
+disjPk.mli disjPk.cmi disjPk.cma \
+libdisjPk_caml.a libdisjPk_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) polkaGrid.cmxa polkaGrid.a
+CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) polkaGrid.cmxa polkaGrid.a disjPk.cmxa disjPk.a
 endif
 ifneq ($(HAS_SHARED),)
 CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
 libap_pkgrid.so libap_pkgrid_debug.so \
-libpolkaGrid_caml.so libpolkaGrid_caml_debug.so
+libpolkaGrid_caml.so libpolkaGrid_caml_debug.so \
+libap_disjpk.so libap_disjpk_debug.so \
+libdisjPk_caml.so libdisjPk_caml_debug.so
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl
@@ -51,17 +56,17 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apro
 # Rules
 #---------------------------------------
 
-all: libap_pkgrid.a libap_pkgrid_debug.a
+all: libap_pkgrid.a libap_pkgrid_debug.a libap_disjpk.a libap_disjpk_debug.a
 ifneq ($(HAS_SHARED),)
-all: libap_pkgrid.so libap_pkgrid_debug.so
+all: libap_pkgrid.so libap_pkgrid_debug.so libap_disjpk.so libap_disjpk_debug.so
 endif
 
-ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a
+ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a disjPk.mli disjPk.ml disjPk.cmi disjPk.cma libdisjPk_caml.a libdisjPk_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-ml: polkaGrid.cmxa polkaGrid.a
+ml: polkaGrid.cmxa polkaGrid.a disjPk.cmxa disjPk.a
 endif
 ifneq ($(HAS_SHARED),)
-ml: libpolkaGrid_caml.so libpolkaGrid_caml_debug.so dllpolkaGrid_caml.so dllpolkaGrid_caml_debug.so
+ml: libpolkaGrid_caml.so libpolkaGrid_caml_debug.so dllpolkaGrid_caml.so dllpolkaGrid_caml_debug.so libdisjPk_caml.so libdisjPk_caml_debug.so dlldisjPk_caml.so dlldisjPk_caml_debug.so
 endif
 
 mlexample%.byte: mlexample.ml $(APRON_PREFIX)/lib/polka%.cma $(APRON_PREFIX)/lib/ppl.cma polkaGrid.cma
@@ -78,6 +83,7 @@ clean:
 mostlyclean: clean
 	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 sedscript_c
 	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c
+	/bin/rm -f disjPk.ml disjPk.mli disjPk_caml.c
 
 install:
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -85,7 +91,7 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-	for i in dllpolkaGrid_caml*.so; do \
+	for i in dllpolkaGrid_caml*.so dllpkDisj_caml*.so; do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 
@@ -93,12 +99,13 @@ uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
 	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in dllpolkaGrid_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
+	for i in dlldisjPk_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
 
 distclean: uninstall
 	/bin/rm -f Makefile.depend
 
-dist: $(CCSRC) ap_pkgrid.texi sedscript_caml polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile COPYING README
+dist: $(CCSRC) ap_pkgrid.texi sedscript_caml polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c disjPk.idl disjPk.ml disjPk.mli disjPk_caml.c Makefile COPYING README
 	(cd ..; tar zcvf products.tgz $(^:%=products/%))
 
 #---------------------------------------
@@ -122,6 +129,17 @@ libap_pkgrid.so: ap_pkgrid.o
 libap_pkgrid_debug.so: ap_pkgrid_debug.o
 	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
+libap_disjpk.a: ap_disjpk.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libap_disjpk_debug.a: ap_disjpk_debug.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libap_disjpk.so: ap_disjpk.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LIBS)
+libap_disjpk_debug.so: ap_disjpk_debug.o
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+
 #---------------------------------------
 # C rules
 #---------------------------------------
@@ -141,6 +159,21 @@ dllpolkaGrid_caml.so: libpolkaGrid_caml.so
 dllpolkaGrid_caml_debug.so: libpolkaGrid_caml_debug.so
 	ln -s -f $^ $@
 
+libdisjPk_caml.a: disjPk_caml.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libdisjPk_caml_debug.a: disjPk_caml_debug.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libdisjPk_caml.so: disjPk_caml.o libap_disjpk.so
+	$(CXX) $(CXXFLAGS) -shared -o $@ $<  $(LIBS) -L. -lap_disjpk
+libdisjPk_caml_debug.so: disjPk_caml_debug.o libap_disjpk_debug.so
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $<  $(LIBS_DEBUG) -L. -lap_disjpk_debug
+dlldisjPk_caml.so: libdisjPk_caml.so
+	ln -s -f $^ $@
+dlldisjPk_caml_debug.so: libdisjPk_caml_debug.so
+	ln -s -f $^ $@
+
 #---------------------------------------
 # ML rules
 #---------------------------------------
@@ -150,6 +183,12 @@ polkaGrid.cma: polkaGrid.cmo libpolkaGrid_caml.a libap_pkgrid.a
 
 polkaGrid.cmxa polkaGrid.a: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx $(LIBS) -lap_pkgrid -L$(APRON_PREFIX)/lib
+
+disjPk.cma: disjPk.cmo libdisjPk_caml.a libap_disjpk.a
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o disjPk -oc disjPk_caml disjPk.cmo $(LIBS) -lap_disjpk -L$(APRON_PREFIX)/lib
+
+disjPk.cmxa disjPk.a: disjPk.cmx libdisjPk_caml.a libap_disjpk.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o disjPk -oc disjPk_caml disjPk.cmx $(LIBS) -lap_disjpk -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules
@@ -183,13 +222,18 @@ sedscript_c: ../mlapronidl/sedscript_c
 	ln -sf $< $@
 
 # generates polkaGrid.ml, polkaGrid.mli, polkaGrid_caml.c from polkaGrid.idl
-rebuild: polkaGrid.idl macros.m4 sedscript_c scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
+rebuild: polkaGrid.idl disjPk.idl macros.m4 sedscript_c scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
 	mkdir -p tmp
 	cp polkaGrid.idl tmp/polkaGrid.idl
 	$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" tmp/polkaGrid.idl
 	$(SED) -f sedscript_c tmp/polkaGrid_stubs.c >polkaGrid_caml.c
 	$(SED) -f sedscript_caml tmp/polkaGrid.ml >polkaGrid.ml
 	$(SED) -f sedscript_caml tmp/polkaGrid.mli >polkaGrid.mli
+	cp disjPk.idl tmp/disjPk.idl
+	$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" tmp/disjPk.idl
+	$(SED) -f sedscript_c tmp/disjPk_stubs.c >disjPk_caml.c
+	$(SED) -f sedscript_caml tmp/disjPk.ml >disjPk.ml
+	$(SED) -f sedscript_caml tmp/disjPk.mli >disjPk.mli
 
 #---------------------------------------
 # ML generic rules

@@ -13,25 +13,19 @@
 
 #include "pk.h"
 
-void ap_disjpk_merge(ap_manager_t*, ap_disjunction_t*)
-{
-  return;
-}
-void ap_disjpk_approximate(ap_manager_t*, ap_disjunction_t*, int n)
+void ap_disjpk_merge(ap_manager_t* man, ap_disjunction_t* a)
 {
   return;
 }
 
 ap_manager_t* ap_disjpk_manager_alloc(ap_manager_t* manpk)
 {
-  return ap_disjpk_manager_alloc(manpk,
-				 &ap_disjpk_merge,
-				 NULL,
-				 &ap_disjpk_approximate);
+  return ap_disjunction_manager_alloc(manpk,
+				 &ap_disjpk_merge);
 }
 
 ap_lincons0_array_t ap_disjpk_to_lincons_set(ap_manager_t* manager,
 					     ap_abstract0_t* abs)
 {
-  return ap_disjunction_to_lincons_set(manager,abs->abstract0);
+  return ap_disjunction_to_lincons_set(manager,abs->value);
 }
