@@ -81,9 +81,9 @@ clean:
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr tmp
 
-mostlyclean: clean
+distclean: clean
 	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 sedscript_c
-	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c
+	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
 
 install:
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -100,9 +100,6 @@ uninstall:
 	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in dllpolkaGrid_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
-
-distclean: uninstall
-	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) ap_pkgrid.texi sedscript_caml polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile COPYING README
 	(cd ..; tar zcvf products.tgz $(^:%=products/%))

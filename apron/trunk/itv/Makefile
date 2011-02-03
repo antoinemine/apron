@@ -71,7 +71,7 @@ clean:
 	/bin/rm -f *.[ao] testMPQ testRll testD testMPFR test2MPQ test2Rll test2D test2MPFR
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 
-mostlyclean: clean
+distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -83,7 +83,7 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 #		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
 #	done
 
-distclean:
+uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
 	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done

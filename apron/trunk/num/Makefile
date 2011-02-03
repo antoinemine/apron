@@ -25,7 +25,7 @@ install:
 	mkdir -p $(APRON_PREFIX)/include
 	cp $(H_FILES) $(APRON_PREFIX)/include
 
-distclean:
+uninstall:
 	(cd $(APRON_PREFIX)/include; /bin/rm -f $(H_FILES))
 
 dist: $(H_FILES) Makefile README
@@ -33,6 +33,8 @@ dist: $(H_FILES) Makefile README
 
 clean:
 	rm -f testl* testmp* testdbl testldbl testmpfr
+
+distclean: clean
 
 ICFLAGS = -I../apron -I$(APRON_PREFIX)/include -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(APRON_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
 

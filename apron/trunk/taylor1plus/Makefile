@@ -144,9 +144,10 @@ clean:
 	/bin/rm -fr t1ppolkarung t1ppolkatopg tmp
 	/bin/rm -fr test*
 
-mostlyclean: clean
+distclean: clean
 	/bin/rm -fr manager.idl
 	/bin/rm -f t1p.ml t1p.mli t1p_caml.c
+	/bin/rm -f Makefile.depend
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -167,8 +168,6 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/dllt1p*.so $(PREFIX)/lib/dlloct*_debug.so
 	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
 
-distclean: uninstall
-	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) Makefile sedscript_caml t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.c COPYING README
 	(cd ..; tar zcvf t1p.tgz $(^:%=t1p/%))

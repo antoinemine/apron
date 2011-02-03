@@ -79,19 +79,21 @@ clean:
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmxa *.cma *.so
 	/bin/rm -fr html
 
+distclean: clean
+	/bin/rm -f apron.pdf rationale.pdf
+
 install: all
 	mkdir -p $(APRON_PREFIX)/include
 	cp $(H_FILES) $(APRON_PREFIX)/include
 	mkdir -p $(APRON_PREFIX)/lib
 	for i in libapron.a libapron_debug.a libapron.so libapron_debug.so; do if test -f $$i; then $(INSTALL) $$i $(APRON_PREFIX)/lib; fi; done
 
-distclean:
+uninstall:
 	/bin/rm -f $(H_FILES:%=$(APRON_PREFIX)/include/%)
 	/bin/rm -f $(APRON_PREFIX)/lib/libapron.a
 	/bin/rm -f $(APRON_PREFIX)/lib/libapron_debug.a
 	/bin/rm -f $(APRON_PREFIX)/lib/libapron.so
 	/bin/rm -f $(APRON_PREFIX)/lib/libapron_debug.so
-	/bin/rm -f apron.pdf rationale.pdf
 
 #---------------------------------------
 # Latex rules

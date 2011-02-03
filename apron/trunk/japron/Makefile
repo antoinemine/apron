@@ -163,9 +163,7 @@ uninstall:
 		/bin/rm -f $(JAVA_PREFIX)/$$i; \
 	done
 
-mostlyclean: clean
-
-distclean: uninstall mostlyclean
+distclean: clean
 
 test:
 	$(JAVA) -cp gmp.jar -ea -esa -Xcheck:jni gmp.Test

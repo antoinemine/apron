@@ -111,10 +111,10 @@ clean:
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
-mostlyclean: clean
+distclean: clean
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
-distclean:
+uninstall: 
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
 	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%) libapron*.so
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
