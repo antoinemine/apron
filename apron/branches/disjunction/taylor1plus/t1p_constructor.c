@@ -148,9 +148,9 @@ tbool_t t1p_is_leq(ap_manager_t* man, t1p_t* a, t1p_t* b)
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_IS_LEQ);
     arg_assert(a && b && (a->dims == b->dims), abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### IS LESS or EQUAL ###\n");
-    t1p_fprint(stdout, man, a, 0x0);
-    t1p_fprint(stdout, man, b, 0x0);
+    fprintf(stdout, "### IS LESS or EQUAL %x < %x ###\n",(int)a,(int)b);
+//    t1p_fprint(stdout, man, a, 0x0);
+ //   t1p_fprint(stdout, man, b, 0x0);
     fprintf(stdout, "### ### ###\n");
 #endif
     size_t i;
@@ -218,7 +218,7 @@ tbool_t t1p_is_leq(ap_manager_t* man, t1p_t* a, t1p_t* b)
 		    ok &= t1p_aff_is_leq_constrained(pr, a->paf[i], b->paf[i], a, b);
 		}
 		/* at the first occurence of "top" or "false" we no longer need to continue */
-		if (!ok) break;
+		//if (!ok) break;
 	    }
 	}
 	res = tbool_of_bool(ok);

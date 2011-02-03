@@ -27,9 +27,11 @@ t1p_t* t1p_alloc(ap_manager_t* man, size_t intdim, size_t realdim)
     res->abs = ap_abstract0_top(pr->manNS, 0, 0);
     res->hypercube = true;
     res->box = itv_array_alloc(intdim + realdim);
+    res->gn = 0;
+    res->g = NULL;
     checked_malloc(res->paf, t1p_aff_t*, res->dims, abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "********* alloc %tx*********\n",(intptr_t)res);
+//    fprintf(stdout, "********* alloc %tx*********\n",(intptr_t)res);
 #endif
     return res;
 }
@@ -67,6 +69,9 @@ t1p_t* t1p_copy(ap_manager_t* man, t1p_t* a)
     res->hypercube = a->hypercube;
     man->result.flag_best = tbool_true;
     man->result.flag_exact = tbool_true;
+#ifdef _T1P_DEBUG
+    fprintf(stdout, "********* %x -> %x *********\n",(intptr_t)a, (intptr_t)res);
+#endif
     return res;
 }
 
@@ -75,7 +80,7 @@ void t1p_free(ap_manager_t* man, t1p_t* a)
 {
     CALL();
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "********* free %tx*********\n",(intptr_t)a);
+  //  fprintf(stdout, "********* free %tx*********\n",(intptr_t)a);
 #endif
     t1p_internal_t * pr = t1p_init_from_manager(man, AP_FUNID_FREE);
     arg_assert(a,abort(););
@@ -148,10 +153,24 @@ void t1p_canonicalize(ap_manager_t* man, t1p_t* a)
 /* Return an hash code */
 int t1p_hash(ap_manager_t* man, t1p_t* a)
 {
-    CALL();
-	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_HASH);
-	not_implemented();
+    int i,dec,size,res;
+    size = a->dims;
+    res = size * 2999;
+
+    if (a->box!=NULL){
+	for (i=0; i<size; i += (size+4)/5){
+	    res = 3*res + itv_hash(a->box[i]);
+	}
+    }
+    man->result.flag_best = true;
+    man->result.flag_exact = true;
+    return res;
 }
+//{
+    //CALL();
+//	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_HASH);
+//	not_implemented();
+//}
 
 /* Perform some transformation on the abstract value, guided by the field algorithm.
  *
@@ -187,6 +206,7 @@ void t1p_fprint(FILE* stream,
     else if (t1p_is_top(man, a)) fprintf(stream,"top\n");
     else {
 	for (i=0; i<a->dims; i++) {
+	    if (a->paf[i]) {
 #ifdef _T1P_DEBUG
     fprintf(stdout, "[[pby %zu]]   ",a->paf[i]->pby);
 #endif
@@ -199,6 +219,9 @@ void t1p_fprint(FILE* stream,
 	    t1p_aff_fprint(pr, stream, a->paf[i]);
 	    itv_fprint(stdout, a->box[i]);
 	    fprintf(stream,"\n");
+	} else {
+	    fprintf(stream, "[[NULL]]\n");
+	}
 	}
     }
     size_t size = t1p_nsymcons_get_dimension(pr, a);

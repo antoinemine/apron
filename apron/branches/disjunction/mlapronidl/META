@@ -1,0 +1,63 @@
+description = "Numerical abstract domains" 
+version = "1.9.0" 
+requires = "apron.apron" 
+package "apron" ( 
+requires = "gmp"
+archive(byte) = "apron.cma" 
+archive(native) = "apron.cmxa" 
+)
+package "boxD" (
+requires = "apron.apron" 
+archive(byte) = "boxD.cma" 
+archive(native) = "boxD.cmxa" 
+)
+package "boxMPQ" ( 
+requires = "apron.apron" 
+archive(byte) = "boxMPQ.cma" 
+archive(native) = "boxMPQ.cmxa" 
+)
+package "boxMPFR" ( 
+requires = "apron.apron" 
+archive(byte) = "boxMPFR.cma" 
+archive(native) = "boxMPFR.cmxa" 
+)
+package "octD" ( 
+requires = "apron.apron" 
+archive(byte) = "octD.cma" 
+archive(native) = "octD.cmxa" 
+)
+package "octMPQ" ( 
+requires = "apron.apron" 
+archive(byte) = "octMPQ.cma" 
+archive(native) = "octMPQ.cmxa" 
+)
+package "polkaMPQ" ( 
+requires = "apron.apron" 
+archive(byte) = "polkaMPQ.cma" 
+archive(native) = "polkaMPQ.cmxa" 
+)
+package "t1pD" ( 
+requires = "apron.apron" 
+archive(byte) = "t1pD.cma" 
+archive(native) = "t1pD.cmxa" 
+)
+package "t1pMPQ" ( 
+requires = "apron.apron" 
+archive(byte) = "t1pMPQ.cma" 
+archive(native) = "t1pMPQ.cmxa" 
+)
+package "t1pMPFR" ( 
+requires = "apron.apron" 
+archive(byte) = "t1pMPFR.cma" 
+archive(native) = "t1pMPFR.cmxa" 
+)
+package "ppl" ( 
+requires = "apron.apron" 
+archive(byte) = "ppl.cma" 
+archive(native) = "ppl.cmxa" 
+)
+package "polkaGrid" ( 
+requires = "apron.apron apron.ppl apron.polkaMPQ"
+archive(byte) = "polkaGrid.cma" 
+archive(native) = "polkaGrid.cmxa" 
+)

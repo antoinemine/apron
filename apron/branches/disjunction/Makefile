@@ -14,6 +14,9 @@ endif
 ifneq ($(HAS_CPP),)
 all: cxx
 endif
+ifneq ($(HAS_JAVA),)
+all: java
+endif
 
 c:
 	(cd num; make all)
@@ -30,6 +33,9 @@ endif
 
 cxx:
 	(cd apronxx; make)
+
+java:
+	(cd japron; make)
 
 ml:
 	(cd mlapronidl; make all)
@@ -63,6 +69,36 @@ ifneq ($(HAS_OCAML),)
 	(cd products; make rebuild)
 endif
 
+OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a libxxx_caml_debug.a
+ifneq ($(HAS_SHARED),)
+OCAMLFIND_PROTO += dllxxx_caml.so
+endif
+OCAMLFIND_FILES = \
+	$(patsubst %,mlapronidl/%, apron.cmi apron.cmx) \
+	$(patsubst %,mlapronidl/%, $(subst xxx,apron, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,box/%, box.mli box.cmi box.cmx) \
+	$(patsubst %,box/%, $(subst xxx,boxD, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,box/%, $(subst xxx,boxMPQ, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,box/%, $(subst xxx,boxMPFR, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,octagons/%, oct.mli oct.cmi oct.cmx) \
+	$(patsubst %,octagons/%, $(subst xxx,octD, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,octagons/%, $(subst xxx,octMPQ, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,newpolka/%, polka.mli polka.cmi polka.cmx) \
+	$(patsubst %,newpolka/%, $(subst xxx,polkaMPQ, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,taylor1plus/%, t1p.mli t1p.cmi t1p.cmx) \
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO_T1P)))
+ifneq ($(HAS_PPL),)
+OCAMLFIND_FILES += \
+	$(patsubst %,ppl/%, ppl.mli ppl.cmi ppl.cma ppl.cmx ppl.cmxa ppl.a libap_ppl_caml.a libap_ppl_caml_debug.a) \
+	$(patsubst %,products/%, polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
+	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
+endif
+ifneq ($(OCAMLPACK),)
+OCAMLFIND_FILES += mlapronidl/apron_ocamldoc.mli
+endif
+
 install:
 	(cd num; make install)
 	(cd itv; make install)
@@ -76,11 +112,16 @@ ifneq ($(HAS_PPL),)
 	(cd products; make install)
 endif
 ifneq ($(HAS_OCAML),)
+ifeq ($(OCAMLFIND),)
 	(cd mlapronidl; make install)
 	$(INSTALLd) $(APRON_PREFIX)/bin
 	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
 ifneq ($(HAS_PPL),)
 	if test -f apronppltop; then $(INSTALL) apronppltop $(APRON_PREFIX)/bin; fi
+endif
+else
+	$(OCAMLFIND) remove apron
+	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)
 endif
 endif
 ifneq ($(HAS_CPP),)
@@ -103,32 +144,37 @@ clean:
 	(cd test; make clean)
 	rm -fr online tmp apron*run aprontop apronppltop
 
-mostlyclean: clean
-	(cd mlapronidl; make mostlyclean)
-	(cd box; make mostlyclean)
-	(cd octagons; make mostlyclean)
-	(cd taylor1plus; make mostlyclean)
-	(cd newpolka; make mostlyclean)
-	(cd ppl; make mostlyclean)
-	(cd products; make mostlyclean)
-	(cd apronxx; make mostlyclean)
-
-uninstall: distclean
-
-distclean:
-	(cd num; make distclean)
-	(cd itv; make distclean)
-	(cd apron; make distclean)
+distclean: clean
+	(cd num; make uninstall)
+	(cd itv; make uninstall)
+	(cd apron; make uninstall)
 	(cd mlapronidl; make distclean)
 	(cd box; make distclean)
-	(cd newpolka; make distclean)
 	(cd octagons; make distclean)
-	(cd taylor1plus; make uninstall)
-	(cd examples; make distclean)
+	(cd taylor1plus; make distclean)
+	(cd newpolka; make distclean)
 	(cd ppl; make distclean)
 	(cd products; make distclean)
+	(cd examples; make distclean)
 	(cd apronxx; make distclean)
+
+uninstall: 
+	(cd num; make uninstall)
+	(cd itv; make uninstall)
+	(cd apron; make uninstall)
+	(cd mlapronidl; make uninstall)
+	(cd box; make uninstall)
+	(cd newpolka; make uninstall)
+	(cd octagons; make uninstall)
+	(cd taylor1plus; make uninstall)
+	(cd examples; make uninstall)
+	(cd ppl; make uninstall)
+	(cd products; make uninstall)
+	(cd apronxx; make uninstall)
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
+ifneq ($(OCAMLFIND),)
+	$(OCAMLFIND) remove apron
+endif
 
 doc:
 	(cd apron; make html apron.pdf)

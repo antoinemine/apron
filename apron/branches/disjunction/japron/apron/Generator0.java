@@ -187,4 +187,24 @@ public class Generator0
     {
         return (x instanceof Generator0) && (isEqual((Generator0)x));
     }
+
+    public Linexpr0 getCoordinate()
+    {
+        return coord;
+    }
+
+    public int getKind()
+    {
+        return kind;
+    }
+
+    public void setCoordinate(Linexpr0 c)
+    {
+        coord = c;
+    }
+
+    public void setKind(int k)
+    {
+        kind = k;
+    }
 }

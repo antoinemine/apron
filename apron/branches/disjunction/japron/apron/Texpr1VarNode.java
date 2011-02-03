@@ -55,6 +55,16 @@ public class Texpr1VarNode
         return var;
     }
 
+    public String getVariable()
+    {
+        return var;
+    }
+
+    public void setVariable(String v)
+    {
+        var = v;
+    }
+
     public int getDepth()
     { 
         return 0;

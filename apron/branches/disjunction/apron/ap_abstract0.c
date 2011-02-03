@@ -1561,4 +1561,3 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
 			    dimension.realdim);
   }
 }
-

@@ -56,6 +56,17 @@ public class Texpr0DimNode
         else return names[dim];
     }
 
+    public int getDimension()
+    {
+        return dim;
+    }
+
+    public void setDimension(int d)
+    {
+        dim  = d;
+    }
+
+
     public int getDepth()
     { 
         return 0;

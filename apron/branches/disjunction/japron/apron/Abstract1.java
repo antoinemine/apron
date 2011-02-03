@@ -189,13 +189,12 @@ public class Abstract1
             throw new IllegalArgumentException("incompatible array sizes");
         Dimension d = e.getDimension();
         Interval[] itv = new Interval[d.intDim + d.realDim];
+        Interval it = new Interval();
+        it.setTop();
+        for (int i=0; i<d.intDim + d.realDim; i++)
+            itv[i] = it;
         for (int i=0; i<vars.length; i++)
             itv[e.dimOfVar(vars[i])] = box[i];
-        for (int i=0; i<d.intDim + d.realDim; i++)
-            if (itv[i]==null) {
-                itv[i] = new Interval();
-                itv[i].setTop();
-            }
         abs = new Abstract0(man, d.intDim, d.realDim, itv);
         env = e;
     }

@@ -1,3 +1,17 @@
+/*
+ * ctest3.c
+ *
+ * Unit testing. Policies
+ *
+ * Copyright (C) Frank Védrine 2010
+ *
+ */
+
+/* This file is part of the APRON Library, released under LGPL license
+
+   Please read the COPYING file packaged in the distribution.
+*/
+
 #include "../apron/ap_global0.h"
 #include "../apron/ap_global1.h"
 

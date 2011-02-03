@@ -1,0 +1,26 @@
+{1 Introduction}
+
+Coefficients:
+- {!Scalar}, {!Interval}, {!Coeff} (either scalars or intervals)
+
+Managers and Abstract Domains:
+- {!Manager}
+- {!Box}: intervals
+- {!Oct}: octagons
+- {!Polka}: convex polyhedra and linear equalities
+- {!T1p}: Taylor1plus abstract domain;
+- {!Ppl}: interface to PPL convex polyhedra and linear congruences (currently)
+- {!PolkaGrid}: reduced product of convex polyhedra and linear congruences
+
+Level 1 of the interface (user-level):
+- {!Var}, {!Environment}
+- {!Linexpr1}, {!Lincons1}, {!Generator1}: linear expressions, constraints and generators;
+- {!Texpr1}, {!Tcons1}: general expressions and constraints;
+- {!Abstract1}: abstract properties
+- {!Parser}: converting strings to APRON expressions
+
+Level 0 of the interface:
+- {!Dim}
+- {!Linexpr0}, {!Lincons0}, {!Generator0}
+- {!Texpr0}, {!Tcons0}
+- {!Abstract0}

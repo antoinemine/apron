@@ -88,8 +88,15 @@ public class DoubleScalar
 
     // Get functions
     ////////////////
+ 
 
-    /**
+    /** Returns the underlying double. */
+    public double get()
+    {
+        return val;
+    }
+
+   /**
      * Copies the value of this into r (exact, except if NaN).
      *
      * @return 0 (exact) or 1 (NaN).

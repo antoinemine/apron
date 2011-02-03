@@ -138,6 +138,18 @@ public class Interval
     // Set functions
     ////////////////
 
+    /** Sets the lower bound. */
+    public void setInf(Scalar s)
+    {
+        inf = s;
+    }
+
+    /** Sets the upper bound. */
+    public void setSup(Scalar s)
+    {
+        sup = s;
+    }
+
     /** Sets the interval to [-oo, +oo], without changing the bound types. */
     public void setTop()
     { 
