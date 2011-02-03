@@ -16,6 +16,7 @@ modules, and which can be organized in 4 groups
 {- {!module: Box}: interval domain}
 {- {!module: Oct}: octagon domain}
 {- {!module: Polka}: convex polyhedra and linear equalities domains}
+{- {!module: T1p}: Taylor1plus abstract domain}
 {- {!module: Ppl}:  PPL convex polyhedra and linear congruences domains}
 {- {!module: PolkaGrid}: reduced product of convex polyhedra and PPL linear congruences}
 }
@@ -174,13 +175,13 @@ This is not very elegant: the call to
 }
 {- It is possible to not give up with continuations by encapsulating them into a record (resp. an immediate  object), because record fields (resp. methods) may be polymorphic.
 
-{ul 
+{ul
 {- Using records:
 
 {[type continuation = {
   f : 'a. 'a Apron.Manager.t -> unit;
 };;
-let manager_alloc_and_continue option (continuation:continuation) = 
+let manager_alloc_and_continue option (continuation:continuation) =
   match option with
   | `Box -> continuation.f (Box.manager_alloc ())
   | `Oct -> continuation.f (Oct.manager_alloc ())
@@ -194,15 +195,15 @@ let main option equations =
 {- Using immediate objects:
 
 {[type continuation = < f : 'a. 'a Apron.Manager.t -> unit >;;
-let manager_alloc_and_continue option (continuation:continuation) = 
+let manager_alloc_and_continue option (continuation:continuation) =
   match option with
   | `Box -> continuation#f (Box.manager_alloc ())
   | `Oct -> continuation#f (Oct.manager_alloc ())
 ;;
 let main option equations =
   manager_alloc_and_continue option
-    (object method f: 'a .'a Apron.Manager.t -> unit = 
-       fun apron -> analyze_and_display equations apron 
+    (object method f: 'a .'a Apron.Manager.t -> unit =
+       fun apron -> analyze_and_display equations apron
     end)
 ;;]}
 
@@ -215,8 +216,8 @@ Compared to records, using immediate objects requires to repeat polymorphic type
 ;;
 let main option equations =
   manager_alloc_and_continue option
-    (object method f: 'a .'a Apron.Manager.t -> unit = 
-       fun apron -> analyze_and_display equations apron 
+    (object method f: 'a .'a Apron.Manager.t -> unit =
+       fun apron -> analyze_and_display equations apron
     end)
 ;;]}
 }}}
@@ -236,7 +237,7 @@ let main option equations =
 {[val manager_alloc : [< `Box | `Oct ] -> 'a Apron.Manager.t = <fun>]}
 
 The purpose of functions {!Box.manager_of_box} and {!Oct.manager_of_oct} is
-to generalize the type of their arguments 
+to generalize the type of their arguments
 (this is implemented with the [Obj.magic] function... but this is safe).
 
 This is the most simple and flexible way.
@@ -249,23 +250,23 @@ This is the most simple and flexible way.
 (*  ====================================================================== *)
 
 (**
-Assume that you are inside the body of the same 
+Assume that you are inside the body of the same
 
 {[analyze_and_display: equations -> 'a Apron.Manager.t -> unit]}
 
 function and that you want at some point
-- either to modify an option of the manager [man], depending on the 
-  effective underlying domain 
+- either to modify an option of the manager [man], depending on the
+  effective underlying domain
   (like {!Polka.set_max_coeff_size});
 - or similarly to perform a specific operation on an abstract value.
 
 You can modify the solution 1 above so as to pass a
 [modify: 'a Apron.Manager.t -> unit] function to [analyze_and_display]:
-{[let analyze_and_display equations 
-      (man : 'a Apron.Manager.t) 
-      (modify : 'a Apron.Manager.t -> unit) 
+{[let analyze_and_display equations
+      (man : 'a Apron.Manager.t)
+      (modify : 'a Apron.Manager.t -> unit)
   =
-  ... 
+  ...
 ;;
 let manager_alloc_and_continue option equations =
   match option with
@@ -281,7 +282,7 @@ functions {!Box.manager_to_box}, {!Box.Abstract0.to_box},
 {!Oct.manager_to_oct}, {!Oct.Abstract0.to_oct}. These functions
 raise a [Failure] exception in case of (dynamic) typing error, but
 this can be avoided by the test functions {!Box.manager_is_box}
-and {!Oct.manager_is_oct} 
+and {!Oct.manager_is_oct}
 *)
 
 (*  ********************************************************************** *)

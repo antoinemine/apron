@@ -155,6 +155,12 @@ public class MpqScalar
     // Get functions
     ////////////////
 
+
+    /** Returns the underlying Mpq. */
+    public Mpq get()
+    {
+        return val;
+    }
     
     /** 
      * Copies the value of this into r (exact).

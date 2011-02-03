@@ -132,6 +132,12 @@ public class MpfrScalar
     // Get functions
     ////////////////
 
+    /** Returns the underlying Mpfr. */
+    public Mpfr get()
+    {
+        return val;
+    }
+    
     /**
      * Copies the value of this into r (exact, except if NaN)
      *

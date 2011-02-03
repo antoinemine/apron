@@ -87,7 +87,8 @@ struct ap_scalar_array_t {
   [size_is(size)]ap_scalar_ptr* p;
   int size;
 };
-quote(MLMLI,"(** APRON Scalar numbers. See {!Mpqf} for operations on GMP multiprecision rational numbers and {!Mpfr} for operations on MPFR multi-precision floating-point numbers. *)\n\n")
+quote(MLMLI,"(** APRON Scalar numbers. *)\n\n\
+(** See {!Mpqf} for operations on GMP multiprecision rational numbers and {!Mpfr} for operations on MPFR multi-precision floating-point numbers. *)\n\n")
 
 quote(MLI,"\n\
 val of_mpq : Mpq.t -> t\n\
@@ -225,7 +226,7 @@ let neg scalar =\n\
   | Mpfrf x ->\n\
      let y = Mpfr.init2 (Mpfr.get_prec x) in\n\
      ignore (Mpfr.neg y x Mpfr.Up);\n\
-     Mpfrf(Mpfrf.mpfrf y)\n	     \
+     Mpfrf(Mpfrf._mpfrf y)\n	     \
   | Float x -> Float(-. x)\n\
 let to_string scalar =\n\
   match scalar with\n\

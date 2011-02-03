@@ -76,4 +76,24 @@ public class Linterm1
         return (x instanceof Linterm1) && (isEqual((Linterm1)x));
     }
 
+    public String getVariable()
+    {
+        return var;
+    }
+
+    public Coeff getCoefficient()
+    {
+        return coeff;
+    }
+
+    public void setVariable(String s)
+    {
+        var = s;
+    }
+
+    public void setCoeffcient(Coeff c)
+    {
+        coeff = c;
+    }
+
 }

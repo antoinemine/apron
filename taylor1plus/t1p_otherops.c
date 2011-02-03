@@ -119,6 +119,12 @@ t1p_t* t1p_widening(ap_manager_t* man, t1p_t* a1, t1p_t* a2)
 		size_t dim2 = 0;
 		/* au pire il y a toute la liste de l'un a rajouter dans l'autre */
 		ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
+		if (dims1 > res->size) {
+		    res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
+		    res->gamma = (ap_interval_t**)realloc(res->gamma, (dims1)*sizeof(ap_interval_t*));
+		    for (k=res->size;k<dims1;k++) res->gamma[k] = NULL;
+		    res->size = dims1;
+		}
 		res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
 		for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
 		ap_abstract0_free(pr->manNS, res->abs);
@@ -147,6 +153,7 @@ t1p_t* t1p_widening(ap_manager_t* man, t1p_t* a1, t1p_t* a2)
 		dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
 
 		size_t nsymcons_size = t1p_nsymcons_get_dimension(pr, res);
+		pr->dimtoremove = (ap_dim_t*)realloc(pr->dimtoremove, (nsymcons_size)*sizeof(ap_dim_t));
 		memset((void *)pr->dimtoremove, (int)0, nsymcons_size*sizeof(int));
 	    } else {
 		/* res->abs is a hypercube */

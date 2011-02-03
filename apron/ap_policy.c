@@ -25,6 +25,7 @@ ap_policy_manager_t* ap_policy_manager_alloc(ap_manager_t* man,
 }
 void ap_policy_manager_free(ap_policy_manager_t* pman)
 {
+  assert(pman->count>=1 && pman->man->count>=1);
   if (pman->count>1){
     pman->count--;
   }
@@ -34,6 +35,8 @@ void ap_policy_manager_free(ap_policy_manager_t* pman)
       pman->internal_free(pman->internal);
       pman->internal = NULL;
     }
+    pman->count = 0;
+    pman->man = NULL;
     free(pman);
   }
 }
@@ -42,53 +45,114 @@ void ap_policy_manager_free(ap_policy_manager_t* pman)
 /* II. Policy, general */
 /* ********************************************************************** */
 
-void ap_policy_free(ap_policy_manager_t* man, ap_policy_t* policy)
+void ap_policy_free(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef void (*funptr)(ap_policy_manager_t* man, ap_policy_t* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_FREE];
-  (*ptr)(man,policy);
+  typedef void (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FREE];
+  (*ptr)(pman,policy->value);
+  ap_policy_manager_free(policy->pman);
+  policy->value = NULL;
+  policy->pman = NULL;
+  free(policy);
 }
-ap_policy_t* ap_policy_copy(ap_policy_manager_t* man, ap_policy_t* policy)
+ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef ap_policy_t* (*funptr)(ap_policy_manager_t* man, ap_policy_t* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_COPY];
-  return (*ptr)(man,policy);
+  typedef void* (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_COPY];
+  ap_policy_t* res = malloc(sizeof(ap_policy_t));
+  res->value = (*ptr)(pman,policy->value);
+  res->pman = ap_policy_manager_copy(policy->pman);
+  return res;
 }
-void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy)
+void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef void (*funptr)(FILE* stdout, ap_policy_manager_t* man, ap_policy_t* policy);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_FPRINT];
-  return (*ptr)(stdout,man,policy);
+  typedef void (*funptr)(FILE* stdout, ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FPRINT];
+  return (*ptr)(stdout,pman,policy->value);
 }
-bool ap_policy_equal(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2)
+size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
-  typedef bool (*funptr)(ap_policy_manager_t* man, ap_policy_t* policy1, ap_policy_t* policy2);
-  funptr ptr = (funptr)man->funptr[AP_FUNPOLICYID_EQUAL];
-  return (*ptr)(man,policy1,policy2);
+  typedef size_t (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_DIMENSION];
+  return (*ptr)(pman,policy->value);
+}
+bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_t* policy2)
+{
+  typedef bool (*funptr)(ap_policy_manager_t* pman, void* policy1, void* policy2);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_EQUAL];
+  return (*ptr)(pman,policy1->value,policy2->value);
 }
 
 /* ********************************************************************** */
 /* III. Policy, level 0 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract0_policy_alloc(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims)
+ap_policy_t* ap_abstract0_policy_alloc(ap_policy_manager_t* pman, ap_funid_t funid, size_t nbdims)
 {
-  typedef ap_policy_t* (*funpolicyptr)(ap_policy_manager_t* man, ap_funid_t funid, size_t nbdims);
-  funpolicyptr ptr = (funpolicyptr)man->funptr[AP_FUNPOLICYID_ALLOC];
-  return (*ptr)(man,funid,nbdims);
+  typedef void* (*funpolicyptr)(ap_policy_manager_t* pman, ap_funid_t funid, size_t nbdims);
+  funpolicyptr ptr = (funpolicyptr)pman->funptr[AP_FUNPOLICYID_ALLOC];
+  ap_policy_t* res = malloc(sizeof(ap_policy_t));
+  res->value = (*ptr)(pman,funid,nbdims);
+  res->pman = ap_policy_manager_copy(pman);
+  return res;
 }
 
+bool ap_abstract0_policy_check_policy_abstract(
+    ap_funid_t funid,
+    ap_policy_manager_t* pman, ap_policy_t* policy, ap_abstract0_t* a
+)
+{
+  bool res;
+  char str[160];
+
+  res = true;
+  if (pman->man->library != policy->pman->man->library){
+    snprintf(str,159,"\
+The policy of type %s is not of the type %s expected by the policy manager\
+",
+	     pman->man->library,policy->pman->man->library);
+    res = false;
+  }
+  else if (pman->man->library != a->man->library){
+    snprintf(str,159,"\
+The abstract value of type %s is not of the type %s expected by the manager\
+",
+	     a->man->library,pman->man->library);
+    res = false;
+  }
+  else {
+    size_t (*pfunptr)(ap_policy_manager_t*,...) = pman->funptr[AP_FUNPOLICYID_DIMENSION];
+    ap_dimension_t (*funptr)(ap_manager_t*, ...) = pman->man->funptr[AP_FUNID_DIMENSION];
+    size_t nbdims = pfunptr(pman,policy->value);
+    ap_dimension_t dimen = funptr(pman->man,a->value);
+    if (nbdims != dimen.intdim+dimen.realdim){
+      snprintf(str,159,"\
+The policy of dimension %d cannot be applied to the abstract value of dimension (%d,%d)\
+",
+	       (int)nbdims,(int)dimen.intdim,(int)dimen.realdim);
+    res = false;
+    }
+  }
+  if (!res){
+    ap_manager_raise_exception(pman->man,
+			       AP_EXC_INVALID_ARGUMENT,
+			       funid,
+			       str);
+  }
+  return res;
+}
 ap_abstract0_t*
 ap_abstract0_policy_meetjoin(ap_funpolicyid_t funid,
 			     /* either meet or join */
-			     ap_policy_manager_t* pman, 
-			     ap_policy_t* policy, ap_policy_mode_t mode, 
+			     ap_policy_manager_t* pman,
+			     ap_policy_t* policy, ap_policy_mode_t mode,
 			     bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2)
 {
   if (ap_abstract0_checkman2(funid,pman->man,a1,a2) &&
-      ap_abstract0_check_abstract2(funid,pman->man,a1,a2)){
+      ap_abstract0_check_abstract2(funid,pman->man,a1,a2) &&
+      ap_abstract0_policy_check_policy_abstract(funid,pman,policy,a1)){
     void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[funid];
-    void* value = ptr(pman,policy,mode,destructive,a1->value,a2->value);
+    void* value = ptr(pman,policy->value,mode,destructive,a1->value,a2->value);
     return ap_abstract0_cons2(pman->man,destructive,a1,value);
   }
   else {
@@ -99,20 +163,21 @@ ap_abstract0_policy_meetjoin(ap_funpolicyid_t funid,
 			    dimension.realdim);
   }
 }
-ap_abstract0_t* 
-ap_abstract0_policy_meetjoin_array(ap_funpolicyid_t funid, 
-				   ap_policy_manager_t* pman, 
+ap_abstract0_t*
+ap_abstract0_policy_meetjoin_array(ap_funpolicyid_t funid,
+				   ap_policy_manager_t* pman,
 				   ap_policy_t* policy, ap_policy_mode_t mode,
 				   ap_abstract0_t** tab, size_t size)
 {
   if (ap_abstract0_checkman_array(funid,pman->man,tab,size) &&
-      ap_abstract0_check_abstract_array(funid,pman->man,tab,size)){
+      ap_abstract0_check_abstract_array(funid,pman->man,tab,size) &&
+      ap_abstract0_policy_check_policy_abstract(funid,pman,policy,tab[0])){
     size_t i;
     ap_abstract0_t* res;
     void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[funid];
     void** ntab = malloc(size*sizeof(void*));
     for (i=0;i<size;i++) ntab[i] = tab[i]->value;
-    res = ap_abstract0_cons(pman->man,ptr(pman,policy,mode,ntab,size));
+    res = ap_abstract0_cons(pman->man,ptr(pman,policy->value,mode,ntab,size));
     free(ntab);
     return res;
   }
@@ -127,8 +192,8 @@ ap_abstract0_policy_meetjoin_array(ap_funpolicyid_t funid,
   }
 }
 ap_abstract0_t*
-ap_abstract0_policy_meet(ap_policy_manager_t* pman, 
-			 ap_policy_t* policy, ap_policy_mode_t mode, 
+ap_abstract0_policy_meet(ap_policy_manager_t* pman,
+			 ap_policy_t* policy, ap_policy_mode_t mode,
 			 bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2)
 {
   return ap_abstract0_policy_meetjoin(AP_FUNPOLICYID_MEET,
@@ -136,22 +201,23 @@ ap_abstract0_policy_meet(ap_policy_manager_t* pman,
 				      destructive,a1,a2);
 }
 ap_abstract0_t*
-ap_abstract0_policy_meet_array(ap_policy_manager_t* pman, 
-			       ap_policy_t* policy, ap_policy_mode_t mode, 
+ap_abstract0_policy_meet_array(ap_policy_manager_t* pman,
+			       ap_policy_t* policy, ap_policy_mode_t mode,
 			       ap_abstract0_t** tab, size_t size)
 {
   return ap_abstract0_policy_meetjoin_array(AP_FUNPOLICYID_MEET_ARRAY,pman,policy,mode,tab,size);
 }
 ap_abstract0_t*
-ap_abstract0_policy_meet_lincons_array(ap_policy_manager_t* pman, 
-				       ap_policy_t* policy, ap_policy_mode_t mode, 
+ap_abstract0_policy_meet_lincons_array(ap_policy_manager_t* pman,
+				       ap_policy_t* policy, ap_policy_mode_t mode,
 				       bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array)
 {
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_MEET_LINCONS_ARRAY,pman->man,a) &&
-      ap_abstract0_check_lincons_array(AP_FUNID_MEET_LINCONS_ARRAY,pman->man,dimension,array) ){
+      ap_abstract0_check_lincons_array(AP_FUNID_MEET_LINCONS_ARRAY,pman->man,dimension,array) &&
+      ap_abstract0_policy_check_policy_abstract(AP_FUNID_MEET_LINCONS_ARRAY,pman,policy,a)){
     void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[AP_FUNPOLICYID_MEET_LINCONS_ARRAY];
-    void* value = ptr(pman,policy,mode,destructive,a->value,array);
+    void* value = ptr(pman,policy->value,mode,destructive,a->value,array);
     return ap_abstract0_cons2(pman->man,destructive,a,value);
   }
   else {
@@ -162,15 +228,16 @@ ap_abstract0_policy_meet_lincons_array(ap_policy_manager_t* pman,
   }
 }
 ap_abstract0_t*
-ap_abstract0_policy_meet_tcons_array(ap_policy_manager_t* pman, 
+ap_abstract0_policy_meet_tcons_array(ap_policy_manager_t* pman,
 				     ap_policy_t* policy, ap_policy_mode_t mode,
 				     bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array)
 {
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_MEET_TCONS_ARRAY,pman->man,a) &&
-      ap_abstract0_check_tcons_array(AP_FUNID_MEET_TCONS_ARRAY,pman->man,dimension,array) ){
-    void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[AP_FUNPOLICYID_MEET_TCONS_ARRAY];
-    void* value = ptr(pman,policy,mode,destructive,a->value,array);
+      ap_abstract0_check_tcons_array(AP_FUNID_MEET_TCONS_ARRAY,pman->man,dimension,array) &&
+      ap_abstract0_policy_check_policy_abstract(AP_FUNID_MEET_TCONS_ARRAY,pman,policy,a)){
+  void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[AP_FUNPOLICYID_MEET_TCONS_ARRAY];
+    void* value = ptr(pman,policy->value,mode,destructive,a->value,array);
     return ap_abstract0_cons2(pman->man,destructive,a,value);
   }
   else {
@@ -186,7 +253,7 @@ ap_abstract0_policy_meet_tcons_array(ap_policy_manager_t* pman,
 ap_abstract0_t*
 ap_abstract0_policy_asssub_linexpr_array(ap_funpolicyid_t funid,
 					 ap_manager_t* man,
-					 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+					 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 					 bool destructive,
 					 ap_abstract0_t* a,
 					 ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
@@ -224,7 +291,7 @@ ap_abstract0_policy_asssub_linexpr_array(ap_funpolicyid_t funid,
 ap_abstract0_t*
 ap_abstract0_policy_asssub_texpr_array(ap_funpolicyid_t funid,
 				       ap_manager_t* man,
-				       ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				       ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				       bool destructive,
 				       ap_abstract0_t* a,
 				       ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
@@ -262,7 +329,7 @@ ap_abstract0_policy_asssub_texpr_array(ap_funpolicyid_t funid,
 ap_abstract0_t*
 ap_abstract0_policy_asssub_linexpr(ap_funpolicyid_t funid,
 				   ap_manager_t* man,
-				   ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				   ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				   bool destructive,
 				   ap_abstract0_t* org,
 				   ap_dim_t dim, ap_linexpr0_t* expr,
@@ -273,7 +340,7 @@ ap_abstract0_policy_asssub_linexpr(ap_funpolicyid_t funid,
 ap_abstract0_t*
 ap_abstract0_policy_asssub_texpr(ap_funpolicyid_t funid,
 				 ap_manager_t* man,
-				 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				 bool destructive,
 				 ap_abstract0_t* org,
 				 ap_dim_t dim, ap_texpr0_t* expr,
@@ -283,7 +350,7 @@ ap_abstract0_policy_asssub_texpr(ap_funpolicyid_t funid,
 }
 ap_abstract0_t*
 ap_abstract0_policy_assign_linexpr_array(ap_manager_t* man,
-					 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+					 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 					 bool destructive,
 					 ap_abstract0_t* org,
 					 ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
@@ -295,7 +362,7 @@ ap_abstract0_policy_assign_linexpr_array(ap_manager_t* man,
 }
 ap_abstract0_t*
 ap_abstract0_policy_assign_texpr_array(ap_manager_t* man,
-				       ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				       ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				       bool destructive,
 				       ap_abstract0_t* org,
 				       ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
@@ -307,7 +374,7 @@ ap_abstract0_policy_assign_texpr_array(ap_manager_t* man,
 }
 ap_abstract0_t*
 ap_abstract0_policy_assign_linexpr(ap_manager_t* man,
-				   ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				   ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				   bool destructive,
 				   ap_abstract0_t* org,
 				   ap_dim_t dim, ap_linexpr0_t* expr,
@@ -317,7 +384,7 @@ ap_abstract0_policy_assign_linexpr(ap_manager_t* man,
 }
 ap_abstract0_t*
 ap_abstract0_policy_assign_texpr(ap_manager_t* man,
-				 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode, 
+				 ap_policy_manager_t* pman, ap_policy_t* policy, ap_policy_mode_t mode,
 				 bool destructive,
 				 ap_abstract0_t* org,
 				 ap_dim_t dim, ap_texpr0_t* expr,
@@ -331,13 +398,13 @@ ap_abstract0_policy_assign_texpr(ap_manager_t* man,
 /* IV. Policy, level 1 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* man, 
+ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* pman,
 				       ap_funid_t funid, ap_environment_t* env)
-{ return ap_abstract0_policy_alloc(man,funid,env->intdim+env->realdim); }
+{ return ap_abstract0_policy_alloc(pman,funid,env->intdim+env->realdim); }
 
 ap_abstract1_t
 ap_abstract1_policy_meetjoin(ap_funpolicyid_t funid,
-			     ap_policy_manager_t* pman, 
+			     ap_policy_manager_t* pman,
 			     ap_policy_t* policy, ap_policy_mode_t mode,
 			     bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2)
 {
@@ -359,7 +426,8 @@ ap_abstract1_policy_meetjoin_array(ap_funpolicyid_t funid,
 {
   ap_abstract1_t res;
   if (ap_abstract1_checkman_array(funid,pman->man,tab,size) &&
-      ap_abstract1_check_env_array(funid,pman->man,tab,size)){
+      ap_abstract1_check_env_array(funid,pman->man,tab,size) &&
+      ap_abstract0_policy_check_policy_abstract(funid,pman,policy,tab[0].abstract0)){
     size_t i;
     ap_abstract0_t* res0;
     void* (*ptr)(ap_policy_manager_t*,...) = pman->funptr[funid];
@@ -367,7 +435,7 @@ ap_abstract1_policy_meetjoin_array(ap_funpolicyid_t funid,
     for (i=0;i<size;i++) ntab[i] = tab[i].abstract0->value;
     res0 = malloc(sizeof(ap_abstract0_t));
     res0->man = ap_manager_copy(pman->man);
-    res0->value = ptr(pman,policy,mode,ntab,size);
+    res0->value = ptr(pman,policy->value,mode,ntab,size);
     res.abstract0 = res0;
     res.env = ap_environment_copy(tab[0].env);
     free(ntab);

@@ -67,6 +67,16 @@ public class Texpr1CstNode
         return cst.toString();
     }
 
+    public Coeff getConstant()
+    {
+        return cst;
+    }
+
+    public void setConstant(Coeff c)
+    {
+        cst = c;
+    }
+
     public int getDepth()
     { 
         return 0;

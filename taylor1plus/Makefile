@@ -11,6 +11,14 @@ PREFIX = $(APRON_PREFIX)
 
 SRCDIR = $(shell pwd)
 
+ifneq ($(OCAMLFIND),)
+MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
+
 #---------------------------------------
 # Programs
 #---------------------------------------
@@ -24,7 +32,7 @@ CFLAGS_DEBUG := $(CSDP_CFLAGS) $(CFLAGS_DEBUG) -D_GET_CPU_TIME -D_T1P_DEBUG #-D_
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include \
+-I$(MLGMPIDL_INCLUDE) \
 -I../num \
 -I../itv \
 -I../apron \
@@ -33,7 +41,7 @@ ICFLAGS = \
 -I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
+OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 
 #---------------------------------------
 # Files
@@ -60,17 +68,13 @@ t1pMPFR.cma \
 libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a \
 libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
+CAML_TO_INSTALL += \
 t1pMPQ.cmxa t1pMPQ.a \
 t1pD.cmxa t1pD.a \
 t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
-libt1pMPQ_caml.so libt1pD_caml.so libt1pMPFR_caml.so \
-libt1pMPQ_caml_debug.so libt1pD_caml_debug.so libt1pMPFR_caml_debug.so \
-dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so \
-dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
+CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
@@ -84,8 +88,9 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON
 # depend doc install
 # and the following one
 
-all: allMPQ allD allMPFR testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug 
-
+all: allMPQ allD allMPFR 
+# testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug test_joinD_debug test_joinMPQ_debug test_joinMPFR_debug 
+	
 
 
 allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
@@ -97,15 +102,15 @@ allD: libt1pD.so libt1pD_debug.so
 allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
 
-test%: t1p_test_eval_texp%.o
-	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lapron t1p_internal$*.o t1p_representation$*.o
+#test%: t1p_test_eval_texp%.o
+#	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron t1p_internal$*.o t1p_representation$*.o
 
-test%_debug: t1p_test_eval_texp%_debug.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
+#test%_debug: t1p_test_eval_texp%_debug.o
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
 
 
-test_join%: t1p_test_join%.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
+#test_join%: t1p_test_join%.o
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
@@ -122,16 +127,16 @@ mlD: t1pD.cmxa t1pD.a
 mlMPFR: t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: libt1pMPQ_caml.so libt1pMPQ_caml_debug.so dllt1pMPQ_caml.so dllt1pMPQ_caml_debug.so
-mlD: libt1pD_caml.so libt1pD_caml_debug.so dllt1pD_caml.so dllt1pD_caml_debug.so
-mlMPFR: libt1pMPFR_caml.so libt1pMPFR_caml_debug.so dllt1pMPFR_caml.so dllt1pMPFR_caml_debug.so
+mlMPQ: dllt1pMPQ_caml.so
+mlD: dllt1pD_caml.so 
+mlMPFR: dllt1pMPFR_caml.so
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma t1p$*.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma t1p$*.cma $<
 
 mlexample%.opt: mlexample.ml t1p%.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_INSTALL)/lib -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt *.annot
@@ -139,9 +144,10 @@ clean:
 	/bin/rm -fr t1ppolkarung t1ppolkatopg tmp
 	/bin/rm -fr test*
 
-mostlyclean: clean
+distclean: clean
 	/bin/rm -fr manager.idl
 	/bin/rm -f t1p.ml t1p.mli t1p_caml.c
+	/bin/rm -f Makefile.depend
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -162,8 +168,6 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/dllt1p*.so $(PREFIX)/lib/dlloct*_debug.so
 	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
 
-distclean: uninstall
-	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) Makefile sedscript_caml t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.c COPYING README
 	(cd ..; tar zcvf t1p.tgz $(^:%=t1p/%))
@@ -175,7 +179,7 @@ dist: $(CCSRC) Makefile sedscript_caml t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.
 .SUFFIXES: .tex .c .h .a .o
 
 .PRECIOUS: libt1p%.a libt1p%_debug.a libt1p%.so libt1p%_debug.so
-.PRECIOUS: libt1p%_caml.a libt1p%_caml_debug.a libt1p%_caml.so libt1p%_caml_debug.so
+.PRECIOUS: libt1p%_caml.a libt1p%_caml_debug.a dllt1p%_caml.so
 .PRECIOUS: %MPQ.o %D.o %MPFR.o
 .PRECIOUS: %MPQ_debug.o %D_debug.o %MPFR_debug.o
 .PRECIOUS: %.cmo %.cmx
@@ -223,15 +227,8 @@ libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 	$(AR) rcs $@ $<
 	$(RANLIB) $@
 
-libt1p%_caml.so: t1p_caml.o libt1p%.so
+dllt1p%_caml.so: t1p_caml.o libt1p%.so
 	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  $(LIBS) -L. -lt1p$*
-libt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ t1p_caml_debug.o $(LIBS_DEBUG) -L. -lt1p$*_debug
-
-dllt1p%_caml.so: libt1p%_caml.so
-	ln -s -f $^ $@
-dllt1p%_caml_debug.so: libt1p%_caml_debug.so
-	ln -s -f $^ $@
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<

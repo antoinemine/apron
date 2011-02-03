@@ -1,3 +1,17 @@
+/*
+ * ctest2.c
+ *
+ * Unit testing. Policies
+ *
+ * Copyright (C) Frank Védrine 2010
+ *
+ */
+
+/* This file is part of the APRON Library, released under LGPL license
+
+   Please read the COPYING file packaged in the distribution.
+*/
+
 #include "ap_global0.h"
 #include "ap_global1.h"
 
@@ -107,4 +121,3 @@ int main(void) {
   ap_manager_free(man);
   return 0;
 }
-

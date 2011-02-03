@@ -97,7 +97,7 @@ public class Dimchange
             buf.append(c[d.intDim+pos]);
             first = false;
         }
-        buf.append(" )");
+        buf.append(" ] )");
         return buf.toString();
     }
 

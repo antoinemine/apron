@@ -87,9 +87,10 @@ clean:
 	/bin/rm -f *.[ao] *.so apronxx_test
 	/bin/rm -fr *~ \#*\# tmp
 
+distclean: clean
+
 rebuild:
 
-mostlyclean:
 
 install:
 	$(INSTALLd) $(INCDIR) $(INCDIR)/apronxx $(LIBDIR) $(BINDIR)
@@ -100,8 +101,6 @@ uninstall:
 	/bin/rm -rf $(INCDIR)/apronxx
 	/bin/rm -f $(LIBDIR)/libapronxx*.*
 
-
-distclean: uninstall
 
 dist: $(CCINC) $(CXXSOURCES) apronxx_test.cc apronxx_test_result.txt Makefile COPYING.GPL COPYING.LGPL README doc/Doxyfile
 	(cd ..; tar zcvf apronxx.tgz $(^:%=apronxx/%))
