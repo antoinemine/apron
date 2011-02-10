@@ -45,6 +45,18 @@ typedef struct ap_linyyy0_struct {
 typedef ap_linyyy0_struct ap_linyyy0_t[1];
 typedef ap_linyyy0_struct* ap_linyyy0_ptr;
 
+/* Array of linear expressions */
+typedef struct ap_linyyy0_array_struct {
+  ap_scalar_discr_t discr;
+  union {
+    ap_linyyyD_array_ptr    D;
+    ap_linyyyMPQ_array_ptr  MPQ;
+    ap_linyyyMPFR_array_ptr MPFR;
+  } linyyy_array;
+} ap_linyyy0_array_struct;
+typedef ap_linyyy0_array_struct* ap_linyyy0_array_ptr;
+typedef ap_linyyy0_array_struct ap_linyyy0_array_t[1];
+
 /* ====================================================================== */
 /* I. Memory management and printing */
 /* ====================================================================== */
@@ -61,6 +73,16 @@ void ap_linyyy0_clear(ap_linyyy0_t e);
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim);
 void ap_linyyy0_minimize(ap_linyyy0_t a);
 
+void ap_linyyy0_array_init(ap_linyyy0_array_t e, ap_scalar_discr_t discr, size_t size);
+void ap_linyyy0_array_init_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e);
+MACRO_MAINZ
+void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e);
+ENDMACRO
+void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
+void ap_linyyy0_array_minimize(ap_linyyy0_array_t a);
+void ap_linyyy0_array_clear(ap_linyyy0_array_t e);
+void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_dim);
+
 /* ====================================================================== */
 /* II. Conversions */
 /* ====================================================================== */
@@ -71,8 +93,50 @@ bool ap_linyyy0_set_linyyyZZZ(ap_linyyy0_t a, ap_linyyyZZZ_t b, num_internal_t i
 bool ap_linyyyZZZ_set_linyyy0(ap_linyyyZZZ_t a, ap_linyyy0_t b, num_internal_t intern);
 ENDMACRO
 
+static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
+size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
+#if !defined(_AP_lingen0_ARRAY_H_)
+ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
+bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
+#endif
+
+bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
+  /* Are all the constraints involved linear (resp. quasilinear) */
+
+bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
+bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+void ap_linyyy0_array_ref_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i);
+
+MACRO_MAINZ
+bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
+bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern);
+
+bool ap_linyyy0_array_set_index_linyyyZZZ(ap_linyyy0_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+ENDMACRO
+
 /* ====================================================================== */
-/* III. Access */
+/* III. Test */
+/* ====================================================================== */
+
+#if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
+/* Classification */
+bool ap_linyyy0_is_linear(ap_linyyy0_t expr);
+  /* Return true iff all involved coefficients are scalars */
+bool ap_linyyy0_is_quasilinear(ap_linyyy0_t expr);
+  /* Return true iff all involved coefficients but the constant are scalars. */
+ap_linexpr_type_t ap_linyyy0_type(ap_linyyy0_t expr);
+  /* Classify an expression */
+
+bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
+bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
+ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
+
+#endif
+
+/* ====================================================================== */
+/* IV. Access */
 /* ====================================================================== */
 
 static inline 
@@ -141,8 +205,28 @@ void ap_lincons0_set_mpq(ap_lincons0_t c, mpq_t mpq);
 #error "HERE"
 #endif
 
+static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
+size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
+#if !defined(_AP_lingen0_ARRAY_H_)
+ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
+bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
+#endif
+
+bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
+bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+void ap_linyyy0_array_ref_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i);
+
+MACRO_MAINZ
+bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
+bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern);
+
+bool ap_linyyy0_array_set_index_linyyyZZZ(ap_linyyy0_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+ENDMACRO
+
 /* ====================================================================== */
-/* IV. Change of dimensions and permutations */
+/* V. Change of dimensions and permutations */
 /* ====================================================================== */
 
 /* This function add dimensions to the expressions, following the
@@ -156,22 +240,32 @@ void ap_linyyy0_add_dimensions(ap_linyyy0_t a,
    representation, the dimensions present in the expression should just be less
    than the size of the permutation. */
 void ap_linyyy0_permute_dimensions(ap_linyyy0_t a,
-				ap_linyyy0_t b,
-				ap_dimperm_t* perm);
+				   ap_linyyy0_t b,
+				   ap_dimperm_t* perm);
+
+void ap_linyyy0_array_add_dimensions(ap_linyyy0_array_t a,
+				     ap_linyyy0_array_t b,
+				     ap_dimchange_t* dimchange);
+void ap_linyyy0_array_permute_dimensions(ap_linyyy0_array_t a,
+					 ap_linyyy0_array_t b,
+					 ap_dimperm_t* perm);
 
 /* ====================================================================== */
-/* V. Hashing, comparison */
+/* VI. Hashing, comparison */
 /* ====================================================================== */
 
 /* Induces reduction of the coefficients */
 
 int ap_linyyy0_hash(ap_linyyy0_t expr);
-bool ap_linyyy0_equal(ap_linyyy0_t expr1,
-		       ap_linyyy0_t expr2);
+bool ap_linyyy0_equal(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
 
 /* Lexicographic ordering, terminating by constant coefficients */
-int ap_linyyy0_compare(ap_linyyy0_t expr1,
-			ap_linyyy0_t expr2);
+int ap_linyyy0_compare(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
+
+/* ********************************************************************** */
+/* ********************************************************************** */
+/* Inline functions definitions */
+/* ********************************************************************** */
 
 static inline 
 ap_scalar_discr_t ap_linyyy0_discr(ap_linyyy0_t expr)
@@ -185,6 +279,14 @@ MACRO_MAINZ
 static inline void ap_linyyy0_cons_ZZZ(ap_linyyy0_t res, ap_linyyyZZZ_t e)
 { res->discr = AP_SCALAR_ZZZ; res->linyyy.ZZZ = e; };
 ENDMACRO
+
+static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p)
+{ return p->discr; }
+MACRO_MAINZ
+static inline void ap_linyyy0_array_cons_ZZZ(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e)
+{ res->discr = AP_SCALAR_ZZZ; res->linyyy_array.ZZZ = e; };
+ENDMACRO
+
 
 #undef _AP_linyyy0_MARK_
 

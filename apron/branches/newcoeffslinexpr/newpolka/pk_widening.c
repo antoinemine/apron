@@ -5,17 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_bit.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
+#include "pk_internal.h"
 #include "pk_cherni.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_test.h"
 
 #include "mf_qsort.h"
 
@@ -147,13 +138,13 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_best = man->result.flag_exact = false;
-    return pk_top(man,pa->dim.intd,pa->dim.reald);
+    return pk_top(man,pa->dim);
   }
   poly_chernikova2(man,pb,"of the second argument");
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_best = man->result.flag_exact = false;
-    return pk_top(man,pa->dim.intd,pa->dim.reald);
+    return pk_top(man,pa->dim);
   }
   if (!pa->C && !pa->F) /* pa is empty */
     return pk_copy(man,pb);
@@ -171,7 +162,7 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
     esatmat_sort_rows(tab,pa->satF);
     sat_nbcols = pa->satF->nbcolumns;
 
-    po = poly_alloc(pa->dim.intd,pa->dim.reald);
+    po = poly_alloc(pa->dim);
 
     po->C = matrix_alloc(pk->dec-1+pb->C->nbrows, pb->C->nbcolumns, false);
     matrix_fill_constraint_top(pk,po->C,0);
@@ -212,12 +203,13 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
 the result. */
 pk_t* pk_widening_threshold(ap_manager_t* man, 
 			    pk_t* pa, pk_t* pb, 
-			    ap_lincons0_array_t* array)
+			    ap_lincons0_array_t array)
 {
   pk_t* po;
-  size_t i,nbrows,nbcols;
+  size_t i;
   size_t* tab;
-  size_t size,nb;
+
+  size_t nb;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
   po = pk_widening(man,pa,pb);
@@ -225,23 +217,23 @@ pk_t* pk_widening_threshold(ap_manager_t* man,
     return po;
 
   /* We assume that both pa and pb are minimized, and that po->F==NULL */
-  nbcols = po->C->nbcolumns;
-  nbrows = po->C->nbrows;
-  matrix_resize_rows_lazy(po->C, nbrows + array->size);
-  for (i=0; i<array->size; i++){
-    switch(array->p[i].constyp){
+  const size_t size = ap_lincons0_array_size(array);
+  const size_t nbcols = po->C->nbcolumns;
+  size_t nbrows = po->C->nbrows;
+  matrix_resize_rows_lazy(po->C, nbrows + size);
+  for (i=0; i<size; i++){
+    ap_lincons0_t lincons0;
+    ap_lincons0_array_ref_index(lincons0,array,i);
+    ap_constyp_t constyp = ap_lincons0_get_constyp(lincons0);
+    switch(constyp){
     case AP_CONS_EQ:
       break;
     case AP_CONS_SUPEQ:
     case AP_CONS_SUP:
-      if (ap_linexpr0_is_linear(array->p[i].linexpr0)){
-	ap_linconsMPQ_set_ap_lincons0(pk->num,
-				    &pk->poly_ap_linconsMPQ,
-				    &array->p[i]);
-	vector_set_ap_linconsMPQ(pk,
-			       pk->poly_numintp,
-			       &pk->poly_ap_linconsMPQ,
-			       pa->dim.intd,pa->dim.reald,true);
+      if (ap_lincons0_is_linear(lincons0)){
+	ap_linconsMPQ_set_lincons0(pk->poly_linconsMPQ,lincons0,pk->num);
+	vector_set_ap_linconsMPQ(
+	    pk, pk->poly_numintp, pk->poly_linconsMPQ,pa->dim,true);
 	if (do_generators_sat_vector(pk,pb->F,
 				     pk->poly_numintp,
 				     pk->strict && 

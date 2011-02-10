@@ -5,13 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_constructor.h"
+#include "pk_internal.h"
 
 /* Either po is just allocated with the right dimensions, or po==pa */
 
@@ -35,7 +29,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
   if (!pa->C && !pa->F){
     return destructive ? pa : pk_copy(man,pa);
   }
-  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
+  po = destructive ? pa : poly_alloc(pa->dim);
   if (pk->exn){
     poly_set_top(pk,po);
     man->result.flag_best = man->result.flag_exact = false;

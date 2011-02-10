@@ -81,6 +81,7 @@ static inline void ap_linconsXXX_array_print(ap_linconsXXX_array_t array, char**
 /* ********************************************************************** */
 
 static inline bool ap_linconsXXX_is_integer(ap_linconsXXX_t cons, size_t intdim);
+static inline bool ap_linconsXXX_is_real(ap_linconsXXX_t cons, size_t intdim);
 static inline bool ap_linconsXXX_is_linear(ap_linconsXXX_t cons);
   /* Return true iff all involved coefficients are scalars */
 static inline bool ap_linconsXXX_is_quasilinear(ap_linconsXXX_t cons);
@@ -285,6 +286,10 @@ static inline void ap_linconsXXX_array_print(ap_linconsXXX_array_t array, char**
 static inline bool ap_linconsXXX_is_integer(ap_linconsXXX_t cons, size_t intdim)
 {
   return ap_linexprXXX_is_integer(cons->linexpr,intdim);
+}
+static inline bool ap_linconsXXX_is_real(ap_linconsXXX_t cons, size_t intdim)
+{
+  return ap_linexprXXX_is_real(cons->linexpr,intdim);
 }
 static inline bool ap_linconsXXX_is_linear(ap_linconsXXX_t cons)
 {

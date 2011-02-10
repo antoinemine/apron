@@ -143,52 +143,52 @@ pk_t* pk_top(ap_manager_t* man, ap_dimension_t dim)
 
 /* The matrix is supposed to be big enough */
 static 
-int matrix_fill_constraint_box(pk_internal_t* pk,
-			       matrix_t* C, size_t start,
-			       ap_interval_t** box,
-			       ap_dimension_t dim,
-			       bool integer)
+int matrix_fill_constraint_box(
+    pk_internal_t* pk,
+    matrix_t* C, size_t start, ap_box0_t box, ap_dimension_t dim, bool integer)
 {
   size_t k;
   ap_dim_t i;
   bool ok;
-  itv_t itv;
-  k = start;
+  eitvMPQ_t eitv;
+  ap_coeff_t coeff;
 
-  itv_init(itv);
+  k = start;
+  eitvMPQ_init(eitv);
   for (i=0; i<dim.intd+dim.reald; i++){
-    itv_set_ap_interval(pk->num,itv,box[i]);
-    if (itv_is_point(pk->num,itv)){
+    ap_box0_ref_index(coeff,box,i);
+    eitvMPQ_set_ap_coeff(eitv,coeff,pk->num);
+    if (eitvMPQ_is_point(eitv)){
       ok = vector_set_dim_bound(pk,C->p[k],
-				 (ap_dim_t)i, boundMPQ_numref(itv->sup), 0,
+				 (ap_dim_t)i, boundMPQ_numref(eitv->itv->sup), 0,
 				 dim,
 				 integer);
       if (!ok){
-	itv_clear(itv);
+	eitvMPQ_clear(eitv);
 	return -1;
       }
       k++;
     }
     else {
       /* inferior bound */
-      if (!boundMPQ_infty(itv->inf)){
+      if (!boundMPQ_infty(eitv->itv->neginf)){
 	vector_set_dim_bound(pk,C->p[k],
-			     (ap_dim_t)i, boundMPQ_numref(itv->inf), -1,
+			     (ap_dim_t)i, boundMPQ_numref(eitv->itv->neginf), -1,
 			     dim,
 			     integer);
 	k++;
       }
       /* superior bound */
-      if (!boundMPQ_infty(itv->sup)){
+      if (!boundMPQ_infty(eitv->itv->sup)){
 	vector_set_dim_bound(pk,C->p[k],
-			     (ap_dim_t)i, boundMPQ_numref(itv->sup), 1,
+			     (ap_dim_t)i, boundMPQ_numref(eitv->itv->sup), 1,
 			     dim,
 			     integer);
 	k++;
       }
     }
   }
-  itv_clear(itv);
+  eitvMPQ_clear(eitv);
   return (int)k;
 }
 
@@ -197,25 +197,24 @@ int matrix_fill_constraint_box(pk_internal_t* pk,
 
 pk_t* pk_of_box(ap_manager_t* man,
 		ap_dimension_t dim,
-		ap_interval_t** array)
+		ap_box0_t box)
 {
   int k;
-  size_t dim;
+  size_t nbdims;
   pk_t* po;
 
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_OF_BOX);
   pk_internal_realloc_lazy(pk,dim.intd+dim.reald);
 
-  dim = dim.intd + dim.reald;
+  nbdims = dim.intd + dim.reald;
   po = poly_alloc(dim);
   po->status = pk_status_conseps;
 
-  dim = dim.intd + dim.reald;
-  po->C = matrix_alloc(pk->dec-1 + 2*dim, pk->dec + dim, false);
+  po->C = matrix_alloc(pk->dec-1 + 2*nbdims, pk->dec + nbdims, false);
 
   /* constraints */
   matrix_fill_constraint_top(pk,po->C,0);
-  k = matrix_fill_constraint_box(pk,po->C,pk->dec-1,array,dim,true);
+  k = matrix_fill_constraint_box(pk,po->C,pk->dec-1,box,dim,true);
   if (k==-1){
     matrix_free(po->C);
     po->C = NULL;

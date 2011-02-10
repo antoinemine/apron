@@ -44,6 +44,8 @@ void ap_box0_init_set(ap_box0_t res, ap_box0_t e);
 MACRO_MAINZ
 void ap_box0_init_set_eitvZZZ_array(ap_box0_t res, eitvZZZ_t* e, size_t size);
 ENDMACRO
+void ap_box0_set_top(ap_box0_t e);
+void ap_box0_set_bottom(ap_box0_t e);
 void ap_box0_clear(ap_box0_t e);
 void ap_box0_resize(ap_box0_t, size_t size);
 void ap_box0_fprint(FILE* stream, ap_box0_t e, char** name_of_dim);

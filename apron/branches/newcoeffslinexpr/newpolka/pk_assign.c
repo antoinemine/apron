@@ -5,20 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_extract.h"
-#include "pk_resize.h"
-#include "pk_meetjoin.h"
-#include "pk_assign.h"
+#include "pk_internal.h"
 #include "ap_generic.h"
-#include "itv_linearize.h"
 
 /* ********************************************************************** */
 /* I. Matrix operations */
@@ -436,276 +424,28 @@ void vector_invert_expr(pk_internal_t* pk,
 }
 
 /* ********************************************************************** */
-/* III. Assignement/Substitution of several dimensions */
-/* ********************************************************************** */
-
-/* ====================================================================== */
-/* Assignement/Substitution by several *deterministic* linear expressions */
-/* ====================================================================== */
-
-pk_t* poly_asssub_linexpr_array_det(bool assign,
-				    ap_manager_t* man,
-				    bool destructive,
-				    pk_t* pa,
-				    ap_dim_t* tdim, ap_linexpr0_t** texpr,
-				    size_t size)
-{
-  size_t i;
-  ap_dim_t* tdim2;
-  numintMPQ_t** tvec;
-  size_t nbcols;
-  matrix_t* mat;
-  pk_t* po;
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-
-  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
-
-  if (!assign) poly_dual(pa);
-
-  /* Obtain the needed matrix */
-  poly_obtain_F_dual(man,pa,"of the argument",assign);
-  if (pk->exn){
-    pk->exn = AP_EXC_NONE;
-    man->result.flag_best = man->result.flag_exact = false;
-    poly_set_top(pk,po);
-    goto _poly_asssub_linexpr_array_det_exit;
-  }
-  /* Return empty if empty */
-  if (!pa->C && !pa->F){
-    man->result.flag_best = man->result.flag_exact = true;
-    poly_set_bottom(pk,po);
-    return po;
-  }
-  /* Convert linear expressions */
-  nbcols = pk->dec + pa->dim.intd + pa->dim.reald;
-  tvec = (numintMPQ_t**)malloc(size*sizeof(numintMPQ_t*));
-  for (i=0; i<size; i++){
-    tvec[i] = vector_alloc(nbcols);
-    ap_linexprMPQ_set_ap_linexpr0(pk->num,
-				&pk->poly_ap_linexprMPQ,
-				texpr[i]);
-    vector_set_ap_linexprMPQ(pk,
-			   tvec[i],
-			   &pk->poly_ap_linexprMPQ,
-			   pa->dim.intd+pa->dim.reald,1);
-  }
-  /* Copy tdim because of sorting */
-  tdim2 = (ap_dim_t*)malloc(size*sizeof(ap_dim_t));
-  memcpy(tdim2,tdim,size*sizeof(ap_dim_t));
-  pk_asssub_isort(tdim2,tvec,size);
-  /* Perform the operation */
-  mat =
-    assign ?
-    matrix_assign_variables(pk, pa->F, tdim2, tvec, size) :
-    matrix_substitute_variables(pk, pa->F, tdim2, tvec, size);
-  /* Free allocated stuff */
-  for (i=0; i<size; i++){
-    vector_free(tvec[i],nbcols);
-  }
-  free(tvec);
-  free(tdim2);
-
-  /* Update polyhedra */
-  if (destructive){
-    poly_clear(po);
-  }
-  po->F = mat;
-  po->status = 0;
- _poly_asssub_linexpr_array_det_exit:
-  if (!assign){
-    poly_dual(pa);
-    if (!destructive) poly_dual(po);
-  }
-  assert(poly_check(pk,po));
-  return po;
-}
-
-/* ====================================================================== */
-/* Assignement/Substitution by an array of linear expressions */
-/* ====================================================================== */
-static
-pk_t* poly_asssub_linexpr_array(bool assign,
-				bool lazy,
-				ap_manager_t* man,
-				bool destructive,
-				pk_t* pa,
-				ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
-				pk_t* pb)
-{
-  pk_t* po;
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-
-  /* Minimize the argument if option say so */
-  if (!lazy){
-    poly_chernikova(man,pa,"of the argument");
-    if (pk->exn){
-      pk->exn = AP_EXC_NONE;
-      man->result.flag_best = man->result.flag_exact = false;
-      if (destructive){
-	poly_set_top(pk,pa);
-	return pa;
-      } else {
-	return pk_top(man,pa->dim.intd,pa->dim.reald);
-      }
-    }
-  }
-  /* Return empty if empty */
-  if (!pa->C && !pa->F){
-    man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
-  }
-  /* Choose the right technique */
-  if (ap_linexpr0_array_is_linear(texpr,size)){
-    po = poly_asssub_linexpr_array_det(assign,man,destructive,pa,tdim,texpr,size);
-    if (pb){
-      poly_meet(true,lazy,man,po,po,pb);
-    }
-  }
-  else {
-    po = ap_generic_asssub_linexpr_array(assign,man,destructive,pa,tdim,texpr,size,pb);
-  }
-  /* Minimize the result if option say so */
-  if (!lazy){
-    poly_chernikova(man,po,"of the result");
-    if (pk->exn){
-      pk->exn = AP_EXC_NONE;
-      man->result.flag_best = man->result.flag_exact = false;
-      if (pb) poly_set(po,pb); else poly_set_top(pk,po);
-      return po;
-    }
-  }
-  /* Is the result exact or best ? */
-  if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
-    size_t i;
-    man->result.flag_best = true;
-    for (i=0;i<size;i++){
-      if (tdim[i] < pa->dim.intd || !ap_linexpr0_is_real(texpr[i], pa->dim.intd)){
-	man->result.flag_best = false;
-	break;
-      }
-    }
-    man->result.flag_exact = man->result.flag_best;
-  }
-  else {
-    man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
-  }
-  return po;
-}
-
-/* ====================================================================== */
-/* Assignement/Substitution by an array of tree expressions */
-/* ====================================================================== */
-static
-pk_t* poly_asssub_texpr_array(bool assign,
-			      bool lazy,
-			      ap_manager_t* man,
-			      bool destructive,
-			      pk_t* pa,
-			      ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
-			      pk_t* pb)
-{
-  pk_t* po;
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-
-  /* Minimize the argument if option say so */
-  if (!lazy){
-    poly_chernikova(man,pa,"of the argument");
-    if (pk->exn){
-      pk->exn = AP_EXC_NONE;
-      man->result.flag_best = man->result.flag_exact = false;
-      if (destructive){
-	poly_set_top(pk,pa);
-	return pa;
-      } else {
-	return pk_top(man,pa->dim.intd,pa->dim.reald);
-      }
-    }
-  }
-  /* Return empty if empty */
-  if (!pa->C && !pa->F){
-    man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
-  }
-  /* Choose the right technique */
-  if (ap_texpr0_array_is_scalar(texpr,size) && 
-      ap_texpr0_array_is_interval_linear(texpr,size)){
-    ap_abstract0_t abs;
-    abs.value = pa;
-    abs.man = man;
-    if (size==1){
-      ap_linexpr0_t* linexpr0 = 
-	ap_intlinearize_texpr0(man,&abs,texpr[0],NULL,
-			       AP_SCALAR_MPQ,false);
-      po = poly_asssub_linexpr_det(assign,man,destructive,
-				   pa, tdim[0], linexpr0);
-      ap_linexpr0_free(linexpr0);
-    }
-    else {
-      ap_linexpr0_t** tlinexpr = 
-	ap_intlinearize_texpr0_array(man,&abs,texpr,size,NULL,
-				     AP_SCALAR_MPQ,false);
-      po = poly_asssub_linexpr_array_det(assign,man,destructive,
-					 pa,tdim,tlinexpr,size);
-      ap_linexpr0_array_free(tlinexpr,size);
-    }
-    if (pb){
-      poly_meet(true,lazy,man,po,po,pb);
-    }
-  }
-  else {
-    po = ap_generic_asssub_texpr_array(assign,man,destructive,pa,tdim,texpr,size,pb);
-  }
-  /* Minimize the result if option say so */
-  if (!lazy){
-    poly_chernikova(man,po,"of the result");
-    if (pk->exn){
-      pk->exn = AP_EXC_NONE;
-      man->result.flag_best = man->result.flag_exact = false;
-      if (pb) poly_set(po,pb); else poly_set_top(pk,po);
-      return po;
-    }
-  }
-  /* Is the result exact or best ? */
-  if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
-    man->result.flag_best = ap_texpr0_array_is_interval_linear(texpr,size);
-    man->result.flag_exact = man->result.flag_best;
-  }
-  else {
-    man->result.flag_best = man->result.flag_exact = false;
-  }
-  return po;
-}
-
-/* ********************************************************************** */
-/* IV. Assignement/Substitution of a single dimension */
+/* III. Assignement/Substitution of a single dimension */
 /* ********************************************************************** */
 
 /* ====================================================================== */
 /* Assignement/Substitution by a *deterministic* linear expression */
 /* ====================================================================== */
 
-pk_t* poly_asssub_linexpr_det(bool assign,
-			      ap_manager_t* man,
-			      bool destructive,
-			      pk_t* pa,
-			      ap_dim_t dim, ap_linexpr0_t* linexpr0)
+pk_t* poly_asssub_linexprMPQ_det(bool assign,
+				 ap_manager_t* man, bool destructive,
+				 pk_t* pa, ap_dim_t dim, ap_linexprMPQ_t linexpr)
 {
   int sgn;
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-
-  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
+  
+  po = destructive ? pa : poly_alloc(pa->dim);
 
   if (!assign) poly_dual(pa);
 
   /* Convert linear expression */
-  ap_linexprMPQ_set_ap_linexpr0(pk->num,
-			      &pk->poly_ap_linexprMPQ,
-			      linexpr0);
-  vector_set_ap_linexprMPQ(pk,
-			 pk->poly_numintp,
-			 &pk->poly_ap_linexprMPQ,
-			 pa->dim.intd+pa->dim.reald,1);
+  vector_set_ap_linexprMPQ(
+      pk, pk->poly_numintp, linexpr, pa->dim, 1);
   sgn = numintMPQ_sgn(pk->poly_numintp[pk->dec + dim]);
 
   if (!sgn){ /* Expression is not invertible */
@@ -733,10 +473,8 @@ pk_t* poly_asssub_linexpr_det(bool assign,
   }
   if (sgn && pa->C){ /* Expression is invertible and we have constraints */
     /* Invert the expression in pk->poly_numintp2 */
-    vector_invert_expr(pk,
-		       pk->poly_numintp2,
-		       dim, pk->poly_numintp,
-		       pa->C->nbcolumns);
+    vector_invert_expr(
+	pk, pk->poly_numintp2, dim, pk->poly_numintp, pa->C->nbcolumns);
     /* Perform susbtitution on constraints */
     po->C =
       assign ?
@@ -758,26 +496,104 @@ pk_t* poly_asssub_linexpr_det(bool assign,
     poly_dual(pa);
     if (!destructive) poly_dual(po);
   }
-  assert(poly_check(pk,po));
   return po;
 }
 
+/* ********************************************************************** */
+/* IV. Assignement/Substitution of several dimensions */
+/* ********************************************************************** */
+
 /* ====================================================================== */
-/* Assignement/Substitution by a linear expression */
+/* Assignement/Substitution by several *deterministic* linear expressions */
 /* ====================================================================== */
-static
-pk_t* poly_asssub_linexpr(bool assign,
-			  bool lazy,
-			  ap_manager_t* man,
-			  bool destructive,
-			  pk_t* pa,
-			  ap_dim_t dim, ap_linexpr0_t* linexpr,
-			  pk_t* pb)
+
+pk_t* poly_asssub_linexprMPQ_array_det(
+    bool assign, ap_manager_t* man, bool destructive,
+    pk_t* pa, ap_dim_t* tdim, ap_linexprMPQ_array_t array)
 {
+  size_t i;
+  ap_dim_t* tdim2;
+  numintMPQ_t** tvec;
+  size_t nbcols;
+  matrix_t* mat;
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+1);
 
+  po = destructive ? pa : poly_alloc(pa->dim);
+
+  if (!assign) poly_dual(pa);
+
+  /* Obtain the needed matrix */
+  poly_obtain_F_dual(man,pa,"of the argument",assign);
+  if (pk->exn){
+    pk->exn = AP_EXC_NONE;
+    man->result.flag_best = man->result.flag_exact = false;
+    poly_set_top(pk,po);
+    goto _poly_asssub_linexprMPQ_array_det_exit;
+  }
+  /* Return empty if empty */
+  if (!pa->C && !pa->F){
+    man->result.flag_best = man->result.flag_exact = true;
+    poly_set_bottom(pk,po);
+    return po;
+  }
+  /* Convert linear expressions */
+  nbcols = pk->dec + pa->dim.intd + pa->dim.reald;
+  tvec = (numintMPQ_t**)malloc(array->size*sizeof(numintMPQ_t*));
+  for (i=0; i<array->size; i++){
+    tvec[i] = vector_alloc(nbcols);
+    vector_set_ap_linexprMPQ(pk, tvec[i], array->p[i], pa->dim,1);
+  }
+  /* Copy tdim because of sorting */
+  tdim2 = (ap_dim_t*)malloc(array->size*sizeof(ap_dim_t));
+  memcpy(tdim2,tdim,array->size*sizeof(ap_dim_t));
+  pk_asssub_isort(tdim2,tvec,array->size);
+  /* Perform the operation */
+  mat =
+    assign ?
+    matrix_assign_variables(pk, pa->F, tdim2, tvec, array->size) :
+    matrix_substitute_variables(pk, pa->F, tdim2, tvec, array->size);
+  /* Free allocated stuff */
+  for (i=0; i<array->size; i++){
+    vector_free(tvec[i],nbcols);
+  }
+  free(tvec);
+  free(tdim2);
+  
+  /* Update polyhedra */
+  if (destructive){
+    poly_clear(po);
+  }
+  po->F = mat;
+  po->status = 0;
+ _poly_asssub_linexprMPQ_array_det_exit:
+  if (!assign){
+    poly_dual(pa);
+    if (!destructive) poly_dual(po);
+  }
+  return po;
+}
+
+/* ********************************************************************** */
+/* V. Assignement/Substitution: interface */
+/* ********************************************************************** */
+
+pk_t* pk_asssub_linexpr_array(bool assign,
+			      ap_manager_t* man,
+			      bool destructive, pk_t* pa,
+			      ap_dim_t* tdim, ap_linexpr0_array_t array,
+			      pk_t* pb)
+{ 
+  pk_t* po;
+  bool exact;
+
+  ap_funid_t funid = 
+    assign ? AP_FUNID_ASSIGN_LINEXPR_ARRAY : AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY;
+  bool lazy = man->option.funopt[funid].algorithm<=0;
+  pk_internal_t* pk = pk_init_from_manager(man,funid);
+
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+1);
+  
   /* Minimize the argument if option say so */
   if (!lazy){
     poly_chernikova(man,pa,"of the argument");
@@ -788,24 +604,47 @@ pk_t* poly_asssub_linexpr(bool assign,
 	poly_set_top(pk,pa);
 	return pa;
       } else {
-	return pk_top(man,pa->dim.intd,pa->dim.reald);
+	return pk_top(man,pa->dim);
       }
     }
   }
   /* Return empty if empty */
   if (!pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    return destructive ? pa : pk_bottom(man,pa->dim.intd,pa->dim.reald);
+    return destructive ? pa : pk_bottom(man,pa->dim);
   }
   /* Choose the right technique */
-  if (ap_linexpr0_is_linear(linexpr)){
-    po = poly_asssub_linexpr_det(assign,man,destructive,pa,dim,linexpr);
+  if (ap_linexpr0_array_is_linear(array)){
+    ap_linexprMPQ_array_t arrayMPQ;
+    ap_linexprMPQ_array_ptr arrayMPQptr;
+    if (array->discr==AP_SCALAR_MPQ){
+      exact = true;
+      arrayMPQptr = array->linexpr_array.MPQ;
+    }
+    else {
+      ap_linexprMPQ_array_init(arrayMPQ,0);
+      exact = ap_linexprMPQ_array_set_linexpr0_array(arrayMPQ,array,pk->num);
+      arrayMPQptr = arrayMPQ;
+    }
+    if (arrayMPQptr->size==1){
+      po = poly_asssub_linexprMPQ_det(
+	  assign,man,destructive,pa,tdim[0],arrayMPQptr->p[0]);
+    }
+    else {
+      po = poly_asssub_linexprMPQ_array_det(
+	  assign,man,destructive,pa,tdim,arrayMPQptr);
+    }
+    if (array->discr!=AP_SCALAR_MPQ){
+      ap_linexprMPQ_array_clear(arrayMPQ);
+    }
     if (pb){
       poly_meet(true,lazy,man,po,po,pb);
     }
+    man->result.flag_best = true;
+    man->result.flag_exact = exact;
   }
   else {
-    po = ap_generic_asssub_linexpr_array(assign,man,destructive,pa,&dim,&linexpr,1,pb);
+    po = ap_generic_asssub_linexpr_array(assign,AP_SCALAR_MPQ,man,destructive,pa,tdim,array,pb);
   }
   /* Minimize the result if option say so */
   if (!lazy){
@@ -817,92 +656,62 @@ pk_t* poly_asssub_linexpr(bool assign,
       return po;
     }
   }
-  /* Is the result exact or best ? */
-  if (pk->funopt->flag_best_wanted || pk->funopt->flag_exact_wanted){
-    man->result.flag_best = man->result.flag_exact =
-      (dim < pa->dim.intd || !ap_linexpr0_is_real(linexpr, pa->dim.intd)) ?
-      false :
-      true;
-  }
-  else {
-    man->result.flag_best = man->result.flag_exact = (pa->dim.intd==0);
-  }
+  assert(poly_check(pk,po));
   return po;
 }
 
-/* ********************************************************************** */
-/* V. Assignement/Substitution: interface */
-/* ********************************************************************** */
 
 pk_t* pk_assign_linexpr_array(ap_manager_t* man,
 			      bool destructive, pk_t* pa,
-			      ap_dim_t* tdim, ap_linexpr0_t** texpr,
-			      size_t size,
+			      ap_dim_t* tdim, ap_linexpr0_array_t array,
 			      pk_t* pb)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY);
-  pk_t* po;
-  po =
-    size==1 ?
-    poly_asssub_linexpr(true,
-			pk->funopt->algorithm<=0,
-			man,destructive,pa,tdim[0],texpr[0],pb)
-    :
-    poly_asssub_linexpr_array(true,
-			      pk->funopt->algorithm<=0,
-			      man,destructive,pa,tdim,texpr,size,pb);
-  assert(poly_check(pk,po));
-  return po;
+  return pk_asssub_linexpr_array(true,man,destructive,
+				 pa,tdim,array,pb);
 }
 
 pk_t* pk_substitute_linexpr_array(ap_manager_t* man,
 				  bool destructive, pk_t* pa,
-				  ap_dim_t* tdim, ap_linexpr0_t** texpr,
-				  size_t size,
+				  ap_dim_t* tdim, ap_linexpr0_array_t array,
 				  pk_t* pb)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY);
-  pk_t* po;
-  po =
-    size==1 ?
-    poly_asssub_linexpr(false,
-			pk->funopt->algorithm<=0,
-			man,destructive,pa,tdim[0],texpr[0],pb)
-    :
-    poly_asssub_linexpr_array(false,
-			      pk->funopt->algorithm<=0,
-			      man,destructive,pa,tdim,texpr,size,pb);
-  assert(poly_check(pk,po));
-  return po;
+  return pk_asssub_linexpr_array(false,man,destructive,
+				 pa,tdim,array,pb);
+}
+
+pk_t* pk_asssub_texpr_array(bool assign,
+			    ap_manager_t* man,
+			    bool destructive, pk_t* pa,
+			    ap_dim_t* tdim, ap_texpr0_array_t* array,
+			    pk_t* pb)
+{
+  bool error;
+  ap_linexpr0_array_t linexpr0_array;
+  pk_internal_t* pk = (pk_internal_t*)man->internal;
+  
+  if (ap_texpr0_array_is_interval_linear(array) &&
+      ap_texpr0_array_is_scalar(array)){
+    ap_linexprMPQ_array_set_texpr0_array(pk->linexprMPQ_array,&error,array,pk->num);
+    assert(!error);
+    ap_linexpr0_array_cons_MPQ(linexpr0_array,pk->linexprMPQ_array);
+    return pk_asssub_linexpr_array(assign,man,destructive,
+				   pa,tdim,linexpr0_array,pb);
+  }
+  return (pk_t*)ap_generic_asssub_texpr_array(assign, man, destructive, 
+					      pa,tdim,array,pb);
 }
 
 pk_t* pk_assign_texpr_array(ap_manager_t* man,
 			    bool destructive, pk_t* a,
-			    ap_dim_t* tdim,
-			    ap_texpr0_t** texpr,
-			    size_t size,
+			    ap_dim_t* tdim, ap_texpr0_array_t* array,
 			    pk_t* dest)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_ASSIGN_TEXPR_ARRAY);
-  pk_t* po;
-  po = poly_asssub_texpr_array(true,
-			       pk->funopt->algorithm<=0,
-			       man,destructive,a,tdim,texpr,size,dest);
-  assert(poly_check(pk,po));
-  return po;
+  return pk_asssub_texpr_array(true,man,destructive,a,tdim,array,dest);
 }
 pk_t* pk_substitute_texpr_array(ap_manager_t* man,
 				bool destructive, pk_t* a,
-				ap_dim_t* tdim,
-				ap_texpr0_t** texpr,
-				size_t size,
+				ap_dim_t* tdim, ap_texpr0_array_t* texpr,
 				pk_t* dest)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SUBSTITUTE_TEXPR_ARRAY);
-  pk_t* po;
-  po = poly_asssub_texpr_array(false,
-			       pk->funopt->algorithm<=0,
-			       man,destructive,a,tdim,texpr,size,dest);
-  assert(poly_check(pk,po));
-  return po;
+  return pk_asssub_texpr_array(false,man,destructive,a,tdim,texpr ,dest);
 }

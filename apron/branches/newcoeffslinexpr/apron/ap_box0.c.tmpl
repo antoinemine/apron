@@ -53,9 +53,23 @@ void ap_box0_init_set(ap_box0_t res, ap_box0_t e)
   ap_box0_init(res,e->discr,e->size);
   SWITCH(e->discr)
     size_t i;
-  for (i=0;i<e->size;i++){
+    for (i=0;i<e->size;i++){
     eitvXXX_set(res->p.XXX[i],e->p.XXX[i]);
   }
+  ENDSWITCH
+}
+void ap_box0_set_top(ap_box0_t e)
+{
+  SWITCH(e->discr)
+    size_t i;
+  for (i=0;i<e->size;i++) eitvXXX_set_top(e->p.XXX[i]);
+  ENDSWITCH
+}
+void ap_box0_set_bottom(ap_box0_t e)
+{
+  SWITCH(e->discr)
+    size_t i;
+  for (i=0;i<e->size;i++) eitvXXX_set_bottom(e->p.XXX[i]);
   ENDSWITCH
 }
 

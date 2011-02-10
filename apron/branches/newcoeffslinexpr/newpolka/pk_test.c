@@ -5,17 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_extract.h"
-#include "pk_test.h"
-#include "itv_linearize.h"
+#include "pk_internal.h"
 
 /* ====================================================================== */
 /* Emptiness test */
@@ -242,11 +232,12 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
 /* Satisfiability of a linear constraint */
 /* ====================================================================== */
 
-bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
+bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t lincons0)
 {
   bool exact;
   bool sat;
   size_t dim;
+  ap_constyp_t constyp;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_LINCONS);
 
   if (pk->funopt->algorithm>0)
@@ -262,7 +253,8 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  switch (lincons0->constyp){
+  constyp = ap_lincons0_get_constyp(lincons0);
+  switch (constyp){
   case AP_CONS_EQ:
   case AP_CONS_SUPEQ:
   case AP_CONS_SUP:
@@ -272,42 +264,35 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
     return false;
   }
   dim = po->dim.intd + po->dim.reald;
-
-  if (!ap_linexpr0_is_quasilinear(lincons0->linexpr0)){
-    itv_t* env = matrix_to_box(pk,po->F);
-    exact = ap_linconsMPQ_set_ap_lincons0(pk->num,
-					&pk->poly_ap_linconsMPQ,
-					lincons0);
-    exact = itv_quasilinearize_lincons(pk->num,
-				       &pk->poly_ap_linconsMPQ,
-				       env,
-				       false)
-      && exact;
-    itv_array_free(env,dim);
+  ap_linconsMPQ_set_lincons0(pk->poly_linconsMPQ,lincons0,pk->num);
+  if (!ap_linconsMPQ_is_quasilinear(pk->poly_linconsMPQ)){
+    matrix_to_box(pk,pk->env,po->F);
+    exact = ap_linconsMPQ_set_lincons0(
+	pk->poly_linconsMPQ, lincons0, pk->num);
+    exact = ap_linconsMPQ_quasilinearize(
+	pk->poly_linconsMPQ, pk->env, false, pk->num
+    ) && exact;
   }
   else {
-    exact = ap_linconsMPQ_set_ap_lincons0(pk->num,
-					&pk->poly_ap_linconsMPQ,
-					lincons0);
+    exact = ap_linconsMPQ_set_lincons0(
+	pk->poly_linconsMPQ,lincons0,pk->num);
   }
-  sat = vector_set_ap_linconsMPQ_sat(pk,
-				   pk->poly_numintp,
-				   &pk->poly_ap_linconsMPQ,
-				   po->dim.intd, po->dim.reald, true);
+  sat = vector_set_ap_linconsMPQ_sat(
+      pk, pk->poly_numintp, pk->poly_linconsMPQ, po->dim, true);
   if (sat){
     sat = do_generators_sat_vector(pk,po->F,
 				   pk->poly_numintp,
-				   lincons0->constyp==AP_CONS_SUP);
+				   pk->poly_linconsMPQ->constyp==AP_CONS_SUP);
   }
   man->result.flag_exact = man->result.flag_best =
     sat ?
     true :
     (
-     ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-       exact && ap_linexpr0_is_real(lincons0->linexpr0,po->dim.intd) ) ?
-     true :
-     false );
-
+	( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
+	  exact && ap_linconsMPQ_is_real(pk->poly_linconsMPQ,po->dim.intd) ) ?
+	true :
+	false );
+  
   return sat;
 }
 
@@ -340,15 +325,14 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
   }
   dim = po->dim.intd + po->dim.reald;
 
-  itv_t* env = matrix_to_box(pk,po->F);
-  itv_intlinearize_ap_tcons0(pk->num,&pk->poly_ap_linconsMPQ,
-			     cons,env,po->dim.intd);
-  itv_quasilinearize_lincons(pk->num,&pk->poly_ap_linconsMPQ,env,false);
-  itv_array_free(env,po->dim.intd+po->dim.reald);
+  matrix_to_box(pk,pk->env,po->F);
+  ap_linconsMPQ_intlinearize_tcons0(pk->poly_linconsMPQ,
+				    cons,pk->env,po->dim.intd,pk->num);
+  ap_linconsMPQ_quasilinearize(pk->poly_linconsMPQ,pk->env,false,pk->num);
   bool sat = vector_set_ap_linconsMPQ_sat(pk,
-					pk->poly_numintp,
-					&pk->poly_ap_linconsMPQ,
-					po->dim.intd, po->dim.reald, true);
+				       pk->poly_numintp,
+				       pk->poly_linconsMPQ,
+				       po->dim, true);
   if (sat){
     sat = do_generators_sat_vector(pk,po->F,
 				   pk->poly_numintp,
@@ -398,9 +382,9 @@ bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
     }
     else {
       /* vertex */
-      numMPQ_set_numint2(pk->poly_numrat,
-			 F->p[i][index],
-			 F->p[i][polka_cst]);
+      numMPQ_set_numintMPQ2(pk->poly_numrat,
+			    F->p[i][index],
+			    F->p[i][polka_cst]);
       if (sgn==0){
 	if (!numMPQ_equal(pk->poly_numrat,bound))
 	  return false;
@@ -417,7 +401,7 @@ bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
 }
 
 bool pk_sat_interval(ap_manager_t* man, pk_t* po,
-			ap_dim_t dim, ap_interval_t* interval)
+		     ap_dim_t dim, ap_coeff_t interval)
 {
   bool sat;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
@@ -435,22 +419,21 @@ bool pk_sat_interval(ap_manager_t* man, pk_t* po,
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  itv_set_ap_interval(pk->num,
-		      pk->poly_itv, interval);
-  if (itv_is_point(pk->num, pk->poly_itv)){
+  eitvMPQ_set_ap_coeff(pk->poly_eitv, interval, pk->num);
+  if (eitvMPQ_is_point(pk->poly_eitv)){
     /* interval is a point */
-    sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->sup,0);
+    sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->sup,0);
   }
   else {
     sat = true;
     /* inferior bound */
-    if (!boundMPQ_infty(pk->poly_itv->inf)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->inf,-1);
+    if (!boundMPQ_infty(pk->poly_eitv->itv->neginf)){
+      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->neginf,-1);
       if (!sat) goto poly_sat_interval_exit0;
     }
     /* superior bound */
-    if (!boundMPQ_infty(pk->poly_itv->sup)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_itv->sup,1);
+    if (!boundMPQ_infty(pk->poly_eitv->itv->sup)){
+      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->sup,1);
     }
   }
  poly_sat_interval_exit0:

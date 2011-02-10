@@ -498,10 +498,10 @@ bool matrix_append_ap_linconsMPQ_array(pk_internal_t* pk,
   return res;
 }
 bool matrix_set_ap_linconsMPQ_array(pk_internal_t* pk,
-				  matrix_t** mat,
-				  ap_linconsMPQ_array_t array,
-				  ap_dimension_t dim,
-				  bool integer)
+				    matrix_t** mat,
+				    ap_linconsMPQ_array_t array,
+				    ap_dimension_t dim,
+				    bool integer)
 {
   *mat = matrix_alloc(array->size,pk->dec+dim.intd+dim.reald,false);
   (*mat)->nbrows = 0;

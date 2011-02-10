@@ -16,7 +16,6 @@
 #include "ap_coeff.h"
 #include "ap_texpr0.h"
 #include "ap_lincons0.h"
-#include "ap_lincons0_array.h"
 
 #ifdef __cplusplus
 extern "C" {

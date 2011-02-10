@@ -32,9 +32,9 @@ OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl
 CCMODULES = \
 mf_qsort \
 pk_bit pk_satmat pk_vector pk_matrix pk_cherni \
-pk_user pk_representation pk_approximate pk_constructor pk_test pk_extract \
-pk_meetjoin pk_assign pk_project pk_resize pk_expandfold \
-pk_widening pk_closure pk_internal \
+pk_user pk_representation pk_approximate pk_constructor pk_extract pk_test \
+pk_meetjoin pk_project pk_resize pk_expandfold \
+pk_widening pk_closure pk_internal pk_assign \
 pkeq
 
 CCINC = \

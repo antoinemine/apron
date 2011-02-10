@@ -29,12 +29,12 @@ H_TMPL_FILES = \
 ap_linexprXXX.h ap_linconsXXX.h ap_lingenXXX.h \
 ap_linexprconsgenXXX_conv.h \
 ap_coeff.h.tmpl ap_box0.h.tmpl \
-ap_linyyy0.h ap_linyyy1.h ap_linyyy0_array.h ap_linyyy1_array.h 
+ap_linyyy0.h ap_linyyy1.h ap_linyyy1_array.h 
 C_TMPL_FILES = \
 ap_linexprXXX.c ap_linconsXXX.c ap_lingenXXX.c ap_linyyyXXX_array.c \
 ap_linexprconsgenXXX_conv.c \
 ap_coeff.c.tmpl ap_box0.c.tmpl \
-ap_linyyy0.c ap_linyyy1.c ap_linyyy0_array.c ap_linyyy1_array.c \
+ap_linyyy0.c ap_linyyy1.c ap_linyyy1_array.c \
 ap_check0.c.tmpl ap_generic.c.tmpl
 
 H_ORIG_FILES = \
@@ -71,7 +71,6 @@ $(TMPL:%=ap_linexprconsgen%_conv.h) \
 ap_coeff.h ap_box0.h \
 ap_linexpr0.h ap_lincons0.h ap_lingen0.h \
 ap_linexpr1.h ap_lincons1.h ap_lingen1.h \
-ap_linexpr0_array.h ap_lincons0_array.h ap_lingen0_array.h \
 ap_linexpr1_array.h ap_lincons1_array.h ap_lingen1_array.h
 C_GENERATED_FILES = \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) $(TMPL:%=ap_lingen%.c) \
@@ -80,7 +79,6 @@ $(TMPL:%=ap_linexprconsgen%_conv.c) \
 ap_coeff.c ap_box0.c \
 ap_linexpr0.c ap_lincons0.c ap_lingen0.c \
 ap_linexpr1.c ap_lincons1.c ap_lingen1.c \
-ap_linexpr0_array.c ap_lincons0_array.c ap_lingen0_array.c \
 ap_linexpr1_array.c ap_lincons1_array.c ap_lingen1_array.c \
 ap_check0.c ap_generic.c
 
@@ -183,13 +181,6 @@ libapron_debug.so: $(C_FILES:%.c=%_debug.o) ../num/libitv_debug.a
 	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%_debug.o) \
 	$(patsubst %,../num/%,$(filter %.o, $(shell $(AR) t ../num/libitv_debug.a))) 
 
-.PHONY : dep
-
-dep: $(H_FILES) $(C_FILES)
-	for i in $(C_FILES); do		\
-		cpp $(ICFLAGS) -I../itv -MM $$i;	\
-	done
-
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
 #--------------------------------------------------------------
@@ -289,7 +280,7 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------
-# dependencies (generated with make dep)
+# dependencies (generated with make depend)
 #---------------------------------------
 
 depend: $(C_FILES) $(H_FILES)

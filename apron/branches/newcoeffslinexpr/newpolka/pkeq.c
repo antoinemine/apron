@@ -5,19 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_representation.h"
-#include "pk_constructor.h"
-#include "pk_assign.h"
-#include "pk_resize.h"
-
+#include "pk_internal.h"
 #include "pkeq.h"
-
 #include "ap_generic.h"
 
 
@@ -144,36 +133,35 @@ pkeq_t* pkeq_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 /* Abstract an hypercube defined by the array of intervals of size
    intdim+realdim.  */
 pkeq_t* pkeq_of_box(ap_manager_t* man,
-			ap_dimension_t dim,
-			ap_interval_t** array)
+		    ap_dimension_t dimen,
+		    ap_box0_t box)
 {
   size_t i;
   size_t row,dim;
   pkeq_t* po;
-  itv_t itv;
-  bool ok;
+  bool ok,exact;
 
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_OF_BOX);
-  pk_internal_realloc_lazy(pk,intdim+realdim);
+  pk_internal_realloc_lazy(pk,dimen.intd+dimen.reald);
 
-  po = poly_alloc(dim);
-  po->status =
-    pk_status_conseps;
+  po = poly_alloc(dimen);
+  po->status = pk_status_conseps;
 
-  dim = intdim + realdim;
+  dim = dimen.intd + dimen.reald;
   po->C = matrix_alloc(pk->dec-1 + dim, pk->dec + dim, false);
 
   /* constraints */
+  exact = true;
   row = 0;
-  itv_init(itv);
   ok = false;
   for (i=0; i<dim; i++){
-    itv_set_ap_interval(pk->num,itv,array[i]);
-    if (itv_is_point(pk->num,itv)){
-      ok = vector_set_dim_bound(pk,po->C->p[row],
-				 (ap_dim_t)i, boundMPQ_numref(itv->sup), 0,
-				 dim,
-				 true);
+    ap_coeff_t coeff;
+    ap_box0_ref_index(coeff,box, i);
+    exact = eitvMPQ_set_ap_coeff(pk->poly_eitv,coeff,pk->num) && exact;
+    if (eitvMPQ_is_point(pk->poly_eitv)){
+      ok = vector_set_dim_bound(
+	  pk,po->C->p[row],
+	  (ap_dim_t)i, boundMPQ_numref(pk->poly_eitv->itv->sup), 0, dimen, true);
       if (!ok){
 	matrix_free(po->C);
 	po->C = NULL;
@@ -182,12 +170,12 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
       row++;
     }
   }
-  itv_clear(itv);
   matrix_fill_constraint_top(pk,po->C,row);
   po->C->nbrows = pk->dec - 1 + row;
   matrix_reduce(po->C);
   pk_canonicalize(man,po);
-  man->result.flag_exact = man->result.flag_best = true;
+  man->result.flag_exact = exact;
+  man->result.flag_best = true;
   return po;
 }
 
@@ -338,7 +326,7 @@ pkeq_t* equality_asssub_linexpr(bool assign,
   switch (linexpr->cst.discr){
   case AP_COEFF_SCALAR:
     {
-      po = poly_asssub_linexpr_det(assign,man,destructive,pa,dim,linexpr);
+      po = poly_asssub_linexprMPQ_det(assign,man,destructive,pa,dim,linexpr);
       poly_chernikova(man,po,"of the result");
       if (pk->exn) goto _equality_asssub_linexpr_error;
       equality_reduce(man,po);
@@ -411,7 +399,7 @@ pkeq_t* equality_asssub_linexpr_array(bool assign,
     }
   }
   if (sizep>0){
-    po = poly_asssub_linexpr_array_det(assign,man,destructive,pa,tdimp,texprp,sizep);
+    po = poly_asssub_linexprMPQ_array_det(assign,man,destructive,pa,tdimp,texprp,sizep);
     poly_chernikova(man,po,"of the result");
     if (pk->exn) goto _equality_asssub_linexpr_array_error;
     equality_reduce(man,po);
@@ -636,7 +624,7 @@ ap_manager_t* pkeq_manager_alloc(void)
   // funptr[AP_FUNID_TO_BOX] = &poly_to_box;
   // funptr[AP_FUNID_TO_LINCONS_ARRAY] = &poly_to_lincons_array;
   // funptr[AP_FUNID_TO_TCONS_ARRAY] = &poly_to_tcons_array;
-  // funptr[AP_FUNID_TO_GENERATOR_ARRAY] = &poly_to_generator_array;
+  // funptr[AP_FUNID_TO_LINGEN_ARRAY] = &poly_to_lingen_array;
   funptr[AP_FUNID_MEET] = &pkeq_meet;
   funptr[AP_FUNID_MEET_ARRAY] = &pkeq_meet_array;
   funptr[AP_FUNID_MEET_LINCONS_ARRAY] = &pkeq_meet_lincons_array;
