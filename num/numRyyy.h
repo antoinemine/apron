@@ -37,7 +37,7 @@ static inline void numRyyy_canonicalize(numRyyy_t r)
     numIyyy_set_int(r->n,1);
   }
 }
-static inline bool numRyyy_set_numIyyy2(numRyyy_t a, numIyyy_t b, numIyyy_t c)
+static inline bool numRyyy_set_numintRyyy2(numRyyy_t a, numIyyy_t b, numIyyy_t c)
 {
   numIyyy_set(numRyyy_numref(a),b);
   numIyyy_set(numRyyy_denref(a),c);

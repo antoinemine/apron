@@ -39,10 +39,12 @@ void pk_internal_init(pk_internal_t* pk, size_t maxdims)
 
   pk->num = NULL;
   boundMPQ_init(pk->poly_bound);
-  itv_init(pk->poly_itv);
-  ap_linexprMPQ_init(pk->poly_ap_linexprMPQ,maxdims);
-  ap_linconsMPQ_init(pk->poly_ap_linconsMPQ);
-  ap_lingenMPQ_init(pk->poly_ap_lingenMPQ);
+  eitvMPQ_init(pk->poly_eitv);
+  ap_linexprMPQ_init(pk->poly_linexprMPQ,maxdims);
+  ap_linconsMPQ_init(pk->poly_linconsMPQ,maxdims);
+  ap_lingenMPQ_init(pk->poly_lingenMPQ,maxdims);
+  ap_linexprMPQ_array_init(pk->linexprMPQ_array,maxdims);
+  pk->env = eitvMPQ_array_alloc(maxdims);
   numMPQ_init(pk->poly_numrat);
   pk->poly_numintp = vector_alloc(pk->maxcols);
   pk->poly_numintp2 = vector_alloc(pk->maxcols);
@@ -103,10 +105,13 @@ void pk_internal_clear(pk_internal_t* pk)
 
   pk->num = NULL;
   boundMPQ_clear(pk->poly_bound);
-  itv_clear(pk->poly_itv);
-  ap_linexprMPQ_clear(pk->poly_ap_linexprMPQ);
-  ap_linconsMPQ_clear(pk->poly_ap_linconsMPQ);
-  ap_lingenMPQ_clear(pk->poly_ap_lingenMPQ);
+  eitvMPQ_clear(pk->poly_eitv);
+  ap_linexprMPQ_clear(pk->poly_linexprMPQ);
+  ap_linconsMPQ_clear(pk->poly_linconsMPQ);
+  ap_lingenMPQ_clear(pk->poly_lingenMPQ);
+  ap_linexprMPQ_array_clear(pk->linexprMPQ_array);
+  eitvMPQ_array_free(pk->env,pk->maxcols-pk->dec);
+  pk->env = NULL;
   numMPQ_clear(pk->poly_numrat);
   if (pk->poly_numintp) vector_free(pk->poly_numintp, pk->maxcols);
   pk->poly_numintp = 0; 
@@ -194,16 +199,8 @@ ap_manager_t* pk_manager_alloc(bool strict)
   pk = pk_internal_alloc(strict);
   pk_set_approximate_max_coeff_size(pk, 1);
   man = ap_manager_alloc(strict ? "polka, strict mode" : "polka, loose mode",
-#if defined(NUMXXX_LONGINT)
-		      "3.0 with NUMXXX_LONGINT",
-#elif defined(NUMXXX_LONGLONGINT)
-		      "3.0 with NUMXXX_LONGLONGINT",
-#elif defined(NUMXXX_MPZ)
-		      "3.0 with NUMXXX_MPZ",
-#else
-#error "here"
-#endif
-		      pk, (void (*)(void*))pk_internal_free);
+			 "3.0 with NUM_MPZ",
+			 pk, (void (*)(void*))pk_internal_free);
   pk->num = man->num;
 
   funptr = man->funptr;
@@ -238,7 +235,7 @@ ap_manager_t* pk_manager_alloc(bool strict)
   funptr[AP_FUNID_TO_BOX] = &pk_to_box;
   funptr[AP_FUNID_TO_LINCONS_ARRAY] = &pk_to_lincons_array;
   funptr[AP_FUNID_TO_TCONS_ARRAY] = &pk_to_tcons_array;
-  funptr[AP_FUNID_TO_GENERATOR_ARRAY] = &pk_to_generator_array;
+  funptr[AP_FUNID_TO_LINGEN_ARRAY] = &pk_to_lingen_array;
   funptr[AP_FUNID_MEET] = &pk_meet;
   funptr[AP_FUNID_MEET_ARRAY] = &pk_meet_array;
   funptr[AP_FUNID_MEET_LINCONS_ARRAY] = &pk_meet_lincons_array;

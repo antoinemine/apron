@@ -5,16 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_bit.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_resize.h"
+#include "pk_internal.h"
 
 /* ********************************************************************** */
 /*  I. Vectors */
@@ -218,8 +209,7 @@ pk_t* cherni_add_dimensions(pk_internal_t* pk,
     po->dim.reald += dimchange->dim.reald;
   }
   else {
-    po = poly_alloc(pa->dim.intd + dimchange->dim.intd,
-		    pa->dim.reald + dimchange->dim.reald);
+    po = poly_alloc(ap_dimension_add(pa->dim,dimchange->dim));
     po->status = pa->status;
   }
   
@@ -324,9 +314,7 @@ pk_t* pk_add_dimensions(ap_manager_t* man,
       return pa;
     }
     else {
-      return pk_bottom(man,
-		       pa->dim.intd + dimchange->dim.intd,
-		       pa->dim.reald + dimchange->dim.reald);
+      return pk_bottom(man,ap_dimension_add(pa->dim,dimchange->dim));
     }
   }
   if (project){
@@ -365,8 +353,7 @@ pk_t* pk_remove_dimensions(ap_manager_t* man,
     po->nbeq = po->nbline = 0;
   }
   else {
-    po = poly_alloc(pa->dim.intd - dimchange->dim.intd,
-		    pa->dim.reald - dimchange->dim.reald);
+    po = poly_alloc(ap_dimension_sub(pa->dim,dimchange->dim));
   }
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -419,12 +406,12 @@ pk_t* pk_permute_dimensions(ap_manager_t* man,
     }
   }
   man->result.flag_best = man->result.flag_exact = true;
-  po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
+  po = destructive ? pa : poly_alloc(pa->dim);
   if (pa->C){
-    po->C = matrix_permute_dimensions(pk,destructive,pa->C,permutation->dim);
+    po->C = matrix_permute_dimensions(pk,destructive,pa->C,permutation->p);
   }
   if (pa->F){
-    po->F = matrix_permute_dimensions(pk,destructive,pa->F,permutation->dim);
+    po->F = matrix_permute_dimensions(pk,destructive,pa->F,permutation->p);
   }
   if (!destructive){
     po->satC = pa->satC ? satmat_copy(pa->satC) : NULL;

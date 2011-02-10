@@ -361,7 +361,7 @@ pk_t* pk_join_array(ap_manager_t* man, pk_t** tab, size_t size);
 
 pk_t* pk_meet_lincons_array(ap_manager_t* man,
 			    bool destructive, pk_t* a,
-			    ap_lincons0_array_t* array);
+			    ap_lincons0_array_t array);
 pk_t* pk_meet_tcons_array(ap_manager_t* man,
 			  bool destructive, pk_t* a,
 			  ap_tcons0_array_t* array);
@@ -379,22 +379,22 @@ pk_t* pk_add_ray_array(ap_manager_t* man,
 pk_t* pk_assign_linexpr_array(ap_manager_t* man,
 			      bool destructive, pk_t* a,
 			      ap_dim_t* tdim,
-			      ap_linexpr0_array_t texpr,
+			      ap_linexpr0_array_t array,
 			      pk_t* dest);
 pk_t* pk_substitute_linexpr_array(ap_manager_t* man,
 				  bool destructive, pk_t* a,
 				  ap_dim_t* tdim,
-				  ap_linexpr0_array_t texpr,
+				  ap_linexpr0_array_t array,
 				  pk_t* dest);
 pk_t* pk_assign_texpr_array(ap_manager_t* man,
 			    bool destructive, pk_t* a,
 			    ap_dim_t* tdim,
-			    ap_texpr0_array_t* texpr,
+			    ap_texpr0_array_t* array,
 			    pk_t* dest);
 pk_t* pk_substitute_texpr_array(ap_manager_t* man,
 				bool destructive, pk_t* a,
 				ap_dim_t* tdim,
-				ap_texpr0_array_t* texpr,
+				ap_texpr0_array_t* array,
 				pk_t* dest);
   /* Parallel Assignement and Substitution of several dimensions by interval
      expressons. */

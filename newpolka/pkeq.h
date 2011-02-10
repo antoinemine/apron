@@ -147,7 +147,7 @@ pkeq_t* pkeq_top(ap_manager_t* man, ap_dimension_t dim);
 
 pkeq_t* pkeq_of_box(ap_manager_t* man,
 		    ap_dimension_t dim,
-		    ap_interval_t** tinterval);
+		    ap_box0_t box);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
@@ -182,7 +182,7 @@ bool pkeq_sat_lincons(ap_manager_t* man, pkeq_t* a, ap_lincons0_t* lincons);
   /* does the abstract value satisfy the linear constraint ? */
 
 bool pkeq_sat_interval(ap_manager_t* man, pkeq_t* a,
-		       ap_dim_t dim, ap_interval_t* interval);
+		       ap_dim_t dim, ap_coeff_t interval);
   /* is the dimension included in the interval in the abstract value ? */
 
 bool pkeq_is_dimension_unconstrained(ap_manager_t* man, pkeq_t* po,
@@ -193,26 +193,28 @@ bool pkeq_is_dimension_unconstrained(ap_manager_t* man, pkeq_t* po,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* pkeq_bound_linexpr(ap_manager_t* man,
-				      pkeq_t* a, ap_linexpr0_t* expr);
+void pkeq_bound_linexpr(ap_manager_t* man,
+			ap_coeff_t interval, pkeq_t* a, ap_linexpr0_t* expr);
   /* Returns the interval taken by a linear expression
      over the abstract value */
 
-ap_interval_t* pkeq_bound_dimension(ap_manager_t* man,
-				    pkeq_t* a, ap_dim_t dim);
+void pkeq_bound_dimension(ap_manager_t* man,
+			  ap_coeff_t interval, pkeq_t* a, ap_dim_t dim);
   /* Returns the interval taken by the dimension
      over the abstract value */
 
-ap_lincons0_array_t pkeq_to_lincons_array(ap_manager_t* man, pkeq_t* a);
+void pkeq_to_lincons_array(ap_manager_t* man,
+			   ap_lincons0_array_t array, pkeq_t* a);
   /* Converts an abstract value to a polyhedra
      (conjunction of linear constraints). */
 
-ap_interval_t** pkeq_to_box(ap_manager_t* man, pkeq_t* a);
+void pkeq_to_box(ap_manager_t* man, ap_box0_t box, pkeq_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is pkeq_dimension(man,a).  This
      function can be reimplemented by using pkeq_bound_linexpr */
 
-ap_lingen0_array_t pkeq_to_generator_array(ap_manager_t* man, pkeq_t* a);
+void pkeq_to_lingen_array(ap_manager_t* man, 
+			  ap_lingen0_array_t array, pkeq_t* a);
   /* Converts an abstract value to a system of generators. */
 
 

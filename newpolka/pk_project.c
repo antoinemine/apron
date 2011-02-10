@@ -5,18 +5,7 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_bit.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_assign.h"
-#include "pk_meetjoin.h"
-#include "pk_representation.h"
-
+#include "pk_internal.h"
 
 /* ********************************************************************** */
 /* I. Factorized form */
@@ -133,9 +122,9 @@ pk_t* pk_forget_array(ap_manager_t* man,
 		      bool project)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
-  pk_t* po = destructive ? pa : poly_alloc(pa->dim.intd,pa->dim.reald);
+  pk_t* po = destructive ? pa : poly_alloc(pa->dim);
   poly_projectforget_array(project,
-			   pk->funopt->algorithm<=0,
+			   man->option.funopt[AP_FUNID_FORGET_ARRAY].algorithm<=0,
 			   man,po,pa,tdim,size);
   assert(poly_check(pk,po));
   return po;

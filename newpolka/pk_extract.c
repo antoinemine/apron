@@ -5,21 +5,15 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_user.h"
-#include "pk_representation.h"
-#include "pk_extract.h"
+#include "pk_internal.h"
+#include "itvMPQ.h"
+#include "eitvMPQ.h"
 #include "ap_generic.h"
-#include "itv_linearize.h"
 
 /* Bounding the value of a dimension in a matrix of generators. */
 
 void matrix_bound_dimension(pk_internal_t* pk,
-			    itv_t itv,
+			    eitvMPQ_t eitv,
 			    ap_dim_t dim,
 			    matrix_t* F)
 {
@@ -27,9 +21,10 @@ void matrix_bound_dimension(pk_internal_t* pk,
   int sgn;
 
   assert(pk->dec+dim<F->nbcolumns);
-  
-  boundMPQ_set_infty(itv->inf,-1);
-  boundMPQ_set_infty(itv->sup,-1);
+
+  eitv->eq = false;
+  boundMPQ_set_infty(eitv->itv->neginf,-1);
+  boundMPQ_set_infty(eitv->itv->sup,-1);
   index = pk->dec+dim;
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintMPQ_sgn(F->p[i][polka_eps])==0){
@@ -37,54 +32,54 @@ void matrix_bound_dimension(pk_internal_t* pk,
       if (numintMPQ_sgn(F->p[i][0])==0){
 	/* line: result should be zero */
 	if (sgn){
-	  itv_set_top(itv);
+	  eitvMPQ_set_top(eitv);
 	  return;
 	}
       }
       else if (numintMPQ_sgn(F->p[i][polka_cst])==0){
 	/* ray */
 	if (sgn > 0){
-	  boundMPQ_set_infty(itv->sup,+1);
-	  if (boundMPQ_infty(itv->inf) && boundMPQ_sgn(itv->inf)>0)
+	  boundMPQ_set_infty(eitv->itv->sup,+1);
+	  if (boundMPQ_infty(eitv->itv->neginf) && boundMPQ_sgn(eitv->itv->neginf)>0)
 	    return;
 	}
 	else if (sgn < 0){
-	  boundMPQ_set_infty(itv->inf,+1);
-	  if (boundMPQ_infty(itv->sup) && boundMPQ_sgn(itv->sup)>0)
+	  boundMPQ_set_infty(eitv->itv->neginf,+1);
+	  if (boundMPQ_infty(eitv->itv->sup) && boundMPQ_sgn(eitv->itv->sup)>0)
 	    return;
 	}
       }
       else {
 	/* point */
-	numMPQ_set_numint2(pk->poly_numrat,
-			   F->p[i][index],
-			   F->p[i][polka_cst]);
-	if (boundMPQ_cmp_num(itv->sup,pk->poly_numrat)<0){
-	  boundMPQ_set_num(itv->sup,pk->poly_numrat);
+	numMPQ_set_numintMPQ2(pk->poly_numrat,
+			      F->p[i][index],
+			      F->p[i][polka_cst]);
+	if (boundMPQ_cmp_num(eitv->itv->sup,pk->poly_numrat)<0){
+	  boundMPQ_set_num(eitv->itv->sup,pk->poly_numrat);
 	}
 	numMPQ_neg(pk->poly_numrat,pk->poly_numrat);
-	if (boundMPQ_cmp_num(itv->inf,pk->poly_numrat)<0){
-	  boundMPQ_set_num(itv->inf,pk->poly_numrat);
+	if (boundMPQ_cmp_num(eitv->itv->neginf,pk->poly_numrat)<0){
+	  boundMPQ_set_num(eitv->itv->neginf,pk->poly_numrat);
 	}
       }	  
     }
   }
+  eitv->eq = itvMPQ_is_point(eitv->itv);
+  return;
 }
 
-itv_t* matrix_to_box(pk_internal_t* pk,
-		     matrix_t* F)
+void matrix_to_box(pk_internal_t* pk,
+		   eitvMPQ_t* res,
+		   matrix_t* F)
 {
   size_t i,dim;
-  itv_t* res;
 
   assert(F);
   assert(F->nbcolumns>=pk->dec);
   dim = F->nbcolumns - pk->dec;
-  res = itv_array_alloc(dim);
   for (i=0;i<dim;i++){
     matrix_bound_dimension(pk,res[i],i,F);
   }
-  return res;
 }
 
 /* Bounding the value of a linear expression (vector) in a matrix of
@@ -92,70 +87,68 @@ itv_t* matrix_to_box(pk_internal_t* pk,
 */
 
 void matrix_bound_vector(pk_internal_t* pk,
-			 itv_t itv,
+			 eitvMPQ_t eitv,
 			 numintMPQ_t* vec,
 			 matrix_t* F)
 {
   size_t i;
   int sgn;
   
-  boundMPQ_set_infty(itv->inf,-1);
-  boundMPQ_set_infty(itv->sup,-1);
+  eitv->eq = false;
+  boundMPQ_set_infty(eitv->itv->neginf,-1);
+  boundMPQ_set_infty(eitv->itv->sup,-1);
 
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintMPQ_sgn(F->p[i][polka_eps])==0 ){
-      vector_product_strict(pk,
-			    pk->poly_prod,
-			    F->p[i],
-			    vec, F->nbcolumns);
+      vector_product_strict(pk, pk->poly_prod, F->p[i], vec, F->nbcolumns);
       sgn = numintMPQ_sgn(pk->poly_prod);
       if (numintMPQ_sgn(F->p[i][0])==0){
 	/* line: result should be zero */
 	if (sgn){
-	  itv_set_top(itv);
+	  eitvMPQ_set_top(eitv);
 	  return;
 	}
       }
       else if (numintMPQ_sgn(F->p[i][polka_cst])==0){
 	/* ray */
 	if (sgn > 0){
-	  boundMPQ_set_infty(itv->sup,+1);
-	  if (boundMPQ_infty(itv->inf) && boundMPQ_sgn(itv->inf)>0)
+	  boundMPQ_set_infty(eitv->itv->sup,+1);
+	  if (boundMPQ_infty(eitv->itv->neginf) && boundMPQ_sgn(eitv->itv->neginf)>0)
 	    return;
 	}
 	else if (sgn < 0){
-	  boundMPQ_set_infty(itv->inf,+1);
-	  if (boundMPQ_infty(itv->sup) && boundMPQ_sgn(itv->sup)>0)
+	  boundMPQ_set_infty(eitv->itv->neginf,+1);
+	  if (boundMPQ_infty(eitv->itv->sup) && boundMPQ_sgn(eitv->itv->sup)>0)
 	    return;
 	}
       }
       else {
 	/* point */
-	numMPQ_set_numint2(pk->poly_numrat,
-			   pk->poly_prod,
-			   F->p[i][polka_cst]);
-	if (boundMPQ_cmp_num(itv->sup,pk->poly_numrat)<0){
-	  boundMPQ_set_num(itv->sup,pk->poly_numrat);
+	numMPQ_set_numintMPQ2(pk->poly_numrat, 
+			      pk->poly_prod,F->p[i][polka_cst]);
+	if (boundMPQ_cmp_num(eitv->itv->sup,pk->poly_numrat)<0){
+	  boundMPQ_set_num(eitv->itv->sup,pk->poly_numrat);
 	}
 	numMPQ_neg(pk->poly_numrat,pk->poly_numrat);
-	if (boundMPQ_cmp_num(itv->inf,pk->poly_numrat)<0){
-	  boundMPQ_set_num(itv->inf,pk->poly_numrat);
+	if (boundMPQ_cmp_num(eitv->itv->neginf,pk->poly_numrat)<0){
+	  boundMPQ_set_num(eitv->itv->neginf,pk->poly_numrat);
 	}
       }	  
     }
   }
-  if (!boundMPQ_infty(itv->inf)){
-    numintMPQ_mul(numMPQ_denref(boundMPQ_numref(itv->inf)),
-	       numMPQ_denref(boundMPQ_numref(itv->inf)),
-	       vec[0]);
-    numMPQ_canonicalize(boundMPQ_numref(itv->inf));
+  if (!boundMPQ_infty(eitv->itv->neginf)){
+    numintMPQ_mul(numMPQ_denref(boundMPQ_numref(eitv->itv->neginf)),
+		  numMPQ_denref(boundMPQ_numref(eitv->itv->neginf)),
+		  vec[0]);
+    numMPQ_canonicalize(boundMPQ_numref(eitv->itv->neginf));
   }
-  if (!boundMPQ_infty(itv->sup)){
-    numintMPQ_mul(numMPQ_denref(boundMPQ_numref(itv->sup)),
-	       numMPQ_denref(boundMPQ_numref(itv->sup)),
-	       vec[0]);
-    numMPQ_canonicalize(boundMPQ_numref(itv->sup));
+  if (!boundMPQ_infty(eitv->itv->sup)){
+    numintMPQ_mul(numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),
+		  numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),
+		  vec[0]);
+    numMPQ_canonicalize(boundMPQ_numref(eitv->itv->sup));
   }
+  eitv->eq = itvMPQ_is_point(eitv->itv);
 }
 
 /* Bounding the value of an (interval) linear expression (ap_linexprMPQ) in a
@@ -163,33 +156,32 @@ void matrix_bound_vector(pk_internal_t* pk,
 */
 static
 void vector_bound_ap_linexprMPQ(pk_internal_t* pk,
-			      itv_t itv,
-			      ap_linexprMPQ_t linexpr,
-			      numintMPQ_t* vec, size_t size)
+				eitvMPQ_t eitv,
+				ap_linexprMPQ_t linexpr,
+				numintMPQ_t* vec, size_t size)
 {
   size_t i,dim;
-  bool *peq;
-  itv_ptr pitv;
-  itv_ptr prod;
-  numMPQ_t* rat;
+  eitvMPQ_ptr peitv;
+  eitvMPQ_ptr prod;
+  numMPQ_ptr rat;
 
-  prod = pk->poly_itv;
-  rat = &pk->poly_numrat;
+  prod = pk->poly_eitv;
+  rat = pk->poly_numrat;
 
-  numMPQ_set_int(*rat,1);
-  itv_set_int(itv,0);
-  ap_linexprMPQ_ForeachLinterm(linexpr,i,dim,pitv,peq){
+  numMPQ_set_int(rat,1);
+  eitvMPQ_set_int(eitv,0);
+  ap_linexprMPQ_ForeachLinterm0(linexpr,i,dim,peitv){
     size_t index = pk->dec + dim;
     if (numintMPQ_sgn(vec[index])){
-      numintMPQ_set(numMPQ_numref(*rat),vec[index]);
-      itv_mul_num(prod,pitv,*rat);
-      itv_add(itv,itv,prod);
+      numintMPQ_set(numMPQ_numref(rat),vec[index]);
+      eitvMPQ_mul_num(prod,peitv,rat);
+      eitvMPQ_add(eitv,eitv,prod);
     }
   }
   if (numintMPQ_sgn(vec[polka_cst])){
-    numintMPQ_set(numMPQ_numref(*rat),vec[polka_cst]);
-    itv_div_num(itv,itv,*rat);
-    itv_add(itv,itv,linexpr->cst);
+    numintMPQ_set(numMPQ_numref(rat),vec[polka_cst]);
+    eitvMPQ_div_num(eitv,eitv,rat);
+    eitvMPQ_add(eitv,eitv,linexpr->cst);
   }
   return;
 }
@@ -199,56 +191,58 @@ void vector_bound_ap_linexprMPQ(pk_internal_t* pk,
 */
 static
 void matrix_bound_ap_linexprMPQ(pk_internal_t* pk,
-			      itv_t itv,
-			      ap_linexprMPQ_t linexpr,
-			      matrix_t* F)
+				eitvMPQ_t eitv,
+				ap_linexprMPQ_t linexpr,
+				matrix_t* F)
 {
   size_t i;
   int sgn;
-  itv_t prod;
+  eitvMPQ_t prod;
 
-  boundMPQ_set_infty(itv->inf,-1);
-  boundMPQ_set_infty(itv->sup,-1);
+  eitv->eq = false;
+  boundMPQ_set_infty(eitv->itv->neginf,-1);
+  boundMPQ_set_infty(eitv->itv->sup,-1);
 
-  itv_init(prod);
+  eitvMPQ_init(prod);
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintMPQ_sgn(F->p[i][polka_eps])==0 ){
       vector_bound_ap_linexprMPQ(pk, prod, linexpr, F->p[i], F->nbcolumns);
       if (numintMPQ_sgn(F->p[i][0])==0){
 	/* line: result should be zero */
-	if (!itv_is_zero(prod)){
-	  itv_set_top(itv);
+	if (!eitvMPQ_is_zero(prod)){
+	  eitvMPQ_set_top(eitv);
 	  goto _matrix_bound_ap_linexprMPQ_exit;
 	}
       }
       else if (numintMPQ_sgn(F->p[i][polka_cst])==0){
 	/* ray */
-	if (!itv_is_zero(prod)){
-	  if (boundMPQ_sgn(prod->inf)<0){
+	if (!eitvMPQ_is_zero(prod)){
+	  if (boundMPQ_sgn(prod->itv->neginf)<0){
 	    /* [inf,sup]>0 */
-	    boundMPQ_set_infty(itv->sup,+1);
-	    if (boundMPQ_infty(itv->inf) && boundMPQ_sgn(itv->inf)>0)
+	    boundMPQ_set_infty(eitv->itv->sup,+1);
+	    if (boundMPQ_infty(eitv->itv->neginf) && boundMPQ_sgn(eitv->itv->neginf)>0)
 	      goto _matrix_bound_ap_linexprMPQ_exit;
 	  }
-	  else if (boundMPQ_sgn(prod->sup)<0){
+	  else if (boundMPQ_sgn(prod->itv->sup)<0){
 	    /* [inf,sup]<0 */
-	    boundMPQ_set_infty(itv->inf,+1);
-	    if (boundMPQ_infty(itv->sup) && boundMPQ_sgn(itv->sup)>0)
+	    boundMPQ_set_infty(eitv->itv->neginf,+1);
+	    if (boundMPQ_infty(eitv->itv->sup) && boundMPQ_sgn(eitv->itv->sup)>0)
 	      goto _matrix_bound_ap_linexprMPQ_exit;
 	  }
 	  else {
-	    itv_set_top(itv);
+	    eitvMPQ_set_top(eitv);
 	    goto _matrix_bound_ap_linexprMPQ_exit;
 	  }
 	}
       }
       else {
-	itv_join(itv,itv,prod);
+	eitvMPQ_join(eitv,eitv,prod);
       }
     }
   }
  _matrix_bound_ap_linexprMPQ_exit:
-  itv_clear(prod);
+  eitvMPQ_clear(prod);
+  eitv->eq = itvMPQ_is_point(eitv->itv);  
   return;
 }
 
@@ -256,16 +250,14 @@ void matrix_bound_ap_linexprMPQ(pk_internal_t* pk,
 /* Bounding the value of a dimension in a polyhedra */
 /* ====================================================================== */
 
-ap_interval_t* pk_bound_dimension(ap_manager_t* man,
-				  pk_t* po,
-				  ap_dim_t dim)
+void pk_bound_dimension(ap_manager_t* man,
+			ap_coeff_t interval,
+			pk_t* po,
+			ap_dim_t dim)
 {
-  itv_t itv;
-  ap_interval_t* interval;
+  eitvMPQ_t eitv;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_BOUND_DIMENSION);
 
-  interval = ap_interval_alloc();
-  ap_interval_reinit(interval,AP_SCALAR_MPQ);
   if (pk->funopt->algorithm>0)
     poly_chernikova(man,po,NULL);
   else
@@ -273,41 +265,37 @@ ap_interval_t* pk_bound_dimension(ap_manager_t* man,
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
-    ap_interval_set_top(interval);
-    return interval;
+    ap_coeff_set_top(interval);
+    return;
   }
 
   if (!po->F){ /* po is empty */
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     man->result.flag_exact = man->result.flag_best = true;
-    return interval;
+    return;
   }
 
-  itv_init(itv);
-  matrix_bound_dimension(pk,itv,dim,po->F);
-  ap_interval_set_itv(pk->num,interval, itv);
-  itv_clear(itv);
-  man->result.flag_exact = man->result.flag_best = 
-    dim<po->dim.intd ? false : true;
-
-  return interval;
+  eitvMPQ_init(eitv);
+  matrix_bound_dimension(pk,eitv,dim,po->F);
+  man->result.flag_exact = ap_coeff_set_eitvMPQ(interval,eitv,pk->num);
+  eitvMPQ_clear(eitv);
+  man->result.flag_exact &= dim<po->dim.intd;
+  man->result.flag_best = man->result.flag_exact;
 }
 
 /* ====================================================================== */
 /* Bounding the value of a linear expression in a polyhedra */
 /* ====================================================================== */
 
-ap_interval_t* pk_bound_linexpr(ap_manager_t* man,
-				pk_t* po,
-				ap_linexpr0_t* expr)
+void pk_bound_linexpr(ap_manager_t* man,
+		      ap_coeff_t interval,
+		      pk_t* po,
+		      ap_linexpr0_t expr)
 {
   bool exact;
-  ap_interval_t* interval;
-  itv_t itv;
+  eitvMPQ_t eitv;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_BOUND_LINEXPR);
 
-  interval = ap_interval_alloc();
-  ap_interval_reinit(interval,AP_SCALAR_MPQ);
   if (pk->funopt->algorithm>0)
     poly_chernikova(man,po,NULL);
   else
@@ -315,46 +303,40 @@ ap_interval_t* pk_bound_linexpr(ap_manager_t* man,
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
-    ap_interval_set_top(interval);
-    return interval;
+    ap_coeff_set_top(interval);
+    return;
   }
 
   if (!po->F){ /* po is empty */
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     man->result.flag_exact = man->result.flag_best = true;
-    return interval;
+    return;
   }
   
   /* we fill the vector with the expression, taking lower bound of the interval
      constant */
-  exact = ap_linexprMPQ_set_ap_linexpr0(pk->num,
-				      &pk->poly_ap_linexprMPQ,
-				      expr);
-  itv_init(itv);
-  matrix_bound_ap_linexprMPQ(pk,itv,&pk->poly_ap_linexprMPQ,po->F);
-  ap_interval_set_itv(pk->num,interval,itv);
-  itv_clear(itv);
+  exact = ap_linexprMPQ_set_linexpr0(pk->poly_linexprMPQ, expr, pk->num);
+  eitvMPQ_init(eitv);
+  matrix_bound_ap_linexprMPQ(pk,eitv,pk->poly_linexprMPQ,po->F);
+  exact = ap_coeff_set_eitvMPQ(interval,eitv,pk->num) && exact;
+  eitvMPQ_clear(eitv);
   
   man->result.flag_exact = man->result.flag_best = 
     ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-      ap_linexpr0_is_real(expr,po->dim.intd) ) ? 
+      ap_linexprMPQ_is_real(pk->poly_linexprMPQ,po->dim.intd) ) ? 
     exact :
     false;
   
-  return interval;
+  return;
 }
 
-ap_interval_t* pk_bound_texpr(ap_manager_t* man,
-			      pk_t* po,
-			      ap_texpr0_t* expr)
+void pk_bound_texpr(ap_manager_t* man,
+		    ap_coeff_t interval, pk_t* po, ap_texpr0_t* expr)
 {
-  itv_t itv1,itv2;
-  itv_t* env;
-  ap_interval_t* interval;
+  eitvMPQ_t eitv1,eitv2;
+  bool exact;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
 
-  interval = ap_interval_alloc();
-  ap_interval_reinit(interval,AP_SCALAR_MPQ);
   if (pk->funopt->algorithm>0)
     poly_chernikova(man,po,NULL);
   else
@@ -362,27 +344,28 @@ ap_interval_t* pk_bound_texpr(ap_manager_t* man,
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
-    ap_interval_set_top(interval);
-    return interval;
+    ap_coeff_set_top(interval);
+    return;
   }
   if (!po->F){ /* po is empty */
-    ap_interval_set_bottom(interval);
+    ap_coeff_set_bottom(interval);
     man->result.flag_exact = man->result.flag_best = true;
-    return interval;
+    return;
   }
-  env = matrix_to_box(pk,po->F);
-  itv_intlinearize_ap_texpr0(pk->num,&pk->poly_ap_linexprMPQ,
-			     expr,env,po->dim.intd);
-  itv_init(itv1); itv_init(itv2);
-  matrix_bound_ap_linexprMPQ(pk,itv1,&pk->poly_ap_linexprMPQ,po->F);
-  itv_eval_ap_texpr0(pk->num,itv2,expr,env);
-  itv_meet(pk->num,itv1,itv1,itv2);
-  ap_interval_set_itv(pk->num,interval,itv1);
-  itv_clear(itv1); itv_clear(itv2);
-  itv_array_free(env,po->dim.intd+po->dim.reald);
-  man->result.flag_exact = man->result.flag_best = ap_texpr0_is_interval_linear(expr);
-
-  return interval;
+  matrix_to_box(pk,pk->env,po->F);
+  ap_linexprMPQ_intlinearize_texpr0(
+      pk->poly_linexprMPQ, expr, pk->env, po->dim.intd, pk->num);
+  eitvMPQ_init(eitv1); 
+  eitvMPQ_init(eitv2);
+  matrix_bound_ap_linexprMPQ(pk,eitv1,pk->poly_linexprMPQ,po->F);
+  eitvMPQ_eval_ap_texpr0(eitv2,expr,pk->env,pk->num);
+  eitvMPQ_meet(eitv1,eitv1,eitv2,pk->num);
+  exact = ap_coeff_set_eitvMPQ(interval,eitv1,pk->num);
+  eitvMPQ_clear(eitv1); 
+  eitvMPQ_clear(eitv2);
+  man->result.flag_exact = exact && ap_linexprMPQ_is_quasilinear(pk->poly_linexprMPQ) && ap_linexprMPQ_is_real(pk->poly_linexprMPQ,po->dim.intd);
+  
+  man->result.flag_best = exact;
 }
 
 
@@ -390,12 +373,14 @@ ap_interval_t* pk_bound_texpr(ap_manager_t* man,
 /* Converting to a set of constraints */
 /* ====================================================================== */
 
-ap_lincons0_array_t pk_to_lincons_array(ap_manager_t* man,
-					pk_t* po)
+void pk_to_lincons_array(ap_manager_t* man,	
+			 ap_lincons0_array_t array,
+			 pk_t* po)
 {
-  ap_lincons0_array_t array;
   matrix_t* C;
   size_t i,k;
+  ap_lincons0_t lincons0;
+  bool exact,exact1;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_LINCONS_ARRAY);
 
   man->result.flag_exact = man->result.flag_best = true;
@@ -404,47 +389,48 @@ ap_lincons0_array_t pk_to_lincons_array(ap_manager_t* man,
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
-    array = ap_lincons0_array_make(0);
-    return array;
+    ap_lincons0_array_resize(array,0);
+    return;
   }
   if (!po->C){ /* po is empty */
-    array = ap_lincons0_array_make(1);
-    array.p[0] = ap_lincons0_make_unsat();
-    return array;
+    ap_lincons0_array_resize(array,0);
+    ap_lincons0_array_ref_index(lincons0,array,0);
+    ap_lincons0_set_bool(lincons0,false);
+    return;
   }
   poly_obtain_sorted_C(pk,po);
   C = po->C;
-  array = ap_lincons0_array_make(C->nbrows);
+  ap_lincons0_array_resize(array,C->nbrows);
+  exact = true;
   for (i=0,k=0; i<C->nbrows; i++){
-    if (! vector_is_dummy_constraint(pk,
-				     C->p[i], C->nbcolumns)){
-      array.p[k] = lincons0_of_vector(pk, C->p[i], C->nbcolumns);
+    if (! vector_is_dummy_constraint(pk, C->p[i], C->nbcolumns)){
+      ap_lincons0_array_ref_index(lincons0,array,k);
+      exact = lincons0_set_vector(pk, lincons0, C->p[i], C->nbcolumns) && exact;
       k++;
     }
   }
-  array.size = k;
-  return array;
+  ap_lincons0_array_resize(array,k);
+  man->result.flag_exact = exact;
+  man->result.flag_best = true;
 }
 
-ap_tcons0_array_t pk_to_tcons_array(ap_manager_t* man,
-				    pk_t* po)
+ap_tcons0_array_t pk_to_tcons_array(ap_manager_t* man, pk_t* po)
 {
-  return ap_generic_to_tcons_array(man,po);
+  return ap_generic_to_tcons_array(man,po,AP_SCALAR_MPQ);
 }
 
 /* ====================================================================== */
 /* Converting to a box */
 /* ====================================================================== */
 
-ap_interval_t** pk_to_box(ap_manager_t* man,
-			  pk_t* po)
+void pk_to_box(ap_manager_t* man, ap_box0_t box, pk_t* po)
 {
-  ap_interval_t** interval;
-  itv_t* titv;
   size_t i,dim;
+  bool exact;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_BOX);
 
   dim = po->dim.intd + po->dim.reald;
+  ap_box0_resize(box,dim);
   if (pk->funopt->algorithm>=0)
     poly_chernikova(man,po,NULL);
   else
@@ -453,27 +439,20 @@ ap_interval_t** pk_to_box(ap_manager_t* man,
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
-    interval = ap_interval_array_alloc(dim);
-    for (i=0; i<dim; i++){
-      ap_interval_set_top(interval[i]);
-    }
-    return interval;
+    ap_box0_set_top(box);
+    return;
   }
-  interval = ap_interval_array_alloc(dim);
   if (!po->F){
-    for (i=0; i<dim; i++){
-      ap_interval_set_bottom(interval[i]);
-    }
+    ap_box0_set_bottom(box);
+    exact = true;
   }
   else {
-    titv = matrix_to_box(pk,po->F);
-    for (i=0; i<dim; i++){
-      ap_interval_set_itv(pk->num,interval[i],titv[i]);
-    }
-    itv_array_free(titv,dim);
+    matrix_to_box(pk,pk->env,po->F);
+    exact = ap_box0_set_eitvMPQ_array(box,pk->env,dim,pk->num);
   }
-  man->result.flag_exact = man->result.flag_best = true;
-  return interval;
+  man->result.flag_exact = exact;
+  man->result.flag_best = true;
+  return;
 }
 
 /* ====================================================================== */
@@ -483,13 +462,14 @@ ap_interval_t** pk_to_box(ap_manager_t* man,
 /* The function returns the set of generators for the topological closure of
    the polyhedron. */
 
-ap_lingen0_array_t pk_to_generator_array(ap_manager_t* man,
-					    pk_t* po)
+void pk_to_lingen_array(ap_manager_t* man,
+			   ap_lingen0_array_t array, pk_t* po)
 {
-  ap_lingen0_array_t array;
   matrix_t* F;
   size_t i,k;
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY);
+  ap_lingen0_t lingen0;
+  bool exact;
+  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_LINGEN_ARRAY);
 
   man->result.flag_exact = man->result.flag_best = true;
 
@@ -497,23 +477,25 @@ ap_lingen0_array_t pk_to_generator_array(ap_manager_t* man,
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
-    array = ap_lingen0_array_make(0);
-    return array;
+    ap_lingen0_array_resize(array,0);
+    return;
   }
   if (!po->F){ /* po is empty */
-    array = ap_lingen0_array_make(0);
-    return array;
+    ap_lingen0_array_resize(array,0);
+    return;
   }
   F = po->F;
   poly_obtain_sorted_F(pk,po);
-  array = ap_lingen0_array_make(F->nbrows);
+  ap_lingen0_array_resize(array,F->nbrows);
+  exact = true;
   for (i=0,k=0; i<F->nbrows; i++){
-    if (! vector_is_dummy_or_strict_generator(pk,
-					      F->p[i], F->nbcolumns)){
-      array.p[k] = lingen0_of_vector(pk, F->p[i], F->nbcolumns);
+    if (! vector_is_dummy_or_strict_generator(pk, F->p[i], F->nbcolumns)){
+      ap_lingen0_array_ref_index(lingen0,array,k);
+      exact = lingen0_set_vector(pk, lingen0, F->p[i], F->nbcolumns) && exact;
       k++;
     }
   }
-  array.size = k;
-  return array;
+  ap_lingen0_array_resize(array,k);
+  man->result.flag_exact = exact;
+  man->result.flag_best = true;
 }

@@ -79,7 +79,7 @@ void* ap_generic_meet_quasilinearize_lincons_array(
     bool destructive, void* abs, ap_lincons0_array_t array,
     ap_scalar_discr_t discr, bool linearize,
     void* (*meet_lincons_array)(ap_manager_t*, 
-				bool, void*,ap_lincons0_array_t)
+				bool, void*, ap_lincons0_array_t)
 );
   
 void* ap_generic_meet_intlinearize_tcons_array(

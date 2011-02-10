@@ -5,18 +5,8 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_config.h"
-#include "pk_vector.h"
-#include "pk_bit.h"
-#include "pk_satmat.h"
-#include "pk_matrix.h"
-#include "pk.h"
-#include "pk_representation.h"
-#include "pk_user.h"
-#include "pk_constructor.h"
-#include "pk_assign.h"
-#include "pk_meetjoin.h"
-#include "pk_resize.h"
+#include "pk_internal.h"
+#include "pk_cherni.h"
 
 /* ********************************************************************** */
 /* I. Expand */
@@ -57,7 +47,7 @@ matrix_t* matrix_expand(pk_internal_t* pk,
       nb++;
   }
   /* Redimension matrix */
-  dimchange = ap_dimchange_alloc(0,dimsup);
+  dimchange = ap_dimchange_alloc(ap_dimension_make(0,dimsup));
   for (i=0;i<dimsup;i++){
     dimchange->p[i]=offset;
   }
@@ -92,27 +82,21 @@ matrix_t* matrix_expand(pk_internal_t* pk,
 
 pk_t* pk_expand(ap_manager_t* man,
 		bool destructive, pk_t* pa,
-		ap_dim_t dim, size_t dimsup)
+		ap_dim_t dim, size_t nbdimsup)
 {
-  size_t intdimsup,realdimsup;
-  size_t nintdim,nrealdim;
+  ap_dimension_t dimsup,ndim;
   pk_t* po;
 
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_EXPAND);
-  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+dimsup);
+  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+nbdimsup);
   man->result.flag_best = man->result.flag_exact = true;   
 
-  if (dim<pa->dim.intd){
-    intdimsup = dimsup;
-    realdimsup = 0;
-  } else {
-    intdimsup = 0;
-    realdimsup = dimsup;
-  }
-  nintdim = pa->dim.intd + intdimsup;
-  nrealdim = pa->dim.reald + realdimsup;
+  dimsup = dim<pa->dim.intd ? 
+    ap_dimension_make(nbdimsup,0) :
+    ap_dimension_make(0,nbdimsup);
+  ndim = ap_dimension_add(pa->dim,dimsup);
 
-  if (dimsup==0){
+  if (nbdimsup==0){
     return (destructive ? pa : pk_copy(man,pa));
   }
 
@@ -124,12 +108,11 @@ pk_t* pk_expand(ap_manager_t* man,
 
   if (destructive){
     po = pa;
-    po->dim.intd+=intdimsup;
-    po->dim.reald+=realdimsup;
+    po->dim = ap_dimension_add(po->dim,dimsup);
     po->status &= ~pk_status_consgauss & ~pk_status_gengauss & ~pk_status_minimaleps;
   }
   else {
-    po = poly_alloc(nintdim,nrealdim);
+    po = poly_alloc(ndim);
   }
 
   if (pk->exn){
@@ -158,10 +141,10 @@ pk_t* pk_expand(ap_manager_t* man,
   }
   po->C = matrix_expand(pk, destructive, pa->C, 
 			dim, 
-			(dim + dimsup < po->dim.intd ?
-			 po->dim.intd-dimsup :
-			 po->dim.intd+po->dim.reald-dimsup),
-			dimsup);
+			(dim + nbdimsup < po->dim.intd ?
+			 po->dim.intd-nbdimsup :
+			 po->dim.intd+po->dim.reald-nbdimsup),
+			nbdimsup);
   /* Minimize the result */
   if (pk->funopt->algorithm>0){
     poly_chernikova(man,po,"of the result");
@@ -212,7 +195,7 @@ matrix_t* matrix_fold(pk_internal_t* pk,
   nF = matrix_alloc( size*nbrows,
 		     nbcols - dimsup,
 		     false );
-  dimchange = ap_dimchange_alloc(0,dimsup);
+  dimchange = ap_dimchange_alloc(ap_dimension_make(0,dimsup));
   for (i=0;i<dimsup;i++){
     dimchange->p[i]=tdim[i+1];
   }
@@ -249,18 +232,16 @@ pk_t* pk_fold(ap_manager_t* man,
 	      bool destructive, pk_t* pa,
 	      ap_dim_t* tdim, size_t size)
 {
-  size_t intdimsup,realdimsup;
+  ap_dimension_t dimsup;
   pk_t* po;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FOLD);
   man->result.flag_best = man->result.flag_exact = true;   
 
-  if (tdim[0]<pa->dim.intd){
-    intdimsup = size - 1;
-    realdimsup = 0;
-  } else {
-    intdimsup = 0;
-    realdimsup = size - 1;
-  }
+  dimsup = 
+    (tdim[0]<pa->dim.intd) ?
+    ap_dimension_make(size-1,0) :
+    ap_dimension_make(0,size-1);
+
   if (pk->funopt->algorithm<0)
     poly_obtain_F(man,pa,"of the argument");
   else
@@ -268,11 +249,10 @@ pk_t* pk_fold(ap_manager_t* man,
 
   if (destructive){
     po = pa;
-    po->dim.intd -= intdimsup;
-    po->dim.reald -= realdimsup;
+    po->dim = ap_dimension_sub(pa->dim,dimsup);
   }
   else {
-    po = poly_alloc(pa->dim.intd-intdimsup,pa->dim.reald-realdimsup);
+    po = poly_alloc(ap_dimension_sub(pa->dim,dimsup));
   }
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -313,8 +293,8 @@ pk_t* pk_fold(ap_manager_t* man,
     }
   }
 
-  man->result.flag_best = (intdimsup==0);
-  man->result.flag_exact = (intdimsup==0);
+  man->result.flag_best = (dimsup.intd==0);
+  man->result.flag_exact = (dimsup.intd==0);
   assert(poly_check(pk,po));
   return po;
 }

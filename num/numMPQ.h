@@ -28,7 +28,7 @@ extern "C" {
 static inline void numMPQ_canonicalize(numMPQ_t a)
 { mpq_canonicalize(a); }
 
-static inline bool numMPQ_set_numMPZ2(numMPQ_t a, numMPZ_t b, numMPZ_t c)
+static inline bool numMPQ_set_numintMPQ2(numMPQ_t a, numMPZ_t b, numMPZ_t c)
 {
   numMPZ_set(numMPQ_numref(a),b);
   numMPZ_set(numMPQ_denref(a),c);

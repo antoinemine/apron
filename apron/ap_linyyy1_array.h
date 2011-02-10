@@ -13,7 +13,6 @@
 #define _AP_linyyy1_ARRAY_H_
 
 #include "ap_linyyy0.h"
-#include "ap_linyyy0_array.h"
 #include "ap_linyyy1.h"
 
 #ifdef __cplusplus

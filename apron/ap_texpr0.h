@@ -13,7 +13,6 @@
 #include "ap_dimension.h"
 #include "ap_coeff.h"
 #include "ap_linexpr0.h"
-#include "ap_linexpr0_array.h"
 
 #ifdef __cplusplus
 extern "C" {

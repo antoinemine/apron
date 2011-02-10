@@ -59,10 +59,12 @@ struct pk_internal_t {
   numintMPQ_t cherni_prod;             
 
   boundMPQ_t poly_bound;
-  itvMPQ_t poly_itv;
+  eitvMPQ_t poly_eitv;
   ap_linexprMPQ_t poly_linexprMPQ;
   ap_linconsMPQ_t poly_linconsMPQ;
   ap_lingenMPQ_t poly_lingenMPQ;
+  ap_linexprMPQ_array_t linexprMPQ_array;
+  eitvMPQ_t* env;                  /* of size maxdims */
   numMPQ_t poly_numrat;
   numintMPQ_t* poly_numintp;            /* of size maxcols */
   numintMPQ_t* poly_numintp2;           /* of size maxcols */
@@ -382,14 +384,14 @@ bool do_generators_sat_vector(
 );
 
 /* Bounding by a itv box a matrix of generators. */
-eitvMPQ_t* matrix_to_box(pk_internal_t* pk, matrix_t* F);
+void matrix_to_box(pk_internal_t* pk, eitvMPQ_t* res, matrix_t* F);
 
 /* Bounding the value of a dimension in a matrix of generators.
    mode == 1: sup bound
    mode == -1: inf bound
 */
 void matrix_bound_dimension(
-    pk_internal_t* pk, eitvMPQ_t itv, ap_dim_t dim, matrix_t* F
+    pk_internal_t* pk, eitvMPQ_t eitv, ap_dim_t dim, matrix_t* F
 );
 
 /* Bounding the value of a linear expression (vector) in a matrix of
@@ -425,7 +427,7 @@ bool poly_meet_matrix(
     bool meet, bool lazy, ap_manager_t* man, pk_t* po, pk_t* pa, matrix_t* mat
 );
 void poly_meet_ap_linconsMPQ_array(
-    bool lazy, ap_manager_t* man, pk_t* po, pk_t* pa, ap_linconsMPQ_array_t* array
+    bool lazy, ap_manager_t* man, pk_t* po, pk_t* pa, ap_linconsMPQ_array_t array
 );
 void poly_meet(
     bool meet, bool lazy, ap_manager_t* man, pk_t* po, pk_t* pa, pk_t* pb
@@ -495,8 +497,8 @@ bool matrix_set_ap_linconsMPQ_array(
     ap_dimension_t dim, bool integer
 );
 /* From PK to APRON */
-bool lincons0_of_vector(pk_internal_t* pk, ap_lincons0_t cons, numintMPQ_t* q, size_t size);
-bool lingen0_of_vector(pk_internal_t* pk, ap_lingen0_t gen, numintMPQ_t* q, size_t size);
+bool lincons0_set_vector(pk_internal_t* pk, ap_lincons0_t cons, numintMPQ_t* q, size_t size);
+bool lingen0_set_vector(pk_internal_t* pk, ap_lingen0_t gen, numintMPQ_t* q, size_t size);
 
 /* ********************************************************************** */
 /* ********************************************************************** */
@@ -566,15 +568,15 @@ static inline void poly_obtain_F_dual(ap_manager_t* man, pk_t* po, char* msg, bo
   if (!po->F) poly_chernikova_dual(man,po,msg,usual);
 }
 
-pk_t* poly_asssub_linexpr_det(
+pk_t* poly_asssub_linexprMPQ_det(
     bool assign, ap_manager_t* man, bool destructive,
-    pk_t* pa, ap_dim_t dim, ap_linexpr0_t* linexpr
+    pk_t* pa, ap_dim_t dim, ap_linexprMPQ_t linexpr
 );
-pk_t* poly_asssub_linexpr_array_det(
-      bool assign, ap_manager_t* man, bool destructive,
-      pk_t* pa, ap_dim_t* tdim, ap_linexpr0_array_t* texpr
+pk_t* poly_asssub_linexprMPQ_array_det(
+    bool assign, ap_manager_t* man, bool destructive,
+    pk_t* pa, ap_dim_t* tdim, ap_linexprMPQ_array_t texpr
 );
-
+  
 #ifdef __cplusplus
 }
 #endif
