@@ -13,19 +13,7 @@
 #include <assert.h>
 
 #include "ap_coeff.h"
-#include "numD_conv.h"
-#include "numMPQ_conv.h"
-#include "numMPFR_conv.h"
-#include "eitvD.h"
-#include "eitvMPQ.h"
-#include "eitvMPFR.h"
-
-#include "numIl_conv.h"
-#include "numIll_conv.h"
-#include "numMPZ_conv.h"
-#include "numRl_conv.h"
-#include "numRll_conv.h"
-#include "numDl_conv.h"
+#include "eitv_all.h"
 
 /* ====================================================================== */
 /* Basics */
@@ -133,7 +121,7 @@ bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern)
 }
 ENDMACRO
 
-bool ap_coeff_set_generic(num_internal_t intern, 
+bool ap_coeff_set_generic(num_internal_t intern,
 			  ap_coeff_t a, ap_coeff_tag_t tag, va_list* va)
 {
   bool res;
@@ -153,7 +141,7 @@ bool ap_coeff_set_generic(num_internal_t intern,
   }
   return res;
 }
-bool ap_coeff_set_val(num_internal_t intern, 
+bool ap_coeff_set_val(num_internal_t intern,
 		      ap_coeff_t a, ap_coeff_tag_t tag, ...)
 {
   va_list va;

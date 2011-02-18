@@ -5,8 +5,28 @@
 #include <math.h>
 #include <stdarg.h>
 #include "itvXXX.h"
-#include "num_all.h"
-#include "numXXX_conv.h"
+#include "num_internal.h"
+
+/* ********************************************************************** */
+/* Initialization and clearing */
+/* ********************************************************************** */
+
+void itvXXX_init_array(itvXXX_t* a, size_t size)
+{
+  size_t i;
+  for (i=0; i<size; i++) itvXXX_init(a[i]);
+}
+itvXXX_t* itvXXX_array_alloc(size_t size)
+{
+  itvXXX_t* res = (itvXXX_t*)malloc(size*sizeof(itvXXX_t));
+  itvXXX_init_array(res,size);
+  return res;
+}
+void itvXXX_array_free(itvXXX_t* a, size_t size)
+{
+  itvXXX_clear_array(a,size);
+  free(a);
+}
 
 /* ********************************************************************** */
 /* Normalization and tests */
@@ -31,6 +51,26 @@ bool itvXXX_canonicalize(itvXXX_t a, bool integer,num_internal_t intern)
   if (boundXXX_cmp_num(a->sup,intern->XXX.canonicalize_num) < 0)
     exc = true;
   return exc;
+}
+
+bool itvXXX_is_int(itvXXX_t a, num_internal_t intern)
+{
+  boundXXX_trunc(intern->XXX.muldiv_bound,a->sup);
+  if (boundXXX_cmp(intern->XXX.muldiv_bound,a->sup)) return false;
+  boundXXX_trunc(intern->XXX.muldiv_bound,a->neginf);
+  return !boundXXX_cmp(intern->XXX.muldiv_bound,a->neginf);
+}
+bool itvXXX_is_point(itvXXX_t a)
+{
+  if (!boundXXX_infty(a->neginf) && !boundXXX_infty(a->sup)){
+    numXXX_ptr b = boundXXX_numref(a->neginf);
+    numXXX_neg(b,b);
+    bool res = numXXX_equal(b,boundXXX_numref(a->sup));
+    numXXX_neg(b,b);
+    return res;
+  }
+  else
+    return false;
 }
 
 /* Comparison:
@@ -61,6 +101,37 @@ int itvXXX_cmp_zero(itvXXX_t a)
     return sup<0 ? -1 : (sup==0 ? 0 : 1);
   else
     return sup<0 ? -2 : 1;
+}
+
+void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern)
+{
+  boundXXX_add(a,b->sup,b->neginf);
+  if (!boundXXX_infty(a)) {
+    itvXXX_magnitude(intern->XXX.muldiv_bound,b);
+    boundXXX_div_2(intern->XXX.muldiv_bound,intern->XXX.muldiv_bound);
+    boundXXX_div(a,a,intern->XXX.muldiv_bound);
+  }
+}
+
+/* ********************************************************************** */
+/* Lattice operations */
+/* ********************************************************************** */
+
+bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
+{
+  boundXXX_min(a->sup,b->sup,c->sup);
+  boundXXX_min(a->neginf,b->neginf,c->neginf);
+  return itvXXX_canonicalize(a,false, intern);
+}
+void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c)
+{
+  boundXXX_max(a->sup,b->sup,c->sup);
+  boundXXX_max(a->neginf,b->neginf,c->neginf);
+}
+void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
+{
+  boundXXX_widening(a->sup,b->sup,c->sup);
+  boundXXX_widening(a->neginf,b->neginf,c->neginf);
 }
 
 /* ********************************************************************** */
@@ -485,179 +556,4 @@ int itvXXX_snprint(char* s, size_t size, itvXXX_t a)
   boundXXX_snprint(s+count,size-count,a->sup);
   count += snprintf(s+count,size-count,"]");
   return count;
-}
-
-MACRO_ALLZ
-bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
-{
-  numZZZ_neg(b,b);
-  bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
-  numZZZ_neg(b,b);
-  return boundXXX_set_numZZZ(a->sup,c,intern) && res;
-}
-ENDMACRO
-
-bool itvXXX_set_generic(num_internal_t intern,
-			itvXXX_t a, itv_tag_t tag, va_list* va)
-{
-  bool res;
-  switch (tag){
-  case ITV_NUM: 
-    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
-      itvXXX_set_num(a,b);
-      res = true; }
-    break;
-  case ITV_NUM2: 
-    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
-      numXXX_ptr c = va_arg(*va,numXXX_ptr);
-      itvXXX_set_num2(a,b,c);
-      res = true; }
-    break;
-  case ITV_ITV: 
-    { itvXXX_ptr b = va_arg(*va,itvXXX_ptr);
-      itvXXX_set(a,b);
-      res = true; }
-    break;
-  case ITV_ITVD: 
-    { itvD_ptr b = va_arg(*va,itvD_ptr);
-      res = itvXXX_set_itvD(a,b,intern); }
-    break;
-  case ITV_ITVMPQ: 
-    { itvMPQ_ptr b = va_arg(*va,itvMPQ_ptr);
-      res = itvXXX_set_itvMPQ(a,b,intern); }
-    break;
-  case ITV_ITVMPFR: 
-    { itvMPFR_ptr b = va_arg(*va,itvMPFR_ptr);
-      res = itvXXX_set_itvMPFR(a,b,intern); }
-    break;
-  case ITV_NUMD: 
-    { numD_ptr b = va_arg(*va,numD_ptr);
-      res = itvXXX_set_numD(a,b,intern); }
-    break;
-  case ITV_NUMMPQ: 
-    { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
-      res = itvXXX_set_numMPQ(a,b,intern); }
-    break;
-  case ITV_NUMMPFR: 
-    { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
-      res = itvXXX_set_numMPFR(a,b,intern); }
-    break;
-  case ITV_NUMD2: 
-    { numD_ptr b = va_arg(*va,numD_ptr);
-      numD_ptr c = va_arg(*va,numD_ptr);
-      res = itvXXX_set_numD2(a,b,c,intern); }
-    break;
-  case ITV_NUMMPQ2: 
-    { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
-      numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
-      res = itvXXX_set_numMPQ2(a,b,c,intern); }
-    break;
-  case ITV_NUMMPFR2: 
-    { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
-      numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
-      res = itvXXX_set_numMPFR2(a,b,c,intern); }
-    break;
-  case ITV_LINT: 
-    { long int b = va_arg(*va,long int);
-      res = itvXXX_set_lint(a,b,intern); }
-    break;
-  case ITV_LINT2: 
-    { long int b = va_arg(*va,long int);
-      long int c = va_arg(*va,long int);
-      res = itvXXX_set_lint2(a,b,c,intern); }
-    break;
-  case ITV_LLINT: 
-    { long long int b = va_arg(*va,long long int);
-      res = itvXXX_set_llint(a,b,intern); }
-    break;
-  case ITV_LLINT2: 
-    { long long int b = va_arg(*va,long long int);
-      long long int c = va_arg(*va,long long int);
-      res = itvXXX_set_llint2(a,b,c,intern); }
-    break;
-  case ITV_MPZ: 
-    { mpz_ptr b = va_arg(*va,mpz_ptr);
-      res = itvXXX_set_mpz(a,b,intern); }
-    break;
-  case ITV_MPZ2: 
-    { mpz_ptr b = va_arg(*va,mpz_ptr);
-      mpz_ptr c = va_arg(*va,mpz_ptr);
-      res = itvXXX_set_mpz2(a,b,c,intern); }
-    break;
-  case ITV_LFRAC: 
-    { long int i = va_arg(*va,long int);
-      long int j = va_arg(*va,long int);
-      res = itvXXX_set_lfrac(a,i,j,intern); }
-    break;
-  case ITV_LFRAC2: 
-    { long int i = va_arg(*va,long int);
-      long int j = va_arg(*va,long int);
-      long int k = va_arg(*va,long int);
-      long int l = va_arg(*va,long int);
-      res = itvXXX_set_lfrac2(a,i,j,k,l,intern); }
-    break;
-  case ITV_LLFRAC: 
-    { long long int i = va_arg(*va,long long int);
-      long long int j = va_arg(*va,long long int);
-      res = itvXXX_set_llfrac(a,i,j,intern); }
-    break;
-  case ITV_LLFRAC2: 
-    { long long int i = va_arg(*va,long long int);
-      long long int j = va_arg(*va,long long int);
-      long long int k = va_arg(*va,long long int);
-      long long int l = va_arg(*va,long long int);
-      res = itvXXX_set_llfrac2(a,i,j,k,l,intern); }
-    break;
-  case ITV_MPQ: 
-    { mpq_ptr b = va_arg(*va,mpq_ptr);
-      res = itvXXX_set_mpq(a,b,intern); }
-    break;
-  case ITV_MPQ2: 
-    { mpq_ptr b = va_arg(*va,mpq_ptr);
-      mpq_ptr c = va_arg(*va,mpq_ptr);
-      res = itvXXX_set_mpq2(a,b,c,intern); }
-    break;
-  case ITV_DOUBLE: 
-    { double b = va_arg(*va,double);
-      res = itvXXX_set_double(a,b,intern); }
-    break;
-  case ITV_DOUBLE2: 
-    { double b = va_arg(*va,double);
-      double c = va_arg(*va,double);
-      res = itvXXX_set_double2(a,b,c,intern); }
-    break;
-  case ITV_LDOUBLE: 
-    { long double b = va_arg(*va,long double);
-      res = itvXXX_set_ldouble(a,b,intern); }
-    break;
-  case ITV_LDOUBLE2: 
-    { long double b = va_arg(*va,long double);
-      long double c = va_arg(*va,long double);
-      res = itvXXX_set_ldouble2(a,b,c,intern); }
-    break;
-  case ITV_MPFR: 
-    { mpfr_ptr b = va_arg(*va,mpfr_ptr);
-      res = itvXXX_set_mpfr(a,b,intern); }
-    break;
-  case ITV_MPFR2: 
-    { mpfr_ptr b = va_arg(*va,mpfr_ptr);
-      mpfr_ptr c = va_arg(*va,mpfr_ptr);
-      res = itvXXX_set_mpfr2(a,b,c,intern); }
-    break;
-  default:
-    fprintf(stderr,
-	    "itvXXX_set_generic: unknown tag\n");
-    abort();
-  }
-  return res;
-}
-bool itvXXX_set_val(num_internal_t intern,
-		    itvXXX_t a, itv_tag_t tag, ...)
-{
-  va_list va;  
-  bool res;
-  va_start(va,tag);
-  res = itvXXX_set_generic(intern,a,tag,&va);
-  va_end(va);
-  return res;
 }

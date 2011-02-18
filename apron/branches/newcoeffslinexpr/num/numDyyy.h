@@ -12,12 +12,7 @@
 #include <float.h>
 
 #include "num_types.h"
-#include "numIl.h"
-#include "numIll.h"
-#include "numMPZ.h"
-#include "numRl.h"
-#include "numRll.h"
-#include "numMPQ.h"
+#include "num_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,14 +90,7 @@ static inline void numDyyy_ceil(numDyyy_t a, numDyyy_t b)
 { *a = ceilyyy(*b); }
 static inline void numDyyy_trunc(numDyyy_t a, numDyyy_t b)
 { *a = truncyyy(*b); }
-static inline void numDyyy_sqrt(numDyyy_t up, numDyyy_t down, numDyyy_t b)
-{
-  assert(*b>=0);
-  *up = sqrtyyy(*b);
-  assert(*up**up>=*b); /* assumes round towards +oo! */
-  if (*up**up==*b) *down = *up;
-  else *down = nextafteryyy(*up,0);
-}
+void numDyyy_sqrt(numDyyy_t up, numDyyy_t down, numDyyy_t b);
 static inline void numDyyy_mul_2exp(numDyyy_t a, numDyyy_t b, int c)
 { *a = ldexpyyy(*b,c); }
 
@@ -124,16 +112,7 @@ static inline bool numDyyy_equal(numDyyy_t a, numDyyy_t b)
 
 static inline bool numDyyy_integer(numDyyy_t a)
 { return ceilyyy(*a) == *a; }
-static inline int numDyyy_hash(numDyyy_t a)
-{
- if (*a <= -(numDyyy_native)(INT_MAX))
-    return -INT_MAX;
-  else if (*a < (numDyyy_native)INT_MAX)
-    return lrintyyy(*a);
-  else
-    return INT_MAX;
-}
-
+int numDyyy_hash(numDyyy_t a);
 
 /* ====================================================================== */
 /* Printing */
@@ -185,184 +164,66 @@ static inline size_t numDyyy_deserialize(numDyyy_t dst, const void* src)
 static inline size_t numDyyy_serialized_size(numDyyy_t a)
 { return sizeof(numDyyy_t); }
 
-static inline size_t numDyyy_serialize_array(void* dst, numDyyy_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += numDyyy_serialize((char*)dst+n,src[i]);
-  return n;
-}
-
-static inline size_t numDyyy_deserialize_array(numDyyy_t* dst, const void* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += numDyyy_deserialize(dst[i],(const char*)src+n);
-  return n;
-}
-
-static inline size_t numDyyy_serialized_size_array(numDyyy_t* src, size_t size)
-{
-  size_t i,n=0;
-  for (i=0;i<size;i++)
-    n += numDyyy_serialized_size(src[i]);
-  return n;
-}
-
-/* ====================================================================== */
-/* Fits */
-/* ====================================================================== */
-
-static inline bool lint_fits_numDyyy(long int a)
-{ return true; }
-static inline bool llint_fits_numDyyy(long long int a)
-{ return true; }
-static inline bool mpz_fits_numDyyy(mpz_t a)
-{ return numMPZ_fits_yyydouble(a); }
-static inline bool lfrac_fits_numDyyy(long int i, long int j)
-{ return true; }
-static inline bool llfrac_fits_numDyyy(long long int i, long long int j)
-{ return true; }
-static inline bool mpq_fits_numDyyy(mpq_t a)
-{ return numMPQ_fits_yyydouble(a); }
-static inline bool double_fits_numDyyy(double k)
-{ return isfinite(k); }
-static inline bool ldouble_fits_numDyyy(long double k)
-{ return isfinite(k); }
-static inline bool mpfr_fits_numDyyy(mpfr_t a, num_internal_t intern)
-{
-  if (mpfr_number_p(a)){
-    if (mpfr_sgn(a)==0) return true;
-    else {
-      mp_exp_t e = mpfr_get_exp(a);
-      return e<NUMDyyy_MAX_EXP-1;
-    }
-  }
-  else
-    return false;
-}
-static inline bool numDyyy_fits_lint(numDyyy_t a)
-{ return yyydouble_fits_numIl(*a); }
-static inline bool numDyyy_fits_llint(numDyyy_t a)
-{ return yyydouble_fits_numIll(*a); }
-static inline bool numDyyy_fits_mpz(numDyyy_t a)
-{ return true; }
-static inline bool numDyyy_fits_lfrac(numDyyy_t a)
-{ return yyydouble_fits_numRl(*a); }
-static inline bool numDyyy_fits_llfrac(numDyyy_t a)
-{ return yyydouble_fits_numRll(*a); }
-static inline bool numDyyy_fits_mpq(numDyyy_t a)
-{ return true; }
-static inline bool numDyyy_fits_float(numDyyy_t a)
-{
-  int e;
-  frexpyyy(*a,&e);
-  return (e<FLT_MAX_EXP-1);
-}
-static inline bool numDyyy_fits_double(numDyyy_t a)
-#if defined(_NUMD_MARK_)
-{ return true; }
-#elif defined(_NUMDl_MARK_)
-{
-  int e;
-  frexpyyy(*a,&e);
-  return (e<DBL_MAX_EXP-1);
-}
-#else
-#error "HERE"
-#endif
-static inline bool numDyyy_fits_ldouble(numDyyy_t a)
-{ return true; }
-static inline bool numDyyy_fits_mpfr(numDyyy_t a)
-{
-  int e;
-  frexpyyy(*a,&e);
-  return (e<mpfr_get_emax());
-}
+size_t numDyyy_serialize_array(void* dst, numDyyy_t* src, size_t size);
+size_t numDyyy_deserialize_array(numDyyy_t* dst, const void* src, size_t size);
+size_t numDyyy_serialized_size_array(numDyyy_t* src, size_t size);
 
 /* ====================================================================== */
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool numDyyy_set_lint(numDyyy_t a, long int i, num_internal_t intern)
-{ return yyydouble_set_numIl(a,&i,intern); }
-static inline bool numDyyy_set_llint(numDyyy_t a, long long int i, num_internal_t intern)
-{ return yyydouble_set_numIll(a,&i,intern); }
-static inline bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, num_internal_t intern)
-{ return yyydouble_set_numMPZ(a,b,intern); }
-static inline bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, num_internal_t intern)
-{
-  assert(j>0);
-  *a = (numDyyy_native)i/(numDyyy_native)j;
-  return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
-}
-static inline bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, num_internal_t intern)
-{
-  assert(j>0);
-  *a = (numDyyy_native)i/(numDyyy_native)j;
-  return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
-}
-static inline bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, num_internal_t intern)
-{ return yyydouble_set_numMPQ(a,b,intern); }
+bool lint_fits_numDyyy(long int a);
+bool llint_fits_numDyyy(long long int a);
+bool mpz_fits_numDyyy(mpz_t a);
+bool lfrac_fits_numDyyy(long int i, long int j);
+bool llfrac_fits_numDyyy(long long int i, long long int j);
+bool mpq_fits_numDyyy(mpq_t a);
+bool double_fits_numDyyy(double k);
+bool ldouble_fits_numDyyy(long double k);
+bool mpfr_fits_numDyyy(mpfr_t a, num_internal_t intern);
+bool numD_fits_numDyyy(numD_t a);
+bool numMPQ_fits_numDyyy(numMPQ_t a);
+bool numMPFR_fits_numDyyy(numMPFR_t a, num_internal_t intern);
 
-#if defined(_NUMD_MARK_)
-static inline bool numD_set_double(numD_t a, double k, num_internal_t intern)
-{ *a = k; return true; }
-static inline bool numD_set_ldouble(numD_t a, long double k, num_internal_t intern)
-{ *a = (double)k; return (long double)(*a)==k; }
-#elif defined(_NUMDl_MARK_)
-static inline bool numDl_set_double(numDl_t a, double k, num_internal_t intern)
-{ *a = (long double)k; return true; }
-static inline bool numDl_set_ldouble(numDl_t a, long double k, num_internal_t intern)
-{ *a = k; return true; }
-#else
-#error "HERE"
-#endif
+bool numDyyy_fits_lint(numDyyy_t a);
+bool numDyyy_fits_llint(numDyyy_t a);
+bool numDyyy_fits_mpz(numDyyy_t a);
+bool numDyyy_fits_lfrac(numDyyy_t a);
+bool numDyyy_fits_llfrac(numDyyy_t a);
+bool numDyyy_fits_mpq(numDyyy_t a);
+bool numDyyy_fits_float(numDyyy_t a);
+bool numDyyy_fits_double(numDyyy_t a);
+bool numDyyy_fits_ldouble(numDyyy_t a);
+bool numDyyy_fits_mpfr(numDyyy_t a);
+bool numDyyy_fits_numD(numDyyy_t a);
+bool numDyyy_fits_numMPQ(numDyyy_t a);
+bool numDyyy_fits_numMPFR(numDyyy_t a);
 
-static inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern)
-{
-  *a = mpfr_get_yyyd(b,GMP_RNDU);
-  return !mpfr_cmp_yyyd(b,*a);
-}
-static inline bool lint_set_numDyyy(long int* a, numDyyy_t b, num_internal_t intern)
-{ return numIl_set_yyydouble(a,*b,intern); }
-static inline bool llint_set_numDyyy(long long int* a, numDyyy_t b, num_internal_t intern)
-{ return numIll_set_yyydouble(a,*b,intern); }
-static inline bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, num_internal_t intern)
-{ return numMPZ_set_yyydouble(a,*b,intern); }
-static inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_internal_t intern)
-{
-  numRl_native s;
-  bool res = numRl_set_yyydouble(&s,*b,intern);
-  *i = *s.n;
-  *j = *s.d;
-  return res;
-}
-static inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, num_internal_t intern)
-{
-  numRll_native s;
-  bool res = numRll_set_yyydouble(&s,*b,intern);
-  *i = *s.n;
-  *j = *s.d;
-  return res;
-}
-static inline bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, num_internal_t intern)
-{ return numMPQ_set_yyydouble(a,*b,intern); }
+bool numDyyy_set_lint(numDyyy_t a, long int i, num_internal_t intern);
+bool numDyyy_set_llint(numDyyy_t a, long long int i, num_internal_t intern);
+bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, num_internal_t intern);
+bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, num_internal_t intern);
+bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, num_internal_t intern);
+bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, num_internal_t intern);
+bool numDyyy_set_double(numDyyy_t a, double k, num_internal_t intern);
+bool numDyyy_set_ldouble(numDyyy_t a, long double k, num_internal_t intern);
+bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern);
+bool numDyyy_set_numD(numDyyy_t a, numD_t b, num_internal_t intern);
+bool numDyyy_set_numMPQ(numDyyy_t a, numMPQ_t b, num_internal_t intern);
+bool numDyyy_set_numMPFR(numDyyy_t a, numMPFR_t b, num_internal_t intern);
 
-#if defined(_NUMD_MARK_)
-static inline bool double_set_numD(double* a, numD_t b, num_internal_t intern)
-{ *a = *b; return true; }
-static inline bool ldouble_set_numD(long double* a, numD_t b, num_internal_t intern)
-{ *a = (long double)*b; return true; }
-#elif defined(_NUMDl_MARK_)
-static inline bool double_set_numDl(double* a, numDl_t b, num_internal_t intern)
-{ *a = (double)*b; return (long double)(*a)==*b; }
-static inline bool ldouble_set_numDl(long double* a, numDl_t b, num_internal_t intern)
-{ *a = *b; return true; }
-#endif
-
-static inline bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, num_internal_t intern)
-{ return !mpfr_set_yyyd(a,*b,GMP_RNDU); }
+bool lint_set_numDyyy(long int* a, numDyyy_t b, num_internal_t intern);
+bool llint_set_numDyyy(long long int* a, numDyyy_t b, num_internal_t intern);
+bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, num_internal_t intern);
+bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_internal_t intern);
+bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, num_internal_t intern);
+bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, num_internal_t intern);
+bool double_set_numDyyy(double* a, numDyyy_t b, num_internal_t intern);
+bool ldouble_set_numDyyy(long double* a, numDyyy_t b, num_internal_t intern);
+bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, num_internal_t intern);
+bool numD_set_numDyyy(numD_t a, numDyyy_t b, num_internal_t intern);
+bool numMPQ_set_numDyyy(numMPQ_t a, numDyyy_t b, num_internal_t intern);
+bool numMPFR_set_numDyyy(numMPFR_t a, numDyyy_t b, num_internal_t intern);
 
 #undef _NUMDyyy_MARK_
 

@@ -139,7 +139,7 @@ ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
 /* IV. Access */
 /* ====================================================================== */
 
-static inline 
+static inline
 ap_scalar_discr_t ap_linyyy0_discr(ap_linyyy0_t expr);
 
 #if defined(_AP_linexpr0_MARK_)
@@ -267,7 +267,7 @@ int ap_linyyy0_compare(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
 /* Inline functions definitions */
 /* ********************************************************************** */
 
-static inline 
+static inline
 ap_scalar_discr_t ap_linyyy0_discr(ap_linyyy0_t expr)
 { return expr->discr; }
 static inline void ap_linyyy0_cons(ap_linyyy0_t res, ap_linyyy0_t e)

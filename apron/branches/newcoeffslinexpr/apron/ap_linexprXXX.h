@@ -261,8 +261,8 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 struct ap_texpr0_t;
 struct ap_texpr0_array_t;
 bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t linexpr, bool* perror, struct ap_texpr0_t* expr, num_internal_t intern);
-bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* perror, 
-					  struct ap_texpr0_array_t* expr, 
+bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* perror,
+					  struct ap_texpr0_array_t* expr,
 					  num_internal_t intern);
   /* Linearize a tree expression that is (syntaxically) interval linear.
      If the precondition is violated, sets *perror to true.
@@ -385,8 +385,8 @@ void itvXXX_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
 bool ap_linexprXXX_set_list_generic(eitvXXX_ptr (*get_eitvXXX_of_dimvar)(ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va),
-				    ap_linexprXXX_t expr, 
-				    bool* perror, 
+				    ap_linexprXXX_t expr,
+				    bool* perror,
 				    ap_environment_t* env,
 				    va_list* va,
 				    num_internal_t intern);

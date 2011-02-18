@@ -177,7 +177,7 @@ size_t ap_texpr0_size(ap_texpr0_t* a);
 
 ap_dim_t ap_texpr0_max_dim(ap_texpr0_t* a);
   /* Returns the maximum ap_dim_t PLUS ONE of all dimensions in expression, and
-     0 if no dimension at all. 
+     0 if no dimension at all.
 
      For instance, it returns 3 on the expression x2. */
 
