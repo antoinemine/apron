@@ -291,7 +291,7 @@ ap_abstract0_t*
 ap_abstract0_assign_linexpr_array(ap_manager_t* man,
 				  bool destructive,
 				  ap_abstract0_t* org,
-				  ap_dim_t* tdim, ap_linexpr0_array_t texpr, 
+				  ap_dim_t* tdim, ap_linexpr0_array_t texpr,
 				  ap_abstract0_t* dest);
 ap_abstract0_t*
 ap_abstract0_assign_texpr_array(ap_manager_t* man,

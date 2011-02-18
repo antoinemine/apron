@@ -131,7 +131,7 @@ static inline void boundXXX_init_array(boundXXX_t* a, size_t size)
 static inline void boundXXX_init_set(boundXXX_t a, boundXXX_t b)
 { numXXX_init_set(a,b); }
 static inline void boundXXX_clear_array(boundXXX_t* a, size_t size)
-#if defined(_NUMMPQ_MARK_NUMMPQ_) || defined(_NUMMPFR_MARK_NUMMPFR_) 
+#if defined(_NUMMPQ_MARK_NUMMPQ_) || defined(_NUMMPFR_MARK_NUMMPFR_)
 { numXXX_clear_array(a,size); }
 #else
 {}
@@ -331,28 +331,9 @@ static inline void boundXXX_sqrt(boundXXX_t up, boundXXX_t down, boundXXX_t b)
     _boundXXX_inf(down);
   }
 }
-static inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
-{
-  if (boundXXX_infty(b) || !numXXX_fits_float(boundXXX_numref(b)))
-    boundXXX_set_infty(a,boundXXX_sgn(b));
-  else {
-    double d;
-    double_set_numXXX(&d,boundXXX_numref(b),intern);
-    numXXX_set_double(boundXXX_numref(a),(double)((float)d),intern);
-    _boundXXX_inf(a);
-  }
-}
-static inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
-{
-  if (boundXXX_infty(b) || !numXXX_fits_double(boundXXX_numref(b)))
-    boundXXX_set_infty(a,boundXXX_sgn(b));
-  else {
-    double d;
-    double_set_numXXX(&d,boundXXX_numref(b),intern);
-    numXXX_set_double(boundXXX_numref(a),d,intern);
-    _boundXXX_inf(a);
-  }
-}
+
+void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern);
+void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern);
 
 static inline void boundXXX_mul_2exp(boundXXX_t a, boundXXX_t b, int c)
 {
@@ -410,7 +391,7 @@ static inline bool boundXXX_equal(boundXXX_t a, boundXXX_t b)
 #endif
 
 static inline int boundXXX_hash(boundXXX_t a)
-{ 
+{
   if (boundXXX_infty(a))
     return boundXXX_sgn(a)>0 ? INT_MAX : -INT_MAX;
   else {
@@ -430,123 +411,25 @@ static inline void boundXXX_widening(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern)
-{
-  if (lint_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_lint(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern)
-{
-  if (llint_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_llint(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern)
-{
-  if (mpz_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_mpz(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern)
-{
-  if (lfrac_fits_numXXX(i,j)){
-    _boundXXX_inf(a); 
-    return numXXX_set_lfrac(boundXXX_numref(a),i,j,intern); 
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern)
-{
-  if (llfrac_fits_numXXX(i,j)){
-    _boundXXX_inf(a); 
-    return numXXX_set_lfrac(boundXXX_numref(a),i,j,intern); 
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern)
-{
-  if (mpq_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_mpq(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern)
-{
-  if (double_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_double(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern)
-{
-  if (ldouble_fits_numXXX(b)){
-    _boundXXX_inf(a);
-    return numXXX_set_ldouble(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern)
-{
-  if (mpfr_fits_numXXX(b,intern)){
-    _boundXXX_inf(a);
-    return numXXX_set_mpfr(boundXXX_numref(a),b,intern);
-  }
-  else {
-    boundXXX_set_infty(a,1);
-    return false;
-  }
-}
-static inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern)
-{ return boundXXX_set_lint(a,*b,intern); }
-static inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern)
-{ return boundXXX_set_llint(a,*b,intern); }
-static inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern)
-{ return boundXXX_set_mpz(a,b,intern); }
-static inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern)
-{ return boundXXX_set_lfrac(a,*b->n,*b->d,intern); }
-static inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern)
-{ return boundXXX_set_llfrac(a,*b->n,*b->d,intern); }
-static inline bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern)
-{ return boundXXX_set_mpq(a,b,intern); }
-static inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern)
-{ return boundXXX_set_double(a,*b,intern); }
-static inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern)
-{ return boundXXX_set_ldouble(a,*b,intern); }
-static inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern)
-{ return boundXXX_set_mpfr(a,b,intern); }
+bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern);
+bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern);
+bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern);
+bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern);
+bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern);
+bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern);
+bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
+bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
+bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
+bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern);
+
+bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern);
+bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern);
+bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern);
+bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern);
+bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern);
+bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern);
+bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern);
+bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern);
 
 /* ====================================================================== */
 /* Printing */

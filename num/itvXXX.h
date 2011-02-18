@@ -24,12 +24,12 @@ extern "C" {
 /* Initialization and clearing */
 /* ====================================================================== */
 static inline void itvXXX_init(itvXXX_t a);
-static inline void itvXXX_init_array(itvXXX_t* a, size_t size);
+void itvXXX_init_array(itvXXX_t* a, size_t size);
 static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b);
 static inline void itvXXX_clear(itvXXX_t a);
 static inline void itvXXX_clear_array(itvXXX_t* a, size_t size);
-static inline itvXXX_t* itvXXX_array_alloc(size_t size);
-static inline void itvXXX_array_free(itvXXX_t* a, size_t size);
+itvXXX_t* itvXXX_array_alloc(size_t size);
+void itvXXX_array_free(itvXXX_t* a, size_t size);
 
 /* ====================================================================== */
 /* Assignement */
@@ -59,9 +59,9 @@ bool itvXXX_canonicalize(itvXXX_t a, bool integer, num_internal_t intern);
      - return true if the interval is bottom
      - return false otherwise
   */
-static inline bool itvXXX_is_int(itvXXX_t a, num_internal_t intern);
+bool itvXXX_is_int(itvXXX_t a, num_internal_t intern);
   /* has integer bounds */
-static inline bool itvXXX_is_point(itvXXX_t a);
+bool itvXXX_is_point(itvXXX_t a);
   /* Return true iff the interval is a single point */
 static inline bool itvXXX_is_zero(itvXXX_t a);
   /* Return true iff the interval is a single zero point */
@@ -89,17 +89,17 @@ int itvXXX_cmp_zero(itvXXX_t a);
   */
 static inline void itvXXX_range_abs(boundXXX_t a, itvXXX_t b);
   /* a=(max b - min b) */
-static inline void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern);
+void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern);
   /* a=(max b - min b) / (|a+b|/2) */
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-static inline bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern);
+bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern);
   /* Assign a with the intersection of b and c */
-static inline void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c);
+void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c);
   /* Assign a with the union of b and c */
-static inline void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c);
+void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c);
   /* Assign a with the standard interval widening of b by c */
 
 /* ====================================================================== */
@@ -138,8 +138,8 @@ static inline void itvXXX_trunc(itvXXX_t a, itvXXX_t b);
 static inline void itvXXX_to_int(itvXXX_t a, itvXXX_t b);
 
 /* Floating-point casts (worst cases) */
-static inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern);
-static inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern);
+void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern);
+void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern);
 
 /* ====================================================================== */
 /* Conversions */
@@ -161,28 +161,33 @@ bool itvXXX_set_val(num_internal_t intern,
      sets resp. itv to 7/9, [-3,4.5], 3.
      assuming that all the number conversions were exact.
   */
-static inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern);
-static inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern);
-static inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern);
-static inline bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern);
-static inline bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern);
-static inline bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
-static inline bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern);
-static inline bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern);
-static inline bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern);
-static inline bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern);
-static inline bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern);
-static inline bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
-static inline bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern);
-static inline bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern);
-static inline bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern);
-static inline bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern);
-static inline bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern);
-static inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
+bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern);
+bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern);
+bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern);
+bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern);
+bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern);
+bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
+bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern);
+bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern);
+bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern);
+bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern);
+bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern);
+bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
+bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern);
+bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern);
+bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern);
+bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern);
+bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern);
+bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
 
 MACRO_ALLZ
-static inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
+bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
 bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
+ENDMACRO
+
+MACRO_MAINZ
+bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern);
+bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -205,11 +210,6 @@ static inline void itvXXX_init(itvXXX_t a)
   boundXXX_init(a->neginf);
   boundXXX_init(a->sup);
 }
-static inline void itvXXX_init_array(itvXXX_t* a, size_t size)
-{
-  size_t i;
-  for (i=0; i<size; i++) itvXXX_init(a[i]);
-}
 static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b)
 {
   boundXXX_init_set(a->neginf,b->neginf);
@@ -226,17 +226,6 @@ static inline void itvXXX_clear_array(itvXXX_t* a, size_t size)
   size_t i;
   for (i=0; i<size; i++) itvXXX_clear(a[i]);
 #endif
-}
-static inline itvXXX_t* itvXXX_array_alloc(size_t size)
-{
-  itvXXX_t* res = (itvXXX_t*)malloc(size*sizeof(itvXXX_t));
-  itvXXX_init_array(res,size);
-  return res;
-}
-static inline void itvXXX_array_free(itvXXX_t* a, size_t size)
-{
-  itvXXX_clear_array(a,size);
-  free(a);
 }
 
 /* ====================================================================== */
@@ -303,25 +292,6 @@ static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 /* Normalization and tests */
 /* ====================================================================== */
 
-static inline bool itvXXX_is_int(itvXXX_t a, num_internal_t intern)
-{
-  boundXXX_trunc(intern->XXX.muldiv_bound,a->sup);
-  if (boundXXX_cmp(intern->XXX.muldiv_bound,a->sup)) return false;
-  boundXXX_trunc(intern->XXX.muldiv_bound,a->neginf);
-  return !boundXXX_cmp(intern->XXX.muldiv_bound,a->neginf);
-}
-static inline bool itvXXX_is_point(itvXXX_t a)
-{
-  if (!boundXXX_infty(a->neginf) && !boundXXX_infty(a->sup)){
-    numXXX_ptr b = boundXXX_numref(a->neginf);
-    numXXX_neg(b,b);
-    bool res = numXXX_equal(b,boundXXX_numref(a->sup));
-    numXXX_neg(b,b);
-    return res;
-  }
-  else
-    return false;
-}
 static inline bool itvXXX_is_zero(itvXXX_t a)
 {
   return boundXXX_sgn(a->neginf)==0 && boundXXX_sgn(a->sup)==0;
@@ -355,36 +325,9 @@ static inline int itvXXX_hash(itvXXX_t a)
 static inline void itvXXX_range_abs(boundXXX_t a, itvXXX_t b)
 { boundXXX_add(a,b->sup,b->neginf); }
 
-static inline void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern)
-{
-  boundXXX_add(a,b->sup,b->neginf);
-  if (!boundXXX_infty(a)) {
-    itvXXX_magnitude(intern->XXX.muldiv_bound,b);
-    boundXXX_div_2(intern->XXX.muldiv_bound,intern->XXX.muldiv_bound);
-    boundXXX_div(a,a,intern->XXX.muldiv_bound);
-  }
-}
-
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-
-static inline bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
-{
-  boundXXX_min(a->sup,b->sup,c->sup);
-  boundXXX_min(a->neginf,b->neginf,c->neginf);
-  return itvXXX_canonicalize(a,false, intern);
-}
-static inline void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c)
-{
-  boundXXX_max(a->sup,b->sup,c->sup);
-  boundXXX_max(a->neginf,b->neginf,c->neginf);
-}
-static inline void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
-{
-  boundXXX_widening(a->sup,b->sup,c->sup);
-  boundXXX_widening(a->neginf,b->neginf,c->neginf);
-}
 
 /* ====================================================================== */
 /* Arithmetic operations */
@@ -441,95 +384,6 @@ static inline void itvXXX_trunc(itvXXX_t a, itvXXX_t b)
 static inline void itvXXX_to_int(itvXXX_t a, itvXXX_t b)
 { boundXXX_ceil(a->sup,b->sup); boundXXX_ceil(a->neginf,b->neginf); }
 
-
-static inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
-{ boundXXX_to_float(a->sup,b->sup,intern);
-  boundXXX_to_float(a->neginf,b->neginf,intern); }
-
-static inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern)
-{ boundXXX_to_double(a->sup,b->sup,intern);
-  boundXXX_to_double(a->neginf,b->neginf,intern); }
-
-/* ====================================================================== */
-/* Conversions */
-/* ====================================================================== */
-
-static inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern)
-{ return itvXXX_set_lint2(a,b,b,intern); }
-static inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern)
-{
-  bool res = boundXXX_set_lint(a->neginf,-b,intern);
-  return boundXXX_set_lint(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern)
-{ return itvXXX_set_llint2(a,b,b,intern); }
-static inline bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern)
-{
-  bool res = boundXXX_set_llint(a->neginf,-b,intern);
-  return boundXXX_set_llint(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern)
-{ return itvXXX_set_mpz2(a,b,b,intern); }
-static inline bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
-{
-  mpz_neg(b,b);
-  bool res = boundXXX_set_mpz(a->neginf,b,intern);
-  mpz_neg(b,b);
-  return boundXXX_set_mpz(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern)
-{ return itvXXX_set_lfrac2(a,i,j,i,j,intern); }
-static inline bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
-{
-  bool res = boundXXX_set_lfrac(a->neginf,-i,j,intern);
-  return boundXXX_set_lfrac(a->sup,k,l,intern) && res;
-}
-static inline bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern)
-{ return itvXXX_set_llfrac2(a,i,j,i,j,intern); }
-static inline bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
-{
-  bool res = boundXXX_set_llfrac(a->neginf,-i,j,intern);
-  return boundXXX_set_llfrac(a->sup,k,l,intern) && res;
-}
-static inline bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern)
-{ return itvXXX_set_mpq2(a,b,b,intern); }
-static inline bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
-{
-  mpq_neg(b,b);
-  bool res = boundXXX_set_mpq(a->neginf,b,intern);
-  mpq_neg(b,b);
-  return boundXXX_set_mpq(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern)
-{ return itvXXX_set_double2(a,b,b,intern); }
-static inline bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern)
-{
-  bool res = boundXXX_set_double(a->neginf,-b,intern);
-  return boundXXX_set_double(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern)
-{ return itvXXX_set_ldouble2(a,b,b,intern); }
-static inline bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern)
-{
-  bool res = boundXXX_set_ldouble(a->neginf,-b,intern);
-  return boundXXX_set_ldouble(a->sup,c,intern) && res;
-}
-static inline bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern)
-{ return itvXXX_set_mpfr2(a,b,b,intern); }
-static inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
-{
-  mpfr_neg(b,b,GMP_RNDU);
-  bool res = boundXXX_set_mpfr(a->neginf,b,intern);
-  mpfr_neg(b,b,GMP_RNDU);
-  return boundXXX_set_mpfr(a->sup,c,intern) && res;
-}
-
-MACRO_ALLZ
-static inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
-{
-  return itvXXX_set_numZZZ2(a,b,b,intern);
-}
-ENDMACRO
 
 #ifdef __cplusplus
 }

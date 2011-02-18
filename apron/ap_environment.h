@@ -105,7 +105,7 @@ ap_environment_t* ap_environment_add_perm(ap_environment_t* env,
 					  ap_dimperm_t* dimpermu);
   /* Same as previous functions, but in addition return in *dimperm
      the permutation to apply after having added new variables at the end of their
-     respective slice, in order to get them sorted. 
+     respective slice, in order to get them sorted.
      If the result is NULL, so is dimperm->dim */
 
 ap_environment_t* ap_environment_remove(ap_environment_t* env,
@@ -141,7 +141,7 @@ bool ap_environment_is_leq(ap_environment_t* env1,
 			   ap_environment_t* env2);
   /* Inclusion test */
 int ap_environment_compare(ap_environment_t* env1,
-                           ap_environment_t* env2);
+			   ap_environment_t* env2);
   /* Return
     - -2 if the environments are not compatible
       (a variable has a different type in the 2 environments)
@@ -169,7 +169,7 @@ ap_dimchange2_t* ap_environment_dimchange2(ap_environment_t* env1,
   /* Compute the transformation for converting from a first environment to a
      second environment, by first adding (some) variables of the second
      environment, and then removing (some) variables of the first
-     environment. 
+     environment.
 
      If the two environments are incompatible, returns NULL
   */
@@ -203,7 +203,7 @@ ap_environment_t* ap_environment_lce_array(ap_environment_t** tenv,
     Otherwise, compute in *ptdimchange the conversion permutations.
 
   - If no dimensions to add to tenv[i], this implies that env is actually
-    tenv[i]. In this case, (*ptdimchange)[i]==NULL. 
+    tenv[i]. In this case, (*ptdimchange)[i]==NULL.
     Otherwise, the function allocates
     (*ptdimchange)[0] with ap_dimchange_alloc.
 
@@ -221,9 +221,9 @@ ap_environment_t* ap_environment_rename(ap_environment_t* env,
      and perm is a result-parameter
 
      The function applies the variable substitution tvar1[i]->tvar2[i] to
-     the environment, and returns the resulting environment and 
+     the environment, and returns the resulting environment and
      the allocated transformation permutation in *permutation.
-     
+
      If the parameters are not valid, returns NULL with perm->dim==NULL
   */
 

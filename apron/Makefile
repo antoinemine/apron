@@ -109,12 +109,6 @@ showsrc:
 # Misc rules
 #---------------------------------------
 
-tar: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl apron.texi Makefile COPYING README
-	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
-
-dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl apron.texi Makefile COPYING README apron.info apron.pdf html
-	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
-
 clean:
 	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info*
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmxa *.cma *.so
@@ -194,7 +188,7 @@ libapron_debug.so: $(C_FILES:%.c=%_debug.o) ../num/libitv_debug.a
 define generate-file-XXX
 @echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 @echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+./macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
 
 $(TMPL:%=ap_linexpr%.h): ap_linexpr%.h: ap_linexprXXX.h
@@ -217,30 +211,30 @@ $(TMPL:%=ap_linexprconsgen%_conv.c): ap_linexprconsgen%_conv.c: ap_linexprconsge
 $(TMPL:%=ap_linexpr%_array.c): ap_linexpr%_array.c: ap_linyyyXXX_array.c
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/expr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/expr/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 $(TMPL:%=ap_lincons%_array.c): ap_lincons%_array.c: ap_linyyyXXX_array.c
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/cons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/cons/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 $(TMPL:%=ap_lingen%_array.c): ap_lingen%_array.c: ap_linyyyXXX_array.c
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/gen/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/XXX/$*/g; s/yyy/gen/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 
 define generate-file-expr-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/expr/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/expr/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
 define generate-file-cons-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/cons/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/cons/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
 define generate-file-gen-yyy
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/gen/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
+	./macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/gen/g;s/$@\([^[:alnum:]]\)/$<\1/g" >>$@
 endef
 ap_linexpr0.h ap_linexpr0.c ap_linexpr1.h ap_linexpr1.c: ap_linexpr%: ap_linyyy%
 	$(generate-file-expr-yyy)
@@ -264,11 +258,11 @@ ap_lingen1_array.h ap_lingen1_array.c: ap_lingen1_array.%: ap_linyyy1_array.%
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< >>$@
+	./macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	macros.pl $(SRCDIR)/$< >>$@
+	./macros.pl $(SRCDIR)/$< >>$@
 
 #---------------------------------------
 # C generic rules
@@ -283,7 +277,7 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 # dependencies (generated with make depend)
 #---------------------------------------
 
-depend: $(C_FILES) $(H_FILES)
+Makefile.depend depend: $(C_FILES) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 
 -include Makefile.depend
@@ -293,3 +287,4 @@ tags: TAGS
 TAGS: $(H_SRC_FILES) $(C_SRC_FILES)
 	etags $^
 	etags -a macros.pl
+

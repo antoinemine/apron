@@ -41,10 +41,10 @@ static void numZZZ_floatconst_init_set(numZZZ_floatconst* cst, int frac_bits, in
 }
 static void numZZZ_floatconst_clear(numZZZ_floatconst* cst)
 {
-  itvZZZ_clear(cst->ulp); 
-  itvZZZ_clear(cst->min); 
-  itvZZZ_clear(cst->min_normal); 
-  itvZZZ_clear(cst->max); 
+  itvZZZ_clear(cst->ulp);
+  itvZZZ_clear(cst->min);
+  itvZZZ_clear(cst->min_normal);
+  itvZZZ_clear(cst->max);
   itvZZZ_clear(cst->max_exact);
 }
 
@@ -121,7 +121,7 @@ void num_internal_init(num_internal_t intern)
   mpq_init(intern->mpq);
   mpfr_init2(intern->dbl,DBL_MANT_DIG);
   mpfr_init2(intern->ldbl,LDBL_MANT_DIG);
- 
+
   numIl_internal_init	(&intern->Il);
   numIll_internal_init	(&intern->Ill);
   numMPZ_internal_init	(&intern->MPZ);
@@ -136,7 +136,7 @@ void num_internal_clear(num_internal_t intern)
 {
   mpz_clear(intern->q); mpz_clear(intern->r);
   mpq_clear(intern->mpq);
-  mpfr_clear(intern->dbl); 
+  mpfr_clear(intern->dbl);
   mpfr_clear(intern->ldbl);
   numIl_internal_clear	(&intern->Il);
   numIll_internal_clear	(&intern->Ill);

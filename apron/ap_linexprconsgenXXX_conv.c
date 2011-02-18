@@ -7,11 +7,9 @@
 #include "boundXXX.h"
 #include "itvXXX.h"
 #include "eitvXXX.h"
-
-#include "numXXX_conv.h"
-#include "numD_conv.h"
-#include "numMPQ_conv.h"
-#include "numMPFR_conv.h"
+#include "eitvD.h"
+#include "eitvMPQ.h"
+#include "eitvMPFR.h"
 
 
 #define _APXXX_MARK_

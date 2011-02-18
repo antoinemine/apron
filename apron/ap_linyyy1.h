@@ -68,12 +68,12 @@ ENDMACRO
 /* III. Access */
 /* ====================================================================== */
 
-static inline 
+static inline
 ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr);
 static inline
 ap_environment_t* ap_linyyy1_envref(ap_linyyy1_t expr);
   /* Get a reference to the environment. Do not free it. */
-static inline 
+static inline
 ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
   /* Get a reference to the underlying linear expression of level
      0. Do not free it. */
@@ -146,11 +146,11 @@ void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
 /* ====================================================================== */
 
 void ap_linyyy1_extend_environment(ap_linyyy1_t nexpr,
-				bool* perror,
-				ap_linyyy1_t expr,
-				ap_environment_t* nenv);
+                                   bool* perror,
+                                   ap_linyyy1_t expr,
+                                   ap_environment_t* nenv);
 
-static inline 
+static inline
 ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr)
 { return expr->linyyy0->discr; }
 static inline

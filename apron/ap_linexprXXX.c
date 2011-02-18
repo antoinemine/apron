@@ -3,10 +3,9 @@
 /* ********************************************************************** */
 
 #include "eitvXXX.h"
-#include "numXXX_conv.h"
-#include "numD_conv.h"
-#include "numMPQ_conv.h"
-#include "numMPFR_conv.h"
+#include "eitvD.h"
+#include "eitvMPQ.h"
+#include "eitvMPFR.h"
 #include "ap_linexprconsgenXXX_conv.h"
 #include "ap_linexprconsgenD_conv.h"
 #include "ap_linexprconsgenMPQ_conv.h"
@@ -323,7 +322,7 @@ bool ap_linexprXXX_set_list_generic(
     }
     eitvXXX_set(a,intern->XXX.generic_eitv);
   }
-  
+
   return res && !(*perror);
 }
 
@@ -564,7 +563,7 @@ bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, ap_linexpr0_t expr, eitvXXX_t* env,
 #else
   return false;
 #endif
-}    
+}
 
 
 
@@ -736,7 +735,7 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, eitvXXX_t* env,
     ap_linexprXXX_resize(linexpr,0);
   else if (zero)
     ap_linexprXXX_minimize(linexpr);
-  
+
 #ifdef LOGDEBUG
   ap_linexprXXX_print(linexpr,NULL); printf("\n");
 #endif
@@ -939,7 +938,7 @@ static void eitvXXX_round(eitvXXX_t res, eitvXXX_t arg,
 }
 
 static bool
-eitvXXX_eval_ap_texpr0_node(eitvXXX_t res, 
+eitvXXX_eval_ap_texpr0_node(eitvXXX_t res,
 			    ap_texpr0_node_t* n,
 			    eitvXXX_t arg1, eitvXXX_t arg2,
 			    num_internal_t intern)
@@ -1040,7 +1039,7 @@ bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, eitvXXX_t* 
    i.e., add a relative error of magnitude ulp as an interval linear form
 */
 static void
-ap_linexprXXX_round_float_lin(ap_linexprXXX_t l /* in/out */, 
+ap_linexprXXX_round_float_lin(ap_linexprXXX_t l /* in/out */,
 			      numXXX_floatconst* f,
 			      num_internal_t intern)
 {
@@ -1068,8 +1067,8 @@ ap_linexprXXX_round_float_lin(ap_linexprXXX_t l /* in/out */,
    i.e., adds a relative error of magnitude ulp flattened into an interval
 */
 static void
-ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */, 
-			  eitvXXX_t* env, 
+ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */,
+			  eitvXXX_t* env,
 			  numXXX_floatconst* f, num_internal_t intern)
 {
   size_t i;
@@ -1091,9 +1090,9 @@ ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */,
    assumes that i overapproximates the values of l before conversion
  */
 static void
-ap_linexprXXX_texpr0_to_int(ap_linexprXXX_t l /* in/out */, 
-			    eitvXXX_t i /* in */, 
-			    ap_texpr_rdir_t d, 
+ap_linexprXXX_texpr0_to_int(ap_linexprXXX_t l /* in/out */,
+			    eitvXXX_t i /* in */,
+			    ap_texpr_rdir_t d,
 			    num_internal_t intern)
 {
   switch (d) {
@@ -1130,7 +1129,7 @@ ap_linexprXXX_texpr0_to_int(ap_linexprXXX_t l /* in/out */,
 
 /* adds rounding error to both l and i to go from type org to type dst */
 static ap_texpr_rtype_t
-ap_linexprXXX_texpr0_round(ap_linexprXXX_t l /* in/out */, 
+ap_linexprXXX_texpr0_round(ap_linexprXXX_t l /* in/out */,
 			   eitvXXX_t i /* in/out */,
 			   ap_texpr_rtype_t org,
 			   ap_texpr_rtype_t dst, ap_texpr_rdir_t d,

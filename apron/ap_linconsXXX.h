@@ -134,7 +134,7 @@ tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool meet, num_i
      - tbool_top otherwise
   */
 tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
-					   size_t intdim, 
+					   size_t intdim,
 					   num_internal_t intern);
   /* Apply first ap_linconsXXX_reduce_integer, and then
      ap_linconsXXX_array_reduce(.,.,true), not valid for testing satisfiablity */
@@ -169,7 +169,7 @@ bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array,
 					num_internal_t intern);
   /* Same for an array */
 void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
-				   bool meet, 
+				   bool meet,
 				   num_internal_t intern);
 
 struct ap_tcons0_t;
@@ -313,7 +313,7 @@ bool ap_linconsXXX_quasilinearize(ap_linconsXXX_t lincons,
 				  bool for_meet_inequality, num_internal_t intern)
 {
   return ap_linexprXXX_quasilinearize(lincons->linexpr,env,
-				      for_meet_inequality && 
+				      for_meet_inequality &&
 				      (lincons->constyp==AP_CONS_SUP ||
 				       lincons->constyp==AP_CONS_SUPEQ),
 				      intern);

@@ -144,8 +144,8 @@ static inline void ap_lingenXXX_set(ap_lingenXXX_t a, ap_lingenXXX_t b)
 static inline void ap_lingenXXX_init_set(ap_lingenXXX_t a, ap_lingenXXX_t b)
 { assert(a!=b); ap_linexprXXX_init_set(a->linexpr,b->linexpr); a->gentyp = b->gentyp; }
 static inline void ap_lingenXXX_init_set_linexpr(ap_lingenXXX_t res, ap_linexprXXX_t expr, ap_gentyp_t gentyp)
-{ 
-  ap_linexprXXX_init_set(res->linexpr,expr); res->gentyp = gentyp; 
+{
+  ap_linexprXXX_init_set(res->linexpr,expr); res->gentyp = gentyp;
 }
 static inline void ap_lingenXXX_resize(ap_lingenXXX_t e, size_t size)
 { ap_linexprXXX_resize(e->linexpr,size); }
