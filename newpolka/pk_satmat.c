@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-
-#include "pk_internal.h"
+#include "pk_satmat.h"
 
 /* ********************************************************************** */
 /* I. basic operations: creation, destruction, copying and printing */
@@ -71,7 +70,7 @@ void satmat_resize_rows(satmat_t* sat, size_t nbrows)
       bitstring_free(sat->p[i]);
     }
     sat->p = (bitstring_t**)realloc(sat->p,nbrows * sizeof(bitstring_t*));
-  } 
+  }
   sat->nbrows = nbrows;
   sat->_maxrows = nbrows;
 }
@@ -143,23 +142,6 @@ void satmat_print(satmat_t* sat)
 }
 
 /* ********************************************************************** */
-/* II. Bit operations */
-/* ********************************************************************** */
-
-/* These function allow to read and to clear or set individual bits. i
-   indicates the row and jx the column. */
-
-bitstring_t satmat_get(satmat_t* sat, size_t i, bitindex_t jx){
-  return bitstring_get(sat->p[i],jx);
-}
-void satmat_set(satmat_t* sat, size_t i, bitindex_t jx){
-  bitstring_set(sat->p[i],jx);
-}
-void satmat_clr(satmat_t* sat, size_t i, bitindex_t jx){
-  bitstring_clr(sat->p[i],jx);
-}
-
-/* ********************************************************************** */
 /* III. Matrix operations */
 /* ********************************************************************** */
 
@@ -180,14 +162,6 @@ satmat_t* satmat_transpose(satmat_t* org, size_t nbcols)
     }
   }
   return dest;
-}
-
-/* Row exchange. */
-void satmat_exch_rows(satmat_t* sat, size_t l1, size_t l2)
-{
-  bitstring_t* aux=sat->p[l1];
-  sat->p[l1]=sat->p[l2];
-  sat->p[l2]=aux;
 }
 
 void satmat_move_rows(satmat_t* sat, size_t destrow, size_t orgrow, size_t size)

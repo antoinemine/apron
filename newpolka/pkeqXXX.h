@@ -18,7 +18,7 @@ extern "C" {
 
 typedef pk_t pkeq_t;
 
-/* 
+/*
 
   Important remark: the newpolka library is normally intended to be accessed
   through the APRON interface, i.e., through abstract0_XX and abstract1_XX
@@ -213,7 +213,7 @@ void pkeq_to_box(ap_manager_t* man, ap_box0_t box, pkeq_t* a);
      The size of the resulting array is pkeq_dimension(man,a).  This
      function can be reimplemented by using pkeq_bound_linexpr */
 
-void pkeq_to_lingen_array(ap_manager_t* man, 
+void pkeq_to_lingen_array(ap_manager_t* man,
 			  ap_lingen0_array_t array, pkeq_t* a);
   /* Converts an abstract value to a system of generators. */
 

@@ -1,27 +1,29 @@
 /* ********************************************************************** */
-/* pk_test.c: tests on polyhedra */
+/* pkXXX_test.c: tests on polyhedra */
 /* ********************************************************************** */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_internal.h"
+#include "pkXXX_internal.h"
+#include "ap_linconsXXX.h"
+#include "ap_lingenXXX.h"
 
 /* ====================================================================== */
 /* Emptiness test */
 /* ====================================================================== */
 
-bool pk_is_bottom(ap_manager_t* man, pk_t* po)
+bool pkXXX_is_bottom(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_IS_BOTTOM);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_IS_BOTTOM);
   if (!po->C && !po->F){
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
   if (po->F){
-      man->result.flag_exact = man->result.flag_best =
-	(po->dim.intd==0);
-      return false;
+    man->result.flag_exact = man->result.flag_best =
+      (po->dim.intd==0);
+    return false;
   }
   else {
     if (pk->funopt->algorithm<0){
@@ -29,7 +31,7 @@ bool pk_is_bottom(ap_manager_t* man, pk_t* po)
       return (po->C ? false : true);
     }
     else {
-      poly_chernikova(man,po,NULL);
+      pkXXX_chernikova(man,po,NULL);
       if (pk->exn){
 	man->result.flag_exact = man->result.flag_best = false;
 	pk->exn = AP_EXC_NONE;
@@ -46,13 +48,13 @@ bool pk_is_bottom(ap_manager_t* man, pk_t* po)
 /* Universe test */
 /* ====================================================================== */
 
-bool pk_is_top(ap_manager_t* man, pk_t* po)
+bool pkXXX_is_top(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_IS_TOP);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_IS_TOP);
   man->result.flag_exact = man->result.flag_best = true;
 
   if (pk->funopt->algorithm>=0)
-    poly_chernikova(man,po,NULL);
+    pkXXX_chernikova(man,po,NULL);
   if (!po->C && !po->F)
     return false;
   else if (po->C && po->F)
@@ -72,26 +74,26 @@ bool pk_is_top(ap_manager_t* man, pk_t* po)
 /* ---------------------------------------------------------------------- */
 
 /*
-F is suppposed to be a valid matrix of ray (i.e., corresponding
-to a non empty polyhedron.
+  F is suppposed to be a valid matrix of ray (i.e., corresponding
+  to a non empty polyhedron.
 
-The epsilon component of the constraint is not taken into account.  The
-constraint is considered as strict only if the is_strict paramater telles so.
-This enables to test the satisfiability of a strict constraint in non-strict
-mode for the library.
+  The epsilon component of the constraint is not taken into account.  The
+  constraint is considered as strict only if the is_strict paramater telles so.
+  This enables to test the satisfiability of a strict constraint in non-strict
+  mode for the library.
 
 */
-bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numintMPQ_t* tab, bool is_strict)
+bool do_generators_sat_vectorXXX(pkXXX_internal_t* pk, matrixXXX_t* F, numintXXX_t* tab, bool is_strict)
 {
   size_t i;
 
-  if (numintMPQ_sgn(tab[0])==0){
+  if (numintXXX_sgn(tab[0])==0){
     /* 1. constraint is an equality */
     for (i=0; i<F->nbrows; i++){
-      vector_product_strict(pk,pk->poly_prod,
-			    F->p[i],
-			    tab,F->nbcolumns);
-      if (numintMPQ_sgn(pk->poly_prod)) return false;
+      vectorXXX_product_strict(pk,pk->poly_prod,
+			       F->p[i],
+			       tab,F->nbcolumns);
+      if (numintXXX_sgn(pk->poly_prod)) return false;
     }
     return true;
   }
@@ -100,23 +102,23 @@ bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numintMPQ_t* tab, 
     int sign;      /* sign of the scalar product */
 
     for (i=0; i<F->nbrows; i++){
-      vector_product_strict(pk,pk->poly_prod,
-			    F->p[i],
-			    tab,F->nbcolumns);
-      sign = numintMPQ_sgn(pk->poly_prod);
+      vectorXXX_product_strict(pk,pk->poly_prod,
+			       F->p[i],
+			       tab,F->nbcolumns);
+      sign = numintXXX_sgn(pk->poly_prod);
 
       if (sign<0){
 	return false;
       }
       else {
-	if (numintMPQ_sgn(F->p[i][0])==0){
+	if (numintXXX_sgn(F->p[i][0])==0){
 	  /* line */
 	  if (sign!=0) return false;
 	}
 	else {
 	  /* ray or vertex */
 	  if (is_strict && sign==0 &&
-	      (pk->strict ? numintMPQ_sgn(F->p[i][polka_eps])>0 : true))
+	      (pk->strict ? numintXXX_sgn(F->p[i][polka_eps])>0 : true))
 	    return false;
 	}
       }
@@ -129,17 +131,17 @@ bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numintMPQ_t* tab, 
    result is true if and only if all frames of pa verify the
    constraints of pb. We do not require minimality. */
 
-bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
+bool pkXXX_is_leq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_IS_LEQ);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_IS_LEQ);
 
-  assert(poly_check(pk,pa));
-  assert(poly_check(pk,pb));
+  assert(pkXXX_check(pk,pa));
+  assert(pkXXX_check(pk,pb));
   man->result.flag_exact = man->result.flag_best = false;
   if (pk->funopt->algorithm>0)
-    poly_chernikova(man,pa,"of the first argument");
+    pkXXX_chernikova(man,pa,"of the first argument");
   else
-    poly_obtain_F(man,pa,"of the first argument");
+    pkXXX_obtain_F(man,pa,"of the first argument");
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -150,9 +152,9 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
     return true;
   }
   if (pk->funopt->algorithm>0)
-    poly_chernikova(man,pb,"of the second argument");
+    pkXXX_chernikova(man,pb,"of the second argument");
   else
-    poly_obtain_C(man,pb,"of the second argument");
+    pkXXX_obtain_C(man,pb,"of the second argument");
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -168,19 +170,19 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
   if (pa->C && pa->F && pb->C && pb->F
       && (pa->nbeq < pb->nbeq || pa->nbline > pb->nbline))
     {
-     man->result.flag_exact = man->result.flag_best = true;
-     return false;
+      man->result.flag_exact = man->result.flag_best = true;
+      return false;
     }
   else {
     man->result.flag_exact = man->result.flag_best = (pa->dim.intd==0);
     /* does the frames of pa satisfy constraints of pb ? */
     size_t i;
     for (i=0; i<pb->C->nbrows; i++){
-      bool sat = do_generators_sat_vector(pk,
+      bool sat = do_generators_sat_vectorXXX(pk,
 					  pa->F,
 					  pb->C->p[i],
 					  pk->strict &&
-					  numintMPQ_sgn(pb->C->p[i][polka_eps])<0);
+					  numintXXX_sgn(pb->C->p[i][polka_eps])<0);
       if (sat==false) return false;
     }
     return true;
@@ -190,40 +192,40 @@ bool pk_is_leq(ap_manager_t* man, pk_t* pa, pk_t* pb)
 /* ====================================================================== */
 /* Equality test */
 /* ====================================================================== */
-bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
+bool pkXXX_is_eq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_IS_EQ);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_IS_EQ);
 
   man->result.flag_exact = man->result.flag_best =
     (pa->dim.intd==0);
   if (pa->C && pa->F && pb->C && pb->F &&
       (pa->nbeq != pb->nbeq || pa->nbline != pb->nbline) ){
     return false;
-  }  
+  }
   if (pk->funopt->algorithm>0){
-    poly_chernikova3(man,pa,"of the first argument");
+    pkXXX_chernikova3(man,pa,"of the first argument");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
       return false;
     }
-    poly_chernikova3(man,pb,"of the first argument");
+    pkXXX_chernikova3(man,pb,"of the first argument");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
       return false;
     }
   }
   man->result.flag_exact = man->result.flag_best = true;
-  if (pk_is_canonical(man,pa) && pk_is_canonical(man,pb)){
+  if (pkXXX_is_canonical(man,pa) && pkXXX_is_canonical(man,pb)){
     bool res =
       (!pa->C && !pb->C) ||
-      (pa->C && pb->C && 
+      (pa->C && pb->C &&
        pa->C->nbrows == pb->C->nbrows && pa->F->nbrows == pb->F->nbrows &&
-       (pa->C->nbrows <= pa->F->nbrows ? matrix_equal(pa->C,pb->C) : matrix_equal(pa->F,pb->F)));
-    assert(res == (pk_is_leq(man,pa,pb) && pk_is_leq(man,pb,pa)));
+       (pa->C->nbrows <= pa->F->nbrows ? matrixXXX_equal(pa->C,pb->C) : matrixXXX_equal(pa->F,pb->F)));
+    assert(res == (pkXXX_is_leq(man,pa,pb) && pkXXX_is_leq(man,pb,pa)));
     return res;
   }
   else {
-    bool res = pk_is_leq(man,pa,pb) && pk_is_leq(man,pb,pa);
+    bool res = pkXXX_is_leq(man,pa,pb) && pkXXX_is_leq(man,pb,pa);
     return res;
   }
 }
@@ -232,18 +234,18 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
 /* Satisfiability of a linear constraint */
 /* ====================================================================== */
 
-bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t lincons0)
+bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
 {
   bool exact;
   bool sat;
   size_t dim;
   ap_constyp_t constyp;
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_LINCONS);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
 
   if (pk->funopt->algorithm>0)
-    poly_chernikova(man,po,NULL);
+    pkXXX_chernikova(man,po,NULL);
   else
-    poly_obtain_F(man,po,NULL);
+    pkXXX_obtain_F(man,po,NULL);
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -264,47 +266,47 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t lincons0)
     return false;
   }
   dim = po->dim.intd + po->dim.reald;
-  ap_linconsMPQ_set_lincons0(pk->poly_linconsMPQ,lincons0,pk->num);
-  if (!ap_linconsMPQ_is_quasilinear(pk->poly_linconsMPQ)){
-    matrix_to_box(pk,pk->env,po->F);
-    exact = ap_linconsMPQ_set_lincons0(
-	pk->poly_linconsMPQ, lincons0, pk->num);
-    exact = ap_linconsMPQ_quasilinearize(
-	pk->poly_linconsMPQ, pk->env, false, pk->num
+  ap_linconsXXX_set_lincons0(pk->ap_linconsXXX,lincons0,pk->num);
+  if (!ap_linconsXXX_is_quasilinear(pk->ap_linconsXXX)){
+    matrixXXX_to_box(pk,pk->envXXX,po->F);
+    exact = ap_linconsXXX_set_lincons0(
+	pk->ap_linconsXXX, lincons0, pk->num);
+    exact = ap_linconsXXX_quasilinearize(
+	pk->ap_linconsXXX, pk->envXXX, false, pk->num
     ) && exact;
   }
   else {
-    exact = ap_linconsMPQ_set_lincons0(
-	pk->poly_linconsMPQ,lincons0,pk->num);
+    exact = ap_linconsXXX_set_lincons0(
+	pk->ap_linconsXXX,lincons0,pk->num);
   }
-  sat = vector_set_ap_linconsMPQ_sat(
-      pk, pk->poly_numintp, pk->poly_linconsMPQ, po->dim, true);
+  sat = vectorXXX_set_ap_linconsXXX_sat(
+      pk, pk->numintXXXp, pk->ap_linconsXXX, po->dim, true);
   if (sat){
-    sat = do_generators_sat_vector(pk,po->F,
-				   pk->poly_numintp,
-				   pk->poly_linconsMPQ->constyp==AP_CONS_SUP);
+    sat = do_generators_sat_vectorXXX(pk,po->F,
+				   pk->numintXXXp,
+				   pk->ap_linconsXXX->constyp==AP_CONS_SUP);
   }
   man->result.flag_exact = man->result.flag_best =
     sat ?
     true :
     (
 	( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-	  exact && ap_linconsMPQ_is_real(pk->poly_linconsMPQ,po->dim.intd) ) ?
+	  exact && ap_linconsXXX_is_real(pk->ap_linconsXXX,po->dim.intd) ) ?
 	true :
 	false );
-  
+
   return sat;
 }
 
-bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
+bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
 {
   size_t dim;
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_LINCONS);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
 
   if (pk->funopt->algorithm>0)
-    poly_chernikova(man,po,NULL);
+    pkXXX_chernikova(man,po,NULL);
   else
-    poly_obtain_F(man,po,NULL);
+    pkXXX_obtain_F(man,po,NULL);
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -325,17 +327,17 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
   }
   dim = po->dim.intd + po->dim.reald;
 
-  matrix_to_box(pk,pk->env,po->F);
-  ap_linconsMPQ_intlinearize_tcons0(pk->poly_linconsMPQ,
-				    cons,pk->env,po->dim.intd,pk->num);
-  ap_linconsMPQ_quasilinearize(pk->poly_linconsMPQ,pk->env,false,pk->num);
-  bool sat = vector_set_ap_linconsMPQ_sat(pk,
-				       pk->poly_numintp,
-				       pk->poly_linconsMPQ,
-				       po->dim, true);
+  matrixXXX_to_box(pk,pk->envXXX,po->F);
+  ap_linconsXXX_intlinearize_tcons0(pk->ap_linconsXXX,
+				    cons,pk->envXXX,po->dim.intd,pk->num);
+  ap_linconsXXX_quasilinearize(pk->ap_linconsXXX,pk->envXXX,false,pk->num);
+  bool sat = vectorXXX_set_ap_linconsXXX_sat(pk,
+					     pk->numintXXXp,
+					     pk->ap_linconsXXX,
+					     po->dim, true);
   if (sat){
-    sat = do_generators_sat_vector(pk,po->F,
-				   pk->poly_numintp,
+    sat = do_generators_sat_vectorXXX(pk,po->F,
+				   pk->numintXXXp,
 				   cons->constyp==AP_CONS_SUP);
   }
   man->result.flag_exact = man->result.flag_best = sat;
@@ -350,19 +352,19 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
 /* ---------------------------------------------------------------------- */
 
 /*
-F is suppposed to be a valid matrix of ray (i.e., corresponding
-to a non empty polyhedron.
+  F is suppposed to be a valid matrix of ray (i.e., corresponding
+  to a non empty polyhedron.
 
-Assume coeff is not an infinite number.
+  Assume coeff is not an infinite number.
 
-tests if:
-- dim <= bound if sgn>0
-- dim = bound if sgn=0
-- dim >= -bound if sgn<0
+  tests if:
+  - dim <= bound if sgn>0
+  - dim = bound if sgn=0
+  - dim >= -bound if sgn<0
 */
 
-bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
-			     ap_dim_t dim, numMPQ_t bound,
+bool do_generators_sat_bound(pkXXX_internal_t* pk, matrixXXX_t* F,
+			     ap_dim_t dim, numXXX_t bound,
 			     int sgn)
 {
   size_t i,index;
@@ -370,28 +372,28 @@ bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
 
   index  = pk->dec + dim;
   for (i=0; i<F->nbrows; i++){
-    sgn2 = numintMPQ_sgn(F->p[i][index]);
-    if (numintMPQ_sgn(F->p[i][0])==0){
+    sgn2 = numintXXX_sgn(F->p[i][index]);
+    if (numintXXX_sgn(F->p[i][0])==0){
       /* line */
       if (sgn2) return false;
     }
-    else if (numintMPQ_sgn(F->p[i][polka_cst])==0){
+    else if (numintXXX_sgn(F->p[i][polka_cst])==0){
       /* ray */
       if ( (sgn>=0 && sgn2>0) || (sgn<=0 && sgn2<0) )
 	return false;
     }
     else {
       /* vertex */
-      numMPQ_set_numintMPQ2(pk->poly_numrat,
+      numXXX_set_numintXXX2(pk->numratXXX,
 			    F->p[i][index],
 			    F->p[i][polka_cst]);
       if (sgn==0){
-	if (!numMPQ_equal(pk->poly_numrat,bound))
+	if (!numXXX_equal(pk->numratXXX,bound))
 	  return false;
       }
       else {
-	if (sgn<0) numMPQ_neg(pk->poly_numrat,pk->poly_numrat);
-	sgn2 = numMPQ_cmp(pk->poly_numrat,bound);
+	if (sgn<0) numXXX_neg(pk->numratXXX,pk->numratXXX);
+	sgn2 = numXXX_cmp(pk->numratXXX,bound);
 	if (sgn2>0)
 	  return false;
       }
@@ -400,16 +402,16 @@ bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
   return true;
 }
 
-bool pk_sat_interval(ap_manager_t* man, pk_t* po,
-		     ap_dim_t dim, ap_coeff_t interval)
+bool pkXXX_sat_interval(ap_manager_t* man, pkXXX_t* po,
+			ap_dim_t dim, ap_coeff_t interval)
 {
   bool sat;
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
 
   if (pk->funopt->algorithm>0)
-    poly_chernikova(man,po,NULL);
+    pkXXX_chernikova(man,po,NULL);
   else
-    poly_obtain_F(man,po,NULL);
+    pkXXX_obtain_F(man,po,NULL);
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -419,21 +421,21 @@ bool pk_sat_interval(ap_manager_t* man, pk_t* po,
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  eitvMPQ_set_ap_coeff(pk->poly_eitv, interval, pk->num);
-  if (eitvMPQ_is_point(pk->poly_eitv)){
+  eitvXXX_set_ap_coeff(pk->eitvXXX, interval, pk->num);
+  if (eitvXXX_is_point(pk->eitvXXX)){
     /* interval is a point */
-    sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->sup,0);
+    sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->sup,0);
   }
   else {
     sat = true;
     /* inferior bound */
-    if (!boundMPQ_infty(pk->poly_eitv->itv->neginf)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->neginf,-1);
+    if (!boundXXX_infty(pk->eitvXXX->itv->neginf)){
+      sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->neginf,-1);
       if (!sat) goto poly_sat_interval_exit0;
     }
     /* superior bound */
-    if (!boundMPQ_infty(pk->poly_eitv->itv->sup)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->poly_eitv->itv->sup,1);
+    if (!boundXXX_infty(pk->eitvXXX->itv->sup)){
+      sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->sup,1);
     }
   }
  poly_sat_interval_exit0:
@@ -447,16 +449,16 @@ bool pk_sat_interval(ap_manager_t* man, pk_t* po,
 /* Is a dimension unconstrained ? */
 /* ====================================================================== */
 
-bool pk_is_dimension_unconstrained(ap_manager_t* man, pk_t* po,
-					ap_dim_t dim)
+bool pkXXX_is_dimension_unconstrained(ap_manager_t* man, pkXXX_t* po,
+				      ap_dim_t dim)
 {
   size_t i,j;
   bool res;
-  matrix_t* F;
-  matrix_t* C;
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
+  matrixXXX_t* F;
+  matrixXXX_t* C;
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
 
-  poly_chernikova3(man,po,NULL);
+  pkXXX_chernikova3(man,po,NULL);
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     return false;
@@ -469,10 +471,10 @@ bool pk_is_dimension_unconstrained(ap_manager_t* man, pk_t* po,
   F = po->F;
   res = false;
   for (i=0; i<po->nbline; i++){
-    if (numintMPQ_sgn(F->p[i][pk->dec+dim])){
+    if (numintXXX_sgn(F->p[i][pk->dec+dim])){
       res = true;
       for(j=pk->dec; j<F->nbcolumns; j++){
-	if (j!=pk->dec+dim && numintMPQ_sgn(F->p[i][j])){
+	if (j!=pk->dec+dim && numintXXX_sgn(F->p[i][j])){
 	  res = false;
 	  break;
 	}

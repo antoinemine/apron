@@ -1,35 +1,35 @@
 /* ********************************************************************** */
-/* pk_representation.c: General management of polyhedra  */
+/* pkXXX_representation.c: General management of polyhedra  */
 /* ********************************************************************** */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_internal.h"
-#include "pk_cherni.h"
+#include "pkXXX_internal.h"
+#include "pkXXX_cherni.h"
 
 /* ********************************************************************** */
 /* Conversions */
 /* ********************************************************************** */
 
-pk_t* pk_of_abstract0(ap_abstract0_t* abstract)
+pkXXX_t* pkXXX_of_abstract0(ap_abstract0_t* abstract)
 {
   ap_manager_t* man = abstract->man;
   if (strncmp(man->library,"polka",5)!=0){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,
 			       AP_FUNID_UNKNOWN,
-			       "pk_of_abstract0: attempt to extract a NewPolka polyhedra from an abstract value which is not a wrapper around a NewPolka polyhedra");
+			       "pkXXX_of_abstract0: attempt to extract a NewPolka polyhedra from an abstract value which is not a wrapper around a NewPolka polyhedra");
     return NULL;
   }
-  return (pk_t*)abstract->value;
+  return (pkXXX_t*)abstract->value;
 }
 
-ap_abstract0_t* pk_to_abstract0(ap_manager_t* man, pk_t* poly)
+ap_abstract0_t* pkXXX_to_abstract0(ap_manager_t* man, pkXXX_t* poly)
 {
   if (strncmp(man->library,"polka",5)!=0){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,
 			       AP_FUNID_UNKNOWN,
-			       "pk_to_abstract0: attempt to extract a NewPolka polyhedra from an abstract value which is not a wrapper around a NewPolka polyhedra");
+			       "pkXXX_to_abstract0: attempt to extract a NewPolka polyhedra from an abstract value which is not a wrapper around a NewPolka polyhedra");
     return ap_abstract0_top(man,poly->dim);
   }
   else {
@@ -47,9 +47,9 @@ ap_abstract0_t* pk_to_abstract0(ap_manager_t* man, pk_t* poly)
 /* This internal function allocates a polyhedron and fills its records
    with null values. */
 
-pk_t* poly_alloc(ap_dimension_t dim)
+pkXXX_t* pkXXX_alloc(ap_dimension_t dim)
 {
-  pk_t* po = (pk_t*)malloc(sizeof(pk_t));
+  pkXXX_t* po = (pkXXX_t*)malloc(sizeof(pkXXX_t));
   po->C = NULL;
   po->F = NULL;
   po->satC = NULL;
@@ -63,10 +63,10 @@ pk_t* poly_alloc(ap_dimension_t dim)
 }
 
 /* Clearing a polyhedron */
-void poly_clear(pk_t* po)
+void pkXXX_clear(pkXXX_t* po)
 {
-  if (po->C) matrix_free(po->C);
-  if (po->F) matrix_free(po->F);
+  if (po->C) matrixXXX_free(po->C);
+  if (po->F) matrixXXX_free(po->F);
   if (po->satC) satmat_free(po->satC);
   if (po->satF) satmat_free(po->satF);
   po->C = NULL;
@@ -79,14 +79,14 @@ void poly_clear(pk_t* po)
 }
 
 /* Assignement with GMP semantics */
-void poly_set(pk_t* pa, pk_t* pb)
+void pkXXX_set(pkXXX_t* pa, pkXXX_t* pb)
 {
   if (pa!=pb){
-    poly_clear(pa);
+    pkXXX_clear(pa);
     pa->dim.intd = pb->dim.intd;
     pa->dim.reald = pb->dim.reald;
-    pa->C = pb->C ? matrix_copy(pb->C) : NULL;
-    pa->F = pb->F ? matrix_copy(pb->F) : NULL;
+    pa->C = pb->C ? matrixXXX_copy(pb->C) : NULL;
+    pa->F = pb->F ? matrixXXX_copy(pb->F) : NULL;
     pa->satC = pb->satC ? satmat_copy(pb->satC) : NULL;
     pa->satF = pb->satF ? satmat_copy(pb->satF) : NULL;
     pa->status = pb->status;
@@ -97,11 +97,11 @@ void poly_set(pk_t* pa, pk_t* pb)
 }
 
 /* Duplicate (recursively) a polyhedron. */
-pk_t* pk_copy(ap_manager_t* man, pk_t* po)
+pkXXX_t* pkXXX_copy(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_t* npo = poly_alloc(po->dim);
-  npo->C = po->C ? matrix_copy(po->C) : 0;
-  npo->F = po->F ? matrix_copy(po->F) : 0;
+  pkXXX_t* npo = pkXXX_alloc(po->dim);
+  npo->C = po->C ? matrixXXX_copy(po->C) : 0;
+  npo->F = po->F ? matrixXXX_copy(po->F) : 0;
   npo->satC = po->satC ? satmat_copy(po->satC) : 0;
   npo->satF = po->satF ? satmat_copy(po->satF) : 0;
   npo->nbeq = po->nbeq;
@@ -112,15 +112,15 @@ pk_t* pk_copy(ap_manager_t* man, pk_t* po)
 
 /* Finalization function for polyhedra, which frees
    recursively the members of the structure. */
-void pk_free(ap_manager_t* man, pk_t* po)
+void pkXXX_free(ap_manager_t* man, pkXXX_t* po)
 {
-  poly_clear(po);
+  pkXXX_clear(po);
   free(po);
 }
 
 /* Return the abstract size of a polyhedron, which is the number of
    coefficients of its current representation, possibly redundant. */
-size_t pk_size(ap_manager_t* man, pk_t* po)
+size_t pkXXX_size(ap_manager_t* man, pkXXX_t* po)
 {
   size_t s1,s2;
 
@@ -138,40 +138,40 @@ size_t pk_size(ap_manager_t* man, pk_t* po)
 /* ====================================================================== */
 
 /* Minimization function, in the sense of minimized dual representation
-This function minimizes if not already done the given polyhedron.
+   This function minimizes if not already done the given polyhedron.
 
-Transmit exception
+   Transmit exception
 */
 
-void poly_chernikova(ap_manager_t* man,
-		     pk_t* po,
+void pkXXX_chernikova(ap_manager_t* man,
+		     pkXXX_t* po,
 		     char* msg)
 {
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
+  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
   if ((po->C && po->F) || (!po->C && !po->F)){
     return;
   }
   else {
     if (po->C){
-      if (!poly_is_conseps(pk,po) ){
-	matrix_normalize_constraint(pk,po->C,po->dim);
+      if (!pkXXX_is_conseps(pk,po) ){
+	matrixXXX_normalize_constraint(pk,po->C,po->dim);
       }
-      matrix_sort_rows(pk,po->C);
-      cherni_minimize(pk,true,po);
-      if (pk->exn) goto poly_chernikova_exit0;
+      matrixXXX_sort_rows(pk,po->C);
+      cherniXXX_minimize(pk,true,po);
+      if (pk->exn) goto pkXXX_chernikova_exit0;
       po->status = pk_status_consgauss;
     }
     else {
       po->C = po->F; po->F = NULL;
-      matrix_sort_rows(pk,po->C);
-      cherni_minimize(pk,false,po);
-      poly_dual(po);
-      if (pk->exn) goto poly_chernikova_exit0;
+      matrixXXX_sort_rows(pk,po->C);
+      cherniXXX_minimize(pk,false,po);
+      pkXXX_dual(po);
+      if (pk->exn) goto pkXXX_chernikova_exit0;
       po->status = pk_status_gengauss;
     }
   }
   return;
- poly_chernikova_exit0:
+ pkXXX_chernikova_exit0:
   po->status = 0;
   {
     char str[160];
@@ -183,50 +183,50 @@ void poly_chernikova(ap_manager_t* man,
   return;
 }
 
-/* Same as poly_chernikova, but if usual is false meaning of constraints and
+/* Same as pkXXX_chernikova, but if usual is false meaning of constraints and
    matrices exchanged. */
-void poly_chernikova_dual(ap_manager_t* man,
-			  pk_t* po,
+void pkXXX_chernikova_dual(ap_manager_t* man,
+			  pkXXX_t* po,
 			  char* msg,
 			  bool usual)
 {
   if ( (!po->C && !po->F) || (po->C && po->F) )
     return;
   else {
-    if (!usual) poly_dual(po);
-    poly_chernikova(man,po,msg);
-    if (!usual) poly_dual(po);
+    if (!usual) pkXXX_dual(po);
+    pkXXX_chernikova(man,po,msg);
+    if (!usual) pkXXX_dual(po);
   }
 }
 /* Ensure minimized and normalized epsilon
    constraints. */
-void poly_chernikova2(ap_manager_t* man,
-		      pk_t* po,
+void pkXXX_chernikova2(ap_manager_t* man,
+		      pkXXX_t* po,
 		      char* msg)
 {
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-  poly_chernikova(man,po,msg);
+  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pkXXX_chernikova(man,po,msg);
   if (pk->exn)
     return;
   if (!po->C && !po->F)
     return;
   assert(po->C && po->F);
   if (!poly_is_minimaleps(pk,po)){
-    poly_obtain_satF(po);
-    bool change = cherni_minimizeeps(pk,po);
+    pkXXX_obtain_satF(po);
+    bool change = cherniXXX_minimizeeps(pk,po);
     assert((po->status & pk_status_minimaleps) &&
 	   (po->status & pk_status_conseps));
     if (change){
-      matrix_sort_rows(pk,po->C);
-      cherni_minimize(pk, true, po);
-      if (pk->exn) goto poly_chernikova2_exit0;
-      assert(po->C && po->F);     
+      matrixXXX_sort_rows(pk,po->C);
+      cherniXXX_minimize(pk, true, po);
+      if (pk->exn) goto pkXXX_chernikova2_exit0;
+      assert(po->C && po->F);
       po->status = pk_status_consgauss | pk_status_minimaleps;
     }
   }
   assert(poly_is_minimaleps(pk,po));
   return;
- poly_chernikova2_exit0:
+ pkXXX_chernikova2_exit0:
   po->status = 0;
   {
     char str[160];
@@ -237,14 +237,14 @@ void poly_chernikova2(ap_manager_t* man,
   return;
 }
 
-/* Same as poly_chernikova2, but in addition normalize matrices by Gauss
+/* Same as pkXXX_chernikova2, but in addition normalize matrices by Gauss
    elimination and sorting */
-void poly_chernikova3(ap_manager_t* man,
-		      pk_t* po,
+void pkXXX_chernikova3(ap_manager_t* man,
+		      pkXXX_t* po,
 		      char* msg)
 {
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-  poly_chernikova2(man,po,msg);
+  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pkXXX_chernikova2(man,po,msg);
   if (pk->exn)
     return;
 
@@ -252,65 +252,65 @@ void poly_chernikova3(ap_manager_t* man,
     assert(po->F);
     size_t rank;
     if (! (po->status & pk_status_consgauss)){
-      rank = cherni_gauss(pk,po->C,po->nbeq);
+      rank = cherniXXX_gauss(pk,po->C,po->nbeq);
       assert(rank==po->nbeq);
-      cherni_backsubstitute(pk,po->C,rank);
+      cherniXXX_backsubstitute(pk,po->C,rank);
       po->C->_sorted = false;
     }
     if (! (po->status & pk_status_gengauss)){
-      rank = cherni_gauss(pk,po->F,po->nbline);
+      rank = cherniXXX_gauss(pk,po->F,po->nbline);
       assert(rank==po->nbline);
-      cherni_backsubstitute(pk,po->F,rank);
+      cherniXXX_backsubstitute(pk,po->F,rank);
       po->F->_sorted = false;
     }
-    poly_obtain_sorted_C(pk,po);
-    poly_obtain_sorted_F(pk,po);
+    pkXXX_obtain_sorted_C(pk,po);
+    pkXXX_obtain_sorted_F(pk,po);
     po->status |=
       pk_status_consgauss |
       pk_status_gengauss;
-    assert(po->C->_sorted && po->F->_sorted && 	   
+    assert(po->C->_sorted && po->F->_sorted &&
 	   (po->status | pk_status_consgauss) &&
 	   (po->status | pk_status_gengauss) &&
 	   (po->status | pk_status_minimaleps));
   }
 }
 
-void poly_obtain_sorted_F(pk_internal_t* pk, pk_t* po)
+void pkXXX_obtain_sorted_F(pkXXX_internal_t* pk, pkXXX_t* po)
 {
   assert (po->F);
 
-  if (!matrix_is_sorted(po->F)){
+  if (!matrixXXX_is_sorted(po->F)){
     if (po->satC){
       if (po->satF){ satmat_free(po->satF); po->satF = 0; }
-      matrix_sort_rows_with_sat(pk,po->F,po->satC);
+      matrixXXX_sort_rows_with_sat(pk,po->F,po->satC);
     }
     else if (po->satF){
       po->satC = satmat_transpose(po->satF,po->F->nbrows);
       satmat_free(po->satF); po->satF = 0;
-      matrix_sort_rows_with_sat(pk,po->F,po->satC);
+      matrixXXX_sort_rows_with_sat(pk,po->F,po->satC);
     }
     else {
-      matrix_sort_rows(pk,po->F);
+      matrixXXX_sort_rows(pk,po->F);
     }
   }
 }
 
-void poly_obtain_sorted_C(pk_internal_t* pk, pk_t* po)
+void pkXXX_obtain_sorted_C(pkXXX_internal_t* pk, pkXXX_t* po)
 {
   assert (po->C);
 
-  if (!matrix_is_sorted(po->C)){
+  if (!matrixXXX_is_sorted(po->C)){
     if (po->satF){
       if (po->satC){ satmat_free(po->satC); po->satC = 0; }
-      matrix_sort_rows_with_sat(pk,po->C,po->satF);
+      matrixXXX_sort_rows_with_sat(pk,po->C,po->satF);
     }
     else if (po->satC){
       po->satF = satmat_transpose(po->satC,po->C->nbrows);
       satmat_free(po->satC); po->satC = 0;
-      matrix_sort_rows_with_sat(pk,po->C,po->satF);
+      matrixXXX_sort_rows_with_sat(pk,po->C,po->satF);
     }
     else {
-      matrix_sort_rows(pk,po->C);
+      matrixXXX_sort_rows(pk,po->C);
     }
   }
 }
@@ -323,55 +323,55 @@ void poly_obtain_sorted_C(pk_internal_t* pk, pk_t* po)
    the integer man->option->canonicalize.algorithm is positive,
    normalize equalities and lines, and also strict constraints */
 
-void pk_canonicalize(ap_manager_t* man, pk_t* po)
+void pkXXX_canonicalize(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_CANONICALIZE);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_CANONICALIZE);
 
-  assert(poly_check(pk,po));
+  assert(pkXXX_check(pk,po));
   if (pk->funopt->algorithm >= 0)
-    poly_chernikova3(man,po,NULL);
+    pkXXX_chernikova3(man,po,NULL);
   else
-    poly_chernikova(man,po,NULL);
+    pkXXX_chernikova(man,po,NULL);
 
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
     return;
   }
-  assert(poly_check(pk,po));
+  assert(pkXXX_check(pk,po));
   man->result.flag_exact = man->result.flag_best =
     po->dim.intd>0 && (po->C || po->F) ? false : true;
 }
 
-int pk_hash(ap_manager_t* man, pk_t* po)
+int pkXXX_hash(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_HASH);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_HASH);
   int res,t;
   size_t i;
   ap_funopt_t opt = ap_manager_get_funopt(man,AP_FUNID_CANONICALIZE);
 
-  poly_chernikova3(man,po,NULL);
-  assert(poly_check(pk,po));
+  pkXXX_chernikova3(man,po,NULL);
+  assert(pkXXX_check(pk,po));
   res = 5*po->dim.intd + 7*po->dim.reald;
   if (po->C!=NULL){
     res += po->C->nbrows*11 +  po->F->nbrows*13;
     for (i=0; i<po->C->nbrows; i += (po->C->nbrows+3)/4){
-      res = res*3 + vector_hash(pk,po->C->p[i],po->C->nbcolumns);
+      res = res*3 + vectorXXX_hash(pk,po->C->p[i],po->C->nbcolumns);
     }
     for (i=0; i<po->F->nbrows; i += (po->F->nbrows+3)/4){
-      res = res*3 + vector_hash(pk,po->F->p[i],po->F->nbcolumns);
+      res = res*3 + vectorXXX_hash(pk,po->F->p[i],po->F->nbcolumns);
     }
   }
   return res;
 }
 
 /* Minimize the size of the representation of the polyhedron */
-void pk_minimize(ap_manager_t* man, pk_t* po)
+void pkXXX_minimize(ap_manager_t* man, pkXXX_t* po)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MINIMIZE);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MINIMIZE);
 
   if (po->C || po->F){
-    poly_chernikova2(man,po,NULL);
+    pkXXX_chernikova2(man,po,NULL);
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
       man->result.flag_exact = man->result.flag_best = false;
@@ -382,20 +382,20 @@ void pk_minimize(ap_manager_t* man, pk_t* po)
       if (po->satF) satmat_free(po->satF);
       po->satC = po->satF = NULL;
       if (po->C->nbrows > po->F->nbrows){
-	matrix_free(po->C);
+	matrixXXX_free(po->C);
 	po->C = NULL;
-	matrix_minimize(po->F);
+	matrixXXX_minimize(po->F);
 	po->status &= ~pk_status_consgauss;
       }
       else {
-	matrix_free(po->F);
+	matrixXXX_free(po->F);
 	po->F = NULL;
-	matrix_minimize(po->C);
+	matrixXXX_minimize(po->C);
 	po->status &= ~pk_status_gengauss;
       }
     }
   }
-  assert(poly_check(pk,po));
+  assert(pkXXX_check(pk,po));
   man->result.flag_exact = man->result.flag_best =
     po->dim.intd>0 && (po->C || po->F) ? false : true;
 }
@@ -405,7 +405,7 @@ void pk_minimize(ap_manager_t* man, pk_t* po)
 /* ====================================================================== */
 
 /* Is the polyhedron in a minimal representation ? */
-bool pk_is_minimal(ap_manager_t* man, pk_t* po)
+bool pkXXX_is_minimal(ap_manager_t* man, pkXXX_t* po)
 {
   if ( (!po->C && !po->F) ||
        (po->C && po->F && (po->status & pk_status_minimaleps)) )
@@ -416,7 +416,7 @@ bool pk_is_minimal(ap_manager_t* man, pk_t* po)
 
 /* Is the polyhedron in a canonical representation ?
    (depends on the algorithm option of canonicalize) */
-bool pk_is_canonical(ap_manager_t* man, pk_t* po)
+bool pkXXX_is_canonical(ap_manager_t* man, pkXXX_t* po)
 {
   bool res;
 
@@ -425,8 +425,8 @@ bool pk_is_canonical(ap_manager_t* man, pk_t* po)
   else if (!po->C || !po->F)
     res = false;
   else {
-    pk_internal_t* pk = (pk_internal_t*)man->internal;
-    assert(poly_check(pk,po));
+    pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+    assert(pkXXX_check(pk,po));
     if (po->C->_sorted && po->F->_sorted &&
 	po->status & pk_status_consgauss &&
 	po->status & pk_status_gengauss &&
@@ -442,12 +442,12 @@ bool pk_is_canonical(ap_manager_t* man, pk_t* po)
 /* III Printing */
 /* ********************************************************************** */
 
-void pk_fprint(FILE* stream, ap_manager_t* man, pk_t* po,
-	       char** name_of_dim)
+void pkXXX_fprint(FILE* stream, ap_manager_t* man, pkXXX_t* po,
+		  char** name_of_dim)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FPRINT);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_FPRINT);
 
-  poly_chernikova(man,po,NULL);
+  pkXXX_chernikova(man,po,NULL);
   if (!po->C && !po->F){
     assert(pk->exn == AP_EXC_NONE);
     fprintf(stream,"empty polyhedron of dim (%lu,%lu)\n",
@@ -463,25 +463,25 @@ void pk_fprint(FILE* stream, ap_manager_t* man, pk_t* po,
     else {
       ap_lincons0_array_t cons;
       ap_lincons0_array_init(cons,AP_SCALAR_MPQ,0);
-      pk_to_lincons_array(man,cons,po);
+      pkXXX_to_lincons_array(man,cons,po);
       ap_lincons0_array_fprint(stream,cons,name_of_dim);
       ap_lincons0_array_clear(cons);
     }
   }
 }
 
-void pk_fprintdiff(FILE* stream, ap_manager_t* man,
-		   pk_t* po1, pk_t* po2,
-		   char** name_of_dim)
+void pkXXX_fprintdiff(FILE* stream, ap_manager_t* man,
+		      pkXXX_t* po1, pkXXX_t* po2,
+		      char** name_of_dim)
 {
-  pk_init_from_manager(man,AP_FUNID_FPRINTDIFF);
+  pkXXX_init_from_manager(man,AP_FUNID_FPRINTDIFF);
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_FPRINTDIFF,NULL);
 }
 
 /* Raw printing function. */
-void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
+void pkXXX_fdump(FILE* stream, ap_manager_t* man, pkXXX_t* po)
 {
-  pk_init_from_manager(man,AP_FUNID_FDUMP);
+  pkXXX_init_from_manager(man,AP_FUNID_FDUMP);
   if (!po->C && !po->F)
     fprintf(stream,"empty polyhedron of dim (%lu,%lu)\n",
 	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
@@ -490,11 +490,11 @@ void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
 	    (unsigned long)po->dim.intd,(unsigned long)po->dim.reald);
     if (po->C){
       fprintf(stream,"Constraints: ");
-      matrix_fprint(stream, po->C);
+      matrixXXX_fprint(stream, po->C);
     }
     if (po->F){
       fprintf(stream,"Frames: ");
-      matrix_fprint(stream, po->F);
+      matrixXXX_fprint(stream, po->F);
     }
     if (po->satC){
       fprintf(stream,"satC: ");
@@ -511,18 +511,18 @@ void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
 /* IV. Serialization */
 /* ********************************************************************** */
 
-ap_membuf_t pk_serialize_raw(ap_manager_t* man, pk_t* a)
+ap_membuf_t pkXXX_serialize_raw(ap_manager_t* man, pkXXX_t* a)
 {
   ap_membuf_t membuf;
-  pk_init_from_manager(man,AP_FUNID_SERIALIZE_RAW);
+  pkXXX_init_from_manager(man,AP_FUNID_SERIALIZE_RAW);
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_SERIALIZE_RAW,NULL);
   membuf.ptr = NULL;
   membuf.size = 0;
   return membuf;
 }
-pk_t* pk_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
+pkXXX_t* pkXXX_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 {
-  pk_init_from_manager(man,AP_FUNID_DESERIALIZE_RAW);
+  pkXXX_init_from_manager(man,AP_FUNID_DESERIALIZE_RAW);
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,NULL);
   return NULL;
 }
@@ -533,13 +533,13 @@ pk_t* pk_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 
 /* Should be true
    If false, implies that there is no positivity constraint  */
-static bool matrix_check1cons(pk_internal_t* pk, matrix_t* mat)
+static bool matrixXXX_check1cons(pkXXX_internal_t* pk, matrixXXX_t* mat)
 {
   size_t i;
   bool res;
   res = false;
   for (i = 0; i<mat->nbrows; i++){
-    if (numintMPQ_sgn(mat->p[i][pk->dec-1])>0){
+    if (numintXXX_sgn(mat->p[i][pk->dec-1])>0){
       res = true;
       break;
     }
@@ -547,13 +547,13 @@ static bool matrix_check1cons(pk_internal_t* pk, matrix_t* mat)
   return res;
 }
 /* true <=> \xi or \epsilon always positive */
-static bool matrix_check1ray(pk_internal_t* pk, matrix_t* mat)
+static bool matrixXXX_check1ray(pkXXX_internal_t* pk, matrixXXX_t* mat)
 {
   size_t i;
   bool res;
   res = true;
   for (i = 0; i<mat->nbrows; i++){
-    if (numintMPQ_sgn(mat->p[i][pk->dec-1])<0){
+    if (numintXXX_sgn(mat->p[i][pk->dec-1])<0){
       res = false;
       break;
     }
@@ -562,27 +562,27 @@ static bool matrix_check1ray(pk_internal_t* pk, matrix_t* mat)
 }
 
 /* Return false if not normalized constraint */
-static bool matrix_check2(pk_internal_t* pk, matrix_t* mat)
+static bool matrixXXX_check2(pkXXX_internal_t* pk, matrixXXX_t* mat)
 {
   size_t i;
   bool res;
-  numintMPQ_t gcd;
-  numintMPQ_init(gcd);
+  numintXXX_t gcd;
+  numintXXX_init(gcd);
 
   res = true;
   for (i=0; i<mat->nbrows; i++){
-    vector_gcd(pk, &mat->p[i][1], mat->nbcolumns-1, gcd);
-    if (numintMPQ_cmp_int(gcd,1)>0){
+    vectorXXX_gcd(pk, &mat->p[i][1], mat->nbcolumns-1, gcd);
+    if (numintXXX_cmp_int(gcd,1)>0){
       res = false;
       break;
     }
   }
-  numintMPQ_clear(gcd);
+  numintXXX_clear(gcd);
   return res;
 }
 
 /* If false, _sorted is true without sorted rows */
-static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
+static bool matrixXXX_check3(pkXXX_internal_t* pk, matrixXXX_t* mat)
 {
   size_t i;
   bool res;
@@ -592,7 +592,7 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
 
   res = true;
   for (i=0; i<mat->nbrows-1; i++){
-    if (matrix_compare_rows(pk,mat,i,i+1)>0){
+    if (matrixXXX_compare_rows(pk,mat,i,i+1)>0){
       res = false;
       break;
     }
@@ -601,13 +601,13 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
 }
 
 
-bool poly_check(pk_internal_t* pk, pk_t* po)
+bool pkXXX_check(pkXXX_internal_t* pk, pkXXX_t* po)
 {
   bool res;
   size_t nbdim,nbcols;
   nbdim = po->dim.intd + po->dim.reald;
   if (po->nbline+po->nbeq>nbdim){
-    fprintf(stderr,"poly_check: nbline+nbeq>dim.intd+dim.reald\n");
+    fprintf(stderr,"pkXXX_check: nbline+nbeq>dim.intd+dim.reald\n");
     return false;
   }
   if (!po->C && !po->F)
@@ -615,78 +615,78 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
 
   nbcols = po->C ? po->C->nbcolumns : po->F->nbcolumns;
   if (nbcols != pk->dec+nbdim){
-    fprintf(stderr,"poly_check: pk->dec+dim.intd+dim.reald != nbcols\n");
+    fprintf(stderr,"pkXXX_check: pk->dec+dim.intd+dim.reald != nbcols\n");
     return false;
   }
   if (po->C){
-    res = matrix_check1cons(pk,po->C);
+    res = matrixXXX_check1cons(pk,po->C);
     if (!res){ /* should not arise */
-      fprintf(stderr,"poly_check: unvalid constraint system, does not imply the positivity constraint\n");
+      fprintf(stderr,"pkXXX_check: unvalid constraint system, does not imply the positivity constraint\n");
       return false;
     }
-    res = matrix_check2(pk,po->C);
+    res = matrixXXX_check2(pk,po->C);
     if (!res){
-      fprintf(stderr,"poly_check: C not normalized\n");
+      fprintf(stderr,"pkXXX_check: C not normalized\n");
       return false;
     }
-    res = matrix_check3(pk,po->C);
+    res = matrixXXX_check3(pk,po->C);
     if (!res){
-      fprintf(stderr,"poly_check: C not sorted although _sorted=true\n");
+      fprintf(stderr,"pkXXX_check: C not sorted although _sorted=true\n");
       return false;
     }
   }
   if (po->F){
-    res = matrix_check1ray(pk,po->F);
+    res = matrixXXX_check1ray(pk,po->F);
     if (!res){ /* should not arise */
-      fprintf(stderr,"poly_check: unvalid generator system, does not imply the positivity constraint\n");
+      fprintf(stderr,"pkXXX_check: unvalid generator system, does not imply the positivity constraint\n");
       return false;
     }
-    res = matrix_check2(pk,po->F);
+    res = matrixXXX_check2(pk,po->F);
     if (!res){
-      fprintf(stderr,"poly_check: F not normalized\n");
+      fprintf(stderr,"pkXXX_check: F not normalized\n");
       return false;
     }
-    res = matrix_check3(pk,po->F);
+    res = matrixXXX_check3(pk,po->F);
     if (!res){
-      fprintf(stderr,"poly_check: F not sorted although _sorted=true\n");
+      fprintf(stderr,"pkXXX_check: F not sorted although _sorted=true\n");
       return false;
     }
     /* In strict mode, check that it satisfies \xi-\epsilon>=0 */
     if (pk->strict){
-      numintMPQ_t* tab = pk->vector_numintp;
-      matrix_t* F = po->F;
-      vector_clear(tab,F->nbcolumns);
-      numintMPQ_set_int(tab[0],1);
-      numintMPQ_set_int(tab[polka_cst],1);
-      numintMPQ_set_int(tab[polka_eps],-1);
+      numintXXX_t* tab = pk->vector_numintp;
+      matrixXXX_t* F = po->F;
+      vectorXXX_clear(tab,F->nbcolumns);
+      numintXXX_set_int(tab[0],1);
+      numintXXX_set_int(tab[polka_cst],1);
+      numintXXX_set_int(tab[polka_eps],-1);
       bool res = true;
       int sign;      /* sign of the scalar product */
       size_t i;
 
       for (i=0; i<F->nbrows; i++){
-	vector_product(pk,pk->poly_prod,
-		       F->p[i],
-		       tab,F->nbcolumns);
-	sign = numintMPQ_sgn(pk->poly_prod);
+	vectorXXX_product(pk,pk->poly_prod,
+			  F->p[i],
+			  tab,F->nbcolumns);
+	sign = numintXXX_sgn(pk->poly_prod);
 	if (sign<0){
 	  res = false; break;
 	}
 	else {
-	  if (numintMPQ_sgn(F->p[i][0])==0){
+	  if (numintXXX_sgn(F->p[i][0])==0){
 	    /* line */
 	    if (sign!=0){ res = false; break; }
 	  }
 	}
       }
       if (!res){
-	fprintf(stderr,"poly_check: F does not satisfy epsilon<=1");
+	fprintf(stderr,"pkXXX_check: F does not satisfy epsilon<=1");
 	return false;
       }
     }
   }
   if (po->C && po->F){
     if (!po->satC && !po->satF){
-      fprintf(stderr,"poly_check: we have both constraints and generators, but no saturation matrix !\n");
+      fprintf(stderr,"pkXXX_check: we have both constraints and generators, but no saturation matrix !\n");
       return false;
     }
   }
@@ -694,77 +694,77 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
     return true;
 
   if (po->C->nbcolumns != nbcols || po->F->nbcolumns != nbcols){
-    fprintf(stderr,"poly_check: po->C->nbcolumns==%lu, po->F->nbcolumns==%lu\n",
+    fprintf(stderr,"pkXXX_check: po->C->nbcolumns==%lu, po->F->nbcolumns==%lu\n",
 	    (unsigned long)po->C->nbcolumns, (unsigned long)po->F->nbcolumns);
     return false;
   }
   if (po->satC){
     if (po->satC->nbrows!=po->F->nbrows){
-      fprintf(stderr,"poly_check: po->satC->nbrows==%lu, po->F->nbrows==%lu\n",
-	    (unsigned long)po->satC->nbrows,(unsigned long)po->F->nbrows);
+      fprintf(stderr,"pkXXX_check: po->satC->nbrows==%lu, po->F->nbrows==%lu\n",
+	      (unsigned long)po->satC->nbrows,(unsigned long)po->F->nbrows);
       return false;
     }
-    if (!cherni_checksat(pk,true,
-			 po->C,po->nbeq,
-			 po->F,po->nbline,
-			 po->satC)){
-      fprintf(stderr,"poly_check: bad saturation numbers\n");
+    if (!cherniXXX_checksat(pk,true,
+			    po->C,po->nbeq,
+			    po->F,po->nbline,
+			    po->satC)){
+      fprintf(stderr,"pkXXX_check: bad saturation numbers\n");
       return false;
     }
-    res = cherni_checksatmat(pk,true,po->C,po->F,po->satC);
+    res = cherniXXX_checksatmat(pk,true,po->C,po->F,po->satC);
     if (!res){
-      fprintf(stderr,"poly_check: bad satC\n");
+      fprintf(stderr,"pkXXX_check: bad satC\n");
       return false;
     }
   }
   if (po->satF){
     if (po->satF->nbrows!=po->C->nbrows){
-      fprintf(stderr,"poly_check: po->satF->nbrows==%lu, po->C->nbrows==%lu\n",
-	    (unsigned long)po->satF->nbrows, (unsigned long)po->C->nbrows);
+      fprintf(stderr,"pkXXX_check: po->satF->nbrows==%lu, po->C->nbrows==%lu\n",
+	      (unsigned long)po->satF->nbrows, (unsigned long)po->C->nbrows);
       return false;
     }
-    if (!cherni_checksat(pk,false,
-			 po->F,po->nbline,
-			 po->C,po->nbeq,
-			 po->satF)){
-      fprintf(stderr,"poly_check: bad saturation numbers\n");
+    if (!cherniXXX_checksat(pk,false,
+			    po->F,po->nbline,
+			    po->C,po->nbeq,
+			    po->satF)){
+      fprintf(stderr,"pkXXX_check: bad saturation numbers\n");
       return false;
     }
-    res = cherni_checksatmat(pk,false,po->F,po->C,po->satF);
+    res = cherniXXX_checksatmat(pk,false,po->F,po->C,po->satF);
     if (!res){
-      fprintf(stderr,"poly_check: bad satF\n");
+      fprintf(stderr,"pkXXX_check: bad satF\n");
       return false;
     }
   }
   /* Check status: conseps */
   if (pk->strict && (po->status & pk_status_conseps) && po->C){
-    matrix_t* mat = po->C;
+    matrixXXX_t* mat = po->C;
     size_t i;
-    numintMPQ_t* vec = vector_alloc(mat->nbcolumns);
+    numintXXX_t* vec = vectorXXX_alloc(mat->nbcolumns);
     res = true;
     for (i=0; i<mat->nbrows; i++){
-      if (numintMPQ_sgn(mat->p[i][polka_eps])<=0){
-	vector_copy(vec,mat->p[i],mat->nbcolumns);
-	if (vector_normalize_constraint(pk,vec,po->dim)){
+      if (numintXXX_sgn(mat->p[i][polka_eps])<=0){
+	vectorXXX_copy(vec,mat->p[i],mat->nbcolumns);
+	if (vectorXXX_normalize_constraint(pk,vec,po->dim)){
 	  res = false;
 	  break;
 	}
       }
     }
-    vector_free(vec,mat->nbcolumns);
+    vectorXXX_free(vec,mat->nbcolumns);
     if (!res){
-      fprintf(stderr,"poly_check: pk_status_conseps true but the matrix is not normalized\n");
+      fprintf(stderr,"pkXXX_check: pk_status_conseps true but the matrix is not normalized\n");
       return false;
     }
   }
   return true;
 }
 
-bool poly_check_dual(pk_internal_t* pk, pk_t* po, bool usual)
+bool pkXXX_check_dual(pkXXX_internal_t* pk, pkXXX_t* po, bool usual)
 {
   bool res;
-  if (!usual) poly_dual(po);
-  res = poly_check(pk,po);
-  if (!usual) poly_dual(po);
+  if (!usual) pkXXX_dual(po);
+  res = pkXXX_check(pk,po);
+  if (!usual) pkXXX_dual(po);
   return res;
 }

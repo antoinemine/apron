@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "pk_internal.h"
+#include "pk_bit.h"
 
 /* ********************************************************************** */
 /* I. Bitindices */
@@ -33,13 +33,13 @@ void bitindex_print(bitindex_t* bi)
 }
 
 
-/* \verb-bitindex_init()- takes as parameter a \emph{flat} index of a bit and
-   returns the corresponding structured index.  \verb-bitindex_inc()- and
-   \verb-bitindex_dec()- allow to increment and decrement an index.
-   \verb-bitindex_size(n)- returns the size of an array of \verb-bitstring_t-
-   containing \verb-n- bits. */
+/* bitindex_init() takes as parameter a \emph{flat} index of a bit and
+   returns the corresponding structured index.  bitindex_inc() and
+   bitindex_dec() allow to increment and decrement an index.
+   bitindex_size(n) returns the size of an array of bitstring_t
+   containing n bits. */
 
-bitindex_t bitindex_init(const size_t col)
+bitindex_t bitindex_init(size_t col)
 {
   bitindex_t res;
   res.index = col;
@@ -48,7 +48,7 @@ bitindex_t bitindex_init(const size_t col)
   return res;
 }
 
-void bitindex_inc(bitindex_t* const bi){
+void bitindex_inc(bitindex_t* bi){
   bi->index++;
   bi->bit >>= 1;
   if (bi->bit==0){
@@ -56,7 +56,7 @@ void bitindex_inc(bitindex_t* const bi){
     bi->word++;
   }
 }
-void bitindex_dec(bitindex_t* const bi){
+void bitindex_dec(bitindex_t* bi){
   bi->index--;
   if (bi->bit != bitstring_msb){
      bi->bit <<= 1;
@@ -67,7 +67,7 @@ void bitindex_dec(bitindex_t* const bi){
   }
 }
 
-size_t bitindex_size(const size_t n){
+size_t bitindex_size(size_t n){
   size_t size = n / bitstring_size;
   if (n % bitstring_size) size++;
   return size;
@@ -78,25 +78,14 @@ size_t bitindex_size(const size_t n){
 /* ********************************************************************** */
 
 /*
-  \verb-bitstring_alloc- allocates a new bitstring and
-  \verb-bitstring_free()- frees the bitstring.
+  bitstring_alloc allocates a new bitstring and
+  bitstring_free() frees the bitstring.
 
-  \verb-bitstring_clear- sets to \verb-0- the bits, \verb-bitstring_cmp-
+  bitstring_clear sets to 0 the bits, bitstring_cmp
   compares two bitfields; be careful, it takes also in account unused bits of
-  the last word. Last, \verb-bitstring_print()- writes the bits of a
-  bitstring. 
+  the last word. Last, bitstring_print() writes the bits of a
+  bitstring.
 */
-  
-bitstring_t* bitstring_alloc(size_t n){
-  return (bitstring_t*)malloc(n*sizeof(bitstring_t));
-}
-bitstring_t* bitstring_realloc(bitstring_t* b, size_t n){
-  return (bitstring_t*)realloc(b, n*sizeof(bitstring_t));
-}
-
-void bitstring_free(bitstring_t* b){
-  free(b);
-}
 
 void bitstring_clear(bitstring_t* b, size_t size){
   size_t i;
@@ -128,7 +117,7 @@ void bitstring_print(bitstring_t* b, size_t size)
   bitstring_fprint(stdout,b,size);
 }
 
-int bitstring_cmp(bitstring_t* const r1, bitstring_t* const r2, size_t size){
+int bitstring_cmp(bitstring_t* r1, bitstring_t* r2, size_t size){
   size_t i;
   int res=0;
   for (i=0; i<size; i++){
@@ -137,20 +126,3 @@ int bitstring_cmp(bitstring_t* const r1, bitstring_t* const r2, size_t size){
   }
   return res;
 }
-
-/* These functions allow to read, set or clear individual bits of a bitstring, 
-   referenced by a bitindex. */
-
-int bitstring_get(bitstring_t* const b, bitindex_t ix) { 
-  return b[ix.word] & ix.bit; 
-}
-
-void bitstring_set(bitstring_t* const b, bitindex_t ix){
-  b[ix.word] |= ix.bit; 
-}
-
-void bitstring_clr(bitstring_t* const b, bitindex_t ix){ 
-  b[ix.word] &= ~ix.bit; 
-}
-
-

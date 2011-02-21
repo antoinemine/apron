@@ -10,13 +10,11 @@ extern "C" {
 
 #define QSORT_EXTRA_CMP_ARGUMENT
 
-typedef int (*qsort2_cmp)(void*, const void *,const void *);
+typedef int (*qsort2_cmp)(void*, void *,void *);
 
 void qsort2(void *base_ptr, size_t count, size_t size,
-	    qsort2_cmp cmp,
-	    void *cmp_argument);
+	    qsort2_cmp cmp, void *cmp_argument);
 
 #ifdef __cplusplus
 }
 #endif
-

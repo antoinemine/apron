@@ -1,11 +1,11 @@
 /* ********************************************************************** */
-/* pk_project.c: projections  */
+/* pkXXX_project.c: projections  */
 /* ********************************************************************** */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "pk_internal.h"
+#include "pkXXX_internal.h"
 
 /* ********************************************************************** */
 /* I. Factorized form */
@@ -14,82 +14,82 @@
 static
 void poly_projectforget_array(bool project,
 			      bool lazy,
-			      ap_manager_t* man,	
-			      pk_t* po, pk_t* pa, 
+			      ap_manager_t* man,
+			      pkXXX_t* po, pkXXX_t* pa,
 			      ap_dim_t* tdim, size_t size)
 {
   bool res;
-  matrix_t* mat;
+  matrixXXX_t* mat;
   size_t i,j;
-  pk_internal_t* pk = (pk_internal_t*)man->internal;
-  pk_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald);
-  
+  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pkXXX_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald);
+
   res = false;
 
   /* Get the generator systems, and possibly minimize */
   if (lazy)
-    poly_obtain_F(man,pa,"of the argument");
+    pkXXX_obtain_F(man,pa,"of the argument");
   else
-    poly_chernikova(man,pa,"of the argument");
-  
+    pkXXX_chernikova(man,pa,"of the argument");
+
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     if (!pa->F){
       man->result.flag_best = man->result.flag_exact = false;
-      poly_set_top(pk,po);
+      pkXXX_set_top(pk,po);
       return;
     }
   }
   /* if empty, return empty */
   if (!pa->F){
     man->result.flag_best = man->result.flag_exact = true;
-    poly_set_bottom(pk,po);
+    pkXXX_set_bottom(pk,po);
     return;
   }
-  
+
   if (project){
     /* Project: assign the dimension to zero */
     if (po==pa){
       /* Forget the other matrices */
-      if (po->C){ matrix_free(po->C); po->C = NULL; }
+      if (po->C){ matrixXXX_free(po->C); po->C = NULL; }
       if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
       if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
     } else {
       /* Copy the old one */
-      po->F = matrix_copy(pa->F);
+      po->F = matrixXXX_copy(pa->F);
     }
     mat = po->F;
     for (i=0; i<mat->nbrows; i++){
       for (j=0; j<size; j++){
-	numintMPQ_set_int(mat->p[i][pk->dec+tdim[j]],0);
+	numintXXX_set_int(mat->p[i][pk->dec+tdim[j]],0);
       }
-      matrix_normalize_row(pk,mat,(size_t)i);
+      matrixXXX_normalize_row(pk,mat,(size_t)i);
     }
     po->status = 0;
     if (!lazy){
-      poly_chernikova(man,po,"of the result");
+      pkXXX_chernikova(man,po,"of the result");
     }
-  } 
+  }
   else {
     /* Forget */
-    mat = matrix_alloc(size,pa->F->nbcolumns,false);
+    mat = matrixXXX_alloc(size,pa->F->nbcolumns,false);
     for (i=0; i<size; i++){
-      numintMPQ_set_int(mat->p[i][pk->dec+tdim[i]],1);
+      numintXXX_set_int(mat->p[i][pk->dec+tdim[i]],1);
     }
-    matrix_sort_rows(pk,mat);
-    poly_dual(pa);
-    if (po!=pa) poly_dual(po);
-    if (!lazy) poly_obtain_satC(pa);
-    res = poly_meet_matrix(false,lazy,man,po,pa,mat);
-    poly_dual(pa);
-    if (po!=pa) poly_dual(po);
-    matrix_free(mat);
+    matrixXXX_sort_rows(pk,mat);
+    pkXXX_dual(pa);
+    if (po!=pa) pkXXX_dual(po);
+    if (!lazy) pkXXX_obtain_satC(pa);
+    res = pkXXX_meet_matrix(false,lazy,man,po,pa,mat);
+    pkXXX_dual(pa);
+    if (po!=pa) pkXXX_dual(po);
+    matrixXXX_free(mat);
   }
   if (res || pk->exn){
     pk->exn = AP_EXC_NONE;
     if (!po->F){
       man->result.flag_best = man->result.flag_exact = false;
-      poly_set_top(pk,po);
+      pkXXX_set_top(pk,po);
       return;
     }
   }
@@ -103,7 +103,7 @@ void poly_projectforget_array(bool project,
 	}
       }
     }
-    man->result.flag_best = man->result.flag_exact = 
+    man->result.flag_best = man->result.flag_exact =
       real;
   }
   else {
@@ -116,16 +116,16 @@ void poly_projectforget_array(bool project,
 /* II. Exported functions */
 /* ********************************************************************** */
 
-pk_t* pk_forget_array(ap_manager_t* man, 
-		      bool destructive, pk_t* pa, 
-		      ap_dim_t* tdim, size_t size,
-		      bool project)
+pkXXX_t* pkXXX_forget_array(ap_manager_t* man,
+			    bool destructive, pkXXX_t* pa,
+			    ap_dim_t* tdim, size_t size,
+			    bool project)
 {
-  pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
-  pk_t* po = destructive ? pa : poly_alloc(pa->dim);
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
+  pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
   poly_projectforget_array(project,
 			   man->option.funopt[AP_FUNID_FORGET_ARRAY].algorithm<=0,
 			   man,po,pa,tdim,size);
-  assert(poly_check(pk,po));
+  assert(pkXXX_check(pk,po));
   return po;
 }
