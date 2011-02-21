@@ -5,41 +5,12 @@
 #ifndef _AP_LINCONSXXX_H_
 #define _AP_LINCONSXXX_H_
 
-#include "num_types.h"
+#include "ap_linexprconsgen_types.h"
 #include "ap_linexprXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifndef _ap_constyp_t_
-#define _ap_constyp_t_
-/* Datatype for type of constraints */
-typedef enum ap_constyp_t {
-  AP_CONS_EQ,    /* equality constraint */
-  AP_CONS_SUPEQ, /* >= constraint */
-  AP_CONS_SUP,   /* > constraint */
-  AP_CONS_EQMOD, /* congruence equality constraint */
-  AP_CONS_DISEQ  /* disequality constraint */
-} ap_constyp_t;
-#endif
-
-/* Interval linear constraint */
-typedef struct ap_linconsXXX_struct {
-  ap_linexprXXX_t linexpr;
-  ap_constyp_t constyp;
-  mpq_t mpq;
-} ap_linconsXXX_struct;
-typedef ap_linconsXXX_struct ap_linconsXXX_t[1];
-typedef ap_linconsXXX_struct* ap_linconsXXX_ptr;
-
-/* Array of interval linear constraints */
-typedef struct ap_linconsXXX_array_struct {
-  ap_linconsXXX_t* p;
-  size_t size;
-} ap_linconsXXX_array_struct;
-typedef ap_linconsXXX_array_struct ap_linconsXXX_array_t[1];
-typedef ap_linconsXXX_array_struct* ap_linconsXXX_array_ptr;
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -94,7 +65,18 @@ bool ap_linconsXXX_array_is_quasilinear(ap_linconsXXX_array_t array);
 ap_linexpr_type_t ap_linconsXXX_array_type(ap_linconsXXX_array_t array);
 
 /* ********************************************************************** */
-/* III. Evaluation, simplification and linearisation */
+/* III. Conversions */
+/* ********************************************************************** */
+
+MACRO_MAINZ
+bool ap_linconsXXX_set_linconsZZZ(ap_linconsXXX_t a, ap_linconsZZZ_t b, num_internal_t intern);
+bool ap_linconsXXX_array_set_linconsZZZ_array(ap_linconsXXX_array_t a, ap_linconsZZZ_array_t b, num_internal_t intern);
+bool ap_linconsZZZ_set_linconsXXX(ap_linconsZZZ_t a, ap_linconsXXX_t b, num_internal_t intern);
+bool ap_linconsZZZ_array_set_linconsXXX_array(ap_linconsZZZ_array_t a, ap_linconsXXX_array_t b, num_internal_t intern);
+ENDMACRO
+
+/* ********************************************************************** */
+/* IV. Evaluation, simplification and linearisation */
 /* ********************************************************************** */
 
 tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern);
@@ -185,7 +167,7 @@ void ap_linconsXXX_array_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons
   /* Return true if no approximations. */
 
 /* ********************************************************************** */
-/* IV. Boxization of interval linear expressions */
+/* V. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
 bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
@@ -208,7 +190,7 @@ bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
   */
 
 /* ********************************************************************** */
-/* V. Change of dimensions and permutations */
+/* VI. Change of dimensions and permutations */
 /* ********************************************************************** */
 
 /* These two functions add dimensions to the expressions, following the

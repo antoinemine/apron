@@ -13,6 +13,7 @@
 #include "ap_config.h"
 #include "ap_dimension.h"
 #include "ap_var.h"
+#include "limits.h"
 
 #ifdef __cplusplus
 extern "C" {

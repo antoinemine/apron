@@ -26,11 +26,12 @@ ICFLAGS = -I. -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES = \
+ap_linexprconsgen_types.h.tmpl \
 ap_linexprXXX.h ap_linconsXXX.h ap_lingenXXX.h \
-ap_linexprconsgenXXX_conv.h \
 ap_coeff.h.tmpl ap_box0.h.tmpl \
 ap_linyyy0.h ap_linyyy1.h ap_linyyy1_array.h 
 C_TMPL_FILES = \
+ap_linexprconsgen_conv.c.tmpl \
 ap_linexprXXX.c ap_linconsXXX.c ap_lingenXXX.c ap_linyyyXXX_array.c \
 ap_linexprconsgenXXX_conv.c \
 ap_coeff.c.tmpl ap_box0.c.tmpl \
@@ -66,16 +67,16 @@ H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
+ap_linexprconsgen_types.h \
 $(TMPL:%=ap_linexpr%.h) $(TMPL:%=ap_lincons%.h) $(TMPL:%=ap_lingen%.h) \
-$(TMPL:%=ap_linexprconsgen%_conv.h) \
 ap_coeff.h ap_box0.h \
 ap_linexpr0.h ap_lincons0.h ap_lingen0.h \
 ap_linexpr1.h ap_lincons1.h ap_lingen1.h \
 ap_linexpr1_array.h ap_lincons1_array.h ap_lingen1_array.h
 C_GENERATED_FILES = \
+ap_linexprconsgen_conv.c \
 $(TMPL:%=ap_linexpr%.c) $(TMPL:%=ap_lincons%.c) $(TMPL:%=ap_lingen%.c) \
 $(TMPL:%=ap_linexpr%_array.c) $(TMPL:%=ap_lincons%_array.c) $(TMPL:%=ap_lingen%_array.c) \
-$(TMPL:%=ap_linexprconsgen%_conv.c) \
 ap_coeff.c ap_box0.c \
 ap_linexpr0.c ap_lincons0.c ap_lingen0.c \
 ap_linexpr1.c ap_lincons1.c ap_lingen1.c \
@@ -277,7 +278,9 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 # dependencies (generated with make depend)
 #---------------------------------------
 
-Makefile.depend depend: $(C_FILES) $(H_FILES)
+Makefile.depend: $(C_FILES) $(H_FILES)
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
+depend: $(C_FILES) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 
 -include Makefile.depend

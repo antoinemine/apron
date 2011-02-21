@@ -5,11 +5,15 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-#include "ap_linyyy0.h"
-#include "ap_linexprconsgenD_conv.h"
-#include "ap_linexprconsgenMPQ_conv.h"
-#include "ap_linexprconsgenMPFR_conv.h"
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
+#include "ap_linyyy0.h"
+
+MACRO_ALLX
+#include "ap_linyyyXXX.h"
+ENDMACRO
 
 #define _AP_linyyy0_MARK_
 
@@ -85,7 +89,7 @@ void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyy
  {
    ap_linyyy0_array_init(res,AP_SCALAR_ZZZ,0);
    ap_linyyyZZZ_array_set(res->linyyy_array.ZZZ,e);
-} 
+}
 ENDMACRO
 void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size)
 {
@@ -124,29 +128,29 @@ bool ap_linyyy0_set(ap_linyyy0_t res, ap_linyyy0_t e, num_internal_t intern)
   ENDSWITCH
 }
 
-MACRO_MAINZ
-bool ap_linyyy0_set_linyyyZZZ(ap_linyyy0_t a, ap_linyyyZZZ_t b, num_internal_t intern)
+MACRO_ALLX
+bool ap_linyyy0_set_linyyyXXX(ap_linyyy0_t a, ap_linyyyXXX_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return ap_linyyyD_set_linyyyZZZ(a->linyyy.D,b,intern);
+    return ap_linyyyD_set_linyyyXXX(a->linyyy.D,b,intern);
   case AP_SCALAR_MPQ:
-    return ap_linyyyMPQ_set_linyyyZZZ(a->linyyy.MPQ,b,intern);
+    return ap_linyyyMPQ_set_linyyyXXX(a->linyyy.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return ap_linyyyMPFR_set_linyyyZZZ(a->linyyy.MPFR,b,intern);
+    return ap_linyyyMPFR_set_linyyyXXX(a->linyyy.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_linyyyZZZ_set_linyyy0(ap_linyyyZZZ_t a, ap_linyyy0_t b, num_internal_t intern)
+bool ap_linyyyXXX_set_linyyy0(ap_linyyyXXX_t a, ap_linyyy0_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_linyyyZZZ_set_linyyyD(a,b->linyyy.D,intern);
+    return ap_linyyyXXX_set_linyyyD(a,b->linyyy.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_linyyyZZZ_set_linyyyMPQ(a,b->linyyy.MPQ,intern);
+    return ap_linyyyXXX_set_linyyyMPQ(a,b->linyyy.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_linyyyZZZ_set_linyyyMPFR(a,b->linyyy.MPFR,intern);
+    return ap_linyyyXXX_set_linyyyMPFR(a,b->linyyy.MPFR,intern);
   default:
     abort();
   }
@@ -361,44 +365,44 @@ bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, 
   return ap_linyyy0_set(ref,a,intern);
 }
 
-MACRO_MAINZ
-bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern)
+MACRO_ALLX
+bool ap_linyyy0_array_set_linyyyXXX_array(ap_linyyy0_array_t a, ap_linyyyXXX_array_t b, num_internal_t intern)
 {
   switch (a->discr){
   case AP_SCALAR_D:
-    return ap_linyyyD_array_set_linyyyZZZ_array(a->linyyy_array.D,b,intern);
+    return ap_linyyyD_array_set_linyyyXXX_array(a->linyyy_array.D,b,intern);
   case AP_SCALAR_MPQ:
-    return ap_linyyyMPQ_array_set_linyyyZZZ_array(a->linyyy_array.MPQ,b,intern);
+    return ap_linyyyMPQ_array_set_linyyyXXX_array(a->linyyy_array.MPQ,b,intern);
   case AP_SCALAR_MPFR:
-    return ap_linyyyMPFR_array_set_linyyyZZZ_array(a->linyyy_array.MPFR,b,intern);
+    return ap_linyyyMPFR_array_set_linyyyXXX_array(a->linyyy_array.MPFR,b,intern);
   default:
     abort();
   }
 }
-bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern)
+bool ap_linyyyXXX_array_set_linyyy0_array(ap_linyyyXXX_array_t a, ap_linyyy0_array_t b, num_internal_t intern)
 {
   switch(b->discr){
   case AP_SCALAR_D:
-    return ap_linyyyZZZ_array_set_linyyyD_array(a,b->linyyy_array.D,intern);
+    return ap_linyyyXXX_array_set_linyyyD_array(a,b->linyyy_array.D,intern);
   case AP_SCALAR_MPQ:
-    return ap_linyyyZZZ_array_set_linyyyMPQ_array(a,b->linyyy_array.MPQ,intern);
+    return ap_linyyyXXX_array_set_linyyyMPQ_array(a,b->linyyy_array.MPQ,intern);
   case AP_SCALAR_MPFR:
-    return ap_linyyyZZZ_array_set_linyyyMPFR_array(a,b->linyyy_array.MPFR,intern);
+    return ap_linyyyXXX_array_set_linyyyMPFR_array(a,b->linyyy_array.MPFR,intern);
   default:
     abort();
   }
 }
-bool ap_linyyy0_array_set_index_linyyyZZZ(ap_linyyy0_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern)
+bool ap_linyyy0_array_set_index_linyyyXXX(ap_linyyy0_array_t p, size_t i, ap_linyyyXXX_t a, num_internal_t intern)
 {
   ap_linyyy0_t ref;
   ap_linyyy0_array_ref_index(ref,p,i);
-  return ap_linyyy0_set_linyyyZZZ(ref,a,intern);
+  return ap_linyyy0_set_linyyyXXX(ref,a,intern);
 }
-bool ap_linyyy0_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern)
+bool ap_linyyy0_array_get_index_linyyyXXX(ap_linyyyXXX_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern)
 {
   ap_linyyy0_t ref;
   ap_linyyy0_array_ref_index(ref,p,i);
-  return ap_linyyyZZZ_set_linyyy0(a,ref,intern);
+  return ap_linyyyXXX_set_linyyy0(a,ref,intern);
 }
 ENDMACRO
 

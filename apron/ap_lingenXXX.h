@@ -5,40 +5,12 @@
 #ifndef _AP_LINGENXXX_H_
 #define _AP_LINGENXXX_H_
 
-#include "num_types.h"
+#include "ap_linexprconsgen_types.h"
 #include "ap_linexprXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifndef _ap_gentyp_t_
-#define _ap_gentyp_t_
-/* Datatype for type of generators */
-typedef enum ap_gentyp_t {
-  AP_GEN_LINE,   /* Bidirectional ray (real coefficient) */
-  AP_GEN_RAY,    /* Ray (positive real coefficient) */
-  AP_GEN_VERTEX, /* Vertex ("barycenter" coefficient) */
-  AP_GEN_LINEMOD,/* Bidirectionnal integer ray (integer coefficient) */
-  AP_GEN_RAYMOD  /* Integer ray (positive integer coefficient) */
-} ap_gentyp_t;
-#endif
-
-/* Linear generator */
-typedef struct ap_lingenXXX_struct {
-  ap_linexprXXX_t linexpr;
-  ap_gentyp_t gentyp;
-} ap_lingenXXX_struct;
-typedef ap_lingenXXX_struct ap_lingenXXX_t[1];
-typedef ap_lingenXXX_struct* ap_lingenXXX_ptr;
-
-/* Array of linear generators */
-typedef struct ap_lingenXXX_array_struct {
-  ap_lingenXXX_t* p;
-  size_t size;
-} ap_lingenXXX_array_struct;
-typedef ap_lingenXXX_array_struct ap_lingenXXX_array_t[1];
-typedef ap_lingenXXX_array_struct* ap_lingenXXX_array_ptr;
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -86,6 +58,18 @@ bool ap_lingenXXX_array_is_linear(ap_lingenXXX_array_t array);
 static inline size_t ap_lingenXXX_supportinterval(ap_lingenXXX_t gen, ap_dim_t* tdim);
 size_t ap_lingenXXX_array_supportinterval(ap_lingenXXX_array_t array, ap_dim_t* tdim, size_t maxdim1);
   /* Idem, with maxdim1 indicating the maximum possible dimension plus 1 */
+
+/* ********************************************************************** */
+/* III. Conversions */
+/* ********************************************************************** */
+
+MACRO_MAINZ
+bool ap_lingenXXX_set_lingenZZZ(ap_lingenXXX_t a, ap_lingenZZZ_t b, num_internal_t intern);
+bool ap_lingenXXX_array_set_lingenZZZ_array(ap_lingenXXX_array_t a, ap_lingenZZZ_array_t b, num_internal_t intern);
+
+bool ap_lingenZZZ_set_lingenXXX(ap_lingenZZZ_t a, ap_lingenXXX_t b, num_internal_t intern);
+bool ap_lingenZZZ_array_set_lingenXXX_array(ap_lingenZZZ_array_t a, ap_lingenXXX_array_t b, num_internal_t intern);
+ENDMACRO
 
 /* ********************************************************************** */
 /* V. Change of dimensions and permutations */
