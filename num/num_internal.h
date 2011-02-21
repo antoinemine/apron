@@ -5,6 +5,8 @@
 #ifndef _NUM_GLOBAL_H_
 #define _NUM_GLOBAL_H_
 
+#include <stdio.h>
+#include <string.h>
 #include "num_types.h"
 
 void num_internal_init(num_internal_t intern);

@@ -6,10 +6,9 @@
 #ifndef _NUM_TYPES_H_
 #define _NUM_TYPES_H_
 
-#include <string.h>
-#include <float.h>
 #include <stdint.h>
-#include "stdio.h"
+#include <string.h>
+#include <stdio.h>
 #include "gmp.h"
 #include "mpfr.h"
 
@@ -24,6 +23,12 @@ typedef char bool;
 static const bool false = 0;
 static const bool true  = 1;
 #endif
+
+typedef enum num_discr_t {
+  NUM_Il, NUM_Ill, NUM_MPZ,
+  NUM_Rl, NUM_Rll, NUM_MPQ,
+  NUM_D, NUM_Dl, NUM_MPFR
+} num_discr_t;
 
 typedef enum itv_tag_t {
   ITV_NUM,      /* waiting for 1 numXXX_t of same type */
@@ -282,64 +287,64 @@ typedef numMPFR_t boundMPFR_t;
    Be cautious: interval [a,b] is represented by [-a,b].  This is because
    bound quantities are always rounded toward +infty */
 
-MACRO_ALLZ
+MACRO_ALLX
 /* ====================================================================== */
-/* ZZZ */
+/* XXX */
 /* ====================================================================== */
 
 /* Standard interval */
-typedef struct itvZZZ_struct {
-  boundZZZ_t neginf; /* negation of the inf bound */
-  boundZZZ_t sup; /* sup bound */
-} itvZZZ_struct;
-typedef itvZZZ_struct itvZZZ_t[1];
-typedef itvZZZ_struct* itvZZZ_ptr;
+typedef struct itvXXX_struct {
+  boundXXX_t neginf; /* negation of the inf bound */
+  boundXXX_t sup; /* sup bound */
+} itvXXX_struct;
+typedef itvXXX_struct itvXXX_t[1];
+typedef itvXXX_struct* itvXXX_ptr;
 
 /* Intervals with equality flag */
-typedef struct eitvZZZ_struct {
-  itvZZZ_t itv;
+typedef struct eitvXXX_struct {
+  itvXXX_t itv;
   bool eq;
-} eitvZZZ_struct;
-typedef eitvZZZ_struct eitvZZZ_t[1];
-typedef eitvZZZ_struct* eitvZZZ_ptr;
+} eitvXXX_struct;
+typedef eitvXXX_struct eitvXXX_t[1];
+typedef eitvXXX_struct* eitvXXX_ptr;
 
 /* some useful local constant for linearization */
 typedef struct {
-  itvZZZ_t ulp;        /* [-1;1] * unit in the least place */
-  itvZZZ_t min;        /* [-1;1] * minimum positive denormal */
-  itvZZZ_t min_normal; /* [-1;1] * minimum positive normal */
-  itvZZZ_t max;        /* [-1;1] * maximum non +oo  */
-  itvZZZ_t max_exact;  /* [-1;1] * maximum exactly representable integer */
-} numZZZ_floatconst;
+  itvXXX_t ulp;        /* [-1;1] * unit in the least place */
+  itvXXX_t min;        /* [-1;1] * minimum positive denormal */
+  itvXXX_t min_normal; /* [-1;1] * minimum positive normal */
+  itvXXX_t max;        /* [-1;1] * maximum non +oo  */
+  itvXXX_t max_exact;  /* [-1;1] * maximum exactly representable integer */
+} numXXX_floatconst;
 
-/* Workspace to avoid temporary allocation and deallocation when numZZZ_t and
-   boundZZZ_t are multiprecision numbers */
-typedef struct numZZZ_internal {
-  numZZZ_t canonicalize_num;
-  boundZZZ_t muldiv_bound;
-  boundZZZ_t mul_bound;
-  boundZZZ_t sqrt_bound;
-  boundZZZ_t linear_bound;
-  boundZZZ_t linear_bound2;
-  boundZZZ_t linear_bound3;
-  itvZZZ_t mul_itv;
-  itvZZZ_t mul_itv2;
-  itvZZZ_t eval_itv;
-  itvZZZ_t eval_itv2;
-  itvZZZ_t eval_itv3;
-  numZZZ_t quasi_num;
-  eitvZZZ_t boxize_lincons_eitv;
-  eitvZZZ_t boxize_lincons_eval;
-  boundZZZ_t boxize_lincons_bound;
-  numZZZ_floatconst cst_half, cst_single, cst_double, cst_extended, cst_quad;
-  eitvZZZ_t eitvZZZ_half; /* [-0.5,0.5] */
-  eitvZZZ_t generic_eitv;
-  eitvZZZ_t eval_eitv;
-  eitvZZZ_t eval_eitv2;
-  eitvZZZ_t eval_eitv3;
+/* Workspace to avoid temporary allocation and deallocation when numXXX_t and
+   boundXXX_t are multiprecision numbers */
+typedef struct numXXX_internal {
+  numXXX_t canonicalize_num;
+  boundXXX_t muldiv_bound;
+  boundXXX_t mul_bound;
+  boundXXX_t sqrt_bound;
+  boundXXX_t linear_bound;
+  boundXXX_t linear_bound2;
+  boundXXX_t linear_bound3;
+  itvXXX_t mul_itv;
+  itvXXX_t mul_itv2;
+  itvXXX_t eval_itv;
+  itvXXX_t eval_itv2;
+  itvXXX_t eval_itv3;
+  numXXX_t quasi_num;
+  eitvXXX_t boxize_lincons_eitv;
+  eitvXXX_t boxize_lincons_eval;
+  boundXXX_t boxize_lincons_bound;
+  numXXX_floatconst cst_half, cst_single, cst_double, cst_extended, cst_quad;
+  eitvXXX_t eitvXXX_half; /* [-0.5,0.5] */
+  eitvXXX_t generic_eitv;
+  eitvXXX_t eval_eitv;
+  eitvXXX_t eval_eitv2;
+  eitvXXX_t eval_eitv3;
   mpz_t reduce_lincons_gcd;
   mpz_t reduce_lincons_mpz;
-} numZZZ_internal;
+} numXXX_internal;
 ENDMACRO
 
 /* ********************************************************************** */
@@ -445,14 +450,14 @@ int numXXX_snprint(char* s, size_t size, numXXX_t a);
 
   Notes:
    - call _serialized_size to get the minimal size of the buffer to allocate
-   - _serialize then returns the actual size of the serialized data (may be 
+   - _serialize then returns the actual size of the serialized data (may be
    less than _serialized_size)
    - deserialze assumes that the num destination has already been initialized
    - when deserializing an array, you must supply the number of elements in the
    array (it is not stored with the array by serialize)
    - serialization is not type-safe (it depends on the chosen numerical type
-   and, for types using native integers, on whether the machine is 32 or 64 
-   bits). You can only deserialize data if the numXXX_serialize_id function 
+   and, for types using native integers, on whether the machine is 32 or 64
+   bits). You can only deserialize data if the numXXX_serialize_id function
    returns the same value as when the data was serialized. (This id is not
    stored systematically with each serialized number to save state, so, the
    checking is up to you.)
@@ -492,7 +497,7 @@ bool numXXX_fits_ldouble(numXXX_t a);
 bool numXXX_fits_mpfr(numXXX_t a);
 
 ======================================================================
-1.8 Conversions 
+1.8 Conversions
 ======================================================================
 
 bool numXXX_set_lint(numXXX_t a, long int b, num_internal_t intern);

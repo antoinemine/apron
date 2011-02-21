@@ -187,7 +187,7 @@ bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern);
 bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
 ENDMACRO
 
-MACRO_MAINZ
+MACRO_ALLZ
 bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern);
 bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern);
 ENDMACRO
