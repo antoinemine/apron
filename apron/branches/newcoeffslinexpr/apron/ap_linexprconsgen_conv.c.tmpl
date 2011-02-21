@@ -1,20 +1,35 @@
+/* -*- mode: c -*- */
 /* ********************************************************************** */
-/* ap_linexprconsgenXXX_conv.c: conversion between linear expressions and constraints */
+/* ap_linexprconsgen_conv.c: conversion between linear expressions and constraints */
 /* ********************************************************************** */
 
-#include "ap_linexprconsgenXXX_conv.h"
+#include "num_types.h"
 
+MACRO_ALLX
 #include "boundXXX.h"
 #include "itvXXX.h"
 #include "eitvXXX.h"
-#include "eitvD.h"
-#include "eitvMPQ.h"
-#include "eitvMPFR.h"
-
+#include "ap_linexprXXX.h"
+#include "ap_linconsXXX.h"
+#include "ap_lingenXXX.h"
+ENDMACRO
 
 #define _APXXX_MARK_
 
-MACRO_MAINZ
+MACRO_ALLX_MAINZ
+#define MARK1_XXX
+#define MARK2_ZZZ
+
+#if defined(MARK1_XXX) && defined(MARK2_XXX)
+bool ap_linexprXXX_set_linexprZZZ(ap_linexprXXX_t a, ap_linexprZZZ_t b, num_internal_t intern){
+  ap_linexprXXX_set(a,b); return true;
+}
+bool ap_linexprXXX_array_set_linexprZZZ_array(ap_linexprXXX_array_t a, ap_linexprZZZ_array_t b, num_internal_t intern){
+  ap_linexprXXX_array_set(a,b); return true;
+}
+#else
+#ifndef MARK_XXX_ZZZ
+#define MARK_XXX_ZZZ
 bool ap_linexprXXX_set_linexprZZZ(ap_linexprXXX_t a, ap_linexprZZZ_t b, num_internal_t intern)
 {
   size_t i;
@@ -71,8 +86,9 @@ bool ap_lingenXXX_array_set_lingenZZZ_array(ap_lingenXXX_array_t a, ap_lingenZZZ
   }
   return res;
 }
-
-#if !defined(_APZZZ_MARK_) && !defined(_APD_MARK_) && !defined(_APMPQ_MARK_) && !defined(_APMPFR_MARK_)
+#endif
+#ifndef MARK_ZZZ_XXX
+#define MARK_ZZZ_XXX
 bool ap_linexprZZZ_set_linexprXXX(ap_linexprZZZ_t a, ap_linexprXXX_t b, num_internal_t intern)
 {
   size_t i;
@@ -129,7 +145,9 @@ bool ap_lingenZZZ_array_set_lingenXXX_array(ap_lingenZZZ_array_t a, ap_lingenXXX
   return res;
 }
 #endif
-
+#endif
+#undef MARK1_XXX
+#undef MARK2_ZZZ
 ENDMACRO
 
 #undef _APXXX_MARK_

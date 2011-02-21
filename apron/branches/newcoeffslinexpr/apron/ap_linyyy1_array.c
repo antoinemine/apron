@@ -6,9 +6,6 @@
    read the COPYING file packaged in the distribution */
 
 #include "ap_linyyy1_array.h"
-#include "ap_linexprconsgenD_conv.h"
-#include "ap_linexprconsgenMPQ_conv.h"
-#include "ap_linexprconsgenMPFR_conv.h"
 
 /* ====================================================================== */
 /* I. Memory management and printing */
@@ -46,7 +43,7 @@ void ap_linyyy1_array_clear(ap_linyyy1_array_t e)
 void ap_linyyy1_array_fprint(FILE* stream, ap_linyyy1_array_t e)
 {
   ap_environment_name_of_dim_t* name_of_dim;
-  
+
   name_of_dim = ap_environment_name_of_dim_alloc(e->env);
   ap_linyyy0_array_fprint(stream, e->linyyy0_array, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
@@ -80,7 +77,7 @@ bool ap_linyyy1_array_set_index(ap_linyyy1_array_t p, bool* perror, size_t i, ap
 {
   *perror = !ap_environment_is_eq(p->env,a->env);
   if (*perror) return false;
-  else 
+  else
     return ap_linyyy0_array_set_index(p->linyyy0_array,i,a->linyyy0,intern);
 }
 bool ap_linyyy1_array_get_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern)
@@ -98,23 +95,23 @@ bool ap_linyyy1_array_set_linyyy0_array(ap_linyyy1_array_t res, ap_linyyy0_array
   ap_environment_set(&res->env,env);
   return ap_linyyy0_array_set(res->linyyy0_array,e,intern);
 }
-MACRO_MAINZ
-bool ap_linyyy1_array_set_linyyyZZZ_array(ap_linyyy1_array_t a, ap_linyyyZZZ_array_t b, ap_environment_t* env, num_internal_t intern)
+MACRO_ALLX
+bool ap_linyyy1_array_set_linyyyXXX_array(ap_linyyy1_array_t a, ap_linyyyXXX_array_t b, ap_environment_t* env, num_internal_t intern)
 {
   ap_environment_set(&a->env,env);
-  return ap_linyyy0_array_set_linyyyZZZ_array(a->linyyy0_array,b,intern);
+  return ap_linyyy0_array_set_linyyyXXX_array(a->linyyy0_array,b,intern);
 }
-bool ap_linyyyZZZ_array_set_linyyy1_array(ap_linyyyZZZ_array_t a, ap_linyyy1_array_t b, num_internal_t intern)
+bool ap_linyyyXXX_array_set_linyyy1_array(ap_linyyyXXX_array_t a, ap_linyyy1_array_t b, num_internal_t intern)
 {
-  return ap_linyyyZZZ_array_set_linyyy0_array(a,b->linyyy0_array,intern);
+  return ap_linyyyXXX_array_set_linyyy0_array(a,b->linyyy0_array,intern);
 }
-bool ap_linyyy1_array_set_index_linyyyZZZ(ap_linyyy1_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern)
+bool ap_linyyy1_array_set_index_linyyyXXX(ap_linyyy1_array_t p, size_t i, ap_linyyyXXX_t a, num_internal_t intern)
 {
-  return ap_linyyy0_array_set_index_linyyyZZZ(p->linyyy0_array,i,a,intern);
+  return ap_linyyy0_array_set_index_linyyyXXX(p->linyyy0_array,i,a,intern);
 }
-bool ap_linyyy1_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern)
+bool ap_linyyy1_array_get_index_linyyyXXX(ap_linyyyXXX_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern)
 {
-  return ap_linyyy0_array_get_index_linyyyZZZ(a,p->linyyy0_array,i,intern);
+  return ap_linyyy0_array_get_index_linyyyXXX(a,p->linyyy0_array,i,intern);
 }
 ENDMACRO
 

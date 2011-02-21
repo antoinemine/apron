@@ -5,6 +5,10 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
+#include <limits.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
 #include "ap_linyyy1.h"
 
 #define _AP_linyyy1_MARK_

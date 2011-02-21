@@ -49,12 +49,12 @@ void ap_linyyy1_array_fprint(FILE* stream, ap_linyyy1_array_t e);
 /* II. Access, possibly with conversions */
 /* ====================================================================== */
 
-static inline 
+static inline
 ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr);
 static inline
 ap_environment_t* ap_linyyy1_envref(ap_linyyy1_t expr);
   /* Get a reference to the environment. Do not free it. */
-static inline 
+static inline
 ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
   /* Get a reference to the underlying linear expression of level
      0. Do not free it. */
@@ -77,12 +77,12 @@ void ap_linyyy1_array_ref_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i);
 
 bool ap_linyyy1_array_set_linyyy0_array(ap_linyyy1_array_t res, ap_linyyy0_array_t e, ap_environment_t* env, num_internal_t intern);
 
-MACRO_MAINZ
-bool ap_linyyy1_array_set_linyyyZZZ_array(ap_linyyy1_array_t a, ap_linyyyZZZ_array_t b, ap_environment_t* env, num_internal_t intern);
-bool ap_linyyyZZZ_array_set_linyyy1_array(ap_linyyyZZZ_array_t a, ap_linyyy1_array_t b, num_internal_t intern);
+MACRO_ALLX
+bool ap_linyyy1_array_set_linyyyXXX_array(ap_linyyy1_array_t a, ap_linyyyXXX_array_t b, ap_environment_t* env, num_internal_t intern);
+bool ap_linyyyXXX_array_set_linyyy1_array(ap_linyyyXXX_array_t a, ap_linyyy1_array_t b, num_internal_t intern);
 
-bool ap_linyyy1_array_set_index_linyyyZZZ(ap_linyyy1_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern);
-bool ap_linyyy1_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern);
+bool ap_linyyy1_array_set_index_linyyyXXX(ap_linyyy1_array_t p, size_t i, ap_linyyyXXX_t a, num_internal_t intern);
+bool ap_linyyy1_array_get_index_linyyyXXX(ap_linyyyXXX_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
@@ -105,9 +105,9 @@ ap_linyyy0_array_ptr ap_linyyy1_array_linyyy0_arrayref(ap_linyyy1_array_t e)
 
 MACRO_MAINZ
 static inline void ap_linyyy1_array_cons_ZZZ(ap_linyyy1_array_t res, ap_linyyyZZZ_array_t e, ap_environment_t* env)
-{ 
-  res->linyyy0_array->discr = AP_SCALAR_ZZZ; 
-  res->linyyy0_array->linyyy_array.ZZZ = e; 
+{
+  res->linyyy0_array->discr = AP_SCALAR_ZZZ;
+  res->linyyy0_array->linyyy_array.ZZZ = e;
   res->env = env;
 };
 ENDMACRO

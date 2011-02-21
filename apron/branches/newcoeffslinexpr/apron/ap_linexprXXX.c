@@ -2,14 +2,7 @@
 /* ap_linexprXXX.c: */
 /* ********************************************************************** */
 
-#include "eitvXXX.h"
-#include "eitvD.h"
-#include "eitvMPQ.h"
-#include "eitvMPFR.h"
-#include "ap_linexprconsgenXXX_conv.h"
-#include "ap_linexprconsgenD_conv.h"
-#include "ap_linexprconsgenMPQ_conv.h"
-#include "ap_linexprconsgenMPFR_conv.h"
+#include "ap_linexprXXX.h"
 #include "ap_texpr0.h"
 
 /* ********************************************************************** */

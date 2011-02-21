@@ -6,49 +6,12 @@
 #define _AP_LINEXPRXXX_H_
 
 #include <stdarg.h>
+#include "ap_linexprconsgen_types.h"
 #include "eitvXXX.h"
-#include "ap_dimension.h"
-#include "ap_coeff.h"
-#include "ap_var.h"
-#include "ap_environment.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifndef _ap_linexpr_type_t_
-#define  _ap_linexpr_type_t_
-typedef enum ap_linexpr_type_t {
-  AP_LINEXPR_INTLINEAR,
-  AP_LINEXPR_QUASILINEAR,
-  AP_LINEXPR_LINEAR
-} ap_linexpr_type_t;
-#endif
-
-/* Interval linear term */
-typedef struct ap_lintermXXX_struct {
-  eitvXXX_t eitv;
-  ap_dim_t dim;
-} ap_lintermXXX_struct;
-typedef ap_lintermXXX_struct* ap_lintermXXX_ptr;
-typedef ap_lintermXXX_struct ap_lintermXXX_t[1];
-
-/* Interval linear expression */
-typedef struct ap_linexprXXX_struct {
-  ap_lintermXXX_t* linterm;
-  size_t size;
-  eitvXXX_t cst;
-} ap_linexprXXX_struct;
-typedef ap_linexprXXX_struct ap_linexprXXX_t[1];
-typedef ap_linexprXXX_struct* ap_linexprXXX_ptr;
-
-/* Array of interval linear expressions */
-typedef struct ap_linexprXXX_array_struct {
-  ap_linexprXXX_t* p;
-  size_t size;
-} ap_linexprXXX_array_struct;
-typedef ap_linexprXXX_array_struct ap_linexprXXX_array_t[1];
-typedef ap_linexprXXX_array_struct* ap_linexprXXX_array_ptr;
 
 /* ********************************************************************** */
 /* I. Constructor and Destructor */
@@ -197,7 +160,18 @@ bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* 
        (_p_i)++)
 
 /* ********************************************************************** */
-/* IV. Arithmetic */
+/* IV. Conversions */
+/* ********************************************************************** */
+
+MACRO_MAINZ
+bool ap_linexprXXX_set_linexprZZZ(ap_linexprXXX_t a, ap_linexprZZZ_t b, num_internal_t intern);
+bool ap_linexprXXX_array_set_linexprZZZ_array(ap_linexprXXX_array_t a, ap_linexprZZZ_array_t b, num_internal_t intern);
+bool ap_linexprZZZ_set_linexprXXX(ap_linexprZZZ_t a, ap_linexprXXX_t b, num_internal_t intern);
+bool ap_linexprZZZ_array_set_linexprXXX_array(ap_linexprZZZ_array_t a, ap_linexprXXX_array_t b, num_internal_t intern);
+ENDMACRO
+
+/* ********************************************************************** */
+/* V. Arithmetic */
 /* ********************************************************************** */
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr);

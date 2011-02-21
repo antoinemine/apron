@@ -10,11 +10,7 @@
 #ifndef _AP_linyyy1_H_
 #define _AP_linyyy1_H_
 
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
 #include "ap_linyyy0.h"
 #include "ap_environment.h"
 #ifndef _AP_linexpr1_H_
@@ -146,9 +142,9 @@ void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
 /* ====================================================================== */
 
 void ap_linyyy1_extend_environment(ap_linyyy1_t nexpr,
-                                   bool* perror,
-                                   ap_linyyy1_t expr,
-                                   ap_environment_t* nenv);
+				   bool* perror,
+				   ap_linyyy1_t expr,
+				   ap_environment_t* nenv);
 
 static inline
 ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr)
