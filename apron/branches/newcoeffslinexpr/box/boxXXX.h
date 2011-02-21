@@ -29,13 +29,13 @@ ap_manager_t* boxXXX_manager_alloc(void);
 /* ============================================================ */
 
 boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a);
-  /* Return a copy of a box value, on 
+  /* Return a copy of a box value, on
      which destructive update does not affect the initial value. */
 
 void boxXXX_free(ap_manager_t* man, boxXXX_t* a);
   /* Free all the memory used by the box value */
 
-size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a); 
+size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a);
   /* Return the itv size of a box value (see ap_manager_t) */
 
 /* ============================================================ */
@@ -43,7 +43,7 @@ size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a);
 /* ============================================================ */
 
 void boxXXX_minimize(ap_manager_t* man, boxXXX_t* a);
-  /* Minimize the size of the representation of a. 
+  /* Minimize the size of the representation of a.
      This may result in a later recomputation of internal information.
   */
 
@@ -53,8 +53,8 @@ int boxXXX_hash(ap_manager_t* man, boxXXX_t* a);
   /* Return an hash code */
 
 void boxXXX_approximate(ap_manager_t* man, boxXXX_t* a, int algorithm);
-  /* Perform some transformation on the box value, guided by the 
-     field algorithm. 
+  /* Perform some transformation on the box value, guided by the
+     field algorithm.
 
      The transformation may lose information. */
 
@@ -65,36 +65,36 @@ bool boxXXX_is_canonical(ap_manager_t* man, boxXXX_t* a);
 /* I.3 Printing */
 /* ============================================================ */
 
-void boxXXX_fprint(FILE* stream, 
-	       ap_manager_t* man, 
-	       boxXXX_t* a, 
+void boxXXX_fprint(FILE* stream,
+	       ap_manager_t* man,
+	       boxXXX_t* a,
 	       char** name_of_dim);
-  /* Print the box value in a pretty way, using function 
+  /* Print the box value in a pretty way, using function
      name_of_dim to name dimensions */
 
-void boxXXX_fprintdiff(FILE* stream, 
-		   ap_manager_t* man, 
-		   boxXXX_t* a1, boxXXX_t* a2, 
+void boxXXX_fprintdiff(FILE* stream,
+		   ap_manager_t* man,
+		   boxXXX_t* a1, boxXXX_t* a2,
 		   char** name_of_dim);
-/* Print the difference between a1 (old value) and a2 (new value), 
+/* Print the difference between a1 (old value) and a2 (new value),
      using function name_of_dim to name dimensions.
      The meaning of difference is library dependent. */
 
 void boxXXX_fdump(FILE* stream, ap_manager_t* man, boxXXX_t* a);
-  /* Dump the internal representation of a box value, 
+  /* Dump the internal representation of a box value,
      for debugging purposes */
 
 /* ============================================================ */
 /* I.4 Serialization */
 /* ============================================================ */
 
-ap_membuf_t boxXXX_serialize_raw(ap_manager_t* man, boxXXX_t* a); 
+ap_membuf_t boxXXX_serialize_raw(ap_manager_t* man, boxXXX_t* a);
 /* Allocate a memory bfer (with malloc), output the box value in raw
    binary format to it and return a pointer on the memory buffer and the size
    of bytes written.  It is the user responsability to free the memory
    afterwards (with free). */
 
-boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr); 
+boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr);
 /* Return the box value read in raw binary format from the input stream
    and store in size the number of bytes read */
 /* ********************************************************************** */
@@ -114,10 +114,10 @@ boxXXX_t* boxXXX_bottom(ap_manager_t* man, ap_dimension_t dim);
 boxXXX_t* boxXXX_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
-boxXXX_t* boxXXX_of_box(ap_manager_t* man, 
+boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 			ap_dimension_t dim,
 			ap_box0_t box);
-  /* Abstract an hypercube defined by the array of intervals 
+  /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
 /* ============================================================ */
@@ -146,11 +146,11 @@ bool boxXXX_sat_tcons(ap_manager_t* man, boxXXX_t* a, ap_tcons0_t* tcons);
   /* does the box value satisfy the tree expression constraint ? */
 
 bool boxXXX_sat_interval(ap_manager_t* man,
-		      boxXXX_t* a, 
+		      boxXXX_t* a,
 		      ap_dim_t dim, ap_coeff_t interval);
   /* is the dimension included in the interval in the box value ? */
 
-bool boxXXX_is_dimension_unconstrained(ap_manager_t* man, 
+bool boxXXX_is_dimension_unconstrained(ap_manager_t* man,
 				       boxXXX_t* a, ap_dim_t dim);
   /* is the dimension unconstrained in the box value ?  If it
      is the case, we have forget(man,a,dim) == a */
@@ -159,22 +159,22 @@ bool boxXXX_is_dimension_unconstrained(ap_manager_t* man,
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-void boxXXX_bound_dimension(ap_manager_t* man, 
+void boxXXX_bound_dimension(ap_manager_t* man,
 			    ap_coeff_t interval,
 			    boxXXX_t* a, ap_dim_t dim);
-  /* Returns the interval taken by a linear expression  
+  /* Returns the interval taken by a linear expression
      over the box value */
 
-void boxXXX_bound_linexpr(ap_manager_t* man, 
+void boxXXX_bound_linexpr(ap_manager_t* man,
 			  ap_coeff_t interval,
 			  boxXXX_t* a, ap_linexpr0_t expr);
-  /* Returns the interval taken by a linear expression  
+  /* Returns the interval taken by a linear expression
      over the box value */
 
-void boxXXX_bound_texpr(ap_manager_t* man, 
+void boxXXX_bound_texpr(ap_manager_t* man,
 			ap_coeff_t interval,
 			boxXXX_t* a, ap_texpr0_t* expr);
-  /* Returns the interval taken by a tree expression  
+  /* Returns the interval taken by a tree expression
      over the box value */
 
 void boxXXX_to_box(ap_manager_t* man, ap_box0_t box, boxXXX_t* a);
@@ -183,7 +183,7 @@ void boxXXX_to_box(ap_manager_t* man, ap_box0_t box, boxXXX_t* a);
      function can be reimplemented by using boxXXX_bound_linexpr */
 
 void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXXX_t* a);
-  /* Converts a box value to a polyhedra 
+  /* Converts a box value to a polyhedra
      (conjunction of linear constraints).
      The size of the returned array is stored in size. */
 
@@ -259,7 +259,7 @@ boxXXX_assign_texpr_array(ap_manager_t* man,
 			  ap_dim_t* tdim, ap_texpr0_array_t* array,
 			  boxXXX_t* dest);
 
-boxXXX_t* 
+boxXXX_t*
 boxXXX_substitute_texpr_array(ap_manager_t* man,
 			      bool destructive,
 			      boxXXX_t* org,

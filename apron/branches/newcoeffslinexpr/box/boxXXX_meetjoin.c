@@ -253,7 +253,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
       else {
 	/* We have an interval */
 	/*
-	  - If we have [m;M]x+e' >= 0 with m>0, 
+	  - If we have [m;M]x+e' >= 0 with m>0,
 	    then [m,M]x>=inf(-e'), or [m,M]x>=-sup(e')
 	    so we need at least
 	    * if -sup(e')>=0: x>=-sup(e')/M
@@ -262,7 +262,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	    * inf(e')>=0: x>=inf(e')/-m
 	    * inf(e')<=0: x>=inf(e')/-M
 
-	  - If we have [m;M]x+e' >= 0 with M<0, 
+	  - If we have [m;M]x+e' >= 0 with M<0,
 	    then [-M,-m]x<=sup(e'), so we need at least
 	    * if sup(e')>=0: x<=sup(e')/-M
 	    * if sup(e')<=0: x<=sup(e')/-m
@@ -336,7 +336,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	      }
 	    }
 	    else {
-	      if (sgninf>=0){		
+	      if (sgninf>=0){
 		/* We compute -inf(e')/M */
 		boundXXX_div(intern->meet_lincons_internal_bound,
 			  intern->meet_lincons_internal_itv3->itv->neginf,
@@ -457,7 +457,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
     man->result.flag_exact = false;
     kmax = man->option.funopt[AP_FUNID_MEET_TCONS_ARRAY].algorithm;
     if (kmax<1) kmax=2;
-    
+
     ap_linconsXXX_array_init(tlincons,0);
     ap_linconsXXX_array_intlinearize_tcons0_array(tlincons,array,
 						  res->p,res->dim.intd,
