@@ -93,11 +93,14 @@ static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
 size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
 #if !defined(_AP_lingen0_ARRAY_H_)
 ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
-bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
-#endif
-
 bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
+bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
   /* Are all the constraints involved linear (resp. quasilinear) */
+bool ap_linyyy0_is_integer(ap_linyyy0_t expr, size_t intdim);
+bool ap_linyyy0_is_real(ap_linyyy0_t expr, size_t intdim);
+  /* Does the expression depends only on integer (resp. real) variables ? assuming
+     that the first intdim dimensions are integer */
+#endif
 
 bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
 bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
