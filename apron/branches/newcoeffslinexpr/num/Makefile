@@ -92,15 +92,15 @@ dist: $(H_SRC_FILES) $(C_SRC_FILES) macros.pl Makefile README
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-num_types.h: num_types.h.tmpl
+num_types.h: num_types.h.tmpl macros.pl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	./macros.pl $(SRCDIR)/$< >>$@
-num_internal.c: num_internal.c.tmpl
+num_internal.c: num_internal.c.tmpl macros.pl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	./macros.pl $(SRCDIR)/$< >>$@
-num_conv.c: num_conv.c.tmpl
+num_conv.c: num_conv.c.tmpl macros.pl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	./macros.pl $(SRCDIR)/$< >>$@

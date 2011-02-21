@@ -3,9 +3,6 @@
 /* num_conv.c */
 /* ********************************************************************** */
 
-#include "num_all.h"
-#include "bound_all.h"
-#include "itv_all.h"
 #include "eitv_all.h"
 
 /* ********************************************************************** */
@@ -1027,297 +1024,297 @@ inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern)
 /* 7. Conversions between numZZZ */
 /* ====================================================================== */
 
-MACRO_ALLZ
-#ifndef MARK_ZZZ_D
-#define MARK_ZZZ_D
-inline bool numD_fits_numZZZ(numD_t a)
-{ return double_fits_numZZZ(*a); }
-inline bool numZZZ_set_numD(numZZZ_t a, numD_t b, num_internal_t intern)
-{ return numZZZ_set_double(a,*b,intern); }
+MACRO_ALLX
+#ifndef MARK_XXX_D
+#define MARK_XXX_D
+inline bool numD_fits_numXXX(numD_t a)
+{ return double_fits_numXXX(*a); }
+inline bool numXXX_set_numD(numXXX_t a, numD_t b, num_internal_t intern)
+{ return numXXX_set_double(a,*b,intern); }
 #endif
 
-#ifndef MARK_ZZZ_MPQ
-#define MARK_ZZZ_MPQ
-inline bool numMPQ_fits_numZZZ(numMPQ_t a)
-{ return mpq_fits_numZZZ(a); }
-inline bool numZZZ_set_numMPQ(numZZZ_t a, numMPQ_t b, num_internal_t intern)
-{ return numZZZ_set_mpq(a,b,intern); }
+#ifndef MARK_XXX_MPQ
+#define MARK_XXX_MPQ
+inline bool numMPQ_fits_numXXX(numMPQ_t a)
+{ return mpq_fits_numXXX(a); }
+inline bool numXXX_set_numMPQ(numXXX_t a, numMPQ_t b, num_internal_t intern)
+{ return numXXX_set_mpq(a,b,intern); }
 #endif
 
-#ifndef MARK_ZZZ_MPFR
-#define MARK_ZZZ_MPFR
-inline bool numMPFR_fits_numZZZ(numMPFR_t a, num_internal_t intern)
-{ return mpfr_fits_numZZZ(a,intern); }
-inline bool numZZZ_set_numMPFR(numZZZ_t a, numMPFR_t b, num_internal_t intern)
-{ return numZZZ_set_mpfr(a,b,intern); }
+#ifndef MARK_XXX_MPFR
+#define MARK_XXX_MPFR
+inline bool numMPFR_fits_numXXX(numMPFR_t a, num_internal_t intern)
+{ return mpfr_fits_numXXX(a,intern); }
+inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, num_internal_t intern)
+{ return numXXX_set_mpfr(a,b,intern); }
 #endif
 
-#ifndef MARK_D_ZZZ
-#define MARK_D_ZZZ
-inline bool numZZZ_fits_numD(numZZZ_t a)
-{ return numZZZ_fits_double(a); }
-inline bool numD_set_numZZZ(numD_t a, numZZZ_t b, num_internal_t intern)
-{ return double_set_numZZZ(a,b,intern); }
+#ifndef MARK_D_XXX
+#define MARK_D_XXX
+inline bool numXXX_fits_numD(numXXX_t a)
+{ return numXXX_fits_double(a); }
+inline bool numD_set_numXXX(numD_t a, numXXX_t b, num_internal_t intern)
+{ return double_set_numXXX(a,b,intern); }
 #endif
 
-#ifndef MARK_MPQ_ZZZ
-#define MARK_MPQ_ZZZ
-inline bool numZZZ_fits_numMPQ(numZZZ_t a)
-{ return numZZZ_fits_mpq(a); }
-inline bool numMPQ_set_numZZZ(numMPQ_t a, numZZZ_t b, num_internal_t intern)
-{ return mpq_set_numZZZ(a,b,intern); }
+#ifndef MARK_MPQ_XXX
+#define MARK_MPQ_XXX
+inline bool numXXX_fits_numMPQ(numXXX_t a)
+{ return numXXX_fits_mpq(a); }
+inline bool numMPQ_set_numXXX(numMPQ_t a, numXXX_t b, num_internal_t intern)
+{ return mpq_set_numXXX(a,b,intern); }
 #endif
 
-#ifndef MARK_MPFR_ZZZ
-#define MARK_MPFR_ZZZ
-inline bool numZZZ_fits_numMPFR(numZZZ_t a)
-{ return numZZZ_fits_mpfr(a); }
-inline bool numMPFR_set_numZZZ(numMPFR_t a, numZZZ_t b, num_internal_t intern)
-{ return mpfr_set_numZZZ(a,b,intern); }
+#ifndef MARK_MPFR_XXX
+#define MARK_MPFR_XXX
+inline bool numXXX_fits_numMPFR(numXXX_t a)
+{ return numXXX_fits_mpfr(a); }
+inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, num_internal_t intern)
+{ return mpfr_set_numXXX(a,b,intern); }
 #endif
 ENDMACRO
 
-MACRO_ALLZ
-#undef MARK_ZZZ_D
-#undef MARK_ZZZ_MPQ
-#undef MARK_ZZZ_MPFR
-#undef MARK_D_ZZZ
-#undef MARK_MPQ_ZZZ
-#undef MARK_MPFR_ZZZ
+MACRO_ALLX
+#undef MARK_XXX_D
+#undef MARK_XXX_MPQ
+#undef MARK_XXX_MPFR
+#undef MARK_D_XXX
+#undef MARK_MPQ_XXX
+#undef MARK_MPFR_XXX
 ENDMACRO
 
 /* ********************************************************************** */
-/* II. boundZZZ */
+/* II. boundXXX */
 /* ********************************************************************** */
 
-MACRO_ALLZ
-inline void boundZZZ_to_float(boundZZZ_t a, boundZZZ_t b, num_internal_t intern)
+MACRO_ALLX
+inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
 {
-  if (boundZZZ_infty(b) || !numZZZ_fits_float(boundZZZ_numref(b)))
-    boundZZZ_set_infty(a,boundZZZ_sgn(b));
+  if (boundXXX_infty(b) || !numXXX_fits_float(boundXXX_numref(b)))
+    boundXXX_set_infty(a,boundXXX_sgn(b));
   else {
     double d;
-    double_set_numZZZ(&d,boundZZZ_numref(b),intern);
-    numZZZ_set_double(boundZZZ_numref(a),(double)((float)d),intern);
-    _boundZZZ_inf(a);
+    double_set_numXXX(&d,boundXXX_numref(b),intern);
+    numXXX_set_double(boundXXX_numref(a),(double)((float)d),intern);
+    _boundXXX_inf(a);
   }
 }
-inline void boundZZZ_to_double(boundZZZ_t a, boundZZZ_t b, num_internal_t intern)
+inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
 {
-  if (boundZZZ_infty(b) || !numZZZ_fits_double(boundZZZ_numref(b)))
-    boundZZZ_set_infty(a,boundZZZ_sgn(b));
+  if (boundXXX_infty(b) || !numXXX_fits_double(boundXXX_numref(b)))
+    boundXXX_set_infty(a,boundXXX_sgn(b));
   else {
     double d;
-    double_set_numZZZ(&d,boundZZZ_numref(b),intern);
-    numZZZ_set_double(boundZZZ_numref(a),d,intern);
-    _boundZZZ_inf(a);
+    double_set_numXXX(&d,boundXXX_numref(b),intern);
+    numXXX_set_double(boundXXX_numref(a),d,intern);
+    _boundXXX_inf(a);
   }
 }
 
-inline bool boundZZZ_set_lint(boundZZZ_t a, long int b, num_internal_t intern)
+inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern)
 {
-  if (lint_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_lint(boundZZZ_numref(a),b,intern);
+  if (lint_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_lint(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_llint(boundZZZ_t a, long long int b, num_internal_t intern)
+inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern)
 {
-  if (llint_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_llint(boundZZZ_numref(a),b,intern);
+  if (llint_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_llint(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_mpz(boundZZZ_t a, mpz_t b, num_internal_t intern)
+inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern)
 {
-  if (mpz_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_mpz(boundZZZ_numref(a),b,intern);
+  if (mpz_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_mpz(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_lfrac(boundZZZ_t a, long int i, long int j, num_internal_t intern)
+inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern)
 {
-  if (lfrac_fits_numZZZ(i,j)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_lfrac(boundZZZ_numref(a),i,j,intern);
+  if (lfrac_fits_numXXX(i,j)){
+    _boundXXX_inf(a);
+    return numXXX_set_lfrac(boundXXX_numref(a),i,j,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_llfrac(boundZZZ_t a, long long int i, long long int j, num_internal_t intern)
+inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern)
 {
-  if (llfrac_fits_numZZZ(i,j)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_lfrac(boundZZZ_numref(a),i,j,intern);
+  if (llfrac_fits_numXXX(i,j)){
+    _boundXXX_inf(a);
+    return numXXX_set_lfrac(boundXXX_numref(a),i,j,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_mpq(boundZZZ_t a, mpq_t b, num_internal_t intern)
+inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern)
 {
-  if (mpq_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_mpq(boundZZZ_numref(a),b,intern);
+  if (mpq_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_mpq(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_double(boundZZZ_t a, double b, num_internal_t intern)
+inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern)
 {
-  if (double_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_double(boundZZZ_numref(a),b,intern);
+  if (double_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_double(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_ldouble(boundZZZ_t a, long double b, num_internal_t intern)
+inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern)
 {
-  if (ldouble_fits_numZZZ(b)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_ldouble(boundZZZ_numref(a),b,intern);
+  if (ldouble_fits_numXXX(b)){
+    _boundXXX_inf(a);
+    return numXXX_set_ldouble(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_mpfr(boundZZZ_t a, mpfr_t b, num_internal_t intern)
+inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern)
 {
-  if (mpfr_fits_numZZZ(b,intern)){
-    _boundZZZ_inf(a);
-    return numZZZ_set_mpfr(boundZZZ_numref(a),b,intern);
+  if (mpfr_fits_numXXX(b,intern)){
+    _boundXXX_inf(a);
+    return numXXX_set_mpfr(boundXXX_numref(a),b,intern);
   }
   else {
-    boundZZZ_set_infty(a,1);
+    boundXXX_set_infty(a,1);
     return false;
   }
 }
-inline bool boundZZZ_set_numIl(boundZZZ_t a, numIl_t b, num_internal_t intern)
-{ return boundZZZ_set_lint(a,*b,intern); }
-inline bool boundZZZ_set_numIll(boundZZZ_t a, numIll_t b, num_internal_t intern)
-{ return boundZZZ_set_llint(a,*b,intern); }
-inline bool boundZZZ_set_numMPZ(boundZZZ_t a, numMPZ_t b, num_internal_t intern)
-{ return boundZZZ_set_mpz(a,b,intern); }
-inline bool boundZZZ_set_numRl(boundZZZ_t a, numRl_t b, num_internal_t intern)
-{ return boundZZZ_set_lfrac(a,*b->n,*b->d,intern); }
-inline bool boundZZZ_set_numRll(boundZZZ_t a, numRll_t b, num_internal_t intern)
-{ return boundZZZ_set_llfrac(a,*b->n,*b->d,intern); }
-inline bool boundZZZ_set_numMPQ(boundZZZ_t a, numMPQ_t b, num_internal_t intern)
-{ return boundZZZ_set_mpq(a,b,intern); }
-inline bool boundZZZ_set_numD(boundZZZ_t a, numD_t b, num_internal_t intern)
-{ return boundZZZ_set_double(a,*b,intern); }
-inline bool boundZZZ_set_numDl(boundZZZ_t a, numDl_t b, num_internal_t intern)
-{ return boundZZZ_set_ldouble(a,*b,intern); }
-inline bool boundZZZ_set_numMPFR(boundZZZ_t a, numMPFR_t b, num_internal_t intern)
-{ return boundZZZ_set_mpfr(a,b,intern); }
+inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern)
+{ return boundXXX_set_lint(a,*b,intern); }
+inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern)
+{ return boundXXX_set_llint(a,*b,intern); }
+inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern)
+{ return boundXXX_set_mpz(a,b,intern); }
+inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern)
+{ return boundXXX_set_lfrac(a,*b->n,*b->d,intern); }
+inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern)
+{ return boundXXX_set_llfrac(a,*b->n,*b->d,intern); }
+inline bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern)
+{ return boundXXX_set_mpq(a,b,intern); }
+inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern)
+{ return boundXXX_set_double(a,*b,intern); }
+inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern)
+{ return boundXXX_set_ldouble(a,*b,intern); }
+inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern)
+{ return boundXXX_set_mpfr(a,b,intern); }
 ENDMACRO
 
 /* ********************************************************************** */
-/* III. itvZZZ */
+/* III. itvXXX */
 /* ********************************************************************** */
 
-MACRO_ALLZ
-inline void itvZZZ_to_float(itvZZZ_t a, itvZZZ_t b, num_internal_t intern)
+MACRO_ALLX
+inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
-  boundZZZ_to_float(a->sup,b->sup,intern);
-  boundZZZ_to_float(a->neginf,b->neginf,intern);
+  boundXXX_to_float(a->sup,b->sup,intern);
+  boundXXX_to_float(a->neginf,b->neginf,intern);
 }
 
-inline void itvZZZ_to_double(itvZZZ_t a, itvZZZ_t b, num_internal_t intern)
+inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
-  boundZZZ_to_double(a->sup,b->sup,intern);
-  boundZZZ_to_double(a->neginf,b->neginf,intern);
+  boundXXX_to_double(a->sup,b->sup,intern);
+  boundXXX_to_double(a->neginf,b->neginf,intern);
 }
 
-inline bool itvZZZ_set_lint(itvZZZ_t a, long int b, num_internal_t intern)
-{ return itvZZZ_set_lint2(a,b,b,intern); }
-inline bool itvZZZ_set_lint2(itvZZZ_t a, long int b, long int c, num_internal_t intern)
+inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern)
+{ return itvXXX_set_lint2(a,b,b,intern); }
+inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern)
 {
-  bool res = boundZZZ_set_lint(a->neginf,-b,intern);
-  return boundZZZ_set_lint(a->sup,c,intern) && res;
+  bool res = boundXXX_set_lint(a->neginf,-b,intern);
+  return boundXXX_set_lint(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_llint(itvZZZ_t a, long long int b, num_internal_t intern)
-{ return itvZZZ_set_llint2(a,b,b,intern); }
-inline bool itvZZZ_set_llint2(itvZZZ_t a, long long int b, long long int c, num_internal_t intern)
+inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern)
+{ return itvXXX_set_llint2(a,b,b,intern); }
+inline bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern)
 {
-  bool res = boundZZZ_set_llint(a->neginf,-b,intern);
-  return boundZZZ_set_llint(a->sup,c,intern) && res;
+  bool res = boundXXX_set_llint(a->neginf,-b,intern);
+  return boundXXX_set_llint(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_mpz(itvZZZ_t a, mpz_t b, num_internal_t intern)
-{ return itvZZZ_set_mpz2(a,b,b,intern); }
-inline bool itvZZZ_set_mpz2(itvZZZ_t a, mpz_t b, mpz_t c, num_internal_t intern)
+inline bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern)
+{ return itvXXX_set_mpz2(a,b,b,intern); }
+inline bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
 {
   mpz_neg(b,b);
-  bool res = boundZZZ_set_mpz(a->neginf,b,intern);
+  bool res = boundXXX_set_mpz(a->neginf,b,intern);
   mpz_neg(b,b);
-  return boundZZZ_set_mpz(a->sup,c,intern) && res;
+  return boundXXX_set_mpz(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_lfrac(itvZZZ_t a, long int i, long int j, num_internal_t intern)
-{ return itvZZZ_set_lfrac2(a,i,j,i,j,intern); }
-inline bool itvZZZ_set_lfrac2(itvZZZ_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
+inline bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern)
+{ return itvXXX_set_lfrac2(a,i,j,i,j,intern); }
+inline bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
 {
-  bool res = boundZZZ_set_lfrac(a->neginf,-i,j,intern);
-  return boundZZZ_set_lfrac(a->sup,k,l,intern) && res;
+  bool res = boundXXX_set_lfrac(a->neginf,-i,j,intern);
+  return boundXXX_set_lfrac(a->sup,k,l,intern) && res;
 }
-inline bool itvZZZ_set_llfrac(itvZZZ_t a, long long int i, long long int j, num_internal_t intern)
-{ return itvZZZ_set_llfrac2(a,i,j,i,j,intern); }
-inline bool itvZZZ_set_llfrac2(itvZZZ_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
+inline bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern)
+{ return itvXXX_set_llfrac2(a,i,j,i,j,intern); }
+inline bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
 {
-  bool res = boundZZZ_set_llfrac(a->neginf,-i,j,intern);
-  return boundZZZ_set_llfrac(a->sup,k,l,intern) && res;
+  bool res = boundXXX_set_llfrac(a->neginf,-i,j,intern);
+  return boundXXX_set_llfrac(a->sup,k,l,intern) && res;
 }
-inline bool itvZZZ_set_mpq(itvZZZ_t a, mpq_t b, num_internal_t intern)
-{ return itvZZZ_set_mpq2(a,b,b,intern); }
-inline bool itvZZZ_set_mpq2(itvZZZ_t a, mpq_t b, mpq_t c, num_internal_t intern)
+inline bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern)
+{ return itvXXX_set_mpq2(a,b,b,intern); }
+inline bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
 {
   mpq_neg(b,b);
-  bool res = boundZZZ_set_mpq(a->neginf,b,intern);
+  bool res = boundXXX_set_mpq(a->neginf,b,intern);
   mpq_neg(b,b);
-  return boundZZZ_set_mpq(a->sup,c,intern) && res;
+  return boundXXX_set_mpq(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_double(itvZZZ_t a, double b, num_internal_t intern)
-{ return itvZZZ_set_double2(a,b,b,intern); }
-inline bool itvZZZ_set_double2(itvZZZ_t a, double b, double c, num_internal_t intern)
+inline bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern)
+{ return itvXXX_set_double2(a,b,b,intern); }
+inline bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern)
 {
-  bool res = boundZZZ_set_double(a->neginf,-b,intern);
-  return boundZZZ_set_double(a->sup,c,intern) && res;
+  bool res = boundXXX_set_double(a->neginf,-b,intern);
+  return boundXXX_set_double(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_ldouble(itvZZZ_t a, long double b, num_internal_t intern)
-{ return itvZZZ_set_ldouble2(a,b,b,intern); }
-inline bool itvZZZ_set_ldouble2(itvZZZ_t a, long double b, long double c, num_internal_t intern)
+inline bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern)
+{ return itvXXX_set_ldouble2(a,b,b,intern); }
+inline bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern)
 {
-  bool res = boundZZZ_set_ldouble(a->neginf,-b,intern);
-  return boundZZZ_set_ldouble(a->sup,c,intern) && res;
+  bool res = boundXXX_set_ldouble(a->neginf,-b,intern);
+  return boundXXX_set_ldouble(a->sup,c,intern) && res;
 }
-inline bool itvZZZ_set_mpfr(itvZZZ_t a, mpfr_t b, num_internal_t intern)
-{ return itvZZZ_set_mpfr2(a,b,b,intern); }
-inline bool itvZZZ_set_mpfr2(itvZZZ_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
+inline bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern)
+{ return itvXXX_set_mpfr2(a,b,b,intern); }
+inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
 {
   mpfr_neg(b,b,GMP_RNDU);
-  bool res = boundZZZ_set_mpfr(a->neginf,b,intern);
+  bool res = boundXXX_set_mpfr(a->neginf,b,intern);
   mpfr_neg(b,b,GMP_RNDU);
-  return boundZZZ_set_mpfr(a->sup,c,intern) && res;
+  return boundXXX_set_mpfr(a->sup,c,intern) && res;
 }
 ENDMACRO
 
@@ -1335,225 +1332,225 @@ inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
 }
 ENDMACRO
 
-MACRO_ALLZ
-bool itvZZZ_set_generic(num_internal_t intern,
-			itvZZZ_t a, itv_tag_t tag, va_list* va)
+MACRO_ALLX
+bool itvXXX_set_generic(num_internal_t intern,
+			itvXXX_t a, itv_tag_t tag, va_list* va)
 {
   bool res;
   switch (tag){
   case ITV_NUM:
-    { numZZZ_ptr b = va_arg(*va,numZZZ_ptr);
-      itvZZZ_set_num(a,b);
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      itvXXX_set_num(a,b);
       res = true; }
     break;
   case ITV_NUM2:
-    { numZZZ_ptr b = va_arg(*va,numZZZ_ptr);
-      numZZZ_ptr c = va_arg(*va,numZZZ_ptr);
-      itvZZZ_set_num2(a,b,c);
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      numXXX_ptr c = va_arg(*va,numXXX_ptr);
+      itvXXX_set_num2(a,b,c);
       res = true; }
     break;
   case ITV_ITV:
-    { itvZZZ_ptr b = va_arg(*va,itvZZZ_ptr);
-      itvZZZ_set(a,b);
+    { itvXXX_ptr b = va_arg(*va,itvXXX_ptr);
+      itvXXX_set(a,b);
       res = true; }
     break;
   case ITV_ITVD:
     { itvD_ptr b = va_arg(*va,itvD_ptr);
-      res = itvZZZ_set_itvD(a,b,intern); }
+      res = itvXXX_set_itvD(a,b,intern); }
     break;
   case ITV_ITVMPQ:
     { itvMPQ_ptr b = va_arg(*va,itvMPQ_ptr);
-      res = itvZZZ_set_itvMPQ(a,b,intern); }
+      res = itvXXX_set_itvMPQ(a,b,intern); }
     break;
   case ITV_ITVMPFR:
     { itvMPFR_ptr b = va_arg(*va,itvMPFR_ptr);
-      res = itvZZZ_set_itvMPFR(a,b,intern); }
+      res = itvXXX_set_itvMPFR(a,b,intern); }
     break;
   case ITV_NUMD:
     { numD_ptr b = va_arg(*va,numD_ptr);
-      res = itvZZZ_set_numD(a,b,intern); }
+      res = itvXXX_set_numD(a,b,intern); }
     break;
   case ITV_NUMMPQ:
     { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
-      res = itvZZZ_set_numMPQ(a,b,intern); }
+      res = itvXXX_set_numMPQ(a,b,intern); }
     break;
   case ITV_NUMMPFR:
     { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
-      res = itvZZZ_set_numMPFR(a,b,intern); }
+      res = itvXXX_set_numMPFR(a,b,intern); }
     break;
   case ITV_NUMD2:
     { numD_ptr b = va_arg(*va,numD_ptr);
       numD_ptr c = va_arg(*va,numD_ptr);
-      res = itvZZZ_set_numD2(a,b,c,intern); }
+      res = itvXXX_set_numD2(a,b,c,intern); }
     break;
   case ITV_NUMMPQ2:
     { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
       numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
-      res = itvZZZ_set_numMPQ2(a,b,c,intern); }
+      res = itvXXX_set_numMPQ2(a,b,c,intern); }
     break;
   case ITV_NUMMPFR2:
     { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
       numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
-      res = itvZZZ_set_numMPFR2(a,b,c,intern); }
+      res = itvXXX_set_numMPFR2(a,b,c,intern); }
     break;
   case ITV_LINT:
     { long int b = va_arg(*va,long int);
-      res = itvZZZ_set_lint(a,b,intern); }
+      res = itvXXX_set_lint(a,b,intern); }
     break;
   case ITV_LINT2:
     { long int b = va_arg(*va,long int);
       long int c = va_arg(*va,long int);
-      res = itvZZZ_set_lint2(a,b,c,intern); }
+      res = itvXXX_set_lint2(a,b,c,intern); }
     break;
   case ITV_LLINT:
     { long long int b = va_arg(*va,long long int);
-      res = itvZZZ_set_llint(a,b,intern); }
+      res = itvXXX_set_llint(a,b,intern); }
     break;
   case ITV_LLINT2:
     { long long int b = va_arg(*va,long long int);
       long long int c = va_arg(*va,long long int);
-      res = itvZZZ_set_llint2(a,b,c,intern); }
+      res = itvXXX_set_llint2(a,b,c,intern); }
     break;
   case ITV_MPZ:
     { mpz_ptr b = va_arg(*va,mpz_ptr);
-      res = itvZZZ_set_mpz(a,b,intern); }
+      res = itvXXX_set_mpz(a,b,intern); }
     break;
   case ITV_MPZ2:
     { mpz_ptr b = va_arg(*va,mpz_ptr);
       mpz_ptr c = va_arg(*va,mpz_ptr);
-      res = itvZZZ_set_mpz2(a,b,c,intern); }
+      res = itvXXX_set_mpz2(a,b,c,intern); }
     break;
   case ITV_LFRAC:
     { long int i = va_arg(*va,long int);
       long int j = va_arg(*va,long int);
-      res = itvZZZ_set_lfrac(a,i,j,intern); }
+      res = itvXXX_set_lfrac(a,i,j,intern); }
     break;
   case ITV_LFRAC2:
     { long int i = va_arg(*va,long int);
       long int j = va_arg(*va,long int);
       long int k = va_arg(*va,long int);
       long int l = va_arg(*va,long int);
-      res = itvZZZ_set_lfrac2(a,i,j,k,l,intern); }
+      res = itvXXX_set_lfrac2(a,i,j,k,l,intern); }
     break;
   case ITV_LLFRAC:
     { long long int i = va_arg(*va,long long int);
       long long int j = va_arg(*va,long long int);
-      res = itvZZZ_set_llfrac(a,i,j,intern); }
+      res = itvXXX_set_llfrac(a,i,j,intern); }
     break;
   case ITV_LLFRAC2:
     { long long int i = va_arg(*va,long long int);
       long long int j = va_arg(*va,long long int);
       long long int k = va_arg(*va,long long int);
       long long int l = va_arg(*va,long long int);
-      res = itvZZZ_set_llfrac2(a,i,j,k,l,intern); }
+      res = itvXXX_set_llfrac2(a,i,j,k,l,intern); }
     break;
   case ITV_MPQ:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
-      res = itvZZZ_set_mpq(a,b,intern); }
+      res = itvXXX_set_mpq(a,b,intern); }
     break;
   case ITV_MPQ2:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
       mpq_ptr c = va_arg(*va,mpq_ptr);
-      res = itvZZZ_set_mpq2(a,b,c,intern); }
+      res = itvXXX_set_mpq2(a,b,c,intern); }
     break;
   case ITV_DOUBLE:
     { double b = va_arg(*va,double);
-      res = itvZZZ_set_double(a,b,intern); }
+      res = itvXXX_set_double(a,b,intern); }
     break;
   case ITV_DOUBLE2:
     { double b = va_arg(*va,double);
       double c = va_arg(*va,double);
-      res = itvZZZ_set_double2(a,b,c,intern); }
+      res = itvXXX_set_double2(a,b,c,intern); }
     break;
   case ITV_LDOUBLE:
     { long double b = va_arg(*va,long double);
-      res = itvZZZ_set_ldouble(a,b,intern); }
+      res = itvXXX_set_ldouble(a,b,intern); }
     break;
   case ITV_LDOUBLE2:
     { long double b = va_arg(*va,long double);
       long double c = va_arg(*va,long double);
-      res = itvZZZ_set_ldouble2(a,b,c,intern); }
+      res = itvXXX_set_ldouble2(a,b,c,intern); }
     break;
   case ITV_MPFR:
     { mpfr_ptr b = va_arg(*va,mpfr_ptr);
-      res = itvZZZ_set_mpfr(a,b,intern); }
+      res = itvXXX_set_mpfr(a,b,intern); }
     break;
   case ITV_MPFR2:
     { mpfr_ptr b = va_arg(*va,mpfr_ptr);
       mpfr_ptr c = va_arg(*va,mpfr_ptr);
-      res = itvZZZ_set_mpfr2(a,b,c,intern); }
+      res = itvXXX_set_mpfr2(a,b,c,intern); }
     break;
   default:
     fprintf(stderr,
-	    "itvZZZ_set_generic: unknown tag\n");
+	    "itvXXX_set_generic: unknown tag\n");
     abort();
   }
   return res;
 }
-bool itvZZZ_set_val(num_internal_t intern,
-		    itvZZZ_t a, itv_tag_t tag, ...)
+bool itvXXX_set_val(num_internal_t intern,
+		    itvXXX_t a, itv_tag_t tag, ...)
 {
   va_list va;
   bool res;
   va_start(va,tag);
-  res = itvZZZ_set_generic(intern,a,tag,&va);
+  res = itvXXX_set_generic(intern,a,tag,&va);
   va_end(va);
   return res;
 }
 ENDMACRO
 
 /* ********************************************************************** */
-/* IV. eitvZZZ */
+/* IV. eitvXXX */
 /* ********************************************************************** */
 
-MACRO_ALLZ
-void eitvZZZ_to_float(eitvZZZ_t a, eitvZZZ_t b, num_internal_t intern)
+MACRO_ALLX
+void eitvXXX_to_float(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
-  itvZZZ_to_float(a->itv,b->itv, intern);
-  a->eq = itvZZZ_is_point(a->itv);
+  itvXXX_to_float(a->itv,b->itv, intern);
+  a->eq = itvXXX_is_point(a->itv);
 }
-void eitvZZZ_to_double(eitvZZZ_t a, eitvZZZ_t b, num_internal_t intern)
+void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
-  itvZZZ_to_double(a->itv,b->itv, intern);
-  a->eq = itvZZZ_is_point(a->itv);
+  itvXXX_to_double(a->itv,b->itv, intern);
+  a->eq = itvXXX_is_point(a->itv);
 }
-bool eitvZZZ_set_lint(eitvZZZ_t a, long int b, num_internal_t intern)
-{ a->eq = itvZZZ_set_lint(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_llint(eitvZZZ_t a, long long int b, num_internal_t intern)
-{ a->eq = itvZZZ_set_llint(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_mpz(eitvZZZ_t a, mpz_t b, num_internal_t intern)
-{ a->eq = itvZZZ_set_mpz(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_lfrac(eitvZZZ_t a, long int i, long int j, num_internal_t intern)
-{ a->eq = itvZZZ_set_lfrac(a->itv,i,j,intern); return a->eq; }
-bool eitvZZZ_set_llfrac(eitvZZZ_t a, long long int i, long long int j, num_internal_t intern)
-{ a->eq = itvZZZ_set_llfrac(a->itv,i,j,intern); return a->eq; }
-bool eitvZZZ_set_mpq(eitvZZZ_t a, mpq_t b, num_internal_t intern)
-{ a->eq = itvZZZ_set_mpq(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_double(eitvZZZ_t a, double b, num_internal_t intern)
-{ a->eq = itvZZZ_set_double(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_ldouble(eitvZZZ_t a, long double b, num_internal_t intern)
-{ a->eq = itvZZZ_set_ldouble(a->itv,b,intern); return a->eq; }
-bool eitvZZZ_set_mpfr(eitvZZZ_t a, mpfr_t b, num_internal_t intern)
-{ a->eq = itvZZZ_set_mpfr(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_lint(eitvXXX_t a, long int b, num_internal_t intern)
+{ a->eq = itvXXX_set_lint(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_llint(eitvXXX_t a, long long int b, num_internal_t intern)
+{ a->eq = itvXXX_set_llint(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_mpz(eitvXXX_t a, mpz_t b, num_internal_t intern)
+{ a->eq = itvXXX_set_mpz(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_lfrac(eitvXXX_t a, long int i, long int j, num_internal_t intern)
+{ a->eq = itvXXX_set_lfrac(a->itv,i,j,intern); return a->eq; }
+bool eitvXXX_set_llfrac(eitvXXX_t a, long long int i, long long int j, num_internal_t intern)
+{ a->eq = itvXXX_set_llfrac(a->itv,i,j,intern); return a->eq; }
+bool eitvXXX_set_mpq(eitvXXX_t a, mpq_t b, num_internal_t intern)
+{ a->eq = itvXXX_set_mpq(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_double(eitvXXX_t a, double b, num_internal_t intern)
+{ a->eq = itvXXX_set_double(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_ldouble(eitvXXX_t a, long double b, num_internal_t intern)
+{ a->eq = itvXXX_set_ldouble(a->itv,b,intern); return a->eq; }
+bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, num_internal_t intern)
+{ a->eq = itvXXX_set_mpfr(a->itv,b,intern); return a->eq; }
 
-bool eitvZZZ_set_lint2(eitvZZZ_t a, long int b, long int c, num_internal_t intern)
-{ bool res = itvZZZ_set_lint2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_llint2(eitvZZZ_t a, long long int b, long long int c, num_internal_t intern)
-{ bool res = itvZZZ_set_llint2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_mpz2(eitvZZZ_t a, mpz_t b, mpz_t c, num_internal_t intern)
-{ bool res = itvZZZ_set_mpz2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_lfrac2(eitvZZZ_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
-{ bool res = itvZZZ_set_lfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_llfrac2(eitvZZZ_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
-{ bool res = itvZZZ_set_llfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_mpq2(eitvZZZ_t a, mpq_t b, mpq_t c, num_internal_t intern)
-{ bool res = itvZZZ_set_mpq2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_double2(eitvZZZ_t a, double b, double c, num_internal_t intern)
-{ bool res = itvZZZ_set_double2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_ldouble2(eitvZZZ_t a, long double b, long double c, num_internal_t intern)
-{ bool res = itvZZZ_set_ldouble2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
-bool eitvZZZ_set_mpfr2(eitvZZZ_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
-{ bool res = itvZZZ_set_mpfr2(a->itv,b,c,intern); a->eq = res && eitvZZZ_is_point(a); return res; }
+bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, num_internal_t intern)
+{ bool res = itvXXX_set_lint2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, num_internal_t intern)
+{ bool res = itvXXX_set_llint2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
+{ bool res = itvXXX_set_mpz2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
+{ bool res = itvXXX_set_lfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
+{ bool res = itvXXX_set_llfrac2(a->itv,i,j,k,l,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
+{ bool res = itvXXX_set_mpq2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, num_internal_t intern)
+{ bool res = itvXXX_set_double2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, num_internal_t intern)
+{ bool res = itvXXX_set_ldouble2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
+bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
+{ bool res = itvXXX_set_mpfr2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 ENDMACRO
 
 MACRO_ALLX_ALLZ
@@ -1563,167 +1560,167 @@ bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t int
 { bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 ENDMACRO
 
-MACRO_ALLZ
-bool eitvZZZ_set_generic(num_internal_t intern,
-			 eitvZZZ_t a, eitv_tag_t tag, va_list* va)
+MACRO_ALLX
+bool eitvXXX_set_generic(num_internal_t intern,
+			 eitvXXX_t a, eitv_tag_t tag, va_list* va)
 {
   bool res;
   switch (tag){
   case EITV_NUM:
-    { numZZZ_ptr b = va_arg(*va,numZZZ_ptr);
-      eitvZZZ_set_num(a,b);
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      eitvXXX_set_num(a,b);
       res = true; }
     break;
   case EITV_NUM2:
-    { numZZZ_ptr b = va_arg(*va,numZZZ_ptr);
-      numZZZ_ptr c = va_arg(*va,numZZZ_ptr);
-      eitvZZZ_set_num2(a,b,c);
+    { numXXX_ptr b = va_arg(*va,numXXX_ptr);
+      numXXX_ptr c = va_arg(*va,numXXX_ptr);
+      eitvXXX_set_num2(a,b,c);
       res = true; }
     break;
   case EITV_EITV:
-    { eitvZZZ_ptr b = va_arg(*va,eitvZZZ_ptr);
-      eitvZZZ_set(a,b);
+    { eitvXXX_ptr b = va_arg(*va,eitvXXX_ptr);
+      eitvXXX_set(a,b);
       res = true; }
     break;
   case EITV_EITVD:
     { eitvD_ptr b = va_arg(*va,eitvD_ptr);
-      res = eitvZZZ_set_eitvD(a,b,intern); }
+      res = eitvXXX_set_eitvD(a,b,intern); }
     break;
   case EITV_EITVMPQ:
     { eitvMPQ_ptr b = va_arg(*va,eitvMPQ_ptr);
-      res = eitvZZZ_set_eitvMPQ(a,b,intern); }
+      res = eitvXXX_set_eitvMPQ(a,b,intern); }
     break;
   case EITV_EITVMPFR:
     { eitvMPFR_ptr b = va_arg(*va,eitvMPFR_ptr);
-      res = eitvZZZ_set_eitvMPFR(a,b,intern); }
+      res = eitvXXX_set_eitvMPFR(a,b,intern); }
     break;
   case EITV_NUMD:
     { numD_ptr b = va_arg(*va,numD_ptr);
-      res = eitvZZZ_set_numD(a,b,intern); }
+      res = eitvXXX_set_numD(a,b,intern); }
     break;
   case EITV_NUMMPQ:
     { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
-      res = eitvZZZ_set_numMPQ(a,b,intern); }
+      res = eitvXXX_set_numMPQ(a,b,intern); }
     break;
   case EITV_NUMMPFR:
     { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
-      res = eitvZZZ_set_numMPFR(a,b,intern); }
+      res = eitvXXX_set_numMPFR(a,b,intern); }
     break;
   case EITV_NUMD2:
     { numD_ptr b = va_arg(*va,numD_ptr);
       numD_ptr c = va_arg(*va,numD_ptr);
-      res = eitvZZZ_set_numD2(a,b,c,intern); }
+      res = eitvXXX_set_numD2(a,b,c,intern); }
     break;
   case EITV_NUMMPQ2:
     { numMPQ_ptr b = va_arg(*va,numMPQ_ptr);
       numMPQ_ptr c = va_arg(*va,numMPQ_ptr);
-      res = eitvZZZ_set_numMPQ2(a,b,c,intern); }
+      res = eitvXXX_set_numMPQ2(a,b,c,intern); }
     break;
   case EITV_NUMMPFR2:
     { numMPFR_ptr b = va_arg(*va,numMPFR_ptr);
       numMPFR_ptr c = va_arg(*va,numMPFR_ptr);
-      res = eitvZZZ_set_numMPFR2(a,b,c,intern); }
+      res = eitvXXX_set_numMPFR2(a,b,c,intern); }
     break;
   case EITV_LINT:
     { long int b = va_arg(*va,long int);
-      res = eitvZZZ_set_lint(a,b,intern); }
+      res = eitvXXX_set_lint(a,b,intern); }
     break;
   case EITV_LINT2:
     { long int b = va_arg(*va,long int);
       long int c = va_arg(*va,long int);
-      res = eitvZZZ_set_lint2(a,b,c,intern); }
+      res = eitvXXX_set_lint2(a,b,c,intern); }
     break;
   case EITV_LLINT:
     { long long int b = va_arg(*va,long long int);
-      res = eitvZZZ_set_llint(a,b,intern); }
+      res = eitvXXX_set_llint(a,b,intern); }
     break;
   case EITV_LLINT2:
     { long long int b = va_arg(*va,long long int);
       long long int c = va_arg(*va,long long int);
-      res = eitvZZZ_set_llint2(a,b,c,intern); }
+      res = eitvXXX_set_llint2(a,b,c,intern); }
     break;
   case EITV_MPZ:
     { mpz_ptr b = va_arg(*va,mpz_ptr);
-      res = eitvZZZ_set_mpz(a,b,intern); }
+      res = eitvXXX_set_mpz(a,b,intern); }
     break;
   case EITV_MPZ2:
     { mpz_ptr b = va_arg(*va,mpz_ptr);
       mpz_ptr c = va_arg(*va,mpz_ptr);
-      res = eitvZZZ_set_mpz2(a,b,c,intern); }
+      res = eitvXXX_set_mpz2(a,b,c,intern); }
     break;
   case EITV_LFRAC:
     { long int i = va_arg(*va,long int);
       long int j = va_arg(*va,long int);
-      res = eitvZZZ_set_lfrac(a,i,j,intern); }
+      res = eitvXXX_set_lfrac(a,i,j,intern); }
     break;
   case EITV_LFRAC2:
     { long int i = va_arg(*va,long int);
       long int j = va_arg(*va,long int);
       long int k = va_arg(*va,long int);
       long int l = va_arg(*va,long int);
-      res = eitvZZZ_set_lfrac2(a,i,j,k,l,intern); }
+      res = eitvXXX_set_lfrac2(a,i,j,k,l,intern); }
     break;
   case EITV_LLFRAC:
     { long long int i = va_arg(*va,long long int);
       long long int j = va_arg(*va,long long int);
-      res = eitvZZZ_set_llfrac(a,i,j,intern); }
+      res = eitvXXX_set_llfrac(a,i,j,intern); }
     break;
   case EITV_LLFRAC2:
     { long long int i = va_arg(*va,long long int);
       long long int j = va_arg(*va,long long int);
       long long int k = va_arg(*va,long long int);
       long long int l = va_arg(*va,long long int);
-      res = eitvZZZ_set_llfrac2(a,i,j,k,l,intern); }
+      res = eitvXXX_set_llfrac2(a,i,j,k,l,intern); }
     break;
   case EITV_MPQ:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
-      res = eitvZZZ_set_mpq(a,b,intern); }
+      res = eitvXXX_set_mpq(a,b,intern); }
     break;
   case EITV_MPQ2:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
       mpq_ptr c = va_arg(*va,mpq_ptr);
-      res = eitvZZZ_set_mpq2(a,b,c,intern); }
+      res = eitvXXX_set_mpq2(a,b,c,intern); }
     break;
   case EITV_DOUBLE:
     { double b = va_arg(*va,double);
-      res = eitvZZZ_set_double(a,b,intern); }
+      res = eitvXXX_set_double(a,b,intern); }
     break;
   case EITV_DOUBLE2:
     { double b = va_arg(*va,double);
       double c = va_arg(*va,double);
-      res = eitvZZZ_set_double2(a,b,c,intern); }
+      res = eitvXXX_set_double2(a,b,c,intern); }
     break;
   case EITV_LDOUBLE:
     { long double b = va_arg(*va,long double);
-      res = eitvZZZ_set_ldouble(a,b,intern); }
+      res = eitvXXX_set_ldouble(a,b,intern); }
     break;
   case EITV_LDOUBLE2:
     { long double b = va_arg(*va,long double);
       long double c = va_arg(*va,long double);
-      res = eitvZZZ_set_ldouble2(a,b,c,intern); }
+      res = eitvXXX_set_ldouble2(a,b,c,intern); }
     break;
   case EITV_MPFR:
     { mpfr_ptr b = va_arg(*va,mpfr_ptr);
-      res = eitvZZZ_set_mpfr(a,b,intern); }
+      res = eitvXXX_set_mpfr(a,b,intern); }
     break;
   case EITV_MPFR2:
     { mpfr_ptr b = va_arg(*va,mpfr_ptr);
       mpfr_ptr c = va_arg(*va,mpfr_ptr);
-      res = eitvZZZ_set_mpfr2(a,b,c,intern); }
+      res = eitvXXX_set_mpfr2(a,b,c,intern); }
     break;
   default:
     fprintf(stderr,
-	    "eitvZZZ_set_generic: unknown tag\n");
+	    "eitvXXX_set_generic: unknown tag\n");
     abort();
   }
   return res;
 }
-bool eitvZZZ_set_val(num_internal_t intern, eitvZZZ_t a, eitv_tag_t tag, ...)
+bool eitvXXX_set_val(num_internal_t intern, eitvXXX_t a, eitv_tag_t tag, ...)
 {
   va_list va;
   bool res;
   va_start(va,tag);
-  res = eitvZZZ_set_generic(intern,a,tag,&va);
+  res = eitvXXX_set_generic(intern,a,tag,&va);
   va_end(va);
   return res;
 }

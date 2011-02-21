@@ -23,6 +23,23 @@ while ($l = <>) {
 	$nb = $nbline+1;
 	print "#line $nb \"$file\"\n";
     }
+    elsif ($l =~ /MACRO_ALLZ/) {
+	$nb = $nbline+1;
+	$r = "";
+	while ($l = <>) {
+	    $nbline++;
+	    last if $l =~ /ENDMACRO/;
+	    $r = $r . $l;
+	}
+	foreach my $n (("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR")) {
+	    $rr = $r;
+	    $rr =~ s/ZZZ/$n/g;
+	    print "#line $nb \"$file\"\n";
+	    print "$rr"
+	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";
+    }
     elsif ($l =~ /MACRO_ALLX_MAINZ/) {
 	$nb = $nbline+1;
 	$r = "";
@@ -63,7 +80,7 @@ while ($l = <>) {
 	$nb = $nbline+1;
 	print "#line $nb \"$file\"\n";
     }
-    elsif ($l =~ /MACRO_ALLZ/) {
+    elsif ($l =~ /MACRO_ALLX/) {
 	$nb = $nbline+1;
 	$r = "";
 	while ($l = <>) {
@@ -73,7 +90,7 @@ while ($l = <>) {
 	}
 	foreach my $n (("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR")) {
 	    $rr = $r;
-	    $rr =~ s/ZZZ/$n/g;
+	    $rr =~ s/XXX/$n/g;
 	    print "#line $nb \"$file\"\n";
 	    print "$rr"
 	}
