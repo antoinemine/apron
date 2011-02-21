@@ -339,7 +339,8 @@ static void bounds_of_generator(oct_internal_t* pr, bound_t* dst,
       bound_set_int(dst[2*i+1],0);
     }
     for (i=0;i<e->size;i++) {
-      size_t d = e->p.linterm[i].dim;
+      ap_dim_t d = e->p.linterm[i].dim;
+      if (d==AP_DIM_MAX) continue;
       arg_assert(d<dim,return;);
       bounds_of_coeff(pr,dst[2*d],dst[2*d+1],e->p.linterm[i].coeff,false);
     }
