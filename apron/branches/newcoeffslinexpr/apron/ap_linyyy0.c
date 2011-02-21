@@ -200,7 +200,18 @@ ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array)
     return ap_linyyyXXX_array_type(array->linyyy_array.XXX);
   ENDSWITCH
 }
-
+bool ap_linyyy0_is_integer(ap_linyyy0_t expr, size_t intdim)
+{
+  SWITCH(expr->discr)
+    return ap_linyyyXXX_is_integer(expr->linyyy.XXX,intdim);
+  ENDSWITCH
+}
+bool ap_linyyy0_is_real(ap_linyyy0_t expr, size_t intdim)
+{
+  SWITCH(expr->discr)
+    return ap_linyyyXXX_is_real(expr->linyyy.XXX,intdim);
+  ENDSWITCH
+}
 #endif
 
 /* ====================================================================== */
