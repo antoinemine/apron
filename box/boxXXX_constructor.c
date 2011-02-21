@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "boxXXX_internal.h"
-#include "ap_linexprXXX.h"
+#include "ap_linconsXXX.h"
 #include "ap_generic.h"
 
 #define _BOXXX_MARK_BOXXX_

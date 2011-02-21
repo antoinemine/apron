@@ -122,4 +122,3 @@ ap_manager_t* boxXXX_manager_alloc(void)
   }
   return man;
 }
- 
