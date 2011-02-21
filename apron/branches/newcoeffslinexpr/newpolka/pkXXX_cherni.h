@@ -1,5 +1,5 @@
 /* ********************************************************************** */
-/* pk_cherni.h: Conversion from one representation to the dual one.  */
+/* pkXXX_cherni.h: Conversion from one representation to the dual one.  */
 /* ********************************************************************** */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
@@ -8,10 +8,10 @@
 /* This header file define operations allowing to convert polyhedra
 from one representation to the dual one. */
 
-#ifndef __PK_CHERNI_H__
-#define __PK_CHERNI_H__
+#ifndef __PKXXX_CHERNI_H__
+#define __PKXXX_CHERNI_H__
 
-#include "pk_internal.h"
+#include "pkXXX_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,27 +22,27 @@ extern "C" {
 /* ********************************************************************** */
 /* Checking */
 /* ********************************************************************** */
-bool cherni_checksatmat(pk_internal_t* pk,
-			bool con_to_ray,
-			matrix_t* C, matrix_t* F,
-			satmat_t* satC);
+bool cherniXXX_checksatmat(pkXXX_internal_t* pk,
+			   bool con_to_ray,
+			   matrixXXX_t* C, matrixXXX_t* F,
+			   satmat_t* satC);
 /* Recompute the saturation matrix of C and F and checks the equality with
    satC. */
 
-bool cherni_checksat(pk_internal_t* pk,
-		     bool con_to_ray,
-		     matrix_t* C, size_t nbequations,
-		     matrix_t* F, size_t nblines,
-		     satmat_t* satC);
+bool cherniXXX_checksat(pkXXX_internal_t* pk,
+			bool con_to_ray,
+			matrixXXX_t* C, size_t nbequations,
+			matrixXXX_t* F, size_t nblines,
+			satmat_t* satC);
 /* Check the saturation numbers of constraints and rays. */
 
 /* ********************************************************************** */
 /* Conversion algorithm */
 /* ********************************************************************** */
 
-size_t cherni_conversion(pk_internal_t* pk,
-			 matrix_t* con, size_t start,
-			 matrix_t* ray, satmat_t* satc, size_t nbline);
+size_t cherniXXX_conversion(pkXXX_internal_t* pk,
+			    matrixXXX_t* con, size_t start,
+			    matrixXXX_t* ray, satmat_t* satc, size_t nbline);
 /*
    Compute the dual form of con.
 
@@ -63,7 +63,7 @@ size_t cherni_conversion(pk_internal_t* pk,
    The result is given by ray, sat and the returned number of lines.
 */
 
-size_t cherni_gauss(pk_internal_t* pk, matrix_t* con, size_t nbeq);
+size_t cherniXXX_gauss(pkXXX_internal_t* pk, matrixXXX_t* con, size_t nbeq);
 /*
   The function finds a minimal system for equalities, and returns the rank *r*
   of this system, equations of which are numbered from 0 to *r-1*. Redundant
@@ -72,16 +72,16 @@ size_t cherni_gauss(pk_internal_t* pk, matrix_t* con, size_t nbeq);
   coefficent of an equation, in this case the left-most non-zero one.
 */
 
-void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank);
+void cherniXXX_backsubstitute(pkXXX_internal_t* pk, matrixXXX_t* con, size_t rank);
 /*
   This function backsubstitute the coefficients according to the system of
   equations and the array pk->cherni_intp properly set by
   gauss.
  */
 
-int  cherni_simplify(pk_internal_t* pk,
-		     matrix_t* con, matrix_t* ray,
-		     satmat_t* satf, const size_t nbline);
+int  cherniXXX_simplify(pkXXX_internal_t* pk,
+			matrixXXX_t* con, matrixXXX_t* ray,
+			satmat_t* satf, size_t nbline);
 /*
 We suppose that we just obtained ray and satc from con
 with the chernikova algorithm. As a consequence the system of rays is
@@ -92,25 +92,25 @@ We have still to simplify con by detecting new equality constraints, removing
 redundant inequalities, and obtaining a minimal system of equalities (by a
 call to gauss). Then backsubstitution is performed on (minimal) inequalities.
 */
-void cherni_minimize(pk_internal_t* pk,
-		     bool con_to_ray,
-		     pk_t* po);
+void cherniXXX_minimize(pkXXX_internal_t* pk,
+			bool con_to_ray,
+			pkXXX_t* po);
 
-void cherni_add_and_minimize(pk_internal_t* pk,
-			     bool con_to_ray,
-			     pk_t* po,
-			     size_t start);
+void cherniXXX_add_and_minimize(pkXXX_internal_t* pk,
+				bool con_to_ray,
+				pkXXX_t* po,
+				size_t start);
 /* Misc */
-void cherni_buildsatline(pk_internal_t* pk,
-			 matrix_t* con, numintMPQ_t* tab,
-			 bitstring_t* satline);
+void cherniXXX_buildsatline(pkXXX_internal_t* pk,
+			    matrixXXX_t* con, numintXXX_t* tab,
+			    bitstring_t* satline);
 
 /* Library is supposed to be in strict mode (pk->strict==true), polyhedron is
    supposed to be in double representation, with nbeq and nbline correctly
    initialized, and with saturation matrix satF (row i of satF refers to
    constraint i, column k refers to ray k).
  */
-bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po);
+bool cherniXXX_minimizeeps(pkXXX_internal_t* pk, pkXXX_t* po);
 
 #ifdef __cplusplus
 }
