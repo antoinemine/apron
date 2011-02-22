@@ -1,9 +1,7 @@
 include Makefile.config
 
 LCFLAGS = \
--Lapron -Lnum -Lbox -Loctagons -Lnewpolka \
--L$(PPL_PREFIX)/lib -Lppl \
--Lproducts \
+-L$(PPL_PREFIX)/lib \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
 -L$(CAMLIDL_PREFIX)/lib/ocaml
 
@@ -16,11 +14,11 @@ all: cxx
 endif
 
 c:
-	(cd num; make all)
-	(cd apron; make all)
-	(cd box; make all)
-	(cd newpolka; make all)
-	(cd octagons; make MPQ D)
+	make -C num 
+	make -C apron
+	make -C box 
+	make -C newpolka
+	make -C octagons
 ifneq ($(HAS_PPL),)
 	(cd ppl; make)
 	(cd products; make)
@@ -30,13 +28,13 @@ cxx:
 	(cd apronxx; make)
 
 ml:
-	(cd mlapronidl; make all)
-	(cd newpolka; make ml)
-	(cd box; make ml)
-	(cd octagons; make mlMPQ mlD)
+	make -C mlapronidl all
+	make -C newpolka ml
+	make -C box ml
+	make -C octagons mlMPQ mlD
 ifneq ($(HAS_PPL),)
-	(cd ppl; make ml)
-	(cd products; make ml)
+	make -C ppl ml
+	make -C products ml
 endif
 
 .PHONY: aprontop apronppltop
@@ -51,26 +49,26 @@ apronppltop:
 
 rebuild:
 ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; make rebuild)
-	(cd newpolka; make rebuild)
-	(cd box; make rebuild)
-	(cd octagons; make rebuild)
-	(cd ppl; make rebuild)
-	(cd products; make rebuild)
+	make -C mlapronidl rebuild
+	make -C newpolka rebuild
+	make -C box rebuild
+	make -C octagons rebuild
+	make -C ppl rebuild
+	make -C products rebuild
 endif
 
 install:
-	(cd num; make install)
-	(cd apron; make install)
-	(cd newpolka; make install)
-	(cd box; make install)
-	(cd octagons; make install)
+	make -C num install
+	make -C apron install
+	make -C newpolka install
+	make -C box install
+	make -C octagons install
 ifneq ($(HAS_PPL),)
-	(cd ppl; make install)
-	(cd products; make install)
+	make -C ppl install
+	make -C products install
 endif
 ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; make install)
+	make -C mlapronidl install
 	$(INSTALLd) $(APRON_PREFIX)/bin
 	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
 ifneq ($(HAS_PPL),)
@@ -78,55 +76,55 @@ ifneq ($(HAS_PPL),)
 endif
 endif
 ifneq ($(HAS_CPP),)
-	(cd apronxx; make install)
+	make -C apronxx install
 endif
 
 clean:
-	(cd num; make clean)
-	(cd apron; make clean)
-	(cd mlapronidl; make clean)
-	(cd box; make clean)
-	(cd newpolka; make clean)
-	(cd octagons; make clean)
-	(cd ppl; make clean)
-	(cd products; make clean)
-	(cd apronxx; make clean)
-	(cd examples; make clean)
-	(cd test; make clean)
+	make -C num clean
+	make -C apron clean
+	make -C mlapronidl clean
+	make -C box clean
+	make -C newpolka clean
+	make -C octagons clean
+	make -C ppl clean
+	make -C products clean
+	make -C apronxx clean
+	make -C examples clean
+	make -C test clean
 	rm -fr online tmp apron*run aprontop apronppltop
 
 mostlyclean: clean
-	(cd mlapronidl; make mostlyclean)
-	(cd box; make mostlyclean)
-	(cd octagons; make mostlyclean)
-	(cd newpolka; make mostlyclean)
-	(cd ppl; make mostlyclean)
-	(cd products; make mostlyclean)
-	(cd apronxx; make mostlyclean)
+	make -C mlapronidl mostlyclean
+	make -C box mostlyclean
+	make -C octagons mostlyclean
+	make -C newpolka mostlyclean
+	make -C ppl mostlyclean
+	make -C products mostlyclean
+	make -C apronxx mostlyclean
 
 uninstall :distclean
 
 distclean:
-	(cd num; make distclean)
-	(cd itv; make distclean)
-	(cd apron; make distclean)
-	(cd mlapronidl; make distclean)
-	(cd box; make distclean)
-	(cd newpolka; make distclean)
-	(cd octagons; make distclean)
-	(cd examples; make distclean)
-	(cd ppl; make distclean)
-	(cd products; make distclean)
-	(cd apronxx; make distclean)
+	make -C num distclean
+	make -C itv distclean
+	make -C apron distclean
+	make -C mlapronidl distclean
+	make -C box distclean
+	make -C newpolka distclean
+	make -C octagons distclean
+	make -C examples distclean
+	make -C ppl distclean
+	make -C products distclean
+	make -C apronxx distclean
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 
 doc:
-	(cd apron; make html apron.pdf)
+	make -C apron html apron.pdf
 ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; make html mlapronidl.pdf)
+	make -C mlapronidl html mlapronidl.pdf
 endif
 ifneq ($(HAS_CPP),)
-	(cd apronxx; make doc)
+	make -C apronxx doc
 endif
 
 # make distribution, update to reflect current version

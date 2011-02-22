@@ -49,8 +49,6 @@ H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
 CCINC_TO_INSTALL = box.h $(TMPL:%=box%.h)
-CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL =
 
 #---------------------------------------
 # Rules
@@ -61,21 +59,18 @@ all: libbox.a libbox_debug.a
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
 clean:
-	/bin/rm -f *.o *.a *.so
-	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
+	/bin/rm -f *.[ao]
 
 distclean: clean
+	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
 install: all
-	$(INSTALLd) $(APRON_PREFIX)/include
-	$(INSTALLd) $(APRON_PREFIX)/lib
-	for i in $(CCINC_TO_INSTALL); if test -f $$i; then  $(INSTALL) $$i $(APRON_PREFIX)/include; fi done
-	for i in $(CCLIB_TO_INSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_PREFIX)/lib; fi; done
+	$(INSTALLd) $(PREFIX)/include
+	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
 
 uninstall:
-	/bin/rm -f $(CCINC_TO_INSTALL:%=$(APRON_PREFIX)/include/%)
-	/bin/rm -f $(CCLIB_TO_INSTALL:%=$(APRON_PREFIX)/lib/%)
+	/bin/rm -f $(CCINC_TO_INSTALL:%=$(PREFIX)/include/%)
 
 #---------------------------------------
 # C rules
