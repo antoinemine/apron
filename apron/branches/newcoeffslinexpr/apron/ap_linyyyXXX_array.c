@@ -31,7 +31,7 @@ void ap_linyyyXXX_array_init_set(ap_linyyyXXX_array_t res, ap_linyyyXXX_array_t 
 void ap_linyyyXXX_array_set(ap_linyyyXXX_array_t res, ap_linyyyXXX_array_t array)
 {
   size_t i;
-  ap_linyyyXXX_array_resize(res,array->size);  
+  ap_linyyyXXX_array_resize(res,array->size);
   for (i=0; i<res->size; i++) ap_linyyyXXX_set(res->p[i],array->p[i]);
 }
 void ap_linyyyXXX_array_resize(ap_linyyyXXX_array_t array, size_t size)
@@ -176,7 +176,7 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
 }
 
 #if defined(_AP_linexpr_array_MARK_) || defined(_AP_lincons_array_MARK_)
-bool ap_linyyyXXX_array_set_tyyy0_array(ap_linyyyXXX_array_t res, 
+bool ap_linyyyXXX_array_set_tyyy0_array(ap_linyyyXXX_array_t res,
 					bool* perror,
 					struct ap_tyyy0_array_t* texpr,
 					num_internal_t intern)
@@ -191,7 +191,7 @@ bool ap_linyyyXXX_array_set_tyyy0_array(ap_linyyyXXX_array_t res,
   }
   return exact;
 }
-void ap_linyyyXXX_array_intlinearize_tyyy0_array(ap_linyyyXXX_array_t res, 
+void ap_linyyyXXX_array_intlinearize_tyyy0_array(ap_linyyyXXX_array_t res,
 						 ap_tyyy0_array_t* texpr,
 						 eitvXXX_t* env, size_t intdim, num_internal_t intern)
 {
