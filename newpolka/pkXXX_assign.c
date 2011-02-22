@@ -434,7 +434,7 @@ void vectorXXX_invert_expr(pkXXX_internal_t* pk,
 /* Assignement/Substitution by a *deterministic* linear expression */
 /* ====================================================================== */
 
-pkXXX_t* poly_asssub_linexprXXX_det(bool assign,
+pkXXX_t* pkXXX_asssub_linexprXXX_det(bool assign,
 				    ap_manager_t* man, bool destructive,
 				    pkXXX_t* pa, ap_dim_t dim, ap_linexprXXX_t linexpr)
 {
@@ -457,7 +457,7 @@ pkXXX_t* poly_asssub_linexprXXX_det(bool assign,
       pk->exn = AP_EXC_NONE;
       pkXXX_set_top(pk,po);
       man->result.flag_best = man->result.flag_exact = false;
-      goto  _poly_asssub_linear_linexpr_exit;
+      goto  _pkXXX_asssub_linear_linexpr_exit;
     }
     if (destructive){
       /* If side-effect, free everything but generators */
@@ -493,7 +493,7 @@ pkXXX_t* poly_asssub_linexprXXX_det(bool assign,
     po->nbline = 0;
   }
   po->status = 0;
- _poly_asssub_linear_linexpr_exit:
+ _pkXXX_asssub_linear_linexpr_exit:
   if (!assign){
     pkXXX_dual(pa);
     if (!destructive) pkXXX_dual(po);
@@ -509,7 +509,7 @@ pkXXX_t* poly_asssub_linexprXXX_det(bool assign,
 /* Assignement/Substitution by several *deterministic* linear expressions */
 /* ====================================================================== */
 
-pkXXX_t* poly_asssub_linexprXXX_array_det(
+pkXXX_t* pkXXX_asssub_linexprXXX_array_det(
     bool assign, ap_manager_t* man, bool destructive,
     pkXXX_t* pa, ap_dim_t* tdim, ap_linexprXXX_array_t array)
 {
@@ -531,7 +531,7 @@ pkXXX_t* poly_asssub_linexprXXX_array_det(
     pk->exn = AP_EXC_NONE;
     man->result.flag_best = man->result.flag_exact = false;
     pkXXX_set_top(pk,po);
-    goto _poly_asssub_linexprXXX_array_det_exit;
+    goto _pkXXX_asssub_linexprXXX_array_det_exit;
   }
   /* Return empty if empty */
   if (!pa->C && !pa->F){
@@ -568,7 +568,7 @@ pkXXX_t* poly_asssub_linexprXXX_array_det(
   }
   po->F = mat;
   po->status = 0;
- _poly_asssub_linexprXXX_array_det_exit:
+ _pkXXX_asssub_linexprXXX_array_det_exit:
   if (!assign){
     pkXXX_dual(pa);
     if (!destructive) pkXXX_dual(po);
@@ -634,11 +634,11 @@ pkXXX_t* pkXXX_asssub_linexpr_array(bool assign,
       }
     assert(exact);
     if (arrayXXXptr->size==1){
-      po = poly_asssub_linexprXXX_det(
+      po = pkXXX_asssub_linexprXXX_det(
 	  assign,man,destructive,pa,tdim[0],arrayXXXptr->p[0]);
     }
     else {
-      po = poly_asssub_linexprXXX_array_det(
+      po = pkXXX_asssub_linexprXXX_array_det(
 	  assign,man,destructive,pa,tdim,arrayXXXptr);
     }
 #ifdef _MARK_MPQ_
