@@ -347,8 +347,8 @@ void matrixXXX_bound_vector(
 bool pkXXX_meet_matrix(
     bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, matrixXXX_t* mat
 );
-void pkXXX_meet_ap_linconsMPQ_array(
-    bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsMPQ_array_t array
+void pkXXX_meet_ap_linconsXXX_array(
+    bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsXXX_array_t array
 );
 void pkXXX_meetjoin(
     bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb
@@ -385,7 +385,7 @@ bool vectorXXX_set_linexpr_bound(
     numintXXX_t* vec,numintXXX_t* vec2,numXXX_t numrat,int mode,
     ap_dimension_t dim, bool integer);
 
-/* Fills the vector with the quasi-linear expression (ap_linexprMPQ) */
+/* Fills the vector with the quasi-linear expression (ap_linexprXXX) */
 void vectorXXX_set_ap_linexprXXX(
     pkXXX_internal_t* pk, numintXXX_t* vec,
     ap_linexprXXX_t expr, ap_dimension_t dim, int mode);
@@ -489,13 +489,13 @@ static inline void pkXXX_obtain_F_dual(ap_manager_t* man, pkXXX_t* po, char* msg
   if (!po->F) pkXXX_chernikova_dual(man,po,msg,usual);
 }
 
-pkXXX_t* poly_asssub_linexprMPQ_det(
+pkXXX_t* pkXXX_asssub_linexprXXX_det(
     bool assign, ap_manager_t* man, bool destructive,
-    pkXXX_t* pa, ap_dim_t dim, ap_linexprMPQ_t linexpr
+    pkXXX_t* pa, ap_dim_t dim, ap_linexprXXX_t linexpr
 );
-pkXXX_t* poly_asssub_linexprMPQ_array_det(
+pkXXX_t* pkXXX_asssub_linexprXXX_array_det(
     bool assign, ap_manager_t* man, bool destructive,
-    pkXXX_t* pa, ap_dim_t* tdim, ap_linexprMPQ_array_t texpr
+    pkXXX_t* pa, ap_dim_t* tdim, ap_linexprXXX_array_t texpr
 );
 
 #ifdef __cplusplus
