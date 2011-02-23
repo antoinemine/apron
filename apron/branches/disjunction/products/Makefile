@@ -162,14 +162,8 @@ libdisjPk_caml.a: disjPk_caml.o
 libdisjPk_caml_debug.a: disjPk_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libdisjPk_caml.so: disjPk_caml.o libap_disjpk.so
+dlldisjPk_caml.so: disjPk_caml.o libap_disjpk.so
 	$(CXX) $(CXXFLAGS) -shared -o $@ $<  $(LIBS) -L. -lap_disjpk
-libdisjPk_caml_debug.so: disjPk_caml_debug.o libap_disjpk_debug.so
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $<  $(LIBS_DEBUG) -L. -lap_disjpk_debug
-dlldisjPk_caml.so: libdisjPk_caml.so
-	ln -s -f $^ $@
-dlldisjPk_caml_debug.so: libdisjPk_caml_debug.so
-	ln -s -f $^ $@
 
 #---------------------------------------
 # ML rules
