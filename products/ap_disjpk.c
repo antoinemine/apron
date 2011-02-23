@@ -21,7 +21,7 @@ void ap_disjpk_merge(ap_manager_t* man, ap_disjunction_t* a)
 ap_manager_t* ap_disjpk_manager_alloc(ap_manager_t* manpk)
 {
   return ap_disjunction_manager_alloc(manpk,
-				 &ap_disjpk_merge);
+				      &ap_disjpk_merge);
 }
 
 ap_lincons0_array_t ap_disjpk_to_lincons_set(ap_manager_t* manager,
