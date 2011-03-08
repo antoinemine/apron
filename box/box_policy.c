@@ -412,7 +412,7 @@ void box_policy_meet_lincons_internal(box_internal_t* intern,
 	  }
 	  if (mode == AP_POLICY_CHANGE){
 	    cmp = bound_cmp(a->p[dim]->inf, intern->meet_lincons_internal_bound);
-	    newpolicy_dim.inf = cmp<=0 ? BOX_POLICY_1 : BOX_POLICY_2;
+	    newpolicy_dim.inf = cmp==0 ? boxpolicy->p[dim].inf : (cmp<0 ? BOX_POLICY_1 : BOX_POLICY_2);
 	  }
 	  /* We update the interval */
 	  if (boxpolicy->p[dim].inf == BOX_POLICY_2){
@@ -437,7 +437,7 @@ void box_policy_meet_lincons_internal(box_internal_t* intern,
 	  }
 	  if (mode == AP_POLICY_CHANGE){
 	    cmp = bound_cmp(a->p[dim]->sup, intern->meet_lincons_internal_bound);
-	    newpolicy_dim.sup = cmp<=0 ? BOX_POLICY_1 : BOX_POLICY_2;
+	    newpolicy_dim.sup = cmp==0 ? boxpolicy->p[dim].sup : (cmp<0 ? BOX_POLICY_1 : BOX_POLICY_2);
 	  }
 	  /* We update the interval */
 	  if (boxpolicy->p[dim].sup == BOX_POLICY_2){
@@ -503,7 +503,7 @@ void box_policy_meet_lincons_internal(box_internal_t* intern,
 	  }
 	  if (mode == AP_POLICY_CHANGE){
 	    cmp = bound_cmp(a->p[dim]->inf, intern->meet_lincons_internal_bound);
-	    newpolicy_dim.inf = cmp<=0 ? BOX_POLICY_1 : BOX_POLICY_2;
+	    newpolicy_dim.inf = cmp==0 ? boxpolicy->p[dim].inf : (cmp<0 ? BOX_POLICY_1 : BOX_POLICY_2);
 	  }
 	  /* We update the interval */
 	  if (boxpolicy->p[dim].inf == BOX_POLICY_2){
@@ -545,7 +545,7 @@ void box_policy_meet_lincons_internal(box_internal_t* intern,
 	  }
 	  if (mode == AP_POLICY_CHANGE){
 	    cmp = bound_cmp(a->p[dim]->sup, intern->meet_lincons_internal_bound);
-	    newpolicy_dim.sup = cmp<=0 ? BOX_POLICY_1 : BOX_POLICY_2;
+	    newpolicy_dim.sup = cmp==0 ? boxpolicy->p[dim].sup : (cmp<0 ? BOX_POLICY_1 : BOX_POLICY_2);
 	  }
 	  /* We update the interval */
 	  if (boxpolicy->p[dim].sup == BOX_POLICY_2){
