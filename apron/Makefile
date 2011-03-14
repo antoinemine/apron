@@ -203,8 +203,6 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 # dependencies (generated with make depend)
 #---------------------------------------
 
-Makefile.depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 depend: $(C_FILES) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 
