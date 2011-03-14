@@ -64,7 +64,7 @@ distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
-install: all
+install: $(CCINC_TO_INSTALL)
 	$(INSTALLd) $(PREFIX)/include
 	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
 
@@ -115,8 +115,7 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 # dependencies (generated with make dep)
 #---------------------------------------
 
-Makefile.depend depend:
-	$(MAKE) src
+depend: $(H_FILES) $(C_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 
 -include Makefile.depend

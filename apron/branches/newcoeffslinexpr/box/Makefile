@@ -61,7 +61,7 @@ src: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 clean:
 	/bin/rm -f *.[ao]
 
-distclean: clean
+mostlyclean distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
@@ -117,7 +117,7 @@ $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 # dependencies (generated with make dep)
 #---------------------------------------
 
-Makefile.depend depend: $(C_FILES) $(H_FILES)
+depend: $(C_FILES) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
 
 -include Makefile.depend

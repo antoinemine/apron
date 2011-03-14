@@ -13,29 +13,22 @@ ifneq ($(HAS_CPP),)
 all: cxx
 endif
 
+depend:
+	make -C num depend
+	make -C apron depend
+	make -C box depend
+	make -C newpolka depend
+
 c:
 	make -C num 
 	make -C apron
 	make -C box 
 	make -C newpolka
-	make -C octagons
-ifneq ($(HAS_PPL),)
-	(cd ppl; make)
-	(cd products; make)
-endif
 
 cxx:
 	(cd apronxx; make)
 
 ml:
-	make -C mlapronidl all
-	make -C newpolka ml
-	make -C box ml
-	make -C octagons mlMPQ mlD
-ifneq ($(HAS_PPL),)
-	make -C ppl ml
-	make -C products ml
-endif
 
 .PHONY: aprontop apronppltop
 
@@ -102,7 +95,7 @@ mostlyclean: clean
 	make -C products mostlyclean
 	make -C apronxx mostlyclean
 
-uninstall :distclean
+uninstall: distclean
 
 distclean:
 	make -C num distclean
@@ -116,7 +109,6 @@ distclean:
 	make -C ppl distclean
 	make -C products distclean
 	make -C apronxx distclean
-	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 
 doc:
 	make -C apron html apron.pdf
