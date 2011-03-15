@@ -7,7 +7,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "assert.h"
+#include <assert.h>
+#include <stdarg.h>
 
 #include "num_types.h"
 #include "boundXXX.h"
