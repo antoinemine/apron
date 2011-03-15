@@ -14,9 +14,9 @@
 /* ====================================================================== */
 
 MACRO_numIRyyy
-inline bool lint_fits_numIyyy(long int a)
+extern inline bool lint_fits_numIyyy(long int a)
 { return true; }
-inline bool lfrac_fits_numIyyy(long int i, long int j)
+extern inline bool lfrac_fits_numIyyy(long int i, long int j)
 { return true; }
 bool mpq_fits_numIyyy(mpq_t a)
 {
@@ -24,80 +24,80 @@ bool mpq_fits_numIyyy(mpq_t a)
   size_t d = mpz_sizeinbase(mpq_denref(a),2);
   return ((int)n - (int)d) <= (int)(sizeof(numIyyy_t)*8-3);
 }
-inline bool double_fits_numIyyy(double a)
+extern inline bool double_fits_numIyyy(double a)
 {
   return isfinite(a) && a>=(double)(-NUMIyyy_MAX) && a<=(double)NUMIyyy_MAX;
 }
-inline bool ldouble_fits_numIyyy(long double a)
+extern inline bool ldouble_fits_numIyyy(long double a)
 {
   return isfinite(a) && a>=(long double)(-NUMIyyy_MAX) && a<=(long double)NUMIyyy_MAX;
 }
 ENDMACRO
 
-inline bool llint_fits_numIl(long long int a)
+extern inline bool llint_fits_numIl(long long int a)
 { return a>=-NUMIl_MAX && a<=NUMIl_MAX; }
-inline bool mpz_fits_numIl(mpz_t a)
+extern inline bool mpz_fits_numIl(mpz_t a)
 { return mpz_fits_slong_p(a); }
-inline bool llfrac_fits_numIl(long long int i, long long int j)
+extern inline bool llfrac_fits_numIl(long long int i, long long int j)
 {
   return llint_fits_numIl(i>=0 ? (i+j-1)/j : i/j);
 }
-inline bool mpfr_fits_numIl(mpfr_t a, num_internal_t intern)
+extern inline bool mpfr_fits_numIl(mpfr_t a, num_internal_t intern)
 {
   return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU);
 }
 
-inline bool llint_fits_numIll(long long int a)
+extern inline bool llint_fits_numIll(long long int a)
 { return true; }
-inline bool mpz_fits_numIll(mpz_t a)
+extern inline bool mpz_fits_numIll(mpz_t a)
 {
   size_t size = mpz_sizeinbase(a,2);
   return (size <= sizeof(numIll_t)*8-1);
 }
-inline bool llfrac_fits_numIll(long long int i, long long int j)
+extern inline bool llfrac_fits_numIll(long long int i, long long int j)
 { return true; }
-inline bool mpfr_fits_numIll(mpfr_t a, num_internal_t intern)
+extern inline bool mpfr_fits_numIll(mpfr_t a, num_internal_t intern)
 {
   return mpfr_number_p(a) && mpfr_fits_intmax_p(a,GMP_RNDU);
 }
 
 
-inline bool numIl_fits_lint(numIl_t a)
+extern inline bool numIl_fits_lint(numIl_t a)
 { return true; }
-inline bool numIll_fits_lint(numIll_t a)
+extern inline bool numIll_fits_lint(numIll_t a)
 { return llint_fits_numIl(*a); }
 MACRO_numIRyyy
-inline bool numIyyy_fits_llint(numIyyy_t a)
+extern inline bool numIyyy_fits_llint(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_mpz(numIyyy_t a)
+extern inline bool numIyyy_fits_mpz(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_lfrac(numIyyy_t a)
+extern inline bool numIyyy_fits_lfrac(numIyyy_t a)
 { return numIyyy_fits_lint(a); }
-inline bool numIyyy_fits_llfrac(numIyyy_t a)
+extern inline bool numIyyy_fits_llfrac(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_mpq(numIyyy_t a)
+extern inline bool numIyyy_fits_mpq(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_float(numIyyy_t a)
+extern inline bool numIyyy_fits_float(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_double(numIyyy_t a)
+extern inline bool numIyyy_fits_double(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_ldouble(numIyyy_t a)
+extern inline bool numIyyy_fits_ldouble(numIyyy_t a)
 { return true; }
-inline bool numIyyy_fits_mpfr(numIyyy_t a)
+extern inline bool numIyyy_fits_mpfr(numIyyy_t a)
 { return true; }
 
-inline bool numIyyy_set_lint(numIyyy_t a, long int b, num_internal_t intern)
+extern inline bool numIyyy_set_lint(numIyyy_t a, long int b, num_internal_t intern)
 { *a = b; return true; }
-inline bool numIyyy_set_llint(numIyyy_t a, long long int b, num_internal_t intern)
+extern inline bool numIyyy_set_llint(numIyyy_t a, long long int b, num_internal_t intern)
 { *a = b; return true; }
-inline bool numIyyy_set_lfrac(numIyyy_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numIyyy_set_lfrac(numIyyy_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
   else *a = i/j;
   return (i%j==0);
 }
-inline bool numIyyy_set_llfrac(numIyyy_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numIyyy_set_llfrac(numIyyy_t a, long long int i, long long int j, num_internal_t intern)
 {
   long long int t;
   assert(j>0);
@@ -106,7 +106,7 @@ inline bool numIyyy_set_llfrac(numIyyy_t a, long long int i, long long int j, nu
 }
 ENDMACRO
 
-inline bool numIl_set_mpz(numIl_t a, mpz_t b, num_internal_t intern)
+extern inline bool numIl_set_mpz(numIl_t a, mpz_t b, num_internal_t intern)
 {
   *a = mpz_get_si(b);
   return true;
@@ -147,20 +147,20 @@ bool numIll_set_mpz(numIll_t a, mpz_t b, num_internal_t intern)
   return res;
 }
 MACRO_numIRyyy
-inline bool numIyyy_set_mpq(numIyyy_t a, mpq_t b, num_internal_t intern)
+extern inline bool numIyyy_set_mpq(numIyyy_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(intern->q, intern->r, mpq_numref(b),mpq_denref(b));
   numIyyy_set_mpz(a,intern->q,intern);
   return mpz_sgn(intern->r)==0;
 }
-inline bool numIyyy_set_double(numIyyy_t a, double b, num_internal_t intern)
+extern inline bool numIyyy_set_double(numIyyy_t a, double b, num_internal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
   *a = c;
   return b==c;
 }
-inline bool numIyyy_set_ldouble(numIyyy_t a, long double b, num_internal_t intern)
+extern inline bool numIyyy_set_ldouble(numIyyy_t a, long double b, num_internal_t intern)
 {
   long double c = ceill(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; *a = 0; return false; }
@@ -168,13 +168,13 @@ inline bool numIyyy_set_ldouble(numIyyy_t a, long double b, num_internal_t inter
   return b==c;
 }
 ENDMACRO
-inline bool numIl_set_mpfr(numIl_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numIl_set_mpfr(numIl_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numIl_set_int(a,0); return false; }
   *a = mpfr_get_si(b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
-inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numIll_set_int(a,0); return false; }
   *a = mpfr_get_sj(b,GMP_RNDU);
@@ -182,12 +182,12 @@ inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, num_internal_t intern)
 }
 
 MACRO_numIRyyy
-inline bool lint_set_numIyyy(long int* a, numIyyy_t b, num_internal_t intern)
+extern inline bool lint_set_numIyyy(long int* a, numIyyy_t b, num_internal_t intern)
 { *a = *b; return true; }
-inline bool llint_set_numIyyy(long long int* a, numIyyy_t b, num_internal_t intern)
+extern inline bool llint_set_numIyyy(long long int* a, numIyyy_t b, num_internal_t intern)
 { *a = *b; return true; }
 ENDMACRO
-inline bool mpz_set_numIl(mpz_t a, numIl_t b, num_internal_t intern)
+extern inline bool mpz_set_numIl(mpz_t a, numIl_t b, num_internal_t intern)
 { mpz_set_si(a,*b); return true; }
 bool mpz_set_numIll(mpz_t a, numIll_t b, num_internal_t intern)
 {
@@ -213,42 +213,42 @@ bool mpz_set_numIll(mpz_t a, numIll_t b, num_internal_t intern)
   return true;
 }
 MACRO_numIRyyy
-inline bool lfrac_set_numIyyy(long int *a, long int* b, numIyyy_t c, num_internal_t intern)
+extern inline bool lfrac_set_numIyyy(long int *a, long int* b, numIyyy_t c, num_internal_t intern)
 {
   *a = *c;
   *b = 1L;
   return true;
 }
-inline bool llfrac_set_numIyyy(long long int *a, long long int* b, numIyyy_t c, num_internal_t intern)
+extern inline bool llfrac_set_numIyyy(long long int *a, long long int* b, numIyyy_t c, num_internal_t intern)
 {
   *a = *c;
   *b = 1LL;
   return true;
 }
-inline bool mpq_set_numIyyy(mpq_t a, numIyyy_t b, num_internal_t intern)
+extern inline bool mpq_set_numIyyy(mpq_t a, numIyyy_t b, num_internal_t intern)
 {
   mpz_set_numIyyy(mpq_numref(a),b,intern);
   mpz_set_ui(mpq_denref(a),1);
   return true;
 }
-inline bool double_set_numIyyy(double* a, numIyyy_t b, num_internal_t intern)
+extern inline bool double_set_numIyyy(double* a, numIyyy_t b, num_internal_t intern)
 {
   *a = (double)(*b);
   double aa = -((double)(-(*b)));
   return (*a==aa);
 }
-inline bool ldouble_set_numIyyy(long double* a, numIyyy_t b, num_internal_t intern)
+extern inline bool ldouble_set_numIyyy(long double* a, numIyyy_t b, num_internal_t intern)
 {
   *a = (long double)(*b);
   long double aa = -((long double)(-(*b)));
   return (*a==aa);
 }
 ENDMACRO
-inline bool mpfr_set_numIl(mpfr_t a, numIl_t b, num_internal_t intern)
+extern inline bool mpfr_set_numIl(mpfr_t a, numIl_t b, num_internal_t intern)
 {
   return !mpfr_set_si(a,*b,GMP_RNDU);
 }
-inline bool mpfr_set_numIll(mpfr_t a, numIll_t b, num_internal_t intern)
+extern inline bool mpfr_set_numIll(mpfr_t a, numIll_t b, num_internal_t intern)
 {
   return !mpfr_set_sj(a,*b,GMP_RNDU);
 }
@@ -257,69 +257,69 @@ inline bool mpfr_set_numIll(mpfr_t a, numIll_t b, num_internal_t intern)
 /* 2. numMPZ_t */
 /* ====================================================================== */
 
-inline bool lint_fits_numMPZ(long int a)
+extern inline bool lint_fits_numMPZ(long int a)
 { return true; }
-inline bool llint_fits_numMPZ(long long int a)
+extern inline bool llint_fits_numMPZ(long long int a)
 { return true; }
-inline bool mpz_fits_numMPZ(mpz_t a)
+extern inline bool mpz_fits_numMPZ(mpz_t a)
 { return true; }
-inline bool lfrac_fits_numMPZ(long int i, long int j)
+extern inline bool lfrac_fits_numMPZ(long int i, long int j)
 { return true; }
-inline bool llfrac_fits_numMPZ(long long int i, long long int j)
+extern inline bool llfrac_fits_numMPZ(long long int i, long long int j)
 { return true; }
-inline bool mpq_fits_numMPZ(mpq_t a)
+extern inline bool mpq_fits_numMPZ(mpq_t a)
 { return true; }
-inline bool double_fits_numMPZ(double a)
+extern inline bool double_fits_numMPZ(double a)
 { return isfinite(a); }
-inline bool ldouble_fits_numMPZ(long double a)
+extern inline bool ldouble_fits_numMPZ(long double a)
 { return isfinite(a); }
-inline bool mpfr_fits_numMPZ(mpfr_t a, num_internal_t intern)
+extern inline bool mpfr_fits_numMPZ(mpfr_t a, num_internal_t intern)
 { return mpfr_number_p(a); }
 
-inline bool numMPZ_fits_lint(numMPZ_t a)
+extern inline bool numMPZ_fits_lint(numMPZ_t a)
 { return mpz_fits_slong_p(a); }
-inline bool numMPZ_fits_llint(numMPZ_t a)
+extern inline bool numMPZ_fits_llint(numMPZ_t a)
 { return mpz_fits_numIll(a); }
-inline bool numMPZ_fits_mpz(numMPZ_t a)
+extern inline bool numMPZ_fits_mpz(numMPZ_t a)
 { return true; }
-inline bool numMPZ_fits_lfrac(numMPZ_t a)
+extern inline bool numMPZ_fits_lfrac(numMPZ_t a)
 { return mpz_fits_numIl(a); }
-inline bool numMPZ_fits_llfrac(numMPZ_t a)
+extern inline bool numMPZ_fits_llfrac(numMPZ_t a)
 { return mpz_fits_numIll(a); }
-inline bool numMPZ_fits_mpq(numMPZ_t a)
+extern inline bool numMPZ_fits_mpq(numMPZ_t a)
 { return true; }
-inline bool numMPZ_fits_float(numMPZ_t a)
+extern inline bool numMPZ_fits_float(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<FLT_MAX_EXP-1); }
-inline bool numMPZ_fits_double(numMPZ_t a)
+extern inline bool numMPZ_fits_double(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<DBL_MAX_EXP-1); }
-inline bool numMPZ_fits_ldouble(numMPZ_t a)
+extern inline bool numMPZ_fits_ldouble(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)<LDBL_MAX_EXP-1); }
-inline bool numMPZ_fits_mpfr(numMPZ_t a)
+extern inline bool numMPZ_fits_mpfr(numMPZ_t a)
 { return (mpz_sizeinbase(a,2)+1<(size_t)mpfr_get_emax()); }
 
-inline bool numMPZ_set_lint(numMPZ_t a, long int b, num_internal_t intern)
+extern inline bool numMPZ_set_lint(numMPZ_t a, long int b, num_internal_t intern)
 { mpz_set_si(a,b); return true; }
-inline bool numMPZ_set_llint(numMPZ_t a, long long int b, num_internal_t intern)
+extern inline bool numMPZ_set_llint(numMPZ_t a, long long int b, num_internal_t intern)
 { return mpz_set_numIll(a,&b,intern); }
-inline bool numMPZ_set_mpz(numMPZ_t a, mpz_t b, num_internal_t intern)
+extern inline bool numMPZ_set_mpz(numMPZ_t a, mpz_t b, num_internal_t intern)
 { mpz_set(a,b); return true; }
-inline bool numMPZ_set_lfrac(numMPZ_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numMPZ_set_lfrac(numMPZ_t a, long int i, long int j, num_internal_t intern)
 {
   long int q = (i>=0) ? (i+j-1)/j : i/j;
   mpz_set_si(a,q);
   return (i%j==0);
 }
-inline bool numMPZ_set_llfrac(numMPZ_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numMPZ_set_llfrac(numMPZ_t a, long long int i, long long int j, num_internal_t intern)
 {
   long long int q = (i>=0) ? (i+j-1)/j : i/j;
   return numMPZ_set_llint(a,q,intern) && (i%j==0);
 }
-inline bool numMPZ_set_mpq(numMPZ_t a, mpq_t b, num_internal_t intern)
+extern inline bool numMPZ_set_mpq(numMPZ_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(a, intern->r, mpq_numref(b),mpq_denref(b));
   return mpz_sgn(intern->r)==0;
 }
-inline bool numMPZ_set_double(numMPZ_t a, double b, num_internal_t intern)
+extern inline bool numMPZ_set_double(numMPZ_t a, double b, num_internal_t intern)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
@@ -327,7 +327,7 @@ inline bool numMPZ_set_double(numMPZ_t a, double b, num_internal_t intern)
   return (b==c);
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of NUMFLTDL_MANT_DIG bits */
-inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, num_internal_t intern)
+extern inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, num_internal_t intern)
 {
   long double c = ceill(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
@@ -335,44 +335,44 @@ inline bool numMPZ_set_ldouble(numMPZ_t a, long double b, num_internal_t intern)
   mpfr_get_z(a,intern->ldbl,GMP_RNDU);
   return (res==0) && (b==c);
 }
-inline bool numMPZ_set_mpfr(numMPZ_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numMPZ_set_mpfr(numMPZ_t a, mpfr_t b, num_internal_t intern)
 {
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numMPZ_set_int(a,0); return false; }
   mpfr_get_z(a,b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
 
-inline bool lint_set_numMPZ(long int* a, numMPZ_t b, num_internal_t intern)
+extern inline bool lint_set_numMPZ(long int* a, numMPZ_t b, num_internal_t intern)
 { *a = mpz_get_si(b); return true; }
-inline bool llint_set_numMPZ(long long int* a, numMPZ_t b, num_internal_t intern)
+extern inline bool llint_set_numMPZ(long long int* a, numMPZ_t b, num_internal_t intern)
 { return numIll_set_mpz(a,b,intern); }
-inline bool mpz_set_numMPZ(mpz_t a, numMPZ_t b, num_internal_t intern)
+extern inline bool mpz_set_numMPZ(mpz_t a, numMPZ_t b, num_internal_t intern)
 { mpz_set(a,b); return true; }
-inline bool lfrac_set_numMPZ(long int* i, long int* j, numMPZ_t b, num_internal_t intern)
+extern inline bool lfrac_set_numMPZ(long int* i, long int* j, numMPZ_t b, num_internal_t intern)
 { *j = 1L; return lint_set_numMPZ(i,b,intern); }
-inline bool llfrac_set_numMPZ(long long int* i, long long int* j, numMPZ_t b, num_internal_t intern)
+extern inline bool llfrac_set_numMPZ(long long int* i, long long int* j, numMPZ_t b, num_internal_t intern)
 { *j = 1LL; return llint_set_numMPZ(i,b,intern); }
-inline bool mpq_set_numMPZ(mpq_t a, numMPZ_t b, num_internal_t intern)
+extern inline bool mpq_set_numMPZ(mpq_t a, numMPZ_t b, num_internal_t intern)
 {
   mpz_set(mpq_numref(a),b);
   mpz_set_ui(mpq_denref(a),1);
   return true;
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of 53 bits */
-inline bool double_set_numMPZ(double* a, numMPZ_t b, num_internal_t intern)
+extern inline bool double_set_numMPZ(double* a, numMPZ_t b, num_internal_t intern)
 {
   int res = mpfr_set_z(intern->dbl,b,GMP_RNDU);
   *a = mpfr_get_d(intern->dbl,GMP_RNDU);/* Normally, exact conversion here (unless overflow) */
   return (res==0);
 }
 /* mpfr is supposed to have exactly the IEEE754 double precision of NUMFLTDL_MANT_DIG bits */
-inline bool ldouble_set_numMPZ(long double* a, numMPZ_t b, num_internal_t intern)
+extern inline bool ldouble_set_numMPZ(long double* a, numMPZ_t b, num_internal_t intern)
 {
   int res = mpfr_set_z(intern->ldbl,b,GMP_RNDU);
   *a = mpfr_get_ld(intern->ldbl,GMP_RNDU);/* Normally, exact conversion here (unless overflow) */
   return (res==0);
 }
-inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, num_internal_t intern)
+extern inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, num_internal_t intern)
 { return !mpfr_set_z(a,b,GMP_RNDU); }
 
 /* ====================================================================== */
@@ -384,17 +384,17 @@ MACRO_numIRyyy
 /* Fits zzz_fits_numRyyy */
 /* ---------------------------------------------------------------------- */
 
-inline bool lint_fits_numRyyy(long int a)
+extern inline bool lint_fits_numRyyy(long int a)
 { return lint_fits_numIyyy(a); }
-inline bool llint_fits_numRyyy(long long int a)
+extern inline bool llint_fits_numRyyy(long long int a)
 { return llint_fits_numIyyy(a); }
-inline bool mpz_fits_numRyyy(mpz_t a)
+extern inline bool mpz_fits_numRyyy(mpz_t a)
 { return mpz_fits_numIyyy(a); }
-inline bool lfrac_fits_numRyyy(long int i, long int j)
+extern inline bool lfrac_fits_numRyyy(long int i, long int j)
 { return lint_fits_numIyyy(i) && lint_fits_numIyyy(j); }
-inline bool llfrac_fits_numRyyy(long long int i, long long int j)
+extern inline bool llfrac_fits_numRyyy(long long int i, long long int j)
 { return llint_fits_numIyyy(i) && llint_fits_numIyyy(j); }
-inline bool mpq_fits_numRyyy(mpq_t a)
+extern inline bool mpq_fits_numRyyy(mpq_t a)
 { return mpz_fits_numIyyy(mpq_numref(a)) && mpz_fits_numIyyy(mpq_denref(a)); }
 bool double_fits_numRyyy(double k)
 {
@@ -423,53 +423,53 @@ bool mpfr_fits_numRyyy(mpfr_t a, num_internal_t intern)
 /* ---------------------------------------------------------------------- */
 /* Fits numRyyy_fits_zzz */
 /* ---------------------------------------------------------------------- */
-inline bool numRyyy_fits_lint(numRyyy_t a)
+extern inline bool numRyyy_fits_lint(numRyyy_t a)
 {
   numIyyy_t b;
   numIyyy_cdiv_q(b,a->n,a->d);
   return *b<=LONG_MAX && *b>=-LONG_MAX;
 }
-inline bool numRyyy_fits_llint(numRyyy_t a)
+extern inline bool numRyyy_fits_llint(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_mpz(numRyyy_t a)
+extern inline bool numRyyy_fits_mpz(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_lfrac(numRyyy_t a)
+extern inline bool numRyyy_fits_lfrac(numRyyy_t a)
 { return numIyyy_fits_lint(numRyyy_numref(a)) && numIyyy_fits_lint(numRyyy_denref(a)); }
-inline bool numRyyy_fits_llfrac(numRyyy_t a)
+extern inline bool numRyyy_fits_llfrac(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_mpq(numRyyy_t a)
+extern inline bool numRyyy_fits_mpq(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_float(numRyyy_t a)
+extern inline bool numRyyy_fits_float(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_double(numRyyy_t a)
+extern inline bool numRyyy_fits_double(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_ldouble(numRyyy_t a)
+extern inline bool numRyyy_fits_ldouble(numRyyy_t a)
 { return true; }
-inline bool numRyyy_fits_mpfr(numRyyy_t a)
+extern inline bool numRyyy_fits_mpfr(numRyyy_t a)
 { return true; }
 
 /* ---------------------------------------------------------------------- */
 /* Conversions numRyyy_set_zzz */
 /* ---------------------------------------------------------------------- */
-inline bool numRyyy_set_lint(numRyyy_t a, long int b, num_internal_t intern)
+extern inline bool numRyyy_set_lint(numRyyy_t a, long int b, num_internal_t intern)
 {
   numIyyy_set_lint(a->n,b,intern);
   numIyyy_set_int(a->d,1L);
   return true;
 }
-inline bool numRyyy_set_llint(numRyyy_t a, long long int b, num_internal_t intern)
+extern inline bool numRyyy_set_llint(numRyyy_t a, long long int b, num_internal_t intern)
 {
   numIyyy_set_llint(a->n,b,intern);
   numIyyy_set_int(a->d,1);
   return true;
 }
-inline bool numRyyy_set_mpz(numRyyy_t a, mpz_t b, num_internal_t intern)
+extern inline bool numRyyy_set_mpz(numRyyy_t a, mpz_t b, num_internal_t intern)
 {
   numIyyy_set_mpz(a->n,b,intern);
   numIyyy_set_int(a->d,1);
   return true;
 }
-inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   numIyyy_set_lint(a->n,i,intern);
@@ -477,7 +477,7 @@ inline bool numRyyy_set_lfrac(numRyyy_t a, long int i, long int j, num_internal_
   numRyyy_canonicalize(a);
   return true;
 }
-inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   numIyyy_set_llint(a->n,i,intern);
@@ -485,7 +485,7 @@ inline bool numRyyy_set_llfrac(numRyyy_t a, long long int i, long long int j, nu
   numRyyy_canonicalize(a);
   return true;
 }
-inline bool numRyyy_set_mpq(numRyyy_t a, mpq_t b, num_internal_t intern)
+extern inline bool numRyyy_set_mpq(numRyyy_t a, mpq_t b, num_internal_t intern)
 {
   numIyyy_set_mpz(a->n,mpq_numref(b),intern);
   numIyyy_set_mpz(a->d,mpq_denref(b),intern);
@@ -562,7 +562,7 @@ bool numRyyy_set_ldouble(numRyyy_t a, long double k, num_internal_t intern)
     return false;
   }
 }
-inline bool numRyyy_set_mpfr(numRyyy_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numRyyy_set_mpfr(numRyyy_t a, mpfr_t b, num_internal_t intern)
 {
   long double k = mpfr_get_ld(b, GMP_RNDU);
   return numRyyy_set_ldouble(a,k,intern) && (mpfr_cmp_ld(b,k)==0);
@@ -570,54 +570,54 @@ inline bool numRyyy_set_mpfr(numRyyy_t a, mpfr_t b, num_internal_t intern)
 /* ---------------------------------------------------------------------- */
 /* Conversions zzz_set_numRyyy */
 /* ---------------------------------------------------------------------- */
-inline bool lint_set_numRyyy(long int* a, numRyyy_t b, num_internal_t intern)
+extern inline bool lint_set_numRyyy(long int* a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   return lint_set_numIyyy(a,q,intern) && (numIyyy_sgn(r)==0);
 }
-inline bool llint_set_numRyyy(long long int* a, numRyyy_t b, num_internal_t intern)
+extern inline bool llint_set_numRyyy(long long int* a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   return llint_set_numIyyy(a,q,intern) && (numIyyy_sgn(r)==0);
 }
-inline bool mpz_set_numRyyy(mpz_t a, numRyyy_t b, num_internal_t intern)
+extern inline bool mpz_set_numRyyy(mpz_t a, numRyyy_t b, num_internal_t intern)
 {
   numIyyy_t q,r;
   numIyyy_cdiv_qr(q,r,numRyyy_numref(b),numRyyy_denref(b));
   mpz_set_numIyyy(a,q,intern);
   return (numIyyy_sgn(r)==0);
 }
-inline bool lfrac_set_numRyyy(long int* i, long int* j, numRyyy_t b, num_internal_t intern)
+extern inline bool lfrac_set_numRyyy(long int* i, long int* j, numRyyy_t b, num_internal_t intern)
 {
   lint_set_numIyyy(i,numRyyy_numref(b),intern);
   lint_set_numIyyy(j,numRyyy_denref(b),intern);
   return true;
 }
-inline bool llfrac_set_numRyyy(long long int* i, long long int* j, numRyyy_t b, num_internal_t intern)
+extern inline bool llfrac_set_numRyyy(long long int* i, long long int* j, numRyyy_t b, num_internal_t intern)
 {
   llint_set_numIyyy(i,numRyyy_numref(b),intern);
   llint_set_numIyyy(j,numRyyy_denref(b),intern);
   return true;
 }
-inline bool mpq_set_numRyyy(mpq_t a, numRyyy_t b, num_internal_t intern)
+extern inline bool mpq_set_numRyyy(mpq_t a, numRyyy_t b, num_internal_t intern)
 {
   mpz_set_numIyyy(mpq_numref(a), numRyyy_numref(b),intern);
   mpz_set_numIyyy(mpq_denref(a), numRyyy_denref(b),intern);
   return true;
 }
-inline bool double_set_numRyyy(double* a, numRyyy_t b, num_internal_t intern)
+extern inline bool double_set_numRyyy(double* a, numRyyy_t b, num_internal_t intern)
 {
   *a = (double)(*b->n)/(double)(*b->d);
   return (-*a==(double)(-*b->n)/(double)(*b->d));
 }
-inline bool ldouble_set_numRyyy(long double* a, numRyyy_t b, num_internal_t intern)
+extern inline bool ldouble_set_numRyyy(long double* a, numRyyy_t b, num_internal_t intern)
 {
   *a = (long double)(*b->n)/(long double)(*b->d);
   return (-*a==(long double)(-*b->n)/(long double)(*b->d));
 }
-inline bool mpfr_set_numRyyy(mpfr_t a, numRyyy_t b, num_internal_t intern)
+extern inline bool mpfr_set_numRyyy(mpfr_t a, numRyyy_t b, num_internal_t intern)
 {
   int r = mpfr_set_si(a,*numRyyy_numref(b),GMP_RNDU);
   return !mpfr_div_si(a,a,*numRyyy_denref(b),GMP_RNDU) && !r;
@@ -629,82 +629,82 @@ ENDMACRO
 /* 4. numMPQ_t */
 /* ====================================================================== */
 
-inline bool lint_fits_numMPQ(long int a)
+extern inline bool lint_fits_numMPQ(long int a)
 { return true; }
-inline bool llint_fits_numMPQ(long long int a)
+extern inline bool llint_fits_numMPQ(long long int a)
 { return true; }
-inline bool mpz_fits_numMPQ(mpz_t a)
+extern inline bool mpz_fits_numMPQ(mpz_t a)
 { return true; }
-inline bool lfrac_fits_numMPQ(long int i, long int j)
+extern inline bool lfrac_fits_numMPQ(long int i, long int j)
 { return true; }
-inline bool llfrac_fits_numMPQ(long long int i, long long int j)
+extern inline bool llfrac_fits_numMPQ(long long int i, long long int j)
 { return true; }
-inline bool mpq_fits_numMPQ(mpq_t a)
+extern inline bool mpq_fits_numMPQ(mpq_t a)
 { return true; }
-inline bool double_fits_numMPQ(double k)
+extern inline bool double_fits_numMPQ(double k)
 { return isfinite(k); }
-inline bool ldouble_fits_numMPQ(long double k)
+extern inline bool ldouble_fits_numMPQ(long double k)
 { return isfinite(k); }
-inline bool mpfr_fits_numMPQ(mpfr_t a, num_internal_t intern)
+extern inline bool mpfr_fits_numMPQ(mpfr_t a, num_internal_t intern)
 { return mpfr_number_p(a); }
 
-inline bool numMPQ_fits_lint(numMPQ_t a)
+extern inline bool numMPQ_fits_lint(numMPQ_t a)
 { return mpq_fits_numIl(a); }
-inline bool numMPQ_fits_llint(numMPQ_t a)
+extern inline bool numMPQ_fits_llint(numMPQ_t a)
 { return mpq_fits_numIll(a); }
-inline bool numMPQ_fits_mpz(numMPQ_t a)
+extern inline bool numMPQ_fits_mpz(numMPQ_t a)
 { return true; }
-inline bool numMPQ_fits_lfrac(numMPQ_t a)
+extern inline bool numMPQ_fits_lfrac(numMPQ_t a)
 { return mpq_fits_numRl(a); }
-inline bool numMPQ_fits_llfrac(numMPQ_t a)
+extern inline bool numMPQ_fits_llfrac(numMPQ_t a)
 { return mpq_fits_numRll(a); }
-inline bool numMPQ_fits_mpq(numMPQ_t a)
+extern inline bool numMPQ_fits_mpq(numMPQ_t a)
 { return true; }
-inline bool numMPQ_fits_float(numMPQ_t a)
+extern inline bool numMPQ_fits_float(numMPQ_t a)
 {
   return ((int)mpz_sizeinbase(numMPQ_numref(a),2)-
 	  (int)mpz_sizeinbase(numMPQ_denref(a),2)<FLT_MAX_EXP-2);
 }
-inline bool numMPQ_fits_double(numMPQ_t a)
+extern inline bool numMPQ_fits_double(numMPQ_t a)
 {
   return ((int)mpz_sizeinbase(numMPQ_numref(a),2)-
 	  (int)mpz_sizeinbase(numMPQ_denref(a),2)<DBL_MAX_EXP-2);
 }
-inline bool numMPQ_fits_ldouble(numMPQ_t a)
+extern inline bool numMPQ_fits_ldouble(numMPQ_t a)
 {
   return ((int)mpz_sizeinbase(numMPQ_numref(a),2)-
 	  (int)mpz_sizeinbase(numMPQ_denref(a),2)<LDBL_MAX_EXP-2);
 }
-inline bool numMPQ_fits_mpfr(numMPQ_t a)
+extern inline bool numMPQ_fits_mpfr(numMPQ_t a)
 {
   return ((int)mpz_sizeinbase(numMPQ_numref(a),2)-
 	  (int)mpz_sizeinbase(numMPQ_denref(a),2)+1<mpfr_get_emax());
 }
 
-inline bool numMPQ_set_lint(numMPQ_t a, long int b, num_internal_t intern)
+extern inline bool numMPQ_set_lint(numMPQ_t a, long int b, num_internal_t intern)
 { return mpq_set_numIl(a,&b,intern); }
-inline bool numMPQ_set_llint(numMPQ_t a, long long int b, num_internal_t intern)
+extern inline bool numMPQ_set_llint(numMPQ_t a, long long int b, num_internal_t intern)
 { return mpq_set_numIll(a,&b,intern); }
-inline bool numMPQ_set_mpz(numMPQ_t a, mpz_t b, num_internal_t intern)
+extern inline bool numMPQ_set_mpz(numMPQ_t a, mpz_t b, num_internal_t intern)
 { return mpq_set_numMPZ(a,b,intern); }
-inline bool numMPQ_set_lfrac(numMPQ_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numMPQ_set_lfrac(numMPQ_t a, long int i, long int j, num_internal_t intern)
 { mpq_set_si(a,i,j); return true; }
-inline bool numMPQ_set_llfrac(numMPQ_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numMPQ_set_llfrac(numMPQ_t a, long long int i, long long int j, num_internal_t intern)
 {
   numMPZ_set_llint(mpq_numref(a),i,intern);
   numMPZ_set_llint(mpq_denref(a),j,intern);
   mpq_canonicalize(a);
   return true;
 }
-inline bool numMPQ_set_mpq(numMPQ_t a, mpq_t b, num_internal_t intern)
+extern inline bool numMPQ_set_mpq(numMPQ_t a, mpq_t b, num_internal_t intern)
 { mpq_set(a,b); return true; }
-inline bool numMPQ_set_double(numMPQ_t a, double k, num_internal_t intern)
+extern inline bool numMPQ_set_double(numMPQ_t a, double k, num_internal_t intern)
 {
   if (!isfinite(k)) { DEBUG_SPECIAL; numMPQ_set_int(a,0); return false; }
   mpq_set_d(a,k);
   return true;
 }
-inline bool numMPQ_set_mpfr(numMPQ_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numMPQ_set_mpfr(numMPQ_t a, mpfr_t b, num_internal_t intern)
 {
   mp_exp_t e;
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; numMPQ_set_int(a,0); return false; }
@@ -715,7 +715,7 @@ inline bool numMPQ_set_mpfr(numMPQ_t a, mpfr_t b, num_internal_t intern)
   if (e<0) mpq_div_2exp(a,a,-e);
   return true;
 }
-inline bool numMPQ_set_ldouble(numMPQ_t a, long double b, num_internal_t intern)
+extern inline bool numMPQ_set_ldouble(numMPQ_t a, long double b, num_internal_t intern)
 {
   mp_exp_t e;
   if (!isfinite(b)) { DEBUG_SPECIAL; mpq_set_si(a,0,1); return false; }
@@ -723,40 +723,40 @@ inline bool numMPQ_set_ldouble(numMPQ_t a, long double b, num_internal_t intern)
   numMPQ_set_mpfr(a,intern->ldbl,intern);
   return (res==0);
 }
-inline bool lint_set_numMPQ(long int* a, numMPQ_t b, num_internal_t intern)
+extern inline bool lint_set_numMPQ(long int* a, numMPQ_t b, num_internal_t intern)
 { return numIl_set_mpq(a,b,intern); }
-inline bool llint_set_numMPQ(long long int* a, numMPQ_t b, num_internal_t intern)
+extern inline bool llint_set_numMPQ(long long int* a, numMPQ_t b, num_internal_t intern)
 { return numIll_set_mpq(a,b,intern); }
-inline bool mpz_set_numMPQ(mpz_t a, numMPQ_t b, num_internal_t intern)
+extern inline bool mpz_set_numMPQ(mpz_t a, numMPQ_t b, num_internal_t intern)
 { return numMPZ_set_mpq(a,b,intern); }
-inline bool lfrac_set_numMPQ(long int* i, long int* j, numMPQ_t b, num_internal_t intern)
+extern inline bool lfrac_set_numMPQ(long int* i, long int* j, numMPQ_t b, num_internal_t intern)
 {
   numIl_set_mpz(i,mpq_numref(b),intern);
   numIl_set_mpz(j,mpq_denref(b),intern);
   return true;
 }
-inline bool llfrac_set_numMPQ(long long int* i, long long int* j, numMPQ_t b, num_internal_t intern)
+extern inline bool llfrac_set_numMPQ(long long int* i, long long int* j, numMPQ_t b, num_internal_t intern)
 {
   numIll_set_mpz(i,mpq_numref(b),intern);
   numIll_set_mpz(j,mpq_denref(b),intern);
   return true;
 }
-inline bool mpq_set_numMPQ(mpq_t a, numMPQ_t b, num_internal_t intern)
+extern inline bool mpq_set_numMPQ(mpq_t a, numMPQ_t b, num_internal_t intern)
 { mpq_set(a,b); return true; }
 /* mpfr should have exactly a precision of 53 bits */
-inline bool double_set_numMPQ(double* a, numMPQ_t b, num_internal_t intern)
+extern inline bool double_set_numMPQ(double* a, numMPQ_t b, num_internal_t intern)
 {
   int res = mpfr_set_q(intern->dbl,b,GMP_RNDU);
   *a = mpfr_get_d(intern->dbl,GMP_RNDU); /* should be exact */
   return (res==0);
 }
-inline bool ldouble_set_numMPQ(long double* a, numMPQ_t b, num_internal_t intern)
+extern inline bool ldouble_set_numMPQ(long double* a, numMPQ_t b, num_internal_t intern)
 {
   int res = mpfr_set_q(intern->ldbl,b,GMP_RNDU);
   *a = mpfr_get_ld(intern->ldbl,GMP_RNDU); /* should be exact */
   return (res==0);
 }
-inline bool mpfr_set_numMPQ(mpfr_t a, numMPQ_t b, num_internal_t intern)
+extern inline bool mpfr_set_numMPQ(mpfr_t a, numMPQ_t b, num_internal_t intern)
 { return !mpfr_set_q(a,b,GMP_RNDU); }
 
 /* ====================================================================== */
@@ -767,21 +767,21 @@ MACRO_numDyyy
 /* ---------------------------------------------------------------------- */
 /* Fits zzz_fits_numDyyy */
 /* ---------------------------------------------------------------------- */
-inline bool lint_fits_numDyyy(long int a)
+extern inline bool lint_fits_numDyyy(long int a)
 { return true; }
-inline bool llint_fits_numDyyy(long long int a)
+extern inline bool llint_fits_numDyyy(long long int a)
 { return true; }
-inline bool mpz_fits_numDyyy(mpz_t a)
+extern inline bool mpz_fits_numDyyy(mpz_t a)
 { return numMPZ_fits_yyydouble(a); }
-inline bool lfrac_fits_numDyyy(long int i, long int j)
+extern inline bool lfrac_fits_numDyyy(long int i, long int j)
 { return true; }
-inline bool llfrac_fits_numDyyy(long long int i, long long int j)
+extern inline bool llfrac_fits_numDyyy(long long int i, long long int j)
 { return true; }
-inline bool mpq_fits_numDyyy(mpq_t a)
+extern inline bool mpq_fits_numDyyy(mpq_t a)
 { return numMPQ_fits_yyydouble(a); }
-inline bool double_fits_numDyyy(double k)
+extern inline bool double_fits_numDyyy(double k)
 { return isfinite(k); }
-inline bool ldouble_fits_numDyyy(long double k)
+extern inline bool ldouble_fits_numDyyy(long double k)
 { return isfinite(k); }
 bool mpfr_fits_numDyyy(mpfr_t a, num_internal_t intern)
 {
@@ -798,27 +798,27 @@ bool mpfr_fits_numDyyy(mpfr_t a, num_internal_t intern)
 /* ---------------------------------------------------------------------- */
 /* Fits numDyyy_fits_zzz */
 /* ---------------------------------------------------------------------- */
-inline bool numDyyy_fits_lint(numDyyy_t a)
+extern inline bool numDyyy_fits_lint(numDyyy_t a)
 { return yyydouble_fits_numIl(*a); }
-inline bool numDyyy_fits_llint(numDyyy_t a)
+extern inline bool numDyyy_fits_llint(numDyyy_t a)
 { return yyydouble_fits_numIll(*a); }
-inline bool numDyyy_fits_mpz(numDyyy_t a)
+extern inline bool numDyyy_fits_mpz(numDyyy_t a)
 { return true; }
-inline bool numDyyy_fits_lfrac(numDyyy_t a)
+extern inline bool numDyyy_fits_lfrac(numDyyy_t a)
 { return yyydouble_fits_numRl(*a); }
-inline bool numDyyy_fits_llfrac(numDyyy_t a)
+extern inline bool numDyyy_fits_llfrac(numDyyy_t a)
 { return yyydouble_fits_numRll(*a); }
-inline bool numDyyy_fits_mpq(numDyyy_t a)
+extern inline bool numDyyy_fits_mpq(numDyyy_t a)
 { return true; }
-inline bool numDyyy_fits_float(numDyyy_t a)
+extern inline bool numDyyy_fits_float(numDyyy_t a)
 {
   int e;
   frexpyyy(*a,&e);
   return (e<FLT_MAX_EXP-1);
 }
-inline bool numDyyy_fits_ldouble(numDyyy_t a)
+extern inline bool numDyyy_fits_ldouble(numDyyy_t a)
 { return true; }
-inline bool numDyyy_fits_mpfr(numDyyy_t a)
+extern inline bool numDyyy_fits_mpfr(numDyyy_t a)
 {
   int e;
   frexpyyy(*a,&e);
@@ -827,28 +827,28 @@ inline bool numDyyy_fits_mpfr(numDyyy_t a)
 /* ---------------------------------------------------------------------- */
 /* Conversions numDyyy_set_zzz */
 /* ---------------------------------------------------------------------- */
-inline bool numDyyy_set_lint(numDyyy_t a, long int i, num_internal_t intern)
+extern inline bool numDyyy_set_lint(numDyyy_t a, long int i, num_internal_t intern)
 { return yyydouble_set_numIl(a,&i,intern); }
-inline bool numDyyy_set_llint(numDyyy_t a, long long int i, num_internal_t intern)
+extern inline bool numDyyy_set_llint(numDyyy_t a, long long int i, num_internal_t intern)
 { return yyydouble_set_numIll(a,&i,intern); }
-inline bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, num_internal_t intern)
+extern inline bool numDyyy_set_mpz(numDyyy_t a, mpz_t b, num_internal_t intern)
 { return yyydouble_set_numMPZ(a,b,intern); }
-inline bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numDyyy_set_lfrac(numDyyy_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   *a = (numDyyy_native)i/(numDyyy_native)j;
   return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
 }
-inline bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numDyyy_set_llfrac(numDyyy_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   *a = (numDyyy_native)i/(numDyyy_native)j;
   return (-*a==(numDyyy_native)(-i)/(numDyyy_native)j);
 }
-inline bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, num_internal_t intern)
+extern inline bool numDyyy_set_mpq(numDyyy_t a, mpq_t b, num_internal_t intern)
 { return yyydouble_set_numMPQ(a,b,intern); }
 
-inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern)
 {
   *a = mpfr_get_yyyd(b,GMP_RNDU);
   return !mpfr_cmp_yyyd(b,*a);
@@ -856,13 +856,13 @@ inline bool numDyyy_set_mpfr(numDyyy_t a, mpfr_t b, num_internal_t intern)
 /* ---------------------------------------------------------------------- */
 /* Conversions zzz_set_numDyyy */
 /* ---------------------------------------------------------------------- */
-inline bool lint_set_numDyyy(long int* a, numDyyy_t b, num_internal_t intern)
+extern inline bool lint_set_numDyyy(long int* a, numDyyy_t b, num_internal_t intern)
 { return numIl_set_yyydouble(a,*b,intern); }
-inline bool llint_set_numDyyy(long long int* a, numDyyy_t b, num_internal_t intern)
+extern inline bool llint_set_numDyyy(long long int* a, numDyyy_t b, num_internal_t intern)
 { return numIll_set_yyydouble(a,*b,intern); }
-inline bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, num_internal_t intern)
+extern inline bool mpz_set_numDyyy(mpz_t a, numDyyy_t b, num_internal_t intern)
 { return numMPZ_set_yyydouble(a,*b,intern); }
-inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_internal_t intern)
+extern inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_internal_t intern)
 {
   numRl_native s;
   bool res = numRl_set_yyydouble(&s,*b,intern);
@@ -870,7 +870,7 @@ inline bool lfrac_set_numDyyy(long int* i, long int* j, numDyyy_t b, num_interna
   *j = *s.d;
   return res;
 }
-inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, num_internal_t intern)
+extern inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, num_internal_t intern)
 {
   numRll_native s;
   bool res = numRll_set_yyydouble(&s,*b,intern);
@@ -878,94 +878,94 @@ inline bool llfrac_set_numDyyy(long long int* i, long long int* j, numDyyy_t b, 
   *j = *s.d;
   return res;
 }
-inline bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, num_internal_t intern)
+extern inline bool mpq_set_numDyyy(mpq_t a, numDyyy_t b, num_internal_t intern)
 { return numMPQ_set_yyydouble(a,*b,intern); }
 
-inline bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, num_internal_t intern)
+extern inline bool mpfr_set_numDyyy(mpfr_t a, numDyyy_t b, num_internal_t intern)
 { return !mpfr_set_yyyd(a,*b,GMP_RNDU); }
 
 ENDMACRO
 
-inline bool numD_fits_double(numD_t a)
+extern inline bool numD_fits_double(numD_t a)
 { return true; }
-inline bool numDl_fits_double(numDl_t a)
+extern inline bool numDl_fits_double(numDl_t a)
 {
   int e;
   frexpl(*a,&e);
   return (e<DBL_MAX_EXP-1);
 }
-inline bool numD_set_double(numD_t a, double k, num_internal_t intern)
+extern inline bool numD_set_double(numD_t a, double k, num_internal_t intern)
 { *a = k; return true; }
-inline bool numDl_set_double(numDl_t a, double k, num_internal_t intern)
+extern inline bool numDl_set_double(numDl_t a, double k, num_internal_t intern)
 { *a = (long double)k; return true; }
-inline bool numD_set_ldouble(numD_t a, long double k, num_internal_t intern)
+extern inline bool numD_set_ldouble(numD_t a, long double k, num_internal_t intern)
 { *a = (double)k; return (long double)(*a)==k; }
-inline bool numDl_set_ldouble(numDl_t a, long double k, num_internal_t intern)
+extern inline bool numDl_set_ldouble(numDl_t a, long double k, num_internal_t intern)
 { *a = k; return true; }
-inline bool double_set_numD(double* a, numD_t b, num_internal_t intern)
+extern inline bool double_set_numD(double* a, numD_t b, num_internal_t intern)
 { *a = *b; return true; }
-inline bool double_set_numDl(double* a, numDl_t b, num_internal_t intern)
+extern inline bool double_set_numDl(double* a, numDl_t b, num_internal_t intern)
 { *a = (double)*b; return (long double)(*a)==*b; }
-inline bool ldouble_set_numD(long double* a, numD_t b, num_internal_t intern)
+extern inline bool ldouble_set_numD(long double* a, numD_t b, num_internal_t intern)
 { *a = (long double)*b; return true; }
-inline bool ldouble_set_numDl(long double* a, numDl_t b, num_internal_t intern)
+extern inline bool ldouble_set_numDl(long double* a, numDl_t b, num_internal_t intern)
 { *a = *b; return true; }
 
 /* ====================================================================== */
 /* 6. numMPFR */
 /* ====================================================================== */
 
-inline bool lint_fits_numMPFR(long int a)
+extern inline bool lint_fits_numMPFR(long int a)
 { return true; }
-inline bool llint_fits_numMPFR(long long int a)
+extern inline bool llint_fits_numMPFR(long long int a)
 { return true;  }
-inline bool mpz_fits_numMPFR(mpz_t a)
+extern inline bool mpz_fits_numMPFR(mpz_t a)
 { return numMPZ_fits_mpfr(a); }
-inline bool lfrac_fits_numMPFR(long int i, long int j)
+extern inline bool lfrac_fits_numMPFR(long int i, long int j)
 { return true; }
-inline bool llfrac_fits_numMPFR(long long int i, long long int j)
+extern inline bool llfrac_fits_numMPFR(long long int i, long long int j)
 { return true; }
- inline bool mpq_fits_numMPFR(mpq_t a)
+ extern inline bool mpq_fits_numMPFR(mpq_t a)
 { return numMPQ_fits_mpfr(a); }
-inline bool double_fits_numMPFR(double k)
+extern inline bool double_fits_numMPFR(double k)
 { return numD_fits_mpfr(&k); }
-inline bool ldouble_fits_numMPFR(long double k)
+extern inline bool ldouble_fits_numMPFR(long double k)
 { return numDl_fits_mpfr(&k); }
-inline bool mpfr_fits_numMPFR(mpfr_t a, num_internal_t intern)
+extern inline bool mpfr_fits_numMPFR(mpfr_t a, num_internal_t intern)
 { return true; }
 
-inline bool numMPFR_fits_lint(numMPFR_t a)
+extern inline bool numMPFR_fits_lint(numMPFR_t a)
 { return mpfr_fits_slong_p(a,GMP_RNDU); }
-inline bool numMPFR_fits_llint(numMPFR_t a)
+extern inline bool numMPFR_fits_llint(numMPFR_t a)
 { return mpfr_fits_intmax_p(a,GMP_RNDU); }
-inline bool numMPFR_fits_mpz(numMPFR_t a)
+extern inline bool numMPFR_fits_mpz(numMPFR_t a)
 { return true; }
-inline bool numMPFR_fits_lfrac(numMPFR_t a)
+extern inline bool numMPFR_fits_lfrac(numMPFR_t a)
 { return mpfr_fits_numRl(a,NULL); }
-inline bool numMPFR_fits_llfrac(numMPFR_t a)
+extern inline bool numMPFR_fits_llfrac(numMPFR_t a)
 { return mpfr_fits_numRll(a,NULL); }
-inline bool numMPFR_fits_mpq(numMPFR_t a)
+extern inline bool numMPFR_fits_mpq(numMPFR_t a)
 { return true; }
-inline bool numMPFR_fits_float(numMPFR_t a)
+extern inline bool numMPFR_fits_float(numMPFR_t a)
 {
   int e;
   e = mpfr_get_exp(a);
   return (e<FLT_MAX_EXP-1);
 }
-inline bool numMPFR_fits_double(numMPFR_t a)
+extern inline bool numMPFR_fits_double(numMPFR_t a)
 { return mpfr_fits_numD(a,NULL); }
-inline bool numMPFR_fits_ldouble(numMPFR_t a)
+extern inline bool numMPFR_fits_ldouble(numMPFR_t a)
 { return mpfr_fits_numDl(a,NULL); }
-inline bool numMPFR_fits_mpfr(numMPFR_t a)
+extern inline bool numMPFR_fits_mpfr(numMPFR_t a)
 { return true; }
 
-inline bool numMPFR_set_lint(numMPFR_t a, long int i, num_internal_t intern)
+extern inline bool numMPFR_set_lint(numMPFR_t a, long int i, num_internal_t intern)
 { return mpfr_set_numIl(a,&i,intern); }
-inline bool numMPFR_set_llint(numMPFR_t a, long long int i, num_internal_t intern)
+extern inline bool numMPFR_set_llint(numMPFR_t a, long long int i, num_internal_t intern)
 { return mpfr_set_numIll(a,&i,intern); }
-inline bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, num_internal_t intern)
+extern inline bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, num_internal_t intern)
 { return mpfr_set_numMPZ(a,b,intern); }
-inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, num_internal_t intern)
+extern inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, num_internal_t intern)
 {
   assert(j>0);
   numRl_native s;
@@ -973,7 +973,7 @@ inline bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, num_internal_
   *s.d = j;
   return mpfr_set_numRl(a,&s,intern);
 }
-inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, num_internal_t intern)
 {
   assert(j>0);
   numRll_native s;
@@ -981,21 +981,21 @@ inline bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, nu
   *s.d = j;
   return mpfr_set_numRll(a,&s,intern);
 }
-inline bool numMPFR_set_mpq(numMPFR_t a, mpq_t b, num_internal_t intern)
+extern inline bool numMPFR_set_mpq(numMPFR_t a, mpq_t b, num_internal_t intern)
 { return mpfr_set_numMPQ(a,b,intern); }
-inline bool numMPFR_set_double(numMPFR_t a, double k, num_internal_t intern)
+extern inline bool numMPFR_set_double(numMPFR_t a, double k, num_internal_t intern)
 { return mpfr_set_numD(a,&k,intern); }
-inline bool numMPFR_set_ldouble(numMPFR_t a, long double k, num_internal_t intern)
+extern inline bool numMPFR_set_ldouble(numMPFR_t a, long double k, num_internal_t intern)
 { return mpfr_set_numDl(a,&k,intern); }
-inline bool numMPFR_set_mpfr(numMPFR_t a, mpfr_t b, num_internal_t intern)
+extern inline bool numMPFR_set_mpfr(numMPFR_t a, mpfr_t b, num_internal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
-inline bool lint_set_numMPFR(long int* a, numMPFR_t b, num_internal_t intern)
+extern inline bool lint_set_numMPFR(long int* a, numMPFR_t b, num_internal_t intern)
 { return numIl_set_mpfr(a,b,intern); }
-inline bool llint_set_numMPFR(long long int* a, numMPFR_t b, num_internal_t intern)
+extern inline bool llint_set_numMPFR(long long int* a, numMPFR_t b, num_internal_t intern)
 { return numIll_set_mpfr(a,b,intern); }
-inline bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, num_internal_t intern)
+extern inline bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, num_internal_t intern)
 { return numMPZ_set_mpfr(a,b,intern); }
-inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, num_internal_t intern)
+extern inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, num_internal_t intern)
 {
   numRl_native s;
   bool res = numRl_set_mpfr(&s,b,intern);
@@ -1003,7 +1003,7 @@ inline bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, num_interna
   *j = *s.d;
   return res;
 }
-inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, num_internal_t intern)
+extern inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, num_internal_t intern)
 {
   numRll_native s;
   bool res = numRll_set_mpfr(&s,b,intern);
@@ -1011,13 +1011,13 @@ inline bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, 
   *j = *s.d;
   return res;
 }
-inline bool mpq_set_numMPFR(mpq_t a, numMPFR_t b, num_internal_t intern)
+extern inline bool mpq_set_numMPFR(mpq_t a, numMPFR_t b, num_internal_t intern)
 { return numMPQ_set_mpfr(a,b,intern); }
-inline bool double_set_numMPFR(double* a, numMPFR_t b, num_internal_t intern)
+extern inline bool double_set_numMPFR(double* a, numMPFR_t b, num_internal_t intern)
 { return numD_set_mpfr(a,b,intern); }
-inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, num_internal_t intern)
+extern inline bool ldouble_set_numMPFR(long double* a, numMPFR_t b, num_internal_t intern)
 { return numDl_set_mpfr(a,b,intern); }
-inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern)
+extern inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern)
 { return !mpfr_set(a,b,GMP_RNDU); }
 
 /* ====================================================================== */
@@ -1027,49 +1027,49 @@ inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern)
 MACRO_ALLX
 #ifndef MARK_XXX_D
 #define MARK_XXX_D
-inline bool numD_fits_numXXX(numD_t a)
+extern inline bool numD_fits_numXXX(numD_t a)
 { return double_fits_numXXX(*a); }
-inline bool numXXX_set_numD(numXXX_t a, numD_t b, num_internal_t intern)
+extern inline bool numXXX_set_numD(numXXX_t a, numD_t b, num_internal_t intern)
 { return numXXX_set_double(a,*b,intern); }
 #endif
 
 #ifndef MARK_XXX_MPQ
 #define MARK_XXX_MPQ
-inline bool numMPQ_fits_numXXX(numMPQ_t a)
+extern inline bool numMPQ_fits_numXXX(numMPQ_t a)
 { return mpq_fits_numXXX(a); }
-inline bool numXXX_set_numMPQ(numXXX_t a, numMPQ_t b, num_internal_t intern)
+extern inline bool numXXX_set_numMPQ(numXXX_t a, numMPQ_t b, num_internal_t intern)
 { return numXXX_set_mpq(a,b,intern); }
 #endif
 
 #ifndef MARK_XXX_MPFR
 #define MARK_XXX_MPFR
-inline bool numMPFR_fits_numXXX(numMPFR_t a, num_internal_t intern)
+extern inline bool numMPFR_fits_numXXX(numMPFR_t a, num_internal_t intern)
 { return mpfr_fits_numXXX(a,intern); }
-inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, num_internal_t intern)
+extern inline bool numXXX_set_numMPFR(numXXX_t a, numMPFR_t b, num_internal_t intern)
 { return numXXX_set_mpfr(a,b,intern); }
 #endif
 
 #ifndef MARK_D_XXX
 #define MARK_D_XXX
-inline bool numXXX_fits_numD(numXXX_t a)
+extern inline bool numXXX_fits_numD(numXXX_t a)
 { return numXXX_fits_double(a); }
-inline bool numD_set_numXXX(numD_t a, numXXX_t b, num_internal_t intern)
+extern inline bool numD_set_numXXX(numD_t a, numXXX_t b, num_internal_t intern)
 { return double_set_numXXX(a,b,intern); }
 #endif
 
 #ifndef MARK_MPQ_XXX
 #define MARK_MPQ_XXX
-inline bool numXXX_fits_numMPQ(numXXX_t a)
+extern inline bool numXXX_fits_numMPQ(numXXX_t a)
 { return numXXX_fits_mpq(a); }
-inline bool numMPQ_set_numXXX(numMPQ_t a, numXXX_t b, num_internal_t intern)
+extern inline bool numMPQ_set_numXXX(numMPQ_t a, numXXX_t b, num_internal_t intern)
 { return mpq_set_numXXX(a,b,intern); }
 #endif
 
 #ifndef MARK_MPFR_XXX
 #define MARK_MPFR_XXX
-inline bool numXXX_fits_numMPFR(numXXX_t a)
+extern inline bool numXXX_fits_numMPFR(numXXX_t a)
 { return numXXX_fits_mpfr(a); }
-inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, num_internal_t intern)
+extern inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, num_internal_t intern)
 { return mpfr_set_numXXX(a,b,intern); }
 #endif
 ENDMACRO
@@ -1088,7 +1088,7 @@ ENDMACRO
 /* ********************************************************************** */
 
 MACRO_ALLX
-inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
+extern inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
 {
   if (boundXXX_infty(b) || !numXXX_fits_float(boundXXX_numref(b)))
     boundXXX_set_infty(a,boundXXX_sgn(b));
@@ -1099,7 +1099,7 @@ inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
     _boundXXX_inf(a);
   }
 }
-inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
+extern inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
 {
   if (boundXXX_infty(b) || !numXXX_fits_double(boundXXX_numref(b)))
     boundXXX_set_infty(a,boundXXX_sgn(b));
@@ -1111,7 +1111,7 @@ inline void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern
   }
 }
 
-inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern)
+extern inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern)
 {
   if (lint_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1122,7 +1122,7 @@ inline bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern)
     return false;
   }
 }
-inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern)
+extern inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern)
 {
   if (llint_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1133,7 +1133,7 @@ inline bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t int
     return false;
   }
 }
-inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern)
+extern inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern)
 {
   if (mpz_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1144,7 +1144,7 @@ inline bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern)
     return false;
   }
 }
-inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern)
+extern inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern)
 {
   if (lfrac_fits_numXXX(i,j)){
     _boundXXX_inf(a);
@@ -1155,7 +1155,7 @@ inline bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_interna
     return false;
   }
 }
-inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern)
 {
   if (llfrac_fits_numXXX(i,j)){
     _boundXXX_inf(a);
@@ -1166,7 +1166,7 @@ inline bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, 
     return false;
   }
 }
-inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern)
+extern inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern)
 {
   if (mpq_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1177,7 +1177,7 @@ inline bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern)
     return false;
   }
 }
-inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern)
+extern inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern)
 {
   if (double_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1188,7 +1188,7 @@ inline bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern)
     return false;
   }
 }
-inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern)
+extern inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern)
 {
   if (ldouble_fits_numXXX(b)){
     _boundXXX_inf(a);
@@ -1199,7 +1199,7 @@ inline bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t int
     return false;
   }
 }
-inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern)
+extern inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern)
 {
   if (mpfr_fits_numXXX(b,intern)){
     _boundXXX_inf(a);
@@ -1210,23 +1210,23 @@ inline bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern)
     return false;
   }
 }
-inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern)
 { return boundXXX_set_lint(a,*b,intern); }
-inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern)
 { return boundXXX_set_llint(a,*b,intern); }
-inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern)
 { return boundXXX_set_mpz(a,b,intern); }
-inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern)
 { return boundXXX_set_lfrac(a,*b->n,*b->d,intern); }
-inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern)
 { return boundXXX_set_llfrac(a,*b->n,*b->d,intern); }
-inline bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern)
 { return boundXXX_set_mpq(a,b,intern); }
-inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern)
 { return boundXXX_set_double(a,*b,intern); }
-inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern)
 { return boundXXX_set_ldouble(a,*b,intern); }
-inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern)
+extern inline bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern)
 { return boundXXX_set_mpfr(a,b,intern); }
 ENDMACRO
 
@@ -1235,81 +1235,81 @@ ENDMACRO
 /* ********************************************************************** */
 
 MACRO_ALLX
-inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
+extern inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
   boundXXX_to_float(a->sup,b->sup,intern);
   boundXXX_to_float(a->neginf,b->neginf,intern);
 }
 
-inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern)
+extern inline void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
   boundXXX_to_double(a->sup,b->sup,intern);
   boundXXX_to_double(a->neginf,b->neginf,intern);
 }
 
-inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern)
+extern inline bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern)
 { return itvXXX_set_lint2(a,b,b,intern); }
-inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern)
+extern inline bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern)
 {
   bool res = boundXXX_set_lint(a->neginf,-b,intern);
   return boundXXX_set_lint(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern)
+extern inline bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern)
 { return itvXXX_set_llint2(a,b,b,intern); }
-inline bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern)
+extern inline bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern)
 {
   bool res = boundXXX_set_llint(a->neginf,-b,intern);
   return boundXXX_set_llint(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern)
+extern inline bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern)
 { return itvXXX_set_mpz2(a,b,b,intern); }
-inline bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
+extern inline bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
 {
   mpz_neg(b,b);
   bool res = boundXXX_set_mpz(a->neginf,b,intern);
   mpz_neg(b,b);
   return boundXXX_set_mpz(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern)
+extern inline bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern)
 { return itvXXX_set_lfrac2(a,i,j,i,j,intern); }
-inline bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
+extern inline bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern)
 {
   bool res = boundXXX_set_lfrac(a->neginf,-i,j,intern);
   return boundXXX_set_lfrac(a->sup,k,l,intern) && res;
 }
-inline bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern)
+extern inline bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern)
 { return itvXXX_set_llfrac2(a,i,j,i,j,intern); }
-inline bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
+extern inline bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern)
 {
   bool res = boundXXX_set_llfrac(a->neginf,-i,j,intern);
   return boundXXX_set_llfrac(a->sup,k,l,intern) && res;
 }
-inline bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern)
+extern inline bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern)
 { return itvXXX_set_mpq2(a,b,b,intern); }
-inline bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
+extern inline bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
 {
   mpq_neg(b,b);
   bool res = boundXXX_set_mpq(a->neginf,b,intern);
   mpq_neg(b,b);
   return boundXXX_set_mpq(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern)
+extern inline bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern)
 { return itvXXX_set_double2(a,b,b,intern); }
-inline bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern)
+extern inline bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern)
 {
   bool res = boundXXX_set_double(a->neginf,-b,intern);
   return boundXXX_set_double(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern)
+extern inline bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern)
 { return itvXXX_set_ldouble2(a,b,b,intern); }
-inline bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern)
+extern inline bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern)
 {
   bool res = boundXXX_set_ldouble(a->neginf,-b,intern);
   return boundXXX_set_ldouble(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern)
+extern inline bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern)
 { return itvXXX_set_mpfr2(a,b,b,intern); }
-inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
+extern inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
 {
   mpfr_neg(b,b,GMP_RNDU);
   bool res = boundXXX_set_mpfr(a->neginf,b,intern);
@@ -1319,14 +1319,14 @@ inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t inte
 ENDMACRO
 
 MACRO_ALLX_ALLZ
-inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
+extern inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
 {
   numZZZ_neg(b,b);
   bool res = boundXXX_set_numZZZ(a->neginf,b,intern);
   numZZZ_neg(b,b);
   return boundXXX_set_numZZZ(a->sup,c,intern) && res;
 }
-inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
+extern inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern)
 {
   return itvXXX_set_numZZZ2(a,b,b,intern);
 }
@@ -1736,16 +1736,16 @@ MACRO_ALLX_MAINZ
 #define MARK2_ZZZ
 
 #if defined(MARK1_XXX) && defined(MARK2_XXX)
-inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern)
+extern inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern)
 { boundXXX_set(a,b); return true; }
-inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern)
+extern inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern)
 { itvXXX_set(a,b); return true; }
-inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
+extern inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
 { eitvXXX_set(a,b); return true; }
 #else
 #ifndef MARK_XXX_ZZZ
 #define MARK_XXX_ZZZ
-inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern)
+extern inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern)
 {
   if (boundZZZ_infty(b)){
     boundXXX_set_infty(a,boundZZZ_sgn(b));
@@ -1755,12 +1755,12 @@ inline bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t int
     return boundXXX_set_numZZZ(a,boundZZZ_numref(b),intern);
   }
 }
-inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern)
+extern inline bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern)
 {
   bool exact = boundXXX_set_boundZZZ(a->neginf,b->neginf,intern);
   return boundXXX_set_boundZZZ(a->sup,b->sup,intern) && exact;
 }
-inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
+extern inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
 {
   bool exact = itvXXX_set_itvZZZ(a->itv,b->itv,intern);
   a->eq = exact && b->eq;
@@ -1769,7 +1769,7 @@ inline bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern)
 #endif
 #ifndef MARK_ZZZ_XXX
 #define MARK_ZZZ_XXX
-inline bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern)
+extern inline bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern)
 {
   if (boundXXX_infty(b)){
     boundZZZ_set_infty(a,boundXXX_sgn(b));
@@ -1779,12 +1779,12 @@ inline bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t int
     return boundZZZ_set_numXXX(a,boundXXX_numref(b),intern);
   }
 }
-inline bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern)
+extern inline bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern)
 {
   bool exact = boundZZZ_set_boundXXX(a->neginf,b->neginf,intern);
   return boundZZZ_set_boundXXX(a->sup,b->sup,intern) && exact;
 }
-inline bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern)
+extern inline bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern)
 {
   bool exact = itvZZZ_set_itvXXX(a->itv,b->itv,intern);
   a->eq = exact && b->eq;
