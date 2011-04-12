@@ -39,6 +39,7 @@ box_policy_manager_alloc: the standard manager given in argument is not a box ma
   funptr[AP_FUNPOLICYID_COPY] = box_policy_copy;
   funptr[AP_FUNPOLICYID_FREE] = box_policy_free;
   funptr[AP_FUNPOLICYID_FPRINT] = box_policy_fprint;
+  funptr[AP_FUNPOLICYID_SPRINT] = box_policy_sprint;
   funptr[AP_FUNPOLICYID_DIMENSION] = box_policy_dimension;
   funptr[AP_FUNPOLICYID_EQUAL] = box_policy_equal;
   funptr[AP_FUNPOLICYID_MEET] = box_policy_meet;
@@ -115,39 +116,53 @@ size_t box_policy_dimension(ap_policy_manager_t* man, box_policy_t* policy)
 }
 
 static inline
-void box_policy_choice_fprint(FILE* stdout, box_policy_choice_t choice)
+void box_policy_choice_sprint(char** ret, box_policy_choice_t choice)
 {
+  char* s = *ret;
   switch(choice){
   case BOX_POLICY_1:
-    fputc('l', stdout);
+    *s = 'l';
     break;
   case BOX_POLICY_2:
-    fputc('r', stdout);
+    *s = 'r';
     break;
   default:
     abort();
   }
+  s++;
 }
 static inline
-void box_policy_dim_fprint(FILE* stdout, box_policy_dim_t* pdim)
+void box_policy_dim_sprint(char** ret, box_policy_dim_t* pdim)
 {
-  box_policy_choice_fprint(stdout,pdim->inf);
-  box_policy_choice_fprint(stdout,pdim->sup);
+  box_policy_choice_sprint(ret,pdim->inf);
+  box_policy_choice_sprint(ret,pdim->sup);
 }
-void box_policy_one_fprint(FILE* stdout, box_policy_one_t* policy)
+void box_policy_one_sprint(char** ret, box_policy_one_t* policy)
 {
   for (size_t j=0; j < policy->nbdims; j++){
-    box_policy_dim_fprint(stdout,&policy->p[j]);
-    fputc(' ', stdout);
+    box_policy_dim_sprint(ret,&policy->p[j]);
+    **ret = ' ';
+    (*ret)++;
   }
+}
+char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* boxpolicy)
+{
+  char* const s = malloc(boxpolicy->size * (3*boxpolicy->nbdims * 3 + 1) + 1);
+  char* p = s;
+  for (size_t i=0; i < boxpolicy->size; i++){
+    box_policy_one_sprint(&p,&boxpolicy->p[i]);
+    *p = '\n';
+    p++;
+  }
+  *p = 0;
+  assert((p-s) == (boxpolicy->size * (3*boxpolicy->nbdims * 3 + 1) + 1));
+  return s;
 }
 void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
-  for (size_t i=0; i < boxpolicy->size; i++){
-    fprintf(stdout, "%zi=", i);
-    box_policy_one_fprint(stdout,&boxpolicy->p[i]);
-    fputc('\n', stdout);
-  }
+  char* s = box_policy_sprint(man,boxpolicy);
+  fputs(s,stdout);
+  free(s);
 }
 
 static inline
