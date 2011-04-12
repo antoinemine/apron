@@ -118,18 +118,17 @@ size_t box_policy_dimension(ap_policy_manager_t* man, box_policy_t* policy)
 static inline
 void box_policy_choice_sprint(char** ret, box_policy_choice_t choice)
 {
-  char* s = *ret;
   switch(choice){
   case BOX_POLICY_1:
-    *s = 'l';
+    **ret = 'l';
     break;
   case BOX_POLICY_2:
-    *s = 'r';
+    *ret = 'r';
     break;
   default:
     abort();
   }
-  s++;
+  (*ret)++;
 }
 static inline
 void box_policy_dim_sprint(char** ret, box_policy_dim_t* pdim)
