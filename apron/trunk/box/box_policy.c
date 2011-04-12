@@ -146,7 +146,7 @@ void box_policy_one_sprint(char** ret, box_policy_one_t* policy)
 }
 char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
-  char* const s = malloc(boxpolicy->size * (3*boxpolicy->nbdims * 3 + 1) + 1);
+  char* const s = malloc(boxpolicy->size * (3*boxpolicy->nbdims + 1) + 1);
   char* p = s;
   for (size_t i=0; i < boxpolicy->size; i++){
     box_policy_one_sprint(&p,&boxpolicy->p[i]);
@@ -154,7 +154,7 @@ char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* boxpolicy)
     p++;
   }
   *p = 0;
-  assert((p-s) == (boxpolicy->size * (3*boxpolicy->nbdims * 3 + 1) + 1));
+  assert((p-s) == (boxpolicy->size * (3*boxpolicy->nbdims + 1)));
   return s;
 }
 void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* boxpolicy)
