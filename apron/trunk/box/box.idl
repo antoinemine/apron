@@ -63,6 +63,9 @@ module Abstract1 : sig
     (** Instanciate the type of a box value.
 	Raises [Failure] if the argument value is not a box value *)
 end
+
+val policy_print0 : Format.formatter -> t Apron.Policy.t -> unit
+val policy_print1 : Apron.Environment.t -> Format.formatter -> t Apron.Policy.t -> unit
 ")
 
 quote(ML,"
@@ -95,6 +98,35 @@ module Abstract1 = struct
   else
     failwith \"Box.Abstract1.to_box: the argument value is not a Box value\"
 end
+
+let policy_print string_of_dim fmt policy =
+  let pman = Apron.Policy.manager policy in
+  let str = Apron.Policy.to_string pman policy in
+  let length = String.length str in
+  let index = ref 0 in
+  let policy = ref [] in
+  while !index < length do
+    let policy_one = ref [] in
+    let dim = ref 0 in
+    while str.[!index] <> '\n' do
+      let inf = str.[!index] in incr index;
+      let sup = str.[!index]; in incr index;
+      incr index;
+      policy_one := (!dim,inf,sup) :: !policy_one;
+      incr dim;
+    done;
+    policy := (Array.of_list (List.rev !policy_one))::(!policy);
+    incr index;
+  done;
+  let policy = Array.of_list (List.rev !policy) in
+  Apron.Abstract0.print_array ~first:\"[@[<v>\" ~sep:\"@ \" ~last:\"@]]\"
+    (Apron.Abstract0.print_array ~first:\"[@[\" ~sep:\",@ \" ~last:\"@]]\"
+      (fun fmt (dim,inf,sup) ->
+	Format.fprintf fmt \"%s:%c%c\" (string_of_dim dim) inf sup))
+    fmt policy
+
+let policy_print0 fmt policy = policy_print string_of_int fmt policy
+let policy_print1 env fmt policy = policy_print (fun dim -> let var = Apron.Environment.var_of_dim env dim in Apron.Var.to_string var) fmt policy
 ")
 
 ap_policy_manager_ptr box_policy_manager_alloc(ap_manager_ptr man);
@@ -102,7 +134,7 @@ ap_policy_manager_ptr box_policy_manager_alloc(ap_manager_ptr man);
 quote(MLI,"\n(**
 {2 Compilation information}
 
-See {!Introduction.compilation} for complete explanations. 
+See {!Introduction.compilation} for complete explanations.
 We just show examples with the file [mlexample.ml].
 
 {3 Bytecode compilation}
