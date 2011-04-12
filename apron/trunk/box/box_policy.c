@@ -123,7 +123,7 @@ void box_policy_choice_sprint(char** ret, box_policy_choice_t choice)
     **ret = 'l';
     break;
   case BOX_POLICY_2:
-    *ret = 'r';
+    **ret = 'r';
     break;
   default:
     abort();
