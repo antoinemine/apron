@@ -64,6 +64,7 @@ module Abstract1 : sig
 	Raises [Failure] if the argument value is not a box value *)
 end
 
+val policy_print : (int -> string) -> Format.formatter -> t Apron.Policy.t -> unit
 val policy_print0 : Format.formatter -> t Apron.Policy.t -> unit
 val policy_print1 : Apron.Environment.t -> Format.formatter -> t Apron.Policy.t -> unit
 ")
