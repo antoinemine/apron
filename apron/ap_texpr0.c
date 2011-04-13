@@ -28,7 +28,10 @@ ap_texpr0_t* ap_texpr0_dim(ap_dim_t dim)
   res->val.dim = dim;
   return res;
 }
-ap_texpr0_t* ap_texpr0_node(ap_texpr_op_t op, ap_texpr_rtype_t type, ap_texpr_rdir_t dir, ap_texpr0_t* opA, ap_texpr0_t* opB)
+ap_texpr0_t* ap_texpr0_node(
+    ap_texpr_op_t op, ap_texpr_rtype_t type, ap_texpr_rdir_t dir, 
+    ap_texpr0_t* opA, ap_texpr0_t* opB
+)
 {
   ap_texpr0_node_t* node = malloc(sizeof(ap_texpr0_node_t));
   node->op = op;
@@ -41,7 +44,10 @@ ap_texpr0_t* ap_texpr0_node(ap_texpr_op_t op, ap_texpr_rtype_t type, ap_texpr_rd
   res->val.node = node;
   return res;
 }
-ap_texpr0_t* ap_texpr0_unop(ap_texpr_op_t op, ap_texpr0_t* opA, ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
+ap_texpr0_t* ap_texpr0_unop(
+    ap_texpr_op_t op, ap_texpr0_t* opA, 
+    ap_texpr_rtype_t type, ap_texpr_rdir_t dir
+)
 {
   if (!ap_texpr_is_unop(op)){
     fprintf(stderr,"ap_texpr0.c: ap_texpr0_unop: unary operator expected\n");
@@ -49,7 +55,10 @@ ap_texpr0_t* ap_texpr0_unop(ap_texpr_op_t op, ap_texpr0_t* opA, ap_texpr_rtype_t
   }
   return ap_texpr0_node(op,type,dir,opA,NULL);
 }
-ap_texpr0_t* ap_texpr0_binop(ap_texpr_op_t op, ap_texpr0_t* opA, ap_texpr0_t* opB, ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
+ap_texpr0_t* ap_texpr0_binop(
+    ap_texpr_op_t op, ap_texpr0_t* opA, ap_texpr0_t* opB,
+    ap_texpr_rtype_t type, ap_texpr_rdir_t dir
+)
 {
   if (!ap_texpr_is_binop(op)){
     fprintf(stderr,"ap_texpr0.c: ap_texpr0_binop: binary operator expected\n");
@@ -118,7 +127,7 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
   size_t i;
   ap_dim_t dim;
   ap_coeff_t coeffref;
-  
+
   switch(e->discr){
   case AP_SCALAR_D:
     {
@@ -131,7 +140,7 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
 	res = ap_texpr0_binop(AP_TEXPR_ADD,
 			      res,
 			      ap_texpr0_binop(AP_TEXPR_MUL,
-					      ap_texpr0_cst(coeffref), 
+					      ap_texpr0_cst(coeffref),
 					      ap_texpr0_dim(dim),
 					      AP_RTYPE_REAL, AP_RDIR_RND),
 			      AP_RTYPE_REAL, AP_RDIR_RND);
@@ -149,7 +158,7 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
 	res = ap_texpr0_binop(AP_TEXPR_ADD,
 			      res,
 			      ap_texpr0_binop(AP_TEXPR_MUL,
-					      ap_texpr0_cst(coeffref), 
+					      ap_texpr0_cst(coeffref),
 					      ap_texpr0_dim(dim),
 					      AP_RTYPE_REAL, AP_RDIR_RND),
 			      AP_RTYPE_REAL, AP_RDIR_RND);
@@ -167,7 +176,7 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
 	res = ap_texpr0_binop(AP_TEXPR_ADD,
 			      res,
 			      ap_texpr0_binop(AP_TEXPR_MUL,
-					      ap_texpr0_cst(coeffref), 
+					      ap_texpr0_cst(coeffref),
 					      ap_texpr0_dim(dim),
 					      AP_RTYPE_REAL, AP_RDIR_RND),
 			      AP_RTYPE_REAL, AP_RDIR_RND);
@@ -786,7 +795,7 @@ void ap_texpr0_array_permute_dimensions_with(ap_texpr0_array_t* array,
 /* VI. Hashing, comparisons */
 /* ====================================================================== */
 
-long ap_texpr0_hash(ap_texpr0_t* a)
+int ap_texpr0_hash(ap_texpr0_t* a)
 {
   if (!a) return 0;
   switch(a->discr) {

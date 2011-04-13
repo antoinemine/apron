@@ -95,57 +95,70 @@ ENDMACRO
 /* III. Access */
 /* ====================================================================== */
 
-#if defined(_AP_linexpr1_MARK_)
-
-void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr)
-{ ap_linexpr0_cstref(coeff,expr->linexpr0); }
-void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var)
+void ap_linyyy1_cstref(ap_coeff_t coeff, ap_linyyy1_t expr)
+{ ap_linyyy0_cstref(coeff,expr->linyyy0); }
+void ap_linyyy1_coeffref(ap_coeff_t coeff, bool* perror, ap_linyyy1_t expr, ap_var_t var)
 {
   ap_dim_t dim = ap_environment_dim_of_var(expr->env,var);
   *perror = (dim==AP_DIM_MAX);
   if (! (*perror))
-    ap_linexpr0_coeffref(coeff,expr->linexpr0,dim);
+    ap_linyyy0_coeffref(coeff,expr->linyyy0,dim);
 }
-bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern)
-{ return ap_linexpr0_get_cst(coeff,expr->linexpr0,intern); }
+bool ap_linyyy1_get_cst(ap_coeff_t coeff, ap_linyyy1_t expr, num_internal_t intern)
+{ return ap_linyyy0_get_cst(coeff,expr->linyyy0,intern); }
 
-bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern)
+bool ap_linyyy1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linyyy1_t expr, ap_var_t var, num_internal_t intern)
 {
   ap_coeff_t ref;
-  ap_linexpr1_coeffref(ref,perror,expr,var);
+  ap_linyyy1_coeffref(ref,perror,expr,var);
   if (*perror)
     return false;
   else
     return ap_coeff_set(coeff,ref,intern);
 }
 
-bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t intern)
-{ return ap_linexpr0_set_cst(expr->linexpr0, coeff, intern); }
-bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern)
+bool ap_linyyy1_set_cst(ap_linyyy1_t expr, ap_coeff_t coeff, num_internal_t intern)
+{ return ap_linyyy0_set_cst(expr->linyyy0, coeff, intern); }
+bool ap_linyyy1_set_coeff(ap_linyyy1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern)
 {
   ap_coeff_t ref;
-  ap_linexpr1_coeffref(ref,perror,expr,var);
+  ap_linyyy1_coeffref(ref,perror,expr,var);
   if (*perror)
     return false;
   else
     return ap_coeff_set(ref,coeff,intern);
 }
 
-bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...)
+bool ap_linyyy1_set_list(num_internal_t intern, ap_linyyy1_t expr, bool* perror, ...)
 {
   bool res;
   va_list va;
   va_start(va,perror);
-  SWITCH (expr->linexpr0->discr)
-    res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_var,
-					 expr->linexpr0->linexpr.XXX,perror,
-					 expr->env,&va,intern);
+  SWITCH (expr->linyyy0->discr)
+    res = ap_linexprXXX_set_list_generic(
+	ap_linexprXXX_set_list_get_eitvXXX_of_var,
+#if defined (_AP_linexpr1_MARK_)
+	expr->linyyy0->linexpr.XXX,perror,
+#else
+	expr->linyyy0->linyyy.XXX->linexpr,perror,
+#endif
+	expr->env,&va,intern);
   ENDSWITCH
   va_end(va);
   return res;
 }
 
-#elif defined(_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
+
+#if defined (_AP_lincons1_MARK_)
+mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c)
+{ return ap_lincons0_mpqref(c->lincons0); }
+void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c)
+{ ap_lincons0_get_mpq(mpq,c->lincons0); }
+void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq)
+{ ap_lincons0_set_mpq(c->lincons0,mpq); }
+#endif
+
+#if defined(_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
 
 void ap_linyyy1_linexpr1ref(ap_linexpr1_t e, ap_linyyy1_t c)
 {
@@ -172,17 +185,7 @@ bool ap_linyyy1_set_linexpr1(ap_linyyy1_t c, ap_linexpr1_t e, num_internal_t int
 void ap_linyyy1_set_yyytyp(ap_linyyy1_t c, ap_yyytyp_t yyytyp)
 { ap_linyyy0_set_yyytyp(c->linyyy0,yyytyp); }
 
-#if defined (_AP_lincons0_MARK_)
-mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c)
-{ return ap_lincons0_mpqref(c->lincons0); }
-void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c)
-{ ap_lincons0_get_mpq(mpq,c->lincons0); }
-void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq)
-{ ap_lincons0_set_mpq(c->lincons0,mpq); }
-#endif
 
-#else
-#error "HERE"
 #endif
 
 /* ====================================================================== */

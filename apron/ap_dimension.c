@@ -17,7 +17,8 @@
 /* Allocating a transformation */
 void ap_dimchange_init(ap_dimchange_t* dimchange, ap_dimension_t dim)
 {
-  dimchange->p = dim.intd+dim.reald==0 ? NULL : malloc((dim.intd+dim.reald)*sizeof(ap_dim_t));
+  size_t size = ap_dimension_size(dim);
+  dimchange->p = size==0 ? NULL : malloc(size*sizeof(ap_dim_t));
   dimchange->dim = dim;
 }
 ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim)
@@ -30,12 +31,13 @@ ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim)
 /* Printing a transformation */
 void ap_dimchange_fprint(FILE* stream, ap_dimchange_t* dimchange)
 {
-  size_t i;
+  size_t i,size;
 
   fprintf(stream,"dimchange: intdim=%lu, realdim=%lu\n           ",
 	  (unsigned long)dimchange->dim.intd,
 	  (unsigned long)dimchange->dim.reald);
-  for (i=0;i<dimchange->dim.intd+dimchange->dim.reald;i++){
+  size = ap_dimension_size(dimchange->dim);
+  for (i=0;i<size;i++){
     fprintf(stream,"%2lu ",(unsigned long)dimchange->p[i]);
   }
   fprintf(stream,"\n");
@@ -44,8 +46,9 @@ void ap_dimchange_fprint(FILE* stream, ap_dimchange_t* dimchange)
 /* Inverting in-place an adding transformation from the given dimensionality */
 void ap_dimchange_add_invert(ap_dimchange_t* dimchange)
 {
-  size_t i;
-  for (i=0;i<dimchange->dim.intd+dimchange->dim.reald; i++){
+  size_t i,size;
+  size = ap_dimension_size(dimchange->dim);
+  for (i=0;i<size; i++){
     dimchange->p[i] += i;
   }
 }
@@ -154,7 +157,7 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm)
 /* ====================================================================== */
 
 /* ttdim[i] should be of size nbdims+1, if nbdims is the number of dimensions to be encountered.
-   
+
    Merge buffers indexed by k0 and k1, and return the new buffer in the index
    *pk (normally, k2) */
 void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk)
@@ -194,4 +197,3 @@ void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk)
     *pk = k2;
   }
 }
-

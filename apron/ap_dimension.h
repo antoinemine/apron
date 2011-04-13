@@ -91,15 +91,18 @@ typedef struct ap_dimperm_t {
 /* Functions */
 /* ====================================================================== */
 
-static inline 
+static inline
 ap_dimension_t ap_dimension_make(size_t intd, size_t reald)
 { ap_dimension_t dim; dim.intd=intd; dim.reald=reald; return dim; }
-static inline 
+static inline
 ap_dimension_t ap_dimension_add(ap_dimension_t a, ap_dimension_t b)
 { return ap_dimension_make(a.intd+b.intd,a.reald+b.reald); }
-static inline 
+static inline
 ap_dimension_t ap_dimension_sub(ap_dimension_t a, ap_dimension_t b)
 { return ap_dimension_make(a.intd-b.intd,a.reald-b.reald); }
+static inline
+size_t ap_dimension_size(ap_dimension_t a)
+{ return a.intd + a.reald; }
 
 /* ---------------------------------------------------------------------- */
 /* ap_dimchange_t */
@@ -126,11 +129,11 @@ void ap_dimchange_add_invert(ap_dimchange_t* dimchange);
 /* ---------------------------------------------------------------------- */
 
 static inline void ap_dimchange2_init(ap_dimchange2_t* dimchange2,
-				      ap_dimchange_t* add, 
+				      ap_dimchange_t* add,
 				      ap_dimchange_t* remove);
   /* Initialize a dimchange2 structure by filling its fields with
      arguments */
-static inline ap_dimchange2_t* ap_dimchange2_alloc(ap_dimchange_t* add, 
+static inline ap_dimchange2_t* ap_dimchange2_alloc(ap_dimchange_t* add,
 						   ap_dimchange_t* remove);
   /* Allocate and initialize a dimchange2 structure */
 
@@ -214,16 +217,16 @@ void ap_dimperm_free(ap_dimperm_t* dimperm)
   free(dimperm);
 }
 
-static inline 
+static inline
 void ap_dimchange2_init(ap_dimchange2_t* dimchange2,
-			ap_dimchange_t* add, 
+			ap_dimchange_t* add,
 			ap_dimchange_t* remove)
-{ 
+{
   dimchange2->add = add;
   dimchange2->remove = remove;
 }
-static inline 
-ap_dimchange2_t* ap_dimchange2_alloc(ap_dimchange_t* add, 
+static inline
+ap_dimchange2_t* ap_dimchange2_alloc(ap_dimchange_t* add,
 				     ap_dimchange_t* remove)
 {
   ap_dimchange2_t* res = (ap_dimchange2_t*)malloc(sizeof(ap_dimchange2_t));

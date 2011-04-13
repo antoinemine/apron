@@ -193,7 +193,7 @@ bool ap_linyyyXXX_array_set_tyyy0_array(ap_linyyyXXX_array_t res,
 }
 void ap_linyyyXXX_array_intlinearize_tyyy0_array(ap_linyyyXXX_array_t res,
 						 ap_tyyy0_array_t* texpr,
-						 eitvXXX_t* env, size_t intdim, num_internal_t intern)
+						 ap_linexprXXX_t env, size_t intdim, num_internal_t intern)
 {
   size_t i;
   ap_linyyyXXX_array_resize(res,texpr->size);

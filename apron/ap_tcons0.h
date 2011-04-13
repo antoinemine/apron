@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-
+/* ====================================================================== */
 /* Datatypes */
 /* ====================================================================== */
 
@@ -77,6 +77,16 @@ void ap_tcons0_fprint(FILE* stream,
 /* ====================================================================== */
 
 static inline
+bool ap_tcons0_has_dim(ap_tcons0_t* a, ap_dim_t d);
+   /* Returns true if dimension d appears in the expression */
+
+static inline
+ap_dim_t* ap_tcons0_dimlist(ap_tcons0_t* a);
+  /* Returns an ordered, AP_DIM_MAX-terminated array of occurring dimensions;
+     caller should free() the array after use
+   */
+
+static inline
 bool ap_tcons0_is_interval_cst(ap_tcons0_t* a);
   /* no-variable, only constant leaves */
 
@@ -114,6 +124,17 @@ static inline
 ap_tcons0_t* ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
 					 ap_dimperm_t* perm);
 
+/* ====================================================================== */
+/* I.4 Hashing, comparisons */
+/* ====================================================================== */
+
+static inline
+int ap_tcons0_hash(ap_tcons0_t* a);
+  /* Recursive hashing */
+
+bool ap_tcons0_equal(ap_tcons0_t* a1, ap_tcons0_t* a2);
+  /* Structural (recursive) equality */
+
 /* ********************************************************************** */
 /* II. Array of linear constraints */
 /* ********************************************************************** */
@@ -134,8 +155,8 @@ ap_tcons0_array_t ap_tcons0_array_from_lincons0_array(ap_lincons0_array_t e);
   /* From linear constraints to comb-like constraint trees */
 
 void ap_tcons0_array_fprint(FILE* stream,
-			      ap_tcons0_array_t* ap_tcons0_array,
-			      char** name_of_dim);
+			    ap_tcons0_array_t* ap_tcons0_array,
+			    char** name_of_dim);
 void ap_tcons0_array_print(ap_tcons0_array_t* ap_tcons0_array,
 			   char** name_of_dim);
   /* Printing */
@@ -144,10 +165,6 @@ bool ap_tcons0_array_is_interval_linear(ap_tcons0_array_t* array);
 bool ap_tcons0_array_is_interval_polynomial(ap_tcons0_array_t* array);
 bool ap_tcons0_array_is_interval_polyfrac(ap_tcons0_array_t* array);
 bool ap_tcons0_array_is_scalar(ap_tcons0_array_t* array);
-
-/* ====================================================================== */
-/* II.1 Change of dimensions and permutations */
-/* ====================================================================== */
 
 void ap_tcons0_array_add_dimensions_with(ap_tcons0_array_t* array,
 					 ap_dimchange_t* dimchange);
@@ -192,6 +209,12 @@ static inline void ap_tcons0_free(ap_tcons0_t* tcons)
 }
 
 static inline
+bool ap_tcons0_has_dim(ap_tcons0_t* a, ap_dim_t d)
+{ return ap_texpr0_has_dim(a->texpr0,d); }
+static inline
+ap_dim_t* ap_tcons0_dimlist(ap_tcons0_t* a)
+{ return ap_texpr0_dimlist(a->texpr0); }
+static inline
 bool ap_tcons0_is_interval_cst(ap_tcons0_t* a)
 { return ap_texpr0_is_interval_cst(a->texpr0); }
 static inline
@@ -230,6 +253,12 @@ ap_tcons0_t* ap_tcons0_permute_dimensions(ap_tcons0_t* cons,
   return ap_tcons0_make(ap_texpr0_permute_dimensions(cons->texpr0,perm),
 			cons->constyp,
 			cons->mpq);
+}
+
+static inline
+int ap_tcons0_hash(ap_tcons0_t* a)
+{
+  return (int)a->constyp + ap_texpr0_hash(a->texpr0);
 }
 
 #ifdef __cplusplus

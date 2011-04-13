@@ -170,7 +170,7 @@ ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, ap_dimension_t dim)
 }
 ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 				    ap_dimension_t dim,
-				    ap_box0_t box){
+				    ap_linexpr0_t box){
   void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_OF_BOX];
   return ap_abstract0_cons(man,ptr(man,dim,box));
 }
@@ -356,7 +356,7 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
     return res;
   }
 }
-void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a)
+void ap_abstract0_to_box(ap_manager_t* man, ap_linexpr0_t box, ap_abstract0_t* a)
 {
   if (ap_check0_man1(AP_FUNID_TO_BOX,man,a)){
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_BOX];
@@ -366,9 +366,10 @@ void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a)
     size_t i;
     ap_coeff_t ref;
     ap_dimension_t d = _ap_abstract0_dimension(a);
-    ap_box0_resize(box, d.intd+d.reald);
-    for (i=0; i<d.intd+d.reald; i++){
-      ap_box0_ref_index(ref,box,i);
+    size_t size = ap_dimension_size(d);
+    ap_linexpr0_resize(box,size);
+    for (i=0; i<size; i++){
+      ap_linexpr0_coeffref(ref,box,i);
       ap_coeff_set_top(ref);
     }
   }

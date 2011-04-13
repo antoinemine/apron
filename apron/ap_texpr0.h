@@ -22,15 +22,12 @@ extern "C" {
 /* Datatypes */
 /* ====================================================================== */
 
-
 /*
   IMPORTANT NOTE
   --------------
   correct use of floating-point AP_RTYPE_xxx currently supposes that the
   FPU rounds towards +oo
 */
-
-
 
 /* Operators */
 typedef enum ap_texpr_op_t {
@@ -94,8 +91,12 @@ typedef struct ap_texpr0_array_t {
   size_t size;
 } ap_texpr0_array_t;
 
+/* ********************************************************************** */
+/* I. ap_texpr0_t */
+/* ********************************************************************** */
+
 /* ====================================================================== */
-/* I. Constructors and Destructors */
+/* I.1 Constructors and Destructors */
 /* ====================================================================== */
 
 ap_texpr0_t* ap_texpr0_cst(ap_coeff_t coeff);
@@ -123,42 +124,15 @@ void ap_texpr0_free(ap_texpr0_t* expr);
 ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e);
   /* From linear expression to comb-like expression tree */
 
-ap_texpr0_array_t ap_texpr0_array_make(size_t size);
-  /* Allocate an array of expressions.
-     The expressions are initialized with NULL pointers */
-
-static inline size_t ap_texpr0_array_size(ap_texpr0_array_t* array)
-{ return array->size; }
-
-void ap_texpr0_array_resize(ap_texpr0_array_t* array, size_t size);
-  /* Resize an array..
-     New expressions are initialized with NULL pointers,
-     Removed expressions with non-NULL pointers are freed */
-
-ap_texpr0_array_t ap_texpr0_array_copy(ap_texpr0_array_t* array);
-  /* Copy */
-void ap_texpr0_array_clear(ap_texpr0_array_t* array);
-  /* Free the expressions of the array, and then the array itself */
-
-ap_texpr0_array_t ap_texpr0_array_from_linexpr0_array(ap_linexpr0_array_t e);
-  /* From linear expression to comb-like expression tree */
-
 /* ====================================================================== */
-/* II. Printing */
+/* I.2 Printing */
 /* ====================================================================== */
 
 void ap_texpr0_fprint(FILE* stream, ap_texpr0_t* a, char** name_of_dim);
 void ap_texpr0_print(ap_texpr0_t* a, char** name_of_dim);
-void ap_texpr0_array_fprint(FILE* stream,
-			    ap_texpr0_array_t* array,
-			    char** name_of_dim);
-void ap_texpr0_array_print(ap_texpr0_array_t* array,
-			   char** name_of_dim);
-  /* Prints the expression, name_of_dim can be NULL */
-
 
 /* ====================================================================== */
-/* III. Tests, size */
+/* I.3 Tests, size */
 /* ====================================================================== */
 
 static inline bool ap_texpr_is_unop(ap_texpr_op_t op){
@@ -204,22 +178,16 @@ bool ap_texpr0_is_interval_polyfrac(ap_texpr0_t* a);
 bool ap_texpr0_is_scalar(ap_texpr0_t* a);
   /* all coefficients are scalar (non-interval) */
 
-bool ap_texpr0_array_is_interval_linear(ap_texpr0_array_t* array);
-bool ap_texpr0_array_is_interval_polynomial(ap_texpr0_array_t* array);
-bool ap_texpr0_array_is_interval_polyfrac(ap_texpr0_array_t* array);
-bool ap_texpr0_array_is_scalar(ap_texpr0_array_t* array);
-  /* idem for arrays */
-
 /* ====================================================================== */
-/* IV. Operations */
+/* I.4 Operations */
 /* ====================================================================== */
 
 ap_texpr0_t* ap_texpr0_substitute(ap_texpr0_t* a, ap_dim_t dim, ap_texpr0_t *dst);
-void ap_texpr0_substitute_with   (ap_texpr0_t* a, ap_dim_t dim, ap_texpr0_t *dst);
+void ap_texpr0_substitute_with(ap_texpr0_t* a, ap_dim_t dim, ap_texpr0_t *dst);
   /* Substitute every occurrence of dimension dim with a copy of dst  */
 
 /* ====================================================================== */
-/* V. Change of dimensions and permutations */
+/* I.5 Change of dimensions and permutations */
 /* ====================================================================== */
 
 ap_texpr0_t* ap_texpr0_add_dimensions(ap_texpr0_t* expr,
@@ -230,26 +198,15 @@ void ap_texpr0_add_dimensions_with(ap_texpr0_t* expr,
 				   ap_dimchange_t* dimchange);
 void ap_texpr0_permute_dimensions_with(ap_texpr0_t* expr,
 				       ap_dimperm_t* perm);
-ap_texpr0_array_t ap_texpr0_array_add_dimensions(ap_texpr0_array_t* array,
-						 ap_dimchange_t* change);
-ap_texpr0_array_t ap_texpr0_array_permute_dimensions(ap_texpr0_array_t* array,
-						     ap_dimperm_t* perm);
-void ap_texpr0_array_add_dimensions_with(ap_texpr0_array_t* array,
-					 ap_dimchange_t* change);
-void ap_texpr0_array_permute_dimensions_with(ap_texpr0_array_t* array,
-					     ap_dimperm_t* perm);
-
 /* ====================================================================== */
-/* VI. Hashing, comparisons */
+/* I.6 Hashing, comparisons */
 /* ====================================================================== */
 
-long ap_texpr0_hash(ap_texpr0_t* a);
+int ap_texpr0_hash(ap_texpr0_t* a);
   /* Recursive hashing */
 
 bool ap_texpr0_equal(ap_texpr0_t* a1, ap_texpr0_t* a2);
   /* Structural (recursive) equality */
-
-
 
 /* used internally */
 ap_texpr0_t* ap_texpr0_node(ap_texpr_op_t op,
@@ -258,6 +215,50 @@ ap_texpr0_t* ap_texpr0_node(ap_texpr_op_t op,
 void ap_texpr0_node_free(ap_texpr0_node_t* node);
 void ap_texpr0_clear(ap_texpr0_t* node);
 
+
+/* ********************************************************************** */
+/* II. ap_texpr0_array_t */
+/* ********************************************************************** */
+
+ap_texpr0_array_t ap_texpr0_array_make(size_t size);
+  /* Allocate an array of expressions.
+     The expressions are initialized with NULL pointers */
+static inline size_t ap_texpr0_array_size(ap_texpr0_array_t* array)
+{ return array->size; }
+
+void ap_texpr0_array_resize(ap_texpr0_array_t* array, size_t size);
+  /* Resize an array..
+     New expressions are initialized with NULL pointers,
+     Removed expressions with non-NULL pointers are freed */
+
+ap_texpr0_array_t ap_texpr0_array_copy(ap_texpr0_array_t* array);
+  /* Copy */
+void ap_texpr0_array_clear(ap_texpr0_array_t* array);
+  /* Free the expressions of the array, and then the array itself */
+
+ap_texpr0_array_t ap_texpr0_array_from_linexpr0_array(ap_linexpr0_array_t e);
+  /* From linear expression to comb-like expression tree */
+
+void ap_texpr0_array_fprint(FILE* stream,
+			    ap_texpr0_array_t* array,
+			    char** name_of_dim);
+void ap_texpr0_array_print(ap_texpr0_array_t* array,
+			   char** name_of_dim);
+  /* Prints the expression, name_of_dim can be NULL */
+
+bool ap_texpr0_array_is_interval_linear(ap_texpr0_array_t* array);
+bool ap_texpr0_array_is_interval_polynomial(ap_texpr0_array_t* array);
+bool ap_texpr0_array_is_interval_polyfrac(ap_texpr0_array_t* array);
+bool ap_texpr0_array_is_scalar(ap_texpr0_array_t* array);
+
+ap_texpr0_array_t ap_texpr0_array_add_dimensions(ap_texpr0_array_t* array,
+						 ap_dimchange_t* change);
+ap_texpr0_array_t ap_texpr0_array_permute_dimensions(ap_texpr0_array_t* array,
+						     ap_dimperm_t* perm);
+void ap_texpr0_array_add_dimensions_with(ap_texpr0_array_t* array,
+					 ap_dimchange_t* change);
+void ap_texpr0_array_permute_dimensions_with(ap_texpr0_array_t* array,
+					     ap_dimperm_t* perm);
 
 #ifdef __cplusplus
 }

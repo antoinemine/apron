@@ -74,23 +74,22 @@ ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
   /* Get a reference to the underlying linear expression of level
      0. Do not free it. */
 
-#if defined(_AP_linexpr1_MARK_)
-bool ap_linexpr1_get_cst(ap_coeff_t coeff, ap_linexpr1_t expr, num_internal_t intern);
+bool ap_linyyy1_get_cst(ap_coeff_t coeff, ap_linyyy1_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
-bool ap_linexpr1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var, num_internal_t intern);
+bool ap_linyyy1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linyyy1_t expr, ap_var_t var, num_internal_t intern);
   /* Get coefficient of dimension dim in the expression and assign it to
      coeff with possible conversion. */
 
-bool ap_linexpr1_set_cst(ap_linexpr1_t expr, ap_coeff_t coeff, num_internal_t intern);
+bool ap_linyyy1_set_cst(ap_linyyy1_t expr, ap_coeff_t coeff, num_internal_t intern);
   /* Assign the constant with possible conversion. */
-  bool ap_linexpr1_set_coeff(ap_linexpr1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern);
+  bool ap_linyyy1_set_coeff(ap_linyyy1_t expr, bool* perror, ap_var_t var, ap_coeff_t coeff, num_internal_t intern);
   /* Assign the coefficient of dimension dim in the expression, with possible
      conversion. */
 
-void ap_linexpr1_cstref(ap_coeff_t coeff, ap_linexpr1_t expr);
-void ap_linexpr1_coeffref(ap_coeff_t coeff, bool* perror, ap_linexpr1_t expr, ap_var_t var);
+void ap_linyyy1_cstref(ap_coeff_t coeff, ap_linyyy1_t expr);
+void ap_linyyy1_coeffref(ap_coeff_t coeff, bool* perror, ap_linyyy1_t expr, ap_var_t var);
 
-bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perror, ...);
+bool ap_linyyy1_set_list(num_internal_t intern, ap_linyyy1_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
      itv_coefftag_t, each followed by a number of arguments as specified in
      the definition of the type ap_coeff_tag_t_t, and ended by the tag AP_END;
@@ -102,7 +101,7 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
      Returns true iff all conversions were exact.
 
      Example:
-     ap_linexpr1_set_list(intern,
+     ap_linyyy1_set_list(intern,
 			  expr,
 			  AP_COEFF_LFRAC,7,9,0,
 			  AP_COEFF_DOUBLE2,-3.0,4.5,1,
@@ -113,7 +112,13 @@ bool ap_linexpr1_set_list(num_internal_t intern, ap_linexpr1_t expr, bool* perro
      number conversions were exact.
   */
 
-#elif defined(_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
+#if defined (_AP_lincons1_MARK_)
+void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
+mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c);
+void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
+#endif
+
+#if defined(_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
 
 bool ap_linyyy1_get_linexpr1(ap_linexpr1_t e, ap_linyyy1_t c, num_internal_t intern);
   /* Get the underlying expression and assign it to e with possible
@@ -127,14 +132,6 @@ bool ap_linyyy1_set_linexpr1(ap_linyyy1_t c, ap_linexpr1_t e, num_internal_t int
   /* Assign the underlying expression of c to e with possible conversion */
 void ap_linyyy1_set_yyytyp(ap_linyyy1_t c, ap_yyytyp_t yyytyp);
 
-#if defined (_AP_lincons0_MARK_)
-void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
-mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c);
-void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
-#endif
-
-#else
-#error "HERE"
 #endif
 
 /* ====================================================================== */
