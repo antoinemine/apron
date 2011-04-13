@@ -193,9 +193,9 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t expr,
 /* Va. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 struct ap_linexpr0_struct;
-bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, struct ap_linexpr0_struct* expr, eitvXXX_t* env, num_internal_t intern);
+bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, struct ap_linexpr0_struct* expr, ap_linexprXXX_t env, num_internal_t intern);
 
-bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, eitvXXX_t* env, num_internal_t intern);
+bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env, num_internal_t intern);
   /* Evaluate an interval linear expression. Return true if no
      approximations. */
 
@@ -219,13 +219,13 @@ size_t ap_linexprXXX_array_supportinterval(ap_linexprXXX_array_t array, ap_dim_t
    satisfaction, meet should be set to false.
 */
 bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr,
-				  eitvXXX_t* env,
+				  ap_linexprXXX_t env,
 				  bool for_meet_inequality, num_internal_t intern);
   /* Quasilinearize in-place linexpr using the bounding box itv. Return true
      if no approximations. */
 
 bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
-					eitvXXX_t* env, num_internal_t intern);
+					ap_linexprXXX_t env, num_internal_t intern);
   /* Same for an array */
 
 /* ********************************************************************** */
@@ -244,9 +244,9 @@ bool ap_linexprXXX_array_set_texpr0_array(ap_linexprXXX_array_t linexpr, bool* p
      Return true if no approximations.
   */
 
-bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, eitvXXX_t* env, num_internal_t intern);
-void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, eitvXXX_t* env, size_t intdim, num_internal_t intern);
-void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_array_t* texpr, eitvXXX_t* env, size_t intdim, num_internal_t intern);
+bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* texpr, ap_linexprXXX_t env, num_internal_t intern);
+void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t linexpr, struct ap_texpr0_t* expr, ap_linexprXXX_t env, size_t intdim, num_internal_t intern);
+void ap_linexprXXX_array_intlinearize_texpr0_array(ap_linexprXXX_array_t linexpr, struct ap_texpr0_array_t* texpr, ap_linexprXXX_t env, size_t intdim, num_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */

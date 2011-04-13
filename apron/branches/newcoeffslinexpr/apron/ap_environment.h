@@ -117,6 +117,9 @@ ap_environment_t* ap_environment_remove(ap_environment_t* env,
   */
 
 static inline
+size_t ap_environment_size(ap_environment_t* env);
+
+static inline
 bool ap_environment_mem_var(ap_environment_t* env, ap_var_t name);
   /* Return true if the variable is present in the environemnt */
 
@@ -233,12 +236,16 @@ ap_environment_t* ap_environment_rename(ap_environment_t* env,
 /* ====================================================================== */
 
 static inline
+size_t ap_environment_size(ap_environment_t* env)
+{ return ap_dimension_size(env->dim); }
+
+static inline
 bool ap_environment_mem_var(ap_environment_t* env, ap_var_t name)
 { return (ap_environment_dim_of_var(env,name) != AP_DIM_MAX); }
 
 static inline
 ap_var_t ap_environment_var_of_dim(ap_environment_t* env, ap_dim_t dim){
-  return dim < env->dim.intd+env->dim.reald ? env->var_of_dim[dim] : NULL;
+  return dim < ap_environment_size(env) ? env->var_of_dim[dim] : NULL;
 }
 static inline
 void ap_environment_free(ap_environment_t* env){

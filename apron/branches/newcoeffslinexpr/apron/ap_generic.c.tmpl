@@ -34,7 +34,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
   ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
   bool error;
   ap_dimension_t dim;
-  ap_box0_t box;
+  ap_linexpr0_t env;
   ap_lincons0_t lincons0;
   bool exact,res;
 
@@ -49,11 +49,11 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
     exact = ap_linconsXXX_set_tcons0(lincons,&error,cons,man->num);
     if (error){
       dim = dimension(man,abs);
-      ap_box0_init(box,discr,0);
-      to_box(man,box,abs);
+      ap_linexpr0_init(env,discr,0);
+      to_box(man,env,abs);
       exact = false;
       ap_linconsXXX_intlinearize_tcons0(lincons,cons,
-					box->p.XXX,dim.intd,
+					env->linexpr.XXX,dim.intd,
 					man->num);
     }
     if (quasilinearize){
@@ -62,14 +62,14 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
 	if (!error){
 	  error = true;
 	  dim = dimension(man,abs);
-	  ap_box0_init(box,discr,0);
-	  to_box(man,box,abs);
+	  ap_linexpr0_init(env,discr,0);
+	  to_box(man,env,abs);
 	}
-	exact = 
+	exact =
 	  ap_linconsXXX_quasilinearize
 	  (
 	   lincons,
-	   box->p.XXX,false,man->num
+	   env->linexpr.XXX,false,man->num
 	   ) && exact;
       }
     }
@@ -77,7 +77,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
     res = sat_lincons(man,abs,lincons0);
     ap_lincons0_clear(lincons0);
     if (error){
-      ap_box0_clear(box);
+      ap_linexpr0_clear(env);
     }
   }
   ENDSWITCH;
@@ -100,7 +100,7 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
   ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
   bool error,exact;
   ap_dimension_t dim;
-  ap_box0_t box;
+  ap_linexpr0_t env;
   ap_linexpr0_t linexpr0;
 
   man->result.flag_exact = man->result.flag_best = true;
@@ -115,11 +115,11 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
     exact = ap_linexprXXX_set_texpr0(linexpr,&error,expr,man->num);
     if (error){
       dim = dimension(man,abs);
-      ap_box0_init(box,discr,0);
-      to_box(man,box,abs);
+      ap_linexpr0_init(env,discr,0);
+      to_box(man,env,abs);
       exact = false;
       ap_linexprXXX_intlinearize_texpr0(linexpr,expr,
-					box->p.XXX,dim.intd,
+					env->linexpr.XXX,dim.intd,
 					man->num);
     }
     if (quasilinearize){
@@ -128,16 +128,16 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
 	if (!error){
 	  error = true;
 	  dim = dimension(man,abs);
-	  ap_box0_init(box,discr,0);
-	  to_box(man,box,abs);
+	  ap_linexpr0_init(env,discr,0);
+	  to_box(man,env,abs);
 	}
-	exact = ap_linexprXXX_quasilinearize(linexpr,box->p.XXX,false,man->num) && exact;
+	exact = ap_linexprXXX_quasilinearize(linexpr,env->linexpr.XXX,false,man->num) && exact;
       }
     }
     ap_linexpr0_cons_XXX(linexpr0,linexpr);
     bound_linexpr(man,interval,abs,linexpr0);
     ap_linexpr0_clear(linexpr0);
-    if (error) ap_box0_clear(box);
+    if (error) ap_linexpr0_clear(env);
   }
   ENDSWITCH;
   man->result.flag_exact &= exact;
@@ -221,7 +221,7 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
   ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
   size_t size;
   ap_dimension_t dim;
-  ap_box0_t box;
+  ap_linexpr0_t env;
   bool exact;
   void* res;
 
@@ -238,8 +238,8 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
     }
     else {
       dim = dimension(man,abs);
-      ap_box0_init(box,discr,0);
-      to_box(man,box,abs);
+      ap_linexpr0_init(env,discr,0);
+      to_box(man,env,abs);
       SWITCH(discr)
       {
 	ap_linconsXXX_array_t arrayX;
@@ -247,12 +247,12 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
 	ap_linconsXXX_array_init(arrayX,0);
 	exact = ap_linconsXXX_array_set_lincons0_array(arrayX,array,man->num);
 	exact = ap_linconsXXX_array_quasilinearize(arrayX,
-						   box->p.XXX,true,
+						   env->linexpr.XXX,true,
 						   man->num) && exact;
 	ap_lincons0_array_cons_XXX(array0,arrayX);
 	res = meet_lincons_array(man,destructive,abs,array0);
 	ap_lincons0_array_clear(array0);
-	ap_box0_clear(box);
+	ap_linexpr0_clear(env);
       }
       ENDSWITCH;
       man->result.flag_exact &= exact;
@@ -278,7 +278,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
   ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
   size_t size;
   ap_dimension_t dim;
-  ap_box0_t box;
+  ap_linexpr0_t env;
   bool exact;
   void* res;
 
@@ -299,11 +299,11 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
       exact = ap_linconsXXX_array_set_tcons0_array(arrayX,&error,array,man->num);
       if (error){
 	dim = dimension(man,abs);
-	ap_box0_init(box,discr,0);
-	to_box(man,box,abs);
+	ap_linexpr0_init(env,discr,0);
+	to_box(man,env,abs);
 	exact = false;
 	ap_linconsXXX_array_intlinearize_tcons0_array(arrayX,array,
-						      box->p.XXX,dim.intd,
+						      env->linexpr.XXX,dim.intd,
 						      man->num);
       }
       ap_linexpr_type_t typ = ap_linconsXXX_array_type(arrayX);
@@ -311,11 +311,11 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
 	if (!error){
 	  error = true;
 	  dim = dimension(man,abs);
-	  ap_box0_init(box,discr,0);
-	  to_box(man,box,abs);
+	  ap_linexpr0_init(env,discr,0);
+	  to_box(man,env,abs);
 	}
 	exact = ap_linconsXXX_array_quasilinearize(arrayX,
-						   box->p.XXX,true,
+						   env->linexpr.XXX,true,
 						   man->num) && exact;
 	if (linearize==AP_LINEXPR_LINEAR){
 	  ap_linconsXXX_array_linearize(arrayX,true,man->num);
@@ -324,7 +324,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
       ap_lincons0_array_cons_XXX(array0,arrayX);
       res = meet_lincons_array(man,destructive,abs,array0);
       ap_lincons0_array_clear(array0);
-      if (error) ap_box0_clear(box);
+      if (error) ap_linexpr0_clear(env);
     }
     ENDSWITCH;
     man->result.flag_exact &= exact;
@@ -537,7 +537,7 @@ void* ap_generic_asssub_texpr_array(bool assign,
     man->result.flag_exact = man->result.flag_best = true;
     return destructive ? abs : copy(man,abs);
   }
-  size = ap_texpr0_array_size(texpr);  
+  size = ap_texpr0_array_size(texpr);
   /* 1. Compute the number of integer and real dimensions assigned */
   d = dimension(man,abs);
   dsup.intd = 0;

@@ -9,7 +9,6 @@
 #define _AP_ABSTRACT0_H_
 
 #include "ap_manager.h"
-#include "ap_box0.h"
 #include "ap_expr0.h"
 
 #ifdef __cplusplus
@@ -162,7 +161,7 @@ ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, ap_dimension_t dim);
 
 ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 				    ap_dimension_t dim,
-				    ap_box0_t tinterval);
+				    ap_linexpr0_t box);
   /* Abstract an hypercube defined by the array of coefficients (actually intervals) */
 
 /* ============================================================ */
@@ -235,7 +234,7 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
 
      The constraints are normally guaranteed to be scalar (without intervals) */
 
-void ap_abstract0_to_box(ap_manager_t* man, ap_box0_t box, ap_abstract0_t* a);
+void ap_abstract0_to_box(ap_manager_t* man, ap_linexpr0_t box, ap_abstract0_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is ap_abstract0_dimension(man,a).  This
      function can be reimplemented by using ap_abstract0_bound_linexpr */

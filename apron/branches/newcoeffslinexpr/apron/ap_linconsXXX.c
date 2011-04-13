@@ -419,7 +419,7 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
   }
   return ap_linconsXXX_array_reduce(array,true, intern);
 }
-bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, eitvXXX_t* env, bool meet, num_internal_t intern)
+bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, ap_linexprXXX_t env, bool meet, num_internal_t intern)
 {
   size_t i;
   bool res;
@@ -438,16 +438,16 @@ bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array, eitvXXX_t* 
 /* IV. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-static bool ap_linconsXXX_boxize(eitvXXX_t* res,
+static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
 				 bool* tchange,
 				 ap_linconsXXX_t cons,
-				 eitvXXX_t* env,
+				 ap_linexprXXX_t env,
 				 size_t intdim,
 				 bool intervalonly, num_internal_t intern)
 {
   size_t i;
   ap_linexprXXX_ptr expr;
-  eitvXXX_ptr eitv;
+  eitvXXX_ptr eitv,resdim;
   ap_dim_t dim;
   bool change,globalchange;
   bool exc;
@@ -459,6 +459,15 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
   expr = cons->linexpr;
   globalchange = false;
 
+  /* */
+  if (res!=env){
+    ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv){
+      resdim = ap_linexprXXX_eitvref0(res,dim,false);
+      if (resdim==NULL){
+	ap_linexprXXX_set_eitv0(res,dim,eitv);
+      }
+    }
+  }
   /* Iterates on coefficients */
   eitvXXX_set_int(intern->XXX.boxize_lincons_eitv,0);
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
@@ -466,10 +475,11 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
     /* 1. We decompose the expression e = ax+e' */
     eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
     /* 2. evaluate e' */
-    ap_linexprXXX_eval(intern->XXX.boxize_lincons_eval,expr,env, intern);
+    ap_linexprXXX_eval(intern->XXX.boxize_lincons_eval,expr, env, intern);
     /* 3. Perform deductions */
     change = false;
     if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
+      resdim = ap_linexprXXX_eitvref0(res,dim,false);
       if (equality && !intervalonly){
 	int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
 	if (sgn!=0){
@@ -509,10 +519,10 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(res[dim]->itv->neginf, intern->XXX.boxize_lincons_bound);
+	      boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	  if (sgn<0 || cons->constyp == AP_CONS_EQ){
@@ -543,10 +553,10 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(res[dim]->itv->sup, intern->XXX.boxize_lincons_bound);
+	      boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	}
@@ -625,10 +635,10 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(res[dim]->itv->neginf, intern->XXX.boxize_lincons_bound);
+	      boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	  if (sgnitv<0 || (cons->constyp==AP_CONS_EQ && sgnitv>0)){
@@ -676,10 +686,10 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, res[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
 	      change = true;
 	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(res[dim]->itv->sup, intern->XXX.boxize_lincons_bound);
+	      boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
 	    }
 	  }
 	}
@@ -688,19 +698,21 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
     eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
     if (change){
       globalchange = true;
-      exc = itvXXX_canonicalize(res[dim]->itv,dim<intdim, intern);
+      exc = itvXXX_canonicalize(resdim->itv,dim<intdim, intern);
       if (exc){
-	eitvXXX_set_bottom(res[0]);
+	eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
+	eitvXXX_set_bottom(res0);
 	return true;
       }
       else {
-	res[dim]->eq = itvXXX_is_point(res[dim]->itv);
+	resdim->eq = itvXXX_is_point(resdim->itv);
       }
     }
   }
   if (expr->size==0 &&
       ap_linconsXXX_evalcst(cons, intern)==tbool_false){
-    eitvXXX_set_bottom(res[0]);
+    eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
+    eitvXXX_set_bottom(res0);
     globalchange = true;
   }
   return globalchange;
@@ -720,10 +732,10 @@ static bool ap_linconsXXX_boxize(eitvXXX_t* res,
    - if intervalonly is true, deduces bounds from a constraint only when the
    coefficient associated to the current dimension is an interval.
 */
-bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
+bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
-				eitvXXX_t* env,size_t intdim,
+				ap_linexprXXX_t env, size_t intdim,
 				size_t kmax,
 				bool intervalonly, num_internal_t intern)
 {
@@ -747,8 +759,11 @@ bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
 	  change
 	  ;
 	globalchange = globalchange || change;
-	if (eitvXXX_is_bottom(res[0], intern)){
-	  return true;
+	{
+	  eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,false);
+	  if (res0 && eitvXXX_is_bottom(res0, intern)){
+	    return true;
+	  }
 	}
       }
     }

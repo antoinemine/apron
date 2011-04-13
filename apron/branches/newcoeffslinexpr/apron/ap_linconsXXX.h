@@ -140,13 +140,13 @@ size_t ap_linconsXXX_array_supportinterval(ap_linconsXXX_array_t array, ap_dim_t
 */
 static inline
 bool ap_linconsXXX_quasilinearize(ap_linconsXXX_t lincons,
-				  eitvXXX_t* env,
+				  ap_linexprXXX_t env,
 				  bool for_meet_inequality, num_internal_t intern);
   /* Quasilinearize in-place lincons using the bounding box itv. Return true
      if no approximations. */
 
 bool ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_t array,
-					eitvXXX_t* env,
+					ap_linexprXXX_t env,
 					bool meet,
 					num_internal_t intern);
   /* Same for an array */
@@ -162,18 +162,18 @@ bool ap_linconsXXX_array_set_tcons0_array(ap_linconsXXX_array_t lincons, bool* p
      If the precondition is violated, sets *perror to true.
   */
 
-void ap_linconsXXX_intlinearize_tcons0(ap_linconsXXX_t lincons, struct ap_tcons0_t* cons, eitvXXX_t* env, size_t intdim, num_internal_t intern);
-void ap_linconsXXX_array_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons, struct ap_tcons0_array_t* cons, eitvXXX_t* env, size_t intdim, num_internal_t intern);
+void ap_linconsXXX_intlinearize_tcons0(ap_linconsXXX_t lincons, struct ap_tcons0_t* cons, ap_linexprXXX_t env, size_t intdim, num_internal_t intern);
+void ap_linconsXXX_array_intlinearize_tcons0_array(ap_linconsXXX_array_t lincons, struct ap_tcons0_array_t* cons, ap_linexprXXX_t env, size_t intdim, num_internal_t intern);
   /* Return true if no approximations. */
 
 /* ********************************************************************** */
 /* V. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linconsXXX_array_boxize(eitvXXX_t* res,
+bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
-				eitvXXX_t* env,size_t intdim,
+				ap_linexprXXX_t env, size_t intdim,
 				size_t kmax,
 				bool intervalonly, num_internal_t intern);
   /* Deduce interval constraints from a set of interval linear constraints.
@@ -291,7 +291,7 @@ static inline size_t ap_linconsXXX_supportinterval(ap_linconsXXX_t cons, ap_dim_
 }
 static inline
 bool ap_linconsXXX_quasilinearize(ap_linconsXXX_t lincons,
-				  eitvXXX_t* env,
+				  ap_linexprXXX_t env,
 				  bool for_meet_inequality, num_internal_t intern)
 {
   return ap_linexprXXX_quasilinearize(lincons->linexpr,env,

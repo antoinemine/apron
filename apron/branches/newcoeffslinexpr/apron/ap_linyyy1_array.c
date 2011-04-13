@@ -120,17 +120,17 @@ ENDMACRO
 /* ====================================================================== */
 
 void ap_linyyy1_array_extend_environment(ap_linyyy1_array_t nexpr,
-				      bool* perror,
-				      ap_linyyy1_array_t expr,
-				      ap_environment_t* nenv)
+					 bool* perror,
+					 ap_linyyy1_array_t expr,
+					 ap_environment_t* nenv)
 {
   if (nexpr->linyyy0_array->discr != expr->linyyy0_array->discr)
     abort();
   SWITCH(nexpr->linyyy0_array->discr)
     ap_linyyyXXX_array_extend_environment(nexpr->linyyy0_array->linyyy_array.XXX,perror,
-				       nenv,
-				       expr->linyyy0_array->linyyy_array.XXX,
-				       expr->env);
+					  nenv,
+					  expr->linyyy0_array->linyyy_array.XXX,
+					  expr->env);
   ENDSWITCH
   ap_environment_set(&nexpr->env,nenv);
 }

@@ -71,7 +71,7 @@ bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t array);
   /* Are all the constraints involved linear (resp. quasilinear) */
 
 bool ap_linyyy1_array_set(ap_linyyy1_array_t res, ap_linyyy1_array_t e, num_internal_t intern);
-  bool ap_linyyy1_array_set_index(ap_linyyy1_array_t p, bool* perror, size_t i, ap_linyyy1_t a, num_internal_t intern);
+bool ap_linyyy1_array_set_index(ap_linyyy1_array_t p, bool* perror, size_t i, ap_linyyy1_t a, num_internal_t intern);
 bool ap_linyyy1_array_get_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern);
 void ap_linyyy1_array_ref_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i);
 

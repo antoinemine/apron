@@ -50,6 +50,12 @@ void ap_lincons0_set_bool(ap_lincons0_t e, bool b)
   ENDSWITCH
 }
 #endif
+void ap_linyyy0_resize(ap_linyyy0_t e, size_t size)
+{
+  SWITCH(e->discr)
+    ap_linyyyXXX_resize(e->linyyy.XXX,size);
+  ENDSWITCH
+}
 void ap_linyyy0_clear(ap_linyyy0_t e)
 {
   SWITCH(e->discr)
@@ -261,7 +267,6 @@ void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
     ap_coeff_cons_eitvXXX(res,eitv);
   ENDSWITCH
 }
-
 bool ap_linexpr0_set_list(num_internal_t intern,
 			  ap_linexpr0_t expr, bool* perror, ...)
 {
@@ -277,6 +282,60 @@ bool ap_linexpr0_set_list(num_internal_t intern,
 }
 
 #elif defined (_AP_lincons0_MARK_) || defined (_AP_lingen0_MARK_)
+/* Get the constant and assign it to coeff with possible conversion */
+bool ap_linyyy0_get_cst(ap_coeff_t coeff, ap_linyyy0_t expr, num_internal_t intern)
+{
+  SWITCH (expr->discr)
+    return ap_coeff_set_eitvXXX(coeff,expr->linyyy.XXX->linexpr->cst,intern);
+  ENDSWITCH
+}
+bool ap_linyyy0_get_coeff(ap_coeff_t coeff, ap_linyyy0_t expr, ap_dim_t dim, num_internal_t intern)
+{
+  SWITCH (expr->discr)
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref0(expr->linyyy.XXX->linexpr,dim,false);
+    if (eitv==NULL) break; else return ap_coeff_set_eitvXXX(coeff,eitv,intern);
+  ENDSWITCH
+  ap_coeff_set_int(coeff,0);
+  return true;
+}
+bool ap_linyyy0_set_cst(ap_linyyy0_t expr, ap_coeff_t coeff, num_internal_t intern)
+{
+  ap_coeff_t ref;
+  ap_linyyy0_cstref(ref,expr);
+  return ap_coeff_set(ref,coeff,intern);
+}
+bool ap_linyyy0_set_coeff(ap_linyyy0_t expr, ap_dim_t dim, ap_coeff_t coeff, num_internal_t intern)
+{
+  ap_coeff_t ref;
+  ap_linyyy0_coeffref(ref,expr,dim);
+  return ap_coeff_set(ref,coeff,intern);
+}
+void ap_linyyy0_cstref(ap_coeff_t res, ap_linyyy0_t expr)
+{
+  SWITCH (expr->discr)
+    ap_coeff_cons_eitvXXX(res,expr->linyyy.XXX->linexpr->cst);
+  ENDSWITCH
+}
+void ap_linyyy0_coeffref(ap_coeff_t res, ap_linyyy0_t expr, ap_dim_t dim)
+{
+  SWITCH (expr->discr)
+    eitvXXX_ptr eitv = ap_linexprXXX_eitvref0(expr->linyyy.XXX->linexpr,dim,true);
+    ap_coeff_cons_eitvXXX(res,eitv);
+  ENDSWITCH
+}
+bool ap_linyyy0_set_list(num_internal_t intern,
+			 ap_linyyy0_t expr, bool* perror, ...)
+{
+  bool res;
+  va_list va;
+  va_start(va,perror);
+  SWITCH (expr->discr)
+    res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
+					 expr->linyyy.XXX->linexpr,perror,NULL,&va,intern);
+  ENDSWITCH
+  va_end(va);
+  return res;
+}
 
 void ap_linyyy0_linexpr0ref(ap_linexpr0_t e, ap_linyyy0_t c)
 {
