@@ -53,8 +53,12 @@ typedef struct ap_linyyy0_array_struct {
 typedef ap_linyyy0_array_struct* ap_linyyy0_array_ptr;
 typedef ap_linyyy0_array_struct ap_linyyy0_array_t[1];
 
+/* ********************************************************************** */
+/* I. ap_linyyy0_t */
+/* ********************************************************************** */
+
 /* ====================================================================== */
-/* I. Memory management and printing */
+/* I.1 Memory management and printing */
 /* ====================================================================== */
 
 void ap_linyyy0_init(ap_linyyy0_t res, ap_scalar_discr_t discr, size_t size);
@@ -70,18 +74,8 @@ void ap_linyyy0_clear(ap_linyyy0_t e);
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim);
 void ap_linyyy0_minimize(ap_linyyy0_t a);
 
-void ap_linyyy0_array_init(ap_linyyy0_array_t e, ap_scalar_discr_t discr, size_t size);
-void ap_linyyy0_array_init_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e);
-MACRO_MAINZ
-void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e);
-ENDMACRO
-void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
-void ap_linyyy0_array_minimize(ap_linyyy0_array_t a);
-void ap_linyyy0_array_clear(ap_linyyy0_array_t e);
-void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_dim);
-
 /* ====================================================================== */
-/* II. Conversions */
+/* I.2 Conversions */
 /* ====================================================================== */
 
 bool ap_linyyy0_set(ap_linyyy0_t res, ap_linyyy0_t e, num_internal_t intern);
@@ -90,34 +84,8 @@ bool ap_linyyy0_set_linyyyZZZ(ap_linyyy0_t a, ap_linyyyZZZ_t b, num_internal_t i
 bool ap_linyyyZZZ_set_linyyy0(ap_linyyyZZZ_t a, ap_linyyy0_t b, num_internal_t intern);
 ENDMACRO
 
-static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
-size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
-#if !defined(_AP_lingen0_ARRAY_H_)
-ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
-bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
-bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
-  /* Are all the constraints involved linear (resp. quasilinear) */
-bool ap_linyyy0_is_integer(ap_linyyy0_t expr, size_t intdim);
-bool ap_linyyy0_is_real(ap_linyyy0_t expr, size_t intdim);
-  /* Does the expression depends only on integer (resp. real) variables ? assuming
-     that the first intdim dimensions are integer */
-#endif
-
-bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
-bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
-bool ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
-void ap_linyyy0_array_ref_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i);
-
-MACRO_ALLZ
-bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
-bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern);
-
-bool ap_linyyy0_array_set_index_linyyyZZZ(ap_linyyy0_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern);
-bool ap_linyyy0_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
-ENDMACRO
-
 /* ====================================================================== */
-/* III. Test */
+/* I.3 Tests */
 /* ====================================================================== */
 
 #if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
@@ -128,19 +96,18 @@ bool ap_linyyy0_is_quasilinear(ap_linyyy0_t expr);
   /* Return true iff all involved coefficients but the constant are scalars. */
 ap_linexpr_type_t ap_linyyy0_type(ap_linyyy0_t expr);
   /* Classify an expression */
-
-bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
-bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
-ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
-
+bool ap_linyyy0_is_integer(ap_linyyy0_t expr, size_t intdim);
+bool ap_linyyy0_is_real(ap_linyyy0_t expr, size_t intdim);
+  /* Does the expression depends only on integer (resp. real) variables ? assuming
+     that the first intdim dimensions are integer */
 #endif
 
 /* ====================================================================== */
-/* IV. Access */
+/* I.4 Access */
 /* ====================================================================== */
 
 static inline
-ap_scalar_discr_t ap_linyyy0_discr(ap_linyyy0_t expr);
+ap_scalar_discr_t ap_linyyy0_discr(ap_linyyy0_t a);
 
 bool ap_linyyy0_get_cst(ap_coeff_t coeff, ap_linyyy0_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
@@ -156,6 +123,7 @@ bool ap_linyyy0_set_coeff(ap_linyyy0_t expr, ap_dim_t dim, ap_coeff_t coeff, num
 
 void ap_linyyy0_cstref(ap_coeff_t coeff, ap_linyyy0_t expr);
 void ap_linyyy0_coeffref(ap_coeff_t coeff, ap_linyyy0_t expr, ap_dim_t dim);
+void ap_linyyy0_coeffrefdim_of_index(ap_coeff_t res, ap_dim_t* pdim, ap_linyyy0_t expr, size_t index);
 
 bool ap_linyyy0_set_list(num_internal_t intern, ap_linyyy0_t expr, bool* perror, ...);
   /* This function assigns the linear expression from a list of tags of type
@@ -180,6 +148,26 @@ bool ap_linyyy0_set_list(num_internal_t intern, ap_linyyy0_t expr, bool* perror,
      number conversions were exact.
   */
 
+#if defined (_AP_linexpr0_MARK_)
+/* Iterator (Macro): use:
+   ap_linexprXXX_ForeachLinterm(ap_linexpr0_t e, size_t i, ap_dim_t d, ap_coeff_t coeff){
+     ..
+   }
+   where
+   - e is the inspected expression (of type ap_linexprXXX_t)
+   - i is the internal iterator (of type size_t or int)
+   - dim is the dimension of one linear term (of type ap_dim_t)
+   - peitv is a pointer to the corresponding interval (of type eitvXXX_ptr)
+
+*/
+
+#define ap_linexpr0_ForeachLinterm(_p_e, _p_i, _p_d, _p_coeff)          \
+  for (_p_i=0;                                                          \
+       (ap_linexpr0_coeffrefdim_of_index(_p_coeff,&_p_d,_p_e,_p_i),     \
+	_p_d!=AP_DIM_MAX);                                              \
+       _p_i++)
+#endif
+
 #if defined (_AP_lincons0_MARK_)
 void ap_lincons0_get_mpq(mpq_t mpq, ap_lincons0_t c);
 mpq_ptr ap_lincons0_mpqref(ap_lincons0_t c);
@@ -201,20 +189,8 @@ bool ap_linyyy0_set_linexpr0(ap_linyyy0_t c, ap_linexpr0_t e, num_internal_t int
 void ap_linyyy0_set_yyytyp(ap_linyyy0_t c, ap_yyytyp_t yyytyp);
 #endif
 
-static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
-size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
-#if !defined(_AP_lingen0_ARRAY_H_)
-ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
-bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
-#endif
-
-bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
-bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
-bool ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
-void ap_linyyy0_array_ref_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i);
-
 /* ====================================================================== */
-/* V. Change of dimensions and permutations */
+/* I.5 Change of dimensions and permutations */
 /* ====================================================================== */
 
 /* This function add dimensions to the expressions, following the
@@ -231,15 +207,8 @@ void ap_linyyy0_permute_dimensions(ap_linyyy0_t a,
 				   ap_linyyy0_t b,
 				   ap_dimperm_t* perm);
 
-void ap_linyyy0_array_add_dimensions(ap_linyyy0_array_t a,
-				     ap_linyyy0_array_t b,
-				     ap_dimchange_t* dimchange);
-void ap_linyyy0_array_permute_dimensions(ap_linyyy0_array_t a,
-					 ap_linyyy0_array_t b,
-					 ap_dimperm_t* perm);
-
 /* ====================================================================== */
-/* VI. Hashing, comparison */
+/* I.6 Hashing, comparison */
 /* ====================================================================== */
 
 /* Induces reduction of the coefficients */
@@ -249,6 +218,70 @@ bool ap_linyyy0_equal(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
 
 /* Lexicographic ordering, terminating by constant coefficients */
 int ap_linyyy0_compare(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
+
+/* ********************************************************************** */
+/* II. ap_linyyy0_array_t */
+/* ********************************************************************** */
+
+/* ====================================================================== */
+/* II.1 Memory management and printing */
+/* ====================================================================== */
+
+void ap_linyyy0_array_init(ap_linyyy0_array_t e, ap_scalar_discr_t discr, size_t size);
+void ap_linyyy0_array_init_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e);
+MACRO_MAINZ
+void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e);
+ENDMACRO
+void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
+void ap_linyyy0_array_minimize(ap_linyyy0_array_t a);
+void ap_linyyy0_array_clear(ap_linyyy0_array_t e);
+void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_dim);
+
+/* ====================================================================== */
+/* II.2 Conversions */
+/* ====================================================================== */
+
+bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
+MACRO_ALLZ
+bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
+bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern);
+
+bool ap_linyyy0_array_set_index_linyyyZZZ(ap_linyyy0_array_t p, size_t i, ap_linyyyZZZ_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index_linyyyZZZ(ap_linyyyZZZ_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+ENDMACRO
+
+/* ====================================================================== */
+/* II.3 Tests */
+/* ====================================================================== */
+
+#if !defined(_AP_lingen0_ARRAY_H_)
+bool ap_linyyy0_array_is_linear(ap_linyyy0_array_t array);
+bool ap_linyyy0_array_is_quasilinear(ap_linyyy0_array_t array);
+  /* Are all the constraints involved linear (resp. quasilinear) */
+ap_linexpr_type_t ap_linyyy0_array_type(ap_linyyy0_array_t array);
+#endif
+
+/* ====================================================================== */
+/* II.4 Access */
+/* ====================================================================== */
+
+static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p);
+size_t ap_linyyy0_array_size(ap_linyyy0_array_t p);
+
+bool ap_linyyy0_array_set_index(ap_linyyy0_array_t p, size_t i, ap_linyyy0_t a, num_internal_t intern);
+bool ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i, num_internal_t intern);
+void ap_linyyy0_array_ref_index(ap_linyyy0_t a, ap_linyyy0_array_t p, size_t i);
+
+/* ====================================================================== */
+/* II.5 Change of dimensions and permutations */
+/* ====================================================================== */
+
+void ap_linyyy0_array_add_dimensions(ap_linyyy0_array_t a,
+				     ap_linyyy0_array_t b,
+				     ap_dimchange_t* dimchange);
+void ap_linyyy0_array_permute_dimensions(ap_linyyy0_array_t a,
+					 ap_linyyy0_array_t b,
+					 ap_dimperm_t* perm);
 
 /* ********************************************************************** */
 /* ********************************************************************** */

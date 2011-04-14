@@ -885,6 +885,7 @@ ap_abstract0_t* ap_abstract0_of_tcons_array(ap_manager_t* man,
   dimension by a single expression.
 */
 
+
 ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
 					    ap_manager_t* man,
 					    bool destructive,
@@ -894,9 +895,6 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
 {
   ap_abstract0_t* res;
   ap_linexpr0_array_t array;
-  ap_linexprD_t exprD;
-  ap_linexprMPQ_t exprMPQ;
-  ap_linexprMPFR_t exprMPFR;
   ap_linexprD_array_t arrayD;
   ap_linexprMPQ_array_t arrayMPQ;
   ap_linexprMPFR_array_t arrayMPFR;
@@ -906,20 +904,17 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
   case AP_SCALAR_D:
     array->linexpr_array.D = arrayD;
     arrayD->size = 1;
-    arrayD->p = &exprD;
-    *exprD = *(expr->linexpr.D);
+    arrayD->p = (ap_linexprD_t*)&(expr->linexpr.D);
     break;
   case AP_SCALAR_MPQ:
     array->linexpr_array.MPQ = arrayMPQ;
     arrayMPQ->size = 1;
-    arrayMPQ->p = &exprMPQ;
-    *exprMPQ = *(expr->linexpr.MPQ);
+    arrayMPQ->p = (ap_linexprMPQ_t*)&(expr->linexpr.MPQ);
     break;
   case AP_SCALAR_MPFR:
     array->linexpr_array.MPFR = arrayMPFR;
     arrayMPFR->size = 1;
-    arrayMPFR->p = &exprMPFR;
-    *exprMPFR = *(expr->linexpr.MPFR);
+    arrayMPFR->p = (ap_linexprMPFR_t*)&(expr->linexpr.MPFR);
     break;
   default:
     abort();

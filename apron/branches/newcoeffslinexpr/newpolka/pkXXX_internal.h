@@ -63,7 +63,7 @@ struct pkXXX_internal_t {
   ap_linconsXXX_t ap_linconsXXX;
   ap_lingenXXX_t ap_lingenXXX;
   ap_linexprMPQ_array_t linexprMPQ_array;
-  eitvXXX_t* envXXX;                  /* of size maxdims */
+  ap_linexprXXX_t envXXX;                  /* of size maxdims */
   numXXX_t numratXXX;
   numintXXX_t* numintXXXp;            /* of size maxcols */
   numintXXX_t* numintXXXp2;           /* of size maxcols */
@@ -305,7 +305,7 @@ bool do_generators_sat_vectorXXX(
 );
 
 /* Bounding by a itv box a matrix of generators. */
-void matrixXXX_to_box(pkXXX_internal_t* pk, eitvXXX_t* res, matrixXXX_t* F);
+void matrixXXX_to_box(pkXXX_internal_t* pk, ap_linexprXXX_t res, matrixXXX_t* F);
 
 /* Bounding the value of a dimension in a matrix of generators.
    mode == 1: sup bound

@@ -27,20 +27,20 @@ TMPL = $(APRON_NUMTYPES)
 YYY = expr cons gen
 ZZZ = expr cons
 
-H_TMPL_FILES_XXX = ap_linexprXXX.h ap_linconsXXX.h ap_lingenXXX.h
+H_TMPL_FILES_XXX = ap_linexprXXX_eval.h ap_linconsXXX_eval.h
 H_TMPL_FILES_yyy = ap_linyyy0.h ap_linyyy1.h ap_linyyy1_array.h 
 H_TMPL_FILES_zzz = ap_tzzz1.h
-H_TMPL_FILES_tmpl = \
-ap_linexprconsgen_types.h.tmpl ap_coeff.h.tmpl ap_box0.h.tmpl
-H_TMPL_FILES = $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_yyy) $(H_TMPL_FILES_zzz) $(H_TMPL_FILES_tmpl) 
+H_TMPL_FILES_tmpl = ap_lin_types.h.tmpl ap_coeff.h.tmpl
+H_TMPL_FILES_yyyXXX = ap_linyyyXXX.h
+H_TMPL_FILES = $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_yyy) $(H_TMPL_FILES_zzz) $(H_TMPL_FILES_tmpl) $(H_TMPL_FILES_yyyXXX)
 
-C_TMPL_FILES_XXX = ap_linexprXXX.c ap_linconsXXX.c ap_lingenXXX.c
+C_TMPL_FILES_XXX = ap_linexprXXX_eval.c ap_linconsXXX_eval.c
 C_TMPL_FILES_yyy = ap_linyyy0.c ap_linyyy1.c ap_linyyy1_array.c
 C_TMPL_FILES_zzz = ap_tzzz0_array.c ap_tzzz1.c
 C_TMPL_FILES_tmpl = \
-ap_linexprconsgen_conv.c.tmpl ap_coeff.c.tmpl ap_box0.c.tmpl \
+ap_lin_conv.c.tmpl ap_coeff.c.tmpl \
 ap_check0.c.tmpl ap_generic.c.tmpl
-C_TMPL_FILES_yyyXXX = ap_linyyyXXX_array.c
+C_TMPL_FILES_yyyXXX = ap_linyyyXXX.c
 
 C_TMPL_FILES = \
 $(C_TMPL_FILES_XXX) $(C_TMPL_FILES_yyy) $(C_TMPL_FILES_zzz) $(C_TMPL_FILES_tmpl) \
@@ -50,12 +50,12 @@ H_ORIG_FILES = \
 ap_config.h ap_dimension.h ap_texpr0.h ap_tcons0.h \
 ap_manager.h ap_var.h ap_environment.h \
 ap_check0.h ap_abstract0.h \
-ap_generic.h
+ap_generic.h ap_abstract1.h
 
 C_ORIG_FILES = \
 ap_dimension.c ap_texpr0.c ap_tcons0.c \
 ap_manager.c ap_var.c ap_environment.c \
-ap_abstract0.c 
+ap_abstract0.c ap_abstract1.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
@@ -64,7 +64,8 @@ H_GENERATED_FILES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(H_TMPL_FILES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(H_TMPL_FILES_yyy))) \
 $(foreach Z,$(ZZZ),$(subst zzz,$(Z),$(H_TMPL_FILES_zzz))) \
-$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl)) \
+$(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(H_TMPL_FILES_yyyXXX)))))
 C_GENERATED_FILES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(C_TMPL_FILES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(C_TMPL_FILES_yyy))) \
@@ -202,7 +203,7 @@ $(subst yyy,$(1),$(subst XXX,$(2),$(3))): $(3)
 	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
-$(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(C_TMPL_FILES_yyyXXX),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))
+$(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES_yyyXXX) $(C_TMPL_FILES_yyyXXX),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))
 
 #---------------------------------------
 # C generic rules

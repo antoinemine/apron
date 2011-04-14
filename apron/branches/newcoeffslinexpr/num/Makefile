@@ -127,7 +127,7 @@ define generate-file-XXX
 $(subst XXX,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/$@\([^[:alnum:]]\)/$<\1/g" >>$$@
+	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"$$@\"/#line \1 \"$$<\"/g" >>$$@
 endef
 
 $(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES_XXX) $(C_TMPL_FILES_XXX),$(eval $(call generate-file-XXX,$(T),$(F)))))

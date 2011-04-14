@@ -17,20 +17,20 @@ boxXXX_t* boxXXX_forget_array(ap_manager_t* man,
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  
+
   res = destructive ? a : boxXXX_copy(man,a);
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     return res;
   }
   if (project){
     for (i=0;i<size;i++){
-      eitvXXX_ptr eitv = res->p[tdim[i]];
+      eitvXXX_ptr eitv = res->e->linterm[tdim[i]]->eitv;
       eitvXXX_set_int(eitv,0);
     }
   }
   else {
     for (i=0;i<size;i++){
-      eitvXXX_ptr eitv = res->p[tdim[i]];
+      eitvXXX_ptr eitv = res->e->linterm[tdim[i]]->eitv;
       eitvXXX_set_top(eitv);
     }
   }
@@ -57,7 +57,7 @@ boxXXX_t* boxXXX_expand(
     dimsup = ap_dimension_make(0,nbdimsup);
     offset = a->dim.intd+a->dim.reald;
   }
-  if (a->p==NULL || nbdimsup==0){
+  if (a->e->linterm==NULL || nbdimsup==0){
     res = destructive ? a : boxXXX_copy(man,a);
     res->dim = ap_dimension_add(a->dim,dimsup);
     return res;
@@ -68,7 +68,7 @@ boxXXX_t* boxXXX_expand(
   }
   res = boxXXX_add_dimensions(man,destructive,a,&dimchange,false);
   for (i=offset;i<offset+nbdimsup;i++){
-    eitvXXX_set(res->p[i],res->p[dim]);
+    eitvXXX_set(res->e->linterm[i]->eitv,res->e->linterm[dim]->eitv);
   }
   ap_dimchange_clear(&dimchange);
   return res;
@@ -98,12 +98,13 @@ boxXXX_t* boxXXX_fold(ap_manager_t* man,
   } else {
     dimsup = ap_dimension_make(0,nbdimsup);
   }
-  if (a->p==NULL || nbdimsup==0){
+  if (a->e->linterm==NULL || nbdimsup==0){
     res->dim = ap_dimension_sub(a->dim,dimsup);
     return res;
   }
   for (i=1; i<size; i++){
-    eitvXXX_join(res->p[dim],res->p[dim],res->p[tdim[i]]);
+    eitvXXX_join(res->e->linterm[dim]->eitv,
+                 res->e->linterm[dim]->eitv,res->e->linterm[tdim[i]]->eitv);
   }
   ap_dimchange_init(&dimchange,dimsup);
   for (i=0;i<nbdimsup;i++){
@@ -114,9 +115,8 @@ boxXXX_t* boxXXX_fold(ap_manager_t* man,
   return res;
 }
 
-
 boxXXX_t* boxXXX_widening(ap_manager_t* man,
-		    boxXXX_t* a1, boxXXX_t* a2)
+                          boxXXX_t* a1, boxXXX_t* a2)
 {
   size_t i;
   size_t nbdims;
@@ -125,13 +125,14 @@ boxXXX_t* boxXXX_widening(ap_manager_t* man,
   man->result.flag_best = true;
   man->result.flag_exact = true;
   nbdims = a1->dim.intd+a1->dim.reald;
-  if (a1->p==NULL){
+  if (a1->e->linterm==NULL){
     return boxXXX_copy(man,a2);
   }
-  assert(a2->p!=NULL);
+  assert(a2->e->linterm!=NULL);
   res = boxXXX_copy(man,a1);
   for (i=0; i<nbdims; i++){
-    eitvXXX_widening(res->p[i],a1->p[i],a2->p[i]);
+    eitvXXX_widening(res->e->linterm[i]->eitv,
+                     a1->e->linterm[i]->eitv,a2->e->linterm[i]->eitv);
   }
   return res;
 }

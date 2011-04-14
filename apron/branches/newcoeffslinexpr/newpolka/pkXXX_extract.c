@@ -68,7 +68,7 @@ void matrixXXX_bound_dimension(pkXXX_internal_t* pk,
 }
 
 void matrixXXX_to_box(pkXXX_internal_t* pk,
-		      eitvXXX_t* res,
+		      ap_linexprXXX_t res,
 		      matrixXXX_t* F)
 {
   size_t i,dim;
@@ -77,7 +77,7 @@ void matrixXXX_to_box(pkXXX_internal_t* pk,
   assert(F->nbcolumns>=pk->dec);
   dim = F->nbcolumns - pk->dec;
   for (i=0;i<dim;i++){
-    matrixXXX_bound_dimension(pk,res[i],i,F);
+    matrixXXX_bound_dimension(pk,res->linterm[i]->eitv,i,F);
   }
 }
 
@@ -422,14 +422,13 @@ ap_tcons0_array_t pkXXX_to_tcons_array(ap_manager_t* man, pkXXX_t* po)
 /* Converting to a box */
 /* ====================================================================== */
 
-void pkXXX_to_box(ap_manager_t* man, ap_box0_t box, pkXXX_t* po)
+void pkXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkXXX_t* po)
 {
-  size_t i,dim;
+  size_t i,size;
   bool exact;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_TO_BOX);
 
-  dim = po->dim.intd + po->dim.reald;
-  ap_box0_resize(box,dim);
+  size = ap_dimension_size(po->dim);
   if (pk->funopt->algorithm>=0)
     pkXXX_chernikova(man,po,NULL);
   else
@@ -438,16 +437,25 @@ void pkXXX_to_box(ap_manager_t* man, ap_box0_t box, pkXXX_t* po)
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
-    ap_box0_set_top(box);
+    ap_linexpr0_resize(box,0);
     return;
   }
   if (!po->F){
-    ap_box0_set_bottom(box);
+    ap_linexpr0_resize(box,0);
+    if (size>0){
+      ap_linexpr0_resize(box,1);
+      ap_coeff_t coeff;
+      ap_linexpr0_coeffref(coeff,box,0);
+      ap_coeff_set_bottom(coeff);
+    }
     exact = true;
   }
   else {
     matrixXXX_to_box(pk,pk->envXXX,po->F);
-    exact = ap_box0_set_eitvXXX_array(box,pk->envXXX,dim,pk->num);
+    size_t oldsize = pk->envXXX->size;
+    pk->envXXX->size = size;
+    exact = ap_linexpr0_set_linexprXXX(box,pk->envXXX,pk->num);
+    pk->envXXX->size = oldsize;
   }
   man->result.flag_exact = exact;
   man->result.flag_best = true;

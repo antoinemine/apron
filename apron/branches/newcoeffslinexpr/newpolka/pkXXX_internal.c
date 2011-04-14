@@ -45,7 +45,10 @@ void pkXXX_internal_init(pkXXX_internal_t* pk, size_t maxdims)
   ap_linconsXXX_init(pk->ap_linconsXXX,maxdims);
   ap_lingenXXX_init(pk->ap_lingenXXX,maxdims);
   ap_linexprMPQ_array_init(pk->linexprMPQ_array,maxdims);
-  pk->envXXX = eitvXXX_array_alloc(maxdims);
+  ap_linexprXXX_init(pk->envXXX,maxdims);
+  for (i=0;i<maxdims;i++){
+    pk->envXXX->linterm[i]->dim = i;
+  }
   numXXX_init(pk->numratXXX);
   pk->numintXXXp = vectorXXX_alloc(pk->maxcols);
   pk->numintXXXp2 = vectorXXX_alloc(pk->maxcols);
@@ -109,8 +112,7 @@ void pkXXX_internal_clear(pkXXX_internal_t* pk)
   ap_linconsXXX_clear(pk->ap_linconsXXX);
   ap_lingenXXX_clear(pk->ap_lingenXXX);
   ap_linexprMPQ_array_clear(pk->linexprMPQ_array);
-  eitvXXX_array_free(pk->envXXX,pk->maxcols-pk->dec);
-  pk->envXXX = NULL;
+  ap_linexprXXX_clear(pk->envXXX);
   numXXX_clear(pk->numratXXX);
   if (pk->numintXXXp) vectorXXX_free(pk->numintXXXp, pk->maxcols);
   pk->numintXXXp = 0;

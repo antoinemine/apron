@@ -1,375 +1,13 @@
 /* ********************************************************************** */
-/* ap_linexprXXX.c: */
+/* ap_linexprXXX_eval.c: */
 /* ********************************************************************** */
 
+#include "ap_linexprXXX_eval.h"
 #include "ap_linexprXXX.h"
 #include "ap_texpr0.h"
 
 /* ********************************************************************** */
-/* I. Constructor and Destructor */
-/* ********************************************************************** */
-
-extern inline void ap_lintermXXX_init(ap_lintermXXX_t term)
-{ eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
-extern inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
-{ eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
-extern inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
-{ eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
-extern inline void ap_lintermXXX_clear(ap_lintermXXX_t term)
-{ eitvXXX_clear(term->eitv); }
-extern inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
-{ if (a!=b){ ap_lintermXXX_struct t=*a; *a=*b; *b=t; } }
-
-void ap_linexprXXX_init(ap_linexprXXX_t expr, size_t size)
-{
-  expr->linterm = NULL;
-  expr->size = 0;
-  eitvXXX_init(expr->cst);
-  ap_linexprXXX_resize(expr,size);
-}
-void ap_linexprXXX_init_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
-{
-  size_t i,size;
-
-  eitvXXX_init_set(res->cst,expr->cst);
-  size = expr->size;
-  res->linterm = malloc(size*sizeof(ap_lintermXXX_t));
-  for (i=0;i<size;i++){
-    ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
-  }
-  res->size = size;
-}
-void ap_linexprXXX_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
-{
-  size_t i,esize,size;
-
-  if (res==expr) return;
-
-  eitvXXX_set(res->cst,expr->cst);
-  for  (i=expr->size; i<res->size; i++){
-    ap_lintermXXX_clear(res->linterm[i]);
-  }
-  res->linterm = realloc(res->linterm,expr->size*sizeof(ap_lintermXXX_t));
-  size = res->size < expr->size ? res->size : expr->size;
-  for (i=0;i<size;i++){
-    ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
-  }
-  for (i=size; i<expr->size;i++){
-    ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
-  }
-  res->size = expr->size;
-}
-
-void ap_linexprXXX_resize(ap_linexprXXX_t expr, size_t size)
-{
-  size_t i;
-
-  for  (i=size; i<expr->size; i++){
-    ap_lintermXXX_clear(expr->linterm[i]);
-  }
-  expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
-  for (i=expr->size;i<size;i++){
-    ap_lintermXXX_init(expr->linterm[i]);
-  }
-  expr->size = size;
-  return;
-}
-void ap_linexprXXX_minimize(ap_linexprXXX_t e)
-{
-  size_t i,j,nsize;
-
-  nsize = 0;
-  for (i=0; i<e->size; i++){
-    ap_lintermXXX_ptr lin = e->linterm[i];
-    if (lin->dim == AP_DIM_MAX)
-      break;
-    if (!eitvXXX_is_zero(lin->eitv))
-      nsize++;
-    else
-      lin->dim = AP_DIM_MAX;
-  }
-  if (nsize!=e->size){
-    ap_lintermXXX_t* linterm = malloc(nsize*sizeof(ap_lintermXXX_t));
-    j = 0;
-    for (i=0; i<e->size; i++){
-      ap_lintermXXX_ptr lin = e->linterm[i];
-      if (lin->dim != AP_DIM_MAX){
-	*(linterm[j]) = *lin;
-	j++;
-      }
-      else
-	ap_lintermXXX_clear(lin);
-    }
-    free(e->linterm);
-    e->linterm = linterm;
-    e->size = nsize;
-  }
-}
-void ap_linexprXXX_clear(ap_linexprXXX_t expr)
-{
-  size_t i;
-  if (expr->linterm){
-    for (i=0;i<expr->size;i++){
-      ap_lintermXXX_clear(expr->linterm[i]);
-    }
-    free(expr->linterm);
-    expr->linterm = NULL;
-    expr->size = 0;
-  }
-  eitvXXX_clear(expr->cst);
-}
-
-ap_linexprXXX_ptr ap_linexprXXX_alloc(size_t size)
-{
-  ap_linexprXXX_ptr res = (ap_linexprXXX_ptr)malloc(sizeof(ap_linexprXXX_struct));
-  ap_linexprXXX_init(res,size);
-  return res;
-}
-ap_linexprXXX_ptr ap_linexprXXX_alloc_set(ap_linexprXXX_t expr)
-{
-  ap_linexprXXX_ptr res = (ap_linexprXXX_ptr)malloc(sizeof(ap_linexprXXX_struct));
-  ap_linexprXXX_init_set(res,expr);
-  return res;
-}
-void ap_linexprXXX_free(ap_linexprXXX_ptr e)
-{
-  ap_linexprXXX_clear(e);
-  free(e);
-}
-
-void ap_linexprXXX_fprint(FILE* stream, ap_linexprXXX_t expr, char** name)
-{
-  ap_linexprXXX_t e;
-  size_t i;
-  ap_dim_t dim;
-  eitvXXX_ptr pitv;
-  eitvXXX_fprint(stream,expr->cst);
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
-    fprintf(stream, " + ");
-    eitvXXX_fprint(stream,pitv);
-    if (name) fprintf(stream,"%s",name[dim]);
-    else fprintf(stream,"x%lu",(unsigned long)dim);
-  }
-  fflush(stream);
-}
-
-/* ********************************************************************** */
-/* II. Tests */
-/* ********************************************************************** */
-
-bool ap_linexprXXX_is_integer(ap_linexprXXX_t expr, size_t intdim)
-{
-  size_t i,dim;
-  eitvXXX_ptr eitv;
-  bool res;
-
-  res = true;
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    if (dim>=intdim && !eitvXXX_is_zero(eitv)){
-      res = false;
-      break;
-    }
-  }
-  return res;
-}
-bool ap_linexprXXX_is_real(ap_linexprXXX_t expr, size_t intdim)
-{
-  size_t i,dim;
-  eitvXXX_ptr eitv;
-  bool res;
-
-  res = true;
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    if (dim<intdim){
-      if (!eitvXXX_is_zero(eitv)){
-	res = false;
-	break;
-      }
-    }
-    else
-      break;
-  }
-  return res;
-}
-bool ap_linexprXXX_is_linear(ap_linexprXXX_t expr)
-{
-  return eitvXXX_is_point(expr->cst) && ap_linexprXXX_is_quasilinear(expr);
-}
-bool ap_linexprXXX_is_quasilinear(ap_linexprXXX_t expr)
-{
-  size_t i,dim;
-  eitvXXX_ptr eitv;
-  bool res;
-
-  res = true;
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    res = eitvXXX_is_point(eitv);
-    if (!res) break;
-  }
-  return res;
-}
-ap_linexpr_type_t ap_linexprXXX_type(ap_linexprXXX_t a)
-{
-  if (ap_linexprXXX_is_quasilinear(a)){
-    if (eitvXXX_is_point(a->cst))
-      return AP_LINEXPR_LINEAR;
-    else
-      return AP_LINEXPR_QUASILINEAR;
-  }
-  else
-    return AP_LINEXPR_INTLINEAR;
-}
-
-/* ********************************************************************** */
-/* III. Access */
-/* ********************************************************************** */
-
-static size_t index_of_or_after_dim(ap_dim_t dim, ap_lintermXXX_t* linterm, size_t size)
-{
-  if (size<=10){
-    size_t i;
-    for (i=0; i<size; i++){
-      if (dim<=linterm[i]->dim)
-	return i;
-    }
-    return size;
-  }
-  else {
-    size_t mid = size/2;
-    if (dim==linterm[mid]->dim)
-      return mid;
-    else if (dim<linterm[mid]->dim)
-      return index_of_or_after_dim(dim, linterm, mid);
-    else
-      return mid + 1 + index_of_or_after_dim(dim, linterm+mid+1, size-mid-1);
-  }
-}
-
-eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool create)
-{
-  size_t index;
-
-  index = index_of_or_after_dim(dim,expr->linterm,expr->size);
-  if (index<expr->size && dim == expr->linterm[index]->dim)
-    return expr->linterm[index]->eitv;
-  else if (create==false){
-    return NULL;
-  }
-  else {
-    if (index<expr->size && expr->linterm[index]->dim==AP_DIM_MAX){
-      /* We have a free linterm at the right place */
-      expr->linterm[index]->dim=dim;
-    }
-    else {
-      if (expr->size==0 || expr->linterm[expr->size-1]->dim!=AP_DIM_MAX){
-	/* We have to insert a new linterm at the end */
-	ap_linexprXXX_resize(expr, expr->size+1);
-      }
-      /* We insert a linterm with AP_DIM_MAX at the right place */
-      if (index<expr->size-1){
-	ap_lintermXXX_struct tmp = *(expr->linterm[expr->size-1]);
-	memmove(&expr->linterm[index+1], &expr->linterm[index],
-		(expr->size-index-1)*sizeof(ap_lintermXXX_t));
-	*(expr->linterm[index]) = tmp;
-      }
-      expr->linterm[index]->dim = dim;
-    }
-    return expr->linterm[index]->eitv;
-  }
-}
-
-bool ap_linexprXXX_set_list_generic(
-    eitvXXX_ptr (*get_eitvXXX_of_dimvar)(
-	ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va
-    ),
-    ap_linexprXXX_t expr, bool* perror,
-    ap_environment_t* env, va_list* va, num_internal_t intern
-)
-{
-  ap_coeff_tag_t tag;
-  bool cst;
-  eitvXXX_ptr a=NULL;
-  bool res;
-
-  res = true;
-  while (true){
-    tag = va_arg(*va,ap_coeff_tag_t);
-    if (tag==AP_END)
-      break;
-    cst = (tag>=AP_CST);
-    if (cst)
-      tag = AP_COEFF + (tag - AP_CST);
-    if (tag==AP_COEFF){
-      ap_coeff_ptr b = va_arg(*va,ap_coeff_ptr);
-      res = eitvXXX_set_ap_coeff(intern->XXX.generic_eitv,b,intern) && res;
-    }
-    else {
-      res =
-	eitvXXX_set_val(intern,intern->XXX.generic_eitv,(eitv_tag_t)tag,&va)
-	&& res;
-    }
-    a = get_eitvXXX_of_dimvar(expr,env,cst,va);
-    if (a==NULL){
-      *perror = true;
-      break;
-    }
-    eitvXXX_set(a,intern->XXX.generic_eitv);
-  }
-
-  return res && !(*perror);
-}
-
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(
-    ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va)
-{
-  eitvXXX_ptr ptr;
-  if (cst){
-     ptr = expr->cst;
-  } else {
-    ap_dim_t dim = va_arg(*va,ap_dim_t);
-    ptr = ap_linexprXXX_eitvref0(expr,dim,true);
-  }
-  return ptr;
-}
-eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(
-    ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va)
-{
-  eitvXXX_ptr ptr;
-  if (cst){
-    ptr = expr->cst;
-  } else {
-    ap_var_t var = va_arg(*va,ap_var_t);
-    ap_dim_t dim = ap_environment_dim_of_var(env,var);
-    if (dim==AP_DIM_MAX)
-      ptr = NULL;
-    else
-      ptr = ap_linexprXXX_eitvref0(expr,dim,true);
-  }
-  return ptr;
-}
-bool ap_linexprXXX_set_list0(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ...)
-{
-  bool res;
-  va_list va;
-  va_start(va,perror);
-  res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-				       expr,perror,NULL,&va,intern);
-  va_end(va);
-  return res;
-}
-bool ap_linexprXXX_set_list1(num_internal_t intern, ap_linexprXXX_t expr, bool* perror, ap_environment_t* env, ...)
-{
-  bool res;
-  va_list va;
-  va_start(va,env);
-  res = ap_linexprXXX_set_list_generic(ap_linexprXXX_set_list_get_eitvXXX_of_dim,
-				       expr,perror,env,&va,intern);
-  va_end(va);
-  return res;
-}
-
-/* ********************************************************************** */
-/* IV. Arithmetic */
+/* I. Arithmetic */
 /* ********************************************************************** */
 
 void ap_linexprXXX_neg(ap_linexprXXX_t res, ap_linexprXXX_t expr)
@@ -510,27 +148,14 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t res,
 }
 
 /* ********************************************************************** */
-/* Va. Evaluation and Quasilinearisation of interval linear expressions */
+/* II. Evaluation and Quasilinearisation of interval linear expressions */
 /* ********************************************************************** */
 
-size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
-{
-  size_t i,dim;
-  eitvXXX_ptr eitv;
-  size_t nb;
-
-  nb = 0;
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    if (!eitvXXX_is_point(eitv)){
-      tdim[nb] = dim;
-      nb++;
-    }
-  }
-  return nb;
-}
-
 /* Evaluate an interval linear expression */
-bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t env, num_internal_t intern)
+bool eitvXXX_eval_ap_linexpr0(
+    eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t env, 
+    num_internal_t intern
+)
 {
   size_t i;
   ap_dim_t dim;
@@ -544,8 +169,14 @@ bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t
       exact = eitvXXX_set_eitvZZZ(res,expr->linexpr.ZZZ->cst,intern);
       ap_linexprZZZ_ForeachLinterm0(expr->linexpr.ZZZ,i,dim,eitv){
 	eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
-	if (envdim!=NULL){
-	  exact =  eitvXXX_set_eitvZZZ(intern->XXX.eval_eitv,eitv,intern) && exact;
+	if (envdim==NULL){
+	  if (!eitvZZZ_is_zero(eitv)){
+	    eitvXXX_set_top(res);
+	    break;
+	  }
+	}
+	else {
+	  exact = eitvXXX_set_eitvZZZ(intern->XXX.eval_eitv,eitv,intern) && exact;
 	  eitvXXX_mul(intern->XXX.eval_eitv, intern->XXX.eval_eitv, envdim, intern);
 	  eitvXXX_add(res,res,intern->XXX.eval_eitv);
 	  if (eitvXXX_is_top(res))
@@ -561,9 +192,10 @@ bool eitvXXX_eval_ap_linexpr0(eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t
 #endif
 }
 
-
-
-bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env, num_internal_t intern)
+bool ap_linexprXXX_eval(
+    eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env, 
+    num_internal_t intern
+)
 {
   size_t i;
   ap_dim_t dim;
@@ -574,7 +206,13 @@ bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env
   eitvXXX_set(res, expr->cst);
   ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
     eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
-    if (envdim!=NULL){
+    if (envdim==NULL){
+      if (!eitvXXX_is_zero(eitv)){
+	eitvXXX_set_top(res);
+	break;
+      }
+    }
+    else {
       eitvXXX_mul(intern->XXX.eval_eitv,envdim, eitv, intern);
       eitvXXX_add(res,res,intern->XXX.eval_eitv);
       if (eitvXXX_is_top(res))
@@ -588,9 +226,8 @@ bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env
 #endif
 }
 
-
 /* ====================================================================== */
-/* V.2 Quasilinearisation */
+/* II.2 Quasilinearisation */
 /* ====================================================================== */
 
 /* These functions quasilinearize in-place expressions and constraints.  They
@@ -636,14 +273,15 @@ bool ap_linexprXXX_eval(eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env
 */
 
 static void
-eitvXXX_quasilinearize_choose_middle(numXXX_t middle, /* the result */
-				     eitvXXX_t coeff, /* the coefficient in which
-							 middle is to be picked */
-				     eitvXXX_t var,   /* the variable interval */
-				     bool for_meet_inequality /* is it for the
-								 linearisation of
-								 an inequality ? */
-				     )
+eitvXXX_quasilinearize_choose_middle(
+    numXXX_t middle, /* the result */
+    eitvXXX_t coeff, /* the coefficient in which
+                        middle is to be picked */
+    eitvXXX_t var,   /* the variable interval */
+    bool for_meet_inequality /* is it for the
+                                linearisation of
+                                an inequality ? */
+)
 {
   if (boundXXX_infty(coeff->itv->neginf)){
     if (boundXXX_infty(coeff->itv->sup))
@@ -707,8 +345,11 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
   ap_linexprXXX_ForeachLinterm0(linexpr,i,dim,eitv){
     eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
     if (envdim==NULL){
-      eitvXXX_set_int(eitv,0);
-      zero = true;
+      if (!eitvXXX_is_zero(eitv)){
+	eitvXXX_set_top(linexpr->cst);
+	top = true;
+	break;
+      }
     }
     else if (eitvXXX_is_point(envdim)){
       /* If a variable has a constant value, simplification */
@@ -765,13 +406,12 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array, ap_linexprX
 #endif
 }
 
-
 /* ********************************************************************** */
-/* Vb. Evaluation and interval linearisation of tree expressions */
+/* III. Evaluation and interval linearisation of tree expressions */
 /* ********************************************************************** */
 
 /* ====================================================================== */
-/* Vb.1 Conversion to interval linear expression */
+/* III.1 Conversion to interval linear expression */
 /* ====================================================================== */
 
 /* preconditions:
@@ -890,7 +530,7 @@ bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t lres, bool* perror, struct ap_texp
 }
 
 /* ====================================================================== */
-/* Vb.2 Evaluation of tree expressions */
+/* III.2 Evaluation of tree expressions */
 /* ====================================================================== */
 
 /* General rounding */
@@ -1029,7 +669,7 @@ bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, ap_linexprX
 }
 
 /* ====================================================================== */
-/* Vb.3 Linearisation of tree expressions */
+/* III.3 Linearisation of tree expressions */
 /* ====================================================================== */
 
 #define LOGDEBUG 0
@@ -1081,12 +721,14 @@ ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */,
   eitvXXX_magnitude(intern->XXX.linear_bound,l->cst);
   ap_linexprXXX_ForeachLinterm0(l,i,dim,peitv) {
     eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
-    if (envdim!=NULL){
-      eitvXXX_magnitude(intern->XXX.linear_bound2,peitv);
+    eitvXXX_magnitude(intern->XXX.linear_bound2,peitv);
+    if (envdim){
       eitvXXX_magnitude(intern->XXX.linear_bound3,envdim);
-      boundXXX_mul(intern->XXX.linear_bound2,intern->XXX.linear_bound2,intern->XXX.linear_bound3);
-      boundXXX_add(intern->XXX.linear_bound,intern->XXX.linear_bound,intern->XXX.linear_bound2);
+    } else {
+      boundXXX_set_infty(intern->XXX.linear_bound3,+1);
     }
+    boundXXX_mul(intern->XXX.linear_bound2,intern->XXX.linear_bound2,intern->XXX.linear_bound3);
+    boundXXX_add(intern->XXX.linear_bound,intern->XXX.linear_bound,intern->XXX.linear_bound2);
   }
   boundXXX_mul(intern->XXX.linear_bound,intern->XXX.linear_bound,f->ulp->sup);
   boundXXX_add(intern->XXX.linear_bound,intern->XXX.linear_bound,f->min->sup);
@@ -1479,140 +1121,4 @@ void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t res,
     abort();
   }
   eitvXXX_clear(i);
-}
-
-/* ********************************************************************** */
-/* VI. Change of dimensions and permutations */
-/* ********************************************************************** */
-
-/* This function adds dimensions to the expressions, following the
-   semantics of dimchange (see the type definition of dimchange).  */
-void ap_linexprXXX_add_dimensions(ap_linexprXXX_t res,
-				  ap_linexprXXX_t expr,
-				  ap_dimchange_t* dimchange)
-{
-  size_t i,k,dimsup;
-  if (res!=expr){
-    ap_linexprXXX_set(res,expr);
-  }
-  dimsup = dimchange->dim.intd+dimchange->dim.reald;
-  k=0;
-  for (i=0; i<res->size; i++){
-    ap_dim_t* pdim = &res->linterm[i]->dim;
-    if (*pdim==AP_DIM_MAX)
-      break;
-    while (k<dimsup && *pdim>=dimchange->p[k]){
-      k++;
-    }
-    *pdim += k;
-  }
-}
-void ap_linexprXXX_extend_environment(ap_linexprXXX_t res,
-				      bool* perror,
-				      ap_environment_t* nenv,
-				      ap_linexprXXX_t expr,
-				      ap_environment_t* env)
-{
-  bool error;
-  if (env==nenv){
-    if (res!=expr) ap_linexprXXX_set(res,expr);
-    error = false;
-  } else {
-    ap_dimchange_t* dimchange = ap_environment_dimchange(env,nenv);
-    error = (dimchange==NULL);
-    if (!error){
-      ap_linexprXXX_add_dimensions(res,expr,dimchange);
-      ap_dimchange_free(dimchange);
-    }
-  }
-  if (perror) *perror=error;
-}
-
-/* This function applies the given permutation to the dimensions.
-   The dimensions present in the expression should just be less
-   than the size of the permutation. */
-static int ap_lintermXXX_cmp(const void* a, const void* b)
-{
-  const ap_lintermXXX_struct* aa = (const ap_lintermXXX_struct*)a;
-  const ap_lintermXXX_struct* bb = (const ap_lintermXXX_struct*)b;
-  return
-    (aa->dim > bb->dim) ? 1 :
-    ( (aa->dim < bb->dim) ? -1 : 0 );
-}
-
-void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
-				      ap_linexprXXX_t expr,
-				      ap_dimperm_t* perm)
-{
-  size_t i,k,dimsup;
-  if (res!=expr){
-    ap_linexprXXX_set(res,expr);
-  }
-  for (i=0; i<res->size; i++){
-    ap_dim_t* pdim = &res->linterm[i]->dim;
-    ap_dim_t dim = *pdim;
-    if (*pdim==AP_DIM_MAX) continue;
-    *pdim = perm->p[dim];
-  }
-  qsort(res->linterm,
-	res->size,
-	sizeof(ap_lintermXXX_t),
-	&ap_lintermXXX_cmp);
-}
-
-/* ********************************************************************** */
-/* VII. Hashing, comparison */
-/* ********************************************************************** */
-
-/* Induces reduction of the coefficients */
-
-int ap_linexprXXX_hash(ap_linexprXXX_t expr)
-{
-  eitvXXX_ptr eitv;
-  size_t size,i,dec;
-  int res,res1;
-
-  size = ap_linexprXXX_size(expr);
-  res = size << 8;
-  dec = 0;
-  for (i=0; i<size; i += (expr->size+7)/8){
-    eitv = expr->linterm[i]->eitv;
-    res1 = eitvXXX_hash(eitv);
-    res += res1<<dec;
-    dec++;
-  }
-  return res;
-}
-
-int ap_linexprXXX_compare(ap_linexprXXX_t exprA, ap_linexprXXX_t exprB)
-{
-  size_t i,j;
-  bool endA,endB;
-  int res;
-
-  res = 0;
-  i = j = 0;
-  endA = endB = false;
-  while (res==0){
-    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == AP_DIM_MAX;
-    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == AP_DIM_MAX;
-    if (endA && endB)
-      break;
-    if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
-      res = -eitvXXX_cmp_zero(exprB->linterm[j]->eitv);
-      j++;
-    }
-    else if (endB || (!endA && exprA->linterm[i]->dim < exprB->linterm[j]->dim)){
-      res = -eitvXXX_cmp_zero(exprA->linterm[i]->eitv);
-      i++;
-    }
-    else {
-      res = eitvXXX_cmp(exprA->linterm[i]->eitv,exprB->linterm[j]->eitv);
-      i++; j++;
-    }
-  }
-  if (res==0){
-    res = eitvXXX_cmp(exprA->cst,exprB->cst);
-  }
-  return res;
 }

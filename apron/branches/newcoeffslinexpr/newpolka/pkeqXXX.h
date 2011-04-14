@@ -183,7 +183,7 @@ pkeqXXX_t* pkeqXXX_top(ap_manager_t* man, ap_dimension_t dim);
 
 pkeqXXX_t* pkeqXXX_of_box(ap_manager_t* man,
 		ap_dimension_t dim,
-		ap_box0_t box);
+		ap_linexpr0_t box);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
@@ -275,7 +275,7 @@ void pkeqXXX_bound_texpr(ap_manager_t* man,
   /* Returns the interval taken by a tree expression
      over the abstract value. */
 
-void pkeqXXX_to_box(ap_manager_t* man, ap_box0_t box, pkeqXXX_t* a);
+void pkeqXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkeqXXX_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is pkeqXXX_dimension(man,a).  This
      function can be reimplemented by using pkeqXXX_bound_linexpr

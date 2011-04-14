@@ -16,7 +16,6 @@
 #include "ap_lingen0.h"
 #include "ap_texpr0.h"
 #include "ap_tcons0.h"
-#include "ap_box0.h"
 #include "ap_manager.h"
 #include "ap_abstract0.h"
 
