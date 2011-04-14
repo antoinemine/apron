@@ -20,7 +20,7 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = Rll 
+TMPL = Rll MPQ
 
 H_TMPL_FILES = pkXXX.h pkXXX_cherni.h pkXXX_internal.h pkeqXXX.h
 C_TMPL_FILES = \
@@ -124,4 +124,3 @@ depend: $(H_FILES) $(C_FILES)
 tags: TAGS
 TAGS: $(H_SRC_FILES) $(C_SRC_FILES)
 	etags $^
-	etags -a macros.pl

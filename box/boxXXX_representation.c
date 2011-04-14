@@ -13,7 +13,7 @@
 boxXXX_t* boxXXX_alloc(ap_dimension_t dim)
 {
   boxXXX_t* itv = malloc(sizeof(boxXXX_t));
-  itv->p = NULL;
+  itv->e->linterm = NULL;
   itv->dim = dim;
   return itv;
 }
@@ -21,18 +21,19 @@ boxXXX_t* boxXXX_alloc(ap_dimension_t dim)
 void boxXXX_init(boxXXX_t* a)
 {
   size_t i;
-  size_t nbdims = a->dim.intd + a->dim.reald;
-  assert(a->p==NULL);
-  a->p = eitvXXX_array_alloc(nbdims+1); 
+  size_t nbdims = ap_dimension_size(a->dim);
+  assert(a->e->linterm==NULL);
+  ap_linexprXXX_init(a->e,nbdims+1);
   /* Add an unused dimension to differentiate
      empty and top values in dimension 0+0 */
+  for (i=0;i<=nbdims;i++)
+    a->e->linterm[i]->dim = i;
 }
 
 void boxXXX_set_bottom(boxXXX_t* a)
 {
-  if (a->p){
-    eitvXXX_array_free(a->p,a->dim.intd+a->dim.reald+1);
-    a->p = NULL;
+  if (a->e->linterm){
+    ap_linexprXXX_clear(a->e);
   }
 }
 
@@ -40,13 +41,13 @@ void boxXXX_set_top(boxXXX_t* a)
 {
   size_t i;
   size_t nbdims;
-  
+
   nbdims = a->dim.intd + a->dim.reald;
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     boxXXX_init(a);
   };
   for (i=0; i<nbdims; i++){
-    eitvXXX_set_top(a->p[i]);
+    eitvXXX_set_top(a->e->linterm[i]->eitv);
   }
 }
 
@@ -54,16 +55,16 @@ void boxXXX_set(boxXXX_t* a, boxXXX_t* b)
 {
   size_t i;
   size_t nbdims;
-  
-  if (b->p==NULL)
+
+  if (b->e->linterm==NULL)
     return;
 
   nbdims = b->dim.intd + b->dim.reald;
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     boxXXX_init(a);
   };
   for (i=0; i<nbdims; i++){
-    eitvXXX_set(a->p[i],b->p[i]);
+    eitvXXX_set(a->e->linterm[i]->eitv,b->e->linterm[i]->eitv);
   }
 }
 
@@ -79,14 +80,8 @@ boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a)
   size_t nbdims = a->dim.intd+a->dim.reald;
 
   boxXXX_t* b = boxXXX_alloc(a->dim);
-  if (a->p){
-    b->p = malloc((nbdims+1)*sizeof(eitvXXX_t));
-    for (i=0; i<nbdims; i++){
-      eitvXXX_init_set(b->p[i],a->p[i]);
-    }
-    eitvXXX_init(b->p[nbdims]);  
-    /* Add an unused dimension to differentiate
-       empty and top values in dimension 0+0 */ 
+  if (a->e->linterm){
+    ap_linexprXXX_init_set(b->e,a->e);
   }
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -96,9 +91,8 @@ boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a)
 /* Free all the memory used by the abstract value */
 void boxXXX_free(ap_manager_t* man, boxXXX_t* a)
 {
-  if (a->p){
-    eitvXXX_array_free(a->p,a->dim.intd+a->dim.reald+1);
-    a->p = NULL;
+  if (a->e->linterm){
+    ap_linexprXXX_clear(a->e);
   }
   free(a);
 }
@@ -106,7 +100,7 @@ void boxXXX_free(ap_manager_t* man, boxXXX_t* a)
 /* Return the abstract size of an abstract value (see ap_manager_t) */
 size_t boxXXX_size(ap_manager_t* man, boxXXX_t* a)
 {
-  return 2*(a->dim.intd+a->dim.reald);
+  return 2*ap_dimension_size(a->dim);
 }
 
 /* ********************************************************************** */
@@ -137,10 +131,10 @@ int boxXXX_hash(ap_manager_t* man, boxXXX_t* a)
   int i,dec,size,res;
   size = a->dim.intd +a->dim.reald;
   res = size * 2999;
-  
-  if (a->p!=NULL){
+
+  if (a->e->linterm!=NULL){
     for (i=0; i<size; i += (size+4)/5){
-      res = 3*res + eitvXXX_hash(a->p[i]);
+      res = 3*res + eitvXXX_hash(a->e->linterm[i]->eitv);
     }
   }
   man->result.flag_best = true;
@@ -177,7 +171,7 @@ void boxXXX_fprint(FILE* stream,
 
   fprintf(stream,"interval of dim (%ld,%ld):",
 	  (long)a->dim.intd,(long)a->dim.reald);
-  if (a->p){
+  if (a->e->linterm){
     fprintf(stream,"\n");
     for(i=0; i<nbdims; i++){
       if (name_of_dim){
@@ -185,7 +179,7 @@ void boxXXX_fprint(FILE* stream,
       } else {
 	fprintf(stream,"x%ld in ", (long)i);
       }
-      eitvXXX_fprint(stream,a->p[i]);
+      eitvXXX_fprint(stream,a->e->linterm[i]->eitv);
       fprintf(stream,"\n");
     }
   }
@@ -205,11 +199,11 @@ void boxXXX_fdump(FILE* stream,
 
   fprintf(stream,"interval of dim (%ld,%ld):",
 	  (long)a->dim.intd,(long)a->dim.reald);
-  if (a->p){
+  if (a->e->linterm){
     fprintf(stream,"\n");
     for(i=0; i<nbdims; i++){
       fprintf(stream,"dim %3ld in ",(long)i);
-      eitvXXX_fprint(stream,a->p[i]);
+      eitvXXX_fprint(stream,a->e->linterm[i]->eitv);
       fprintf(stream,"\n");
     }
   }
@@ -239,11 +233,11 @@ void boxXXX_fprintdiff(FILE* stream,
   }
   else {
     /* we are sure that nbdims>0 */
-    if (a->p==0){
+    if (a->e->linterm==0){
       fprintf(stream,"\nbottom =>\n");
       boxXXX_fprint(stream,man,b,name_of_dim);
     }
-    else if (b->p==0){
+    else if (b->e->linterm==0){
       fprintf(stream,"\n");
       boxXXX_fprint(stream,man,a,name_of_dim);
       fprintf(stream,"=> bottom\n");
@@ -252,15 +246,15 @@ void boxXXX_fprintdiff(FILE* stream,
       boundXXX_t bound;
       boundXXX_init(bound);
       for(i=0; i<nbdims; i++){
-	int sgn1 = boundXXX_cmp(a->p[i]->itv->neginf, b->p[i]->itv->neginf);
-	int sgn2 = boundXXX_cmp(a->p[i]->itv->sup, b->p[i]->itv->sup);
-	
+	int sgn1 = boundXXX_cmp(a->e->linterm[i]->eitv->itv->neginf, b->e->linterm[i]->eitv->itv->neginf);
+	int sgn2 = boundXXX_cmp(a->e->linterm[i]->eitv->itv->sup, b->e->linterm[i]->eitv->itv->sup);
+
 	if (sgn1!=0 || sgn2!=0){
-	  if (name_of_dim) 
+	  if (name_of_dim)
 	    fprintf(stream,"%8s in ",name_of_dim[i]);
 	  else
 	    fprintf(stream,"x%ld in ", (long)i);
-	  eitvXXX_fprint(stream,a->p[i]);
+	  eitvXXX_fprint(stream,a->e->linterm[i]->eitv);
 	  fprintf(stream," => ");
 	  str =
 	    sgn1>0 ?
@@ -270,12 +264,12 @@ void boxXXX_fprintdiff(FILE* stream,
 	      "[=, "  );
 	  fprintf(stream,"%s",str);
 	  if (sgn1!=0){
-	    boundXXX_neg(bound,b->p[i]->itv->neginf);
+	    boundXXX_neg(bound,b->e->linterm[i]->eitv->itv->neginf);
 	    boundXXX_fprint(stream,bound);
 	    fprintf(stream,", ");
 	  }
 	  if (sgn2!=0){
-	    boundXXX_fprint(stream,b->p[i]->itv->sup);
+	    boundXXX_fprint(stream,b->e->linterm[i]->eitv->itv->sup);
 	  }
 	  str =
 	    sgn2>0 ?
@@ -322,4 +316,3 @@ boxXXX_t* boxXXX_deserialize_raw(ap_manager_t* man, void* ptr)
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,"");
   return NULL;
 }
-

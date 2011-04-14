@@ -16,11 +16,12 @@
 #include "ap_abstract1.h"
 
 /* Normal constructor */
-static inline ap_abstract1_t ap_abstract1_cons(ap_abstract0_t* a0, ap_environment_t* env)
+static inline
+ap_abstract1_t* ap_abstract1_cons(ap_abstract0_t* a0, ap_environment_t* env)
 {
-  ap_abstract1_t res;
-  res.abstract0 = a0;
-  res.env = ap_environment_copy(env);
+  ap_abstract1_t* res = malloc(sizeof(ap_abstract1_t));
+  res->abstract0 = a0;
+  res->env = ap_environment_copy(env);
   return res;
 }
 
@@ -29,21 +30,15 @@ static inline ap_abstract1_t ap_abstract1_cons(ap_abstract0_t* a0, ap_environmen
    depending on destructive. The environment is supposed unchanged.
 */
 static
-ap_abstract1_t ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value)
+ap_abstract1_t* ap_abstract1_consres(bool destructive, ap_abstract1_t* a, ap_abstract0_t* value)
 {
-  ap_abstract1_t res;
   if (destructive){
-    if (value==a->abstract0)
-      res = *a;
-    else {
-      res.abstract0 = value;
-      res.env = a->env;
-    }
+    a->abstract0 = value;
+    return a;
   }
   else {
-    res = ap_abstract1_cons(value,a->env);
+    return ap_abstract1_cons(value,a->env);
   }
-  return res;
 }
 /* Special constructor 2:
 
@@ -52,25 +47,24 @@ value level 0 and a new environment, depending on
 destructive.
 */
 static
-ap_abstract1_t ap_abstract1_consres2(bool destructive, ap_abstract1_t* a,
-				     ap_abstract0_t* value,
-				     ap_environment_t* env)
+ap_abstract1_t* ap_abstract1_consres2(bool destructive, ap_abstract1_t* a,
+				      ap_abstract0_t* value,
+				      ap_environment_t* env)
 {
-  ap_abstract1_t res;
   if (destructive){
-    if (value==a->abstract0 && env==a->env)
-      res = *a;
-    else {
-      res.abstract0 = value;
-      res.env = env;
+    a->abstract0 = value;
+    if (a->env!=env){
       ap_environment_free(a->env);
+      a->env = env;
     }
+    return a;
   }
   else {
-    res.abstract0 = value;
-    res.env = env;
+    ap_abstract1_t* res = malloc(sizeof(ap_abstract1_t));
+    res->abstract0 = value;
+    res->env = env;
+    return res;
   }
-  return res;
 }
 
 void ap_abstract1_raise_invalid_var(ap_manager_t* man,
@@ -106,7 +100,7 @@ bool ap_abstract1_check_env2(ap_funid_t funid,
   }
 }
 bool ap_abstract1_check_env_array(ap_funid_t funid,ap_manager_t* man,
-				  ap_abstract1_t* tab, size_t size)
+				  ap_abstract1_t** tab, size_t size)
 {
   bool res;
   if (size==0){
@@ -117,9 +111,9 @@ bool ap_abstract1_check_env_array(ap_funid_t funid,ap_manager_t* man,
   }
   else {
     size_t i;
-    ap_environment_t* env0 = tab[0].env;
+    ap_environment_t* env0 = tab[0]->env;
     for (i=1;i<size; i++){
-      if (!ap_environment_is_eq(env0,tab[i].env)){
+      if (!ap_environment_is_eq(env0,tab[i]->env)){
 	res = false;
 	break;
 
@@ -139,16 +133,16 @@ the same environement as the 0th abstract value\
 }
 /* Array of abstract values */
 bool ap_abstract1_checkman_array(ap_funid_t funid,
-				 ap_manager_t* man, ap_abstract1_t* tab, size_t size)
+				 ap_manager_t* man, ap_abstract1_t** tab, size_t size)
 {
   size_t i;
   for (i=0;i<size;i++){
-    if (man->library != tab[i].abstract0->man->library){
+    if (man->library != tab[i]->abstract0->man->library){
       char str[160];
       snprintf(str,159,"\
 The %luth abstract value of the array is of type %s and not of the type %s expected by the manager\
 ",
-	       (unsigned long)i,tab[i].abstract0->man->library,man->library);
+	       (unsigned long)i,tab[i]->abstract0->man->library,man->library);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,
@@ -157,33 +151,6 @@ The %luth abstract value of the array is of type %s and not of the type %s expec
     }
   }
   return true;
-}
-
-void ap_box1_fprint(FILE* stream, ap_box1_t* box)
-{
-  size_t i;
-  fprintf(stream,"Box1: (%lu,%lu)\n",
-	  (unsigned long)box->env->dim.intd,(unsigned long)box->env->dim.reald);
-  for (i=0; i<box->env->dim.intd+box->env->dim.reald;i++){
-    ap_var_t var = ap_environment_var_of_dim(box->env,i);
-    char* name = ap_var_operations->to_string(var);
-    fprintf(stream,"  %s\tin",name);
-    free(name);
-    ap_interval_fprint(stream,box->p[i]);
-    fprintf(stream,"\n");
-  }
-}
-
-void ap_box1_clear(ap_box1_t* box)
-{
-  if (box->env==NULL){
-    fprintf(stderr,"abstract1.c: box_clear: either non initialized or already deallocated box !\n");
-    abort();
-  }
-  ap_interval_array_free(box->p,box->env->dim.intd+box->env->dim.reald);
-  ap_environment_free(box->env);
-  box->p=NULL;
-  box->env=NULL;
 }
 
 /* ********************************************************************** */
@@ -196,17 +163,18 @@ void ap_box1_clear(ap_box1_t* box)
 
 /* Return a copy of an abstract value, on
    which destructive update does not affect the initial value. */
-ap_abstract1_t ap_abstract1_copy(ap_manager_t* man, ap_abstract1_t* a){
+ap_abstract1_t* ap_abstract1_copy(ap_manager_t* man, ap_abstract1_t* a){
   return ap_abstract1_cons(ap_abstract0_copy(man,a->abstract0),a->env);
 }
 
 /* Free all the memory used by the abstract value */
-void ap_abstract1_clear(ap_manager_t* man, ap_abstract1_t* a)
+void ap_abstract1_free(ap_manager_t* man, ap_abstract1_t* a)
 {
   ap_abstract0_free(man,a->abstract0);
   ap_environment_free(a->env);
   a->abstract0 = NULL;
   a->env = NULL;
+  free(a);
 }
 
 /* Return the abstract size of an abstract value (see ap_manager_t) */
@@ -312,7 +280,7 @@ ap_membuf_t ap_abstract1_serialize_raw(ap_manager_t* man, ap_abstract1_t* a){
 
 /* Return the abstract value read in raw binary format from the input stream
    and store in size the number of bytes read */
-ap_abstract1_t ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size){
+ap_abstract1_t* ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size){
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,"");
   return ap_abstract1_top(man,ap_environment_alloc_empty());
 }
@@ -327,15 +295,15 @@ ap_abstract1_t ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr, size_t
 /* ============================================================ */
 
 /* Create a bottom (empty) value */
-ap_abstract1_t ap_abstract1_bottom(ap_manager_t* man, ap_environment_t* env)
+ap_abstract1_t* ap_abstract1_bottom(ap_manager_t* man, ap_environment_t* env)
 {
-  return ap_abstract1_cons(ap_abstract0_bottom(man,env->dim.intd,env->dim.reald),env);
+  return ap_abstract1_cons(ap_abstract0_bottom(man,env->dim),env);
 }
 
 /* Create a top (universe) value */
-ap_abstract1_t ap_abstract1_top(ap_manager_t* man, ap_environment_t* env)
+ap_abstract1_t* ap_abstract1_top(ap_manager_t* man, ap_environment_t* env)
 {
-  return ap_abstract1_cons(ap_abstract0_top(man,env->dim.intd,env->dim.reald),env);
+  return ap_abstract1_cons(ap_abstract0_top(man,env->dim),env);
 }
 
 /* Abstract an hypercube defined by the arrays tvar and tinterval,
@@ -344,31 +312,14 @@ ap_abstract1_t ap_abstract1_top(ap_manager_t* man, ap_environment_t* env)
    If no inclusion is specified for a variable in the environement, its value
    is no constrained in the resulting abstract value.
 */
-ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
-				   ap_environment_t* env,
-				   ap_var_t* tvar,
-				   ap_interval_t** tinterval,
-				   size_t size)
+ap_abstract1_t* ap_abstract1_of_box(ap_manager_t* man,
+				    ap_linexpr1_t box)
 {
-  ap_abstract1_t a;
-  size_t i;
-
-  ap_interval_t** itv = ap_interval_array_alloc(env->dim.intd+env->dim.reald);
-  for (i=0; i<env->dim.intd+env->dim.reald; i++){
-    ap_interval_set_top(itv[i]);
-  }
-  for (i=0; i<size; i++){
-    ap_dim_t dim = ap_environment_dim_of_var(env,tvar[i]);
-    if (dim==AP_DIM_MAX){
-      ap_abstract1_raise_invalid_var(man,AP_FUNID_OF_BOX,tvar[i]);
-      ap_interval_array_free(itv,size);
-      return ap_abstract1_top(man,env);
-    }
-    ap_interval_set(itv[dim],tinterval[i]);
-  }
-  a = ap_abstract1_cons(ap_abstract0_of_box(man,env->dim.intd,env->dim.reald,(ap_interval_t**)itv),env);
-  ap_interval_array_free(itv,env->dim.intd+env->dim.reald);
-  return a;
+  return
+    ap_abstract1_cons(
+	ap_abstract0_of_box(man,box->env->dim,box->linexpr0),
+	box->env
+    );
 }
 
 /* ============================================================ */
@@ -415,12 +366,12 @@ bool ap_abstract1_is_eq(ap_manager_t* man, ap_abstract1_t* a1, ap_abstract1_t* a
   }
 }
 /* does the abstract value satisfy the linear constraint ? */
-bool ap_abstract1_sat_lincons(ap_manager_t* man, ap_abstract1_t* a, ap_lincons1_t* cons)
+bool ap_abstract1_sat_lincons(ap_manager_t* man, ap_abstract1_t* a, ap_lincons1_t cons)
 {
   bool res;
 
   if (ap_environment_is_eq(a->env,cons->env)){
-    res = ap_abstract0_sat_lincons(man,a->abstract0,&cons->lincons0);
+    res = ap_abstract0_sat_lincons(man,a->abstract0,cons->lincons0);
   }
   else {
     ap_dimchange_t* dimchange;
@@ -433,10 +384,10 @@ bool ap_abstract1_sat_lincons(ap_manager_t* man, ap_abstract1_t* a, ap_lincons1_
       man->result.flag_exact = false;
       return false;
     }
-    cons0 = ap_lincons0_add_dimensions(&cons->lincons0,dimchange);
-    res = ap_abstract0_sat_lincons(man,a->abstract0,&cons0);
+    ap_lincons0_add_dimensions(cons0,cons->lincons0,dimchange);
+    res = ap_abstract0_sat_lincons(man,a->abstract0,cons0);
     ap_dimchange_free(dimchange);
-    ap_lincons0_clear(&cons0);
+    ap_lincons0_clear(cons0);
   }
   return res;
 }
@@ -446,11 +397,11 @@ bool ap_abstract1_sat_tcons(ap_manager_t* man, ap_abstract1_t* a, ap_tcons1_t* c
   bool res;
 
   if (ap_environment_is_eq(a->env,cons->env)){
-    res = ap_abstract0_sat_tcons(man,a->abstract0,&cons->tcons0);
+    res = ap_abstract0_sat_tcons(man,a->abstract0,cons->tcons0);
   }
   else {
     ap_dimchange_t* dimchange;
-    ap_tcons0_t cons0;
+    ap_tcons0_t* cons0;
 
     dimchange = ap_environment_dimchange(cons->env,a->env);
     if (dimchange==NULL){
@@ -459,17 +410,17 @@ bool ap_abstract1_sat_tcons(ap_manager_t* man, ap_abstract1_t* a, ap_tcons1_t* c
       man->result.flag_exact = false;
       return false;
     }
-    cons0 = ap_tcons0_add_dimensions(&cons->tcons0,dimchange);
-    res = ap_abstract0_sat_tcons(man,a->abstract0,&cons0);
+    cons0 = ap_tcons0_add_dimensions(cons->tcons0,dimchange);
+    res = ap_abstract0_sat_tcons(man,a->abstract0,cons0);
     ap_dimchange_free(dimchange);
-    ap_tcons0_clear(&cons0);
+    ap_tcons0_free(cons0);
   }
   return res;
 }
 
 /* Is the dimension included in the interval in the abstract value ? */
 bool ap_abstract1_sat_interval(ap_manager_t* man, ap_abstract1_t* a,
-			       ap_var_t var, ap_interval_t* interval)
+			       ap_var_t var, ap_coeff_t interval)
 {
   ap_dim_t dim;
   bool res;
@@ -505,43 +456,37 @@ bool ap_abstract1_is_variable_unconstrained(ap_manager_t* man, ap_abstract1_t* a
 
 /* Returns the interval taken by a linear expression
    over the abstract value */
-ap_interval_t* ap_abstract1_bound_linexpr(ap_manager_t* man,
-					  ap_abstract1_t* a, ap_linexpr1_t* expr)
+void ap_abstract1_bound_linexpr(ap_manager_t* man,
+				ap_coeff_t res, ap_abstract1_t* a, ap_linexpr1_t expr)
 {
-  ap_interval_t* res;
-
   if (ap_environment_is_eq(a->env,expr->env)){
-    res = ap_abstract0_bound_linexpr(man,a->abstract0,expr->linexpr0);
+    ap_abstract0_bound_linexpr(man,res,a->abstract0,expr->linexpr0);
   }
   else {
     ap_dimchange_t* dimchange;
-    ap_linexpr0_t* expr0;
+    ap_linexpr0_t expr0;
 
     dimchange = ap_environment_dimchange(expr->env,a->env);
     if (dimchange==NULL){
       ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_BOUND_LINEXPR,
 				 "the environment of the linear expression is not a subset of the environment of the abstract value");
-      res = ap_interval_alloc();
-      ap_interval_reinit(res,man->option.scalar_discr);
-      ap_interval_set_top(res);
-      return res;
+      ap_coeff_set_top(res);
     }
-    expr0 = ap_linexpr0_add_dimensions(expr->linexpr0,dimchange);
-    res = ap_abstract0_bound_linexpr(man,a->abstract0,expr0);
-    ap_dimchange_free(dimchange);
-    ap_linexpr0_free(expr0);
+    else {
+      ap_linexpr0_add_dimensions(expr0,expr->linexpr0,dimchange);
+      ap_abstract0_bound_linexpr(man,res,a->abstract0,expr0);
+      ap_dimchange_free(dimchange);
+      ap_linexpr0_clear(expr0);
+    }
   }
-  return res;
 }
 /* Returns the interval taken by a tree expression
    over the abstract value */
-ap_interval_t* ap_abstract1_bound_texpr(ap_manager_t* man,
-					ap_abstract1_t* a, ap_texpr1_t* expr)
+void ap_abstract1_bound_texpr(ap_manager_t* man,
+			      ap_coeff_t res, ap_abstract1_t* a, ap_texpr1_t* expr)
 {
-  ap_interval_t* res;
-
   if (ap_environment_is_eq(a->env,expr->env)){
-    res = ap_abstract0_bound_texpr(man,a->abstract0,expr->texpr0);
+    ap_abstract0_bound_texpr(man,res,a->abstract0,expr->texpr0);
   }
   else {
     ap_dimchange_t* dimchange;
@@ -551,47 +496,43 @@ ap_interval_t* ap_abstract1_bound_texpr(ap_manager_t* man,
     if (dimchange==NULL){
       ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_BOUND_TEXPR,
 				 "the environment of the tear expression is not a subset of the environment of the abstract value");
-      res = ap_interval_alloc();
-      ap_interval_reinit(res,man->option.scalar_discr);
-      ap_interval_set_top(res);
-      return res;
+       ap_coeff_set_top(res);
     }
-    expr0 = ap_texpr0_add_dimensions(expr->texpr0,dimchange);
-    res = ap_abstract0_bound_texpr(man,a->abstract0,expr0);
-    ap_dimchange_free(dimchange);
-    ap_texpr0_free(expr0);
+    else {
+      expr0 = ap_texpr0_add_dimensions(expr->texpr0,dimchange);
+      ap_abstract0_bound_texpr(man,res,a->abstract0,expr0);
+      ap_dimchange_free(dimchange);
+      ap_texpr0_free(expr0);
+    }
   }
-  return res;
 }
 
 /* Returns the interval taken by the variable over the abstract
    value */
-ap_interval_t* ap_abstract1_bound_variable(ap_manager_t* man,
-					   ap_abstract1_t* a, ap_var_t var)
+void ap_abstract1_bound_variable(ap_manager_t* man,
+				 ap_coeff_t res, ap_abstract1_t* a, ap_var_t var)
 {
   ap_dim_t dim;
-  ap_interval_t* res;
 
   dim = ap_environment_dim_of_var(a->env, var);
   if (dim==AP_DIM_MAX){
     ap_abstract1_raise_invalid_var(man,AP_FUNID_BOUND_DIMENSION,var);
-    res = ap_interval_alloc();
-    ap_interval_reinit(res,man->option.scalar_discr);
-    ap_interval_set_top(res);
-    return res;
+    ap_coeff_set_top(res);
   }
-  return ap_abstract0_bound_dimension(man, a->abstract0, dim);
+  else {
+    ap_abstract0_bound_dimension(man, res, a->abstract0, dim);
+  }
 }
 
 /* Converts an abstract value to a polyhedra (conjunction of
    linear constraints). */
-ap_lincons1_array_t ap_abstract1_to_lincons_array(ap_manager_t* man, ap_abstract1_t* a)
+void ap_abstract1_to_lincons_array(ap_manager_t* man, ap_lincons1_array_t array, ap_abstract1_t* a)
 {
-  ap_lincons1_array_t array;
-
-  array.lincons0_array = ap_abstract0_to_lincons_array(man,a->abstract0);
-  array.env = ap_environment_copy(a->env);
-  return array;
+  ap_abstract0_to_lincons_array(man,array->lincons0_array,a->abstract0);
+  if (array->env != a->env){
+    ap_environment_free(array->env);
+    array->env = ap_environment_copy(a->env);
+  }
 }
 
 /* Converts an abstract value to a conjunction of tree expressions constraints. */
@@ -608,23 +549,23 @@ ap_tcons1_array_t ap_abstract1_to_tcons_array(ap_manager_t* man, ap_abstract1_t*
    of the resulting array is ap_abstract1_dimension(man,a).  This
    function can be reimplemented by using ap_abstract1_bound_linexpr
 */
-ap_box1_t ap_abstract1_to_box(ap_manager_t* man, ap_abstract1_t* a)
+void ap_abstract1_to_box(ap_manager_t* man, ap_linexpr1_t box, ap_abstract1_t* a)
 {
-  ap_box1_t box;
-
-  box.p = ap_abstract0_to_box(man,a->abstract0);
-  box.env = ap_environment_copy(a->env);
-  return box;
+  ap_abstract0_to_box(man,box->linexpr0,a->abstract0);
+  if (box->env != a->env){
+    ap_environment_free(box->env);
+    box->env = ap_environment_copy(a->env);
+  }
 }
 
 /* Converts an abstract value to a system of generators. */
-ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, ap_abstract1_t* a)
+void ap_abstract1_to_lingen_array(ap_manager_t* man, ap_lingen1_array_t array, ap_abstract1_t* a)
 {
-  ap_generator1_array_t array;
-
-  array.generator0_array = ap_abstract0_to_generator_array(man,a->abstract0);
-  array.env = ap_environment_copy(a->env);
-  return array;
+  ap_abstract0_to_lingen_array(man,array->lingen0_array,a->abstract0);
+  if (array->env != a->env){
+    ap_environment_free(array->env);
+    array->env = ap_environment_copy(a->env);
+  }
 }
 
 /* ********************************************************************** */
@@ -635,65 +576,64 @@ ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, ap_abst
 /* III.1 Meet and Join */
 /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_meetjoin(ap_funid_t funid, ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2)
+ap_abstract1_t* ap_abstract1_meetjoin(ap_funid_t funid, ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   if (ap_abstract1_check_env2(funid,man,a1,a2)){
     ap_abstract0_t* value = ap_abstract0_meetjoin(funid,man,destructive,a1->abstract0,a2->abstract0);
     res = ap_abstract1_consres(destructive, a1, value);
   }
   else {
     res = ap_abstract1_top(man,a1->env);
-    if (destructive) ap_abstract1_clear(man,a1);
+    if (destructive) ap_abstract1_free(man,a1);
   }
   return res;
 }
-ap_abstract1_t ap_abstract1_meet(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2){
+ap_abstract1_t* ap_abstract1_meet(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2){
   return ap_abstract1_meetjoin(AP_FUNID_MEET,man,destructive,a1,a2);
 }
-ap_abstract1_t ap_abstract1_join(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2){
+ap_abstract1_t* ap_abstract1_join(ap_manager_t* man, bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2){
   return ap_abstract1_meetjoin(AP_FUNID_JOIN,man,destructive,a1,a2);
 }
-ap_abstract1_t ap_abstract1_meetjoin_array(ap_funid_t funid, ap_manager_t* man, ap_abstract1_t* tab, size_t size)
+ap_abstract1_t* ap_abstract1_meetjoin_array(ap_funid_t funid, ap_manager_t* man, ap_abstract1_t** tab, size_t size)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   if (ap_abstract1_checkman_array(funid,man,tab,size) &&
       ap_abstract1_check_env_array(funid,man,tab,size)){
     size_t i;
     ap_abstract0_t* res0;
     void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
     void** ntab = malloc(size*sizeof(void*));
-    for (i=0;i<size;i++) ntab[i] = tab[i].abstract0->value;
-    res0 = malloc(sizeof(ap_abstract0_t));
-    res0->man = ap_manager_copy(man);
-    res0->value = ptr(man,ntab,size);
-    res.abstract0 = res0;
-    res.env = ap_environment_copy(tab[0].env);
+    for (i=0;i<size;i++)
+      ntab[i] = tab[i]->abstract0->value;
+    res0 = ap_abstract0_cons(man,ptr(man,ntab,size));
+    res = ap_abstract1_cons(res0,tab[0]->env);
     free(ntab);
   }
   else {
-    res = ap_abstract1_top(man, size==0 ? ap_environment_alloc_empty() : tab[0].env);
+    res = ap_abstract1_top(man, size==0 ? ap_environment_alloc_empty() : tab[0]->env);
   }
   return res;
 }
-ap_abstract1_t ap_abstract1_meet_array(ap_manager_t* man, ap_abstract1_t* tab, size_t size){
+ap_abstract1_t* ap_abstract1_meet_array(ap_manager_t* man, ap_abstract1_t** tab, size_t size){
   return ap_abstract1_meetjoin_array(AP_FUNID_MEET_ARRAY,man,tab,size);
 }
-ap_abstract1_t ap_abstract1_join_array(ap_manager_t* man, ap_abstract1_t* tab, size_t size){
+ap_abstract1_t* ap_abstract1_join_array(ap_manager_t* man, ap_abstract1_t** tab, size_t size){
   return ap_abstract1_meetjoin_array(AP_FUNID_JOIN_ARRAY,man,tab,size);
 }
 
-ap_abstract1_t ap_abstract1_meet_lincons_array(ap_manager_t* man,
+ap_abstract1_t* ap_abstract1_meet_lincons_array(ap_manager_t* man,
 					       bool destructive,
-					       ap_abstract1_t* a, ap_lincons1_array_t* array)
+					       ap_abstract1_t* a, ap_lincons1_array_t array)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_lincons0_array_t array0;
+  ap_lincons0_array_ptr parray0;
   ap_dimchange_t* dimchange;
 
   if (ap_environment_is_eq(a->env,array->env)){
     dimchange = NULL;
-    array0 = array->lincons0_array;
+    parray0 = array->lincons0_array;
   }
   else {
     dimchange = ap_environment_dimchange(array->env,a->env);
@@ -702,31 +642,34 @@ ap_abstract1_t ap_abstract1_meet_lincons_array(ap_manager_t* man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 AP_FUNID_MEET_LINCONS_ARRAY,
 				 "environment of array of constraints is not a subset of the environment of the abstract value");
-      res = destructive ? *a : ap_abstract1_copy(man,a);
+      res = destructive ? a : ap_abstract1_copy(man,a);
       return res;
     }
-    array0 = ap_lincons0_array_add_dimensions(&array->lincons0_array,dimchange);
+    ap_lincons0_array_init(array0,array->lincons0_array->discr,0);
+    ap_lincons0_array_add_dimensions(array0,array->lincons0_array,dimchange);
+    parray0 = array0;
   }
-  ap_abstract0_t* value = ap_abstract0_meet_lincons_array(man,destructive,a->abstract0,&array0);
+  ap_abstract0_t* value = ap_abstract0_meet_lincons_array(man,destructive,a->abstract0,parray0);
   if (dimchange){
     ap_dimchange_free(dimchange);
-    ap_lincons0_array_clear(&array0);
+    ap_lincons0_array_clear(array0);
   }
   res = ap_abstract1_consres(destructive, a, value);
   return res;
 }
 
-ap_abstract1_t ap_abstract1_meet_tcons_array(ap_manager_t* man,
+ap_abstract1_t* ap_abstract1_meet_tcons_array(ap_manager_t* man,
 					     bool destructive,
 					     ap_abstract1_t* a, ap_tcons1_array_t* array)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_tcons0_array_t array0;
+  ap_tcons0_array_t* parray0;
   ap_dimchange_t* dimchange;
 
   if (ap_environment_is_eq(a->env,array->env)){
     dimchange = NULL;
-    array0 = array->tcons0_array;
+    parray0 = &array->tcons0_array;
   }
   else {
     dimchange = ap_environment_dimchange(array->env,a->env);
@@ -735,31 +678,33 @@ ap_abstract1_t ap_abstract1_meet_tcons_array(ap_manager_t* man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 AP_FUNID_MEET_TCONS_ARRAY,
 				 "environment of array of constraints is not a subset of the environment of the abstract value");
-      res = destructive ? *a : ap_abstract1_copy(man,a);
+      res = destructive ? a : ap_abstract1_copy(man,a);
       return res;
     }
     array0 = ap_tcons0_array_add_dimensions(&array->tcons0_array,dimchange);
+    parray0 = &array0;
   }
-  ap_abstract0_t* value = ap_abstract0_meet_tcons_array(man,destructive,a->abstract0,&array0);
+  ap_abstract0_t* value = ap_abstract0_meet_tcons_array(man,destructive,a->abstract0,parray0);
+  res = ap_abstract1_consres(destructive, a, value);
   if (dimchange){
     ap_dimchange_free(dimchange);
     ap_tcons0_array_clear(&array0);
   }
-  res = ap_abstract1_consres(destructive, a, value);
   return res;
 }
 
-ap_abstract1_t ap_abstract1_add_ray_array(ap_manager_t* man,
+ap_abstract1_t* ap_abstract1_add_ray_array(ap_manager_t* man,
 					  bool destructive,
-					  ap_abstract1_t* a, ap_generator1_array_t* array)
+					  ap_abstract1_t* a, ap_lingen1_array_t array)
 {
-  ap_abstract1_t res;
-  ap_generator0_array_t array0;
+  ap_abstract1_t* res;
+  ap_lingen0_array_t array0;
+  ap_lingen0_array_ptr parray0;
   ap_dimchange_t* dimchange;
 
   if (ap_environment_is_eq(a->env,array->env)){
     dimchange = NULL;
-    array0 = array->generator0_array;
+    parray0 = array->lingen0_array;
   }
   else {
     dimchange = ap_environment_dimchange(array->env,a->env);
@@ -769,15 +714,17 @@ ap_abstract1_t ap_abstract1_add_ray_array(ap_manager_t* man,
 				 AP_FUNID_ADD_RAY_ARRAY,
 				 "environment of array of generators is not a subset of the environment of the abstract value");
       res = ap_abstract1_top(man,a->env);
-      if (destructive) ap_abstract1_clear(man,a);
+      if (destructive) ap_abstract1_free(man,a);
       return res;
     }
-    array0 = ap_generator0_array_add_dimensions(&array->generator0_array,dimchange);
+    ap_lingen0_array_init(array0,array->lingen0_array->discr,0);
+    ap_lingen0_array_add_dimensions(array0,array->lingen0_array,dimchange);
+    parray0 = array0;
   }
-  ap_abstract0_t* value = ap_abstract0_add_ray_array(man,destructive,a->abstract0,&array0);
+  ap_abstract0_t* value = ap_abstract0_add_ray_array(man,destructive,a->abstract0,parray0);
   if (dimchange){
     ap_dimchange_free(dimchange);
-    ap_generator0_array_clear(&array0);
+    ap_lingen0_array_clear(array0);
   }
   res = ap_abstract1_consres(destructive, a, value);
   return res;
@@ -787,190 +734,173 @@ ap_abstract1_t ap_abstract1_add_ray_array(ap_manager_t* man,
 /* III.2 Assignment and Substitutions */
 /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_asssub_linexpr_array(ap_funid_t funid,
-						 ap_manager_t* man,
-						 bool destructive, ap_abstract1_t* a,
-						 ap_var_t* tvar, ap_linexpr1_t* linexpr, size_t size,
-						 ap_abstract1_t* dest)
+ap_abstract1_t* ap_abstract1_asssub_linexpr_array(ap_funid_t funid,
+						  ap_manager_t* man,
+						  bool destructive, ap_abstract1_t* a,
+						  ap_var_t* tvar, ap_linexpr1_array_t array,
+						  ap_abstract1_t* dest)
 {
+  ap_abstract1_t* res;
+  size_t size = ap_linexpr1_array_size(array);
   if (size==0){
-    if (dest){
-      return ap_abstract1_meet(man,destructive,a,dest);
-    }
-    else if (destructive){
-      return *a;
-    }
-    else {
-      return ap_abstract1_copy(man,a);
-    }
+  ap_abstract1_asssub_linexpr_array_exit:
+    res = (
+	dest ?
+	ap_abstract1_meet(man,destructive,a,dest) :
+	(destructive ? a : ap_abstract1_copy(man,a))
+    );
+    return res;
   }
   else {
-    ap_dim_t* tdim;
-    ap_linexpr0_t** tlinexpr0;
-    ap_abstract1_t res;
+    ap_linexpr0_array_t array0;
+    ap_linexpr0_array_ptr parray0;
     ap_dimchange_t* dimchange;
-    size_t i;
 
-    i = 0;
-    tdim = NULL;
-    tlinexpr0 = NULL;
-    if ( dest==NULL || ap_abstract1_check_env2(funid,man,a,dest)){
-      tdim = malloc(size*sizeof(ap_dim_t));
-      tlinexpr0 = malloc(size*sizeof(ap_linexpr0_t*));
-      for (i=0; i<size; i++){
-	tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
-	if (tdim[i]==AP_DIM_MAX){
-	  ap_abstract1_raise_invalid_var(man,funid,tvar[i]);
-	  goto ap_abstract1_asssub_linexpr_array_exit;
-	}
-	if (ap_environment_is_eq(a->env,linexpr[i].env)){
-	  dimchange = NULL;
-	  tlinexpr0[i] = linexpr[i].linexpr0;
-	}
-	else {
-	  dimchange = ap_environment_dimchange(linexpr[i].env,a->env);
-	  if (dimchange==NULL){
-	    ap_abstract1_raise_invalid_expr(man,funid);
-	    goto ap_abstract1_asssub_linexpr_array_exit;
-	  }
-	  tlinexpr0[i] = ap_linexpr0_add_dimensions(linexpr[i].linexpr0,dimchange);
-	  ap_dimchange_free(dimchange);
-	}
+    ap_dim_t* tdim = malloc(size*sizeof(ap_dim_t));
+    size_t i = 0;
+    for (i=0; i<size; i++){
+      tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
+      if (tdim[i]==AP_DIM_MAX){
+	free(tdim);
+	ap_abstract1_raise_invalid_var(man,funid,tvar[i]);
+	goto ap_abstract1_asssub_linexpr_array_exit;
       }
-      ap_abstract0_t* value = ap_abstract0_asssub_linexpr_array(funid,man,
-								destructive,a->abstract0,
-								tdim, tlinexpr0, size,
-								(dest!=NULL) ? dest->abstract0 : NULL);
-      res = ap_abstract1_consres(destructive, a, value);
+    }
+    if (ap_environment_is_eq(a->env,array->env)){
+      dimchange = NULL;
+      parray0 = array->linexpr0_array;
     }
     else {
-    ap_abstract1_asssub_linexpr_array_exit:
-      res = ap_abstract1_top(man,a->env);
-      if (destructive) ap_abstract1_clear(man,a);
-    }
-    if (tlinexpr0!=NULL){
-      size_t j;
-      for (j=0; j<i; j++){
-	if (tlinexpr0[j]!=linexpr[j].linexpr0)
-	  ap_linexpr0_free(tlinexpr0[j]);
+      dimchange = ap_environment_dimchange(array->env,a->env);
+      if (dimchange==NULL){
+	free(tdim);
+	ap_manager_raise_exception(man,
+				   AP_EXC_INVALID_ARGUMENT,
+				   funid,
+				   "environment of array of linear expressions is not a subset of the environment of the abstract value");
+	goto ap_abstract1_asssub_linexpr_array_exit;
       }
-      free(tlinexpr0);
-      free(tdim);
+      ap_linexpr0_array_init(array0,array->linexpr0_array->discr,0);
+      ap_linexpr0_array_add_dimensions(array0,array->linexpr0_array,dimchange);
+      parray0 = array0;
+    }
+    ap_abstract0_t* value = ap_abstract0_asssub_linexpr_array(
+	funid,man,
+	destructive,a->abstract0,
+	tdim, parray0,
+	(dest!=NULL) ? dest->abstract0 : NULL
+    );
+    res = ap_abstract1_consres(destructive, a, value);
+    free(tdim);
+    if (dimchange){
+      ap_dimchange_free(dimchange);
+      ap_linexpr0_array_clear(array0);
     }
     return res;
   }
 }
-ap_abstract1_t ap_abstract1_assign_linexpr_array(ap_manager_t* man,
-					       bool destructive, ap_abstract1_t* a,
-					       ap_var_t* tvar, ap_linexpr1_t* linexpr, size_t size,
-					       ap_abstract1_t* dest){
-  return ap_abstract1_asssub_linexpr_array(AP_FUNID_ASSIGN_LINEXPR_ARRAY,man,destructive,a,tvar,linexpr,size,dest);
+ap_abstract1_t* ap_abstract1_assign_linexpr_array(ap_manager_t* man,
+						  bool destructive, ap_abstract1_t* a,
+						  ap_var_t* tvar, ap_linexpr1_array_t array,
+						  ap_abstract1_t* dest){
+  return ap_abstract1_asssub_linexpr_array(AP_FUNID_ASSIGN_LINEXPR_ARRAY,man,destructive,a,tvar,array,dest);
 }
-ap_abstract1_t ap_abstract1_substitute_linexpr_array(ap_manager_t* man,
+ap_abstract1_t* ap_abstract1_substitute_linexpr_array(ap_manager_t* man,
 						   bool destructive, ap_abstract1_t* a,
-						   ap_var_t* tvar,  ap_linexpr1_t* linexpr, size_t size,
+						   ap_var_t* tvar, ap_linexpr1_array_t array,
 						   ap_abstract1_t* dest){
-  return ap_abstract1_asssub_linexpr_array(AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,man,destructive,a,tvar,linexpr,size,dest);
+  return ap_abstract1_asssub_linexpr_array(AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,man,destructive,a,tvar,array,dest);
 }
 
-ap_abstract1_t ap_abstract1_asssub_texpr_array(ap_funid_t funid,
-					       ap_manager_t* man,
-					       bool destructive, ap_abstract1_t* a,
-					       ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
-					       ap_abstract1_t* dest)
+ap_abstract1_t* ap_abstract1_asssub_texpr_array(ap_funid_t funid,
+						ap_manager_t* man,
+						bool destructive, ap_abstract1_t* a,
+						ap_var_t* tvar, ap_texpr1_array_t* array,
+						ap_abstract1_t* dest)
 {
+  ap_abstract1_t* res;
+  size_t size = ap_texpr1_array_size(array);
   if (size==0){
-    if (dest){
-      return ap_abstract1_meet(man,destructive,a,dest);
-    }
-    else if (destructive){
-      return *a;
-    }
-    else {
-      return ap_abstract1_copy(man,a);
-    }
+  ap_abstract1_asssub_texpr_array_exit:
+    res = (
+	dest ?
+	ap_abstract1_meet(man,destructive,a,dest) :
+	(destructive ? a : ap_abstract1_copy(man,a))
+    );
   }
   else {
-    ap_dim_t* tdim;
-    ap_texpr0_t** ttexpr0;
-    ap_abstract1_t res;
+    ap_texpr0_array_t array0;
+    ap_texpr0_array_t* parray0;
     ap_dimchange_t* dimchange;
-    size_t i;
 
-    i = 0;
-    tdim = NULL;
-    ttexpr0 = NULL;
-    if ( dest==NULL || ap_abstract1_check_env2(funid,man,a,dest)){
-      tdim = malloc(size*sizeof(ap_dim_t));
-      ttexpr0 = malloc(size*sizeof(ap_texpr0_t*));
-      for (i=0; i<size; i++){
-	tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
-	if (tdim[i]==AP_DIM_MAX){
-	  ap_abstract1_raise_invalid_var(man,funid,tvar[i]);
-	  goto ap_abstract1_asssub_texpr_array_exit;
-	}
-	if (ap_environment_is_eq(a->env,texpr[i].env)){
-	  dimchange = NULL;
-	  ttexpr0[i] = texpr[i].texpr0;
-	}
-	else {
-	  dimchange = ap_environment_dimchange(texpr[i].env,a->env);
-	  if (dimchange==NULL){
-	    ap_abstract1_raise_invalid_expr(man,funid);
-	    goto ap_abstract1_asssub_texpr_array_exit;
-	  }
-	  ttexpr0[i] = ap_texpr0_add_dimensions(texpr[i].texpr0,dimchange);
-	  ap_dimchange_free(dimchange);
-	}
+    ap_dim_t* tdim = malloc(size*sizeof(ap_dim_t));
+    size_t i = 0;
+    for (i=0; i<size; i++){
+      tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
+      if (tdim[i]==AP_DIM_MAX){
+	free(tdim);
+	ap_abstract1_raise_invalid_var(man,funid,tvar[i]);
+	goto ap_abstract1_asssub_texpr_array_exit;
       }
-      ap_abstract0_t* value = ap_abstract0_asssub_texpr_array(funid,man,
-							      destructive,a->abstract0,
-							      tdim, ttexpr0, size,
-							      (dest!=NULL) ? dest->abstract0 : NULL);
-      res = ap_abstract1_consres(destructive, a, value);
+    }
+    if (ap_environment_is_eq(a->env,array->env)){
+      dimchange = NULL;
+      parray0 = &array->texpr0_array;
     }
     else {
-    ap_abstract1_asssub_texpr_array_exit:
-      res = ap_abstract1_top(man,a->env);
-      if (destructive) ap_abstract1_clear(man,a);
-    }
-    if (ttexpr0!=NULL){
-      size_t j;
-      for (j=0; j<i; j++){
-	if (ttexpr0[j]!=texpr[j].texpr0)
-	  ap_texpr0_free(ttexpr0[j]);
+      dimchange = ap_environment_dimchange(array->env,a->env);
+      if (dimchange==NULL){
+	free(tdim);
+	ap_manager_raise_exception(man,
+				   AP_EXC_INVALID_ARGUMENT,
+				   funid,
+				   "environment of array of expressions is not a subset of the environment of the abstract value");
+	goto ap_abstract1_asssub_texpr_array_exit;
       }
-      free(ttexpr0);
-      free(tdim);
+      array0 = ap_texpr0_array_add_dimensions(&array->texpr0_array,dimchange);
+      parray0 = &array0;
     }
-    return res;
+    ap_abstract0_t* value = ap_abstract0_asssub_texpr_array(
+	funid,man,
+	destructive,a->abstract0,
+	tdim, parray0,
+	(dest!=NULL) ? dest->abstract0 : NULL
+    );
+    res = ap_abstract1_consres(destructive, a, value);
+    free(tdim);
+    if (dimchange){
+      ap_dimchange_free(dimchange);
+      ap_texpr0_array_clear(&array0);
+    }
   }
+  return res;
 }
-ap_abstract1_t ap_abstract1_assign_texpr_array(ap_manager_t* man,
-					       bool destructive, ap_abstract1_t* a,
-					       ap_var_t* tvar, ap_texpr1_t* texpr, size_t size,
-					       ap_abstract1_t* dest){
-  return ap_abstract1_asssub_texpr_array(AP_FUNID_ASSIGN_TEXPR_ARRAY,man,destructive,a,tvar,texpr,size,dest);
+
+ap_abstract1_t* ap_abstract1_assign_texpr_array(ap_manager_t* man,
+						bool destructive, ap_abstract1_t* a,
+						ap_var_t* tvar, ap_texpr1_array_t* array,
+						ap_abstract1_t* dest){
+  return ap_abstract1_asssub_texpr_array(AP_FUNID_ASSIGN_TEXPR_ARRAY,man,destructive,a,tvar,array,dest);
 }
-ap_abstract1_t ap_abstract1_substitute_texpr_array(ap_manager_t* man,
-						   bool destructive, ap_abstract1_t* a,
-						   ap_var_t* tvar,  ap_texpr1_t* texpr, size_t size,
-						   ap_abstract1_t* dest){
-  return ap_abstract1_asssub_texpr_array(AP_FUNID_SUBSTITUTE_TEXPR_ARRAY,man,destructive,a,tvar,texpr,size,dest);
+ap_abstract1_t* ap_abstract1_substitute_texpr_array(ap_manager_t* man,
+						    bool destructive, ap_abstract1_t* a,
+						    ap_var_t* tvar, ap_texpr1_array_t* array,
+						    ap_abstract1_t* dest){
+  return ap_abstract1_asssub_texpr_array(AP_FUNID_SUBSTITUTE_TEXPR_ARRAY,man,destructive,a,tvar,array,dest);
 }
 
 /* ============================================================ */
 /* III.3 Projections */
 /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
-					 bool destructive, ap_abstract1_t* a,
-					 ap_var_t* tvar, size_t size,
-					 bool project)
+ap_abstract1_t* ap_abstract1_forget_array(ap_manager_t* man,
+					  bool destructive, ap_abstract1_t* a,
+					  ap_var_t* tvar, size_t size,
+					  bool project)
 {
   ap_dim_t* tdim;
   size_t i;
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
 
   tdim = malloc(size*sizeof(ap_dim_t));
   for (i=0; i<size; i++){
@@ -978,7 +908,7 @@ ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
     if (tdim[i]==AP_DIM_MAX){
       ap_abstract1_raise_invalid_var(man,AP_FUNID_FORGET_ARRAY,tvar[i]);
       res = ap_abstract1_top(man,a->env);
-      if (destructive) ap_abstract1_clear(man,a);
+      if (destructive) ap_abstract1_free(man,a);
       goto ap_abstract1_forget_array_exit;
     }
   }
@@ -989,16 +919,16 @@ ap_abstract1_t ap_abstract1_forget_array(ap_manager_t* man,
   return res;
 }
 
-/* ============================================================ */
-/* III.4 Change of environnement */
-/* ============================================================ */
+  /* ============================================================ */
+  /* III.4 Change of environnement */
+  /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
-					       bool destructive, ap_abstract1_t* a,
-					       ap_environment_t* nenv,
-					       bool project)
+ap_abstract1_t* ap_abstract1_change_environment(ap_manager_t* man,
+						bool destructive, ap_abstract1_t* a,
+						ap_environment_t* nenv,
+						bool project)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_dimchange2_t* dimchange2;
   ap_abstract0_t* value;
 
@@ -1008,21 +938,21 @@ ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
 			       AP_FUNID_CHANGE_ENVIRONMENT,
 			       "the abstract value and the new environment are incompatible");
     res = ap_abstract1_top(man,nenv);
-    if (destructive) ap_abstract1_clear(man,a);
+    if (destructive) ap_abstract1_free(man,a);
     return res;
   }
   value = ap_abstract0_apply_dimchange2(man,destructive,a->abstract0,dimchange2,project);
   ap_dimchange2_free(dimchange2);
-  res = ap_abstract1_consres2(destructive, 
+  res = ap_abstract1_consres2(destructive,
 			      a, value, ap_environment_copy(nenv));
   return res;
 }
 
-ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
-						 bool destructive,
-						 ap_abstract1_t* a)
+ap_abstract1_t* ap_abstract1_minimize_environment(ap_manager_t* man,
+						  bool destructive,
+						  ap_abstract1_t* a)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_environment_t* env;
   ap_var_t* tvar;
   ap_dimension_t dim;
@@ -1030,7 +960,7 @@ ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
   ap_var_t var;
 
   dim = ap_abstract0_dimension(man,a->abstract0);
-  size = dim.intd+dim.reald;
+  size = ap_dimension_size(dim);
   tvar = malloc(size*sizeof(ap_var_t));
   nbdims = 0;
   for (i=0; i<size;i++){
@@ -1042,10 +972,11 @@ ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
     }
   }
   if (nbdims==0){ /* No change */
-    res = destructive ? *a : ap_abstract1_copy(man,a);
+    res = destructive ? a : ap_abstract1_copy(man,a);
   } else {
     env = ap_environment_remove(a->env,tvar,nbdims);
     if (env==NULL){
+      free(tvar);
       fprintf(stderr,"ap_abstract1.c: ap_abstract1_minimize_environment: internal error\n");
       abort();
     }
@@ -1056,12 +987,12 @@ ap_abstract1_t ap_abstract1_minimize_environment(ap_manager_t* man,
   return res;
 }
 
-ap_abstract1_t ap_abstract1_rename_array(ap_manager_t* man,
-					 bool destructive,
-					 ap_abstract1_t* a,
-					 ap_var_t* tvar1, ap_var_t* tvar2, size_t size)
+ap_abstract1_t* ap_abstract1_rename_array(ap_manager_t* man,
+					  bool destructive,
+					  ap_abstract1_t* a,
+					  ap_var_t* tvar1, ap_var_t* tvar2, size_t size)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_dimperm_t perm;
   ap_environment_t* env;
   ap_abstract0_t* value;
@@ -1073,7 +1004,7 @@ ap_abstract1_t ap_abstract1_rename_array(ap_manager_t* man,
 			       AP_FUNID_RENAME_ARRAY,
 			       "renaming specification invalid");
     res = ap_abstract1_top(man,a->env);
-    if (destructive) ap_abstract1_clear(man,a);
+    if (destructive) ap_abstract1_free(man,a);
   }
   else {
     value = ap_abstract0_permute_dimensions(man,destructive,a->abstract0,&perm);
@@ -1087,22 +1018,22 @@ ap_abstract1_t ap_abstract1_rename_array(ap_manager_t* man,
 /* III.5 Expansion and folding of dimensions */
 /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
-				   bool destructive,
-				   ap_abstract1_t* a,
-				   ap_var_t var,
-				   ap_var_t* tvar,
-				   size_t size)
+ap_abstract1_t* ap_abstract1_expand(ap_manager_t* man,
+				    bool destructive,
+				    ap_abstract1_t* a,
+				    ap_var_t var,
+				    ap_var_t* tvar,
+				    size_t size)
 {
   ap_dim_t dim;
   ap_dimperm_t perm;
   ap_environment_t* nenv;
   ap_abstract0_t* value;
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
 
   /* particular case */
   if (size==0){
-    res = destructive ? *a : ap_abstract1_copy(man,a);
+    res = destructive ? a : ap_abstract1_copy(man,a);
     return res;
   }
   /* Getting the dimension to expand */
@@ -1111,7 +1042,7 @@ ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
     ap_abstract1_raise_invalid_var(man,AP_FUNID_EXPAND,var);
   ap_abstract1_expand_exit:
     res = ap_abstract1_top(man,a->env);
-    if (destructive) ap_abstract1_clear(man,a);
+    if (destructive) ap_abstract1_free(man,a);
     return res;
   }
   /* Doing the expansion at level 0 */
@@ -1142,11 +1073,11 @@ static int compar_dim(const void* a, const void* b)
   int vb = *((ap_dim_t*)b);
   return (va-vb);
 }
-ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
-				 bool destructive, ap_abstract1_t* a,
-				 ap_var_t* tvar, size_t size)
+ap_abstract1_t* ap_abstract1_fold(ap_manager_t* man,
+				  bool destructive, ap_abstract1_t* a,
+				  ap_var_t* tvar, size_t size)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_dim_t* tdim;
   ap_environment_t* nenv;
   size_t i;
@@ -1159,11 +1090,11 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
 			       "array of variables to fold of size 0");
   ap_abstract1_fold_exit:
     res = ap_abstract1_top(man,a->env);
-    if (destructive) ap_abstract1_clear(man,a);
+    if (destructive) ap_abstract1_free(man,a);
     return res;
   }
   else if (size==1){
-    res = destructive ? *a : ap_abstract1_copy(man,a);
+    res = destructive ? a : ap_abstract1_copy(man,a);
     return res;
   }
 
@@ -1185,8 +1116,8 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
   for (i=1; i<size; i++){
     tdim[i] = ap_environment_dim_of_var(a->env, tvar[i]);
     if (tdim[i]==AP_DIM_MAX){
-      ap_abstract1_raise_invalid_var(man,AP_FUNID_FOLD,tvar[i]);
       free(tdim);
+      ap_abstract1_raise_invalid_var(man,AP_FUNID_FOLD,tvar[i]);
       goto ap_abstract1_fold_exit;
     }
   }
@@ -1197,28 +1128,28 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
     size_t rank;
     /* We have the following situation
 
-    Initially:
-    env: A B C D E F G
-    dim: 0 1 2 3 4 5 6
-    gen: a b c d e f g
-    We fold with F,B,D, translated to [5,1,3] and reordered to [1,3,5]
-    env: A C E F G
-    dim: 0 1 2 3 4
-    gen: a b c e g
-	 a d c e g
-	 a f c e g
-    We need now to apply the permutation
-    rank: 0 1 2 3 4
-    perm: 0 2 3 1 4
+       Initially:
+       env: A B C D E F G
+       dim: 0 1 2 3 4 5 6
+       gen: a b c d e f g
+       We fold with F,B,D, translated to [5,1,3] and reordered to [1,3,5]
+       env: A C E F G
+       dim: 0 1 2 3 4
+       gen: a b c e g
+       a d c e g
+       a f c e g
+       We need now to apply the permutation
+       rank: 0 1 2 3 4
+       perm: 0 2 3 1 4
 
-    var: Y Z Q
-    dim: 0 1 2
-    gen: b a e
-	 b c e
-	 b d e
+       var: Y Z Q
+       dim: 0 1 2
+       gen: b a e
+       b c e
+       b d e
 
-    So we have to perform a to the right between dim[0] and dim-(rank of dim in
-    tdim)
+       So we have to perform a to the right between dim[0] and dim-(rank of dim in
+       tdim)
     */
     /* look for the position of dim in tdim array */
     void* p = bsearch(&dim,&tdim[1],size-1,sizeof(ap_dim_t),compar_dim);
@@ -1228,9 +1159,9 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
     ap_dimperm_init(&perm, nenv->dim.intd+nenv->dim.reald);
     ap_dimperm_set_id(&perm);
     for (rank=tdim[0]; rank<dim-index; rank++){
-      perm.dim[rank] = rank+1;
+      perm.p[rank] = rank+1;
     }
-    perm.dim[dim-index] = tdim[0];
+    perm.p[dim-index] = tdim[0];
   }
 
   /* Perform the operation */
@@ -1250,13 +1181,15 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
 /* ============================================================ */
 
 /* Widening */
-ap_abstract1_t ap_abstract1_widening(ap_manager_t* man,
-				     ap_abstract1_t* a1, ap_abstract1_t* a2)
+ap_abstract1_t* ap_abstract1_widening(ap_manager_t* man,
+				      ap_abstract1_t* a1, ap_abstract1_t* a2)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   if (ap_abstract1_check_env2(AP_FUNID_WIDENING,man,a1,a2)){
-    res.abstract0 = ap_abstract0_widening(man,a1->abstract0,a2->abstract0);
-    res.env = ap_environment_copy(a1->env);
+    res = ap_abstract1_cons(
+	ap_abstract0_widening(man,a1->abstract0,a2->abstract0),
+	a1->env
+    );
   }
   else {
     res = ap_abstract1_top(man,a1->env);
@@ -1264,44 +1197,48 @@ ap_abstract1_t ap_abstract1_widening(ap_manager_t* man,
   return res;
 }
 /* Widening with threshold */
-ap_abstract1_t ap_abstract1_widening_threshold(ap_manager_t* man,
-					       ap_abstract1_t* a1, ap_abstract1_t* a2,
-					       ap_lincons1_array_t* array)
+ap_abstract1_t* ap_abstract1_widening_threshold(ap_manager_t* man,
+						ap_abstract1_t* a1, ap_abstract1_t* a2,
+						ap_lincons1_array_t array)
 {
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
   ap_lincons0_array_t array0;
+  ap_lincons0_array_ptr parray0;
   ap_dimchange_t* dimchange;
 
-  if (ap_environment_is_eq(a1->env,array->env)){
-    dimchange=NULL;
-    array0 = array->lincons0_array;
-  }
-  else {
-    dimchange = ap_environment_dimchange(array->env,a1->env);
-    if (dimchange==NULL){
-      ap_manager_raise_exception(man,
-				 AP_EXC_INVALID_ARGUMENT,
-				 AP_FUNID_MEET_LINCONS_ARRAY,
-				 "\
-environment of array of constraints is not a subset \
-of the environment of the abstract value\
-"
-				 );
-      res = ap_abstract1_top(man,a1->env);
-      return res;
-    }
-    array0 = ap_lincons0_array_add_dimensions(&array->lincons0_array,dimchange);
-  }
   if (ap_abstract1_check_env2(AP_FUNID_WIDENING,man,a1,a2)){
-    ap_abstract0_t* value = ap_abstract0_widening_threshold(man,a1->abstract0,a2->abstract0,&array0);
+    if (ap_environment_is_eq(a1->env,array->env)){
+      dimchange = NULL;
+      parray0 = array->lincons0_array;
+    }
+    else {
+      dimchange = ap_environment_dimchange(array->env,a1->env);
+      if (dimchange==NULL){
+	ap_manager_raise_exception(man,
+				   AP_EXC_INVALID_ARGUMENT,
+				   AP_FUNID_WIDENING,
+				   "environment of array of constraints is not a subset of the environment of the abstract value");
+	res = ap_abstract1_cons(
+	    ap_abstract0_widening(man,a1->abstract0,a2->abstract0),
+	    a1->env
+	);
+	return res;
+      }
+      ap_lincons0_array_init(array0,array->lincons0_array->discr,0);
+      ap_lincons0_array_add_dimensions(array0,array->lincons0_array,dimchange);
+      parray0 = array0;
+    }
+    ap_abstract0_t* value = ap_abstract0_widening_threshold(
+	man,a1->abstract0,a2->abstract0,parray0
+    );
+    if (dimchange){
+      ap_dimchange_free(dimchange);
+      ap_lincons0_array_clear(array0);
+    }
     res = ap_abstract1_cons(value,a1->env);
   }
   else {
     res = ap_abstract1_top(man,a1->env);
-  }
-  if (dimchange){
-    ap_dimchange_free(dimchange);
-    ap_lincons0_array_clear(&array0);
   }
   return res;
 }
@@ -1310,7 +1247,7 @@ of the environment of the abstract value\
 /* III.7 Closure operation */
 /* ============================================================ */
 
-ap_abstract1_t ap_abstract1_closure(ap_manager_t* man, bool destructive, ap_abstract1_t* a)
+ap_abstract1_t* ap_abstract1_closure(ap_manager_t* man, bool destructive, ap_abstract1_t* a)
 {
   ap_abstract0_t* value;
   value = ap_abstract0_closure(man,destructive,a->abstract0);
@@ -1322,20 +1259,20 @@ ap_abstract1_t ap_abstract1_closure(ap_manager_t* man, bool destructive, ap_abst
 /* ============================================================ */
 
 /* These two function abstract a set of constraints */
-ap_abstract1_t ap_abstract1_of_lincons_array(ap_manager_t* man,
-					     ap_environment_t* env,
-					     ap_lincons1_array_t* array)
+ap_abstract1_t* ap_abstract1_of_lincons_array(ap_manager_t* man,
+					      ap_environment_t* env,
+					      ap_lincons1_array_t array)
 {
-  ap_abstract1_t res = ap_abstract1_top(man,env);
-  res = ap_abstract1_meet_lincons_array(man,true,&res,array);
+  ap_abstract1_t* res = ap_abstract1_top(man,env);
+  res = ap_abstract1_meet_lincons_array(man,true,res,array);
   return res;
 }
-ap_abstract1_t ap_abstract1_of_tcons_array(ap_manager_t* man,
-					     ap_environment_t* env,
-					     ap_tcons1_array_t* array)
+ap_abstract1_t* ap_abstract1_of_tcons_array(ap_manager_t* man,
+					    ap_environment_t* env,
+					    ap_tcons1_array_t* array)
 {
-  ap_abstract1_t res = ap_abstract1_top(man,env);
-  res = ap_abstract1_meet_tcons_array(man,true,&res,array);
+  ap_abstract1_t* res = ap_abstract1_top(man,env);
+  res = ap_abstract1_meet_tcons_array(man,true,res,array);
   return res;
 }
 
@@ -1343,37 +1280,93 @@ ap_abstract1_t ap_abstract1_of_tcons_array(ap_manager_t* man,
   These four functions implement assignment and substitution of a single
   dimension by a single expression.
 */
-ap_abstract1_t ap_abstract1_assign_linexpr(ap_manager_t* man,
-					   bool destructive, ap_abstract1_t* a,
-					   ap_var_t var, ap_linexpr1_t* expr,
-					   ap_abstract1_t* dest){
-  return ap_abstract1_asssub_linexpr_array(AP_FUNID_ASSIGN_LINEXPR_ARRAY,man,destructive,a,&var,expr,1,dest);
+ap_abstract1_t* ap_abstract1_asssub_linexpr(ap_funid_t funid,
+					    ap_manager_t* man,
+					    bool destructive,
+					    ap_abstract1_t* a,
+					    ap_var_t var, ap_linexpr1_t expr,
+					    ap_abstract1_t* dest)
+{
+  ap_abstract1_t* res;
+  ap_linexpr1_array_t array;
+  ap_linexpr0_array_ptr array0;
+  ap_linexprD_array_t arrayD;
+  ap_linexprMPQ_array_t arrayMPQ;
+  ap_linexprMPFR_array_t arrayMPFR;
+
+  array->env = expr->env;
+
+  array0 = array->linexpr0_array;
+  array0->discr = expr->linexpr0->discr;
+  switch (array0->discr){
+  case AP_SCALAR_D:
+    array0->linexpr_array.D = arrayD;
+    arrayD->size = 1;
+    arrayD->p = (ap_linexprD_t*)&(expr->linexpr0->linexpr.D);
+    break;
+  case AP_SCALAR_MPQ:
+    array0->linexpr_array.MPQ = arrayMPQ;
+    arrayMPQ->size = 1;
+    arrayMPQ->p = (ap_linexprMPQ_t*)&(expr->linexpr0->linexpr.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    array0->linexpr_array.MPFR = arrayMPFR;
+    arrayMPFR->size = 1;
+    arrayMPFR->p = (ap_linexprMPFR_t*)&(expr->linexpr0->linexpr.MPFR);
+    break;
+  default:
+    abort();
+  }
+  return ap_abstract1_asssub_linexpr_array(funid,
+					   man,destructive,a,&var,array,dest);
 }
-ap_abstract1_t ap_abstract1_substitute_linexpr(ap_manager_t* man,
-					       bool destructive, ap_abstract1_t* a,
-					       ap_var_t var, ap_linexpr1_t* expr,
-					       ap_abstract1_t* dest){
-  return ap_abstract1_asssub_linexpr_array(AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,man,destructive,a,&var,expr,1,dest);
+ap_abstract1_t* ap_abstract1_assign_linexpr(ap_manager_t* man,
+					    bool destructive,
+					    ap_abstract1_t* a,
+					    ap_var_t var, ap_linexpr1_t expr,
+					    ap_abstract1_t* dest)
+{
+  return ap_abstract1_asssub_linexpr(AP_FUNID_ASSIGN_LINEXPR_ARRAY,
+				     man,destructive,a,var,expr,dest);
 }
-ap_abstract1_t ap_abstract1_assign_texpr(ap_manager_t* man,
-					 bool destructive, ap_abstract1_t* a,
-					 ap_var_t var, ap_texpr1_t* expr,
-					 ap_abstract1_t* dest){
-  return ap_abstract1_asssub_texpr_array(AP_FUNID_ASSIGN_TEXPR_ARRAY,man,destructive,a,&var,expr,1,dest);
+ap_abstract1_t* ap_abstract1_substitute_linexpr(ap_manager_t* man,
+						bool destructive,
+						ap_abstract1_t* a,
+						ap_var_t var, ap_linexpr1_t expr,
+						ap_abstract1_t* dest)
+{
+  return ap_abstract1_asssub_linexpr(AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,
+				     man,destructive,a,var,expr,dest);
 }
-ap_abstract1_t ap_abstract1_substitute_texpr(ap_manager_t* man,
-					     bool destructive, ap_abstract1_t* a,
-					     ap_var_t var, ap_texpr1_t* expr,
-					     ap_abstract1_t* dest){
-  return ap_abstract1_asssub_texpr_array(AP_FUNID_SUBSTITUTE_TEXPR_ARRAY,man,destructive,a,&var,expr,1,dest);
+ap_abstract1_t* ap_abstract1_assign_texpr(ap_manager_t* man,
+					  bool destructive, ap_abstract1_t* a,
+					  ap_var_t var, ap_texpr1_t* expr,
+					  ap_abstract1_t* dest)
+{
+  ap_texpr1_array_t array;
+  array.texpr0_array.size = 1;
+  array.texpr0_array.p = &expr->texpr0;
+  array.env = expr->env;
+  return ap_abstract1_asssub_texpr_array(AP_FUNID_ASSIGN_TEXPR_ARRAY,man,destructive,a,&var,&array,dest);
+}
+ap_abstract1_t* ap_abstract1_substitute_texpr(ap_manager_t* man,
+					      bool destructive, ap_abstract1_t* a,
+					      ap_var_t var, ap_texpr1_t* expr,
+					      ap_abstract1_t* dest)
+{
+  ap_texpr1_array_t array;
+  array.texpr0_array.size = 1;
+  array.texpr0_array.p = &expr->texpr0;
+  array.env = expr->env;
+  return ap_abstract1_asssub_texpr_array(AP_FUNID_SUBSTITUTE_TEXPR_ARRAY,man,destructive,a,&var,&array,dest);
 }
 
 /* Unify two abstract values on their common variables, that is, embed them
    on the least common environment and then compute their meet. The result is
    defined on the least common environment. */
-ap_abstract1_t ap_abstract1_unify(ap_manager_t* man,
-				  bool destructive,
-				  ap_abstract1_t* a1,ap_abstract1_t* a2)
+ap_abstract1_t* ap_abstract1_unify(ap_manager_t* man,
+				   bool destructive,
+				   ap_abstract1_t* a1,ap_abstract1_t* a2)
 {
   ap_dimchange_t* dimchange1;
   ap_dimchange_t* dimchange2;
@@ -1381,21 +1374,18 @@ ap_abstract1_t ap_abstract1_unify(ap_manager_t* man,
   ap_abstract0_t* value1;
   ap_abstract0_t* value2;
   ap_abstract0_t* value;
-  ap_abstract1_t res;
+  ap_abstract1_t* res;
 
   if (ap_environment_is_eq(a1->env,a2->env)){
     return ap_abstract1_meet(man,destructive,a1,a2);
   }
   env = ap_environment_lce(a1->env,a2->env,&dimchange1,&dimchange2);
   if (env==NULL){
-   ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_UNKNOWN,
-			      "\
-ap_abstract1_unify: a variable is defined with different types \
+    ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_UNKNOWN,
+			       "\
+ap_abstract1_unify: a variable is defined with different types  \
 in the two abstract values");
-   if (destructive)
-     return *a1;
-   else
-     return ap_abstract1_copy(man,a1);
+    return destructive ? a1 : ap_abstract1_copy(man,a1);
   }
   assert(dimchange1 || dimchange2);
 
@@ -1421,82 +1411,87 @@ in the two abstract values");
   return res;
 }
 
+/* /\* Evaluate the interval linear expression expr on the abstract value a and */
+/*    approximate it by a quasilinear expression. discr indicates which type of */
+/*    numbers should be used for computations. */
 
-/* Evaluate the interval linear expression expr on the abstract value a and
-   approximate it by a quasilinear expression. discr indicates which type of
-   numbers should be used for computations.
+/*    This implies calls to ap_abstract0_bound_dimension. *\/ */
 
-   This implies calls to ap_abstract0_bound_dimension. */
+/* void ap_abstract1_quasilinear_of_intlinear( */
+/*     ap_manager_t* man, */
+/*     ap_linexpr1_t res, ap_abstract1_t* a, ap_linexpr1_t expr, ap_scalar_discr_t discr) */
+/* { */
+/*   ap_linexpr0_t linexpr0; */
+/*   ap_linexpr0_ptr plinexpr0; */
+/*   ap_dimchange_t* dimchange; */
+/*   bool exact; */
 
-ap_linexpr1_t ap_abstract1_quasilinear_of_intlinear (ap_manager_t* man, ap_abstract1_t* a, ap_linexpr1_t* expr, ap_scalar_discr_t discr)
-{
-  ap_linexpr0_t* linexpr0;
-  ap_dimchange_t* dimchange;
-  ap_linexpr1_t res;
-  bool exact;
+/*   if (ap_environment_is_eq(a->env,expr->env)){ */
+/*     dimchange = NULL; */
+/*     plinexpr0 = expr->linexpr0; */
+/*   } */
+/*   else { */
+/*     dimchange = ap_environment_dimchange(expr->env,a->env); */
+/*     if (dimchange==NULL){ */
+/*       ap_abstract1_raise_invalid_expr(man,AP_FUNID_UNKNOWN); */
+/*       goto ap_abstract1_quasilinear_of_intlinear_exit; */
+/*     } */
+/*     ap_linexpr0_add_dimensions(linexpr0,expr->linexpr0,dimchange); */
+/*     plinexpr0 = linexpr0; */
+/*   } */
+/*   ap_quasilinearize_linexpr0(man,res->linexpr0,a->abstract0->value,plinexpr0,&exact,discr); */
+/*   res->env = ap_environment_copy(a->env); */
+/*   if (dimchange){ */
+/*     ap_dimchange_free(dimchange); */
+/*     ap_linexpr0_clear(linexpr0); */
+/*   } */
+/*   return res; */
+/*  ap_abstract1_quasilinear_of_intlinear_exit: */
+/*   ap_linexpr0_resize(res,0); */
+/*   { */
+/*     ap_coeff_ptr pcoeff; */
+/*     ap_linexpr0_cstref(pcoeff,res); */
+/*     ap_coeff_set_top(pcoeff); */
+/*   } */
+/*   return res; */
+/* } */
 
-  if (ap_environment_is_eq(a->env,expr->env)){
-    dimchange = NULL;
-    linexpr0 = expr->linexpr0;
-  }
-  else {
-    dimchange = ap_environment_dimchange(expr->env,a->env);
-    if (dimchange==NULL){
-      ap_abstract1_raise_invalid_expr(man,AP_FUNID_UNKNOWN);
-      goto ap_abstract1_quasilinear_of_intlinear_exit;
-    }
-    linexpr0 = ap_linexpr0_add_dimensions(expr->linexpr0,dimchange);
-  }
-  res.linexpr0 = ap_quasilinearize_linexpr0(man,a->abstract0->value,linexpr0,&exact,discr);
-  res.env = ap_environment_copy(a->env);
-  if (dimchange){
-    ap_dimchange_free(dimchange);
-    ap_linexpr0_free(linexpr0);
-  }
-  return res;
- ap_abstract1_quasilinear_of_intlinear_exit:
-  res.linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,0);
-  res.env = ap_environment_copy(a->env);
-  ap_coeff_set_interval_top(&res.linexpr0->cst);
-  return res;
-}
+/* /\* Evaluate the tree expression expr on the abstract value a and approximate it */
+/*    by an interval linear (resp. quasilinear if quasilinearize is true) */
+/*    expression. discr indicates which type of numbers should be used for */
+/*    computations. */
 
-/* Evaluate the tree expression expr on the abstract value a and approximate it
-   by an interval linear (resp. quasilinear if quasilinearize is true)
-   expression. discr indicates which type of numbers should be used for
-   computations.
+/*    This implies calls to ap_abstract0_bound_dimension. *\/ */
 
-   This implies calls to ap_abstract0_bound_dimension. */
+/* ap_linexpr1_t ap_abstract1_intlinear_of_tree(ap_manager_t* man, ap_abstract1_t* a, ap_texpr1_t* expr, ap_scalar_discr_t discr, bool quasilinearize) */
+/* { */
+/*   ap_texpr0_t* texpr0; */
+/*   ap_dimchange_t* dimchange; */
+/*   ap_linexpr1_t res; */
+/*   bool exact; */
 
-ap_linexpr1_t ap_abstract1_intlinear_of_tree(ap_manager_t* man, ap_abstract1_t* a, ap_texpr1_t* expr, ap_scalar_discr_t discr, bool quasilinearize)
-{
-  ap_texpr0_t* texpr0;
-  ap_dimchange_t* dimchange;
-  ap_linexpr1_t res;
-  bool exact;
-
-  if (ap_environment_is_eq(a->env,expr->env)){
-    dimchange = NULL;
-    texpr0 = expr->texpr0;
-  }
-  else {
-    dimchange = ap_environment_dimchange(expr->env,a->env);
-    if (dimchange==NULL){
-      ap_abstract1_raise_invalid_expr(man,AP_FUNID_UNKNOWN);
-      goto ap_abstract1_quasilinear_of_intlinear_exit;
-    }
-    texpr0 = ap_texpr0_add_dimensions(expr->texpr0,dimchange);
-  }
-  res.linexpr0 = ap_intlinearize_texpr0(man,a->abstract0->value,texpr0,&exact,discr,quasilinearize);
-  res.env = ap_environment_copy(a->env);
-  if (dimchange){
-    ap_dimchange_free(dimchange);
-    ap_texpr0_free(texpr0);
-  }
-  return res;
- ap_abstract1_quasilinear_of_intlinear_exit:
-  res.linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,0);
-  res.env = ap_environment_copy(a->env);
-  ap_coeff_set_interval_top(&res.linexpr0->cst);
-  return res;
-}
+/*   if (ap_environment_is_eq(a->env,expr->env)){ */
+/*     dimchange = NULL; */
+/*     texpr0 = expr->texpr0; */
+/*   } */
+/*   else { */
+/*     dimchange = ap_environment_dimchange(expr->env,a->env); */
+/*     if (dimchange==NULL){ */
+/*       ap_abstract1_raise_invalid_expr(man,AP_FUNID_UNKNOWN); */
+/*       goto ap_abstract1_quasilinear_of_intlinear_exit; */
+/*     } */
+/*     texpr0 = ap_texpr0_add_dimensions(expr->texpr0,dimchange); */
+/*   } */
+/*   res.linexpr0 = ap_intlinearize_texpr0(man,a->abstract0->value,texpr0,&exact,discr,quasilinearize); */
+/*   res.env = ap_environment_copy(a->env); */
+/*   if (dimchange){ */
+/*     ap_dimchange_free(dimchange); */
+/*     ap_texpr0_free(texpr0); */
+/*   } */
+/*   return res; */
+/*  ap_abstract1_quasilinear_of_intlinear_exit: */
+/*   res.linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,0); */
+/*   res.env = ap_environment_copy(a->env); */
+/*   ap_coeff_set_interval_top(&res.linexpr0->cst); */
+/*   return res; */
+/* } */

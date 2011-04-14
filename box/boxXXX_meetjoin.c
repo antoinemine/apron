@@ -29,7 +29,7 @@ boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   man->result.flag_best = true;
   man->result.flag_exact = true;
   res = destructive ? a1 : boxXXX_alloc(a1->dim);
-  if (a1->p==NULL || a2->p==NULL){
+  if (a1->e->linterm==NULL || a2->e->linterm==NULL){
     boxXXX_set_bottom(res);
     return res;
   }
@@ -38,7 +38,7 @@ boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   }
   nbdims = a1->dim.intd + a1->dim.reald;
   for (i=0; i<nbdims; i++){
-    exc = eitvXXX_meet(res->p[i],a1->p[i],a2->p[i],intern->num);
+    exc = eitvXXX_meet(res->e->linterm[i]->eitv,a1->e->linterm[i]->eitv,a2->e->linterm[i]->eitv,intern->num);
     if (exc){
       boxXXX_set_bottom(res);
       break;
@@ -56,14 +56,14 @@ boxXXX_t* boxXXX_join(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   man->result.flag_best = true;
   man->result.flag_exact = false;
   res = destructive ? a1 : boxXXX_alloc(a1->dim);
-  if (a1->p==NULL){
-    if (a2->p!=NULL){
+  if (a1->e->linterm==NULL){
+    if (a2->e->linterm!=NULL){
       man->result.flag_exact = true;
       boxXXX_set(res,a2);
     }
     return res;
   }
-  else if (a2->p==NULL){
+  else if (a2->e->linterm==NULL){
     man->result.flag_exact = true;
     if (!destructive) boxXXX_set(res,a1);
     return res;
@@ -74,7 +74,7 @@ boxXXX_t* boxXXX_join(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   }
   nbdims = a1->dim.intd + a2->dim.reald;
   for (i=0; i<nbdims; i++){
-    eitvXXX_join(res->p[i],a1->p[i],a2->p[i]);
+    eitvXXX_join(res->e->linterm[i]->eitv,a1->e->linterm[i]->eitv,a2->e->linterm[i]->eitv);
   }
   return res;
 }
@@ -86,7 +86,7 @@ boxXXX_t* boxXXX_meet_array(ap_manager_t* man, boxXXX_t** tab, size_t size)
   res = boxXXX_copy(man,tab[0]);
   for (i=1;i<size;i++){
     boxXXX_meet(man,true,res,tab[i]);
-    if (res->p==NULL) break;
+    if (res->e->linterm==NULL) break;
   }
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -122,7 +122,7 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
   man->result.flag_best = true;
   man->result.flag_exact = false;
   res = destructive ? a : boxXXX_copy(man,a);
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     man->result.flag_exact = true;
     return res;
   }
@@ -138,12 +138,12 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 	  assert(eitvref->eq);
 	  int sgn = boundZZZ_sgn(eitvref->itv->sup);
 	  if (sgn!=0){
-	    res->p[dim]->eq = false;
+	    res->e->linterm[dim]->eitv->eq = false;
 	    if (sgn>0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(res->p[dim]->itv->sup,1);
+	      boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->sup,1);
 	    }
 	    if (sgn<0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(res->p[dim]->itv->neginf,1);
+	      boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->neginf,1);
 	    }
 	  }
 	}
@@ -175,7 +175,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
 
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     boxXXX_set_bottom(a);
     return false;
   }
@@ -192,7 +192,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     /* We save the linterm */
     eitvXXX_swap(intern->meet_lincons_internal_itv2,peitv);
     /* 2. evaluate e' */
-    ap_linexprXXX_eval(intern->meet_lincons_internal_itv3,expr,a->p,intern->num);
+    ap_linexprXXX_eval(intern->meet_lincons_internal_itv3,expr,a->e,intern->num);
     change = false;
     if (!eitvXXX_is_top(intern->meet_lincons_internal_itv3)){
       if (intern->meet_lincons_internal_itv2->eq){
@@ -222,9 +222,9 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 			intern->meet_lincons_internal_itv2->itv->neginf);
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->e->linterm[dim]->eitv->itv->neginf)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->itv->neginf, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->e->linterm[dim]->eitv->itv->neginf, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	  if (sgn<0 || cons->constyp == AP_CONS_EQ){
@@ -243,9 +243,9 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 			intern->meet_lincons_internal_itv2->itv->sup);
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->e->linterm[dim]->eitv->itv->sup)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->itv->sup, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->e->linterm[dim]->eitv->itv->sup, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	}
@@ -314,9 +314,9 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->neginf)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->e->linterm[dim]->eitv->itv->neginf)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->itv->neginf, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->e->linterm[dim]->eitv->itv->neginf, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	  if (sgncoeff<0 || (cons->constyp==AP_CONS_EQ && sgncoeff>0)){
@@ -352,9 +352,9 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
 	      }
 	    }
 	    /* We update the interval */
-	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->p[dim]->itv->sup)<0){
+	    if (boundXXX_cmp(intern->meet_lincons_internal_bound, a->e->linterm[dim]->eitv->itv->sup)<0){
 	      change = true;
-	      boundXXX_set(a->p[dim]->itv->sup, intern->meet_lincons_internal_bound);
+	      boundXXX_set(a->e->linterm[dim]->eitv->itv->sup, intern->meet_lincons_internal_bound);
 	    }
 	  }
 	}
@@ -363,7 +363,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     eitvXXX_swap(intern->meet_lincons_internal_itv2,peitv);
     if (change){
       globalchange = true;
-      exc = eitvXXX_canonicalize(a->p[dim],dim<a->dim.intd,intern->num);
+      exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,dim<a->dim.intd,intern->num);
       if (exc){
 	boxXXX_set_bottom(a);
 	goto _boxXXX_meet_boxXXX_lincons_exit;
@@ -409,7 +409,7 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
   boxXXX_internal_t* intern = (boxXXX_internal_t*)man->internal;
 
   res = destructive ? a : boxXXX_copy(man,a);
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     man->result.flag_best = true;
     man->result.flag_exact = true;
   }
@@ -425,10 +425,10 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
     if (tb==tbool_false){
       goto _boxXXX_meet_lincons_array_bottom;
     }
-    ap_linconsXXX_array_boxize(res->p,NULL,
-			       tlincons,res->p,a->dim.intd,kmax,false,
+    ap_linconsXXX_array_boxize(res->e,NULL,
+			       tlincons,res->e,a->dim.intd,kmax,false,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->p[0],intern->num)){
+    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv,intern->num)){
     _boxXXX_meet_lincons_array_bottom:
       boxXXX_set_bottom(res);
     }
@@ -448,7 +448,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
   ap_linconsXXX_array_t tlincons;
 
   res = destructive ? a : boxXXX_copy(man,a);
-  if (a->p==NULL){
+  if (a->e->linterm==NULL){
     man->result.flag_best = true;
     man->result.flag_exact = true;
   }
@@ -460,16 +460,16 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
 
     ap_linconsXXX_array_init(tlincons,0);
     ap_linconsXXX_array_intlinearize_tcons0_array(tlincons,array,
-						  res->p,res->dim.intd,
+						  res->e,res->dim.intd,
 						  intern->num);
     tbool_t tb = ap_linconsXXX_array_reduce_integer(tlincons,a->dim.intd,intern->num);
     if (tb==tbool_false){
       goto _boxXXX_meet_tcons_array_bottom;
     }
-    ap_linconsXXX_array_boxize(res->p,NULL,
-			       tlincons,res->p,a->dim.intd,kmax,false,
+    ap_linconsXXX_array_boxize(res->e,NULL,
+			       tlincons,res->e,a->dim.intd,kmax,false,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->p[0],intern->num)){
+    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv,intern->num)){
     _boxXXX_meet_tcons_array_bottom:
       boxXXX_set_bottom(res);
     }

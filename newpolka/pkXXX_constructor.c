@@ -145,23 +145,22 @@ pkXXX_t* pkXXX_top(ap_manager_t* man, ap_dimension_t dim)
 static
 int matrixXXX_fill_constraint_box(
     pkXXX_internal_t* pk,
-    matrixXXX_t* C, size_t start, ap_box0_t box, ap_dimension_t dim, bool integer)
+    matrixXXX_t* C, size_t start, ap_linexpr0_t box, ap_dimension_t dimension, bool integer)
 {
-  size_t k;
-  ap_dim_t i;
+  size_t i,k;
+  ap_dim_t dim;
   bool ok;
   eitvXXX_t eitv;
   ap_coeff_t coeff;
 
   k = start;
   eitvXXX_init(eitv);
-  for (i=0; i<dim.intd+dim.reald; i++){
-    ap_box0_ref_index(coeff,box,i);
+  ap_linexpr0_ForeachLinterm(box,i,dim,coeff){
     eitvXXX_set_ap_coeff(eitv,coeff,pk->num);
     if (eitvXXX_is_point(eitv)){
       ok = vectorXXX_set_dim_bound(pk,C->p[k],
-				   (ap_dim_t)i, boundXXX_numref(eitv->itv->sup), 0,
-				   dim,
+				   (ap_dim_t)dim, boundXXX_numref(eitv->itv->sup), 0,
+				   dimension,
 				   integer);
       if (!ok){
 	eitvXXX_clear(eitv);
@@ -173,16 +172,16 @@ int matrixXXX_fill_constraint_box(
       /* inferior bound */
       if (!boundXXX_infty(eitv->itv->neginf)){
 	vectorXXX_set_dim_bound(pk,C->p[k],
-				(ap_dim_t)i, boundXXX_numref(eitv->itv->neginf), -1,
-				dim,
+				(ap_dim_t)dim, boundXXX_numref(eitv->itv->neginf), -1,
+				dimension,
 				integer);
 	k++;
       }
       /* superior bound */
       if (!boundXXX_infty(eitv->itv->sup)){
 	vectorXXX_set_dim_bound(pk,C->p[k],
-				(ap_dim_t)i, boundXXX_numref(eitv->itv->sup), 1,
-				dim,
+				(ap_dim_t)dim, boundXXX_numref(eitv->itv->sup), 1,
+				dimension,
 				integer);
 	k++;
       }
@@ -197,7 +196,7 @@ int matrixXXX_fill_constraint_box(
 
 pkXXX_t* pkXXX_of_box(ap_manager_t* man,
 		      ap_dimension_t dim,
-		      ap_box0_t box)
+		      ap_linexpr0_t box)
 {
   int k;
   size_t nbdims;

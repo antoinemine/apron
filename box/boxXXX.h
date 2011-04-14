@@ -7,13 +7,14 @@
 
 #include <stdio.h>
 #include "ap_global0.h"
+#include "ap_linexprXXX.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct boxXXX_t {
-  eitvXXX_t* p;
+  ap_linexprXXX_t e;
   ap_dimension_t dim;
 };
 typedef struct boxXXX_t boxXXX_t;
@@ -116,7 +117,7 @@ boxXXX_t* boxXXX_top(ap_manager_t* man, ap_dimension_t dim);
 
 boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 			ap_dimension_t dim,
-			ap_box0_t box);
+			ap_linexpr0_t box);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
 
@@ -177,7 +178,7 @@ void boxXXX_bound_texpr(ap_manager_t* man,
   /* Returns the interval taken by a tree expression
      over the box value */
 
-void boxXXX_to_box(ap_manager_t* man, ap_box0_t box, boxXXX_t* a);
+void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, boxXXX_t* a);
   /* Converts a box value to an interval/hypercube.
      The size of the resulting array is boxXXX_dimension(man,a).  This
      function can be reimplemented by using boxXXX_bound_linexpr */

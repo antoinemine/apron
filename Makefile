@@ -19,6 +19,12 @@ depend:
 	make -C box depend
 	make -C newpolka depend
 
+src:
+	make -C num src
+	make -C apron src
+	make -C box src
+	make -C newpolka src
+
 c:
 	make -C num 
 	make -C apron

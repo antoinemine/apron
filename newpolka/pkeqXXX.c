@@ -137,7 +137,7 @@ pkeqXXX_t* pkeqXXX_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
    intdim+realdim.  */
 pkeqXXX_t* pkeqXXX_of_box(ap_manager_t* man,
 			  ap_dimension_t dimen,
-			  ap_box0_t box)
+			  ap_linexpr0_t box)
 {
   size_t i;
   size_t row,dim;
@@ -159,7 +159,7 @@ pkeqXXX_t* pkeqXXX_of_box(ap_manager_t* man,
   ok = false;
   for (i=0; i<dim; i++){
     ap_coeff_t coeff;
-    ap_box0_ref_index(coeff,box, i);
+    ap_linexpr0_coeffref(coeff,box, i);
     exact = eitvXXX_set_ap_coeff(pk->eitvXXX,coeff,pk->num) && exact;
     if (eitvXXX_is_point(pk->eitvXXX)){
       ok = vectorXXX_set_dim_bound(
