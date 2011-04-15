@@ -51,6 +51,11 @@ requires = "apron.apron"
 archive(byte) = "t1pMPFR.cma" 
 archive(native) = "t1pMPFR.cmxa" 
 )
+package "disjPk" ( 
+requires = "apron.apron apron.polkaMPQ"
+archive(byte) = "disjPk.cma" 
+archive(native) = "disjPk.cmxa" 
+)
 package "ppl" ( 
 requires = "apron.apron" 
 archive(byte) = "ppl.cma" 
