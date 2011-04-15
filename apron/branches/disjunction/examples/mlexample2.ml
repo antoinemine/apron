@@ -1,4 +1,3 @@
-
 (* This file is part of the APRON Library, released under GPL license (use of
    PPL).  Please read the COPYING file packaged in the distribution. *)
 
@@ -99,7 +98,7 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
     (Some ((Coeff.s_of_float (4.0))))
   ;
   Lincons1.array_set tab 1 (Lincons1.make expr Lincons1.SUPEQ);
-  
+
   let expr = Linexpr1.make env2 in
   Linexpr1.set_array expr
     [|
@@ -110,7 +109,7 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
   ;
   Linexpr1.extend_environment_with expr env;
   Lincons1.array_set tab 2 (Lincons1.make expr Lincons1.SUPEQ);
-  
+
   let cons = Lincons1.make (Linexpr1.make env) Lincons1.SUPEQ in
   Lincons1.set_array cons
     [|
@@ -127,7 +126,7 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
     (Some ((Coeff.s_of_int 5)))
   ;
   Lincons1.array_set tab 4 cons;
-  
+
   printf "tab = %a@." lincons1_array_print tab;
 
   let abs = Abstract1.of_lincons_array man env tab in
@@ -150,27 +149,27 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
   done;
   (* 2. dimensions *)
   (* 3. of box *)
-  let abs2 = 
+  let abs2 =
     Abstract1.of_box man env
       [|var_x; var_y; var_z; var_w; var_u; var_v; var_a; var_b|]
-      box.Abstract1.interval_array 
+      box.Abstract1.interval_array
   in
   printf "abs2=%a@." Abstract1.print abs2;
   (* 4. Tests top and bottom *)
   let abs3 = Abstract1.bottom man env in
   printf "abs3=%a@.is_bottom(abs3)=%b@."
-    Abstract1.print abs3 
+    Abstract1.print abs3
     (Abstract1.is_bottom man abs3);
 
   printf "abs=%a@." Abstract1.print abs;
-  let p2 = Abstract1.expand man abs 
-    var_y [|Var.of_string "y1"; Var.of_string "y2"|] 
+  let p2 = Abstract1.expand man abs
+    var_y [|Var.of_string "y1"; Var.of_string "y2"|]
   in
-  printf "p2=expand(abs,y,[y1,y2]))=%a@." Abstract1.print p2; 
-  let p2 = Abstract1.expand man abs 
-    var_u [|Var.of_string "u1"; Var.of_string "u2"|] 
+  printf "p2=expand(abs,y,[y1,y2]))=%a@." Abstract1.print p2;
+  let p2 = Abstract1.expand man abs
+    var_u [|Var.of_string "u1"; Var.of_string "u2"|]
   in
-  printf "p2=expand(abs,u,[u1,u2]))=%a@." Abstract1.print p2; 
+  printf "p2=expand(abs,u,[u1,u2]))=%a@." Abstract1.print p2;
   abs
 ;;
 
@@ -181,14 +180,14 @@ let ex2 (man:'a Manager.t) =
   in
   (* Creation of abstract value
      5<=x<=14, 4<=y<=12, z=0 *)
-  let abs1 = Abstract1.of_box man env [|var_x;var_y;var_z|] 
+  let abs1 = Abstract1.of_box man env [|var_x;var_y;var_z|]
     [|
       Interval.of_int 5 14;
       Interval.of_int 4 12;
       Interval.of_int 0 0;
     |]
   in
-  let abs2 = Abstract1.of_box man env [|var_x;var_y;var_z|] 
+  let abs2 = Abstract1.of_box man env [|var_x;var_y;var_z|]
     [|
       Interval.of_int 3 12;
       Interval.of_int 5 13;

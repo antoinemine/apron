@@ -1012,7 +1012,7 @@ ap_abstract1_t ap_abstract1_change_environment(ap_manager_t* man,
   }
   value = ap_abstract0_apply_dimchange2(man,destructive,a->abstract0,dimchange2,project);
   ap_dimchange2_free(dimchange2);
-  res = ap_abstract1_consres2(destructive, 
+  res = ap_abstract1_consres2(destructive,
 			      a, value, ap_environment_copy(nenv));
   return res;
 }

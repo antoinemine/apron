@@ -90,10 +90,12 @@ static void ap_disjunction_resize(ap_disjunction_t* a)
     }
     i++;
   }
-  a->p=realloc(a->p,i*sizeof(void*));
-  a->size = i;
+  a->size = a->size-dec;
+  a->p=realloc(a->p,a->size*sizeof(void*));
 }
 
+/* If only bottom values, leaves exactly one such value and frees the other.
+   Otherwise, leaves at most one top value and frees the other top values. */
 static void ap_disjunction_null_bottom_top(
     ap_disjunction_internal_t* intern,
     ap_disjunction_t* a,
@@ -131,6 +133,8 @@ static void ap_disjunction_null_bottom_top(
   }
 }
 
+
+/* applies previous function and remove equal elements */
 static void ap_disjunction_elim_redundant(ap_disjunction_internal_t* intern,
 					  ap_disjunction_t* a)
 {
@@ -374,6 +378,8 @@ bool ap_disjunction_is_eq(ap_manager_t* manager, ap_disjunction_t* a,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
+  return false;
+  /*
   bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_EQ];
   size_t i,j;
   bool eq;
@@ -406,6 +412,7 @@ bool ap_disjunction_is_eq(ap_manager_t* manager, ap_disjunction_t* a,
     if (!eq) break;
   }
   return eq;
+  */
 }
 
 bool ap_disjunction_is_leq(ap_manager_t* manager, ap_disjunction_t* a,
@@ -414,6 +421,8 @@ bool ap_disjunction_is_leq(ap_manager_t* manager, ap_disjunction_t* a,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
+  return false;
+  /*
   bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_LEQ];
   size_t i,j;
   bool leq;
@@ -432,6 +441,7 @@ bool ap_disjunction_is_leq(ap_manager_t* manager, ap_disjunction_t* a,
     if (!leq) break;
   }
   return leq;
+  */
 }
 
 
@@ -575,11 +585,20 @@ ap_interval_t* ap_disjunction_bound_dimension(ap_manager_t* manager,
 ap_lincons0_array_t ap_disjunction_to_lincons_array(ap_manager_t* manager,
 						    ap_disjunction_t* a)
 {
+  ap_disjunction_internal_t* intern = get_internal(manager);
+  ap_manager_t* man = intern->manager;
   ap_lincons0_array_t garray;
-  garray.p = NULL;
-  garray.size = 0;
-  ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,
-			     AP_FUNID_TO_LINCONS_ARRAY,NULL);
+
+  if (a->size==1){
+    ap_lincons0_array_t (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+    garray = ptr(man,a->p[0]);
+  }
+  else {
+    garray.p = NULL;
+    garray.size = 0;
+    ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED,
+			       AP_FUNID_TO_LINCONS_ARRAY,NULL);
+  }
   return garray;
 }
 ap_tcons0_array_t ap_disjunction_to_tcons_array(ap_manager_t* manager,
@@ -593,8 +612,8 @@ ap_tcons0_array_t ap_disjunction_to_tcons_array(ap_manager_t* manager,
   return garray;
 }
 
-ap_lincons0_array_t ap_disjunction_to_lincons_set(ap_manager_t* manager,
-						  ap_disjunction_t* a)
+ap_lincons0_array_t ap_disjunction_to_lincons0_set(ap_manager_t* manager,
+						   ap_disjunction_t* a)
 {
 
   ap_disjunction_internal_t* intern = get_internal(manager);
@@ -609,12 +628,13 @@ ap_lincons0_array_t ap_disjunction_to_lincons_set(ap_manager_t* manager,
   size_t i,j;
   for (i=0;i<a->size;i++){
     ap_lincons0_array_t array = ptr(man,a->p[i]);
-    garray.p = realloc(garray.p, (garray.size + array.size) * sizeof(ap_lincons0_t));
+    ap_lincons0_array_resize(&garray,garray.size + array.size);
+    garray.size -= array.size;
     for (j=0;j<array.size;j++){
       garray.p[garray.size + j] = array.p[j];
     }
     garray.size += array.size;
-    ap_lincons0_array_clear(&array);
+    free(array.p);
   }
   return garray;
 }
@@ -692,11 +712,6 @@ ap_disjunction_t* ap_disjunction_join(ap_manager_t* manager,
 				      ap_disjunction_t* a1,
 				      ap_disjunction_t* a2)
 {
-
-  ap_disjunction_internal_t* intern = get_internal(manager);
-  ap_manager_t* man = intern->manager;
-  ap_disjunction_t* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
-
   if (ap_disjunction_is_bottom(manager,a1)){
     if (destructive){
       ap_disjunction_free(manager,a1);
@@ -707,6 +722,9 @@ ap_disjunction_t* ap_disjunction_join(ap_manager_t* manager,
     return destructive ? a1 : ap_disjunction_copy(manager,a1);
   }
 
+  ap_disjunction_internal_t* intern = get_internal(manager);
+  ap_manager_t* man = intern->manager;
+  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
   ap_disjunction_t* res = ap_disjunction_alloc(a1->size+a2->size);
   size_t i,j;
   for (i=0; i<a1->size; i++){
@@ -715,7 +733,15 @@ ap_disjunction_t* ap_disjunction_join(ap_manager_t* manager,
   for (i=0; i<a2->size; i++){
     res->p[a1->size+i] = copy(man,a2->p[i]);
   }
+  {
+    int top;
+    bool notbottom;
+    ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+    ap_disjunction_resize(res);
+  }
+  /*
   ap_disjunction_elim_redundant(intern, res);
+  */
   return res;
 }
 
@@ -737,7 +763,7 @@ ap_disjunction_t* ap_disjunction_join_array(ap_manager_t* manager,
   else {
     ap_disjunction_internal_t* intern = get_internal(manager);
     ap_manager_t* man = intern->manager;
-    ap_disjunction_t* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+    void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
 
     size_t length,i,j,l;
     ap_disjunction_t* res;
@@ -765,7 +791,15 @@ ap_disjunction_t* ap_disjunction_join_array(ap_manager_t* manager,
       return ap_disjunction_copy(manager,tab[bottom]);
     }
     else {
-      ap_disjunction_elim_redundant(intern, res);
+      {
+	int top;
+	bool notbottom;
+	ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+	ap_disjunction_resize(res);
+      }
+      /*
+	ap_disjunction_elim_redundant(intern, res);
+      */
       return res;
     }
   }
@@ -774,9 +808,52 @@ ap_disjunction_t* ap_disjunction_join_array(ap_manager_t* manager,
 ap_disjunction_t* ap_disjunction_meet(ap_manager_t* manager, bool destructive,
 				      ap_disjunction_t* a1, ap_disjunction_t* a2)
 {
-  ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, AP_FUNID_MEET, NULL);
-  return NULL;
+  if (ap_disjunction_is_bottom(manager,a1)){
+    return destructive ? a1 : ap_disjunction_copy(manager,a1);
+  }
+  if (ap_disjunction_is_bottom(manager,a2)){
+    if (destructive){
+      ap_disjunction_free(manager,a1);
+    }
+    return ap_disjunction_copy(manager,a2);
+  }
+
+  ap_disjunction_internal_t* intern = get_internal(manager);
+  ap_manager_t* man = intern->manager;
+  void* (*meet)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MEET];
+  void* (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
+
+  ap_disjunction_elim_redundant(intern, a1);
+  ap_disjunction_elim_redundant(intern, a2);
+
+  ap_disjunction_t* res = ap_disjunction_alloc(a1->size*a2->size);
+  size_t i,j,k;
+  k = 0;
+  for (i=0; i<a1->size; i++){
+    for (j=0; j<a2->size; j++){
+      void* res1 = meet(man,false,a1->p[i],a2->p[j]);
+      if (!is_bottom(man,res1)){
+	res->p[k] = res1;
+	k++;
+      }
+    }
+  }
+  if (k==0){
+    assert(res->size>=1);
+    ap_dimension_t dim = ap_abstract0_dimension(man,a1->p[0]);
+    res->p[0] = ap_abstract0_top(man,dim.intdim,dim.realdim);
+    res->size = 1;
+  }
+  else {
+    res->size = k;
+    ap_disjunction_elim_redundant(intern, res);
+  }
+  if (destructive){
+    ap_disjunction_free(manager,a1);
+  }
+  return res;
 }
+
 ap_disjunction_t* ap_disjunction_meet_array(ap_manager_t* manager,
 					    ap_disjunction_t** tab, size_t size)
 {
@@ -820,14 +897,16 @@ ap_disjunction_t* ap_disjunction_meet_tcons_array(ap_manager_t* manager,bool des
 
   void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
 
-  int top;
-  bool notbottom;
   size_t i;
   for (i = 0; i < a->size; i++) {
     res->p[i] = ptr(man, destructive, a->p[i], array);
   }
-  ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
-  ap_disjunction_resize(res);
+  {
+    int top;
+    bool notbottom;
+    ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+    ap_disjunction_resize(res);
+  }
   return res;
 }
 
@@ -843,14 +922,19 @@ ap_disjunction_t* ap_disjunction_add_ray_array(ap_manager_t* manager,
 
   void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
 
-  int top;
-  bool notbottom;
   size_t i;
   for (i = 0; i < a->size; i++) {
     res->p[i] = ptr(man, destructive, a->p[i], array);
   }
-  ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
-  ap_disjunction_resize(res);
+  {
+    int top;
+    bool notbottom;
+    ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+    ap_disjunction_resize(res);
+  }
+  /*
+    ap_disjunction_elim_redundant(intern,res);
+  */
   return res;
 }
 
@@ -962,6 +1046,14 @@ ap_disjunction_t* ap_disjunction_forget_array(
   for (i = 0; i < a->size; i++) {
     res->p[i] = ptr(man, destructive, a->p[i], tdim, size, project);
   }
+  /*
+  {
+    int top;
+    bool notbottom;
+    ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+    ap_disjunction_resize(res);
+  }
+  */
   ap_disjunction_elim_redundant(intern,res);
   return res;
 }
@@ -999,6 +1091,14 @@ ap_disjunction_t* ap_disjunction_remove_dimensions(ap_manager_t* manager,
   for (i = 0; i < a->size; i++) {
     res->p[i] = ptr(man, destructive, a->p[i], dimchange);
   }
+  /*
+  {
+    int top;
+    bool notbottom;
+    ap_disjunction_null_bottom_top(intern,res,&top,&notbottom);
+    ap_disjunction_resize(res);
+  }
+  */
   ap_disjunction_elim_redundant(intern,res);
   return res;
 }
@@ -1065,7 +1165,9 @@ ap_disjunction_t* ap_disjunction_fold(ap_manager_t* manager,
   for (i = 0; i < a->size; i++) {
     res->p[i] = ptr(man, destructive, a->p[i], tdim, size);
   }
+  /*
   ap_disjunction_elim_redundant(intern,res);
+  */
   return res;
 }
 
@@ -1241,21 +1343,23 @@ void** ap_disjunction_decompose(ap_manager_t* manager, bool destructive,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
 
-  void** res = (void**) malloc(a->size * (*psize));
+  *psize = a->size;
 
-  size_t i;
-  for (i = 0; i < a->size; i++) {
-    if (destructive) {
-      res[i] = a->p[i];
-    } else {
-      res[i] = ptr(man, a->p[i]);
-    }
-  }
-  if (destructive)
+  if (destructive){
+    void** res = a->p;
     free(a);
-  return res;
+    return res;
+  }
+  else {
+    void** res = (void**) malloc(a->size * sizeof(void*));
+    size_t i;
+    for (i = 0; i < a->size; i++) {
+      res[i] = copy(man, a->p[i]);
+    }
+    return res;
+  }
 }
 
 /* Create a disjunctive abstract value from an array */
@@ -1268,11 +1372,11 @@ ap_disjunction_t* ap_disjunction_compose(ap_manager_t* manager,
 
   ap_disjunction_t* res = ap_disjunction_alloc(size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
 
   size_t i;
-  for (i = 0; i < sizeof(tabs); i++) {
-    res->p[i] = destructive ? tabs[i] : ptr(man, tabs[i]);
+  for (i = 0; i < size; i++) {
+    res->p[i] = destructive ? tabs[i] : copy(man, tabs[i]);
   }
   return res;
 }

@@ -46,7 +46,7 @@ ctest%_debug.o: ctest%.c
 
 # OCaml examples
 %.opt: %.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
+	$(OCAMLFIND) ocamlopt -verbose $(OCAMLOPTFLAGS) -o $@ $< -package "apron.boxMPQ,apron.octMPQ,apron.polkaMPQ,apron.t1pMPQ,apron.ppl,apron.polkaGrid,apron.disjPk" -linkpkg
 
 %.byte: %.ml
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -o $@ $<
