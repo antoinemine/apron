@@ -102,7 +102,7 @@ ap_policy_manager_ptr box_policy_manager_alloc(ap_manager_ptr man);
 quote(MLI,"\n(**
 {2 Compilation information}
 
-See {!Introduction.compilation} for complete explanations. 
+See {!Introduction.compilation} for complete explanations.
 We just show examples with the file [mlexample.ml].
 
 {3 Bytecode compilation}

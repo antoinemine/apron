@@ -228,7 +228,7 @@ void poly_chernikova2(ap_manager_t* man,
       matrix_sort_rows(pk,po->C);
       cherni_minimize(pk, true, po);
       if (pk->exn) goto poly_chernikova2_exit0;
-      assert(po->C && po->F);     
+      assert(po->C && po->F);
       po->status = pk_status_consgauss | pk_status_minimaleps;
     }
   }
@@ -278,7 +278,7 @@ void poly_chernikova3(ap_manager_t* man,
     po->status |=
       pk_status_consgauss |
       pk_status_gengauss;
-    assert(po->C->_sorted && po->F->_sorted && 	   
+    assert(po->C->_sorted && po->F->_sorted &&
 	   (po->status | pk_status_consgauss) &&
 	   (po->status | pk_status_gengauss) &&
 	   (po->status | pk_status_minimaleps));
@@ -338,13 +338,13 @@ void poly_obtain_sorted_C(pk_internal_t* pk, pk_t* po)
 void pk_canonicalize(ap_manager_t* man, pk_t* po)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_CANONICALIZE);
-  
+
   assert(poly_check(pk,po));
   if (pk->funopt->algorithm >= 0)
     poly_chernikova3(man,po,NULL);
   else
     poly_chernikova(man,po,NULL);
-  
+
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
@@ -361,7 +361,7 @@ int pk_hash(ap_manager_t* man, pk_t* po)
   int res,t;
   size_t i;
   ap_funopt_t opt = ap_manager_get_funopt(man,AP_FUNID_CANONICALIZE);
-  
+
   poly_chernikova3(man,po,NULL);
   assert(poly_check(pk,po));
   res = 5*po->intdim + 7*po->realdim;
@@ -381,7 +381,7 @@ int pk_hash(ap_manager_t* man, pk_t* po)
 void pk_minimize(ap_manager_t* man, pk_t* po)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MINIMIZE);
-  
+
   if (po->C || po->F){
     poly_chernikova2(man,po,NULL);
     if (pk->exn){
@@ -431,7 +431,7 @@ bool pk_is_minimal(ap_manager_t* man, pk_t* po)
 bool pk_is_canonical(ap_manager_t* man, pk_t* po)
 {
   bool res;
-  
+
   if (!po->C && !po->F)
     res = true;
   else if (!po->C || !po->F)
@@ -461,7 +461,7 @@ void pk_fprint(FILE* stream, ap_manager_t* man, pk_t* po,
 	       char** name_of_dim)
 {
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_FPRINT);
-  
+
   poly_chernikova(man,po,NULL);
   if (!po->C && !po->F){
     assert(pk->exn == AP_EXC_NONE);
@@ -581,7 +581,7 @@ static bool matrix_check2(pk_internal_t* pk, matrix_t* mat)
   bool res;
   numint_t gcd;
   numint_init(gcd);
-  
+
   res = true;
   for (i=0; i<mat->nbrows; i++){
     vector_gcd(pk, &mat->p[i][1], mat->nbcolumns-1, gcd);
@@ -599,10 +599,10 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
 {
   size_t i;
   bool res;
-  
+
   if (mat->_sorted==false)
     return true;
-  
+
   res = true;
   for (i=0; i<mat->nbrows-1; i++){
     if (matrix_compare_rows(pk,mat,i,i+1)>0){
@@ -616,7 +616,7 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
 bool matrix_check_gauss(matrix_t* mat, size_t nbeq)
 {
   size_t i,j,k;
-  
+
   for (k=0; k<nbeq; k++){
     /* Look for the first non zero coeff from the right */
     for (j=mat->nbcolumns-1; j>=2; j--){
@@ -650,7 +650,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
   }
   if (!po->C && !po->F)
     return true;
-  
+
   nbcols = po->C ? po->C->nbcolumns : po->F->nbcolumns;
   if (nbcols != pk->dec+nbdim){
     fprintf(stderr,"poly_check: pk->dec+intdim+realdim != nbcols\n");
@@ -700,7 +700,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
       bool res = true;
       int sign;      /* sign of the scalar product */
       size_t i;
-      
+
       for (i=0; i<F->nbrows; i++){
 	vector_product(pk,pk->poly_prod,
 		       F->p[i],
@@ -734,7 +734,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
   }
   else
     return true;
-  
+
   if (po->C->nbcolumns != nbcols || po->F->nbcolumns != nbcols){
     fprintf(stderr,"poly_check: po->C->nbcolumns==%lu, po->F->nbcolumns==%lu\n",
 	    (unsigned long)po->C->nbcolumns, (unsigned long)po->F->nbcolumns);

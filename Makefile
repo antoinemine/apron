@@ -88,7 +88,8 @@ OCAMLFIND_FILES = \
 	$(patsubst %,taylor1plus/%, t1p.mli t1p.cmi t1p.cmx) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO_T1P)))
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO)))
+
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
 	$(patsubst %,ppl/%, ppl.mli ppl.cmi ppl.cma ppl.cmx ppl.cmxa ppl.a libap_ppl_caml.a libap_ppl_caml_debug.a) \

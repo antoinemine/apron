@@ -25,7 +25,8 @@ typedef struct ap_disjunction_t {
 
 /* internal fields of manager */
 typedef struct ap_disjunction_internal_t {
-  void (*merge)(ap_manager_t*, ap_disjunction_t*); /* merge function */
+  void (*merge)(ap_manager_t*, ap_disjunction_t*); /* merge function, may be
+						      NULL */
   char* library;               /* (constructed) library name  */
   ap_manager_t* manager;   /* Manager of the base domain */
 } ap_disjunction_internal_t;
@@ -45,8 +46,8 @@ ap_manager_t* ap_disjunction_manager_alloc
 /* V. Extra functions */
 /* ============================================================ */
 
-ap_lincons0_array_t ap_disjunction_to_lincons_set(ap_manager_t* manager,
-						  ap_disjunction_t* a);
+ap_lincons0_array_t ap_disjunction_to_lincons0_set(ap_manager_t* manager,
+						   ap_disjunction_t* a);
 
 
 /* ap_abstract0_t */
@@ -69,8 +70,9 @@ ap_disjunction_t* ap_disjunction_compose(ap_manager_t* manager, bool destructive
 
      Be cautious: no type checking is performed.
 
-     If destructive is true, the array tabs cannot be used any more, but may
-     require a call to free() if dynamically allocated.
+     If destructive is true, the content of the array tabs cannot be used any
+     more, but the array still requires a call to free() if dynamically
+     allocated.
 
      Otherwise, abstract values are copied into the result, and the argument
      and the result do not share any more information.

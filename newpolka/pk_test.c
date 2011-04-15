@@ -209,7 +209,7 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
   if (pa->C && pa->F && pb->C && pb->F &&
       (pa->nbeq != pb->nbeq || pa->nbline != pb->nbline) ){
     return false;
-  }  
+  }
   if (pk->funopt->algorithm>0){
     poly_chernikova3(man,pa,"of the first argument");
     if (pk->exn){
@@ -226,7 +226,7 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
   if (pk_is_canonical(man,pa) && pk_is_canonical(man,pb)){
     bool res =
       (!pa->C && !pb->C) ||
-      (pa->C && pb->C && 
+      (pa->C && pb->C &&
        pa->C->nbrows == pb->C->nbrows && pa->F->nbrows == pb->F->nbrows &&
        (pa->C->nbrows <= pa->F->nbrows ? matrix_equal(pa->C,pb->C) : matrix_equal(pa->F,pb->F)));
     assert(res == (pk_is_leq(man,pa,pb) && pk_is_leq(man,pb,pa)));

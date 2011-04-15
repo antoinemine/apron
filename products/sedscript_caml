@@ -4,7 +4,3 @@ s/ap_pkgrid_manager_alloc : 'a t Apron.Manager.t -> 'a t Apron.Manager.t -> 'a t
 s/ap_pkgrid_manager_decompose : 'a t Apron.Manager.t -> 'a t Apron.Manager.t \* 'a t Apron.Manager.t/manager_decompose : 'a t Apron.Manager.t -> 'a Polka.t Apron.Manager.t \* Ppl.grid Ppl.t Apron.Manager.t/g;
 s/ap_pkgrid_decompose : 'a t Apron.Abstract0.t -> 'a t Apron.Abstract0.t \* 'a t Apron.Abstract0.t/decompose : 'a t Apron.Abstract0.t -> 'a Polka.t Apron.Abstract0.t \* Ppl.grid Ppl.t Apron.Abstract0.t/g;
 s/ap_pkgrid_compose : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> 'a t Apron.Abstract0.t -> 'a t Apron.Abstract0.t/compose : 'a t Apron.Manager.t -> 'a Polka.t Apron.Abstract0.t -> Ppl.grid Ppl.t Apron.Abstract0.t -> 'a t Apron.Abstract0.t/g;
-s/ap_disjpk_manager_alloc : 'a t Apron.Manager.t -> 'a t Apron.Manager.t/manager_alloc : 'a Apron.Manager.t -> 'a t Apron.Manager.t/g;
-s/ap_disjpk_to_lincons_set : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> Lincons0.ap_lincons0_array_t/to_lincons_set : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> Lincons0.t array/g;
-s/ap_disjpk__decompose : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> 'a t Apron.Abstract0.t array/_decompose : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t -> 'a Apron.Abstract0.t array/g;
-s/ap_disjpk_compose : 'a t Apron.Manager.t -> 'a t Apron.Abstract0.t array -> 'a t Apron.Abstract0.t/compose : 'a t Apron.Manager.t -> 'a Apron.Abstract0.t array -> 'a t Apron.Abstract0.t/g;
