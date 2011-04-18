@@ -11,9 +11,9 @@ quote(C, "\n\
 
 import "scalar.idl";
 
-/* For ap_interval_t, 
+/* For ap_interval_t,
 
-- the conversion from ML to C may use allocation, but it is automatically freed 
+- the conversion from ML to C may use allocation, but it is automatically freed
   by Camlidl mechanisms
 - the conversion from C to ML duplicate the C allocated memory.
   Hence, the C type should be explicitly deallocated

@@ -18,9 +18,9 @@ import "coeff.idl";
 import "dim.idl";
 import "linexpr0.idl";
 
-/* For ap_lincons0_t, 
+/* For ap_lincons0_t,
 
-- the conversion from ML to C may use allocation, but it is automatically freed 
+- the conversion from ML to C may use allocation, but it is automatically freed
   by Camlidl mechanisms
 - the conversion from C to ML free after conversion the scalar field in the C structure.
   the C type should NOT be deallocated

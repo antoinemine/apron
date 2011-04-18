@@ -15,7 +15,7 @@ quote(C, "\n\
 import "scalar.idl";
 import "interval.idl";
 
-/* For ap_coeff_t, 
+/* For ap_coeff_t,
 
 - the conversion from ML to C may use allocation, but it is automatically freed 
   by Camlidl mechanisms
