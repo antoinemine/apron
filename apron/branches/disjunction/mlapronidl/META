@@ -36,6 +36,11 @@ requires = "apron.apron"
 archive(byte) = "polkaMPQ.cma" 
 archive(native) = "polkaMPQ.cmxa" 
 )
+package "polkaRll" ( 
+requires = "apron.apron" 
+archive(byte) = "polkaRll.cma" 
+archive(native) = "polkaRll.cmxa" 
+)
 package "t1pD" ( 
 requires = "apron.apron" 
 archive(byte) = "t1pD.cma" 

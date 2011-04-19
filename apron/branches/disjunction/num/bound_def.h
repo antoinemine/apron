@@ -20,7 +20,7 @@ extern "C" {
 typedef num_t bound_t;
 #define bound_numref(a) a
 #define _bound_inf(a)
-#define BOUND_NUM  
+#define BOUND_NUM
 
 #else
 
@@ -43,9 +43,9 @@ static inline bool bound_infty(bound_t a)
 #elif defined(NUM_MAX)
 { return (*a>=NUM_MAX || *a<=-NUM_MAX); }
 #elif defined(NUM_NUMRAT)
-{ return numint_sgn(numrat_denref(a))==0; } 
+{ return numint_sgn(numrat_denref(a))==0; }
 #else
-{ return (bool)a->inf; } 
+{ return (bool)a->inf; }
 #endif
 
 /* ---------------------------------------------------------------------- */
@@ -55,10 +55,10 @@ static inline void bound_set_infty(bound_t a, int sgn)
 #elif defined(NUM_MAX)
 { assert(sgn); *a = sgn>0 ? NUM_MAX : -NUM_MAX; }
 #elif defined(NUM_NUMRAT)
-{ 
+{
   assert(sgn);
   numint_set_int(numrat_numref(a),sgn>0 ? 1 : -1);
-  numint_set_int(numrat_denref(a),0); 
+  numint_set_int(numrat_denref(a),0);
 }
 #else
 {
@@ -75,7 +75,7 @@ static inline void bound_init_set_infty(bound_t a, int sgn)
   bound_set_infty(a,sgn);
 }
 static inline void bound_swap(bound_t a, bound_t b)
-{ 
+{
 #if defined(BOUND_NUM_INF)
   int t = a->inf; a->inf = b->inf; b->inf = t;
 #endif
@@ -108,7 +108,7 @@ static inline void bound_set_array(bound_t* a, bound_t* b, size_t size)
 static inline void bound_set(bound_t a, bound_t b)
 { num_set(a->num,b->num); a->inf = b->inf; }
 static inline void bound_set_array(bound_t* a, bound_t* b, size_t size)
-{   
+{
   size_t i;
   for (i=0; i<size; i++) bound_set(a[i],b[i]);
 }
@@ -144,7 +144,7 @@ static inline void bound_clear_array(bound_t* a, size_t size)
 #else
 
 static inline void bound_init_array(bound_t* a, size_t size)
-{ 
+{
   size_t i;
   for (i=0;i<size;i++) bound_init(a[i]);
 }
@@ -157,8 +157,8 @@ static inline void bound_init_set(bound_t a, bound_t b)
     _bound_inf(a);
   }
 }
-static inline void bound_clear_array(bound_t* a, size_t size) 
-{ 
+static inline void bound_clear_array(bound_t* a, size_t size)
+{
 #if !defined(NUM_NATIVE)
   size_t i;
   for (i=0;i<size;i++) bound_clear(a[i]);
@@ -171,7 +171,7 @@ static inline void bound_clear_array(bound_t* a, size_t size)
 /* Arithmetic Operations */
 /* ====================================================================== */
 
-/* +oo + -oo  \ 
+/* +oo + -oo  \
    -oo + +oo  | undefined
    +oo - +oo  |
    -oo - -oo  /
@@ -187,7 +187,7 @@ static inline void bound_clear_array(bound_t* a, size_t size)
    x / 0 = sign(x) * oo     if x!=0
    +oo / x =  sign(x) * oo  if x!=0,+oo,-oo
    -oo / x = -sign(x) * oo  if x!=0,+oo,-oo
-   
+
 */
 
 #if defined (NUM_MAX) && defined(NUM_NUMFLT)
@@ -214,16 +214,16 @@ static inline void bound_mul_num(bound_t a, bound_t b, num_t c)
 static inline void bound_mul_2(bound_t a, bound_t b)
 { num_mul_2(a,b); }
 static inline void bound_div(bound_t a, bound_t b, bound_t c)
-{ 
+{
   if (!bound_sgn(b) || bound_infty(c)) bound_set_int(a,0);
-  else if (!bound_sgn(c)) bound_set_infty(a,bound_sgn(b)); 
-  else num_div(a,b,c); 
+  else if (!bound_sgn(c)) bound_set_infty(a,bound_sgn(b));
+  else num_div(a,b,c);
 }
 static inline void bound_div_num(bound_t a, bound_t b, num_t c)
-{ 
+{
   if (!bound_sgn(b)) bound_set_int(a,0);
-  else if (!num_sgn(c)) bound_set_infty(a,bound_sgn(b)); 
-  else num_div(a,b,c); 
+  else if (!num_sgn(c)) bound_set_infty(a,bound_sgn(b));
+  else num_div(a,b,c);
 }
 static inline void bound_div_2(bound_t a, bound_t b)
 { num_div_2(a,b); }
@@ -231,80 +231,80 @@ static inline void bound_div_2(bound_t a, bound_t b)
 #else
 
 static inline void bound_neg(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,-bound_sgn(b));
-  else { num_neg(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_neg(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 static inline void bound_abs(bound_t a, bound_t b)
 { num_abs(bound_numref(a),bound_numref(b)); }
 static inline void bound_add(bound_t a, bound_t b, bound_t c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
   else if (bound_infty(c)) bound_set_infty(a,bound_sgn(c));
-  else { num_add(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); } 
+  else { num_add(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); }
 }
 static inline void bound_add_uint(bound_t a, bound_t b, unsigned long int c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_add_uint(bound_numref(a),bound_numref(b),c); _bound_inf(a); } 
+  else { num_add_uint(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 static inline void bound_add_num(bound_t a, bound_t b, num_t c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_add(bound_numref(a),bound_numref(b),c); _bound_inf(a); } 
+  else { num_add(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 static inline void bound_sub(bound_t a, bound_t b, bound_t c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
   else if (bound_infty(c)) bound_set_infty(a,-bound_sgn(c));
-  else { num_sub(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); } 
+  else { num_sub(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); }
 }
 static inline void bound_sub_uint(bound_t a, bound_t b, unsigned long int c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_sub_uint(bound_numref(a),bound_numref(b),c); _bound_inf(a); } 
+  else { num_sub_uint(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 static inline void bound_sub_num(bound_t a, bound_t b, num_t c)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_sub(bound_numref(a),bound_numref(b),c); _bound_inf(a); } 
+  else { num_sub(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 
 static inline void bound_mul(bound_t a, bound_t b, bound_t c)
-{ 
+{
   if (!bound_sgn(b) || !bound_sgn(c)) bound_set_int(a,0);
   else if (bound_infty(b) || bound_infty(c)) bound_set_infty(a,bound_sgn(b)*bound_sgn(c));
-  else { num_mul(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); } 
+  else { num_mul(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); }
 }
 static inline void bound_mul_num(bound_t a, bound_t b, num_t c)
-{ 
+{
   if (!bound_sgn(b) || !num_sgn(c)) bound_set_int(a,0);
   else if (bound_infty(b)) bound_set_infty(a,bound_sgn(b)*num_sgn(c));
   else { num_mul(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 static inline void bound_mul_2(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_mul_2(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_mul_2(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 static inline void bound_div(bound_t a, bound_t b, bound_t c)
-{ 
+{
   if (!bound_sgn(b) || bound_infty(c)) bound_set_int(a,0);
   else if (!bound_sgn(c)) bound_set_infty(a,bound_sgn(b));
   else if (bound_infty(b))  bound_set_infty(a,bound_sgn(b)*bound_sgn(c));
-  else { num_div(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); } 
+  else { num_div(bound_numref(a),bound_numref(b),bound_numref(c)); _bound_inf(a); }
 }
 static inline void bound_div_num(bound_t a, bound_t b, num_t c)
-{ 
+{
   if (!bound_sgn(b)) bound_set_int(a,0);
   else if (!num_sgn(c)) bound_set_infty(a,bound_sgn(b));
   else if (bound_infty(b))  bound_set_infty(a,bound_sgn(b)*num_sgn(c));
-  else { num_div(bound_numref(a),bound_numref(b),c); _bound_inf(a); } 
+  else { num_div(bound_numref(a),bound_numref(b),c); _bound_inf(a); }
 }
 static inline void bound_div_2(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_div_2(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_div_2(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 #endif
 
@@ -334,19 +334,19 @@ static inline void bound_max(bound_t a, bound_t b, bound_t c)
 #endif
 
 static inline void bound_floor(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_floor(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_floor(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 static inline void bound_ceil(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_ceil(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_ceil(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 static inline void bound_trunc(bound_t a, bound_t b)
-{ 
+{
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
-  else { num_trunc(bound_numref(a),bound_numref(b)); _bound_inf(a); } 
+  else { num_trunc(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
 static inline void bound_sqrt(bound_t up, bound_t down, bound_t b)
 {
@@ -369,7 +369,7 @@ static inline void bound_to_float(bound_t a, bound_t b)
     double d;
     double_set_num(&d,bound_numref(b));
     num_set_double(bound_numref(a),(double)((float)d));
-    _bound_inf(a); 
+    _bound_inf(a);
   }
 }
 static inline void bound_to_double(bound_t a, bound_t b)
@@ -380,7 +380,7 @@ static inline void bound_to_double(bound_t a, bound_t b)
     double d;
     double_set_num(&d,bound_numref(b));
     num_set_double(bound_numref(a),d);
-    _bound_inf(a); 
+    _bound_inf(a);
   }
 }
 
@@ -405,8 +405,6 @@ static inline int bound_cmp_num(bound_t a, num_t b)
 { return num_cmp(a,b); }
 static inline bool bound_equal(bound_t a, bound_t b)
 { return num_equal(a,b); }
-static inline int bound_hash(bound_t a)
-{ long int hash; int_set_num(&hash,bound_numref(a)); return hash; }
 
 #else
 
@@ -439,6 +437,8 @@ static inline bool bound_equal(bound_t a, bound_t b)
     else return num_equal(bound_numref(a),bound_numref(b));
   }
 }
+#endif
+
 static inline int bound_hash(bound_t a)
 { if (bound_infty(a))
     return bound_sgn(a)>0 ? INT_MAX : INT_MIN;
@@ -448,8 +448,6 @@ static inline int bound_hash(bound_t a)
     return hash;
   }
 }
-
-#endif
 
 /* ====================================================================== */
 /* Printing */

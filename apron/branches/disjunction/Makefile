@@ -85,6 +85,7 @@ OCAMLFIND_FILES = \
 	$(patsubst %,octagons/%, $(subst xxx,octMPQ, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,newpolka/%, polka.mli polka.cmi polka.cmx) \
 	$(patsubst %,newpolka/%, $(subst xxx,polkaMPQ, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,newpolka/%, $(subst xxx,polkaRll, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, t1p.mli t1p.cmi t1p.cmx) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
