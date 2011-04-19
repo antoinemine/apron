@@ -70,6 +70,12 @@ void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* poli
   funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FPRINT];
   return (*ptr)(stdout,pman,policy->value);
 }
+char* ap_policy_sprint(ap_policy_manager_t* pman, ap_policy_t* policy)
+{
+  typedef char* (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_SPRINT];
+  return (*ptr)(pman,policy->value);
+}
 size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy)
 {
   typedef size_t (*funptr)(ap_policy_manager_t* pman, void* policy);
