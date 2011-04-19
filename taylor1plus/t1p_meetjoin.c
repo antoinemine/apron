@@ -24,7 +24,7 @@
 /*****************/
 
 /************************************************/
-/* 1.Meet 					*/
+/* 1.Meet					*/
 /************************************************/
 t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 /* TODO: destructive not used */
@@ -74,7 +74,7 @@ t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	    res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
 	    for (k=0; k<dims1; k++) {
 		if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-		    dimchange2->dim[dim2] = j; 
+		    dimchange2->dim[dim2] = j;
 		    dim2++;
 		}
 	    }
@@ -277,7 +277,7 @@ static inline bool t1p_eval_lincons_array(t1p_internal_t* pr, size_t* hash, t1p_
 		ap_coeff_free(coeff);
 	    }
 	}
-    }   
+    }
     ap_lincons0_array_resize(eps_array, eps_dim);
     ap_lincons0_array_resize(var_lincons_array, var_dim);
     return res;
@@ -471,7 +471,7 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
 }
 
 /************************************************/
-/* 2.Join 					*/
+/* 2.Join					*/
 /************************************************/
 /* local join */
 t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
@@ -482,13 +482,13 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     t1p_internal_t* pr = (t1p_internal_t*)t1p_init_from_manager(man, AP_FUNID_JOIN);
     arg_assert(a1->dims==a2->dims && a1->intdim==a2->intdim,abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### JOIN OPERANDS (des %d) (%x U %x) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
+    fprintf(stdout, "### JOIN OPERANDS (des %d) (%tx U %tx) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
     t1p_fprint(stdout, man, a1, NULL);
     t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
     FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
-    fprintf(stream,"** %d **\n", pr->dim);
+    fprintf(stream,"** %zu **\n", pr->dim);
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -588,7 +588,7 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
 		for (k=0; k<dims1; k++) {
 		    if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-			dimchange2->dim[dim2] = j; 
+			dimchange2->dim[dim2] = j;
 			dim2++;
 		    }
 		}
@@ -650,11 +650,11 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT of JOIN (des %d) [%x] ###\n",destructive, (intptr_t)res);
+    fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     t1p_fprint(stdout, man, res, NULL);
     for (i=0; i<intdim+realdim;i++)
-      {fprintf(stream,"%d :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
-    fprintf(stream,"** %d **\n", pr->dim);
+      {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
+    fprintf(stream,"** %zu **\n", pr->dim);
     fprintf(stream, "### ### ###\n");
     fclose(stream);
 #endif
@@ -670,13 +670,13 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     t1p_internal_t* pr = (t1p_internal_t*)t1p_init_from_manager(man, AP_FUNID_JOIN);
     arg_assert(a1->dims==a2->dims && a1->intdim==a2->intdim,abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### JOIN OPERANDS (des %d) (%x U %x) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
+    fprintf(stdout, "### JOIN OPERANDS (des %d) (%tx U %tx) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
     //t1p_fprint(stdout, man, a1, NULL);
     //t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
     FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
-    fprintf(stream,"** %d **\n", pr->dim);
+    fprintf(stream,"** %zu **\n", pr->dim);
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -828,7 +828,7 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	itv_clear(tmp1);
 
     FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
-	fprintf(poly,"$z%d=zonotope(new Matrix<Rational>([",pr->it);
+	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
 	for (i=0;i<pr->dim;i++) {
 	    if (res->g[i+1]) {
 	    fprintf(poly,"[0,");
@@ -842,8 +842,8 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	    }
 	}
 	fprintf(poly,"]));\n");
-	fprintf(poly,"$p%d=new Polytope<Rational>(POINTS=>$z%d);\n",pr->it,pr->it);
-	fprintf(poly,"$pp%d=transform($p%d,new Matrix<Rational>([[1,",pr->it,pr->it);
+	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it);
+	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it);
 	    for (k=0;k<3;k++) {
 		if (res->g[0][k] == NULL) {fprintf(poly,"0");}
 		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");}
@@ -851,7 +851,7 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		if (k<2) fprintf(poly,",");
 	    }
 	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n");
-	fprintf(poly,"javaview($pp%d->VISUAL,File=>\"pp%d\");\n",pr->it,pr->it);
+	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it);
 
     fclose(poly);
     pr->it++;
@@ -877,7 +877,7 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
 		for (k=0; k<dims1; k++) {
 		    if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-			dimchange2->dim[dim2] = j; 
+			dimchange2->dim[dim2] = j;
 			dim2++;
 		    }
 		}
@@ -939,11 +939,11 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT of JOIN (des %d) [%x] ###\n",destructive, (intptr_t)res);
+    fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     //t1p_fprint(stdout, man, res, NULL);
     for (i=0; i<intdim+realdim;i++)
-      {fprintf(stream,"%d :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
-    fprintf(stream,"** %d **\n", pr->dim);
+      {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
+    fprintf(stream,"** %zu **\n", pr->dim);
     fprintf(stream, "### ### ###\n");
     fclose(stream);
 #endif
@@ -960,7 +960,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     t1p_internal_t* pr = (t1p_internal_t*)t1p_init_from_manager(man, AP_FUNID_JOIN);
     arg_assert(a1->dims==a2->dims && a1->intdim==a2->intdim,abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### JOIN OPERANDS (des %d) (%x U %x) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
+    fprintf(stdout, "### JOIN OPERANDS (des %d) (%tx U %tx) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
     //t1p_fprint(stdout, man, a1, NULL);
     //t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
@@ -1083,7 +1083,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
 		for (k=0; k<dims1; k++) {
 		    if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-			dimchange2->dim[dim2] = j; 
+			dimchange2->dim[dim2] = j;
 			dim2++;
 		    }
 		}
@@ -1142,7 +1142,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT of JOIN (des %d) [%x] ###\n",destructive, (intptr_t)res);
+    fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     //t1p_fprint(stdout, man, res, NULL);
     /*
     for (i=0; i<intdim+realdim;i++)
@@ -1150,7 +1150,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     fprintf(stream,"** %d **\n", pr->dim);
     fprintf(stream, "### ### ###\n");
     */
-    fprintf(stream,"-");num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%d\n",pr->dim);
+    fprintf(stream,"-");num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%zu\n",pr->dim);
     //t1p_fprint(stream,man,res,0);
     fclose(stream);
 #endif
@@ -1168,7 +1168,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
     t1p_internal_t* pr = (t1p_internal_t*)t1p_init_from_manager(man, AP_FUNID_JOIN);
     arg_assert(a1->dims==a2->dims && a1->intdim==a2->intdim,abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### JOIN OPERANDS (des %d) (%x U %x) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
+    fprintf(stdout, "### JOIN OPERANDS (des %d) (%tx U %tx) ###\n",destructive, (intptr_t)a1, (intptr_t)a2);
     //t1p_fprint(stdout, man, a1, NULL);
     //t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
@@ -1340,7 +1340,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 	itv_clear(un);
 
     FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
-	fprintf(poly,"$z%d=zonotope(new Matrix<Rational>([",pr->it);
+	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
 	for (i=0;i<pr->dim;i++) {
 	    if (res->g[i+1]) {
 	    fprintf(poly,"[0,");
@@ -1354,8 +1354,8 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 	    }
 	}
 	fprintf(poly,"]));\n");
-	fprintf(poly,"$p%d=new Polytope<Rational>(POINTS=>$z%d);\n",pr->it,pr->it);
-	fprintf(poly,"$pp%d=transform($p%d,new Matrix<Rational>([[1,",pr->it,pr->it);
+	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it);
+	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it);
 	    for (k=0;k<3;k++) {
 		if (res->g[0][k] == NULL) {fprintf(poly,"0");}
 		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");}
@@ -1363,7 +1363,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 		if (k<2) fprintf(poly,",");
 	    }
 	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n");
-	fprintf(poly,"javaview($pp%d->VISUAL,File=>\"pp%d\");\n",pr->it,pr->it);
+	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it);
 
     fclose(poly);
 
@@ -1388,7 +1388,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 		res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
 		for (k=0; k<dims1; k++) {
 		    if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-			dimchange2->dim[dim2] = j; 
+			dimchange2->dim[dim2] = j;
 			dim2++;
 		    }
 		}
@@ -1449,7 +1449,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 
 
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT of JOIN (des %d) [%x] ###\n",destructive, (intptr_t)res);
+    fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     //t1p_fprint(stdout, man, res, NULL);
     /*
     for (i=0; i<intdim+realdim;i++)
@@ -1460,7 +1460,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
     double inf, sup;
     double_set_num(&inf, bound_numref(res->box[0]->inf));
     double_set_num(&sup, bound_numref(res->box[0]->sup));
-    fprintf(stream,"-%f \t %f \t %d\n",inf, sup, pr->dim);
+    fprintf(stream,"-%f \t %f \t %zu\n",inf, sup, pr->dim);
     //num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%d\n",pr->dim);
     //t1p_fprint(stream,man,res,0);
     fclose(stream);
@@ -1490,4 +1490,3 @@ t1p_t* t1p_add_ray_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_gener
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_ADD_RAY_ARRAY);
     not_implemented();
 }
-

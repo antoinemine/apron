@@ -30,10 +30,10 @@ void camlidl_apron_scalar_ml2c(value v, struct ap_scalar_t* scalar)\n\
     scalar->val.dbl = Double_val(v2);\n\
     break;\n\
   case 1: /* MPQ */\n\
-    scalar->val.mpq = *(mpq_ptr*)(Data_custom_val(v2));\n\
+    camlidl_mpq_ptr_ml2c(v2,&scalar.val.mpq);\n\
     break;\n\
   case 2: /* MPFR */\n\
-    scalar->val.mpfr = *(mpfr_ptr*)(Data_custom_val(v2));\n\
+    camlidl_mpfr_ptr_ml2c(v2,&scalar.val.mpfr);\n\
     break;\n\
   default:\n\
     caml_failwith(\"unknown scalar discriminant in camlidl_apron_scalar_ml2c\");\n\

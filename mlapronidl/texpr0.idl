@@ -338,7 +338,7 @@ let print_sprint_unop op typ round =\n\
       Format.sprintf \"%s \" (print_string_of_unop op)\n\
     else\n\
       Format.sprintf \"%s_%s,%s \" (print_string_of_unop op)\n\
-        (print_string_of_typ typ) (print_string_of_round round)\n\
+	(print_string_of_typ typ) (print_string_of_round round)\n\
   end\n\
 let print_sprint_binop op typ round =\n\
   if typ=Real then\n\
