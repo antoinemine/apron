@@ -6,6 +6,7 @@
 #ifndef _NUM_TYPES_H_
 #define _NUM_TYPES_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,16 +14,18 @@
 #include "mpfr.h"
 
 #ifdef __cplusplus
-#define HAS_BOOL
+/* #define HAS_BOOL */
 extern "C" {
 #endif
 
+  /*
 #ifndef HAS_BOOL
 #define HAS_BOOL
 typedef char bool;
 static const bool false = 0;
 static const bool true  = 1;
 #endif
+  */
 
 typedef enum num_discr_t {
   NUM_Il, NUM_Ill, NUM_MPZ,
@@ -122,6 +125,7 @@ typedef numIl_native numIl_t[1];
 #define NUMIl_DIVEXACT 0
 #define NUMIl_NATIVE 1
 
+typedef numIl_ptr boundIl_ptr;
 typedef numIl_t boundIl_t;
 #define boundIl_numref(a) a
 #define _boundIl_inf(a)
@@ -138,6 +142,7 @@ typedef numIll_native numIll_t[1];
 #define NUMIll_DIVEXACT 0
 #define NUMIll_NATIVE 1
 
+typedef numIll_ptr boundIll_ptr;
 typedef numIll_t boundIll_t;
 #define boundIll_numref(a) a
 #define _boundIll_inf(a)
@@ -156,9 +161,11 @@ typedef mpz_t numMPZ_t;
 
 typedef struct _boundMPZ_struct {
   numMPZ_t num; /* always allocated, even if inf=1 */
-  char inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
+  bool inf;  /* 1 => +/-oo; the sign of num decides the sign of the oo
 		0 => >-oo, <+oo */
-} boundMPZ_t[1];
+} *boundMPZ_ptr;
+typedef struct  _boundMPZ_struct boundMPZ_t[1];
+
 #define boundMPZ_numref(a) a->num
 #define _boundMPZ_inf(a) a->inf = 0
 
@@ -180,6 +187,7 @@ typedef numIl_t numintRl_t;
 #define NUMRl_DIVEXACT 1
 #define NUMRl_NATIVE 1
 
+typedef numRl_ptr boundRl_ptr;
 typedef numRl_t boundRl_t;
 #define boundRl_numref(a) a
 #define _boundRl_inf(a)
@@ -198,6 +206,7 @@ typedef numIll_t numintRll_t;
 #define NUMRll_DIVEXACT 1
 #define NUMRll_NATIVE 1
 
+typedef numRll_ptr boundRll_ptr;
 typedef numRll_t boundRll_t;
 #define boundRll_numref(a) a
 #define _boundRll_inf(a)
@@ -212,6 +221,7 @@ typedef numMPZ_t numintMPQ_t;
 #define NUMMPQ_DIVEXACT 1
 #define NUMMPQ_NATIVE 0
 
+typedef numMPQ_ptr boundMPQ_ptr;
 typedef numMPQ_t boundMPQ_t;
 #define boundMPQ_numref(a) a
 #define _boundMPQ_inf(a)
@@ -241,6 +251,7 @@ typedef numD_native numD_t[1];
 #define NUMD_DIVEXACT 0
 #define NUMD_NATIVE 1
 
+typedef numD_ptr boundD_ptr;
 typedef numD_t boundD_t;
 #define boundD_numref(a) a
 #define _boundD_inf(a)
@@ -258,6 +269,7 @@ typedef numDl_native numDl_t[1];
 #define NUMDl_DIVEXACT 0
 #define NUMDl_NATIVE 1
 
+typedef numDl_ptr boundDl_ptr;
 typedef numDl_t boundDl_t;
 #define boundDl_numref(a) a
 #define _boundDl_inf(a)
@@ -274,6 +286,7 @@ typedef mpfr_t numMPFR_t;
 #define NUMMPFR_DIVEXACT 0
 #define NUMMPFR_NATIVE 0
 
+typedef numMPFR_ptr boundMPFR_ptr;
 typedef numMPFR_t boundMPFR_t;
 #define boundMPFR_numref(a) a
 #define _boundMPFR_inf(a)

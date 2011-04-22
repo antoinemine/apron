@@ -159,8 +159,8 @@ int numRyyy_snprint(char* s, size_t size, numRyyy_t a)
     res = numIyyy_snprint(s,size,a->n);
   else {
     res = numIyyy_snprint(s,size,a->n);
-    res += snprintf(s+res,size-res,"/");
-    res += numIyyy_snprint(s+res,size-res,a->n);
+    if ((unsigned int)res<size) res += snprintf(s+res,size-res,"/");
+    if ((unsigned int)res<size) res += numIyyy_snprint(s+res,size-res,a->n);
   }
   return res;
 }

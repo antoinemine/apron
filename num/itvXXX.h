@@ -198,6 +198,17 @@ int itvXXX_snprint(char* s, size_t size, itvXXX_t a);
 void itvXXX_fprint(FILE* stream, itvXXX_t a);
 void itvXXX_print(itvXXX_t a);
 
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+size_t itvXXX_serialize(void* dst, itvXXX_t src);
+size_t itvXXX_deserialize(itvXXX_t dst, const void* src);
+size_t itvXXX_serialized_size(itvXXX_t a);
+size_t itvXXX_serialize_array(void* dst, itvXXX_t* src, size_t size);
+size_t itvXXX_deserialize_array(itvXXX_t* dst, const void* src, size_t size);
+size_t itvXXX_serialized_size_array(itvXXX_t* src, size_t size);
+
 /* ********************************************************************** */
 /* Definition of inline functions */
 /* ********************************************************************** */

@@ -557,3 +557,48 @@ int itvXXX_snprint(char* s, size_t size, itvXXX_t a)
   count += snprintf(s+count,size-count,"]");
   return count;
 }
+
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+size_t itvXXX_serialize(void* dst, itvXXX_t src)
+{
+  size_t res = boundXXX_serialize(dst,src->neginf);
+  res += boundXXX_serialize((char*)dst+res,src->sup);
+  return res;
+}
+size_t itvXXX_deserialize(itvXXX_t dst, const void* src)
+{
+  size_t res = boundXXX_deserialize(dst->neginf,src);
+  res += boundXXX_deserialize(dst->sup,(const char*)src+res);
+  return res;
+}
+size_t itvXXX_serialized_size(itvXXX_t a)
+{
+  return boundXXX_serialized_size(a->neginf) + boundXXX_serialized_size(a->sup);
+}
+
+size_t itvXXX_serialize_array(void* dst, itvXXX_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += itvXXX_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+size_t itvXXX_deserialize_array(itvXXX_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += itvXXX_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+size_t itvXXX_serialized_size_array(itvXXX_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += itvXXX_serialized_size(src[i]);
+  return n;
+}
