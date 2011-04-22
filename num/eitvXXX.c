@@ -296,7 +296,7 @@ size_t eitvXXX_serialize(void* dst, eitvXXX_t src)
 
 size_t eitvXXX_deserialize(eitvXXX_t dst, const void* src)
 {
-  dst->eq = (*((char*)src) == 1);
+  dst->eq = (*((const char*)src) == 1);
   return 1 + itvXXX_deserialize(dst->itv,(const char*)src+1);
 }
 size_t eitvXXX_serialized_size(eitvXXX_t a)
