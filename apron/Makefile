@@ -50,12 +50,12 @@ H_ORIG_FILES = \
 ap_config.h ap_dimension.h ap_texpr0.h ap_tcons0.h \
 ap_manager.h ap_var.h ap_environment.h \
 ap_check0.h ap_abstract0.h \
-ap_generic.h ap_abstract1.h
+ap_generic.h ap_abstract1.h ap_reducedproduct.h
 
 C_ORIG_FILES = \
 ap_dimension.c ap_texpr0.c ap_tcons0.c \
 ap_manager.c ap_var.c ap_environment.c \
-ap_abstract0.c ap_abstract1.c
+ap_abstract0.c ap_abstract1.c ap_reducedproduct.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)

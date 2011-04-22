@@ -54,7 +54,8 @@ typedef ap_lintermXXX_struct ap_lintermXXX_t[1];
 /* Interval linear expression */
 typedef struct ap_linexprXXX_struct {
   ap_lintermXXX_t* linterm;
-  size_t size;
+  unsigned int effsize;
+  unsigned int maxsize;
   eitvXXX_t cst;
 } ap_linexprXXX_struct;
 typedef ap_linexprXXX_struct ap_linexprXXX_t[1];

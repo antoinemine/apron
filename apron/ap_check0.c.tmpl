@@ -237,23 +237,18 @@ MACRO_MAINZ
 ap_dim_t ap_check0_linexprZZZ_dim(ap_dimension_t dimension,
 				  ap_linexprZZZ_t expr)
 {
-  int i;
   size_t nbdims;
   ap_dim_t dim;
 
   nbdims = dimension.intd+dimension.reald;
-  dim = 0;
-  /* Assumed to be sorted (this is not checked */
-  for (i=expr->size-1; i>=0; i--){
-    dim = expr->linterm[i]->dim;
-    if (dim!=AP_DIM_MAX){
-      if (dim < nbdims)
-	dim = AP_DIM_MAX;
-      ;
-      break;
-    }
+  /* Assumed to be sorted (this is not checked) */
+  if (expr->effsize==0)
+    dim = AP_DIM_MAX;
+  else {
+    dim = expr->linterm[expr->effsize-1]->dim;
+    if (dim < nbdims)
+      dim = AP_DIM_MAX;
   }
-  if (!dim) dim = AP_DIM_MAX;
   return dim;
 }
 ENDMACRO

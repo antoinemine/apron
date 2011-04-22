@@ -19,7 +19,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
   tbool_t res;
   eitvXXX_ptr cst = lincons->linexpr->cst;
 
-  assert (lincons->linexpr->size==0);
+  assert (lincons->linexpr->effsize==0);
   if (eitvXXX_is_bottom(cst, intern)){
     return tbool_false;
   }
@@ -135,20 +135,20 @@ bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, num_internal_t intern)
     break;
   }
   if (!res &&
-      lincons->linexpr->size==0 &&
+      lincons->linexpr->effsize==0 &&
       ap_linconsXXX_evalcst(lincons, intern)==tbool_false){
     res = true;
   }
   return res;
 }
 
-static 
+static
 bool
 ap_linconsXXX_is_useless_for_meet(ap_linconsXXX_t lincons, num_internal_t intern)
 {
   bool res = false;
   eitvXXX_ptr cst = lincons->linexpr->cst;
-  if (lincons->linexpr->size==0){
+  if (lincons->linexpr->effsize==0){
     if (ap_linconsXXX_evalcst(lincons, intern)!=tbool_false)
       res = true;
   }
@@ -324,7 +324,7 @@ tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool for_meet_in
   i = 0;
   size = array->size;
   while (i<size){
-    if (array->p[i]->linexpr->size==0){
+    if (array->p[i]->linexpr->effsize==0){
       tbool_t sat = ap_linconsXXX_evalcst(array->p[i], intern);
       if (sat==tbool_true){
       ap_linconsXXX_array_reduce_remove:
@@ -350,7 +350,7 @@ tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool for_meet_in
   ap_linconsXXX_array_resize(array,size);
   if (size==0)
     res = tbool_true;
-  else if (size==1 && array->p[0]->linexpr->size==0)
+  else if (size==1 && array->p[0]->linexpr->effsize==0)
     res = ap_linconsXXX_evalcst(array->p[0], intern);
   return res;
 }
@@ -402,7 +402,7 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
 				   num_internal_t intern)
 {
   size_t index,size,sizeorg;
-  
+
   tbool_t res = ap_linconsXXX_array_reduce(array,for_meet_inequality,intern);
   if (res!=tbool_top) return;
 
@@ -426,7 +426,7 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
 	      ap_linconsXXX_array_resize(array,1+5*array->size/4);
 	    }
 	    /* Be cautious: cons and cst may be invalid now */
-            ap_linconsXXX_set(array->p[size],array->p[index]);
+	    ap_linconsXXX_set(array->p[size],array->p[index]);
 	    array->p[index]->constyp = AP_CONS_SUPEQ;
 	    array->p[size]->constyp  = AP_CONS_SUPEQ;
 	    ap_linconsXXX_select_sup(array->p[index]);
@@ -449,7 +449,7 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
       case AP_CONS_SUP:
 	if (for_meet_inequality){
 	  assert(sup);
-          ap_linconsXXX_select_sup(array->p[index]);
+	  ap_linconsXXX_select_sup(array->p[index]);
 	}
 	else {
 	  assert(!boundXXX_infty(cst->itv->neginf));
@@ -484,13 +484,13 @@ bool ap_linconsXXX_array_set_tcons0_array(
   ap_linconsXXX_array_resize(lincons,cons->size);
   for (i=0; i<cons->size; i++){
     res =
-      ap_linconsXXX_set_tcons0(lincons->p[i],perror,cons->p[i],intern) 
+      ap_linconsXXX_set_tcons0(lincons->p[i],perror,cons->p[i],intern)
       && res;
     if (*perror) break;
   }
   return res;
 }
-  
+
 void ap_linconsXXX_intlinearize_tcons0(
     ap_linconsXXX_t lincons, struct ap_tcons0_t* cons,
     ap_linexprXXX_t env, size_t intdim, num_internal_t intern)
@@ -509,7 +509,7 @@ void ap_linconsXXX_array_intlinearize_tcons0_array(
   ap_linconsXXX_array_resize(lincons,cons->size);
   for (i=0; i<cons->size; i++){
     ap_linconsXXX_intlinearize_tcons0(lincons->p[i],cons->p[i],
-                                      env,intdim,intern);
+				      env,intdim,intern);
   }
 }
 
@@ -788,7 +788,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
       }
     }
   }
-  if (expr->size==0 &&
+  if (expr->effsize==0 &&
       ap_linconsXXX_evalcst(cons, intern)==tbool_false){
     eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
     eitvXXX_set_bottom(res0);

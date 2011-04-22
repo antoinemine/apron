@@ -150,6 +150,8 @@ bool ap_coeff_is_neg(ap_coeff_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
 bool ap_coeff_is_top(ap_coeff_t a);
   /* Return true iff the interval is resp. [-oo,+oo] */
+  bool ap_coeff_is_bottom(ap_coeff_t a, num_internal_t num);
+  /* Return true iff the interval is empty */
 bool ap_coeff_is_eq(ap_coeff_t a, ap_coeff_t b);
 
 /* ====================================================================== */

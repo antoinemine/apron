@@ -282,7 +282,7 @@ ap_tzzz1_array_t ap_tzzz1_array_extend_environment_dimchange(
   return narray;
 }
 bool ap_tzzz1_array_extend_environment_with(ap_tzzz1_array_t* array,
-                                            ap_environment_t* nenv)
+					    ap_environment_t* nenv)
 {
   ap_environment_t* env;
   ap_dimchange_t* dimchange = ap_environment_dimchange(array->env,nenv);
@@ -293,8 +293,8 @@ bool ap_tzzz1_array_extend_environment_with(ap_tzzz1_array_t* array,
 }
 ap_tzzz1_array_t
 ap_tzzz1_array_extend_environment(bool* perror,
-                                  ap_tzzz1_array_t* array,
-                                  ap_environment_t* nenv)
+				  ap_tzzz1_array_t* array,
+				  ap_environment_t* nenv)
 {
   ap_tzzz1_array_t narray;
   ap_dimchange_t* dimchange = ap_environment_dimchange(array->env,nenv);
