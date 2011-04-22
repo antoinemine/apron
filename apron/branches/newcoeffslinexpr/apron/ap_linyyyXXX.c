@@ -18,7 +18,8 @@
 void ap_linexprXXX_init(ap_linexprXXX_t expr, size_t size)
 {
   expr->linterm = NULL;
-  expr->size = 0;
+  expr->effsize = 0;
+  expr->maxsize = 0;
   eitvXXX_init(expr->cst);
   ap_linexprXXX_resize(expr,size);
 }
@@ -27,12 +28,13 @@ void ap_linexprXXX_init_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
   size_t i,size;
 
   eitvXXX_init_set(res->cst,expr->cst);
-  size = expr->size;
+  size = expr->effsize;
   res->linterm = malloc(size*sizeof(ap_lintermXXX_t));
   for (i=0;i<size;i++){
     ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
   }
-  res->size = size;
+  res->effsize = size;
+  res->maxsize = size;
 }
 void ap_linexprXXX_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 {
@@ -41,52 +43,60 @@ void ap_linexprXXX_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
   if (res==expr) return;
 
   eitvXXX_set(res->cst,expr->cst);
-  for  (i=expr->size; i<res->size; i++){
-    ap_lintermXXX_clear(res->linterm[i]);
+
+  if (res->maxsize < expr->effsize){
+    size = res->maxsize;
+    res->linterm = realloc(res->linterm,expr->effsize*sizeof(ap_lintermXXX_t));
+    res->maxsize = expr->effsize;
+    for (i=size; i<expr->effsize;i++){
+      ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
+    }
   }
-  res->linterm = realloc(res->linterm,expr->size*sizeof(ap_lintermXXX_t));
-  size = res->size < expr->size ? res->size : expr->size;
+  else {
+    size = expr->effsize;
+  }
   for (i=0;i<size;i++){
     ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
   }
-  for (i=size; i<expr->size;i++){
-    ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
-  }
-  res->size = expr->size;
+  res->effsize = expr->effsize;
 }
 
-void ap_linexprXXX_resize(ap_linexprXXX_t expr, size_t size)
+void ap_linexprXXX_resize_strict(ap_linexprXXX_t expr, size_t size)
 {
   size_t i;
 
-  for  (i=size; i<expr->size; i++){
-    ap_lintermXXX_clear(expr->linterm[i]);
+  if (size!=expr->maxsize){
+    expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
+    expr->maxsize = size;
+    if (size<expr->maxsize){
+      for (i=expr->maxsize;i<size;i++){
+	ap_lintermXXX_init(expr->linterm[i]);
+      }
+    }
+    else {
+      for (i=size; i<expr->maxsize; i++){
+	ap_lintermXXX_clear(expr->linterm[i]);
+      }
+      if (expr->effsize>size) expr->effsize = size;
+    }
   }
-  expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
-  for (i=expr->size;i<size;i++){
-    ap_lintermXXX_init(expr->linterm[i]);
-  }
-  expr->size = size;
   return;
 }
 void ap_linexprXXX_minimize(ap_linexprXXX_t e)
 {
   size_t i,j,nsize;
-
   nsize = 0;
-  for (i=0; i<e->size; i++){
+  for (i=0; i<e->effsize; i++){
     ap_lintermXXX_ptr lin = e->linterm[i];
-    if (lin->dim == AP_DIM_MAX)
-      break;
     if (!eitvXXX_is_zero(lin->eitv))
       nsize++;
     else
       lin->dim = AP_DIM_MAX;
   }
-  if (nsize!=e->size){
+  if (nsize!=e->effsize){
     ap_lintermXXX_t* linterm = malloc(nsize*sizeof(ap_lintermXXX_t));
     j = 0;
-    for (i=0; i<e->size; i++){
+    for (i=0; i<e->effsize; i++){
       ap_lintermXXX_ptr lin = e->linterm[i];
       if (lin->dim != AP_DIM_MAX){
 	*(linterm[j]) = *lin;
@@ -97,19 +107,21 @@ void ap_linexprXXX_minimize(ap_linexprXXX_t e)
     }
     free(e->linterm);
     e->linterm = linterm;
-    e->size = nsize;
+    e->effsize = nsize;
+    e->maxsize = nsize;
   }
 }
 void ap_linexprXXX_clear(ap_linexprXXX_t expr)
 {
   size_t i;
   if (expr->linterm){
-    for (i=0;i<expr->size;i++){
+    for (i=0;i<expr->maxsize;i++){
       ap_lintermXXX_clear(expr->linterm[i]);
     }
     free(expr->linterm);
     expr->linterm = NULL;
-    expr->size = 0;
+    expr->effsize = 0;
+    expr->maxsize = 0;
   }
   eitvXXX_clear(expr->cst);
 }
@@ -119,7 +131,7 @@ void ap_linexprXXX_clear(ap_linexprXXX_t expr)
 void ap_linconsXXX_set_bool(ap_linconsXXX_t lincons, bool value)
 {
   /* constraint 0=0 if value, 1=0 otherwise */
-  ap_linexprXXX_resize(lincons->linexpr,0);
+  ap_linexprXXX_resize_strict(lincons->linexpr,0);
   eitvXXX_set_int(lincons->linexpr->cst,value ? 0 : 1);
   lincons->constyp = AP_CONS_EQ;
 }
@@ -299,21 +311,9 @@ size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
 /* ====================================================================== */
 
 #if defined(_AP_expr_MARK_)
-size_t ap_linexprXXX_size(ap_linexprXXX_t expr)
-{
-  size_t i,dim,size;
-  eitvXXX_ptr eitv;
-
-  size = 0;
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    size++;
-  }
-  return size;
-}
-
 static size_t index_of_or_after_dim(ap_dim_t dim, ap_lintermXXX_t* linterm, size_t size)
 {
-  if (size<=10){
+  if (size<=6){
     size_t i;
     for (i=0; i<size; i++){
       if (dim<=linterm[i]->dim)
@@ -336,31 +336,26 @@ eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool crea
 {
   size_t index;
 
-  index = index_of_or_after_dim(dim,expr->linterm,expr->size);
-  if (index<expr->size && dim == expr->linterm[index]->dim)
+  index = index_of_or_after_dim(dim,expr->linterm,expr->effsize);
+  if (index<expr->effsize && dim == expr->linterm[index]->dim)
     return expr->linterm[index]->eitv;
   else if (create==false){
     return NULL;
   }
   else {
-    if (index<expr->size && expr->linterm[index]->dim==AP_DIM_MAX){
-      /* We have a free linterm at the right place */
-      expr->linterm[index]->dim=dim;
+    if (expr->effsize==expr->maxsize){
+      ap_linexprXXX_resize_strict(expr, expr->effsize+4);
     }
-    else {
-      if (expr->size==0 || expr->linterm[expr->size-1]->dim!=AP_DIM_MAX){
-	/* We have to insert a new linterm at the end */
-	ap_linexprXXX_resize(expr, expr->size+1);
-      }
-      /* We insert a linterm with AP_DIM_MAX at the right place */
-      if (index<expr->size-1){
-	ap_lintermXXX_struct tmp = *(expr->linterm[expr->size-1]);
-	memmove(&expr->linterm[index+1], &expr->linterm[index],
-		(expr->size-index-1)*sizeof(ap_lintermXXX_t));
-	*(expr->linterm[index]) = tmp;
-      }
-      expr->linterm[index]->dim = dim;
+    /* We insert a new linterm at the end */
+    expr->linterm[expr->effsize]->dim=dim;
+    /* We put it at the right place if needed */
+    if (index < expr->effsize){
+      ap_lintermXXX_struct tmp = *(expr->linterm[expr->effsize]);
+      memmove(&expr->linterm[index+1], &expr->linterm[index],
+	      (expr->effsize-index)*sizeof(ap_lintermXXX_t));
+      *(expr->linterm[index]) = tmp;
     }
+    expr->effsize++;
     return expr->linterm[index]->eitv;
   }
 }
@@ -528,10 +523,8 @@ void ap_linexprXXX_add_dimensions(ap_linexprXXX_t res,
   }
   dimsup = dimchange->dim.intd+dimchange->dim.reald;
   k=0;
-  for (i=0; i<res->size; i++){
+  for (i=0; i<res->effsize; i++){
     ap_dim_t* pdim = &res->linterm[i]->dim;
-    if (*pdim==AP_DIM_MAX)
-      break;
     while (k<dimsup && *pdim>=dimchange->p[k]){
       k++;
     }
@@ -579,14 +572,14 @@ void ap_linexprXXX_permute_dimensions(ap_linexprXXX_t res,
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  for (i=0; i<res->size; i++){
+  for (i=0; i<res->effsize; i++){
     ap_dim_t* pdim = &res->linterm[i]->dim;
     ap_dim_t dim = *pdim;
     if (*pdim==AP_DIM_MAX) continue;
     *pdim = perm->p[dim];
   }
   qsort(res->linterm,
-	res->size,
+	res->effsize,
 	sizeof(ap_lintermXXX_t),
 	&ap_lintermXXX_cmp);
 }
@@ -604,10 +597,10 @@ int ap_linexprXXX_hash(ap_linexprXXX_t expr)
   size_t size,i,dec;
   int res,res1;
 
-  size = ap_linexprXXX_size(expr);
+  size = expr->effsize;
   res = size << 8;
   dec = 0;
-  for (i=0; i<size; i += (expr->size+7)/8){
+  for (i=0; i<size; i += (size+7)/8){
     eitv = expr->linterm[i]->eitv;
     res1 = eitvXXX_hash(eitv);
     res += res1<<dec;
@@ -618,7 +611,7 @@ int ap_linexprXXX_hash(ap_linexprXXX_t expr)
 #endif
 
 #if defined(_AP_expr_MARK_)
-int ap_linexprXXX_compare(ap_linexprXXX_t exprA, ap_linexprXXX_t exprB)
+int ap_linexprXXX_cmp(ap_linexprXXX_t exprA, ap_linexprXXX_t exprB)
 {
   size_t i,j;
   bool endA,endB;
@@ -628,8 +621,8 @@ int ap_linexprXXX_compare(ap_linexprXXX_t exprA, ap_linexprXXX_t exprB)
   i = j = 0;
   endA = endB = false;
   while (res==0){
-    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == AP_DIM_MAX;
-    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == AP_DIM_MAX;
+    endA = endA || (i==exprA->effsize);
+    endB = endB || (j==exprB->effsize);
     if (endA && endB)
       break;
     if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
@@ -651,14 +644,14 @@ int ap_linexprXXX_compare(ap_linexprXXX_t exprA, ap_linexprXXX_t exprB)
   return res;
 }
 #else
-int ap_linyyyXXX_compare(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2)
+int ap_linyyyXXX_cmp(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2)
 {
   int res;
   res =
     a1->yyytyp > a2->yyytyp ? 1 :
     (a1->yyytyp==a2->yyytyp ? 0 : -1);
   if (!res){
-    res = ap_linexprXXX_compare(a1->linexpr,a2->linexpr);
+    res = ap_linexprXXX_cmp(a1->linexpr,a2->linexpr);
 #if defined(_AP_cons_MARK_)
     if (!res && a1->constyp==AP_CONS_EQMOD){
       res = mpq_cmp(a1->mpq,a2->mpq);

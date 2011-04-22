@@ -36,8 +36,8 @@ bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t co
 
   eitvXXX_is_point(coeff);
   if (eitvXXX_is_zero(coeff)){
-    eitvXXX_set(expr->cst,coeff);
-    ap_linexprXXX_resize(expr,0);
+    eitvXXX_set_int(res->cst,0);
+    ap_linexprXXX_resize(res,0);
     return true;
   }
   if (res!=expr){
@@ -76,17 +76,20 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
 		       ap_linexprXXX_t exprA,
 		       ap_linexprXXX_t exprB, num_internal_t intern)
 {
+
+
+
   bool exact = true;
   size_t i,j,k;
   ap_linexprXXX_t expr;
   bool endA,endB;
 
   if (res==exprA || res==exprB){
-    ap_linexprXXX_init(expr,exprA->size+exprB->size);
+    ap_linexprXXX_init(expr,exprA->effsize+exprB->effsize);
   }
   else {
     *expr = *res;
-    ap_linexprXXX_resize(expr,exprA->size+exprB->size);
+    ap_linexprXXX_resize(expr,exprA->effsize+exprB->effsize);
   }
   i = j = k = 0;
   endA = endB = false;
@@ -95,8 +98,8 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
   if (eitvXXX_is_top(expr->cst))
     goto _ap_linexprXXX_add_return;
   while (true){
-    endA = endA || (i==exprA->size) || exprA->linterm[i]->dim == AP_DIM_MAX;
-    endB = endB || (j==exprB->size) || exprB->linterm[j]->dim == AP_DIM_MAX;
+    endA = endA || (i==exprA->effsize) || exprA->linterm[i]->dim == AP_DIM_MAX;
+    endB = endB || (j==exprB->effsize) || exprB->linterm[j]->dim == AP_DIM_MAX;
     if (endA && endB)
       break;
     if (endA || (!endB && exprB->linterm[j]->dim < exprA->linterm[i]->dim)){
@@ -118,7 +121,9 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
     }
   }
  _ap_linexprXXX_add_return:
-  ap_linexprXXX_resize(expr,k);
+  expr->effsize = k;
+  if (k<expr->maxsize+4)
+    ap_linexprXXX_resize_strict(expr,k);
   if (res==exprA || res==exprB){
     ap_linexprXXX_clear(res);
   }
@@ -134,7 +139,7 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t res,
     ap_linexprXXX_t expr;
     ap_linexprXXX_init(expr,0);
     ap_linexprXXX_neg(expr,exprB);
-    exact = ap_linexprXXX_add(res,exprA,expr, intern);
+    exact = ap_linexprXXX_add(res,exprA, expr, intern);
     ap_linexprXXX_clear(expr);
   }
   else {
@@ -153,7 +158,7 @@ bool ap_linexprXXX_sub(ap_linexprXXX_t res,
 
 /* Evaluate an interval linear expression */
 bool eitvXXX_eval_ap_linexpr0(
-    eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t env, 
+    eitvXXX_t res, ap_linexpr0_t expr, ap_linexprXXX_t env,
     num_internal_t intern
 )
 {
@@ -193,7 +198,7 @@ bool eitvXXX_eval_ap_linexpr0(
 }
 
 bool ap_linexprXXX_eval(
-    eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env, 
+    eitvXXX_t res, ap_linexprXXX_t expr, ap_linexprXXX_t env,
     num_internal_t intern
 )
 {
@@ -276,11 +281,11 @@ static void
 eitvXXX_quasilinearize_choose_middle(
     numXXX_t middle, /* the result */
     eitvXXX_t coeff, /* the coefficient in which
-                        middle is to be picked */
+			middle is to be picked */
     eitvXXX_t var,   /* the variable interval */
     bool for_meet_inequality /* is it for the
-                                linearisation of
-                                an inequality ? */
+				linearisation of
+				an inequality ? */
 )
 {
   if (boundXXX_infty(coeff->itv->neginf)){
@@ -832,9 +837,9 @@ ap_linexprXXX_texpr0_reduce(ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in/ou
   if (eitvXXX_is_bottom(i, intern) || eitvXXX_is_bottom(l->cst, intern)) {
     eitvXXX_set_bottom(i);
     eitvXXX_set_bottom(l->cst);
-    if (l->size>0) ap_linexprXXX_resize(l,0);
+    if (l->effsize>0) ap_linexprXXX_resize_strict(l,0);
   }
-  else if (l->size==0){
+  else if (l->effsize==0){
     eitvXXX_set(l->cst,i);
   }
   eitvXXX_clear(tmp);
@@ -848,8 +853,8 @@ ap_linexprXXX_texpr0_cmp_range(ap_linexprXXX_t la, eitvXXX_t ia,
 {
   int sgn_a,sgn_b;
   /* if one linear form is an interval keep it */
-  if (la->size==0) return 0;
-  if (lb->size==0) return 1;
+  if (la->effsize==0) return 0;
+  if (lb->effsize==0) return 1;
   /* if only one interval has constant sign, keep it */
   sgn_a = eitvXXX_is_pos(ia) || eitvXXX_is_neg(ia);
   sgn_b = eitvXXX_is_pos(ib) || eitvXXX_is_neg(ib);
@@ -1113,7 +1118,7 @@ void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t res,
   eitvXXX_init(i);
   ap_linexprXXX_intlinearize_texpr0_rec(res,i,expr,env,intdim,intern);
   if (!eitvXXX_is_bottom(i, intern) && !eitvXXX_is_bottom(res->cst, intern)) {
-    if (res->size==0){
+    if (res->effsize==0){
       eitvXXX_meet(res->cst,res->cst,i, intern);
     }
   }

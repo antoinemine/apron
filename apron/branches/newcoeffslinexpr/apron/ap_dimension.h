@@ -29,8 +29,8 @@ typedef unsigned int ap_dim_t;
 
 /* Datatype for specifying the dimensionality of an abstract value */
 typedef struct ap_dimension_t {
-  size_t intd;
-  size_t reald;
+  ap_dim_t intd;
+  ap_dim_t reald;
 } ap_dimension_t;
 
 /* Datatype for specifying change of dimension (addition or removal) */
@@ -92,7 +92,7 @@ typedef struct ap_dimperm_t {
 /* ====================================================================== */
 
 static inline
-ap_dimension_t ap_dimension_make(size_t intd, size_t reald)
+ap_dimension_t ap_dimension_make(ap_dim_t intd, ap_dim_t reald)
 { ap_dimension_t dim; dim.intd=intd; dim.reald=reald; return dim; }
 static inline
 ap_dimension_t ap_dimension_add(ap_dimension_t a, ap_dimension_t b)
@@ -110,7 +110,7 @@ size_t ap_dimension_size(ap_dimension_t a)
 
 void ap_dimchange_init(ap_dimchange_t* dimchange, ap_dimension_t dim);
   /* Initialize a dimchange structure (allocate internal array) */
-  ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim);
+ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim);
   /* Allocate and initialize a dimchange structure */
 
 static inline void ap_dimchange_clear(ap_dimchange_t* dimchange);

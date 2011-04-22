@@ -195,6 +195,14 @@ bool ap_coeff_is_top(ap_coeff_t a)
   ENDSWITCH
   return res;
 }
+bool ap_coeff_is_bottom(ap_coeff_t a, num_internal_t num)
+{
+  bool res;
+  SWITCH(a->discr)
+    res = eitvXXX_is_bottom(a->eitv.XXX,num);
+  ENDSWITCH
+  return res;
+}
 bool ap_coeff_equal(ap_coeff_t a, ap_coeff_t b)
 {
   bool res;

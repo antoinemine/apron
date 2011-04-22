@@ -20,16 +20,16 @@ extern "C" {
 /* (internal) abstract value for a product */
 typedef struct ap_reducedproduct_t {
   bool reduced; /* is the product reduced ? */
-  void* p[0];   /* array of internal abstract values, 
-		   the size of which is specified in the associated 
+  void* p[0];   /* array of internal abstract values,
+		   the size of which is specified in the associated
 		   ap_reducedproduct_internal_t */
 } ap_reducedproduct_t;
 
 /* internal field of manager */
 typedef struct ap_reducedproduct_internal_t {
-  void (*reduce)(ap_manager_t*, ap_reducedproduct_t*);             
+  void (*reduce)(ap_manager_t*, ap_reducedproduct_t*);
     /* reduce function */
-  void (*approximate)(ap_manager_t*, ap_reducedproduct_t*, int n); 
+  void (*approximate)(ap_manager_t*, ap_reducedproduct_t*, int n);
     /* approximate function */
   char* library;               /* (constructed) library name  */
   char* version;               /* (constructed) library version */
@@ -46,9 +46,9 @@ ap_manager_t* ap_reducedproduct_manager_alloc
  char* library, /* library name */
  ap_manager_t** tab,  /* Array of managers */
  size_t size,         /* size of array */
- void (*reduce)(ap_manager_t*, ap_reducedproduct_t*),            
+ void (*reduce)(ap_manager_t*, ap_reducedproduct_t*),
    /* reduce function */
- void (*approximate)(ap_manager_t*, ap_reducedproduct_t*, int n) 
+ void (*approximate)(ap_manager_t*, ap_reducedproduct_t*, int n)
    /* approximate function */
 );
 

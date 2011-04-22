@@ -65,7 +65,7 @@ bool ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_t array,
 struct ap_texpr0_t;
 struct ap_texpr0_array_t;
 bool ap_linexprXXX_set_texpr0(
-    ap_linexprXXX_t linexpr, bool* perror, 
+    ap_linexprXXX_t linexpr, bool* perror,
     struct ap_texpr0_t* expr, num_internal_t intern);
 bool ap_linexprXXX_array_set_texpr0_array(
     ap_linexprXXX_array_t linexpr, bool* perror,
@@ -80,11 +80,11 @@ bool eitvXXX_eval_ap_texpr0(
     eitvXXX_t res, struct ap_texpr0_t* texpr, ap_linexprXXX_t env,
     num_internal_t intern);
 void ap_linexprXXX_intlinearize_texpr0(
-    ap_linexprXXX_t linexpr, 
-    struct ap_texpr0_t* expr, ap_linexprXXX_t env, size_t intdim, 
+    ap_linexprXXX_t linexpr,
+    struct ap_texpr0_t* expr, ap_linexprXXX_t env, size_t intdim,
     num_internal_t intern);
 void ap_linexprXXX_array_intlinearize_texpr0_array(
-    ap_linexprXXX_array_t linexpr, 
+    ap_linexprXXX_array_t linexpr,
     struct ap_texpr0_array_t* texpr, ap_linexprXXX_t env, size_t intdim,
     num_internal_t intern);
   /* Return true if no approximations. */

@@ -160,11 +160,11 @@ ap_texpr1_t ap_tcons1_texpr1ref(ap_tcons1_t* cons);
 /* ====================================================================== */
 
 ap_tzzz1_t* ap_tzzz1_extend_environment_dimchange(ap_tzzz1_t* a,
-                                                  ap_environment_t* nenv,
-                                                  ap_dimchange_t* dimchange);
+						  ap_environment_t* nenv,
+						  ap_dimchange_t* dimchange);
 void ap_tzzz1_extend_environment_dimchange_with(ap_tzzz1_t* a,
-                                                ap_environment_t* nenv,
-                                                ap_dimchange_t* dimchange);
+						ap_environment_t* nenv,
+						ap_dimchange_t* dimchange);
 ap_tzzz1_t* ap_tzzz1_extend_environment(ap_tzzz1_t* a, ap_environment_t* nenv);
   /* Change current environment with a super-environment.
      Return NULL if nenv is not a superenvironment  */
@@ -312,7 +312,7 @@ void ap_tzzz1_array_free_index(ap_tzzz1_array_t* array, size_t index)
     array->tzzz0_array.p[index] = NULL;
   }
 }
- 
+
 #undef _AP_Tzzz1_MARK_
 
 #ifdef __cplusplus

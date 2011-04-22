@@ -34,22 +34,18 @@ extern "C" {
 /* ====================================================================== */
 
 #if defined(_AP_expr_MARK_)
-static inline void ap_lintermXXX_init(ap_lintermXXX_t term)
-{ eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
-static inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
-{ eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
-static inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
-{ eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
-static inline void ap_lintermXXX_clear(ap_lintermXXX_t term)
-{ eitvXXX_clear(term->eitv); }
-static inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
-{ if (a!=b){ ap_lintermXXX_struct t=*a; *a=*b; *b=t; } }
+static inline void ap_lintermXXX_init(ap_lintermXXX_t term);
+static inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term);
+static inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term);
+static inline void ap_lintermXXX_clear(ap_lintermXXX_t term);
+static inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b);
 #endif
 
 cinline void ap_linyyyXXX_init(ap_linyyyXXX_t a,size_t size);
 cinline void ap_linyyyXXX_init_set(ap_linyyyXXX_t res, ap_linyyyXXX_t a);
 cinline void ap_linyyyXXX_set(ap_linyyyXXX_t res, ap_linyyyXXX_t a);
-cinline void ap_linyyyXXX_resize(ap_linyyyXXX_t a, size_t size);
+static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t a, size_t size);
+cinline void ap_linyyyXXX_resize_strict(ap_linyyyXXX_t a, size_t size);
 cinline void ap_linyyyXXX_minimize(ap_linyyyXXX_t e);
 cinline void ap_linyyyXXX_clear(ap_linyyyXXX_t a);
 static inline void ap_linyyyXXX_swap(ap_linyyyXXX_t a, ap_linyyyXXX_t b);
@@ -89,7 +85,7 @@ cinline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim);
    linear expression, in increasing order, and return the number of such
    dimensions.
 
-   tdim is supposed to be of size at least the maximum dimension + 1 in the
+   tdim is supposed to be of size at least the number of terms in the
    expression.
  */
 
@@ -97,8 +93,8 @@ cinline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim);
 /* I.3 Access */
 /* ====================================================================== */
 
-cinline size_t ap_linyyyXXX_size(ap_linyyyXXX_t a);
-  /* Get the size of the linear expression */
+static inline size_t ap_linyyyXXX_size(ap_linyyyXXX_t a);
+  /* Get the (effective) size of the linear expression */
 
 static inline void ap_linyyyXXX_get_cst(eitvXXX_t eitv, ap_linyyyXXX_t a);
 cinline void ap_linyyyXXX_get_eitv0(eitvXXX_t eitv, ap_linyyyXXX_t a, ap_dim_t dim);
@@ -149,7 +145,6 @@ bool ap_linyyyXXX_set_list1(num_internal_t intern, ap_linyyyXXX_t a, bool* perro
 
 #if defined(_AP_expr_MARK_)
 /* Internal function */
-void itvXXX_support_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_dim(
     ap_linexprXXX_t expr, ap_environment_t* env, bool cst, va_list* va);
 eitvXXX_ptr ap_linexprXXX_set_list_get_eitvXXX_of_var(
@@ -175,18 +170,18 @@ bool ap_linexprXXX_set_list_generic(
 */
 #define ap_linexprXXX_ForeachLinterm0(_p_e, _p_i, _p_d, _p_eitv)	\
   for ((_p_i)=0;							\
-       (_p_i)<(_p_e)->size ?						\
+       (_p_i)<(_p_e)->effsize ?						\
 	 (((_p_d) = (_p_e)->linterm[_p_i]->dim),			\
 	  ((_p_eitv) = (_p_e)->linterm[_p_i]->eitv),			\
-	  ((_p_d)!=AP_DIM_MAX)) :					\
+	  true) :                                                       \
 	 false;								\
        (_p_i)++)
 #define ap_linexprXXX_ForeachLinterm1(_p_e, _p_env, _p_i, _p_v, _p_eitv) \
   for ((_p_i)=0;							\
-       (_p_i)<(_p_e)->size ?						\
+       (_p_i)<(_p_e)->effsize ?						\
 	 (((_p_v) = ap_environment_var_of_dim((_p_e)->linterm[_p_i]->dim)), \
 	  ((_p_eitv) = (_p_e)->linterm[_p_i]->eitv),			\
-	  ((_p_v)!=NULL)) :						\
+	  true) :                                                       \
 	 false;								\
        (_p_i)++)
 #endif
@@ -233,7 +228,7 @@ cinline int ap_linyyyXXX_hash(ap_linyyyXXX_t a);
 static inline bool ap_linyyyXXX_equal(ap_linyyyXXX_t a1,ap_linyyyXXX_t a2);
 
 /* Lexicographic ordering, terminating by constant coefficients */
-int ap_linyyyXXX_compare(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2);
+int ap_linyyyXXX_cmp(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2);
 
 /* ********************************************************************** */
 /* II. ap_linyyyXXX_array_t */
@@ -317,8 +312,26 @@ void ap_linyyyXXX_array_extend_environment(ap_linyyyXXX_array_t res,
 /* I.1 Constructor and Destructor */
 /* ====================================================================== */
 
-#if !defined(_AP_expr_MARK_)
-static inline void ap_linyyyXXX_init(ap_linyyyXXX_t a, size_t size)
+#if defined(_AP_expr_MARK_)
+static inline void ap_lintermXXX_init(ap_lintermXXX_t term)
+{ eitvXXX_init(term->eitv); term->dim = AP_DIM_MAX; }
+static inline void ap_lintermXXX_init_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
+{ eitvXXX_init_set(res->eitv,term->eitv); res->dim = term->dim; }
+static inline void ap_lintermXXX_set(ap_lintermXXX_t res, ap_lintermXXX_t term)
+{ eitvXXX_set(res->eitv,term->eitv); res->dim = term->dim; }
+static inline void ap_lintermXXX_clear(ap_lintermXXX_t term)
+{ eitvXXX_clear(term->eitv); }
+static inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
+{ if (a!=b){ ap_lintermXXX_struct t=*a; *a=*b; *b=t; } }
+#endif
+
+#if defined(_AP_expr_MARK_)
+static inline void ap_linexprXXX_resize(ap_linexprXXX_t expr, size_t size)
+{
+  if (size>expr->maxsize) ap_linexprXXX_resize_strict(expr,size);
+}
+#else
+  static inline void ap_linyyyXXX_init(ap_linyyyXXX_t a, size_t size)
 {
   ap_linexprXXX_init(a->linexpr,size);
   a->yyytyp = 0;
@@ -348,6 +361,8 @@ static inline void ap_linyyyXXX_init_set(ap_linyyyXXX_t a, ap_linyyyXXX_t b)
 }
 static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t e, size_t size)
 { ap_linexprXXX_resize(e->linexpr,size); }
+static inline void ap_linyyyXXX_resize_strict(ap_linyyyXXX_t e, size_t size)
+{ ap_linexprXXX_resize_strict(e->linexpr,size); }
 static inline void ap_linyyyXXX_minimize(ap_linyyyXXX_t e)
 { ap_linexprXXX_minimize(e->linexpr); }
 static inline void ap_linyyyXXX_clear(ap_linyyyXXX_t a)
@@ -397,12 +412,9 @@ static inline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* td
 /* I.3 Access */
 /* ====================================================================== */
 
-#if !defined(_AP_expr_MARK_)
-static inline size_t ap_linyyyXXX_size(ap_linyyyXXX_t a)
-{ return ap_linexprXXX_size(a->linexpr); }
-#endif
-
 #if defined(_AP_expr_MARK_)
+static inline size_t ap_linexprXXX_size(ap_linyyyXXX_t a)
+{ return a->effsize; }
 static inline void ap_linexprXXX_get_cst(eitvXXX_t eitv, ap_linexprXXX_t expr)
 { eitvXXX_set(eitv,expr->cst); }
 static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv)
@@ -410,6 +422,8 @@ static inline void ap_linexprXXX_set_cst(ap_linexprXXX_t expr, eitvXXX_t eitv)
 static inline eitvXXX_ptr ap_linexprXXX_cstref(ap_linexprXXX_t expr)
 { return expr->cst; }
 #else
+static inline size_t ap_linyyyXXX_size(ap_linyyyXXX_t a)
+{ return ap_linexprXXX_size(a->linexpr); }
 static inline void ap_linyyyXXX_get_cst(eitvXXX_t eitv, ap_linyyyXXX_t a)
 { ap_linexprXXX_get_cst(eitv,a->linexpr); }
 static inline void ap_linyyyXXX_set_cst(ap_linyyyXXX_t a, eitvXXX_t eitv)
@@ -466,8 +480,9 @@ int ap_linyyyXXX_hash(ap_linyyyXXX_t a)
 #endif
 
 static inline bool ap_linyyyXXX_equal(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2)
-{ return ap_linyyyXXX_compare(a1,a2)==0; }
+{ return ap_linyyyXXX_cmp(a1,a2)==0; }
 
+#undef cinline
 #undef _AP_yyy_MARK_
 
 #ifdef __cplusplus

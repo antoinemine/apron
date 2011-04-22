@@ -34,8 +34,9 @@ bool ap_linexprXXX_set_linexprZZZ(ap_linexprXXX_t a, ap_linexprZZZ_t b, num_inte
 {
   size_t i;
   bool res = eitvXXX_set_eitvZZZ(a->cst,b->cst,intern);
-  ap_linexprXXX_resize(a,b->size);
-  for (i=0; i<a->size; i++){
+  ap_linexprXXX_resize(a,b->effsize);
+  a->effsize = b->effsize;
+  for (i=0; i<b->effsize; i++){
     a->linterm[i]->dim = b->linterm[i]->dim;
     res = eitvXXX_set_eitvZZZ(a->linterm[i]->eitv,b->linterm[i]->eitv,intern) || res;
   }
@@ -93,8 +94,9 @@ bool ap_linexprZZZ_set_linexprXXX(ap_linexprZZZ_t a, ap_linexprXXX_t b, num_inte
 {
   size_t i;
   bool res = eitvZZZ_set_eitvXXX(a->cst,b->cst,intern);
-  ap_linexprZZZ_resize(a,b->size);
-  for (i=0; i<a->size; i++){
+  ap_linexprZZZ_resize(a,b->effsize);
+  a->effsize = b->effsize;
+  for (i=0; i<b->effsize; i++){
     a->linterm[i]->dim = b->linterm[i]->dim;
     res = eitvZZZ_set_eitvXXX(a->linterm[i]->eitv,b->linterm[i]->eitv,intern) || res;
   }

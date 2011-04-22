@@ -29,7 +29,7 @@ ap_texpr0_t* ap_texpr0_dim(ap_dim_t dim)
   return res;
 }
 ap_texpr0_t* ap_texpr0_node(
-    ap_texpr_op_t op, ap_texpr_rtype_t type, ap_texpr_rdir_t dir, 
+    ap_texpr_op_t op, ap_texpr_rtype_t type, ap_texpr_rdir_t dir,
     ap_texpr0_t* opA, ap_texpr0_t* opB
 )
 {
@@ -45,7 +45,7 @@ ap_texpr0_t* ap_texpr0_node(
   return res;
 }
 ap_texpr0_t* ap_texpr0_unop(
-    ap_texpr_op_t op, ap_texpr0_t* opA, 
+    ap_texpr_op_t op, ap_texpr0_t* opA,
     ap_texpr_rtype_t type, ap_texpr_rdir_t dir
 )
 {
@@ -189,66 +189,6 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t e)
   return res;
 }
 
-ap_texpr0_array_t ap_texpr0_array_make(size_t size)
-{
-  ap_texpr0_array_t array;
-  size_t i;
-  array.p = (ap_texpr0_t**)malloc(size*sizeof(ap_texpr0_t*));
-  array.size = size;
-  for (i=0;i<size;i++) array.p[i] = NULL;
-  return array;
-}
-
-void ap_texpr0_array_resize(ap_texpr0_array_t* array, size_t size)
-{
-  size_t i;
-
-  for (i=size; i<array->size; i++){
-    ap_texpr0_free(array->p[i]);
-    array->p[i] = NULL;
-  }
-  array->p = (ap_texpr0_t**)realloc(array->p,size*sizeof(ap_texpr0_t*));
-  for (i=array->size; i<size; i++){
-    array->p[i] = NULL;
-  }
-  return;
-}
-
-ap_texpr0_array_t ap_texpr0_array_copy(ap_texpr0_array_t* array)
-{
-  ap_texpr0_array_t res;
-  size_t i;
-  res.p = (ap_texpr0_t**)malloc(array->size*sizeof(ap_texpr0_t*));
-  res.size = array->size;
-  for (i=0;i<res.size;i++) res.p[i] = ap_texpr0_copy(array->p[i]);
-  return res;
-}
-void ap_texpr0_array_clear(ap_texpr0_array_t* array)
-{
-  if (array->p){
-    size_t i;
-    for (i=0; i<array->size; i++){
-      if (array->p[i]) ap_texpr0_free(array->p[i]);
-      array->p[i] = NULL;
-    }
-    free(array->p);
-    array->p= NULL;
-  }
-}
-
-ap_texpr0_array_t ap_texpr0_array_from_linexpr0_array(ap_linexpr0_array_t array)
-{
-  ap_texpr0_array_t res;
-  size_t i;
-  ap_linexpr0_t ref;
-  res.size = ap_linexpr0_array_size(array);
-  res.p = (ap_texpr0_t**)malloc(res.size*sizeof(ap_texpr0_t*));
-  for (i=0;i<res.size;i++){
-    ap_linexpr0_array_ref_index(ref,array,i);
-    res.p[i] = ap_texpr0_from_linexpr0(ref);
-  }
-  return res;
-}
 
 /* ====================================================================== */
 /* II. Printing */
@@ -337,20 +277,6 @@ void ap_texpr0_fprint(FILE* stream, ap_texpr0_t* a, char** name_of_dim)
 void ap_texpr0_print(ap_texpr0_t* a, char** name_of_dim)
 { ap_texpr0_fprint(stdout, a, name_of_dim); }
 
-void ap_texpr0_array_fprint(FILE* stream,
-			    ap_texpr0_array_t* array,
-			    char** name_of_dim)
-{
-  size_t i;
-  fprintf(stream,"array of size %d\n",(int)array->size);
-  for (i=0; i<array->size; i++){
-    ap_texpr0_fprint(stream,array->p[i],name_of_dim);
-    fprintf(stream,"\n");
-  }
-}
-void ap_texpr0_array_print(ap_texpr0_array_t* array,
-			   char** name_of_dim)
-{ ap_texpr0_array_fprint(stdout,array,name_of_dim); }
 
 /* ====================================================================== */
 /* III. Tests, size */
@@ -628,32 +554,6 @@ bool ap_texpr0_is_interval_polyfrac(ap_texpr0_t* a)
   }
 }
 
-static bool ap_texpr0_array_is_template(ap_texpr0_array_t* array, bool (*is_template)(ap_texpr0_t* texpr))
-{
-  size_t i;
-  bool res = true;
-  for (i=0; i<array->size; i++){
-    res = is_template(array->p[i]);
-    if (!res) break;
-  }
-  return res;
-}
-bool ap_texpr0_array_is_interval_linear(ap_texpr0_array_t* array)
-{
-  return ap_texpr0_array_is_template(array,ap_texpr0_is_interval_linear);
-}
-bool ap_texpr0_array_is_interval_polynomial(ap_texpr0_array_t* array)
-{
-return ap_texpr0_array_is_template(array,ap_texpr0_is_interval_polynomial);
-}
-bool ap_texpr0_array_is_interval_polyfrac(ap_texpr0_array_t* array)
-{
-  return ap_texpr0_array_is_template(array,ap_texpr0_is_interval_polyfrac);
-}
-bool ap_texpr0_array_is_scalar(ap_texpr0_array_t* array)
-{
-  return ap_texpr0_array_is_template(array,ap_texpr0_is_scalar);
-}
 
 /* ====================================================================== */
 /* IV. Operations */
@@ -747,47 +647,6 @@ void ap_texpr0_permute_dimensions_with(ap_texpr0_t* expr,
     return;
   default:
     assert(false);
-  }
-}
-
-ap_texpr0_array_t ap_texpr0_array_add_dimensions(ap_texpr0_array_t* array,
-						 ap_dimchange_t* change)
-{
-  size_t i;
-  ap_texpr0_array_t res;
-
-  res = ap_texpr0_array_make(array->size);
-  for (i=0; i<array->size; i++){
-    res.p[i] = ap_texpr0_add_dimensions(array->p[i],change);
-  }
-  return res;
-}
-ap_texpr0_array_t ap_texpr0_array_permute_dimensions(ap_texpr0_array_t* array,
-						     ap_dimperm_t* perm)
-{
-  size_t i;
-  ap_texpr0_array_t res;
-
-  res = ap_texpr0_array_make(array->size);
-  for (i=0; i<array->size; i++){
-    res.p[i] = ap_texpr0_permute_dimensions(array->p[i],perm);
-  }
-  return res;
-}
-void ap_texpr0_array_add_dimensions_with(ap_texpr0_array_t* array,
-					 ap_dimchange_t* change)
-{
-  size_t i;
-  for (i=0; i<array->size; i++){
-    ap_texpr0_add_dimensions(array->p[i],change);
-  }
-}
-void ap_texpr0_array_permute_dimensions_with(ap_texpr0_array_t* array,
-					     ap_dimperm_t* perm)
-{
-  size_t i;
-  for (i=0; i<array->size; i++){
-    ap_texpr0_permute_dimensions(array->p[i],perm);
   }
 }
 

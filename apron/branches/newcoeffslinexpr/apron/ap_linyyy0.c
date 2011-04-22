@@ -210,7 +210,7 @@ void ap_linexpr0_coeffref(ap_coeff_t res, ap_linexpr0_t expr, ap_dim_t dim)
 void ap_linexpr0_coeffrefdim_of_index(ap_coeff_t res, ap_dim_t* pdim, ap_linexpr0_t expr, size_t index)
 {
   SWITCH (expr->discr)
-    if (index>=expr->linexpr.XXX->size){
+    if (index>=expr->linexpr.XXX->effsize){
       *pdim = AP_DIM_MAX;
     }
     else {
@@ -416,8 +416,8 @@ bool ap_linyyy0_equal(ap_linyyy0_t expr1,
   return res;
 }
 /* Lexicographic ordering, terminating by constant coefficients */
-int ap_linyyy0_compare(ap_linyyy0_t expr1,
-			ap_linyyy0_t expr2)
+int ap_linyyy0_cmp(ap_linyyy0_t expr1,
+		       ap_linyyy0_t expr2)
 {
   int res;
   if (expr1->discr != expr2->discr){
@@ -426,7 +426,7 @@ int ap_linyyy0_compare(ap_linyyy0_t expr1,
   }
   else {
     SWITCH(expr1->discr)
-      res = ap_linyyyXXX_compare(expr1->linyyy.XXX,expr2->linyyy.XXX);
+      res = ap_linyyyXXX_cmp(expr1->linyyy.XXX,expr2->linyyy.XXX);
     ENDSWITCH
   }
   return res;
