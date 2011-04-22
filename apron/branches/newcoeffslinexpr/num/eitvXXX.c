@@ -283,3 +283,47 @@ void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
   itvXXX_to_int(a->itv,b->itv);
   a->eq = itvXXX_is_point(a->itv);
 }
+
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+size_t eitvXXX_serialize(void* dst, eitvXXX_t src)
+{
+  *((char*)dst) = src->eq ? 1 : 0;
+  return 1 + itvXXX_serialize((char*)dst+1,src->itv);
+}
+
+size_t eitvXXX_deserialize(eitvXXX_t dst, const void* src)
+{
+  dst->eq = (*((char*)src) == 1);
+  return 1 + itvXXX_deserialize(dst->itv,(const char*)src+1);
+}
+size_t eitvXXX_serialized_size(eitvXXX_t a)
+{
+  return 1 + itvXXX_serialized_size(a->itv);
+}
+
+size_t eitvXXX_serialize_array(void* dst, eitvXXX_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += eitvXXX_serialize((char*)dst+n,src[i]);
+  return n;
+}
+
+size_t eitvXXX_deserialize_array(eitvXXX_t* dst, const void* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += eitvXXX_deserialize(dst[i],(const char*)src+n);
+  return n;
+}
+
+size_t eitvXXX_serialized_size_array(eitvXXX_t* src, size_t size)
+{
+  size_t i,n=0;
+  for (i=0;i<size;i++)
+    n += eitvXXX_serialized_size(src[i]);
+  return n;
+}

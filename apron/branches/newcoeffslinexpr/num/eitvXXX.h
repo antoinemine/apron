@@ -199,6 +199,17 @@ static inline int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a);
 static inline void eitvXXX_fprint(FILE* stream, eitvXXX_t a);
 static inline void eitvXXX_print(eitvXXX_t a);
 
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+size_t eitvXXX_serialize(void* dst, eitvXXX_t src);
+size_t eitvXXX_deserialize(eitvXXX_t dst, const void* src);
+size_t eitvXXX_serialized_size(eitvXXX_t a);
+size_t eitvXXX_serialize_array(void* dst, eitvXXX_t* src, size_t size);
+size_t eitvXXX_deserialize_array(eitvXXX_t* dst, const void* src, size_t size);
+size_t eitvXXX_serialized_size_array(eitvXXX_t* src, size_t size);
+
 /* ********************************************************************** */
 /* Definition of inline functions */
 /* ********************************************************************** */

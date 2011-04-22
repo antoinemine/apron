@@ -51,7 +51,7 @@ $(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
-C_TMPL_FILES_TEST = test1XXX.c test2XXX.c testnbXXX.c
+C_TMPL_FILES_TEST = testi1XXX.c testi2XXX.c testnbXXX.c
 C_GENERATED_FILES_TEST = $(foreach T,$(TMPL),$(subst XXX,$(T),$(C_TMPL_FILES_TEST)))
 
 CCINC_TO_INSTALL = $(H_TMPL_FILES) $(H_FILES)
@@ -177,4 +177,3 @@ depend: $(C_FILES) $(H_FILES) $(C_FILES_TEST)
 tags: TAGS
 TAGS: $(H_SRC_FILES) $(C_SRC_FILES) $(C_TMPL_FILES_TEST)
 	etags $^
-	etags -a macros.pl

@@ -165,7 +165,7 @@ static inline unsigned char numMPZ_serialize_id(void)
 { return 0xf; }
 
 size_t numMPZ_serialize(void* dst, numMPZ_t src);
-  size_t numMPZ_deserialize(numMPZ_t dst, const void* src);
+size_t numMPZ_deserialize(numMPZ_t dst, const void* src);
 
 /* not the exact size of serialized data, but a sound overapproximation */
 static inline size_t numMPZ_serialized_size(numMPZ_t a)
