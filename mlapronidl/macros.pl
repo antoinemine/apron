@@ -61,6 +61,26 @@ while ($l = <>) {
 	$nb = $nbline+1;
 	print "#line $nb \"$file\"\n";
     }
+    elsif ($l =~ /MACRO_ALLX_MAINZ/) {
+	$nb = $nbline+1;
+	$r = "";
+	while ($l = <>) {
+	    $nbline++;
+	    last if $l =~ /ENDMACRO/;
+	    $r = $r . $l;
+	}
+	foreach my $m (("MPZ","MPQ","D","MPFR")) {
+	    foreach my $n (("D","MPQ","MPFR")) {
+		$rr = $r;
+		$rr =~ s/XXX/$m/g;
+		$rr =~ s/ZZZ/$n/g;
+		print "#line $nb \"$file\"\n";
+		print "$rr"
+	    }
+	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";
+    }
     elsif ($l =~ /MACRO_ALLZ/) {
 	$nb = $nbline+1;
 	$r = "";
@@ -104,6 +124,26 @@ while ($l = <>) {
 	    $r = $r . $l;
 	}
 	foreach my $m (("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")){
+	    foreach my $n (("MPZ","MPQ","D","MPFR")) {
+		$rr = $r;
+		$rr =~ s/TTT/$m/g;
+		$rr =~ s/XXX/$n/g;
+		print "#line $nb \"$file\"\n";
+		print "$rr"
+	    }
+	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";
+    }
+    elsif ($l =~ /MACRO_ALLTARRAY_ALLX/) {
+	$nb = $nbline+1;
+	$r = "";
+	while ($l = <>) {
+	    $nbline++;
+	    last if $l =~ /ENDMACRO/;
+	    $r = $r . $l;
+	}
+	foreach my $m (("ap_linexpr","ap_lincons","ap_lingen")){
 	    foreach my $n (("MPZ","MPQ","D","MPFR")) {
 		$rr = $r;
 		$rr =~ s/TTT/$m/g;

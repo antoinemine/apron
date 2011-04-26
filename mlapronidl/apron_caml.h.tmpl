@@ -82,6 +82,20 @@ static inline void camlidl_TTTXXX_ptr_ml2c(value val, TTTXXX_ptr* a)
   *a = *(TTTXXX_ptr*)(Data_custom_val(val));
 }
 ENDMACRO
+MACRO_ALLTARRAY_ALLX
+value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a);
+static inline void camlidl_TTTXXX_array_ptr_ml2c(value val, TTTXXX_array_ptr* a)
+{
+  *a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
+}
+ENDMACRO
+
+/* ********************************************************************** */
+/* coefficients */
+/* ********************************************************************** */
+
+void camlidl_coeff_ptr_ml2c(value v, struct ap_coeff_struct* pcoeff);
+value camlidl_coeff_ptr_c2ml(struct ap_coeff_struct* pcoeff);
 
 /* typedef struct ap_texpr0_t* ap_texpr0_ptr; */
 /* typedef struct ap_tcons0_t* ap_tcons0_ptr; */
@@ -89,12 +103,6 @@ ENDMACRO
 /* typedef struct ap_manager_t* ap_manager_opt_ptr; */
 
 
-/* /\* ********************************************************************** *\/ */
-/* /\* coefficients *\/ */
-/* /\* ********************************************************************** *\/ */
-
-/* void camlidl_ml2c_coeff_struct_ap_coeff_t(value _v1, struct ap_coeff_t * _c2, struct camlidl_ctx_struct* _ctx); */
-/* value camlidl_c2ml_coeff_struct_ap_coeff_t(struct ap_coeff_t * _c1, struct camlidl_ctx_struct* _ctx); */
 
 /* /\* ********************************************************************** *\/ */
 /* /\* linexpr0 *\/ */

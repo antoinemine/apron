@@ -12,7 +12,7 @@ quote(C, "\n\
 import "mpz.idl";
 import "mpq.idl";
 import "mpfr.idl";
-import "num_internal.idl";
+import "common.idl";
 import "numXXX.idl";
 import "boundXXX.idl";
 
@@ -177,10 +177,15 @@ boolean eitvXXX_set_mpfr2(eitvXXX_ptrm a, mpfr_ptrg b, mpfr_ptrg c, num_internal
 quote(ML,"
 let print fmt a =
   let bound = BoundXXX.init() in
-  get_neginf bound a;
-  BoundXXX.neg bound bound;
-  Format.fprintf fmt \"[@[%a;@ \" BoundXXX.print bound;
-  get_sup bound a;
-  Format.fprintf fmt \"%a@]]\" BoundXXX.print bound;
+  if is_point a then begin
+    get_sup bound a;
+    BoundXXX.print fmt bound
+  end else begin
+    get_neginf bound a;
+    BoundXXX.neg bound bound;
+    Format.fprintf fmt \"[@[%a;@ \" BoundXXX.print bound;
+    get_sup bound a;
+    Format.fprintf fmt \"%a@]]\" BoundXXX.print bound;
+  end;
   ()
 ")
