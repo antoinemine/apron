@@ -5,31 +5,29 @@
 
 quote(C, "\n\
 #include <limits.h>\n\
-#include \"ap_dimension.h\"\n\
-#include \"caml/mlvalues.h\"\n\
 #include \"apron_caml.h\"\n\
 ")
 
 typedef unsigned int ap_dim_t;
 
-typedef [mltype("{\n  dim : int array;\n  intdim : int;\n  realdim : int;\n}"),
+struct ap_dimension_t {
+  unsigned int intd;
+  unsigned int reald;
+};
+
+typedef [mltype("{\n  dim : int array;\n  dimension : dimension;\n}"),
 	 c2ml(camlidl_apron_dimchange_c2ml),
 	 ml2c(camlidl_apron_dimchange_ml2c)]
 struct ap_dimchange_t ap_dimchange_t;
 
 struct ap_dimchange2_t {
-  ap_dimchange_t* add; 
+  ap_dimchange_t* add;
   ap_dimchange_t* remove;
 };
 
 struct ap_dimperm_t {
-  [size_is(size)]unsigned int* dim;
+  [mlname(dim),size_is(size)]unsigned int* p;
   unsigned int size;
-};
-
-struct ap_dimension_t {
-  [mlname(intd)]unsigned int intdim;
-  [mlname(reald)]unsigned int realdim;
 };
 
 quote(MLMLI,"(** APRON Dimensions and related types *)")

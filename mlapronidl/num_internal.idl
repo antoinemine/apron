@@ -1,0 +1,11 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"num_types.h\"\n\
+")
+
+typedef [abstract,c2ml(camlidl_num_internal_ptr_c2ml),ml2c(camlidl_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;

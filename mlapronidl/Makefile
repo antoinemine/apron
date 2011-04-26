@@ -5,165 +5,181 @@ include ../Makefile.config
 #---------------------------------------
 
 SRCDIR = $(shell pwd)
-#
-#
-PREFIX = $(APRON_PREFIX)
-#
+
+SITE-LIB = $(shell $(OCAMLFIND) printconf destdir)
+PKG-NAME = apron
+SITE-LIB-PKG = $(SITE-LIB)/$(PKG-NAME)
+REQ_PKG = bigarray,gmp
+
+SITE-LIB-gmp = $(shell $(OCAMLFIND) query gmp)
 
 #---------------------------------------
 # CAML part
 #---------------------------------------
 
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib
+OCAMLCCOPT = -ccopt -L$(SITE-LIB-PKG)
 
 #---------------------------------------
 # C part
 #---------------------------------------
 ICFLAGS = \
--I$(MLGMPIDL_PREFIX)/include -I../apron \
+-I$(SITE-LIB-gmp) \
+-I../num \
+-I../apron \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
+
+LDFLAGS = \
+-L$(APRON_PREFIX)/lib \
+-L$(GMP_PREFIX)/lib \
+-L$(MPFR_PREFIX)/lib \
+-L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml
 
 #---------------------------------------
 # Files
 #---------------------------------------
 
-IDLMODULES = \
-scalar interval coeff \
+TMPL = MPZ #MPQ MPFR D
+YYY = expr cons gen
+
+IDL_ORIG_MODULES = num_internal dim var environment
+IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
+IDL_TMPL_MODULES_yyyXXX = linyyyXXX
+IDL_GENERATED_MODULES = \
+$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
+$(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX)))))
+
+IDL_MODULES = $(IDL_ORIG_MODULES) $(IDL_GENERATED_MODULES)
+
+ML_ORIG_MODULES = #apron_parser apron_lexer parser
+ML_GENERATED_MODULES = $(IDL_MODULES) 
+ML_MODULES = $(ML_GENERATED_MODULES) $(ML_ORIG_MODULES)
+
+C_ORIG_FILES = 
+C_TMPL_FILES_tmpl = apron_caml.c.tmpl
+C_GENERATED_FILES = $(IDL_MODULES:%=%_caml.c) $(C_TMPL_FILES_tmpl:%.c.tmpl=%.c)
+
+H_ORIG_FILES = 
+H_TMPL_FILES_tmpl = apron_caml.h.tmpl
+H_GENERATED_FILES = $(H_TMPL_FILES_tmpl:%.h.tmpl=%.h)
+
+C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES) 
+H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES) 
+
+C_MODULES = $(C_FILES:%.c=%)
+
+#scalar interval coeff \
 dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1
 
-IDLMODULEStex = Introduction.tex \
+#IDLMODULEStex = Introduction.tex \
 Scalar.tex Interval.tex Coeff.tex \
 Dim.tex Linexpr0.tex Lincons0.tex Generator0.tex  Texpr0.tex Tcons0.tex Texpr1.tex Tcons1.tex Manager.tex Abstract0.tex \
 Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex \
 Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex
 
-MLMODULES = $(IDLMODULES) apron_parser apron_lexer parser
+ML_LIB = $(ML_MODULES:%=%.cmi) apron.cma
+ifneq ($(HAS_OCAMLOPT),)
+ML_LIB += \
+	$(ML_MODULES:%=%.cmx) apron.cmxa apron.a \
+	$(ML_MODULES:%=%.p.cmx) apron.p.cmxa apron.p.a
+endif
 
-MLSRC = $(MLMODULES:%=%.mli) $(MLMODULES:%=%.ml) apron_lexer.mll apron_parser.mly
-MLINT = $(MLMODULES:%=%.cmi)
-MLOBJ = $(MLMODULES:%=%.cmo)
-MLOBJx = $(MLMODULES:%=%.cmx)
-MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) apron.cmi apron.cma
-MLLIB_TOINSTALLx = apron.cmx apron.cmxa apron.a
+C_LIB = libapron_caml.a libapron_caml.p.a 
+ifneq ($(HAS_SHARED),)
+CCLIB += dllapron_caml.so
+endif
 
-CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
-CCSRC = apron_caml.h $(CCMODULES:%=%.c)
-CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
-CCINC_TOINSTALL = apron_caml.h
+FILES_TOINSTALL = \
+	META \
+	apron_caml.h \
+	$(IDL_MODULES:%=%.idl) \
+	$(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) \
+	$(ML_LIB) $(C_LIB)
+
 
 #---------------------------------------
 # Rules
 #---------------------------------------
 
-all: apron.cmi apron.cmx apron.cma apron.cmxa apron.a libapron_caml.a libapron_caml_debug.a
+all: $(FILES_TOINSTALL)
 
-ifneq ($(HAS_SHARED),)
-all: libapron_caml.so libapron_caml_debug.so dllapron_caml.so dllapron_caml_debug.so
-endif
+src: 
+	echo "$(C_FILES) $(H_FILES) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)"
+	echo "$(IDL_MODULES)"
 
-mldep: $(MLSRC)
-	ocamldep $(MLSRC)
+# Example of compilation command with ocamlfind
+%.byte: %.ml
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $*.ml \
+	-package apron -linkpkg
+%.opt: %.ml 
+	$(OCAMLFIND) ocamlopt -verbose $(OCAMLOPTFLAGS) -o $@ $*.ml \
+	-package apron -linkpkg
 
-#---------------------------------------
-# Misc rules
-#---------------------------------------
+# CAML rules
+apron.cma: apron.cmo $(C_LIB)
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ \
+	apron.cmo \
+	-dllib -lapron_caml \
+	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron
 
-tar: $(IDLMODULES:%=%.idl) apron_lexer.mll apron_lexer.mli apron_parser.mly parser.ml parser.mli apron_caml.c apron_caml.h macros.m4 Makefile COPYING README mlapronidl.tex sedscript_caml sedscript_c
-	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
+apron.cmxa: apron.cmx $(C_LIB)
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
+	apron.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron 
+apron.p.cmxa: apron.p.cmx $(C_LIB)
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
+	apron.p.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
+apron.d.cmxa: $(MLMODULES:%=%.cmx) $(C_LIB)
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
+	apron.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.d -cclib -lapron.d
 
-dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.m4 apron_caml.c apron_caml.h Makefile COPYING README mlapronidl.tex sedscript_caml sedscript_c mlapronidl.pdf html
-	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
+# C rules
+libapron_caml.a: $(C_MODULES:%=%.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
+libapron_caml.d.a: $(C_MODULES:%=%.d.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
+libapron_caml.p.a: $(C_MODULES:%=%.p.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
+dllapron_caml.so: $(C_MODULES:%=%.o)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lapron
+
+META: Makefile
+	/bin/rm -f META
+	echo "description = \"OCaml Interface to APRON library\"" >META
+	echo "version = \"2.0.0\"" >>META
+	echo "requires = \"$(REQ_PKG)\"" >>META
+	echo "archive(byte) = \"apron.cma\"" >>META
+	echo "archive(native) = \"apron.cmxa\"" >>META
+	echo "archive(native,debug) = \"apron.d.cmxa\"" >>META
+	echo "archive(native,gprof) = \"apron.p.cmxa\"" >>META
+
+install: $(FILES_TOINSTALL)
+	$(OCAMLFIND) remove $(PKG-NAME)
+	$(OCAMLFIND) install $(PKG-NAME) $^
+
+uninstall:
+	$(OCAMLFIND) remove $(PKG-NAME)
 
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
-	/bin/rm -f mpz.idl mpq.idl
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
-	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
+	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot apron_parser.ml apron_parser.mli apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
-mostlyclean: clean
-	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
-
 distclean:
-	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(MLLIB_TOINSTALLx:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
-
-install: $(MLLIB_TOINSTALL) $(MLLIB_TOINSTALLx) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
-	mkdir -p $(APRON_PREFIX)/lib
-	mkdir -p $(APRON_PREFIX)/include
-	for i in $(MLLIB_TOINSTALL) $(MLLIB_TOINSTALLx) $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f -d $$i $(APRON_PREFIX)/lib; fi; done
-	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_PREFIX)/include
+	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl
 
 #---------------------------------------
 # Library rules
 #---------------------------------------
-
-apron.cma: apron.cmo libapron_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo -lapron -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
-
-apron.cmxa: apron.cmx libapron_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx -lapron -L$(APRON_PREFIX)/lib -Wl,-rpath,$(APRON_PREFIX)/lib
-
-libapron_caml.a: $(CCMODULES:%=%.o)
-	$(AR) rc $@ $^
-	$(RANLIB) $@
-libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
-	$(AR) rc $@ $^
-	$(RANLIB) $@
-
-libapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
-	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) -L../apron -lapron -Wl,-rpath,$(APRON_PREFIX)/lib
-
-libapron_caml_debug.so: $(CCMODULES:%=%_debug.o) ../apron/libapron_debug.so
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(CCMODULES:%=%_debug.o) -L../apron -lapron -Wl,-rpath,$(APRON_PREFIX)/lib
-
-dllapron_caml.so: libapron_caml.so
-	ln -s $^ $@
-dllapron_caml_debug.so: libapron_caml_debug.so
-	ln -s $^ $@
-
-#---------------------------------------
-# CAML rules
-#---------------------------------------
-
-apron.cmo apron.cmi: $(MLOBJ) $(MLINT)
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -pack -o $@ $(MLOBJ)
-
-apron.cmx apron.o: $(MLOBJx)
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -pack -o $@ $(MLOBJx)
-
-apron_lexer.ml: apron_lexer.mll
-	$(OCAMLLEX) $^
-apron_parser.ml apron_parser.mli: apron_parser.mly
-	$(OCAMLYACC) $^
-
-#---------------------------------------
-# TEX and HTML rules
-#---------------------------------------
-
-.PHONY: html
-
-mlapronidl.pdf: mlapronidl.dvi
-	$(DVIPDF) mlapronidl.dvi
-
-mlapronidl.dvi: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
-	$(OCAMLDOC) $(OCAMLINC) -I ../newpolka -I ../ppl \
-	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
-	$(LATEX) mlapronidl
-	$(MAKEINDEX) mlapronidl
-	$(LATEX) mlapronidl
-	$(LATEX) mlapronidl
-
-html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
-	mkdir -p html
-	$(OCAMLDOC) $(OCAMLINC)  -I ../newpolka -I ../ppl \
--html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_PREFIX)/lib/mpz.mli $(MLGMPIDL_PREFIX)/lib/mpq.mli $(MLGMPIDL_PREFIX)/lib/gmp_random.mli $(MLGMPIDL_PREFIX)/lib/mpf.mli $(MLGMPIDL_PREFIX)/lib/mpfr.mli $(MLGMPIDL_PREFIX)/lib/mpzf.mli $(MLGMPIDL_PREFIX)/lib/mpqf.mli $(MLGMPIDL_PREFIX)/lib/mpfrf.mli
 
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
@@ -171,140 +187,100 @@ html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODU
 
 .SUFFIXES: .tex .fig .c .h .o .ml .mli .cmi .cmo .cmx .idl _debug.o _prof.o _caml.c .nw
 
-#---------------------------------------
-# C generic rules
-#---------------------------------------
+#-----------------------------------
+# IDL
+#-----------------------------------
 
-%.o: %.c apron_caml.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -fPIC -c $<
-%_debug.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -fPIC -c -o $@ $<
-
-#---------------------------------------
-# IDL generic rules
-#---------------------------------------
-
-mpz.idl: $(MLGMPIDL_PREFIX)/lib/mpz.idl
-	ln -s $^ $@
-mpq.idl: $(MLGMPIDL_PREFIX)/lib/mpq.idl
-	ln -s $^ $@
-
-# Generate for each %.idl: %i.ml, %i.mli, %_caml.c
-rebuild: mpz.idl mpq.idl
+$(IDL_MODULES:%=%_caml.c) $(IDL_MODULES:%=%.ml) $(IDL_MODULES:%=%.mli): $(IDL_MODULES:%=%.idl) mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 	mkdir -p tmp
-	for i in $(IDLMODULES); do \
+	for i in $(IDL_MODULES); do \
 		echo "module $$i"; \
 		cp $${i}.idl tmp/$${i}.idl; \
-		$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" -I $(SRCDIR) tmp/$${i}.idl; \
+		$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$${i}.idl; \
 		$(SED) -f sedscript_c tmp/$${i}_stubs.c >$${i}_caml.c; \
 		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
 		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
 	done
-	rm -fr tmp
 
-#---------------------------------------
-# ML generic rules
-#---------------------------------------
+mpz.idl: $(SITE-LIB-gmp)/mpz.idl
+	ln -s $^ $@
+mpq.idl: $(SITE-LIB-gmp)/mpq.idl
+	ln -s $^ $@
+mpf.idl: $(SITE-LIB-gmp)/mpf.idl
+	ln -s $^ $@
+mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
+	ln -s $^ $@
+
+
+#-----------------------------------
+# C
+#-----------------------------------
+
+%.o: %.c apron_caml.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+%.p.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
+%.d.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+
+#-----------------------------------
+# CAML
+#-----------------------------------
+
+apron.cmo apron.cmi: $(ML_MODULES:%=%.cmo) $(ML_MODULES:%=%.cmi)
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) \
+	-pack -o $@ $(ML_MODULES:%=%.cmo)
+
+apron.o apron.cmx: $(ML_MODULES:%=%.cmx)
+	$(OCAMLFIND) ocamlopt $(OCAMLFLAGS) -package $(REQ_PKG) \
+	-pack -o $@ $(ML_MODULES:%=%.cmx)
 
 %.cmi: %.mli
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c $<
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
 
 %.cmo: %.ml %.cmi
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c $<
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
 
 %.cmx: %.ml %.cmi
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -for-pack Apron -c $<
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -for-pack Apron -c $<
+
+%.p.cmx: %.ml %.cmi
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -for-pack Apron -c -o $@ $<
+
+#-----------------------------------
+# Templates
+#-----------------------------------
+
+%.h: %.h.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	./macros.pl $(SRCDIR)/$< >>$@
+%.c: %.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	./macros.pl $(SRCDIR)/$< >>$@
+
+define generate-file-XXX
+$(subst XXX,$(1),$(2)): $(2)
+	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
+	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
+	$(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"$$@\"/#line \1 \"$$<\"/g" $$< >>$$@
+endef
+
+$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_XXX:%=%.idl),$(eval $(call generate-file-XXX,$(T),$(F)))))
+
+define generate-file-yyyXXX
+$(subst yyy,$(1),$(subst XXX,$(2),$(3))): $(3)
+	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
+	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
+	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+endef
+
+$(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_yyyXXX:%=%.idl),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))
 
 #---------------------------------------
 # Dependencies
 #---------------------------------------
 
-depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
+depend: $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)
 	$(OCAMLDEP) $^
-
-scalar.cmo: scalar.cmi
-scalar.cmx: scalar.cmi
-interval.cmo: scalar.cmi interval.cmi
-interval.cmx: scalar.cmx interval.cmi
-coeff.cmo: scalar.cmi interval.cmi coeff.cmi
-coeff.cmx: scalar.cmx interval.cmx coeff.cmi
-dim.cmo: dim.cmi
-dim.cmx: dim.cmi
-linexpr0.cmo: scalar.cmi interval.cmi dim.cmi coeff.cmi linexpr0.cmi
-linexpr0.cmx: scalar.cmx interval.cmx dim.cmx coeff.cmx linexpr0.cmi
-lincons0.cmo: scalar.cmi linexpr0.cmi lincons0.cmi
-lincons0.cmx: scalar.cmx linexpr0.cmx lincons0.cmi
-generator0.cmo: linexpr0.cmi generator0.cmi
-generator0.cmx: linexpr0.cmx generator0.cmi
-texpr0.cmo: linexpr0.cmi dim.cmi coeff.cmi texpr0.cmi
-texpr0.cmx: linexpr0.cmx dim.cmx coeff.cmx texpr0.cmi
-tcons0.cmo: texpr0.cmi scalar.cmi lincons0.cmi tcons0.cmi
-tcons0.cmx: texpr0.cmx scalar.cmx lincons0.cmx tcons0.cmi
-manager.cmo: manager.cmi
-manager.cmx: manager.cmi
-abstract0.cmo: texpr0.cmi tcons0.cmi manager.cmi linexpr0.cmi lincons0.cmi \
-    interval.cmi generator0.cmi dim.cmi abstract0.cmi
-abstract0.cmx: texpr0.cmx tcons0.cmx manager.cmx linexpr0.cmx lincons0.cmx \
-    interval.cmx generator0.cmx dim.cmx abstract0.cmi
-var.cmo: var.cmi
-var.cmx: var.cmi
-environment.cmo: var.cmi dim.cmi environment.cmi
-environment.cmx: var.cmx dim.cmx environment.cmi
-linexpr1.cmo: var.cmi linexpr0.cmi environment.cmi coeff.cmi linexpr1.cmi
-linexpr1.cmx: var.cmx linexpr0.cmx environment.cmx coeff.cmx linexpr1.cmi
-lincons1.cmo: var.cmi scalar.cmi linexpr1.cmi linexpr0.cmi lincons0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi lincons1.cmi
-lincons1.cmx: var.cmx scalar.cmx linexpr1.cmx linexpr0.cmx lincons0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx lincons1.cmi
-generator1.cmo: var.cmi linexpr1.cmi linexpr0.cmi generator0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi generator1.cmi
-generator1.cmx: var.cmx linexpr1.cmx linexpr0.cmx generator0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx generator1.cmi
-texpr1.cmo: var.cmi texpr0.cmi linexpr1.cmi environment.cmi dim.cmi coeff.cmi \
-    texpr1.cmi
-texpr1.cmx: var.cmx texpr0.cmx linexpr1.cmx environment.cmx dim.cmx coeff.cmx \
-    texpr1.cmi
-tcons1.cmo: var.cmi texpr1.cmi texpr0.cmi tcons0.cmi scalar.cmi lincons0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi tcons1.cmi
-tcons1.cmx: var.cmx texpr1.cmx texpr0.cmx tcons0.cmx scalar.cmx lincons0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx tcons1.cmi
-abstract1.cmo: var.cmi texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi \
-    lincons1.cmi interval.cmi generator1.cmi environment.cmi abstract0.cmi \
-    abstract1.cmi
-abstract1.cmx: var.cmx texpr1.cmx tcons1.cmx manager.cmx linexpr1.cmx \
-    lincons1.cmx interval.cmx generator1.cmx environment.cmx abstract0.cmx \
-    abstract1.cmi
-apron_parser.cmo: scalar.cmi lincons0.cmi interval.cmi generator0.cmi \
-    coeff.cmi apron_parser.cmi
-apron_parser.cmx: scalar.cmx lincons0.cmx interval.cmx generator0.cmx \
-    coeff.cmx apron_parser.cmi
-apron_lexer.cmo: apron_parser.cmi apron_lexer.cmi
-apron_lexer.cmx: apron_parser.cmx apron_lexer.cmi
-parser.cmo: var.cmi manager.cmi linexpr1.cmi lincons1.cmi lincons0.cmi \
-    generator1.cmi generator0.cmi environment.cmi coeff.cmi apron_parser.cmi \
-    apron_lexer.cmi abstract1.cmi parser.cmi
-parser.cmx: var.cmx manager.cmx linexpr1.cmx lincons1.cmx lincons0.cmx \
-    generator1.cmx generator0.cmx environment.cmx coeff.cmx apron_parser.cmx \
-    apron_lexer.cmx abstract1.cmx parser.cmi
-interval.cmi: scalar.cmi
-coeff.cmi: scalar.cmi interval.cmi
-linexpr0.cmi: dim.cmi coeff.cmi
-lincons0.cmi: scalar.cmi linexpr0.cmi dim.cmi
-generator0.cmi: linexpr0.cmi dim.cmi
-texpr0.cmi: linexpr0.cmi dim.cmi coeff.cmi
-tcons0.cmi: texpr0.cmi scalar.cmi lincons0.cmi dim.cmi
-abstract0.cmi: texpr0.cmi tcons0.cmi manager.cmi linexpr0.cmi lincons0.cmi \
-    interval.cmi generator0.cmi dim.cmi
-environment.cmi: var.cmi dim.cmi
-linexpr1.cmi: var.cmi linexpr0.cmi environment.cmi coeff.cmi
-lincons1.cmi: var.cmi scalar.cmi linexpr1.cmi lincons0.cmi environment.cmi \
-    coeff.cmi
-generator1.cmi: var.cmi linexpr1.cmi generator0.cmi environment.cmi coeff.cmi
-texpr1.cmi: var.cmi texpr0.cmi linexpr1.cmi environment.cmi dim.cmi coeff.cmi
-tcons1.cmi: texpr1.cmi tcons0.cmi scalar.cmi lincons0.cmi environment.cmi
-abstract1.cmi: var.cmi texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi \
-    lincons1.cmi interval.cmi generator1.cmi environment.cmi abstract0.cmi
-apron_parser.cmi: lincons0.cmi generator0.cmi coeff.cmi
-apron_lexer.cmi: apron_parser.cmi
-parser.cmi: manager.cmi linexpr1.cmi lincons1.cmi generator1.cmi \
-    environment.cmi abstract1.cmi

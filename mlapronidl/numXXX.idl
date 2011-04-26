@@ -1,0 +1,181 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"numXXX.h\"\n\
+")
+
+import "mpz.idl";
+import "mpq.idl";
+import "mpfr.idl";
+import "num_internal.idl";
+
+#define _numXXX_MARK_
+
+#if defined(_numMPZ_MARK_)
+#define _numint_MARK_
+typedef [abstract,c2ml(camlidl_mpz_ptr_c2ml),ml2c(camlidl_mpz_ptr_ml2c),mltype("'a Mpz.tt")] struct __mpz_struct* numXXX_ptrg;
+typedef [abstract,c2ml(camlidl_mpz_ptr_c2ml),ml2c(camlidl_mpz_ptr_ml2c)] struct __mpz_struct* numXXX_ptrm;
+quote(MLMLI,"
+type m = Mpz.m (** Mutable tag *)
+type f = Mpz.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable numbers *)
+")
+
+#elif defined(_numMPQ_MARK_)
+#define _numrat_MARK_
+typedef [abstract,c2ml(camlidl_mpq_ptr_c2ml),ml2c(camlidl_mpq_ptr_ml2c),mltype("'a Mpq.tt")] struct __mpq_struct* numXXX_ptrg;
+typedef [abstract,c2ml(camlidl_mpq_ptr_c2ml),ml2c(camlidl_mpq_ptr_ml2c)] struct __mpq_struct* numXXX_ptrm;
+#define numYYY_ptrg numMPZ_ptrg
+#define numYYY_ptrm numMPZ_ptrm
+quote(MLMLI,"
+type m = Mpq.m (** Mutable tag *)
+type f = Mpq.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable numbers *)
+")
+import "numMPZ.idl";
+
+#elif defined(_numMPFR_MARK_)
+#define _numflt_MARK_
+typedef [abstract,c2ml(camlidl_mpfr_ptr_c2ml),ml2c(camlidl_mpfr_ptr_ml2c),mltype("'a Mpfr.tt")] struct __mpfr_struct* numXXX_ptrg;
+typedef [abstract,c2ml(camlidl_mpfr_ptr_c2ml),ml2c(camlidl_mpfr_ptr_ml2c)] struct __mpfr_struct* numXXX_ptrm;
+quote(MLMLI,"
+type m = Mpfr.m (** Mutable tag *)
+type f = Mpfr.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable numbers *)
+")
+#elif defined(_numD_MARK_)
+#define _numflt_MARK_
+typedef [abstract,c2ml(camlidl_numD_ptr_c2ml),ml2c(camlidl_numD_ptr_ml2c)] struct numD_struct* numXXX_ptrg;
+typedef [abstract,c2ml(camlidl_numXXX_ptr_c2ml),ml2c(camlidl_numXXX_ptr_ml2c)] struct numD_struct* numXXX_ptrm;
+quote(MLMLI,"
+type m (** Mutable tag *)
+type f (** Functional (immutable) tag *)
+type t = m tt (** Mutable numbers *)
+")
+#endif
+
+quote(MLMLI,"(** Numbers *)\n")
+
+quote(MLMLI,"(** The following operations are mapped as much as possible to their C counterpart. In case of imperative functions (like [set], [add], ...) the first parameter of type [t] is an out-parameter and holds the result when the function returns. For instance, [add x y z] adds the values of [y] and [z] and stores the result in [x].\n\n These functions are as efficient as their C counterpart: they do not imply additional memory allocation. *)\n\n")
+
+/* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
+
+quote(MLI,"\n(** {2 Pretty printing} *)\n")
+
+[string] char* _to_string(int length, numXXX_ptrg a)
+  quote(call,"
+if (length<=8) length=8;
+_res = malloc(length+1);
+int l = numXXX_snprint(_res,length+1,a);
+if (l>=length+1){
+  strcpy(_res,numXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");
+}
+")
+  quote(dealloc,"free(_res);");
+
+quote(MLI,"
+val to_string : ?length:int -> 'a tt -> string
+val print : Format.formatter -> 'a tt -> unit
+")
+quote(ML,"
+let to_string ?(length=80) a = _to_string length a
+let print fmt a = Format.pp_print_string fmt (to_string a)
+")
+
+quote(MLMLI,"(** {2 Initialization Functions} *)\n")
+void numXXX_init([out]numXXX_ptrg OUTOUTOUT);
+void numXXX_init_set([out]numXXX_ptrg OUTOUTOUT, numXXX_ptrg b);
+
+quote(MLMLI,"(** {2 Assignement Functions} *)\n")
+
+void numXXX_set(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_set_int(numXXX_ptrm a, long i);
+
+quote(MLMLI,"(** {2 Arithmetic operations} *)\n")
+
+void numXXX_neg(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_abs(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_add(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_add_uint(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
+void numXXX_sub(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_sub_uint(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
+void numXXX_mul(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_mul_2(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_div(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_div_2(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_min(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_max(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+
+void numXXX_mul_2exp(numXXX_ptrm a, numXXX_ptrg b, int c);
+
+quote(MLMLI,"(** {3 Approximate to the nearest integer toward resp. -infty, +infty} *)\n")
+void numXXX_floor(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_ceil(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_trunc(numXXX_ptrm a, numXXX_ptrg b);
+
+quote(MLMLI,"  (** Compute both an upper bound and a lower bound *)")
+void numXXX_sqrt(numXXX_ptrm up, numXXX_ptrm down, numXXX_ptrg b);
+
+quote(MLMLI,"(** {2 Arithmetic Tests} *)\n")
+
+int numXXX_sgn(numXXX_ptrg a);
+int numXXX_cmp(numXXX_ptrg a, numXXX_ptrg b);
+int numXXX_cmp_int(numXXX_ptrg a, int b);
+boolean numXXX_equal(numXXX_ptrg a, numXXX_ptrg b);
+boolean numXXX_integer(numXXX_ptrg a);
+int numXXX_hash(numXXX_ptrg a);
+
+quote(MLMLI,"(** {2 Conversions} *)\n")
+
+void numXXX_get_double([out,ref]double* a, [out]boolean approx, numXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"approx = double_set_numXXX(a,b,intern);");
+boolean numXXX_get_mpq(mpq_ptrm a, numXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"_res = mpq_set_numXXX(a,b,intern);");
+boolean numXXX_get_mpfr(mpfr_ptrm a, numXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"_res = mpfr_set_numXXX(a,b,intern);");
+
+boolean numXXX_set_double(numXXX_ptrm a, double b, num_internal_ptr intern);
+boolean numXXX_set_mpq(numXXX_ptrm a, mpq_ptrg b, num_internal_ptr intern);
+boolean numXXX_set_mpfr(numXXX_ptrm a, mpfr_ptrg b, num_internal_ptr intern);
+
+#ifdef _numint_MARK_
+quote(MLMLI,"(** {2 Integer-only functions} *)\n")
+
+void numXXX_gcd(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_lcm(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_fdiv_q(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void numXXX_cdiv_q(numXXX_ptrm q, numXXX_ptrg a, numXXX_ptrg b);
+void numXXX_tdiv_q(numXXX_ptrm q, numXXX_ptrg a, numXXX_ptrg b);
+void numXXX_cdiv_qr(numXXX_ptrm q, numXXX_ptrm r, numXXX_ptrg a, numXXX_ptrg b);
+void numXXX_cdiv_2(numXXX_ptrm a, numXXX_ptrg b);
+void numXXX_cdiv_q_2exp(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
+void numXXX_fdiv_q_2exp(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
+#endif
+
+#ifdef _numrat_MARK_
+quote(MLMLI,"(** {2 Rational-only functions} *)\n")
+
+void numXXX_canonicalize(numXXX_ptrm a);
+void numXXX_set_numintXXX2 (numXXX_ptrm a, numYYY_ptrg b, numYYY_ptrg c);
+void numXXX_get_num(numYYY_ptrm a, numXXX_ptrg b)
+  quote(call,"numintXXX_set(a,numXXX_numref(b));");
+void numXXX_get_den(numYYY_ptrm a, numXXX_ptrg b)
+  quote(call,"numintXXX_set(a,numXXX_denref(b));");
+#endif
+
+#ifdef _numflt_MARK_
+quote(MLMLI,"(** {2 Floating-point-only functions} *)\n")
+
+boolean numXXX_infty(numXXX_ptrg a);
+void numXXX_set_infty(numXXX_ptrm a, int sgn);
+#endif
+
+#undef _numXXX_MARK_
+#undef _numYYY_MARK_
+#undef _numint_MARK_
+#undef _numrat_MARK_
+#undef _numflt_MARK_
