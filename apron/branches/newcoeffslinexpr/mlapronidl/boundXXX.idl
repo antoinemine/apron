@@ -11,7 +11,7 @@ quote(C, "\n\
 import "mpz.idl";
 import "mpq.idl";
 import "mpfr.idl";
-import "num_internal.idl";
+import "common.idl";
 import "numXXX.idl";
 
 typedef [abstract,c2ml(camlidl_boundXXX_ptr_c2ml),ml2c(camlidl_boundXXX_ptr_ml2c)] struct boundXXX_struct* boundXXX_ptrg;

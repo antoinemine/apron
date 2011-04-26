@@ -40,17 +40,20 @@ LDFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = MPZ #MPQ MPFR D
+TMPL = MPZ MPQ MPFR D
 YYY = expr cons gen
 
-IDL_ORIG_MODULES = num_internal dim var environment
+IDL_ORIG_MODULES_1 = common dim var environment
+IDL_ORIG_MODULES_2 = coeff
+IDL_TMPL_FILES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
 IDL_GENERATED_MODULES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
-$(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX)))))
+$(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
+$(IDL_TMPL_FILES_tmpl:%.tmpl=%)
 
-IDL_MODULES = $(IDL_ORIG_MODULES) $(IDL_GENERATED_MODULES)
+IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
 
 ML_ORIG_MODULES = #apron_parser apron_lexer parser
 ML_GENERATED_MODULES = $(IDL_MODULES) 
@@ -201,6 +204,16 @@ $(IDL_MODULES:%=%_caml.c) $(IDL_MODULES:%=%.ml) $(IDL_MODULES:%=%.mli): $(IDL_MO
 		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
 		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
 	done
+#$(IDL_MODULES:%=%_caml.c) $(IDL_MODULES:%=%.ml) $(IDL_MODULES:%=%.mli): $(IDL_MODULES:%=%.idl) mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
+#	mkdir -p tmp
+#	for i in $(IDL_MODULES); do \
+#		echo "module $$i"; \
+#		cp $${i}.idl tmp/$${i}.idl; \
+#		$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$${i}.idl; \
+#		$(SED) -f sedscript_c tmp/$${i}_stubs.c >$${i}_caml.c; \
+#		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
+#		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
+#	done
 
 mpz.idl: $(SITE-LIB-gmp)/mpz.idl
 	ln -s $^ $@
@@ -235,6 +248,10 @@ apron.o apron.cmx: $(ML_MODULES:%=%.cmx)
 	$(OCAMLFIND) ocamlopt $(OCAMLFLAGS) -package $(REQ_PKG) \
 	-pack -o $@ $(ML_MODULES:%=%.cmx)
 
+apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
+	$(OCAMLFIND) ocamlopt -p $(OCAMLFLAGS) -package $(REQ_PKG) \
+	-pack -o $@ $(ML_MODULES:%=%.p.cmx)
+
 %.cmi: %.mli
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
 
@@ -251,6 +268,10 @@ apron.o apron.cmx: $(ML_MODULES:%=%.cmx)
 # Templates
 #-----------------------------------
 
+%.idl: %.idl.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	./macros.pl $(SRCDIR)/$< >>$@
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
@@ -283,4 +304,6 @@ $(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_yyyXXX:%=%
 #---------------------------------------
 
 depend: $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)
-	$(OCAMLDEP) $^
+	$(OCAMLDEP) $^ >Makefile.depend
+
+include Makefile.depend

@@ -3,136 +3,120 @@
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_coeff.h\"\n\
-#include \"apron_caml.h\"\n\
-\n\
-#define Scalar AP_COEFF_SCALAR\n\
-#define Interval AP_COEFF_INTERVAL\n\
+quote(C, "#include \"apron_caml.h\"")
+
+import "eitvMPZ.idl";
+import "eitvMPQ.idl";
+import "eitvD.idl";
+import "eitvMPFR.idl";
+
+typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c),mltype("('a EitvD.tt, 'a EitvMPQ.tt, 'a EitvMPFR.tt) Common.t")] struct ap_coeff_struct* ap_coeff_ptrg;
+typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c)] struct ap_coeff_struct* ap_coeff_ptrm;
+
+quote(MLMLI,"(** Coefficients *)\n\n")
+
+quote(MLMLI,"
+open Common
+
+type m = Mpz.m (** Mutable tag *)
+type f = Mpz.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable interval *)
 ")
 
-import "scalar.idl";
-import "interval.idl";
+quote(MLI,"
+(** {2 Pretty printing} *)
+val print : Format.formatter -> 'a tt -> unit
 
-/* For ap_coeff_t, 
+(** {2 Initialization} *)
+val init : Common.discr -> 'a tt
+val init_set : 'a tt -> 'b tt
+val init_set_eitvD : 'a EitvD.tt -> 'b tt
+val init_set_eitvMPQ : 'a EitvMPQ.tt -> 'b tt
+val init_set_eitvMPFR : 'a EitvMPFR.tt -> 'b tt
 
-- the conversion from ML to C may use allocation, but it is automatically freed 
-  by Camlidl mechanisms
-- the conversion from C to ML duplicate the C allocated memory.
-  Hence, the C type should be explicitly deallocated
-  (if allocated from the underlying C function)
-*/
+(** {2 Assignement (with possible conversion)} *)
+val set_int : t -> int -> unit
+val set_bottom : t -> unit
+val set_top : t -> unit
+val set_eitvD : t -> 'a EitvD.tt -> Common.num_internal -> bool
+val set_eitvMPQ : t -> 'a EitvMPQ.tt -> Common.num_internal -> bool
+val set_eitvMPFR : t -> 'a EitvMPFR.tt -> Common.num_internal -> bool
+val set : t -> 'a tt -> Common.num_internal -> bool
 
-struct ap_coeff_t {
-  int discr; /* discriminant for coefficient */
-  [switch_is(discr)] union {
-    case Scalar: [ref]ap_scalar_t* scalar;
-      /* cst (normal linear expression) */
-    case Interval: [ref]struct ap_interval_t* interval;
-      /* interval (quasi-linear expression) */
-  } val;
-};
-quote(MLMLI,"(** APRON Coefficients (either scalars or intervals) *)")
+(** {2 Conversion} *)
+val get_eitvD : EitvD.t -> t -> Common.num_internal -> bool
+val get_eitvMPQ : EitvMPQ.t -> t -> Common.num_internal -> bool
+val get_eitvMPFR : EitvMPFR.t -> t -> Common.num_internal -> bool
 
-quote(MLI,"\n\
-val s_of_mpq : Mpq.t -> t\n\
-val s_of_mpqf : Mpqf.t -> t\n\
-val s_of_int : int -> t\n\
-val s_of_frac : int -> int -> t\n\
-  (** Create a scalar coefficient of type [Mpqf.t] from resp.\n\
-    - A multi-precision rational [Mpq.t] \n\
-    - A multi-precision rational [Mpqf.t] \n\
-    - an integer \n\
-    - a fraction [x/y]\n\
-  *)\n\
-\n\
-val s_of_float : float -> t\n\
-  (** Create an interval coefficient of type [Float] with the given value *)\n\
-val s_of_mpfr : Mpfr.t -> t\n\
-  (** Create an interval coefficient of type [Mpfr] with the given value *)\n\
-val i_of_scalar : Scalar.t -> Scalar.t -> t\n\
-  (** Build an interval from a lower and an upper bound *)\n\
-val i_of_mpq : Mpq.t -> Mpq.t -> t\n\
-val i_of_mpqf : Mpqf.t -> Mpqf.t -> t\n\
-val i_of_int : int -> int -> t\n\
-val i_of_frac : int -> int -> int -> int -> t\n\
-val i_of_float : float -> float -> t\n\
-val i_of_mpfr : Mpfr.t -> Mpfr.t -> t\n\
-  (** Create an interval coefficient from resp. two\n\
-    - multi-precision rationals [Mpq.t] \n\
-    - multi-precision rationals [Mpqf.t] \n\
-    - integers \n\
-    - fractions [x/y] and [z/w]\n\
-    - machine floats\n\
-    - Mpfr floats\n\
-  *)\n\
-\n\
-val is_scalar : t -> bool\n\
-val is_interval : t -> bool\n\
-val cmp : t -> t -> int\n\
-  (** Non Total Comparison:\n\
-     - If the 2 coefficients are both scalars, corresp. to Scalar.cmp\n\
-     - If the 2 coefficients are both intervals, corresp. to Interval.cmp\n\
-     - otherwise, -3 if the first is a scalar, 3 otherwise\n\
-  *)\n\
-val equal : t -> t -> bool\n\
-  (** Equality test *)\n\
-val is_zero : t -> bool\n\
-  (** Is the coefficient equal to scalar 0 or interval [0,0] ? *)\n\
-val equal_int : t -> int -> bool\n\
-  (** Is the coefficient equal to scalar b or interval [b,b] ? *)\n\
-val neg : t -> t\n\
-  (** Negation *)\n\
-val reduce : t -> t\n\
-  (** Convert interval to scalar if possible *)\n\
-val print : Format.formatter -> t -> unit\n\
-  (** Printing *)\n\
+(** {3 Tests} *)
+val is_point : 'a tt -> bool
+val is_zero : 'a tt -> bool
+val is_pos : 'a tt -> bool
+val is_neg : 'a tt -> bool
+val is_top : 'a tt -> bool
+val is_bottom : 'a tt -> Common.num_internal -> bool
+val is_eq : 'a tt -> 'b tt -> bool
+val hash : 'a tt -> int
 ")
 
-quote(ML,"\n\
-let s_of_mpq x = Scalar (Scalar.of_mpq x)\n\
-let s_of_mpqf x = Scalar (Scalar.of_mpqf x)\n\
-let s_of_int x = Scalar (Scalar.of_int x)\n\
-let s_of_frac x y = Scalar (Scalar.of_frac x y)\n\
-let s_of_float x = Scalar (Scalar.of_float x)\n\
-let s_of_mpfr x = Scalar (Scalar.of_mpfr x)\n\
-\n\
-let i_of_scalar inf sup = Interval (Interval.of_scalar inf sup)\n\
-let i_of_mpq x y = Interval (Interval.of_mpq x y)\n\
-let i_of_mpqf x y = Interval (Interval.of_mpqf x y)\n\
-let i_of_int x y = Interval (Interval.of_int x y)\n\
-let i_of_frac x y z w = Interval (Interval.of_frac x y z w)\n\
-let i_of_float x y = Interval (Interval.of_float x y)\n\
-let i_of_mpfr x y = Interval (Interval.of_mpfr x y)\n\
-\n\
-let is_scalar c = match c with Scalar _ -> true | _ -> false\n\
-let is_interval c = match c with Interval _ -> true | _ -> false\n\
-let cmp c1 c2 = match (c1,c2) with\n\
-| (Scalar s1, Scalar s2) -> Scalar.cmp s1 s2\n\
-| (Interval i1, Interval i2) -> Interval.cmp i1 i2\n\
-| (Scalar _, _) -> (-3)\n\
-| _ -> 3\n\
-let equal c1 c2 = match (c1,c2) with\n\
-| (Scalar s1, Scalar s2) -> Scalar.equal s1 s2\n\
-| (Interval i1, Interval i2) -> Interval.equal i1 i2\n\
-| _ -> false\n\
-let is_zero c = match c with\n\
-| Scalar s -> (Scalar.sgn s)=0\n\
-| Interval i -> Interval.is_zero i\n\
-let equal_int c b = match c with\n\
-| Scalar s -> Scalar.equal_int s b\n\
-| Interval i -> Interval.equal_int i b\n\
-let neg c = match c with\n\
-| Scalar s -> Scalar (Scalar.neg s)\n\
-| Interval i -> Interval (Interval.neg i)\n\
-let reduce c = match c with\n\
-| Scalar _ -> c\n\
-| Interval i ->\n\
-    if Scalar.equal i.Interval.inf i.Interval.sup\n\
-    then Scalar i.Interval.inf\n\
-    else c\n\
-let print fmt c = match c with\n\
-| Scalar s -> Scalar.print fmt s\n\
-| Interval i -> Interval.print fmt i\n\
+quote(ML,"
+let print fmt (coeff:'a tt) =
+  apply_arg_discr EitvD.print EitvMPQ.print EitvMPFR.print fmt coeff
+
+let init (discr:discr) : 'a tt =
+  map_discr EitvD.init EitvMPQ.init EitvMPFR.init discr
+let init_set (coeff:'a tt) : 'b tt =
+  map_discr EitvD.init_set EitvMPQ.init_set EitvMPFR.init_set coeff
+let init_set_eitvD x : 'a tt =
+  D(EitvD.init_set x)
+let init_set_eitvMPQ x : 'a tt =
+  MPQ(EitvMPQ.init_set x)
+let init_set_eitvMPFR x : 'a tt =
+  MPFR(EitvMPFR.init_set x)
+
+let set_int (coeff:t) n : unit =
+  apply_discr_arg EitvD.set_int EitvMPQ.set_int EitvMPFR.set_int coeff n
+let set_bottom (coeff:t) : unit =
+  apply_discr EitvD.set_bottom EitvMPQ.set_bottom EitvMPFR.set_bottom coeff
+let set_top (coeff:t) : unit =
+  apply_discr EitvD.set_top EitvMPQ.set_top EitvMPFR.set_top coeff
+
+let set_eitvD (coeff:t) x intern =
+  apply_discr_arg2 Conv.eitvD_set_eitvD Conv.eitvMPQ_set_eitvD Conv.eitvMPFR_set_eitvD coeff x intern
+let set_eitvMPQ (coeff:t) x intern =
+  apply_discr_arg2 Conv.eitvD_set_eitvMPQ Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPFR_set_eitvMPQ coeff x intern
+let set_eitvMPFR (coeff:t) x intern =
+  apply_discr_arg2 Conv.eitvD_set_eitvMPFR Conv.eitvMPQ_set_eitvMPFR Conv.eitvMPFR_set_eitvMPFR coeff x intern
+
+let get_eitvD x (coeff:t) intern =
+  apply_arg_discr_arg Conv.eitvD_set_eitvD Conv.eitvD_set_eitvMPQ Conv.eitvD_set_eitvMPFR x coeff intern
+let get_eitvMPQ x (coeff:t) intern =
+  apply_arg_discr_arg Conv.eitvMPQ_set_eitvD Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPQ_set_eitvMPFR x coeff intern
+let get_eitvMPFR x (coeff:t) intern =
+  apply_arg_discr_arg Conv.eitvMPFR_set_eitvD Conv.eitvMPFR_set_eitvMPQ Conv.eitvMPFR_set_eitvMPFR x coeff intern
+
+let set (coeff1:t) (coeff2:'a tt) intern =
+  apply_arg_discr_arg set_eitvD set_eitvMPQ set_eitvMPFR coeff1 coeff2 intern
+
+let is_point (coeff:'a tt) =
+  apply_discr EitvD.is_point EitvMPQ.is_point EitvMPFR.is_point coeff
+let is_zero (coeff:'a tt) =
+  apply_discr EitvD.is_zero EitvMPQ.is_zero EitvMPFR.is_zero coeff
+let is_pos (coeff:'a tt) =
+  apply_discr EitvD.is_pos EitvMPQ.is_pos EitvMPFR.is_pos coeff
+let is_neg (coeff:'a tt) =
+  apply_discr EitvD.is_neg EitvMPQ.is_neg EitvMPFR.is_neg coeff
+let is_top (coeff:'a tt) =
+  apply_discr EitvD.is_top EitvMPQ.is_top EitvMPFR.is_top coeff
+let is_bottom (coeff:'a tt) =
+  apply_discr EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff
+let is_eq (coeff1:'a tt) (coeff2:'b tt) =
+  match (coeff1,coeff2) with
+  | (D x1, D x2) -> EitvD.is_eq x1 x2
+  | (MPQ x1, MPQ x2) -> EitvMPQ.is_eq x1 x2
+  | (MPFR x1, MPFR x2) -> EitvMPFR.is_eq x1 x2
+  | _ -> false
+
+let hash (coeff:'a tt) =
+  apply_discr EitvD.hash EitvMPQ.hash EitvMPFR.hash coeff
 ")

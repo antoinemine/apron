@@ -19,4 +19,10 @@ s/struct ap_texpr_rdir_t/ap_texpr_rdir_t/g
 #
 s/(&OUTOUTOUT/(\&OUTTOUTTOUTT/g;  
 s/struct mpfr_rnd_t/mpfr_rnd_t/g;
-
+#
+# 4. Special trick for conv module
+#
+s/convconv_//g;
+#
+# 5.
+#

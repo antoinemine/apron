@@ -290,6 +290,103 @@ value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
 }
 ENDMACRO
 
+MACRO_ALLTARRAY_ALLX
+void camlidl_custom_TTTXXX_array_finalize(value val)
+{
+  TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
+  TTTXXX_array_clear(a);
+  free(a);
+}
+int camlidl_custom_TTTXXX_array_compare(value val1, value val2)
+{
+  int res;
+  TTTXXX_array_ptr a1;
+  TTTXXX_array_ptr a2;
+
+  a1 = *(TTTXXX_array_ptr*)(Data_custom_val(val1));
+  a2 = *(TTTXXX_array_ptr*)(Data_custom_val(val2));
+  res = (int)a1->size - (int)a2->size;
+  if (res==0){
+    size_t i;
+    for(i=0;i<a1->size;i++){
+      res = TTTXXX_cmp(a1->p[i],a2->p[i]);
+      if (res) break;
+    }
+  }
+  res = res > 0 ? 1 : res==0 ? 0 : -1;
+  return res;
+}
+void camlidl_custom_TTTXXX_array_serialize(
+    value v, unsigned long* wsize_32, unsigned long* wsize_64
+)
+{
+  TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)(Data_custom_val(v));
+  char* buf = malloc(TTTXXX_array_serialized_size(a));
+  size_t count = TTTXXX_array_serialize(buf,a);
+  caml_serialize_int_4((int32)count);
+  caml_serialize_block_1(buf,(intnat)count);
+  *wsize_32 = 4;
+  *wsize_64 = 8;
+  free(buf);
+}
+unsigned long camlidl_custom_TTTXXX_array_deserialize(void * dst)
+{
+  TTTXXX_array_ptr a = malloc(sizeof(TTTXXX_array_t));
+  *(TTTXXX_array_ptr*)dst = a;
+  int32 count = caml_deserialize_sint_4();
+  char* buf = malloc(count);
+  caml_deserialize_block_1(buf,count);
+  TTTXXX_array_deserialize(a,buf);
+  free(buf);
+  return sizeof(a);
+}
+struct custom_operations camlidl_custom_TTTXXX_array = {
+  "camlidl_apron_custom_TTTXXX_array",
+  &camlidl_custom_TTTXXX_array_finalize,
+  &camlidl_custom_TTTXXX_array_compare,
+  custom_hash_default,
+  &camlidl_custom_TTTXXX_array_serialize,
+  &camlidl_custom_TTTXXX_array_deserialize
+};
+
+value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
+{
+  value val;
+  TTTXXX_array_ptr p;
+
+  p = malloc(sizeof(TTTXXX_array_t));
+  *p = **a;
+  val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_ptr), 0, 1);
+  *(((TTTXXX_array_ptr*)(Data_custom_val(val)))) = p;
+  return val;
+}
+ENDMACRO
+
+
+/* ********************************************************************** */
+/* coefficients */
+/* ********************************************************************** */
+
+void camlidl_coeff_ptr_ml2c(value v, struct ap_coeff_struct* pcoeff)
+{
+  ap_scalar_discr_t discr = Tag_val(v);
+  pcoeff->discr = discr;
+  SWITCHX(discr)
+    camlidl_eitvXXX_ptr_ml2c(Field(v,0),&pcoeff->eitv.XXX);
+  ENDSWITCH;
+}
+value camlidl_coeff_ptr_c2ml(struct ap_coeff_struct* pcoeff)
+{
+  CAMLparam0();
+  CAMLlocal2(v,v2);
+  SWITCHX(pcoeff->discr)
+    v2 = camlidl_eitvXXX_ptr_c2ml(&pcoeff->eitv.XXX);
+  ENDSWITCH
+  v = alloc_small(1,pcoeff->discr);
+  Field(v,0) = v2;
+  CAMLreturn(v);
+}
+
 /* /\* ********************************************************************** *\/ */
 /* /\* linexpr0 *\/ */
 /* /\* ********************************************************************** *\/ */

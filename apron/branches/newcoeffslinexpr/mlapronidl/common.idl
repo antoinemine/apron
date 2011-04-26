@@ -1,0 +1,135 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"num_types.h\"\n\
+#include \"ap_lin_types.h\"\n\
+")
+
+typedef [abstract,c2ml(camlidl_num_internal_ptr_c2ml),ml2c(camlidl_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;
+
+enum exprtyp {
+  AP_LINEXPR_INTLINEAR,
+  AP_LINEXPR_QUASILINEAR,
+  AP_LINEXPR_LINEAR
+};
+enum constyp {
+  AP_CONS_EQ,    /* equality constraint */
+  AP_CONS_SUPEQ, /* >= constraint */
+  AP_CONS_SUP,   /* > constraint */
+  AP_CONS_EQMOD, /* congruence equality constraint */
+  AP_CONS_DISEQ  /* disequality constraint */
+};
+enum gentyp {
+  AP_GEN_LINE,   /* Bidirectional ray (real coefficient) */
+  AP_GEN_RAY,    /* Ray (positive real coefficient) */
+  AP_GEN_VERTEX, /* Vertex ("barycenter" coefficient) */
+  AP_GEN_LINEMOD,/* Bidirectionnal integer ray (integer coefficient) */
+  AP_GEN_RAYMOD  /* Integer ray (positive integer coefficient) */
+};
+
+quote(MLMLI,"
+type ('a,'b,'c) t =
+| D of 'a
+| MPQ of 'b
+| MPFR of 'c
+type discr = (unit,unit,unit) t
+")
+
+quote(MLI,"
+val exprtyp_to_string : exprtyp -> string
+val constyp_to_string : constyp -> string
+val gentyp_to_string : gentyp -> string
+val earray_print :
+  ?first:(unit,Format.formatter,unit) format ->
+  ?sep:(unit,Format.formatter,unit) format ->
+  ?last:(unit,Format.formatter,unit) format ->
+  size:int ->
+  print_index:(Format.formatter -> int -> unit) ->
+  Format.formatter -> unit
+val map_discr :
+  ('a -> 'b) ->
+  ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
+val apply_discr :
+  ('a -> 'b) -> ('c -> 'b) -> ('d -> 'b) -> ('a, 'c, 'd) t -> 'b
+val apply_arg_discr :
+  ('a -> 'b -> 'c) ->
+  ('a -> 'd -> 'c) -> ('a -> 'e -> 'c) -> 'a -> ('b, 'd, 'e) t -> 'c
+val apply_discr_arg :
+  ('a -> 'b -> 'c) ->
+  ('d -> 'b -> 'c) -> ('e -> 'b -> 'c) -> ('a, 'd, 'e) t -> 'b -> 'c
+val apply_discr_arg2 :
+  ('a -> 'b -> 'c -> 'd) ->
+  ('e -> 'b -> 'c -> 'd) ->
+  ('f -> 'b -> 'c -> 'd) -> ('a, 'e, 'f) t -> 'b -> 'c -> 'd
+val apply_arg_discr_arg :
+  ('a -> 'b -> 'c -> 'd) ->
+  ('a -> 'e -> 'c -> 'd) ->
+  ('a -> 'f -> 'c -> 'd) -> 'a -> ('b, 'e, 'f) t -> 'c -> 'd
+")
+quote(ML,"
+let exprtyp_to_string = function
+| INTLINEAR -> \"INTLINEAR\"
+| QUASILINEAR -> \"QUASILINEAR\"
+| LINEAR -> \"LINEAR\"
+let constyp_to_string = function
+| EQ -> \"=\"
+| SUPEQ -> \">=\"
+| SUP -> \">\"
+| EQMOD -> \"=\"
+| DISEQ -> \"<>\"
+let gentyp_to_string = function
+| LINE -> \"LINE\"
+| RAY -> \"RAY\"
+| VERTEX -> \"VTX\"
+| LINEMOD -> \"LINEMOD\"
+| RAYMOD -> \"RAYMOD\"
+let earray_print
+  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))
+  ~(size:int)
+  ~(print_index: Format.formatter -> int -> unit)
+  (fmt:Format.formatter)
+  : unit
+  =
+  Format.fprintf fmt first;
+  for i=0 to size-1 do
+    if i>0 then Format.fprintf fmt sep;
+    print_index fmt i
+  done;
+  Format.fprintf fmt last
+let map_discr d mpq mpfr discr =
+  match discr with
+  | D x -> D(d x)
+  | MPQ x -> MPQ(mpq x)
+  | MPFR x -> MPFR(mpfr x)
+let apply_discr d mpq mpfr discr =
+  match discr with
+  | D x -> d x
+  | MPQ x -> mpq x
+  | MPFR x -> mpfr x
+let apply_arg_discr d mpq mpfr arg discr =
+  match discr with
+  | D x -> d arg x
+  | MPQ x -> mpq arg x
+  | MPFR x -> mpfr arg x
+let apply_discr_arg d mpq mpfr discr arg =
+  match discr with
+  | D x -> d x arg
+  | MPQ x -> mpq x arg
+  | MPFR x -> mpfr x arg
+let apply_discr_arg2 d mpq mpfr discr arg1 arg2 =
+  match discr with
+  | D x -> d x arg1 arg2
+  | MPQ x -> mpq x arg1 arg2
+  | MPFR x -> mpfr x arg1 arg2
+let apply_arg_discr_arg d mpq mpfr arg1 discr arg2 =
+  match discr with
+  | D x -> d arg1 x arg2
+  | MPQ x -> mpq arg1 x arg2
+  | MPFR x -> mpfr arg1 x arg2
+")

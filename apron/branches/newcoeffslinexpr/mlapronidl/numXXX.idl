@@ -11,7 +11,7 @@ quote(C, "\n\
 import "mpz.idl";
 import "mpq.idl";
 import "mpfr.idl";
-import "num_internal.idl";
+import "common.idl";
 
 #define _numXXX_MARK_
 
