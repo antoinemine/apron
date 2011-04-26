@@ -3,9 +3,7 @@
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(C, "
-#include \"apron_caml.h\"
-")
+quote(C, "#include \"apron_caml.h\"")
 
 typedef [abstract,
 	 ml2c(camlidl_apron_var_ptr_ml2c),
@@ -37,7 +35,7 @@ let print fmt v = Format.pp_print_string fmt (to_string v)
 
 quote(MLMLI,"
 (** Initialisation of abstract type operations in C library *)
-external set_var_operations : unit -> unit = \"camlidl_apron_set_var_operations\"");
+external ap_var__set_operations : unit -> unit = \"camlidl_apron_var_set_operations\"");
 quote(ML,"
-let _ = set_var_operations ()
+let _ = _set_operations ()
 ")

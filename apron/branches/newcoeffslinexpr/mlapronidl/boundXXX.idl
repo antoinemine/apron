@@ -1,0 +1,123 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"boundXXX.h\"\n\
+")
+
+import "mpz.idl";
+import "mpq.idl";
+import "mpfr.idl";
+import "num_internal.idl";
+import "numXXX.idl";
+
+typedef [abstract,c2ml(camlidl_boundXXX_ptr_c2ml),ml2c(camlidl_boundXXX_ptr_ml2c)] struct boundXXX_struct* boundXXX_ptrg;
+typedef [abstract,c2ml(camlidl_boundXXX_ptr_c2ml),ml2c(camlidl_boundXXX_ptr_ml2c)] struct boundXXX_struct* boundXXX_ptrm;
+quote(MLMLI,"
+type m = Mpz.m (** Mutable tag *)
+type f = Mpz.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable boundbers *)
+")
+
+quote(MLMLI,"(** Bounds *)\n")
+
+quote(MLMLI,"(** The following operations are mapped as much as possible to their C counterpart. In case of imperative functions (like [set], [add], ...) the first parameter of type [t] is an out-parameter and holds the result when the function returns. For instance, [add x y z] adds the values of [y] and [z] and stores the result in [x].\n\n These functions are as efficient as their C counterpart: they do not imply additional memory allocation. *)\n\n")
+
+/* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
+
+quote(MLI,"\n(** {2 Pretty printing} *)\n")
+[string] char* _to_string(int length, boundXXX_ptrg a)
+  quote(call,"
+if (boundXXX_infty(a)){
+  _res = malloc(4);
+  strcpy(_res, boundXXX_sgn(a)>=0 ? \"+oo\" : \"-oo\");
+} else {
+  if (length<=8) length=8;
+  _res = malloc(length+1);
+  int l = numXXX_snprint(_res,length+1,boundXXX_numref(a));
+  if (l>=length+1){
+    strcpy(_res,boundXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");
+  }
+}
+")
+  quote(dealloc,"free(_res);");
+quote(MLI,"
+val to_string : ?length:int -> 'a tt -> string
+val print : Format.formatter -> 'a tt -> unit
+")
+quote(ML,"
+let to_string ?(length=80) a = _to_string length a
+let print fmt a = Format.pp_print_string fmt (to_string a)
+")
+
+quote(MLMLI,"(** {2 Initialization Functions} *)\n")
+void boundXXX_init([out]boundXXX_ptrg OUTOUTOUT);
+void boundXXX_init_set([out]boundXXX_ptrg OUTOUTOUT, boundXXX_ptrg b);
+
+quote(MLMLI,"(** {2 Assignement Functions} *)\n")
+
+void boundXXX_set(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_set_int(boundXXX_ptrm a, long i);
+void boundXXX_set_num(boundXXX_ptrm a, numXXX_ptrg b);
+void boundXXX_set_infty(boundXXX_ptrm a, int sgn);
+
+void boundXXX_get_num(numXXX_ptrm a, boundXXX_ptrg b)
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); numXXX_set(a,boundXXX_numref(b));");
+
+quote(MLMLI,"(** {2 Arithmetic operations} *)\n")
+
+void boundXXX_neg(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_abs(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_add(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+void boundXXX_add_uint(boundXXX_ptrm a, boundXXX_ptrg b, unsigned long c);
+void boundXXX_add_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
+void boundXXX_sub(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+void boundXXX_sub_uint(boundXXX_ptrm a, boundXXX_ptrg b, unsigned long c);
+void boundXXX_sub_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
+void boundXXX_mul(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+void boundXXX_mul_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
+void boundXXX_mul_2(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_div(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+void boundXXX_div_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
+void boundXXX_div_2(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_min(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+void boundXXX_max(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+
+void boundXXX_mul_2exp(boundXXX_ptrm a, boundXXX_ptrg b, int c);
+
+void boundXXX_floor(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_ceil(boundXXX_ptrm a, boundXXX_ptrg b);
+void boundXXX_trunc(boundXXX_ptrm a, boundXXX_ptrg b);
+
+void boundXXX_sqrt(boundXXX_ptrm a, boundXXX_ptrm b, boundXXX_ptrg c);
+
+void boundXXX_to_float(boundXXX_ptrm a, boundXXX_ptrg b, num_internal_ptr intern);
+void boundXXX_to_double(boundXXX_ptrm a, boundXXX_ptrg b, num_internal_ptr intern);
+
+quote(MLMLI,"(** {2 Arithmetic Tests} *)\n")
+
+boolean boundXXX_infty(boundXXX_ptrg a);
+int boundXXX_sgn(boundXXX_ptrg a);
+int boundXXX_cmp(boundXXX_ptrg a, boundXXX_ptrg b);
+int boundXXX_cmp_int(boundXXX_ptrg a, int b);
+int boundXXX_cmp_num(boundXXX_ptrg a, numXXX_ptrg b);
+boolean boundXXX_equal(boundXXX_ptrg a, boundXXX_ptrg b);
+int boundXXX_hash(boundXXX_ptrg a);
+
+void boundXXX_widening(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
+
+quote(MLMLI,"(** {2 Conversions} *)\n")
+
+void boundXXX_get_double([out,ref]double* a, [out]boolean approx, boundXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); approx = double_set_numXXX(a,boundXXX_numref(b),intern);");
+boolean boundXXX_get_mpq(mpq_ptrm a, boundXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = mpq_set_numXXX(a,boundXXX_numref(b),intern);");
+boolean boundXXX_get_mpfr(mpfr_ptrm a, boundXXX_ptrg b, num_internal_ptr intern)
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = mpfr_set_numXXX(a,boundXXX_numref(b),intern);");
+
+boolean boundXXX_set_double(boundXXX_ptrm a, double b, num_internal_ptr intern);
+boolean boundXXX_set_mpq(boundXXX_ptrm a, mpq_ptrg b, num_internal_ptr intern);
+boolean boundXXX_set_mpfr(boundXXX_ptrm a, mpfr_ptrg b, num_internal_ptr intern);

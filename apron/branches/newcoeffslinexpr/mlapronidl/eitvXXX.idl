@@ -1,0 +1,186 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"eitvXXX.h\"
+
+")
+
+import "mpz.idl";
+import "mpq.idl";
+import "mpfr.idl";
+import "num_internal.idl";
+import "numXXX.idl";
+import "boundXXX.idl";
+
+typedef [abstract,c2ml(camlidl_eitvXXX_ptr_c2ml),ml2c(camlidl_eitvXXX_ptr_ml2c)] struct eitvXXX_struct* eitvXXX_ptrg;
+typedef [abstract,c2ml(camlidl_eitvXXX_ptr_c2ml),ml2c(camlidl_eitvXXX_ptr_ml2c)] struct eitvXXX_struct* eitvXXX_ptrm;
+
+quote(MLMLI,"(** Intervals *)\n\n")
+
+quote(MLMLI,"
+type m = Mpz.m (** Mutable tag *)
+type f = Mpz.f (** Functional (immutable) tag *)
+type t = m tt (** Mutable interval *)
+")
+
+quote(MLMLI,"(** The following operations are mapped as much as possible to their C counterpart. In case of imperative functions (like [set], [add], ...) the first parameter of type [t] is an out-parameter and holds the result when the function returns. For instance, [add x y z] adds the values of [y] and [z] and stores the result in [x].\n\n These functions are as efficient as their C counterpart: they do not imply additional memory allocation. *)\n\n")
+
+/* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
+
+quote(MLI,"\n(** {2 Pretty printing} *)\n")
+quote(MLI,"val print : Format.formatter -> 'a tt -> unit")
+
+quote(MLMLI,"\n(** {2 Initialization Functions} *)")
+
+void eitvXXX_init([out]eitvXXX_ptrg OUTOUTOUT);
+void eitvXXX_init_set([out]eitvXXX_ptrg OUTOUTOUT, eitvXXX_ptrg b);
+
+quote(MLMLI,"\n(** {2 Assignement Functions} *)")
+quote(MLMLI,"(** The first parameter holds the result. *)\n")
+
+void eitvXXX_set(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_set_int(eitvXXX_ptrm a, long b);
+void eitvXXX_set_int2(eitvXXX_ptrm a, long b, long c);
+void eitvXXX_set_num(eitvXXX_ptrm a, numXXX_ptrg b);
+void eitvXXX_set_num2(eitvXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
+void eitvXXX_set_bound(eitvXXX_ptrm a, boundXXX_ptrg b)
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to an interval\"); eitvXXX_set_num(a,boundXXX_numref(b));");
+void eitvXXX_set_bound2(eitvXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c)
+  quote(call, "boundXXX_set(a->itv->neginf,b); boundXXX_neg(a->itv->neginf,a->itv->neginf); boundXXX_set(a->itv->sup,c);");
+void eitvXXX_set_bottom(eitvXXX_ptrm a);
+void eitvXXX_set_top(eitvXXX_ptrm a);
+
+void eitvXXX_set_neginf(eitvXXX_ptrm a, boundXXX_ptrg b)
+  quote(call,"boundXXX_set(a->itv->neginf,b);");
+void eitvXXX_set_sup(eitvXXX_ptrm a, boundXXX_ptrg b)
+  quote(call,"boundXXX_set(a->itv->sup,b);");
+void eitvXXX_get_neginf(boundXXX_ptrm a, eitvXXX_ptrg b)
+  quote(call,"boundXXX_set(a,b->itv->neginf);");
+void eitvXXX_get_sup(boundXXX_ptrm a, eitvXXX_ptrg b)
+  quote(call,"boundXXX_set(a,b->itv->sup);");
+
+/* a = [-b,b] */
+void eitvXXX_set_unit_num(eitvXXX_ptrm a, numXXX_ptrg b);
+void eitvXXX_set_unit_bound(eitvXXX_ptrm a, boundXXX_ptrg b);
+
+/* a = b + [-c,c] */
+void eitvXXX_enlarge_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
+
+quote(MLMLI,"\n(** Normalization and Tests*)\n")
+
+quote(MLMLI,"
+(** Canonicalize an interval:
+    - if integer is true, narrows bound to integers
+    - return true if the interval is bottom
+    - return false otherwise *)")
+boolean eitvXXX_canonicalize(eitvXXX_ptrm a, boolean integer, num_internal_ptr intern);
+quote(MLMLI,"(** has integer bounds *)")
+boolean eitvXXX_is_int(eitvXXX_ptrg a, num_internal_ptr intern);
+boolean eitvXXX_is_point(eitvXXX_ptrg a);
+boolean eitvXXX_is_zero(eitvXXX_ptrg a);
+boolean eitvXXX_is_pos(eitvXXX_ptrg a);
+boolean eitvXXX_is_neg(eitvXXX_ptrg a);
+boolean eitvXXX_is_top(eitvXXX_ptrg a);
+boolean eitvXXX_is_bottom(eitvXXX_ptrg a, num_internal_ptr intern);
+boolean eitvXXX_is_leq(eitvXXX_ptrg a, eitvXXX_ptrg b);
+boolean eitvXXX_is_eq(eitvXXX_ptrg a, eitvXXX_ptrg b);
+
+int eitvXXX_hash(eitvXXX_ptrg a);
+
+int eitvXXX_cmp(eitvXXX_ptrg a, eitvXXX_ptrg b);
+int eitvXXX_cmp_zero(eitvXXX_ptrg a);
+quote(MLMLI,"
+(** Comparison:
+     0: equality
+     -1: i1 included in i2
+     +1: i2 included in i1
+     -2: i1->sup less than i2->sup
+     +2: i1->sup greater than i2->sup
+*)")
+void eitvXXX_range_abs(boundXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_range_rel(boundXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
+
+quote(MLMLI,"\n(** {2 Lattice operations} *)\n")
+
+boolean eitvXXX_meet(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c, num_internal_ptr intern);
+void eitvXXX_join(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
+void eitvXXX_widening(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
+
+quote(MLMLI,"\n(** {2 Arithmetic operations} *)\n")
+
+void eitvXXX_add(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
+void eitvXXX_sub(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
+void eitvXXX_neg(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_mul(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c, num_internal_ptr intern);
+void eitvXXX_div(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c, num_internal_ptr intern);
+void eitvXXX_add_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
+void eitvXXX_sub_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
+void eitvXXX_mul_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
+void eitvXXX_div_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
+void eitvXXX_add_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
+void eitvXXX_sub_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
+void eitvXXX_mul_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
+void eitvXXX_div_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
+boolean eitvXXX_sqrt(eitvXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
+void eitvXXX_abs(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_mul_2exp(eitvXXX_ptrm a, eitvXXX_ptrg b, int c);
+
+void eitvXXX_magnitude(boundXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_gmod(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c, boolean is_int, num_internal_ptr intern)
+  quote(call,"eitvXXX_mod(a,b,c,is_int,intern);");
+
+quote(MLMLI,"\n(** {2 Casts} *)\n")
+quote(MLMLI,"\n(** {3 Integer casts (rounding towards +oo, -oo, 0, or worst-case)} *)\n")
+void eitvXXX_ceil(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_floor(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_trunc(eitvXXX_ptrm a, eitvXXX_ptrg b);
+void eitvXXX_to_int(eitvXXX_ptrm a, eitvXXX_ptrg b);
+
+quote(MLMLI,"\n(** {3 Floating-point casts (worst cases) *)\n")
+void eitvXXX_to_float(eitvXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
+void eitvXXX_to_double(eitvXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
+
+quote(MLMLI,"\n(** {2 Conversions} *)\n")
+
+/*
+boolean eitvXXX_set_generic(num_internal_ptr intern,
+			eitvXXX_ptrg a, eitv_tag_t tag, va_list* va);
+boolean eitvXXX_set_val(num_internal_ptr intern,
+		    eitvXXX_ptrg a, eitv_tag_t tag, ...);
+*/
+  /* This function assigns the interval from a value defined by a number of
+     arguments as specified in the definition of the type eitv_tag_t
+
+     Returns true iff all conversions were exact.
+
+     Example:
+     eitvXXX_set_val(intern,eitv,EITV_LFRAC,7,9);
+     eitvXXX_set_val(intern,EITV_DOUBLE2,-3.0,4.5);
+     eitvXXX_set_val(intern,EITV_LLINT,3LL);
+     sets resp. eitv to 7/9, [-3,4.5], 3.
+     assuming that all the number conversions were exact.
+  */
+
+boolean eitvXXX_set_mpz(eitvXXX_ptrm a, mpz_ptrg b, num_internal_ptr intern);
+boolean eitvXXX_set_mpz2(eitvXXX_ptrm a, mpz_ptrg b, mpz_ptrg c, num_internal_ptr intern);
+boolean eitvXXX_set_mpq(eitvXXX_ptrm a, mpq_ptrg b, num_internal_ptr intern);
+boolean eitvXXX_set_mpq2(eitvXXX_ptrm a, mpq_ptrg b, mpq_ptrg c, num_internal_ptr intern);
+boolean eitvXXX_set_double(eitvXXX_ptrm a, double b, num_internal_ptr intern);
+boolean eitvXXX_set_double2(eitvXXX_ptrm a, double b, double c, num_internal_ptr intern);
+boolean eitvXXX_set_mpfr(eitvXXX_ptrm a, mpfr_ptrg b, num_internal_ptr intern);
+boolean eitvXXX_set_mpfr2(eitvXXX_ptrm a, mpfr_ptrg b, mpfr_ptrg c, num_internal_ptr intern);
+
+quote(ML,"
+let print fmt a =
+  let bound = BoundXXX.init() in
+  get_neginf bound a;
+  BoundXXX.neg bound bound;
+  Format.fprintf fmt \"[@[%a;@ \" BoundXXX.print bound;
+  get_sup bound a;
+  Format.fprintf fmt \"%a@]]\" BoundXXX.print bound;
+  ()
+")

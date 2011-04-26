@@ -186,14 +186,14 @@ quote(dealloc,"ap_dimchange_free(_res);")
 ;
 
 quote(MLI,"\n
-(** [dimchange2 e1 e2] computes the transformation for 
- converting from an environment [e1] to a (compatible) environment 
- [e2], by first adding (some) variables of [e2] and then removing 
-(some) variables of [e1]. Raises [Failure] if the two environments 
+(** [dimchange2 e1 e2] computes the transformation for
+ converting from an environment [e1] to a (compatible) environment
+ [e2], by first adding (some) variables of [e2] and then removing
+(some) variables of [e1]. Raises [Failure] if the two environments
 are incompatible.
 *)")
 [ref]struct ap_dimchange2_t *ap_environment_dimchange2(ap_environment_ptr e1,
-					        ap_environment_ptr e2)
+						ap_environment_ptr e2)
      quote(call,"\n\
 _res = ap_environment_dimchange2(e1,e2);\n\
 if (_res==NULL){\n\
@@ -219,11 +219,11 @@ int ap_environment_hash(ap_environment_ptr env);
 
 quote(MLI,"\n(** Return the dimension of the environment *)")
 struct ap_dimension_t ap_environment_dimension(ap_environment_ptr e)
-  quote(call,"_res.intdim = e->intdim; _res.realdim = e->realdim;");
+  quote(call,"_res = e->dim;");
 
 quote(MLI,"\n(** Return the size of the environment *)")
 unsigned int ap_environment_size(ap_environment_ptr e)
-  quote(call,"_res = e->intdim + e->realdim;");
+  quote(call,"_res = ap_dimension_size(e->dim);");
 
 quote(MLI,"\n(** Return true if the variable is present in the environment. *)")
 boolean ap_environment_mem_var(ap_environment_ptr e, ap_var_t var)
@@ -243,24 +243,24 @@ enum typvar ap_environment_typ_of_var(ap_environment_ptr e, ap_var_t var)
     if (dim==AP_DIM_MAX)\n\
       caml_failwith(\"Environment.dim_of_var: unknown variable in the environment\");\n\
     _res =\n\
-      dim=( dim<e->intdim ? AP_INT : AP_REAL);\n\
+      dim=( dim<e->dim.intd ? AP_INT : AP_REAL);\n\
   }");
 
 quote(MLI,"\n(** Return the (lexicographically ordered) sets of integer and real variables in the environment *)")
 void ap_environment_vars(ap_environment_ptr e,
-		      [out,size_is((*e).intdim)]ap_var_t* name_of_intdim,
-		      [out,size_is((*e).realdim)]ap_var_t* name_of_realdim)
+		      [out,size_is((*e).dim.intd)]ap_var_t* name_of_intdim,
+		      [out,size_is((*e).dim.reald)]ap_var_t* name_of_realdim)
   quote(call,"\n\
   {\n\
     size_t i;\n\
-    for(i=0;i<e->intdim;i++) name_of_intdim[i] = ap_var_operations->copy(e->var_of_dim[i]);\n \
-    for(i=0;i<e->realdim;i++) name_of_realdim[i] = ap_var_operations->copy(e->var_of_dim[e->intdim+i]);\n \
+    for(i=0;i<e->dim.intd;i++) name_of_intdim[i] = ap_var_operations->copy(e->var_of_dim[i]);\n \
+    for(i=0;i<e->dim.reald;i++) name_of_realdim[i] = ap_var_operations->copy(e->var_of_dim[e->dim.intd+i]);\n \
   }");
 
 quote(MLI,"\n(** Return the variable corresponding to the given dimension in the environment. Raise [Failure] is the dimension is out of the range of the environment (greater than or equal to [dim env]) *)")
 ap_var_t ap_environment_var_of_dim(ap_environment_ptr e, ap_dim_t dim)
      quote(call,"\n\
-if (dim>=e->intdim+e->realdim){\n\
+if (dim>=e->dim.intd+e->dim.reald){\n\
    caml_failwith(\"Environment.var_of_dim: dim out of range w.r.t. the environment\");\n\
 }\n\
 _res = ap_var_operations->copy(e->var_of_dim[dim]);");
