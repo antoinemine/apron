@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stddef.h>
 
 #include "itv.h"
 #include "itv_linexpr.h"
@@ -42,6 +43,7 @@ box_policy_manager_alloc: the standard manager given in argument is not a box ma
   funptr[AP_FUNPOLICYID_SPRINT] = box_policy_sprint;
   funptr[AP_FUNPOLICYID_DIMENSION] = box_policy_dimension;
   funptr[AP_FUNPOLICYID_EQUAL] = box_policy_equal;
+  funptr[AP_FUNPOLICYID_HASH] = box_policy_hash;
   funptr[AP_FUNPOLICYID_MEET] = box_policy_meet;
   funptr[AP_FUNPOLICYID_MEET_ARRAY] = box_policy_meet_array;
   funptr[AP_FUNPOLICYID_MEET_LINCONS_ARRAY] = box_policy_meet_lincons_array;
@@ -154,7 +156,7 @@ char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* boxpolicy)
     p++;
   }
   *p = 0;
-  assert((p-s) == (boxpolicy->size * (3*boxpolicy->nbdims + 1)));
+  assert((p-s) == (ptrdiff_t)(boxpolicy->size * (3*boxpolicy->nbdims + 1)));
   return s;
 }
 void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* boxpolicy)
@@ -197,6 +199,36 @@ bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* boxpolicy1, box_po
   for (i=0; i<boxpolicy1->size; i++){
     res = box_policy_one_equal(&boxpolicy1->p[i],&boxpolicy2->p[i]);
     if (!res) return res;
+  }
+  return res;
+}
+
+static inline
+long box_policy_dim_hash(box_policy_dim_t* policy)
+{ return 5*(long)(policy->inf)+7*(long)policy->sup; }
+
+long box_policy_one_hash(box_policy_one_t* policy)
+{
+  size_t i;
+  long res;
+
+  res = policy->nbdims;
+  for (i=0; i<policy->nbdims; i++){
+    long res1 = box_policy_dim_hash(&policy->p[i]);
+    res += (res << 1) + res1;
+  }
+  return res;
+}
+
+long box_policy_hash(ap_policy_manager_t* man, box_policy_t* boxpolicy)
+{
+
+  bool res;
+  size_t i;
+
+  res = boxpolicy->size;
+  for (i=0; i<boxpolicy->size; i++){
+    res += (res << 1) + (box_policy_one_hash(&boxpolicy->p[i]) >> 1);
   }
   return res;
 }

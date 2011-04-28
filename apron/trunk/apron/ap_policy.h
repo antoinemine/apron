@@ -29,6 +29,7 @@ typedef enum ap_funpolicyid_t {
   AP_FUNPOLICYID_SPRINT,
   AP_FUNPOLICYID_DIMENSION,
   AP_FUNPOLICYID_EQUAL,
+  AP_FUNPOLICYID_HASH,
   AP_FUNPOLICYID_MEET,
   AP_FUNPOLICYID_MEET_ARRAY,
   AP_FUNPOLICYID_MEET_LINCONS_ARRAY,
@@ -84,6 +85,7 @@ ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy);
 void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy);
 char* ap_policy_sprint(ap_policy_manager_t* pman, ap_policy_t* policy);
 bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_t* policy2);
+long ap_policy_hash(ap_policy_manager_t* pman, ap_policy_t* policy);
 size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy);
 
 /* ********************************************************************** */

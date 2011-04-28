@@ -302,7 +302,7 @@ ap_linexpr_type_t ap_linexpr0_type(ap_linexpr0_t* expr)
   if (res==AP_LINEXPR_LINEAR && expr->cst.discr!=AP_COEFF_SCALAR){
     res = AP_LINEXPR_QUASILINEAR;
   }
-  return res;   
+  return res;
 }
 /* Return true iff all involved coefficients are scalars */
 bool ap_linexpr0_is_linear(ap_linexpr0_t* expr)

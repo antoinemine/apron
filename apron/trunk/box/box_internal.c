@@ -28,8 +28,8 @@ void box_internal_clear(box_internal_t* intern)
   itv_internal_free(intern->itv); intern->itv=NULL;
   itv_clear(intern->bound_linexpr_internal_itv);
   itv_clear(intern->bound_linexpr_internal_itv2);
-  ap_interval_free(intern->sat_interval_interval); 
-  intern->sat_interval_interval = NULL; 
+  ap_interval_free(intern->sat_interval_interval);
+  intern->sat_interval_interval = NULL;
   itv_clear(intern->sat_lincons_itv);
   num_clear(intern->sat_lincons_num);
   itv_clear(intern->bound_linexpr_itv);
@@ -123,4 +123,3 @@ ap_manager_t* box_manager_alloc(void)
   }
   return man;
 }
- 
