@@ -421,12 +421,22 @@ int camlidl_apron_policy_ptr_compare(value v1, value v2)
     res = (int)(a1-a2);
   return res;
 }
+static
+long camlidl_apron_policy_ptr_hash(value v)
+{
+  ap_policy_ptr* p = (ap_policy_ptr *) Data_custom_val(v);
+  ap_policy_t* a = *p;
+  long res;
+
+  res = ap_policy_hash(a->pman,a);
+  return res;
+}
 
 struct custom_operations camlidl_apron_custom_policy_ptr = {
   "appolicy",
   camlidl_apron_policy_ptr_finalize,
   camlidl_apron_policy_ptr_compare,
-  custom_hash_default,
+  camlidl_apron_policy_ptr_hash,
   custom_serialize_default,
   custom_deserialize_default
 };

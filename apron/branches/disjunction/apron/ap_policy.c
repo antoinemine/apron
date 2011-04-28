@@ -88,6 +88,12 @@ bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_
   funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_EQUAL];
   return (*ptr)(pman,policy1->value,policy2->value);
 }
+long ap_policy_hash(ap_policy_manager_t* pman, ap_policy_t* policy)
+{
+  typedef long (*funptr)(ap_policy_manager_t* pman, void* policy);
+  funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_HASH];
+  return (*ptr)(pman,policy->value);
+}
 
 /* ********************************************************************** */
 /* III. Policy, level 0 */
