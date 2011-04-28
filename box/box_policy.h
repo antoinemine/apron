@@ -48,6 +48,7 @@ void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* pol
 char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* policy);
 size_t box_policy_dimension(ap_policy_manager_t* man, box_policy_t* policy);
 bool box_policy_equal(ap_policy_manager_t* man, box_policy_t* policy1, box_policy_t* policy2);
+long box_policy_hash(ap_policy_manager_t* man, box_policy_t* policy);
 
 box_t* box_policy_meet(ap_policy_manager_t* pman, box_policy_t* policy, ap_policy_mode_t mode,
 		       bool destructive, box_t* a1, box_t* a2);
