@@ -356,56 +356,48 @@ bool ap_texpr0_has_dim(ap_texpr0_t* a, ap_dim_t d)
   }
 }
 
-/* fill in v, v should be pre-allocated with size max_dim */
-static void ap_texpr0_dimlist_internal(ap_texpr0_t* a, char* v)
+void ap_texpr0_support_internal(ap_texpr0_t* a, ap_dim_t* tdim)
 {
   if (!a) return;
   switch(a->discr) {
   case AP_TEXPR_CST:
     break;
   case AP_TEXPR_DIM:
-    v[a->val.dim] = 1;
+    tdim[a->val.dim] = a->val.dim;
     break;
   case AP_TEXPR_NODE:
-    ap_texpr0_dimlist_internal(a->val.node->exprA, v);
-    ap_texpr0_dimlist_internal(a->val.node->exprB, v);
+    ap_texpr0_support_internal(a->val.node->exprA, tdim);
+    ap_texpr0_support_internal(a->val.node->exprB, tdim);
     break;
   default:
     assert(0);
   }
 }
 
-ap_dim_t* ap_texpr0_dimlist(ap_texpr0_t* a)
+size_t ap_texpr0_support(ap_texpr0_t* a, ap_dim_t* tdim)
 {
-  ap_dim_t max,i,nb;
-  ap_dim_t* d;
-  char* v;
+  ap_dim_t max,r,w;
+  size_t size;
 
   /* compute occurence vector */
   max = ap_texpr0_max_dim(a);
   if (max==0){
-    /* constant expression */
-    d = malloc(sizeof(ap_dim_t));
-    d[0] = AP_DIM_MAX;
+    return 0;
   }
   else {
-    /* get number of distinct variables */
-    v = malloc(max);
-    memset(v, 0, max);
-    ap_texpr0_dimlist_internal(a, v);
-    for (i=0, nb=0; i<max; i++)
-      if (v[i]) nb++;
-
-    /* create & fill list */
-    d = malloc(sizeof(ap_dim_t) * (nb+1));
-    for (i=0, nb=0; i<max; i++)
-      if (v[i]) { d[nb] = i; nb++; }
-    d[nb] = AP_DIM_MAX; /* terminator */
-
-    /* clean-up */
-    free (v);
+    for (w=0;w<max;w++){
+      tdim[w] = AP_DIM_MAX;
+    }
+    ap_texpr0_support_internal(a, tdim);
+    w = 0;
+    for (r=0; r<max; r++){
+      if (tdim[r]!=AP_DIM_MAX){
+	tdim[w] = tdim[r];
+	w++;
+      }
+    }
+    return (size_t)w;
   }
-  return d;
 }
 
 bool ap_texpr0_is_interval_cst(ap_texpr0_t* a)

@@ -10,8 +10,8 @@ import "eitvMPQ.idl";
 import "eitvD.idl";
 import "eitvMPFR.idl";
 
-typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c),mltype("('a EitvD.tt, 'a EitvMPQ.tt, 'a EitvMPFR.tt) Common.t")] struct ap_coeff_struct* ap_coeff_ptrg;
-typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c)] struct ap_coeff_struct* ap_coeff_ptrm;
+typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c),mltype("('a EitvD.tt, 'a EitvMPQ.tt, 'a EitvMPFR.tt) Common.t")] struct ap_coeff_struct ap_coeff_tg;
+typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c)] struct ap_coeff_struct ap_coeff_tm;
 
 quote(MLMLI,"(** Coefficients *)\n\n")
 
@@ -108,8 +108,8 @@ let is_neg (coeff:'a tt) =
   apply_discr EitvD.is_neg EitvMPQ.is_neg EitvMPFR.is_neg coeff
 let is_top (coeff:'a tt) =
   apply_discr EitvD.is_top EitvMPQ.is_top EitvMPFR.is_top coeff
-let is_bottom (coeff:'a tt) =
-  apply_discr EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff
+let is_bottom (coeff:'a tt) intern =
+  apply_discr_arg EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff intern
 let is_eq (coeff1:'a tt) (coeff2:'b tt) =
   match (coeff1,coeff2) with
   | (D x1, D x2) -> EitvD.is_eq x1 x2

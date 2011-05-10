@@ -3,6 +3,8 @@
 /* ********************************************************************** */
 
 #include "ap_linyyyXXX.h"
+#include "num_internal.h"
+#include "numMPQ.h"
 
 #define _AP_yyy_MARK_
 
@@ -288,6 +290,21 @@ ap_linexpr_type_t ap_linexprXXX_type(ap_linexprXXX_t a)
   }
   else
     return AP_LINEXPR_INTLINEAR;
+}
+size_t ap_linexprXXX_support(ap_linexprXXX_t expr, ap_dim_t* tdim)
+{
+  size_t i,dim;
+  eitvXXX_ptr eitv;
+  size_t nb;
+
+  nb = 0;
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
+    if (!eitvXXX_is_zero(eitv)){
+      tdim[nb] = dim;
+      nb++;
+    }
+  }
+  return nb;
 }
 size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
 {
@@ -662,6 +679,99 @@ int ap_linyyyXXX_cmp(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2)
 }
 #endif
 
+/* ====================================================================== */
+/* I.7 Serialization */
+/* ====================================================================== */
+
+#if defined(_AP_expr_MARK_)
+size_t ap_lintermXXX_serialize(void* dst, ap_lintermXXX_t src)
+{
+  size_t n;
+  n = eitvXXX_serialize(dst,src->eitv);
+  num_dump_word32((char*)dst+n,src->dim);
+  return n+4;
+}
+size_t ap_lintermXXX_deserialize(ap_lintermXXX_t dst, const void* src)
+{
+  size_t n;
+  n = eitvXXX_deserialize(dst->eitv,src);
+  dst->dim = num_undump_word32((const char*)src+n);
+  return n+4;
+}
+extern inline size_t ap_lintermXXX_serialized_size(ap_lintermXXX_t src)
+{
+  return 4 + eitvXXX_serialized_size(src->eitv);
+}
+size_t ap_linyyyXXX_serialize(void* dst, ap_linyyyXXX_t src)
+{
+  size_t i,n;
+  num_dump_word32(dst,src->effsize);
+  n = 4;
+  for (i=0;i<src->effsize;i++){
+    n += ap_lintermXXX_serialize((char*)dst+n,src->linterm[i]);
+  }
+  n += eitvXXX_serialize((char*)dst+n,src->cst);
+  return n;
+}
+size_t ap_linyyyXXX_deserialize(ap_linyyyXXX_t dst, const void* src)
+{
+  size_t i,n,effsize;
+  effsize = num_undump_word32(src);
+  n = 4;
+  dst->linterm = malloc(effsize*sizeof(ap_lintermXXX_t));
+  dst->effsize = effsize;
+  dst->maxsize = effsize;
+  for (i=0;i<effsize;i++){
+    n += ap_lintermXXX_deserialize(dst->linterm[i],(const char*)src+n);
+  }
+  n += eitvXXX_deserialize(dst->cst,(const char*)src+n);
+  return n;
+}
+size_t ap_linyyyXXX_serialized_size(ap_linyyyXXX_t a)
+{
+  size_t i,n;
+  n = 4;
+  for (i=0; i<a->effsize; i++){
+    n += ap_lintermXXX_serialized_size(a->linterm[i]);
+  }
+  n += eitvXXX_serialized_size(a->cst);
+  return n;
+}
+#else
+size_t ap_linyyyXXX_serialize(void* dst, ap_linyyyXXX_t src)
+{
+  size_t n;
+  n = ap_linexprXXX_serialize(dst,src->linexpr);
+  num_dump_word32((char*)dst+n,(unsigned)(src->yyytyp));
+  n += 4;
+#if defined (_AP_cons_MARK_)
+  n += numMPQ_serialize((char*)dst+n,src->mpq);
+#endif
+  return n;
+}
+size_t ap_linyyyXXX_deserialize(ap_linyyyXXX_t dst, const void* src)
+{
+  size_t n;
+  n = ap_linexprXXX_deserialize(dst->linexpr,src);
+  unsigned int typ = num_undump_word32((const char*)src+n);
+  dst->yyytyp = (ap_yyytyp_t)typ;
+  n += 4;
+#if defined (_AP_cons_MARK_)
+  n += numMPQ_deserialize(dst->mpq,(const char*)src+n);
+#endif
+  return n;
+}
+size_t ap_linyyyXXX_serialized_size(ap_linyyyXXX_t a)
+{
+  size_t n = ap_linexprXXX_serialized_size(a->linexpr);
+  n += 4;
+ #if defined (_AP_cons_MARK_)
+  n += numMPQ_serialized_size(a->mpq);
+#endif
+  return n;
+}
+#endif
+
 /* ********************************************************************** */
 /* II. ap_linyyyXXX_array_t */
 /* ********************************************************************** */
@@ -793,14 +903,18 @@ ap_linexpr_type_t ap_linyyyXXX_array_type(ap_linyyyXXX_array_t array)
   return type;
 }
 
-size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
-					  ap_dim_t* tdim, size_t maxdim1)
+
+size_t ap_linyyyXXX_array_support_generic(
+    size_t (*support)(ap_linyyyXXX_t a, ap_dim_t* tdim),
+    ap_linyyyXXX_array_t array,
+    ap_dim_t* tdim, size_t nbdim
+)
 {
   if (array->size==0){
     return 0;
   }
   else if (array->size==1){
-    return ap_linyyyXXX_supportinterval(array->p[0],tdim);
+    return support(array->p[0],tdim);
   }
   else {
     size_t i,k,nb;
@@ -808,15 +922,15 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
     ap_dim_t* ttdim[3];
     size_t tnb[3];
 
-    buffer = (ap_dim_t*)malloc(3*maxdim1*sizeof(ap_dim_t));
+    buffer = (ap_dim_t*)malloc(3*nbdim*sizeof(ap_dim_t));
     for (i=0; i<3; i++){
-      ttdim[i] = &buffer[i*maxdim1];
+      ttdim[i] = &buffer[i*nbdim];
       tnb[i] = 0;
     }
     k = 0;
     for (i=0; i<array->size; i++){
       size_t k1 = (k+1)%3 ;
-      tnb[k1] = ap_linyyyXXX_supportinterval(array->p[i],ttdim[k1]);
+      tnb[k1] = support(array->p[i],ttdim[k1]);
       ap_dimsupport_merge(ttdim,tnb,&k);
     }
     nb = tnb[k];
@@ -824,6 +938,16 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
     free(buffer);
     return nb;
   }
+}
+size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array,
+				  ap_dim_t* tdim, size_t nbdim)
+{
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support,array,tdim,nbdim);
+}
+size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
+					  ap_dim_t* tdim, size_t nbdim)
+{
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval,array,tdim,nbdim);
 }
 
 /* ====================================================================== */
@@ -873,4 +997,39 @@ void ap_linyyyXXX_array_extend_environment(ap_linyyyXXX_array_t res,
       }
     }
   }
+}
+
+/* ====================================================================== */
+/* II.7 Serialization */
+/* ====================================================================== */
+
+size_t ap_linyyyXXX_array_serialize(void* dst, ap_linyyyXXX_array_t src)
+{
+  size_t i,n;
+  num_dump_word32(dst,src->size);
+  n = 4;
+  for (i=0;i<src->size;i++){
+    n += ap_linyyyXXX_serialize((char*)dst+n,src->p[i]);
+  }
+  return n;
+}
+size_t ap_linyyyXXX_array_deserialize(ap_linyyyXXX_array_t dst, const void* src)
+{
+  size_t i,n;
+  dst->size = num_undump_word32(src);
+  dst->p = malloc(dst->size*sizeof(ap_linyyyXXX_t));
+  n = 4;
+  for (i=0;i<dst->size;i++){
+    n += ap_linyyyXXX_deserialize(dst->p[i],(const char*)src+n);
+  }
+  return n;
+}
+size_t ap_linyyyXXX_array_serialized_size(ap_linyyyXXX_array_t a)
+{
+  size_t i,n;
+  n = 4;
+  for (i=0;i<a->size;i++){
+    n += ap_linyyyXXX_serialized_size(a->p[i]);
+  }
+  return n;
 }

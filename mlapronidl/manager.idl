@@ -97,7 +97,7 @@ typedef [abstract,
   | Funid_widening\n\
   | Funid_closure\n\
   | Funid_change_environment\n\
-  | Funid_rename_array
+  | Funid_rename_array\n\
 ")]
 enum ap_funid_t ap_funid_t;
 
@@ -274,10 +274,10 @@ let string_of_exc = function\n\
 let print_funid fmt x = Format.pp_print_string fmt (string_of_funid x)\n\
 let print_exc fmt x = Format.pp_print_string fmt (string_of_exc x)\n\
 let print_exclog fmt x =\n\
-  Format.fprintf fmt \"{ @[ exn = %a;@ funid = %a;@ msg = %s;@] }\"
+  Format.fprintf fmt \"{ @[ exn = %a;@ funid = %a;@ msg = %s;@] }\"\n\
     print_exc x.exn print_funid x.funid x.msg\n\
 let print_funopt fmt x =\n\
-  Format.fprintf fmt \"{ @[ algorithm = %i;@ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"
+  Format.fprintf fmt \"{ @[ algorithm = %i;@ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"\n\
     x.algorithm x.timeout x.max_object_size x.flag_exact_wanted x.flag_best_wanted\n\
 ")
 

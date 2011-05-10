@@ -1,217 +1,300 @@
+/* GENERATED FROM linyyy0.idl, DO NOT MODIFY */
+#line 1 "/Users/bjeannet/dev/newcoeffslinexpr/mlapronidl/linyyy0.idl"
 /* -*- mode: c -*- */
 
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(MLI,"(** APRON Linear expressions of level 0 *)\n")
+quote(C, "#include \"apron_caml.h\"")
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_linexpr0.h\"\n\
-#include \"apron_caml.h\"\n\
-")
-
-import "scalar.idl";
-import "interval.idl";
+import "linexprMPZ.idl";
+import "linexprMPQ.idl";
+import "linexprD.idl";
+import "linexprMPFR.idl";
 import "coeff.idl";
-import "dim.idl";
 
-typedef [abstract,
-	 ml2c(camlidl_apron_linexpr0_ptr_ml2c),
-	 c2ml(camlidl_apron_linexpr0_ptr_c2ml)]
-struct ap_linexpr0_ptr* ap_linexpr0_ptr;
+typedef [\
+    abstract,c2ml(camlidl_linexpr0_ptr_c2ml),\
+    ml2c(camlidl_linexpr0_ptr_ml2c),\
+    mltype("(LinexprD.t, LinexprMPQ.t, LinexprMPFR.t) Common.t")\
+] struct ap_linexpr0_struct ap_linexpr0_t;
+typedef [\
+    abstract,\
+    c2ml(camlidl_linexpr0_array_ptr_c2ml),\
+    ml2c(camlidl_linexpr0_array_ptr_ml2c),\
+    mltype("(LinexprD.earray, LinexprMPQ.earray, LinexprMPFR.earray) Common.t")\
+] struct ap_linexpr0_array_struct ap_linexpr0_array_t;
 
-quote(MLI,"(** Create a linear expression. Its representation is sparse if [None] is provided, dense of size [size] if [Some size] is provided. *)")
-ap_linexpr0_ptr ap_linexpr0_make([unique]int* size)
-     quote(call,"\n\
-  if (size && *size<0) caml_failwith(\"Linexpr0.make: negative optional size\");\n\
-  if (size){\n\
-    _res = ap_linexpr0_alloc(AP_LINEXPR_DENSE, *size);\n\
-  } else {\n\
-    _res = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);\n\
-  }\n\
-  ");
+#if defined(_AP_expr_MARK_)
+quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
+#elif defined(_AP_cons_MARK_)
+quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
+#elif defined(_AP_expr_MARK_)
+quote(MLMLI,"(** Linear generators *)\n\n")
+#endif
 
-quote(MLI,"\n\
-val of_list : int option -> (Coeff.t * Dim.t) list -> Coeff.t option -> t\n\
-(** Combines {!make} and {!set_list} (see below) *)\n\
-val of_array : int option -> (Coeff.t * Dim.t) array -> Coeff.t option -> t\n\
-(** Combines {!make} and {!set_array} (see below) *)\n\
+quote(MLI,"
+(** {2 Linear expressions/constraints/generators} *)
+
+(** {3 Pretty printing} *)
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit
+
+(** {3 Initialization} *)
+val init : Common.discr -> int -> t
+val init_set : t -> t
+val init_set_linexprD : LinexprD.t -> t
+val init_set_linexprMPQ : LinexprMPQ.t -> t
+val init_set_linexprMPFR : LinexprMPFR.t -> t
+
+(** {3 Misc)} *)
+val resize : t -> int -> unit
+val minimize : t -> unit
 ")
 
-quote(MLI,"(** In case of sparse representation, remove zero coefficients *)")
-void ap_linexpr0_minimize(ap_linexpr0_ptr a);
+quote(ML,"
+let print assoc fmt (linexpr:t) =
+  Common.apply_arg2_discr LinexprD.print LinexprMPQ.print LinexprMPFR.print assoc fmt linexpr
 
-quote(MLI,"(** Copy *)")
-ap_linexpr0_ptr ap_linexpr0_copy(const ap_linexpr0_ptr a);
-
-quote(MLI,"(** Comparison with lexicographic ordering using Coeff.cmp, terminating by constant *)")
-int ap_linexpr0_compare(const ap_linexpr0_ptr a, const ap_linexpr0_ptr b);
-
-quote(MLI,"(** Hashing function *)")
-int ap_linexpr0_hash(const ap_linexpr0_ptr a);
-
-quote(MLI,"(** Get the size of the linear expression (which may be sparse or dense) *)")
-int ap_linexpr0_get_size(ap_linexpr0_ptr a)
-     quote(call,"_res = a->size;");
-
-quote(MLI,"(** Get the constant *)")
-[ref]struct ap_coeff_t* ap_linexpr0_get_cst(ap_linexpr0_ptr a)
-     quote(call,"_res = &a->cst;");
-
-quote(MLI,"(** Get the coefficient corresponding to the dimension *)")
-struct ap_coeff_t ap_linexpr0_get_coeff(ap_linexpr0_ptr a, int dim)
-     quote(call, "\n\
-{\n\
-  bool b;\n\
-  ap_coeff_init(&_res,AP_COEFF_SCALAR);\n\
-  if (dim<0) goto ap_linexpr0_get_coeff_exit;\n\
-  b = ap_linexpr0_get_coeff(&_res,a,(ap_dim_t)dim);\n   \
-  if (b){\n\
-   ap_linexpr0_get_coeff_exit:\n\
-    ap_coeff_clear(&_res);\n\
-    caml_failwith(\"Linexpr0.get_coeff: out of bound dimension\");\n\
-  }\n\
-}")
-     quote(dealloc,"ap_coeff_clear(&_res);");
-
-quote(MLI,"\n\
-val set_list : t -> (Coeff.t * Dim.t) list -> Coeff.t option -> unit\n\
-  (** Set simultaneously a number of coefficients.\n\
-\n\
-    [set_list expr [(c1,1); (c2,2)] (Some cst)] assigns coefficients [c1] \n\
-    to dimension 1, coefficient [c2] to dimension 2, and coefficient [cst]\n\
-    to the constant. If [(Some cst)] is replaced by [None],\n\
-    the constant coefficient is not assigned. *)\n\
-val set_array : t -> (Coeff.t * Dim.t) array -> Coeff.t option -> unit\n\
-  (** Set simultaneously a number of coefficients, as [set_list]. *)\n")
-
-quote(MLI,"(** Set the constant *)")
-void ap_linexpr0_set_cst(ap_linexpr0_ptr a, [ref]struct ap_coeff_t* coeff)
-     quote(call,"ap_linexpr0_set_cst(a,coeff);");
-
-quote(MLI,"(** Set the coefficient corresponding to the dimension *)")
-void ap_linexpr0_set_coeff(ap_linexpr0_ptr a, int dim, [ref]struct ap_coeff_t* coeff)
-     quote(call, "\n\
-{\n\
-  bool b;\n\
-  if (dim<0) goto ap_linexpr0_set_coeff_exit;\n\
-  b = ap_linexpr0_set_coeff(a,(ap_dim_t)dim,coeff);\n \
-  if (b){\n\
-   ap_linexpr0_set_coeff_exit:\n\
-    caml_failwith(\"Linexpr0.set_coeff: out of bound dimension\");\n\
-  }\n\
-}\n\
-");
-
-quote(MLI,"(** Iter the function on the pairs coefficient/dimension of the linear expression *)")
-
-quote(MLMLI,"\n\
-external ap_linexpr0_iter: (Coeff.t -> Dim.t -> unit) -> ap_linexpr0_ptr -> unit = \"camlidl_expr0_linexpr0_iter\"\n \
+let init (discr:Common.discr) length : t =
+  Common.map_discr0_arg LinexprD.init LinexprMPQ.init LinexprMPFR.init discr length
+let init_set (linexpr:t) : t =
+  Common.map_discr LinexprD.init_set LinexprMPQ.init_set LinexprMPFR.init_set linexpr
+let init_set_linexprD x : t =
+  Common.D(LinexprD.init_set x)
+let init_set_linexprMPQ x : t =
+  Common.MPQ(LinexprMPQ.init_set x)
+let init_set_linexprMPFR x : t =
+  Common.MPFR(LinexprMPFR.init_set x)
+let resize (linexpr:t) length =
+  Common.apply_discr_arg LinexprD.resize LinexprMPQ.resize LinexprMPFR.resize linexpr length
+let minimize (linexpr:t) =
+  Common.apply_discr LinexprD.minimize LinexprMPQ.minimize LinexprMPFR.minimize linexpr
 ")
 
-quote(C,"\n\
-value camlidl_expr0_linexpr0_iter(value _v_closure, value _v_linexpr0)\n\
-{\n\
-  CAMLparam2(_v_closure,_v_linexpr0);\n\
-  CAMLlocal2(_v_dim,_v_coeff);\n\
-  size_t i;\n\
-  ap_dim_t dim;\n\
-  ap_coeff_t* pcoeff;\n\
-  ap_linexpr0_t* linexpr0;\n\
-\n\
- camlidl_apron_linexpr0_ptr_ml2c(_v_linexpr0,&linexpr0);\n\
- ap_linexpr0_ForeachLinterm(linexpr0,i,dim,pcoeff){\n\
-    _v_dim = Val_int(dim);\n\
-    _v_coeff = camlidl_c2ml_coeff_struct_ap_coeff_t(pcoeff,NULL);\n \
-    callback2(_v_closure,_v_coeff,_v_dim);\n\
-  }\n\
-  CAMLreturn(Val_unit);\n\
-}\n\
+#if defined (_AP_lincons0_MARK_)
+quote(MLI,"val set_bool : t -> bool -> unit")
+quote(ML,"
+let set_bool (linexpr:t) b =
+  Common.apply_discr_arg LinexprD.set_bool LinexprMPQ.set_bool LinexprMPFR.set_bool linexpr b
+")
+#endif
+
+quote(MLI,"
+(** {3 Assignement (with possible conversion)} *)
+val set : t -> t -> Common.num_internal -> bool
+val set_linexprD : t -> LinexprD.t -> Common.num_internal -> bool
+val set_linexprMPQ : t -> LinexprMPQ.t -> Common.num_internal -> bool
+val set_linexprMPFR : t -> LinexprMPFR.t -> Common.num_internal -> bool
+val get_linexprD : LinexprD.t -> t -> Common.num_internal -> bool
+val get_linexprMPQ : LinexprMPQ.t -> t -> Common.num_internal -> bool
+val get_linexprMPFR : LinexprMPFR.t -> t -> Common.num_internal -> bool
+")
+quote(ML,"
+let set_linexprD (linexpr:t) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_set_linexprD Conv.linexprMPQ_set_linexprD Conv.linexprMPFR_set_linexprD linexpr x intern
+let set_linexprMPQ (linexpr:t) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_set_linexprMPQ Conv.linexprMPQ_set_linexprMPQ Conv.linexprMPFR_set_linexprMPQ linexpr x intern
+let set_linexprMPFR (linexpr:t) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_set_linexprMPFR Conv.linexprMPQ_set_linexprMPFR Conv.linexprMPFR_set_linexprMPFR linexpr x intern
+let set (linexpr1:t) (linexpr2:t) intern =
+  Common.apply_arg_discr_arg set_linexprD set_linexprMPQ set_linexprMPFR linexpr1 linexpr2 intern
+let get_linexprD x (linexpr:t) intern =
+  Common.apply_arg_discr_arg Conv.linexprD_set_linexprD Conv.linexprD_set_linexprMPQ Conv.linexprD_set_linexprMPFR x linexpr intern
+let get_linexprMPQ x (linexpr:t) intern =
+  Common.apply_arg_discr_arg Conv.linexprMPQ_set_linexprD Conv.linexprMPQ_set_linexprMPQ Conv.linexprMPQ_set_linexprMPFR x linexpr intern
+let get_linexprMPFR x (linexpr:t) intern =
+  Common.apply_arg_discr_arg Conv.linexprMPFR_set_linexprD Conv.linexprMPFR_set_linexprMPQ Conv.linexprMPFR_set_linexprMPFR x linexpr intern
 ")
 
-quote(MLI,"\n\
-(** Print a linear expression, using a function converting from dimensions to names *)\n\
-val print : (Dim.t -> string) -> Format.formatter -> ap_linexpr0_ptr -> unit\n\
+#if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
+quote(MLI,"
+(** {3 Tests} *)
+val is_linear : t -> bool
+val is_quasilinear : t -> bool
+val typ : t -> Common.exprtyp
+val is_integer : t -> int -> bool
+val is_real : t -> int -> bool
+")
+quote(ML,"
+let is_linear linexpr =
+  Common.apply_discr LinexprD.is_linear LinexprMPQ.is_linear LinexprMPFR.is_linear linexpr
+let is_quasilinear linexpr =
+  Common.apply_discr LinexprD.is_quasilinear LinexprMPQ.is_quasilinear LinexprMPFR.is_quasilinear linexpr
+let typ linexpr =
+  Common.apply_discr LinexprD.typ LinexprMPQ.typ LinexprMPFR.typ linexpr
+let is_integer linexpr intd =
+  Common.apply_discr_arg LinexprD.is_integer LinexprMPQ.is_integer LinexprMPFR.is_integer linexpr intd
+let is_real linexpr intd =
+  Common.apply_discr_arg LinexprD.is_real LinexprMPQ.is_real LinexprMPFR.is_real linexpr intd
+")
+#endif
+
+quote(MLMLI,"(** {3 Access} *)")
+
+quote(MLI,"
+val discr : t -> Common.discr
+val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit
+")
+quote(ML,"
+let discr linexpr =
+  match linexpr with
+  | Common.D _ -> Common.D()
+  | Common.MPQ _ -> Common.MPQ()
+  | Common.MPFR _ -> Common.MPFR()
+let iter f a =
+  match a with
+  | Common.D e -> LinexprD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e
+  | Common.MPQ e -> LinexprMPQ.iter0 (fun eitvMPQ dim -> f (Common.MPQ eitvMPQ) dim) e
+  | Common.MPFR e -> LinexprMPFR.iter0 (fun eitvMPFR dim -> f (Common.MPFR eitvMPFR) dim) e
 ")
 
-quote(ML,"\n\
-let set_list expr list ocst = \n\
-  List.iter\n\
-    (fun (coeff,dim) -> set_coeff expr dim coeff )\n\
-    list;\n\
-  begin match ocst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-let set_array expr tab ocst = \n\
-  Array.iter\n\
-    (fun (coeff,dim) -> set_coeff expr dim coeff )\n\
-    tab;\n\
-  begin match ocst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-\n\
-let of_list osize list ocst =\n\
-  let expr = make osize in\n\
-  set_list expr list ocst;\n\
-  expr\n\
-let of_array osize tab ocst =\n\
-  let expr = make osize in\n\
-  set_array expr tab ocst;\n\
-  expr\n\
-\n\
-let print assoc fmt expr = \n\
-  Format.fprintf fmt \"@[<hov>\";\n\
-  let first = ref true in\n\
-  iter\n\
-    (begin fun coeff dim ->\n\
-      let coeff = Coeff.reduce coeff in\n\
-      let sgn = match coeff with\n\
-      | Coeff.Scalar x -> Scalar.sgn x\n\
-      | Coeff.Interval i ->\n\
-	  if Interval.is_zero i then 0 else 1\n\
-      in\n\
-      if sgn <> 0 then begin\n\
-	if not !first then Format.fprintf fmt \"@,\";\n\
-	if sgn>0 then begin\n\
-	  if not !first then Format.pp_print_string fmt \"+\";\n\
-	end;\n\
-	begin match coeff with\n\
-	| Coeff.Scalar scalar ->\n\
-	    if Scalar.equal_int scalar (-1) then\n\
-	      Format.pp_print_string fmt \"-\"\n\
-	    else if not (Scalar.equal_int scalar 1) then\n\
-	      Scalar.print fmt scalar;\n\
-	| Coeff.Interval i ->\n\
-	    Interval.print fmt i\n\
-	end;\n\
-	Format.pp_print_string fmt (assoc dim);\n\
-	first := false;\n\
-      end;\n\
-    end)\n\
-    expr;\n\
-  begin match get_cst expr with\n\
-  | Coeff.Scalar scalar ->\n\
-      let sgn = Scalar.sgn scalar in\n\
-      if sgn <> 0 then begin\n\
-	if not !first then Format.fprintf fmt \"@,\";\n\
-	if sgn>0 && not !first then Format.pp_print_char fmt '+';\n\
-	Scalar.print fmt scalar;\n\
-      end\n\
-      else if !first then\n\
-	Format.pp_print_char fmt '0';\n\
-  | Coeff.Interval i ->\n\
-      if not (Interval.is_zero i) then begin\n\
-	if not !first then Format.pp_print_char fmt '+';\n\
-	Interval.print fmt i\n\
-      end\n\
-      else if !first then\n\
-	Format.pp_print_char fmt '0';\n\
-  end;\n\
-  Format.fprintf fmt \"@]\";\n\
-  ()\n\
+boolean ap_linexpr0_get_cst(ap_coeff_tm coeff, ap_linexpr0_t expr, num_internal_ptr intern);
+boolean ap_linexpr0_get_coeff(ap_coeff_tm coeff, ap_linexpr0_t expr, ap_dim_t dim, num_internal_ptr intern);
+boolean ap_linexpr0_set_cst(ap_linexpr0_t expr, ap_coeff_tg coeff, num_internal_ptr intern);
+boolean ap_linexpr0_set_coeff(ap_linexpr0_t expr, ap_dim_t dim, ap_coeff_tg coeff, num_internal_ptr intern);
+#if defined (_AP_lincons0_MARK_) || defined (_AP_lingen0_MARK_)
+boolean ap_linexpr0_get_linexpr0(ap_linexpr0_t e, ap_linexpr0_t c, num_internal_ptr intern);
+ap_exprtyp_t ap_linexpr0_get_exprtyp(ap_linexpr0_t c);
+boolean ap_linexpr0_set_linexpr0(ap_linexpr0_t c, ap_linexpr0_t e, num_internal_ptr intern);
+void ap_linexpr0_set_exprtyp(ap_linexpr0_t c, ap_exprtyp_t exprtyp);
+#endif
+#if defined (_AP_lincons0_MARK_)
+quote(MLI,"
+val get_mpq : Mpq.t -> t -> unit
+val se_mpq : t -> 'a Mpq.tt -> unit
+")
+quote(ML,"
+let get_mpq mpq discr = Common.apply_arg_discr LinexprD.get_mpq LinexprMPQ.get_mpq LinexprMPFR.get_mpq mpq discr
+let set_mpq discr mpq = Common.apply_discr_arg LinexprD.set_mpq LinexprMPQ.set_mpq LinexprMPFR.set_mpq discr mpq
+")
+#endif
+
+quote(MLI,"
+(** {3 Change of dimensions} *)
+val add_dimensions : t -> t -> Dim.change -> unit
+val permute_dimensions : t -> t -> Dim.perm -> unit
+
+(** {3 Tests} *)
+val equal : t -> t -> bool
+val hash : t -> int
+")
+
+quote(ML,"
+let add_dimensions res expr dimchange =
+  Common.mapsame_discr2_arg LinexprD.add_dimensions LinexprMPQ.add_dimensions LinexprMPFR.add_dimensions res expr dimchange
+let permute_dimensions res expr dimperm =
+  Common.mapsame_discr2_arg LinexprD.permute_dimensions LinexprMPQ.permute_dimensions LinexprMPFR.permute_dimensions res expr dimperm
+let equal (linexpr1:t) (linexpr2:t) =
+  match (linexpr1,linexpr2) with
+  | (Common.D x1, Common.D x2) -> LinexprD.equal x1 x2
+  | (Common.MPQ x1, Common.MPQ x2) -> LinexprMPQ.equal x1 x2
+  | (Common.MPFR x1, Common.MPFR x2) -> LinexprMPFR.equal x1 x2
+  | _ -> false
+let hash (linexpr:t) =
+  Common.apply_discr LinexprD.hash LinexprMPQ.hash LinexprMPFR.hash linexpr
+")
+
+int ap_linexpr0_compare(ap_linexpr0_t a, ap_linexpr0_t b);
+
+quote(MLI,"
+(** {2 Arrays} *)
+(** {3  Pretty printing} *)
+
+val array_print :
+  ?first:(unit, Format.formatter, unit) format ->
+  ?sep:(unit, Format.formatter, unit) format ->
+  ?last:(unit, Format.formatter, unit) format ->
+ (Dim.t -> string) -> Format.formatter -> earray -> unit
+
+(** {3 Initialization and Assignement Functions} *)
+val array_init : Common.discr -> int -> earray
+val array_init_set : earray -> earray
+val array_resize : earray -> int -> unit
+val array_minimize : earray -> unit
+")
+quote(ML,"
+let array_print ?first ?sep ?last assoc fmt = function
+  | Common.D x -> LinexprD.array_print ?first ?sep ?last assoc fmt x
+  | Common.MPQ x -> LinexprMPQ.array_print ?first ?sep ?last assoc fmt x
+  | Common.MPFR x -> LinexprMPFR.array_print ?first ?sep ?last assoc fmt x
+let array_init discr size = Common.map_discr0_arg LinexprD.array_init LinexprMPQ.array_init LinexprMPFR.array_init discr size
+let array_init_set discr = Common.map_discr LinexprD.array_init_set LinexprMPQ.array_init_set LinexprMPFR.array_init_set discr
+let array_resize discr size = Common.apply_discr_arg LinexprD.array_resize LinexprMPQ.array_resize LinexprMPFR.array_resize discr size
+let array_minimize discr = Common.apply_discr LinexprD.array_minimize LinexprMPQ.array_minimize LinexprMPFR.array_minimize discr
+")
+
+quote(MLMLI,"\n(** {3 Assignements with conversions} *)")
+
+boolean ap_linexpr0_array_set(ap_linexpr0_array_t res, ap_linexpr0_array_t e, num_internal_ptr intern);
+
+quote(MLI,"
+val array_set_linexprD_array : earray -> LinexprD.earray -> Common.num_internal -> bool
+val array_set_linexprMPQ_array : earray -> LinexprMPQ.earray -> Common.num_internal -> bool
+val array_set_linexprMPFR_array : earray -> LinexprMPFR.earray -> Common.num_internal -> bool
+val array_get_linexprD_array : LinexprD.earray -> earray -> Common.num_internal -> bool
+val array_get_linexprMPQ_array : LinexprMPQ.earray -> earray -> Common.num_internal -> bool
+val array_get_linexprMPFR_array : LinexprMPFR.earray -> earray -> Common.num_internal -> bool
+")
+quote(ML,"
+let array_set_linexprD_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_array_set_linexprD_array Conv.linexprMPQ_array_set_linexprD_array Conv.linexprMPFR_array_set_linexprD_array earray x intern
+let array_set_linexprMPQ_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_array_set_linexprMPQ_array Conv.linexprMPQ_array_set_linexprMPQ_array Conv.linexprMPFR_array_set_linexprMPQ_array earray x intern
+let array_set_linexprMPFR_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linexprD_array_set_linexprMPFR_array Conv.linexprMPQ_array_set_linexprMPFR_array Conv.linexprMPFR_array_set_linexprMPFR_array earray x intern
+let array_get_linexprD_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linexprD_array_set_linexprD_array Conv.linexprD_array_set_linexprMPQ_array Conv.linexprD_array_set_linexprMPFR_array x earray intern
+let array_get_linexprMPQ_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linexprMPQ_array_set_linexprD_array Conv.linexprMPQ_array_set_linexprMPQ_array Conv.linexprMPQ_array_set_linexprMPFR_array x earray intern
+let array_get_linexprMPFR_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linexprMPFR_array_set_linexprD_array Conv.linexprMPFR_array_set_linexprMPQ_array Conv.linexprMPFR_array_set_linexprMPFR_array x earray intern
+")
+
+boolean ap_linexpr0_array_set_index_linexprD(ap_linexpr0_array_t p, unsigned int i, ap_linexprD_ptr a, num_internal_ptr intern);
+boolean ap_linexpr0_array_set_index_linexprMPQ(ap_linexpr0_array_t p, unsigned int i, ap_linexprMPQ_ptr a, num_internal_ptr intern);
+boolean ap_linexpr0_array_set_index_linexprMPFR(ap_linexpr0_array_t p, unsigned int i, ap_linexprMPFR_ptr a, num_internal_ptr intern);
+boolean ap_linexpr0_array_get_index_linexprD(ap_linexprD_ptr a, ap_linexpr0_array_t p, unsigned int i, num_internal_ptr intern);
+boolean ap_linexpr0_array_get_index_linexprMPQ(ap_linexprMPQ_ptr a, ap_linexpr0_array_t p, unsigned int i, num_internal_ptr intern);
+boolean ap_linexpr0_array_get_index_linexprMPFR(ap_linexprMPFR_ptr a, ap_linexpr0_array_t p, unsigned int i, num_internal_ptr intern);
+
+#if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
+quote(MLI,"
+(** {3 Tests} *)
+val array_is_linear : earray -> bool
+val array_is_quasilinear : earray -> bool
+val array_typ : earray -> Common.exprtyp
+")
+quote(ML,"
+let array_is_linear linexpr =
+  Common.apply_discr LinexprD.array_is_linear LinexprMPQ.array_is_linear LinexprMPFR.array_is_linear linexpr
+let array_is_quasilinear linexpr =
+  Common.apply_discr LinexprD.array_is_quasilinear LinexprMPQ.array_is_quasilinear LinexprMPFR.array_is_quasilinear linexpr
+let array_typ linexpr =
+  Common.apply_discr LinexprD.array_typ LinexprMPQ.array_typ LinexprMPFR.array_typ linexpr
+")
+#endif
+
+quote(MLI,"
+(** {3 Access} *)
+val array_discr : earray -> Common.discr
+val array_size : earray -> int
+")
+quote(ML,"
+let array_discr = discr
+let array_size = Common.apply_discr LinexprD.array_size LinexprMPQ.array_size LinexprMPFR.array_size
+")
+boolean ap_linexpr0_array_set_index(ap_linexpr0_array_t p, unsigned int i, ap_linexpr0_t a, num_internal_ptr intern);
+boolean ap_linexpr0_array_get_index(ap_linexpr0_t a, ap_linexpr0_array_t p, unsigned int i, num_internal_ptr intern);
+
+quote(MLI,"
+(** {3 Change of dimensions} *)
+val array_add_dimensions : earray -> earray -> Dim.change -> unit
+val array_permute_dimensions : earray -> earray -> Dim.perm -> unit
+")
+
+quote(ML,"
+let array_add_dimensions res expr dimchange =
+  Common.mapsame_discr2_arg LinexprD.array_add_dimensions LinexprMPQ.array_add_dimensions LinexprMPFR.array_add_dimensions res expr dimchange
+let array_permute_dimensions res expr dimperm =
+  Common.mapsame_discr2_arg LinexprD.array_permute_dimensions LinexprMPQ.array_permute_dimensions LinexprMPFR.array_permute_dimensions res expr dimperm
 ")

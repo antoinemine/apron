@@ -11,13 +11,11 @@ quote(C, "\n\
 #include \"apron_caml.h\"\n\
 ")
 
-import "scalar.idl";
-import "interval.idl";
-import "coeff.idl";
 import "dim.idl";
+import "coeff.idl";
 import "linexpr0.idl";
 import "lincons0.idl";
-import "generator0.idl";
+import "lingen0.idl";
 import "texpr0.idl";
 import "tcons0.idl";
 import "manager.idl";

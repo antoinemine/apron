@@ -420,16 +420,15 @@ bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern);
 bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
 bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
 bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
-bool boundXXX_set_numIl(boundXXX_t a, numIl_t b, num_internal_t intern);
 
-bool boundXXX_set_numIll(boundXXX_t a, numIll_t b, num_internal_t intern);
-bool boundXXX_set_numMPZ(boundXXX_t a, numMPZ_t b, num_internal_t intern);
-bool boundXXX_set_numRl(boundXXX_t a, numRl_t b, num_internal_t intern);
-bool boundXXX_set_numRll(boundXXX_t a, numRll_t b, num_internal_t intern);
-bool boundXXX_set_numMPQ(boundXXX_t a, numMPQ_t b, num_internal_t intern);
-bool boundXXX_set_numD(boundXXX_t a, numD_t b, num_internal_t intern);
-bool boundXXX_set_numDl(boundXXX_t a, numDl_t b, num_internal_t intern);
-bool boundXXX_set_numMPFR(boundXXX_t a, numMPFR_t b, num_internal_t intern);
+MACRO_ALLZ
+bool boundXXX_set_numZZZ(boundXXX_t a, numZZZ_t b, num_internal_t intern);
+ENDMACRO
+
+MACRO_MAINZ
+bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern);
+bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern);
+ENDMACRO
 
 /* ====================================================================== */
 /* Printing */

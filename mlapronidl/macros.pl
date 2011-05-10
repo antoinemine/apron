@@ -155,5 +155,22 @@ while ($l = <>) {
 	$nb = $nbline+1;
 	print "#line $nb \"$file\"\n";
     }
+    elsif ($l =~ /MACRO_ALLT0/) {
+	$nb = $nbline+1;
+	$r = "";
+	while ($l = <>) {
+	    $nbline++;
+	    last if $l =~ /ENDMACRO/;
+	    $r = $r . $l;
+	}
+	foreach my $m (("expr","cons","gen")){
+	    $rr = $r;
+	    $rr =~ s/TTT/$m/g;
+	    print "#line $nb \"$file\"\n";
+	    print "$rr"
+	}
+	$nb = $nbline+1;
+	print "#line $nb \"$file\"\n";
+    }
     else { print "$l"; }
 }

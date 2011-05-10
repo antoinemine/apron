@@ -362,98 +362,147 @@ value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
 }
 ENDMACRO
 
-
 /* ********************************************************************** */
 /* coefficients */
 /* ********************************************************************** */
 
-void camlidl_coeff_ptr_ml2c(value v, struct ap_coeff_struct* pcoeff)
+void camlidl_coeff_ptr_ml2c(value v, ap_coeff_t* pcoeff)
 {
   ap_scalar_discr_t discr = Tag_val(v);
-  pcoeff->discr = discr;
+  ap_coeff_ptr coeff = *pcoeff;
+
+  coeff->discr = discr;
   SWITCHX(discr)
-    camlidl_eitvXXX_ptr_ml2c(Field(v,0),&pcoeff->eitv.XXX);
+    camlidl_eitvXXX_ptr_ml2c(Field(v,0),&coeff->eitv.XXX);
   ENDSWITCH;
 }
-value camlidl_coeff_ptr_c2ml(struct ap_coeff_struct* pcoeff)
+value camlidl_coeff_ptr_c2ml(ap_coeff_t* pcoeff)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
-  SWITCHX(pcoeff->discr)
-    v2 = camlidl_eitvXXX_ptr_c2ml(&pcoeff->eitv.XXX);
+  ap_coeff_ptr coeff = *pcoeff;
+  SWITCHX(coeff->discr)
+    v2 = camlidl_eitvXXX_ptr_c2ml(&coeff->eitv.XXX);
   ENDSWITCH
-  v = alloc_small(1,pcoeff->discr);
+  v = alloc_small(1,coeff->discr);
   Field(v,0) = v2;
   CAMLreturn(v);
 }
 
-/* /\* ********************************************************************** *\/ */
-/* /\* linexpr0 *\/ */
-/* /\* ********************************************************************** *\/ */
+MACRO_ALLT0
+void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0)
+{
+  ap_scalar_discr_t discr = Tag_val(v);
+  ap_linTTT0_ptr linTTT0 = *plinTTT0;
+  linTTT0->discr = discr;
+  switch(discr){
+  case AP_SCALAR_D:
+    camlidl_ap_linTTTD_ptr_ml2c(Field(v,0),&linTTT0->linTTT.D);
+    break;
+  case AP_SCALAR_MPQ:
+    camlidl_ap_linTTTMPQ_ptr_ml2c(Field(v,0),&linTTT0->linTTT.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    camlidl_ap_linTTTMPFR_ptr_ml2c(Field(v,0),&linTTT0->linTTT.MPFR);
+    break;
+  default: abort();
+  }
+}
+value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_t* plinTTT0)
+{
+  CAMLparam0();
+  CAMLlocal2(v,v2);
+  ap_linTTT0_ptr linTTT0 = *plinTTT0;
+  switch(linTTT0->discr){
+  case AP_SCALAR_D:
+    v2 = camlidl_ap_linTTTD_ptr_c2ml(&linTTT0->linTTT.D);
+    break;
+  case AP_SCALAR_MPQ:
+    v2 = camlidl_ap_linTTTMPQ_ptr_c2ml(&linTTT0->linTTT.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    v2 = camlidl_ap_linTTTMPFR_ptr_c2ml(&linTTT0->linTTT.MPFR);
+    break;
+  default: abort();
+  }
+  v = alloc_small(1,linTTT0->discr);
+  Field(v,0) = v2;
+  CAMLreturn(v);
+}
+void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_t* plinTTT0)
+{
+  ap_scalar_discr_t discr = Tag_val(v);
+  ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
+  linTTT0->discr = discr;
+  switch(discr){
+  case AP_SCALAR_D:
+    camlidl_ap_linTTTD_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.D);
+    break;
+  case AP_SCALAR_MPQ:
+    camlidl_ap_linTTTMPQ_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    camlidl_ap_linTTTMPFR_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.MPFR);
+    break;
+  default: abort();
+  }
+}
+value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_t* plinTTT0)
+{
+  CAMLparam0();
+  CAMLlocal2(v,v2);
+  ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
+  switch(linTTT0->discr){
+  case AP_SCALAR_D:
+    v2 = camlidl_ap_linTTTD_array_ptr_c2ml(&linTTT0->linTTT_array.D);
+    break;
+  case AP_SCALAR_MPQ:
+    v2 = camlidl_ap_linTTTMPQ_array_ptr_c2ml(&linTTT0->linTTT_array.MPQ);
+    break;
+  case AP_SCALAR_MPFR:
+    v2 = camlidl_ap_linTTTMPFR_array_ptr_c2ml(&linTTT0->linTTT_array.MPFR);
+    break;
+  default: abort();
+  }
+  v = alloc_small(1,linTTT0->discr);
+  Field(v,0) = v2;
+  CAMLreturn(v);
+}
+ENDMACRO
 
-/* static */
-/* void camlidl_apron_linexpr0_ptr_finalize(value v) */
-/* { */
-/*   ap_linexpr0_ptr p = *(ap_linexpr0_ptr *) Data_custom_val(v); */
-/*   ap_linexpr0_clear(p); */
-/* } */
+/* ********************************************************************** */
+/* texpr0 */
+/* ********************************************************************** */
 
-/* static */
-/* long camlidl_apron_linexpr0_ptr_hash(value v) */
-/* { */
-/*   ap_linexpr0_ptr p = *(ap_linexpr0_ptr *) Data_custom_val(v); */
-/*   return ap_linexpr0_hash(p); */
-/* } */
-/* static */
-/* int camlidl_apron_linexpr0_ptr_compare(value v1, value v2) */
-/* { */
-/*   ap_linexpr0_t* p1 = *(ap_linexpr0_ptr *) Data_custom_val(v1); */
-/*   ap_linexpr0_t* p2 = *(ap_linexpr0_ptr *) Data_custom_val(v2); */
-/*   return ap_linexpr0_compare(p1,p2); */
-/* } */
+static
+void camlidl_apron_texpr0_ptr_finalize(value v)
+{
+  ap_texpr0_t* p = *(ap_texpr0_ptr *)Data_custom_val(v);
+  ap_texpr0_free(p);
+}
 
-/* struct custom_operations camlidl_apron_custom_linexpr0_ptr = { */
-/*   "apl0", */
-/*   camlidl_apron_linexpr0_ptr_finalize, */
-/*   camlidl_apron_linexpr0_ptr_compare, */
-/*   camlidl_apron_linexpr0_ptr_hash, */
-/*   custom_serialize_default, */
-/*   custom_deserialize_default */
-/* }; */
+static
+long camlidl_apron_texpr0_ptr_hash(value v)
+{
+  ap_texpr0_t* p = *(ap_texpr0_ptr *)Data_custom_val(v);
+  return ap_texpr0_hash(p);
+}
+static
+int camlidl_apron_texpr0_ptr_compare(value v1, value v2)
+{
+  ap_texpr0_t* p1 = *(ap_texpr0_ptr *) Data_custom_val(v1);
+  ap_texpr0_t* p2 = *(ap_texpr0_ptr *) Data_custom_val(v2);
+  return ap_texpr0_equal(p1,p2) ? 0 : (p1<p2 ? (-1) : 1);
+}
 
-/* /\* ********************************************************************** *\/ */
-/* /\* texpr0 *\/ */
-/* /\* ********************************************************************** *\/ */
-
-/* static */
-/* void camlidl_apron_texpr0_ptr_finalize(value v) */
-/* { */
-/*   ap_texpr0_t* p = *(ap_texpr0_ptr *) Data_custom_val(v); */
-/*   ap_texpr0_free(p); */
-/* } */
-
-/* static */
-/* long camlidl_apron_texpr0_ptr_hash(value v) */
-/* { */
-/*   ap_texpr0_t* p = *(ap_texpr0_ptr *) Data_custom_val(v); */
-/*   return ap_texpr0_hash(p); */
-/* } */
-/* static */
-/* int camlidl_apron_texpr0_ptr_compare(value v1, value v2) */
-/* { */
-/*   ap_texpr0_t* p1 = *(ap_texpr0_ptr *) Data_custom_val(v1); */
-/*   ap_texpr0_t* p2 = *(ap_texpr0_ptr *) Data_custom_val(v2); */
-/*   return ap_texpr0_equal(p1,p2) ? 0 : (p1<p2 ? (-1) : 1); */
-/* } */
-
-/* struct custom_operations camlidl_apron_custom_texpr0_ptr = { */
-/*   "apl0", */
-/*   camlidl_apron_texpr0_ptr_finalize, */
-/*   camlidl_apron_texpr0_ptr_compare, */
-/*   camlidl_apron_texpr0_ptr_hash, */
-/*   custom_serialize_default, */
-/*   custom_deserialize_default */
-/* }; */
+struct custom_operations camlidl_apron_custom_texpr0_ptr = {
+  "camlidl_apron_custom_texpr0",
+  camlidl_apron_texpr0_ptr_finalize,
+  camlidl_apron_texpr0_ptr_compare,
+  camlidl_apron_texpr0_ptr_hash,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 /* /\* ********************************************************************** *\/ */
 /* /\* manager *\/ */
