@@ -88,6 +88,38 @@ void ap_tzzz0_array_print(ap_tzzz0_array_t* array,
 			   char** name_of_dim)
 { ap_tzzz0_array_fprint(stdout,array,name_of_dim); }
 
+size_t ap_tzzz0_array_support(ap_tzzz0_array_t* array, ap_dim_t* tdim)
+{
+  ap_dim_t max,i,r,w;
+  size_t size;
+
+  /* compute occurence vector */
+  max = 0;
+  for (i=0; i<array->size; i++){
+    size_t max1 = ap_tzzz0_max_dim(array->p[i]);
+    if (max1>max) max = max1;
+  }
+  if (max==0){
+    return 0;
+  }
+  else {
+    for (w=0;w<max;i++){
+      tdim[w] = AP_DIM_MAX;
+    }
+    for (i=0; i<array->size; i++){
+      ap_tzzz0_support_internal(array->p[i], tdim);
+    }
+    w = 0;
+    for (r=0; r<max; r++){
+      if (tdim[r]!=AP_DIM_MAX){
+	tdim[w] = tdim[r];
+	w++;
+      }
+    }
+    return (size_t)w;
+  }
+}
+
 static bool ap_tzzz0_array_is_template(ap_tzzz0_array_t* array, bool (*is_template)(ap_tzzz0_t* tzzz))
 {
   size_t i;

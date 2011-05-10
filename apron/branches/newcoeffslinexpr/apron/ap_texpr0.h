@@ -158,11 +158,13 @@ ap_dim_t ap_texpr0_max_dim(ap_texpr0_t* a);
 bool ap_texpr0_has_dim(ap_texpr0_t* a, ap_dim_t d);
    /* Returns true if dimension d appears in the expression */
 
-ap_dim_t* ap_texpr0_dimlist(ap_texpr0_t* a);
-  /* Returns an ordered, AP_DIM_MAX-terminated array of occurring dimensions;
-     caller should free() the array after use
-   */
+size_t ap_texpr0_support(ap_texpr0_t* a, ap_dim_t* tdim);
+  /* Fills the array tdim with the dimensions occuring in the expression,
+     in increasing order, and return the number of such dimensions.
 
+     tdim is supposed to be of size at least the maximum dimension in the
+     expression plus one.
+  */
 
   /* Expression classification */
 
@@ -246,6 +248,8 @@ void ap_texpr0_array_print(ap_texpr0_array_t* array,
 			   char** name_of_dim);
   /* Prints the expression, name_of_dim can be NULL */
 
+void ap_texpr0_support_internal(ap_texpr0_t* a, ap_dim_t* tdim);
+size_t ap_texpr0_array_support(ap_texpr0_array_t* array, ap_dim_t* tdim);
 bool ap_texpr0_array_is_interval_linear(ap_texpr0_array_t* array);
 bool ap_texpr0_array_is_interval_polynomial(ap_texpr0_array_t* array);
 bool ap_texpr0_array_is_interval_polyfrac(ap_texpr0_array_t* array);

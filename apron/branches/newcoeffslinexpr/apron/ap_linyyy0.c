@@ -417,7 +417,7 @@ bool ap_linyyy0_equal(ap_linyyy0_t expr1,
 }
 /* Lexicographic ordering, terminating by constant coefficients */
 int ap_linyyy0_cmp(ap_linyyy0_t expr1,
-		       ap_linyyy0_t expr2)
+                   ap_linyyy0_t expr2)
 {
   int res;
   if (expr1->discr != expr2->discr){

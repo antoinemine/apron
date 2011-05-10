@@ -337,8 +337,8 @@ val array_print :
 
 quote(MLMLI,"\n(** {3 Initialization and Assignement Functions} *)")
 
-void ap_linyyyXXX_array_init(ap_linyyyXXX_array_ptr array, unsigned int size);
-void ap_linyyyXXX_array_init_set(ap_linyyyXXX_array_ptr res, ap_linyyyXXX_array_ptr array);
+void ap_linyyyXXX_array_init([out]ap_linyyyXXX_array_ptr OUTOUTOUT, unsigned int size);
+void ap_linyyyXXX_array_init_set([out]ap_linyyyXXX_array_ptr OUTOUTOUT, ap_linyyyXXX_array_ptr array);
 void ap_linyyyXXX_array_set(ap_linyyyXXX_array_ptr res, ap_linyyyXXX_array_ptr array);
 void ap_linyyyXXX_array_resize(ap_linyyyXXX_array_ptr array, unsigned int size);
 void ap_linyyyXXX_array_minimize(ap_linyyyXXX_array_ptr array);

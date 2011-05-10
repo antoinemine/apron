@@ -18,10 +18,10 @@ extern "C" {
 /* ====================================================================== */
 
 /* The abstract type ap_var_t is
-   equipped with a total ordering function, a copy function, 
+   equipped with a total ordering function, a copy function,
    and a free function.
 
-   The parametrization is done via a global variable pointing to an 
+   The parametrization is done via a global variable pointing to an
    ap_var_operations_t structure.
  */
 

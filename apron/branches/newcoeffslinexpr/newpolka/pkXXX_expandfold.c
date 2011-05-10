@@ -27,7 +27,7 @@ matrixXXX_t* matrixXXX_expand(pkXXX_internal_t* pk,
 			      size_t offset,
 			      size_t dimsup)
 {
-  ap_dimchange_t* dimchange;
+  ap_dimchange_t dimchange;
   size_t i,j,row,col,nb;
   size_t nbrows, nbcols;
   numintXXX_t** p;
@@ -47,12 +47,12 @@ matrixXXX_t* matrixXXX_expand(pkXXX_internal_t* pk,
       nb++;
   }
   /* Redimension matrix */
-  dimchange = ap_dimchange_alloc(ap_dimension_make(0,dimsup));
+  ap_dimchange_init(&dimchange,ap_dimension_make(0,dimsup));
   for (i=0;i<dimsup;i++){
-    dimchange->p[i]=offset;
+    dimchange.p[i]=offset;
   }
   nC = matrixXXX_add_dimensions(pk,destructive,C,dimchange);
-  ap_dimchange_free(dimchange);
+  ap_dimchange_clear(&dimchange);
   matrixXXX_resize_rows(nC,nbrows+nb*dimsup);
   if (nb==0)
     return nC;
@@ -182,7 +182,7 @@ matrixXXX_t* matrixXXX_fold(pkXXX_internal_t* pk,
   matrixXXX_t* nF;
   size_t i,j,row,col;
   size_t nbrows, nbcols, dimsup;
-  ap_dimchange_t* dimchange;
+  ap_dimchange_t dimchange;
 
   dimsup = size-1;
   if (dimsup==0){
@@ -195,14 +195,14 @@ matrixXXX_t* matrixXXX_fold(pkXXX_internal_t* pk,
   nF = matrixXXX_alloc( size*nbrows,
 			nbcols - dimsup,
 			false );
-  dimchange = ap_dimchange_alloc(ap_dimension_make(0,dimsup));
+  ap_dimchange_init(&dimchange,ap_dimension_make(0,dimsup));
   for (i=0;i<dimsup;i++){
-    dimchange->p[i]=tdim[i+1];
+    dimchange.p[i]=tdim[i+1];
   }
   row = 0;
   for(i=0; i<nbrows; i++){
     vectorXXX_remove_dimensions(pk,nF->p[row],F->p[i],nbcols,
-				dimchange);
+				&dimchange);
     vectorXXX_normalize(pk,nF->p[row],nbcols-dimsup);
     row++;
     for (j=0;j<dimsup;j++){
@@ -210,7 +210,7 @@ matrixXXX_t* matrixXXX_fold(pkXXX_internal_t* pk,
 			F->p[i][pk->dec+tdim[j+1]])!=0){
 	vectorXXX_remove_dimensions(pk,
 				    nF->p[row],F->p[i],nbcols,
-				    dimchange);
+				    &dimchange);
 	numintXXX_set(nF->p[row][col],F->p[i][pk->dec+tdim[j+1]]);
 	vectorXXX_normalize(pk,nF->p[row],nbcols-dimsup);
 	row++;
@@ -222,7 +222,7 @@ matrixXXX_t* matrixXXX_fold(pkXXX_internal_t* pk,
   if (destructive){
     matrixXXX_free(F);
   }
-  ap_dimchange_free(dimchange);
+  ap_dimchange_clear(&dimchange);
   return nF;
 }
 

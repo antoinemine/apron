@@ -2,8 +2,8 @@
 /* num_global.h: workspace and serialization */
 /* ********************************************************************** */
 
-#ifndef _NUM_GLOBAL_H_
-#define _NUM_GLOBAL_H_
+#ifndef _NUM_INTERNAL_H_
+#define _NUM_INTERNAL_H_
 
 #include <stdio.h>
 #include <string.h>

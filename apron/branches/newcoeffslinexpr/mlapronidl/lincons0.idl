@@ -1,149 +1,300 @@
+/* GENERATED FROM linyyy0.idl, DO NOT MODIFY */
+#line 1 "/Users/bjeannet/dev/newcoeffslinexpr/mlapronidl/linyyy0.idl"
 /* -*- mode: c -*- */
 
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(MLI,"(** APRON Linear constraints of level 0 *)")
+quote(C, "#include \"apron_caml.h\"")
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_lincons0.h\"\n\
-#include \"apron_caml.h\"\n\
-\n\
-")
-
-import "scalar.idl";
-import "interval.idl";
+import "linconsMPZ.idl";
+import "linconsMPQ.idl";
+import "linconsD.idl";
+import "linconsMPFR.idl";
 import "coeff.idl";
-import "dim.idl";
-import "linexpr0.idl";
 
-/* For ap_lincons0_t, 
+typedef [\
+    abstract,c2ml(camlidl_lincons0_ptr_c2ml),\
+    ml2c(camlidl_lincons0_ptr_ml2c),\
+    mltype("(LinconsD.t, LinconsMPQ.t, LinconsMPFR.t) Common.t")\
+] struct ap_lincons0_struct ap_lincons0_t;
+typedef [\
+    abstract,\
+    c2ml(camlidl_lincons0_array_ptr_c2ml),\
+    ml2c(camlidl_lincons0_array_ptr_ml2c),\
+    mltype("(LinconsD.earray, LinconsMPQ.earray, LinconsMPFR.earray) Common.t")\
+] struct ap_lincons0_array_struct ap_lincons0_array_t;
 
-- the conversion from ML to C may use allocation, but it is automatically freed 
-  by Camlidl mechanisms
-- the conversion from C to ML free after conversion the scalar field in the C structure.
-  the C type should NOT be deallocated
-*/
+#if defined(_AP_expr_MARK_)
+quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
+#elif defined(_AP_cons_MARK_)
+quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
+#elif defined(_AP_expr_MARK_)
+quote(MLMLI,"(** Linear generators *)\n\n")
+#endif
 
-quote(C,"\n\
-void camlidl_apron_lincons0_ml2c(value v,ap_lincons0_t* cons, camlidl_ctx _ctx)\n\
-{\n\
-  value _v_linexpr0;\n\
-  value _v_constyp;\n\
-  value _v_scalar;\n\
-\n\
-  _v_linexpr0 = Field(v,0);\n\
-  camlidl_apron_linexpr0_ptr_ml2c(_v_linexpr0,&cons->linexpr0);\n\
-  _v_constyp = Field(v,1);\n\
-  if (Is_long(_v_constyp)){\n\
-    switch (Int_val(_v_constyp)){
-    case 0:\n\
-    case 1:\n\
-    case 2:\n\
-      cons->constyp = Int_val(_v_constyp);\n\
-      break;\n\
-    case 3:\n\
-      cons->constyp = 4;\n\
-      break;\n\
-    default:\n\
-     abort();\n\
-    }\n\
-    cons->scalar = NULL;\n\
-  }\n\
-  else {\n\
-    switch (Tag_val(_v_constyp)){\n\
-    case 0:\n\
-      cons->constyp = AP_CONS_EQMOD;\n\
-      _v_scalar = Field(_v_constyp,0);\n\
-      cons->scalar = (ap_scalar_t *)camlidl_malloc(sizeof(ap_scalar_t),_ctx);\n\
-      camlidl_apron_scalar_ml2c(_v_scalar,cons->scalar);\n\
-      break;\n\
-    default:\n\
-      abort();\n\
-    }\n\
-  }\n\
-}\n\
-value camlidl_apron_lincons0_c2ml(ap_lincons0_t* cons)\n\
-{\n\
-  value vres;\n\
-  value _v[3];\n\
-  _v[0] = _v[1] = _v[2] = 0;\n\
-\n\
-  Begin_roots_block(_v, 3)\n\
-    _v[0] = camlidl_apron_linexpr0_ptr_c2ml(&cons->linexpr0);\n\
-    switch(cons->constyp){\n\
-    case AP_CONS_EQ:\n\
-    case AP_CONS_SUPEQ:\n\
-    case AP_CONS_SUP:\n\
-      _v[1] = Val_int(cons->constyp);\n\
-      break;\n\
-    case AP_CONS_DISEQ:\n\
-      _v[1] = Val_int(3);\n\
-      break;\n\
-    case AP_CONS_EQMOD:\n\
-      assert(cons->scalar!=NULL);\n\
-      _v[2] = camlidl_apron_scalar_c2ml(cons->scalar);\n\
-      _v[1] = camlidl_alloc_small(1, 0);\n\
-      Field(_v[1],0) = _v[2];\n\
-      ap_scalar_free(cons->scalar); cons->scalar = NULL;\n\
-      break;\n\
-    }\n\
-    vres = camlidl_alloc_small(2, 0);\n\
-    Field(vres, 0) = _v[0];\n\
-    Field(vres, 1) = _v[1];\n\
-  End_roots()\n\
-  return vres;\n\
-}\n\
+quote(MLI,"
+(** {2 Linear expressions/constraints/generators} *)
+
+(** {3 Pretty printing} *)
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit
+
+(** {3 Initialization} *)
+val init : Common.discr -> int -> t
+val init_set : t -> t
+val init_set_linconsD : LinconsD.t -> t
+val init_set_linconsMPQ : LinconsMPQ.t -> t
+val init_set_linconsMPFR : LinconsMPFR.t -> t
+
+(** {3 Misc)} *)
+val resize : t -> int -> unit
+val minimize : t -> unit
 ")
 
+quote(ML,"
+let print assoc fmt (lincons:t) =
+  Common.apply_arg2_discr LinconsD.print LinconsMPQ.print LinconsMPFR.print assoc fmt lincons
 
-typedef [mltype("{\n  mutable linexpr0 : Linexpr0.t;\n  mutable typ : typ;\n}"),
-	 abstract,
-	 ml2c(camlidl_apron_lincons0_ml2c),
-	 c2ml(camlidl_apron_lincons0_c2ml)]
-struct ap_lincons0_t ap_lincons0_t;
-quote(MLMLI,"and typ =\n  | EQ\n  | SUPEQ\n  | SUP\n  | DISEQ\n  | EQMOD of Scalar.t\n")
-
-struct ap_lincons0_array_t {
-  [size_is(size)] ap_lincons0_t* p;
-  int size;
-};
-
-quote(MLI,"\n\
-(** Make a linear constraint. Modifying later the linear expression\n\
-  modifies correspondingly the linear constraint and conversely *)\n\
-val make : Linexpr0.t -> typ -> t\n\
-\n\
-(** Copy a linear constraint (deep copy) *)\n\
-val copy : t -> t\n\
-\n\
-(** Convert a constraint type to a string ([=],[>=], or [>]) *)\n\
-val string_of_typ : typ -> string\n\
-\n\
-(** Print a constraint *)\n\
-val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+let init (discr:Common.discr) length : t =
+  Common.map_discr0_arg LinconsD.init LinconsMPQ.init LinconsMPFR.init discr length
+let init_set (lincons:t) : t =
+  Common.map_discr LinconsD.init_set LinconsMPQ.init_set LinconsMPFR.init_set lincons
+let init_set_linconsD x : t =
+  Common.D(LinconsD.init_set x)
+let init_set_linconsMPQ x : t =
+  Common.MPQ(LinconsMPQ.init_set x)
+let init_set_linconsMPFR x : t =
+  Common.MPFR(LinconsMPFR.init_set x)
+let resize (lincons:t) length =
+  Common.apply_discr_arg LinconsD.resize LinconsMPQ.resize LinconsMPFR.resize lincons length
+let minimize (lincons:t) =
+  Common.apply_discr LinconsD.minimize LinconsMPQ.minimize LinconsMPFR.minimize lincons
 ")
 
-quote(ML,"\n\
-let string_of_typ = function\n\
-| EQ | EQMOD _ -> \"=\"\n\
-| SUPEQ -> \">=\"\n\
-| SUP -> \">\"\n\
-| DISEQ -> \"<>\"\n\
-\n\
-let print assoc fmt cons = \n\
-  Linexpr0.print assoc fmt cons.linexpr0;\n\
-  Format.fprintf fmt \"%s0\" (string_of_typ cons.typ);\n\
-  begin match cons.typ with\n\
-  | EQMOD x -> Format.fprintf fmt \" mod %a\" Scalar.print x;\n\
-  | _ -> ()\n\
-  end;\n\
-  ()\n\
-let make expr typ = {\n\
-linexpr0 = expr; typ = typ \n\
-}\n\
-let copy cons = {\n\
-linexpr0 = Linexpr0.copy cons.linexpr0; typ = cons.typ\n\
-}\n\
+#if defined (_AP_lincons0_MARK_)
+quote(MLI,"val set_bool : t -> bool -> unit")
+quote(ML,"
+let set_bool (lincons:t) b =
+  Common.apply_discr_arg LinconsD.set_bool LinconsMPQ.set_bool LinconsMPFR.set_bool lincons b
+")
+#endif
+
+quote(MLI,"
+(** {3 Assignement (with possible conversion)} *)
+val set : t -> t -> Common.num_internal -> bool
+val set_linconsD : t -> LinconsD.t -> Common.num_internal -> bool
+val set_linconsMPQ : t -> LinconsMPQ.t -> Common.num_internal -> bool
+val set_linconsMPFR : t -> LinconsMPFR.t -> Common.num_internal -> bool
+val get_linconsD : LinconsD.t -> t -> Common.num_internal -> bool
+val get_linconsMPQ : LinconsMPQ.t -> t -> Common.num_internal -> bool
+val get_linconsMPFR : LinconsMPFR.t -> t -> Common.num_internal -> bool
+")
+quote(ML,"
+let set_linconsD (lincons:t) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_set_linconsD Conv.linconsMPQ_set_linconsD Conv.linconsMPFR_set_linconsD lincons x intern
+let set_linconsMPQ (lincons:t) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_set_linconsMPQ Conv.linconsMPQ_set_linconsMPQ Conv.linconsMPFR_set_linconsMPQ lincons x intern
+let set_linconsMPFR (lincons:t) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_set_linconsMPFR Conv.linconsMPQ_set_linconsMPFR Conv.linconsMPFR_set_linconsMPFR lincons x intern
+let set (lincons1:t) (lincons2:t) intern =
+  Common.apply_arg_discr_arg set_linconsD set_linconsMPQ set_linconsMPFR lincons1 lincons2 intern
+let get_linconsD x (lincons:t) intern =
+  Common.apply_arg_discr_arg Conv.linconsD_set_linconsD Conv.linconsD_set_linconsMPQ Conv.linconsD_set_linconsMPFR x lincons intern
+let get_linconsMPQ x (lincons:t) intern =
+  Common.apply_arg_discr_arg Conv.linconsMPQ_set_linconsD Conv.linconsMPQ_set_linconsMPQ Conv.linconsMPQ_set_linconsMPFR x lincons intern
+let get_linconsMPFR x (lincons:t) intern =
+  Common.apply_arg_discr_arg Conv.linconsMPFR_set_linconsD Conv.linconsMPFR_set_linconsMPQ Conv.linconsMPFR_set_linconsMPFR x lincons intern
+")
+
+#if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
+quote(MLI,"
+(** {3 Tests} *)
+val is_linear : t -> bool
+val is_quasilinear : t -> bool
+val typ : t -> Common.exprtyp
+val is_integer : t -> int -> bool
+val is_real : t -> int -> bool
+")
+quote(ML,"
+let is_linear lincons =
+  Common.apply_discr LinconsD.is_linear LinconsMPQ.is_linear LinconsMPFR.is_linear lincons
+let is_quasilinear lincons =
+  Common.apply_discr LinconsD.is_quasilinear LinconsMPQ.is_quasilinear LinconsMPFR.is_quasilinear lincons
+let typ lincons =
+  Common.apply_discr LinconsD.typ LinconsMPQ.typ LinconsMPFR.typ lincons
+let is_integer lincons intd =
+  Common.apply_discr_arg LinconsD.is_integer LinconsMPQ.is_integer LinconsMPFR.is_integer lincons intd
+let is_real lincons intd =
+  Common.apply_discr_arg LinconsD.is_real LinconsMPQ.is_real LinconsMPFR.is_real lincons intd
+")
+#endif
+
+quote(MLMLI,"(** {3 Access} *)")
+
+quote(MLI,"
+val discr : t -> Common.discr
+val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit
+")
+quote(ML,"
+let discr lincons =
+  match lincons with
+  | Common.D _ -> Common.D()
+  | Common.MPQ _ -> Common.MPQ()
+  | Common.MPFR _ -> Common.MPFR()
+let iter f a =
+  match a with
+  | Common.D e -> LinconsD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e
+  | Common.MPQ e -> LinconsMPQ.iter0 (fun eitvMPQ dim -> f (Common.MPQ eitvMPQ) dim) e
+  | Common.MPFR e -> LinconsMPFR.iter0 (fun eitvMPFR dim -> f (Common.MPFR eitvMPFR) dim) e
+")
+
+boolean ap_lincons0_get_cst(ap_coeff_tm coeff, ap_lincons0_t expr, num_internal_ptr intern);
+boolean ap_lincons0_get_coeff(ap_coeff_tm coeff, ap_lincons0_t expr, ap_dim_t dim, num_internal_ptr intern);
+boolean ap_lincons0_set_cst(ap_lincons0_t expr, ap_coeff_tg coeff, num_internal_ptr intern);
+boolean ap_lincons0_set_coeff(ap_lincons0_t expr, ap_dim_t dim, ap_coeff_tg coeff, num_internal_ptr intern);
+#if defined (_AP_lincons0_MARK_) || defined (_AP_lingen0_MARK_)
+boolean ap_lincons0_get_linexpr0(ap_linexpr0_t e, ap_lincons0_t c, num_internal_ptr intern);
+ap_constyp_t ap_lincons0_get_constyp(ap_lincons0_t c);
+boolean ap_lincons0_set_linexpr0(ap_lincons0_t c, ap_linexpr0_t e, num_internal_ptr intern);
+void ap_lincons0_set_constyp(ap_lincons0_t c, ap_constyp_t constyp);
+#endif
+#if defined (_AP_lincons0_MARK_)
+quote(MLI,"
+val get_mpq : Mpq.t -> t -> unit
+val se_mpq : t -> 'a Mpq.tt -> unit
+")
+quote(ML,"
+let get_mpq mpq discr = Common.apply_arg_discr LinconsD.get_mpq LinconsMPQ.get_mpq LinconsMPFR.get_mpq mpq discr
+let set_mpq discr mpq = Common.apply_discr_arg LinconsD.set_mpq LinconsMPQ.set_mpq LinconsMPFR.set_mpq discr mpq
+")
+#endif
+
+quote(MLI,"
+(** {3 Change of dimensions} *)
+val add_dimensions : t -> t -> Dim.change -> unit
+val permute_dimensions : t -> t -> Dim.perm -> unit
+
+(** {3 Tests} *)
+val equal : t -> t -> bool
+val hash : t -> int
+")
+
+quote(ML,"
+let add_dimensions res expr dimchange =
+  Common.mapsame_discr2_arg LinconsD.add_dimensions LinconsMPQ.add_dimensions LinconsMPFR.add_dimensions res expr dimchange
+let permute_dimensions res expr dimperm =
+  Common.mapsame_discr2_arg LinconsD.permute_dimensions LinconsMPQ.permute_dimensions LinconsMPFR.permute_dimensions res expr dimperm
+let equal (lincons1:t) (lincons2:t) =
+  match (lincons1,lincons2) with
+  | (Common.D x1, Common.D x2) -> LinconsD.equal x1 x2
+  | (Common.MPQ x1, Common.MPQ x2) -> LinconsMPQ.equal x1 x2
+  | (Common.MPFR x1, Common.MPFR x2) -> LinconsMPFR.equal x1 x2
+  | _ -> false
+let hash (lincons:t) =
+  Common.apply_discr LinconsD.hash LinconsMPQ.hash LinconsMPFR.hash lincons
+")
+
+int ap_lincons0_compare(ap_lincons0_t a, ap_lincons0_t b);
+
+quote(MLI,"
+(** {2 Arrays} *)
+(** {3  Pretty printing} *)
+
+val array_print :
+  ?first:(unit, Format.formatter, unit) format ->
+  ?sep:(unit, Format.formatter, unit) format ->
+  ?last:(unit, Format.formatter, unit) format ->
+ (Dim.t -> string) -> Format.formatter -> earray -> unit
+
+(** {3 Initialization and Assignement Functions} *)
+val array_init : Common.discr -> int -> earray
+val array_init_set : earray -> earray
+val array_resize : earray -> int -> unit
+val array_minimize : earray -> unit
+")
+quote(ML,"
+let array_print ?first ?sep ?last assoc fmt = function
+  | Common.D x -> LinconsD.array_print ?first ?sep ?last assoc fmt x
+  | Common.MPQ x -> LinconsMPQ.array_print ?first ?sep ?last assoc fmt x
+  | Common.MPFR x -> LinconsMPFR.array_print ?first ?sep ?last assoc fmt x
+let array_init discr size = Common.map_discr0_arg LinconsD.array_init LinconsMPQ.array_init LinconsMPFR.array_init discr size
+let array_init_set discr = Common.map_discr LinconsD.array_init_set LinconsMPQ.array_init_set LinconsMPFR.array_init_set discr
+let array_resize discr size = Common.apply_discr_arg LinconsD.array_resize LinconsMPQ.array_resize LinconsMPFR.array_resize discr size
+let array_minimize discr = Common.apply_discr LinconsD.array_minimize LinconsMPQ.array_minimize LinconsMPFR.array_minimize discr
+")
+
+quote(MLMLI,"\n(** {3 Assignements with conversions} *)")
+
+boolean ap_lincons0_array_set(ap_lincons0_array_t res, ap_lincons0_array_t e, num_internal_ptr intern);
+
+quote(MLI,"
+val array_set_linconsD_array : earray -> LinconsD.earray -> Common.num_internal -> bool
+val array_set_linconsMPQ_array : earray -> LinconsMPQ.earray -> Common.num_internal -> bool
+val array_set_linconsMPFR_array : earray -> LinconsMPFR.earray -> Common.num_internal -> bool
+val array_get_linconsD_array : LinconsD.earray -> earray -> Common.num_internal -> bool
+val array_get_linconsMPQ_array : LinconsMPQ.earray -> earray -> Common.num_internal -> bool
+val array_get_linconsMPFR_array : LinconsMPFR.earray -> earray -> Common.num_internal -> bool
+")
+quote(ML,"
+let array_set_linconsD_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_array_set_linconsD_array Conv.linconsMPQ_array_set_linconsD_array Conv.linconsMPFR_array_set_linconsD_array earray x intern
+let array_set_linconsMPQ_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_array_set_linconsMPQ_array Conv.linconsMPQ_array_set_linconsMPQ_array Conv.linconsMPFR_array_set_linconsMPQ_array earray x intern
+let array_set_linconsMPFR_array (earray:earray) x intern =
+  Common.apply_discr_arg2 Conv.linconsD_array_set_linconsMPFR_array Conv.linconsMPQ_array_set_linconsMPFR_array Conv.linconsMPFR_array_set_linconsMPFR_array earray x intern
+let array_get_linconsD_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linconsD_array_set_linconsD_array Conv.linconsD_array_set_linconsMPQ_array Conv.linconsD_array_set_linconsMPFR_array x earray intern
+let array_get_linconsMPQ_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linconsMPQ_array_set_linconsD_array Conv.linconsMPQ_array_set_linconsMPQ_array Conv.linconsMPQ_array_set_linconsMPFR_array x earray intern
+let array_get_linconsMPFR_array x (earray:earray) intern =
+  Common.apply_arg_discr_arg Conv.linconsMPFR_array_set_linconsD_array Conv.linconsMPFR_array_set_linconsMPQ_array Conv.linconsMPFR_array_set_linconsMPFR_array x earray intern
+")
+
+boolean ap_lincons0_array_set_index_linconsD(ap_lincons0_array_t p, unsigned int i, ap_linconsD_ptr a, num_internal_ptr intern);
+boolean ap_lincons0_array_set_index_linconsMPQ(ap_lincons0_array_t p, unsigned int i, ap_linconsMPQ_ptr a, num_internal_ptr intern);
+boolean ap_lincons0_array_set_index_linconsMPFR(ap_lincons0_array_t p, unsigned int i, ap_linconsMPFR_ptr a, num_internal_ptr intern);
+boolean ap_lincons0_array_get_index_linconsD(ap_linconsD_ptr a, ap_lincons0_array_t p, unsigned int i, num_internal_ptr intern);
+boolean ap_lincons0_array_get_index_linconsMPQ(ap_linconsMPQ_ptr a, ap_lincons0_array_t p, unsigned int i, num_internal_ptr intern);
+boolean ap_lincons0_array_get_index_linconsMPFR(ap_linconsMPFR_ptr a, ap_lincons0_array_t p, unsigned int i, num_internal_ptr intern);
+
+#if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
+quote(MLI,"
+(** {3 Tests} *)
+val array_is_linear : earray -> bool
+val array_is_quasilinear : earray -> bool
+val array_typ : earray -> Common.exprtyp
+")
+quote(ML,"
+let array_is_linear lincons =
+  Common.apply_discr LinconsD.array_is_linear LinconsMPQ.array_is_linear LinconsMPFR.array_is_linear lincons
+let array_is_quasilinear lincons =
+  Common.apply_discr LinconsD.array_is_quasilinear LinconsMPQ.array_is_quasilinear LinconsMPFR.array_is_quasilinear lincons
+let array_typ lincons =
+  Common.apply_discr LinconsD.array_typ LinconsMPQ.array_typ LinconsMPFR.array_typ lincons
+")
+#endif
+
+quote(MLI,"
+(** {3 Access} *)
+val array_discr : earray -> Common.discr
+val array_size : earray -> int
+")
+quote(ML,"
+let array_discr = discr
+let array_size = Common.apply_discr LinconsD.array_size LinconsMPQ.array_size LinconsMPFR.array_size
+")
+boolean ap_lincons0_array_set_index(ap_lincons0_array_t p, unsigned int i, ap_lincons0_t a, num_internal_ptr intern);
+boolean ap_lincons0_array_get_index(ap_lincons0_t a, ap_lincons0_array_t p, unsigned int i, num_internal_ptr intern);
+
+quote(MLI,"
+(** {3 Change of dimensions} *)
+val array_add_dimensions : earray -> earray -> Dim.change -> unit
+val array_permute_dimensions : earray -> earray -> Dim.perm -> unit
+")
+
+quote(ML,"
+let array_add_dimensions res expr dimchange =
+  Common.mapsame_discr2_arg LinconsD.array_add_dimensions LinconsMPQ.array_add_dimensions LinconsMPFR.array_add_dimensions res expr dimchange
+let array_permute_dimensions res expr dimperm =
+  Common.mapsame_discr2_arg LinconsD.array_permute_dimensions LinconsMPQ.array_permute_dimensions LinconsMPFR.array_permute_dimensions res expr dimperm
 ")

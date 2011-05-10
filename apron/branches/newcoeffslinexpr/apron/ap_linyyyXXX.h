@@ -80,6 +80,7 @@ cinline bool ap_linyyyXXX_is_quasilinear(ap_linyyyXXX_t a);
 cinline ap_linexpr_type_t ap_linyyyXXX_type(ap_linyyyXXX_t a);
   /* Classify an expression */
 
+cinline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim);
 cinline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim);
 /* Fills the array tdim with the dimensions associated with intervals in the
    linear expression, in increasing order, and return the number of such
@@ -184,6 +185,9 @@ bool ap_linexprXXX_set_list_generic(
 	  true) :                                                       \
 	 false;								\
        (_p_i)++)
+#else
+#define ap_linyyyXXX_ForeachLinterm0(_p_a, _p_i, _p_d, _p_eitv) ap_linexprXXX_ForeachLinterm0(_p_a->linexpr,_p_i,_p_d,_p_eitv)
+#define ap_linyyyXXX_ForeachLinterm1(_p_a, _p_env, _p_i, _p_v, _p_eitv) ap_linexprXXX_ForeachLinterm1(_p_a->linexpr, _p_env, _p_i,_p_v,_p_eitv)
 #endif
 
 /* ====================================================================== */
@@ -230,6 +234,14 @@ static inline bool ap_linyyyXXX_equal(ap_linyyyXXX_t a1,ap_linyyyXXX_t a2);
 /* Lexicographic ordering, terminating by constant coefficients */
 int ap_linyyyXXX_cmp(ap_linyyyXXX_t a1, ap_linyyyXXX_t a2);
 
+/* ====================================================================== */
+/* I.7 Serialization */
+/* ====================================================================== */
+
+size_t ap_linyyyXXX_serialize(void* dst, ap_linyyyXXX_t src);
+size_t ap_linyyyXXX_deserialize(ap_linyyyXXX_t dst, const void* src);
+size_t ap_linyyyXXX_serialized_size(ap_linyyyXXX_t a);
+
 /* ********************************************************************** */
 /* II. ap_linyyyXXX_array_t */
 /* ********************************************************************** */
@@ -260,16 +272,14 @@ bool ap_linyyyXXX_array_is_linear(ap_linyyyXXX_array_t array);
 bool ap_linyyyXXX_array_is_quasilinear(ap_linyyyXXX_array_t array);
 ap_linexpr_type_t ap_linyyyXXX_array_type(ap_linyyyXXX_array_t array);
 
-size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array, ap_dim_t* tdim, size_t maxdim1);
+size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array, ap_dim_t* tdim, size_t nbdim);
+size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array, ap_dim_t* tdim, size_t nbdim);
 /* Fills the array tdim with the dimensions associated with intervals in the
    linear expression, in increasing order, and return the number of such
    dimensions.
 
-   tdim is supposed to be of size at least the maximum dimension + 1 in the
-   expression.
-
-   For the parameter maxdim1: corresponds to the maximal possible dimension
-   + 1 */
+   tdim is supposed to be of size at least the maximum number of different dimensions in the array.
+*/
 
 /* ====================================================================== */
 /* II.4 Conversions */
@@ -301,6 +311,14 @@ void ap_linyyyXXX_array_extend_environment(ap_linyyyXXX_array_t res,
 					   ap_environment_t* nenv,
 					   ap_linyyyXXX_array_t expr,
 					   ap_environment_t* env);
+
+/* ====================================================================== */
+/* II.7 Serialization */
+/* ====================================================================== */
+
+size_t ap_linyyyXXX_array_serialize(void* dst, ap_linyyyXXX_array_t src);
+size_t ap_linyyyXXX_array_deserialize(ap_linyyyXXX_array_t dst, const void* src);
+size_t ap_linyyyXXX_array_serialized_size(ap_linyyyXXX_array_t a);
 
 /* ********************************************************************** */
 /* ********************************************************************** */
@@ -401,6 +419,10 @@ static inline bool ap_linyyyXXX_is_quasilinear(ap_linyyyXXX_t a)
 static inline ap_linexpr_type_t ap_linyyyXXX_type(ap_linyyyXXX_t a)
 {
   return ap_linexprXXX_type(a->linexpr);
+}
+static inline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim)
+{
+  return ap_linexprXXX_support(a->linexpr,tdim);
 }
 static inline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim)
 {

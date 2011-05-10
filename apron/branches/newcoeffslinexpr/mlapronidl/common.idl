@@ -53,11 +53,23 @@ val earray_print :
 val map_discr :
   ('a -> 'b) ->
   ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
+val map_discr0_arg :
+  ('b -> 'c) ->
+  ('b -> 'e) ->
+  ('b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t
+val mapsame_discr2_arg :
+  ('a -> 'b -> 'c -> 'd) ->
+  ('e -> 'f -> 'c -> 'd) ->
+  ('g -> 'h -> 'c -> 'd) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c -> 'd
 val apply_discr :
   ('a -> 'b) -> ('c -> 'b) -> ('d -> 'b) -> ('a, 'c, 'd) t -> 'b
 val apply_arg_discr :
   ('a -> 'b -> 'c) ->
   ('a -> 'd -> 'c) -> ('a -> 'e -> 'c) -> 'a -> ('b, 'd, 'e) t -> 'c
+val apply_arg2_discr :
+  ('a -> 'b -> 'c -> 'd) ->
+  ('a -> 'b -> 'e -> 'd) ->
+  ('a -> 'b -> 'f -> 'd) -> 'a -> 'b -> ('c, 'e, 'f) t -> 'd
 val apply_discr_arg :
   ('a -> 'b -> 'c) ->
   ('d -> 'b -> 'c) -> ('e -> 'b -> 'c) -> ('a, 'd, 'e) t -> 'b -> 'c
@@ -107,6 +119,17 @@ let map_discr d mpq mpfr discr =
   | D x -> D(d x)
   | MPQ x -> MPQ(mpq x)
   | MPFR x -> MPFR(mpfr x)
+let map_discr0_arg d mpq mpfr discr arg =
+  match discr with
+  | D x -> D(d arg)
+  | MPQ x -> MPQ(mpq arg)
+  | MPFR x -> MPFR(mpfr arg)
+let mapsame_discr2_arg d mpq mpfr discr1 discr2 arg =
+  match discr1,discr2 with
+  | (D x1),(D x2) -> d x1 x2 arg
+  | (MPQ x1),(MPQ x2) -> mpq x1 x2 arg
+  | (MPFR x1),(MPFR x2) -> mpfr x1 x2 arg
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
 let apply_discr d mpq mpfr discr =
   match discr with
   | D x -> d x
@@ -117,6 +140,11 @@ let apply_arg_discr d mpq mpfr arg discr =
   | D x -> d arg x
   | MPQ x -> mpq arg x
   | MPFR x -> mpfr arg x
+let apply_arg2_discr d mpq mpfr arg1 arg2 discr =
+  match discr with
+  | D x -> d arg1 arg2 x
+  | MPQ x -> mpq arg1 arg2 x
+  | MPFR x -> mpfr arg1 arg2 x
 let apply_discr_arg d mpq mpfr discr arg =
   match discr with
   | D x -> d x arg

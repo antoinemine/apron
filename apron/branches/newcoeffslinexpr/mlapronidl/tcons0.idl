@@ -5,24 +5,17 @@
 
 quote(MLI,"(** APRON tree expressions constraints of level 0 *)")
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_lincons0.h\"\n\
-#include \"ap_texpr0.h\"\n\
-#include \"apron_caml.h\"\n\
-\n\
-")
+quote(C, "#include \"apron_caml.h\"")
 
-import "scalar.idl";
-import "interval.idl";
+import "common.idl";
 import "coeff.idl";
 import "dim.idl";
 import "lincons0.idl";
 import "texpr0.idl";
 
-/* For ap_tcons0_t, 
+/* For ap_tcons0_t,
 
-- the conversion from ML to C may use allocation, but it is automatically freed 
+- the conversion from ML to C may use allocation, but it is automatically freed
   by Camlidl mechanisms
 - the conversion from C to ML free after conversion the scalar field in the C structure.
   the C type should NOT be deallocated
@@ -100,19 +93,11 @@ value camlidl_apron_tcons0_c2ml(ap_tcons0_t* cons)\n\
 ")
 
 
-typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Lincons0.typ;\n}"),
+typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Common.constyp;\n  mutable mpq : Mpq.t\n}"),
 	 abstract,
 	 ml2c(camlidl_apron_tcons0_ml2c),
 	 c2ml(camlidl_apron_tcons0_c2ml)]
 struct ap_tcons0_t ap_tcons0_t;
-quote(MLMLI,"\n\
-type typ = Lincons0.typ =\n\
-  | EQ\n\
-  | SUPEQ\n\
-  | SUP\n\
-  | DISEQ\n\
-  | EQMOD of Scalar.t\n\
-")
 
 struct ap_tcons0_array_t {
   [size_is(size)] ap_tcons0_t* p;
