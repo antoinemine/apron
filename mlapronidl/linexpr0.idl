@@ -25,11 +25,12 @@ typedef [\
     mltype("(LinexprD.earray, LinexprMPQ.earray, LinexprMPFR.earray) Common.t")\
 ] struct ap_linexpr0_array_struct ap_linexpr0_array_t;
 
-#if defined(_AP_expr_MARK_)
+#define _AP_linexpr0_MARK
+#if defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
-#elif defined(_AP_cons_MARK_)
+#elif defined(_AP_lincons0_MARK_)
 quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
-#elif defined(_AP_expr_MARK_)
+#elif defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** Linear generators *)\n\n")
 #endif
 
@@ -132,15 +133,9 @@ let is_real linexpr intd =
 quote(MLMLI,"(** {3 Access} *)")
 
 quote(MLI,"
-val discr : t -> Common.discr
 val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit
 ")
 quote(ML,"
-let discr linexpr =
-  match linexpr with
-  | Common.D _ -> Common.D()
-  | Common.MPQ _ -> Common.MPQ()
-  | Common.MPFR _ -> Common.MPFR()
 let iter f a =
   match a with
   | Common.D e -> LinexprD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e
@@ -184,6 +179,18 @@ let add_dimensions res expr dimchange =
   Common.mapsame_discr2_arg LinexprD.add_dimensions LinexprMPQ.add_dimensions LinexprMPFR.add_dimensions res expr dimchange
 let permute_dimensions res expr dimperm =
   Common.mapsame_discr2_arg LinexprD.permute_dimensions LinexprMPQ.permute_dimensions LinexprMPFR.permute_dimensions res expr dimperm
+let extend_environment res ~newenv old ~oldenv =
+  match (res,old) with
+  | (Common.D res, Common.D old) -> LinexprD.extend_environment res ~newenv old ~oldenv
+  | (Common.MPQ res, Common.MPQ old) -> LinexprMPQ.extend_environment res ~newenv old ~oldenv
+  | (Common.MPFR res, Common.MPFR old) -> LinexprMPFR.extend_environment res ~newenv old ~oldenv
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
+let array_extend_environment res ~newenv old ~oldenv =
+  match (res,old) with
+  | (Common.D res, Common.D old) -> LinexprD.array_extend_environment res ~newenv old ~oldenv
+  | (Common.MPQ res, Common.MPQ old) -> LinexprMPQ.array_extend_environment res ~newenv old ~oldenv
+  | (Common.MPFR res, Common.MPFR old) -> LinexprMPFR.array_extend_environment res ~newenv old ~oldenv
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
 let equal (linexpr1:t) (linexpr2:t) =
   match (linexpr1,linexpr2) with
   | (Common.D x1, Common.D x2) -> LinexprD.equal x1 x2
@@ -209,6 +216,9 @@ val array_print :
 (** {3 Initialization and Assignement Functions} *)
 val array_init : Common.discr -> int -> earray
 val array_init_set : earray -> earray
+val array_init_set_linexprD_array : LinexprD.earray -> earray
+val array_init_set_linexprMPQ_array : LinexprMPQ.earray -> earray
+val array_init_set_linexprMPFR_array : LinexprMPFR.earray -> earray
 val array_resize : earray -> int -> unit
 val array_minimize : earray -> unit
 ")
@@ -219,6 +229,12 @@ let array_print ?first ?sep ?last assoc fmt = function
   | Common.MPFR x -> LinexprMPFR.array_print ?first ?sep ?last assoc fmt x
 let array_init discr size = Common.map_discr0_arg LinexprD.array_init LinexprMPQ.array_init LinexprMPFR.array_init discr size
 let array_init_set discr = Common.map_discr LinexprD.array_init_set LinexprMPQ.array_init_set LinexprMPFR.array_init_set discr
+let array_init_set_linexprD_array x : earray =
+  Common.D(LinexprD.array_init_set x)
+let array_init_set_linexprMPQ_array x : earray =
+  Common.MPQ(LinexprMPQ.array_init_set x)
+let array_init_set_linexprMPFR_array x : earray =
+  Common.MPFR(LinexprMPFR.array_init_set x)
 let array_resize discr size = Common.apply_discr_arg LinexprD.array_resize LinexprMPQ.array_resize LinexprMPFR.array_resize discr size
 let array_minimize discr = Common.apply_discr LinexprD.array_minimize LinexprMPQ.array_minimize LinexprMPFR.array_minimize discr
 ")
@@ -276,11 +292,9 @@ let array_typ linexpr =
 
 quote(MLI,"
 (** {3 Access} *)
-val array_discr : earray -> Common.discr
 val array_size : earray -> int
 ")
 quote(ML,"
-let array_discr = discr
 let array_size = Common.apply_discr LinexprD.array_size LinexprMPQ.array_size LinexprMPFR.array_size
 ")
 boolean ap_linexpr0_array_set_index(ap_linexpr0_array_t p, unsigned int i, ap_linexpr0_t a, num_internal_ptr intern);
@@ -297,4 +311,10 @@ let array_add_dimensions res expr dimchange =
   Common.mapsame_discr2_arg LinexprD.array_add_dimensions LinexprMPQ.array_add_dimensions LinexprMPFR.array_add_dimensions res expr dimchange
 let array_permute_dimensions res expr dimperm =
   Common.mapsame_discr2_arg LinexprD.array_permute_dimensions LinexprMPQ.array_permute_dimensions LinexprMPFR.array_permute_dimensions res expr dimperm
+")
+
+quote(MLI,"\n\
+(** Internal usage *)\n\
+val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit\n\
+val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit\n\
 ")

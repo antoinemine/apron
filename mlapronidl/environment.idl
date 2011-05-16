@@ -162,12 +162,8 @@ if (_res==NULL){\n\
   camlidl_free(_ctx);\n\
   caml_failwith(\"Environment.lce: variable with two different types\");\n\
 }\n\
-assert(_res->count >= 1);")
-quote(dealloc,"
-  if (c1) ap_dimchange_free(c1);
-  if (c2) ap_dimchange_free(c2);
-")
-;
+assert(_res->count >= 1);");
+
 quote(MLI,"\n
 (** [dimchange e1 e2] computes the transformation for \n\
 converting from an environment [e1] to a superenvironment \n\
@@ -181,9 +177,7 @@ if (_res==NULL){\n\
   camlidl_free(_ctx);\n\
   caml_failwith(\"Environment.dimchange: the second environment is not a superenvironment of the first one\");\n\
 }\n\
-")
-quote(dealloc,"ap_dimchange_free(_res);")
-;
+");
 
 quote(MLI,"\n
 (** [dimchange2 e1 e2] computes the transformation for
@@ -201,7 +195,7 @@ if (_res==NULL){\n\
   caml_failwith(\"Environment.dimchange2: the two environments are not compatible\");\n\
 }\n\
 ")
-quote(dealloc,"ap_dimchange2_free(_res);")
+quote(dealloc,"free(_res);")
 ;
 quote(MLI,"\n(** Test equality if two environments *)")
 boolean ap_environment_equal(ap_environment_ptr env1,
@@ -272,6 +266,15 @@ _res = ap_environment_dim_of_var(e,var);\n\
 if (_res==AP_DIM_MAX){\n\
    caml_failwith(\"Environment.dim_of_var: unknown variable in the environment\");\n\
 }");
+
+quote(MLI,"\n\
+val string_of_dim : t -> Dim.t -> string\n\
+val dim_of_string : t -> string -> Dim.t\n\
+")
+quote(ML,"\
+let string_of_dim env d = Var.to_string (var_of_dim env d)\n\
+let dim_of_string env str = dim_of_var env (Var.of_string str)\n\
+")
 
 quote(MLMLI,"\n(** Printing *)")
 quote(MLI,"val print :\n\

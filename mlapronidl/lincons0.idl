@@ -25,11 +25,12 @@ typedef [\
     mltype("(LinconsD.earray, LinconsMPQ.earray, LinconsMPFR.earray) Common.t")\
 ] struct ap_lincons0_array_struct ap_lincons0_array_t;
 
-#if defined(_AP_expr_MARK_)
+#define _AP_lincons0_MARK
+#if defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
-#elif defined(_AP_cons_MARK_)
+#elif defined(_AP_lincons0_MARK_)
 quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
-#elif defined(_AP_expr_MARK_)
+#elif defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** Linear generators *)\n\n")
 #endif
 
@@ -132,15 +133,9 @@ let is_real lincons intd =
 quote(MLMLI,"(** {3 Access} *)")
 
 quote(MLI,"
-val discr : t -> Common.discr
 val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit
 ")
 quote(ML,"
-let discr lincons =
-  match lincons with
-  | Common.D _ -> Common.D()
-  | Common.MPQ _ -> Common.MPQ()
-  | Common.MPFR _ -> Common.MPFR()
 let iter f a =
   match a with
   | Common.D e -> LinconsD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e
@@ -184,6 +179,18 @@ let add_dimensions res expr dimchange =
   Common.mapsame_discr2_arg LinconsD.add_dimensions LinconsMPQ.add_dimensions LinconsMPFR.add_dimensions res expr dimchange
 let permute_dimensions res expr dimperm =
   Common.mapsame_discr2_arg LinconsD.permute_dimensions LinconsMPQ.permute_dimensions LinconsMPFR.permute_dimensions res expr dimperm
+let extend_environment res ~newenv old ~oldenv =
+  match (res,old) with
+  | (Common.D res, Common.D old) -> LinconsD.extend_environment res ~newenv old ~oldenv
+  | (Common.MPQ res, Common.MPQ old) -> LinconsMPQ.extend_environment res ~newenv old ~oldenv
+  | (Common.MPFR res, Common.MPFR old) -> LinconsMPFR.extend_environment res ~newenv old ~oldenv
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
+let array_extend_environment res ~newenv old ~oldenv =
+  match (res,old) with
+  | (Common.D res, Common.D old) -> LinconsD.array_extend_environment res ~newenv old ~oldenv
+  | (Common.MPQ res, Common.MPQ old) -> LinconsMPQ.array_extend_environment res ~newenv old ~oldenv
+  | (Common.MPFR res, Common.MPFR old) -> LinconsMPFR.array_extend_environment res ~newenv old ~oldenv
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
 let equal (lincons1:t) (lincons2:t) =
   match (lincons1,lincons2) with
   | (Common.D x1, Common.D x2) -> LinconsD.equal x1 x2
@@ -209,6 +216,9 @@ val array_print :
 (** {3 Initialization and Assignement Functions} *)
 val array_init : Common.discr -> int -> earray
 val array_init_set : earray -> earray
+val array_init_set_linconsD_array : LinconsD.earray -> earray
+val array_init_set_linconsMPQ_array : LinconsMPQ.earray -> earray
+val array_init_set_linconsMPFR_array : LinconsMPFR.earray -> earray
 val array_resize : earray -> int -> unit
 val array_minimize : earray -> unit
 ")
@@ -219,6 +229,12 @@ let array_print ?first ?sep ?last assoc fmt = function
   | Common.MPFR x -> LinconsMPFR.array_print ?first ?sep ?last assoc fmt x
 let array_init discr size = Common.map_discr0_arg LinconsD.array_init LinconsMPQ.array_init LinconsMPFR.array_init discr size
 let array_init_set discr = Common.map_discr LinconsD.array_init_set LinconsMPQ.array_init_set LinconsMPFR.array_init_set discr
+let array_init_set_linconsD_array x : earray =
+  Common.D(LinconsD.array_init_set x)
+let array_init_set_linconsMPQ_array x : earray =
+  Common.MPQ(LinconsMPQ.array_init_set x)
+let array_init_set_linconsMPFR_array x : earray =
+  Common.MPFR(LinconsMPFR.array_init_set x)
 let array_resize discr size = Common.apply_discr_arg LinconsD.array_resize LinconsMPQ.array_resize LinconsMPFR.array_resize discr size
 let array_minimize discr = Common.apply_discr LinconsD.array_minimize LinconsMPQ.array_minimize LinconsMPFR.array_minimize discr
 ")
@@ -276,11 +292,9 @@ let array_typ lincons =
 
 quote(MLI,"
 (** {3 Access} *)
-val array_discr : earray -> Common.discr
 val array_size : earray -> int
 ")
 quote(ML,"
-let array_discr = discr
 let array_size = Common.apply_discr LinconsD.array_size LinconsMPQ.array_size LinconsMPFR.array_size
 ")
 boolean ap_lincons0_array_set_index(ap_lincons0_array_t p, unsigned int i, ap_lincons0_t a, num_internal_ptr intern);
@@ -297,4 +311,10 @@ let array_add_dimensions res expr dimchange =
   Common.mapsame_discr2_arg LinconsD.array_add_dimensions LinconsMPQ.array_add_dimensions LinconsMPFR.array_add_dimensions res expr dimchange
 let array_permute_dimensions res expr dimperm =
   Common.mapsame_discr2_arg LinconsD.array_permute_dimensions LinconsMPQ.array_permute_dimensions LinconsMPFR.array_permute_dimensions res expr dimperm
+")
+
+quote(MLI,"\n\
+(** Internal usage *)\n\
+val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit\n\
+val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit\n\
 ")
