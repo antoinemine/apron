@@ -200,6 +200,29 @@ type expr = \n\
   | Binop of binop * expr * expr * typ * round \n\
 ")
 
+quote(MLMLI,"\n(** {2 Printing} *)\n")
+
+quote(MLI,"\n\
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+  (** Print an abstract tree expression, using a function converting from dimensions to names *)\n\
+val array_print :\n\
+  ?first:(unit,Format.formatter,unit) format ->\n\
+  ?sep:(unit,Format.formatter,unit) format ->\n\
+  ?last:(unit,Format.formatter,unit) format ->\n\
+  (Dim.t -> string) -> Format.formatter -> t array -> unit\n\
+  (** Same for arrays *)\n\
+val string_of_unop  : unop  -> string\n\
+val string_of_binop : binop -> string\n\
+val string_of_typ   : typ   -> string\n\
+val string_of_round : round -> string\n\
+val print_unop  :  Format.formatter -> unop  -> unit\n\
+val print_binop :  Format.formatter -> binop -> unit\n\
+val print_typ   :  Format.formatter -> typ   -> unit\n\
+val print_round :  Format.formatter -> round -> unit\n\
+val print_expr : (Dim.t -> string) -> Format.formatter -> expr -> unit\n\
+  (** Print a tree expression, using a function converting from dimensions to names *)\n\
+")
+
 quote(MLMLI,"(** {2 Constructors and Destructor} *)")
 
 quote(MLI,"(** Copy *)")
@@ -224,33 +247,6 @@ ap_texpr0_ptr ap_texpr0_binop(ap_texpr_binop_t op,
 			      ap_texpr_rtype_t type, ap_texpr_rdir_t dir,
 			      ap_texpr0_ptr exprA, ap_texpr0_ptr exprB)
 quote(call,"_res = ap_texpr0_binop(op,ap_texpr0_copy(exprA),ap_texpr0_copy(exprB),type,dir);");
-
-
-
-/*
-quote(MLMLI,"external dims : t -> Dim.t array = \"camlidl_texpr0_ap_texpr0_dims\"")
-quote(C,"\n\
-value camlidl_texpr0_ap_texpr0_dims(value _v_texpr)\n\
-{\n\
-  CAMLparam1(_v_texpr);\n\
-  CAMLlocal1(_v_res);\n\
-  ap_texpr0_t* expr;\n\
-  ap_dim_t* dims;\n\
-  size_t size,i;\n\
-\n\
-  camlidl_apron_texpr0_ptr_ml2c(_v_texpr,&expr);\n\
-  dims = ap_texpr0_dimlist(expr);\n\
-  size=0;\n\
-  while (dims[size] != AP_DIM_MAX) size++;\n\
-  _v_res = camlidl_alloc(size,0);\n\
-  for (i=0; i<size; i++){\n\
-    Field(_v_res,i) = Val_int(dims[i]);\n\
-  }\n\
-  free(dims);\n\
-  CAMLreturn(_v_res);\n\
-}\n\
-")
-*/
 
 
 quote(MLMLI,"\n(** {2 Tests} *)\n")
@@ -294,22 +290,24 @@ boolean ap_texpr0_is_interval_polynomial(ap_texpr0_ptr a);
 boolean ap_texpr0_is_interval_polyfrac(ap_texpr0_ptr a);
 boolean ap_texpr0_is_scalar(ap_texpr0_ptr a);
 
-quote(MLMLI,"\n(** {2 Printing} *)\n")
+quote(MLMLI,"\n(** {2 Operations} *)\n")
+
+ap_texpr0_ptr ap_texpr0_substitute(ap_texpr0_ptr a, ap_dim_t dim, ap_texpr0_ptr b);
+ap_texpr0_ptr ap_texpr0_add_dimensions(ap_texpr0_ptr expr,
+				       [ref]ap_dimchange_t* dimchange);
+ap_texpr0_ptr ap_texpr0_permute_dimensions(ap_texpr0_ptr expr,
+					   [ref]struct ap_dimperm_t* dimperm);
+void ap_texpr0_substitute_with(ap_texpr0_ptr a, ap_dim_t dim, ap_texpr0_ptr b);
+void ap_texpr0_add_dimensions_with(ap_texpr0_ptr expr,
+				   [ref]ap_dimchange_t* dimchange);
+void ap_texpr0_permute_dimensions_with(ap_texpr0_ptr expr,
+				       [ref]struct ap_dimperm_t* dimperm);
 
 quote(MLI,"\n\
-val string_of_unop  : unop  -> string\n\
-val string_of_binop : binop -> string\n\
-val string_of_typ   : typ   -> string\n\
-val string_of_round : round -> string\n\
-val print_unop  :  Format.formatter -> unop  -> unit\n\
-val print_binop :  Format.formatter -> binop -> unit\n\
-val print_typ   :  Format.formatter -> typ   -> unit\n\
-val print_round :  Format.formatter -> round -> unit\n\
-val print_expr : (Dim.t -> string) -> Format.formatter -> expr -> unit\n\
-  (** Print a tree expression, using a function converting from dimensions to names *)\n\
-val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
-  (** Print an abstract tree expression, using a function converting from dimensions to names *)\n\
+val array_add_dimensions : t array -> Dim.change -> t array\n\
+val array_permute_dimensions : t array -> Dim.perm -> t array\n\
 ")
+
 
 quote(ML,"\n\
 let string_of_unop = function\n\
@@ -423,9 +421,13 @@ let rec print_expr (string_of_dim:Dim.t -> string) fmt expr =\n\
 	(if par2 then \")\" else \"\")\n\
 \n\
 let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)\n\
+let array_print ?first ?sep ?last string_of_dim fmt tab = \n\
+  Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab\n\
+let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x\n\
+let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x\n\
 ")
 
-quote(MLMLI,"(** {2 Internal usage for level 1} *)")
+quote(MLI,"(** {2 Internal usage for level 1} *)")
 
 quote(MLI,"\n\
 val print_sprint_unop : unop -> typ -> round -> string\n\

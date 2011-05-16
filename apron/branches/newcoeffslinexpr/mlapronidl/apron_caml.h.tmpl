@@ -22,11 +22,11 @@
 #include <caml/bigarray.h>
 #include <caml/intext.h>
 
-#include "ap_global0.h"
+struct camlidl_ctx_struct;
+
+#include "ap_global1.h"
 #include "ap_linconsMPZ.h"
 #include "ap_lingenMPZ.h"
-#include "ap_var.h"
-#include "ap_environment.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,7 @@ extern "C" {
 /* Dimensions, variables, environments */
 /* ********************************************************************** */
 
-void camlidl_apron_dimchange_ml2c(value v, ap_dimchange_t* dimchange);
+void camlidl_apron_dimchange_ml2c(value v, ap_dimchange_t* dimchange, struct camlidl_ctx_struct* _ctx);
 value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange);
 
 typedef struct apron_var_t {
@@ -66,7 +66,7 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p);
 /* Numbers, bounds, intervales, linear expressions/constraints/generators */
 /* ********************************************************************** */
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNumIdl
 typedef numXXX_ptr numXXX_ptrg;
 typedef numXXX_ptr numXXX_ptrm;
 typedef boundXXX_ptr boundXXX_ptrg;
@@ -75,19 +75,24 @@ typedef eitvXXX_ptr eitvXXX_ptrg;
 typedef eitvXXX_ptr eitvXXX_ptrm;
 ENDMACRO
 
-MACRO_ALLT_ALLX
+MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
+MACRO_FOREACH XXX @AllNumIdl
 value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a);
 static inline void camlidl_TTTXXX_ptr_ml2c(value val, TTTXXX_ptr* a)
 {
   *a = *(TTTXXX_ptr*)(Data_custom_val(val));
 }
 ENDMACRO
-MACRO_ALLTARRAY_ALLX
+ENDMACRO
+
+MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+MACRO_FOREACH XXX @AllNumIdl
 value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a);
 static inline void camlidl_TTTXXX_array_ptr_ml2c(value val, TTTXXX_array_ptr* a)
 {
   *a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
 }
+ENDMACRO
 ENDMACRO
 
 /* ********************************************************************** */
@@ -99,7 +104,7 @@ typedef ap_coeff_t ap_coeff_tm;
 void camlidl_coeff_ptr_ml2c(value v, ap_coeff_t* pcoeff);
 value camlidl_coeff_ptr_c2ml(ap_coeff_t* pcoeff);
 
-MACRO_ALLT0
+MACRO_FOREACH TTT ("expr","cons","gen")
 void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0);
 value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_t* plinTTT0);
 void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_t* plinTTT0);
@@ -152,6 +157,17 @@ static inline value camlidl_apron_texpr_rdir_t_c2ml(ap_texpr_rdir_t* op)
 { assert(*op<=AP_RDIR_RND); return Val_int(*op); }
 
 /* ********************************************************************** */
+/* tcons0 */
+/* ********************************************************************** */
+
+extern int camlidl_ml2c_common_enum_constyp(value _v1);
+extern value camlidl_c2ml_common_enum_constyp(int _c1);
+typedef ap_tcons0_t* ap_tcons0_ptr;
+
+void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p);
+value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p);
+
+/* ********************************************************************** */
 /* manager */
 /* ********************************************************************** */
 
@@ -191,6 +207,8 @@ extern void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void
 /* abstract0 */
 /* ********************************************************************** */
 
+#define I0_CHECK_EXC(man) if (man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(man,_ctx);
+
 extern struct custom_operations camlidl_apron_custom_abstract0_ptr;
 extern mlsize_t camlidl_apron_heap;
 
@@ -214,10 +232,26 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
   return v;
 }
 
-/* /\* ********************************************************************** *\/ */
-/* /\* init *\/ */
-/* /\* ********************************************************************** *\/ */
-/* value camlidl_apron_init(value dummy); */
+/* ********************************************************************** */
+/* linyyy1, tzzz1 */
+/* ********************************************************************** */
+
+MACRO_FOREACH TTT ("expr","cons","gen")
+MACRO_FOREACH AAA ("","_array")
+static inline void camlidl_linTTT1AAA_ptr_ml2c(value v, ap_linTTT1AAA_ptr* p)
+{
+  ap_linTTT1AAA_ptr pp = *p;
+  camlidl_linTTT0AAA_ptr_ml2c(Field(v,0),&(pp->linTTT0AAA));
+  camlidl_apron_environment_ptr_ml2c(Field(v,1),&(pp->env));
+}
+value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_ptr* p);
+ENDMACRO
+ENDMACRO
+
+/* ********************************************************************** */
+/* init */
+/* ********************************************************************** */
+value camlidl_apron_init(value dummy);
 
 #ifdef __cplusplus
 }

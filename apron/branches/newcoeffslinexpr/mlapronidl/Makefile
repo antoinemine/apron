@@ -40,15 +40,15 @@ LDFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = MPZ MPQ MPFR D
-YYY = expr cons gen
+TMPL = MPZ D MPQ MPFR
+YYY = expr #cons gen
 
-IDL_ORIG_MODULES_1 = common dim var environment
-IDL_ORIG_MODULES_2 = coeff texpr0
+IDL_ORIG_MODULES_1 = dim var environment common
+IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0
 IDL_TMPL_FILES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
-IDL_TMPL_MODULES_yyy = linyyy0
+IDL_TMPL_MODULES_yyy = linyyy0 linyyy1
 IDL_GENERATED_MODULES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
@@ -202,8 +202,8 @@ distclean: clean
 	@cp $*.idl tmp/$*.idl; 
 	@$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$*.idl; 
 	@$(SED) -f sedscript_c tmp/$*_stubs.c >$*_caml.c; 
-	@$(SED) -f sedscript_caml tmp/$*.ml >$*.ml; 
-	@$(SED) -f sedscript_caml tmp/$*.mli >$*.mli; 
+	@$(SED) -f sedscript_caml tmp/$*.ml | ../cleanupidl.pl - >$*.ml; 
+	@$(SED) -f sedscript_caml tmp/$*.mli | ../cleanupidl.pl - >$*.mli; 
 
 #$(IDL_MODULES:%=%_caml.c) $(IDL_MODULES:%=%.ml) $(IDL_MODULES:%=%.mli): $(IDL_MODULES:%=%.idl) mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 #	mkdir -p tmp
@@ -272,15 +272,15 @@ apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
 %.idl: %.idl.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	./macros.pl $(SRCDIR)/$< >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	./macros.pl $(SRCDIR)/$< >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	./macros.pl $(SRCDIR)/$< >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-file-XXX
 $(subst XXX,$(1),$(2)): $(2)
@@ -295,7 +295,7 @@ define generate-file-yyyXXX
 $(subst yyy,$(1),$(subst XXX,$(2),$(3))): $(3)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_yyyXXX:%=%.idl),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))
@@ -304,7 +304,7 @@ define generate-file-yyy
 $(subst yyy,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach Y,$(YYY),$(foreach F,$(IDL_TMPL_MODULES_yyy:%=%.idl),$(eval $(call generate-file-yyy,$(Y),$(F)))))

@@ -8,8 +8,7 @@
    Please read the COPYING file packaged in the distribution  */
 
 #include "apron_caml.h"
-
-struct camlidl_ctx_struct;
+#include "caml/camlidlruntime.h"
 
 /* ********************************************************************** */
 /* dimensions */
@@ -18,7 +17,9 @@ struct camlidl_ctx_struct;
 extern void camlidl_ml2c_dim_struct_ap_dimension_t(value _v1, struct ap_dimension_t * _c2, struct camlidl_ctx_struct* _ctx);
 extern value camlidl_c2ml_dim_struct_ap_dimension_t(struct ap_dimension_t * _c1, struct camlidl_ctx_struct* _ctx);
 
-void camlidl_apron_dimchange_ml2c(const value v, ap_dimchange_t* dimchange)
+void camlidl_apron_dimchange_ml2c(
+    const value v, ap_dimchange_t* dimchange,
+    struct camlidl_ctx_struct* _ctx)
 {
   ap_dimension_t dimension;
   size_t i;
@@ -26,9 +27,11 @@ void camlidl_apron_dimchange_ml2c(const value v, ap_dimchange_t* dimchange)
   value vdim = Field(v,0);
   value vdimension = Field(v,1);
   camlidl_ml2c_dim_struct_ap_dimension_t(vdimension,&dimchange->dim,NULL);
+  size_t size1 = ap_dimension_size(dimchange->dim);
+  dimchange->p = camlidl_malloc(size1*sizeof(ap_dim_t),_ctx);
   ap_dimchange_init(dimchange,dimchange->dim);
   size_t size = Wosize_val(vdim);
-  if (ap_dimension_size(dimchange->dim))
+  if (size != size1)
     caml_failwith("Invalid object of type Dim.dimchange: size of the array smaller than size of dimension");
   for (i=0;i<size;i++){
     value v = Field(vdim,i);
@@ -53,6 +56,7 @@ value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange)
   v = caml_alloc_small(2,0);
   Field(v,0) = vdim;
   Field(v,1) = vdimension;
+  ap_dimchange_free(dimchange);
   CAMLreturn(v);
 }
 
@@ -220,7 +224,8 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 /* Numbers, bounds, intervals, linear expressions/constraints/generators */
 /* ********************************************************************** */
 
-MACRO_ALLT_ALLX
+MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
+MACRO_FOREACH XXX @AllNumIdl
 void camlidl_custom_TTTXXX_finalize(value val)
 {
   TTTXXX_ptr a = *(TTTXXX_ptr*)(Data_custom_val(val));
@@ -289,8 +294,10 @@ value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
   return val;
 }
 ENDMACRO
+ENDMACRO
 
-MACRO_ALLTARRAY_ALLX
+MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+MACRO_FOREACH XXX @AllNumIdl
 void camlidl_custom_TTTXXX_array_finalize(value val)
 {
   TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
@@ -361,6 +368,7 @@ value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
   return val;
 }
 ENDMACRO
+ENDMACRO
 
 /* ********************************************************************** */
 /* coefficients */
@@ -372,24 +380,24 @@ void camlidl_coeff_ptr_ml2c(value v, ap_coeff_t* pcoeff)
   ap_coeff_ptr coeff = *pcoeff;
 
   coeff->discr = discr;
-  SWITCHX(discr)
+  MACRO_SWITCH(discr) XXX
     camlidl_eitvXXX_ptr_ml2c(Field(v,0),&coeff->eitv.XXX);
-  ENDSWITCH;
+  ENDMACRO;
 }
 value camlidl_coeff_ptr_c2ml(ap_coeff_t* pcoeff)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
   ap_coeff_ptr coeff = *pcoeff;
-  SWITCHX(coeff->discr)
+  MACRO_SWITCH(coeff->discr) XXX
     v2 = camlidl_eitvXXX_ptr_c2ml(&coeff->eitv.XXX);
-  ENDSWITCH
+  ENDMACRO;
   v = alloc_small(1,coeff->discr);
   Field(v,0) = v2;
   CAMLreturn(v);
 }
 
-MACRO_ALLT0
+MACRO_FOREACH TTT ("expr","cons","gen")
 void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0)
 {
   ap_scalar_discr_t discr = Tag_val(v);
@@ -504,155 +512,205 @@ struct custom_operations camlidl_apron_custom_texpr0_ptr = {
   custom_deserialize_default
 };
 
-/* /\* ********************************************************************** *\/ */
-/* /\* manager *\/ */
-/* /\* ********************************************************************** *\/ */
+/* ********************************************************************** */
+/* tcons0 */
+/* ********************************************************************** */
 
-/* static */
-/* void camlidl_apron_manager_ptr_finalize(value v) */
-/* { */
-/*   ap_manager_ptr p = *(ap_manager_ptr *) Data_custom_val(v); */
-/*   ap_manager_free(p); */
-/* } */
+void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p)
+{
+  camlidl_apron_texpr0_ptr_ml2c(Field(v,0),&p->texpr0);
+  p->constyp = camlidl_ml2c_common_enum_constyp(Field(v,1));
+  mpq_ptr ptr = p->mpq;
+  camlidl_mpq_ptr_ml2c(Field(v,2),&ptr);
+}
+value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p)
+{
+  CAMLparam0();
+  CAMLlocal4(v0,v1,v2,v);
+  v0 = camlidl_apron_texpr0_ptr_c2ml(&p->texpr0);
+  v1 = camlidl_c2ml_common_enum_constyp(p->constyp);
+  mpq_ptr ptr = p->mpq;
+  v2 = camlidl_mpq_ptr_c2ml(&ptr);
+  v = alloc_small(3,0);
+  Field(v,0) = v0;
+  Field(v,1) = v1;
+  Field(v,2) = v2;
+  free(p);
+  CAMLreturn(v);
+}
 
-/* static */
-/* int camlidl_apron_manager_ptr_compare(value v1, value v2) */
-/* { */
-/*   CAMLparam2(v1,v2); */
-/*   int res; */
-/*   ap_manager_ptr p1 = *(ap_manager_ptr *) Data_custom_val(v1); */
-/*   ap_manager_ptr p2 = *(ap_manager_ptr *) Data_custom_val(v2); */
-/*   res = (p1==p2 || p1->library==p2->library) ? 0 : ((p1<p2) ? (-1) : 1); */
-/*   CAMLreturn(res); */
-/* } */
+/* ********************************************************************** */
+/* manager */
+/* ********************************************************************** */
 
-/* struct custom_operations camlidl_apron_custom_manager_ptr = { */
-/*   "apman", */
-/*   camlidl_apron_manager_ptr_finalize, */
-/*   camlidl_apron_manager_ptr_compare, */
-/*   custom_hash_default, */
-/*   custom_serialize_default, */
-/*   custom_deserialize_default */
-/* }; */
+static
+void camlidl_apron_manager_ptr_finalize(value v)
+{
+  ap_manager_ptr p = *(ap_manager_ptr *) Data_custom_val(v);
+  ap_manager_free(p);
+}
 
-/* void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx) */
-/* { */
-/*   value* p = caml_named_value("apron exception"); */
-/*   if(p==NULL){ */
-/*     fprintf(stderr,"mlapronidl: error: line <let _ = Callback.register ...> of manager.ml has not been executed: this is not normal\n"); */
-/*     abort(); */
-/*   } */
-/*   value v = camlidl_c2ml_manager_struct_ap_exclog_t(man->result.exclog,NULL); */
-/*   caml_raise_with_arg(*p,v); */
-/* } */
+static
+int camlidl_apron_manager_ptr_compare(value v1, value v2)
+{
+  CAMLparam2(v1,v2);
+  int res;
+  ap_manager_ptr p1 = *(ap_manager_ptr *) Data_custom_val(v1);
+  ap_manager_ptr p2 = *(ap_manager_ptr *) Data_custom_val(v2);
+  res = (p1==p2 || p1->library==p2->library) ? 0 : ((p1<p2) ? (-1) : 1);
+  CAMLreturn(res);
+}
 
-/* /\* ********************************************************************** *\/ */
-/* /\* abstract0 *\/ */
-/* /\* ********************************************************************** *\/ */
+struct custom_operations camlidl_apron_custom_manager_ptr = {
+  "apman",
+  camlidl_apron_manager_ptr_finalize,
+  camlidl_apron_manager_ptr_compare,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
-/* mlsize_t camlidl_apron_heap = 1 << 20; */
+void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx)
+{
+  value* p = caml_named_value("apron exception");
+  if(p==NULL){
+    fprintf(stderr,"mlapronidl: error: line <let _ = Callback.register ...> of manager.ml has not been executed: this is not normal\n");
+    abort();
+  }
+  value v = camlidl_c2ml_manager_struct_ap_exclog_t(man->result.exclog,NULL);
+  caml_raise_with_arg(*p,v);
+}
 
-/* static */
-/* void camlidl_apron_abstract0_ptr_finalize(value v) */
-/* { */
-/*   ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v); */
-/*   ap_abstract0_t* a = *p; */
-/*   ap_abstract0_free(a->man,a); */
-/* } */
-/* static */
-/* long camlidl_apron_abstract0_ptr_hash(value v) */
-/* { */
-/*   ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v); */
-/*   ap_abstract0_t* a = *p; */
-/*   long res = ap_abstract0_hash(a->man,a); */
-/*   if (a->man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(a->man,NULL); */
-/*   return res; */
-/* } */
-/* static */
-/* int camlidl_apron_abstract0_ptr_compare(value v1, value v2) */
-/* { */
-/*   ap_abstract0_ptr* p1 = (ap_abstract0_ptr *) Data_custom_val(v1); */
-/*   ap_abstract0_ptr* p2 = (ap_abstract0_ptr *) Data_custom_val(v2); */
-/*   ap_abstract0_t* a1 = *p1; */
-/*   ap_abstract0_t* a2 = *p2; */
-/*   ap_dimension_t dim1,dim2; */
-/*   int res; */
-/*   if (v1==v2 || p1==p2 || a1==a2) */
-/*     res=0; */
-/*   else { */
-/*     dim1 = ap_abstract0_dimension(a1->man,a1); */
-/*     dim2 = ap_abstract0_dimension(a2->man,a2); */
-/*     res = dim1.intdim-dim2.intdim; */
-/*     if (!res){ */
-/*       res = dim1.realdim-dim2.realdim; */
-/*       if (!res){ */
-/*	if (ap_abstract0_is_eq(a1->man,a1,a2)) */
-/*	  res=0; */
-/*	else */
-/*	  res = a1 > a2 ? 1 : (-1); */
-/*	if (a1->man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(a1->man,NULL); */
-/*       } */
-/*     } */
-/*   } */
-/*   return res; */
-/* } */
+/* ********************************************************************** */
+/* abstract0 */
+/* ********************************************************************** */
 
-/* /\* global manager used for deserialization *\/ */
-/* static ap_manager_ptr deserialize_man = NULL; */
+mlsize_t camlidl_apron_heap = 1 << 20;
 
-/* void ap_manager_set_deserialize(ap_manager_ptr man) */
-/* { */
-/*   deserialize_man = man; */
-/* } */
+static
+void camlidl_apron_abstract0_ptr_finalize(value v)
+{
+  ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v);
+  ap_abstract0_t* a = *p;
+  ap_abstract0_free(a->man,a);
+}
+static
+long camlidl_apron_abstract0_ptr_hash(value v)
+{
+  ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v);
+  ap_abstract0_t* a = *p;
+  long res = ap_abstract0_hash(a->man,a);
+  if (a->man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(a->man,NULL);
+  return res;
+}
+static
+int camlidl_apron_abstract0_ptr_compare(value v1, value v2)
+{
+  ap_abstract0_ptr* p1 = (ap_abstract0_ptr *) Data_custom_val(v1);
+  ap_abstract0_ptr* p2 = (ap_abstract0_ptr *) Data_custom_val(v2);
+  ap_abstract0_t* a1 = *p1;
+  ap_abstract0_t* a2 = *p2;
+  ap_dimension_t dim1,dim2;
+  int res;
+  if (v1==v2 || p1==p2 || a1==a2)
+    res=0;
+  else {
+    dim1 = ap_abstract0_dimension(a1->man,a1);
+    dim2 = ap_abstract0_dimension(a2->man,a2);
+    res = dim1.intdim-dim2.intdim;
+    if (!res){
+      res = dim1.realdim-dim2.realdim;
+      if (!res){
+	if (ap_abstract0_is_eq(a1->man,a1,a2))
+	  res=0;
+	else
+	  res = a1 > a2 ? 1 : (-1);
+	if (a1->man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(a1->man,NULL);
+      }
+    }
+  }
+  return res;
+}
 
-/* ap_manager_ptr ap_manager_get_deserialize(void) */
-/* { */
-/*   return deserialize_man; */
-/* } */
+/* global manager used for deserialization */
+static ap_manager_ptr deserialize_man = NULL;
 
-/* static */
-/* void camlidl_apron_abstract0_serialize(value v, unsigned long * w32, unsigned long * w64) */
-/* { */
-/*   ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v); */
-/*   ap_abstract0_t* a = *p; */
-/*   ap_membuf_t buf = ap_abstract0_serialize_raw(a->man,a); */
-/*   serialize_int_8(buf.size); */
-/*   serialize_block_1(buf.ptr,buf.size); */
-/*   *w32 = 4; */
-/*   *w64 = 8; */
-/* } */
+void ap_manager_set_deserialize(ap_manager_ptr man)
+{
+  deserialize_man = man;
+}
 
-/* static */
-/* unsigned long camlidl_apron_abstract0_deserialize(void * dst) */
-/* { */
-/*   if (deserialize_man) { */
-/*     size_t size = deserialize_uint_8(), realsize; */
-/*     void* data; */
-/*     data = malloc(size); */
-/*     assert(data); */
-/*     deserialize_block_1(data,size); */
-/*     *((ap_abstract0_ptr*)dst) = */
-/*       ap_abstract0_deserialize_raw(deserialize_man,data,&realsize); */
-/*     free(data); */
-/*   } */
-/*   else caml_failwith("you must call Apron.Manager.set_deserialize before deserializing abstract elements."); */
-/*   return sizeof(ap_abstract0_ptr); */
-/* } */
+ap_manager_ptr ap_manager_get_deserialize(void)
+{
+  return deserialize_man;
+}
 
-/* struct custom_operations camlidl_apron_custom_abstract0_ptr = { */
-/*   "apa0", */
-/*   camlidl_apron_abstract0_ptr_finalize, */
-/*   camlidl_apron_abstract0_ptr_compare, */
-/*   camlidl_apron_abstract0_ptr_hash, */
-/*   camlidl_apron_abstract0_serialize, */
-/*   camlidl_apron_abstract0_deserialize */
-/* }; */
+static
+void camlidl_apron_abstract0_serialize(value v, unsigned long * w32, unsigned long * w64)
+{
+  ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v);
+  ap_abstract0_t* a = *p;
+  ap_membuf_t buf = ap_abstract0_serialize_raw(a->man,a);
+  serialize_int_8(buf.size);
+  serialize_block_1(buf.ptr,buf.size);
+  *w32 = 4;
+  *w64 = 8;
+}
 
-/* /\* ********************************************************************** *\/ */
-/* /\* init *\/ */
-/* /\* ********************************************************************** *\/ */
-/* value camlidl_apron_init(value dummy) */
-/* { */
-/*   register_custom_operations(&camlidl_apron_custom_abstract0_ptr); */
-/*   return Val_unit; */
-/* } */
+static
+unsigned long camlidl_apron_abstract0_deserialize(void * dst)
+{
+  if (deserialize_man) {
+    size_t size = deserialize_uint_8(), realsize;
+    void* data;
+    data = malloc(size);
+    assert(data);
+    deserialize_block_1(data,size);
+    *((ap_abstract0_ptr*)dst) =
+      ap_abstract0_deserialize_raw(deserialize_man,data,&realsize);
+    free(data);
+  }
+  else caml_failwith("you must call Apron.Manager.set_deserialize before deserializing abstract elements.");
+  return sizeof(ap_abstract0_ptr);
+}
+
+struct custom_operations camlidl_apron_custom_abstract0_ptr = {
+  "apa0",
+  camlidl_apron_abstract0_ptr_finalize,
+  camlidl_apron_abstract0_ptr_compare,
+  camlidl_apron_abstract0_ptr_hash,
+  camlidl_apron_abstract0_serialize,
+  camlidl_apron_abstract0_deserialize
+};
+
+/* ********************************************************************** */
+/* linyyy1, tzzz1 */
+/* ********************************************************************** */
+
+MACRO_FOREACH TTT ("expr","cons","gen")
+MACRO_FOREACH AAA ("","_array")
+value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_ptr* p)
+{
+  CAMLparam0();
+  CAMLlocal3(v0,v1,v);
+  ap_linTTT1AAA_ptr pp = *p;
+  v0 = camlidl_linTTT0AAA_ptr_c2ml(&p->linTTT0AAA);
+  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
+  v = alloc_small(2,0);
+  Field(v,0) = v0;
+  Field(v,1) = v1;
+  CAMLreturn(v);
+}
+ENDMACRO
+ENDMACRO
+
+
+
+/* ********************************************************************** */
+/* init */
+/* ********************************************************************** */
+value camlidl_apron_init(value dummy)
+{
+  register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
+  return Val_unit;
+}

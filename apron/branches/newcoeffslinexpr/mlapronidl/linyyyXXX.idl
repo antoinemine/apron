@@ -276,7 +276,7 @@ quote(ML,"\
 let print assoc fmt cons =
   printexpr assoc fmt cons;
   let constyp = get_constyp cons in
-  Format.pp_print_string fmt (Common.constyp_to_string constyp);
+  Format.pp_print_string fmt (Common.string_of_constyp constyp);
   if constyp = Common.EQMOD then begin
     let mpq = Mpq.init() in
     get_mpq mpq cons;
@@ -288,7 +288,7 @@ quote(ML,"\
 let print assoc fmt gen =
   let gentyp = get_gentyp gen in
   Format.fprintf fmt \"%s:%a\"
-    (Common.gentyp_to_string gentyp)
+    (Common.string_of_gentyp gentyp)
     (printexpr assoc) gen
 ")
 #endif
@@ -296,12 +296,10 @@ let print assoc fmt gen =
 quote(MLMLI,"\n(** {3 Change of dimension and permutation} *)")
 void ap_linyyyXXX_add_dimensions(ap_linyyyXXX_ptr res,
 				ap_linyyyXXX_ptr a,
-				[ref]struct ap_dimchange_t* dimchange)
-quote(dealloc,"ap_dimchange_clear(dimchange);");
+				[ref]struct ap_dimchange_t* dimchange);
 void ap_linyyyXXX_permute_dimensions(ap_linyyyXXX_ptr res,
 				    ap_linyyyXXX_ptr a,
 				    [ref]struct ap_dimperm_t* perm);
-
 void ap_linyyyXXX__extend_environment(ap_linyyyXXX_ptr res,
 				     ap_environment_ptr nenv,
 				     ap_linyyyXXX_ptr a,
@@ -382,8 +380,7 @@ quote(MLMLI,"\n(** {3 Change of dimension and permutation} *)")
 
 void ap_linyyyXXX_array_add_dimensions(ap_linyyyXXX_array_ptr res,
 				      ap_linyyyXXX_array_ptr array,
-				      [ref]struct ap_dimchange_t* dimchange)
-quote(dealloc,"ap_dimchange_clear(dimchange);");
+				       [ref]struct ap_dimchange_t* dimchange);
 void ap_linyyyXXX_array_permute_dimensions(ap_linyyyXXX_array_ptr res,
 					  ap_linyyyXXX_array_ptr array,
 					  [ref]struct ap_dimperm_t* dimperm);

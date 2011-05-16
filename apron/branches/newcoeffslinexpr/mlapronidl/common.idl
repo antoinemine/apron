@@ -37,12 +37,23 @@ type ('a,'b,'c) t =
 | MPQ of 'b
 | MPFR of 'c
 type discr = (unit,unit,unit) t
+type 'a val1 = {
+  mutable val0: 'a;
+  mutable env: Environment.t;
+}
 ")
 
 quote(MLI,"
-val exprtyp_to_string : exprtyp -> string
-val constyp_to_string : constyp -> string
-val gentyp_to_string : gentyp -> string
+val string_of_exprtyp : exprtyp -> string
+val string_of_constyp : constyp -> string
+val string_of_gentyp : gentyp -> string
+val discr : ('a,'b,'c) t -> discr
+val array_print :
+  ?first:(unit,Format.formatter,unit) format ->
+  ?sep:(unit,Format.formatter,unit) format ->
+  ?last:(unit,Format.formatter,unit) format ->
+  (Format.formatter -> 'a -> unit) ->
+  Format.formatter -> 'a array -> unit
 val earray_print :
   ?first:(unit,Format.formatter,unit) format ->
   ?sep:(unit,Format.formatter,unit) format ->
@@ -50,6 +61,7 @@ val earray_print :
   size:int ->
   print_index:(Format.formatter -> int -> unit) ->
   Format.formatter -> unit
+val make_val1 : 'a -> Environment.t -> 'a val1
 val map_discr :
   ('a -> 'b) ->
   ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
@@ -83,22 +95,44 @@ val apply_arg_discr_arg :
   ('a -> 'f -> 'c -> 'd) -> 'a -> ('b, 'e, 'f) t -> 'c -> 'd
 ")
 quote(ML,"
-let exprtyp_to_string = function
+let string_of_exprtyp = function
 | INTLINEAR -> \"INTLINEAR\"
 | QUASILINEAR -> \"QUASILINEAR\"
 | LINEAR -> \"LINEAR\"
-let constyp_to_string = function
+let  string_of_constyp = function
 | EQ -> \"=\"
 | SUPEQ -> \">=\"
 | SUP -> \">\"
 | EQMOD -> \"=\"
 | DISEQ -> \"<>\"
-let gentyp_to_string = function
+let  string_of_gentyp = function
 | LINE -> \"LINE\"
 | RAY -> \"RAY\"
 | VERTEX -> \"VTX\"
 | LINEMOD -> \"LINEMOD\"
 | RAYMOD -> \"RAYMOD\"
+let discr x =
+  match x with
+  | D _ -> D()
+  | MPQ _ -> MPQ()
+  | MPFR _ -> MPFR()
+let array_print
+  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))
+  (print_elt: (Format.formatter -> 'a -> unit))
+  (fmt:Format.formatter)
+  (tab:'a array)
+  : unit
+  =
+  Format.fprintf fmt first;
+  Array.iteri
+    (fun i elt ->
+      if i>0 then Format.fprintf fmt sep;
+      print_elt fmt elt
+    )
+    tab;
+  Format.fprintf fmt last
 let earray_print
   ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
   ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
@@ -114,6 +148,7 @@ let earray_print
     print_index fmt i
   done;
   Format.fprintf fmt last
+let make_val1 x env = { val0 = x; env = env }
 let map_discr d mpq mpfr discr =
   match discr with
   | D x -> D(d x)

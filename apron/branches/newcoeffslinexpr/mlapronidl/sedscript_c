@@ -24,5 +24,7 @@ s/struct mpfr_rnd_t/mpfr_rnd_t/g;
 #
 s/convconv_//g;
 #
-# 5.
+# 5. Special conversion function for dimchange
+s/extern void camlidl_apron_dimchange_ml2c(value, ap_dimchange_t \*)/extern void camlidl_apron_dimchange_ml2c(value, ap_dimchange_t*, struct camlidl_ctx_struct*)/g;
+s/\#define camlidl_ml2c_dim_ap_dimchange_t(v,c,ctx) camlidl_apron_dimchange_ml2c(v,c)/\#define camlidl_ml2c_dim_ap_dimchange_t(v,c,ctx) camlidl_apron_dimchange_ml2c(v,c,ctx)/g;
 #
