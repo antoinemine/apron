@@ -1,0 +1,72 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "\n\
+#include \"apron_caml.h\"\n\
+#include \"num_types.h\"\n\
+#include \"ap_lin_types.h\"\n\
+")
+
+import "common.idl";
+MACRO_FOREACH XXX @AllNumIdl
+quote(C,"\n\
+#include \"numXXX.h\"\n\
+#include \"boundXXX.h\"\n\
+#include \"eitvXXX.h\"\n\
+#include \"ap_linexprXXX.h\"\n\
+#include \"ap_linconsXXX.h\"\n\
+#include \"ap_lingenXXX.h\"\n\
+")
+import "numXXX.idl";
+import "boundXXX.idl";
+import "eitvXXX.idl";
+import "linexprXXX.idl";
+import "linconsXXX.idl";
+import "lingenXXX.idl";
+ENDMACRO
+
+MACRO_FOREACH XXX @AllNumIdl
+MACRO_FOREACH ZZZ @MainNum
+#undef MARK_XXX_ZZZ
+#undef MARK_ZZZ_XXX
+ENDMACRO
+ENDMACRO
+
+MACRO_FOREACH XXX @AllNumIdl
+MACRO_FOREACH ZZZ @MainNum
+#if !defined(MARK_XXX_ZZZ)
+boolean convconv_numXXX_set_numZZZ(numXXX_ptrm a, numZZZ_ptrg b, num_internal_ptr intern);
+boolean convconv_boundXXX_set_boundZZZ(boundXXX_ptrm a, boundZZZ_ptrg b, num_internal_ptr intern);
+boolean convconv_eitvXXX_set_eitvZZZ(eitvXXX_ptrm a, eitvZZZ_ptrg b, num_internal_ptr intern);
+boolean convconv_ap_linexprXXX_set_linexprZZZ(ap_linexprXXX_ptr a, ap_linexprZZZ_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linconsXXX_set_linconsZZZ(ap_linconsXXX_ptr a, ap_linconsZZZ_ptr b, num_internal_ptr intern);
+boolean convconv_ap_lingenXXX_set_lingenZZZ(ap_lingenXXX_ptr a, ap_lingenZZZ_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linexprXXX_array_set_linexprZZZ_array(ap_linexprXXX_array_ptr a, ap_linexprZZZ_array_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linconsXXX_array_set_linconsZZZ_array(ap_linconsXXX_array_ptr a, ap_linconsZZZ_array_ptr b, num_internal_ptr intern);
+boolean convconv_ap_lingenXXX_array_set_lingenZZZ_array(ap_lingenXXX_array_ptr a, ap_lingenZZZ_array_ptr b, num_internal_ptr intern);
+#define MARK_XXX_ZZZ
+#endif
+
+#if !defined(MARK_ZZZ_XXX)
+boolean convconv_numZZZ_set_numXXX(numZZZ_ptrm a, numXXX_ptrg b, num_internal_ptr intern);
+boolean convconv_boundZZZ_set_boundXXX(boundZZZ_ptrm a, boundXXX_ptrg b, num_internal_ptr intern);
+boolean convconv_eitvZZZ_set_eitvXXX(eitvZZZ_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
+boolean convconv_ap_linexprZZZ_set_linexprXXX(ap_linexprZZZ_ptr a, ap_linexprXXX_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linconsZZZ_set_linconsXXX(ap_linconsZZZ_ptr a, ap_linconsXXX_ptr b, num_internal_ptr intern);
+boolean convconv_ap_lingenZZZ_set_lingenXXX(ap_lingenZZZ_ptr a, ap_lingenXXX_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linexprZZZ_array_set_linexprXXX_array(ap_linexprZZZ_array_ptr a, ap_linexprXXX_array_ptr b, num_internal_ptr intern);
+boolean convconv_ap_linconsZZZ_array_set_linconsXXX_array(ap_linconsZZZ_array_ptr a, ap_linconsXXX_array_ptr b, num_internal_ptr intern);
+boolean convconv_ap_lingenZZZ_array_set_lingenXXX_array(ap_lingenZZZ_array_ptr a, ap_lingenXXX_array_ptr b, num_internal_ptr intern);
+#define MARK_ZZZ_XXX
+#endif
+ENDMACRO
+ENDMACRO
+
+MACRO_FOREACH XXX @AllNumIdl
+MACRO_FOREACH ZZZ @MainNum
+#undef MARK_XXX_ZZZ
+#undef MARK_ZZZ_XXX
+ENDMACRO
+ENDMACRO
