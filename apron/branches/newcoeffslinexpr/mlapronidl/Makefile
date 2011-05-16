@@ -41,7 +41,7 @@ LDFLAGS = \
 #---------------------------------------
 
 TMPL = MPZ D MPQ MPFR
-YYY = expr #cons gen
+YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
 IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0

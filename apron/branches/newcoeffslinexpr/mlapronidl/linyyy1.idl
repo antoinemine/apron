@@ -1,0 +1,215 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "#include \"apron_caml.h\"")
+
+import "linyyy0.idl";
+
+typedef [\
+    abstract,c2ml(camlidl_linyyy1_ptr_c2ml),\
+    ml2c(camlidl_linyyy1_ptr_ml2c),\
+    mltype("Linyyy0.t Common.val1")\
+] struct ap_linyyy1_struct ap_linyyy1_t;
+typedef [\
+    abstract,\
+    c2ml(camlidl_linyyy1_array_ptr_c2ml),\
+    ml2c(camlidl_linyyy1_array_ptr_ml2c),\
+    mltype("Linyyy0.earray Common.val1")\
+] struct ap_linyyy1_array_struct ap_linyyy1_array_t;
+
+#define _AP_linyyy1_MARK
+#if defined(_AP_linexpr1_MARK_)
+quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
+#elif defined(_AP_lincons1_MARK_)
+quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
+#elif defined(_AP_linexpr1_MARK_)
+quote(MLMLI,"(** Linear generators *)\n\n")
+#endif
+
+quote(MLI,"
+(** {2 Linear expressions/constraints/generators} *)
+
+(** {3 Pretty printing} *)
+val print : Format.formatter -> t -> unit
+
+(** {3 Initialization} *)
+val init : Common.discr -> int -> Environment.t -> t
+val init_set : t -> t
+val init_set_linyyyD : LinyyyD.t -> Environment.t -> t
+val init_set_linyyyMPQ : LinyyyMPQ.t -> Environment.t -> t
+val init_set_linyyyMPFR : LinyyyMPFR.t -> Environment.t -> t
+
+(** {3 Misc)} *)
+val resize : t -> int -> unit
+val minimize : t -> unit
+
+(** {3 Assignement (with possible conversion)} *)
+val set : t -> t -> Common.num_internal -> bool
+val set_linyyy0 : t -> Linyyy0.t -> Common.num_internal -> bool
+val set_linyyyD : t -> LinyyyD.t -> Common.num_internal -> bool
+val set_linyyyMPQ : t -> LinyyyMPQ.t -> Common.num_internal -> bool
+val set_linyyyMPFR : t -> LinyyyMPFR.t -> Common.num_internal -> bool
+val get_linyyyD : LinyyyD.t -> t -> Common.num_internal -> bool
+val get_linyyyMPQ : LinyyyMPQ.t -> t -> Common.num_internal -> bool
+val get_linyyyMPFR : LinyyyMPFR.t -> t -> Common.num_internal -> bool
+
+(** {3 Access} *)
+val iter : (Coeff.t -> Var.t -> unit) -> t -> unit
+")
+
+boolean ap_linyyy1_get_cst(ap_coeff_tm coeff, ap_linyyy1_t expr, num_internal_ptr intern);
+boolean ap_linyyy1_get_coeff(ap_coeff_tm coeff, ap_linyyy1_t expr, ap_var_t var, num_internal_ptr intern)
+  quote(call,"
+bool error;
+_res = ap_linyyy1_get_coeff(coeff,&error,expr,var,intern);
+if (error){
+  camlidl_free(_ctx);
+  caml_invalid_argument(\"Apron.Linyyy1.get_coeff: unknown variable in the environment\");
+}
+");
+boolean ap_linyyy1_set_cst(ap_linyyy1_t expr, ap_coeff_tg coeff, num_internal_ptr intern);
+boolean ap_linyyy1_set_coeff(ap_linyyy1_t expr, ap_var_t var, ap_coeff_tg coeff, num_internal_ptr intern)
+  quote(call,"
+bool error;
+_res = ap_linyyy1_set_coeff(expr,&error,var,coeff,intern);
+if (error){
+  camlidl_free(_ctx);
+  caml_invalid_argument(\"Apron.Linyyy1.set_coeff: unknown variable in the environment\");
+}
+");
+#if defined (_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
+quote(MLI,"
+val get_linexpr1 : Linexpr1.t -> t -> Common.num_internal -> bool
+val get_yyytyp : t -> Common.yyytyp
+val set_linexpr1 : t -> Linexpr1.t -> Common.num_internal -> bool
+val set_yyytyp : t -> Common.yyytyp -> unit
+")
+quote(ML,"
+let get_linexpr1 (x:Linexpr1.t) (y:t) intern = x.Common.env <- y.Common.env; Linyyy0.get_linexpr0 x.Common.val0 y.Common.val0 intern
+let get_yyytyp (x:t) = Linyyy0.get_yyytyp x.Common.val0
+let set_linexpr1 (x:t) (y:Linexpr1.t) intern = x.Common.env <- y.Common.env; Linyyy0.set_linexpr0 x.Common.val0 y.Common.val0 intern
+let set_yyytyp (x:t) t = Linyyy0.set_yyytyp x.Common.val0 t
+")
+#endif
+#if defined (_AP_lincons1_MARK_)
+quote(MLI,"
+val get_mpq : Mpq.t -> t -> unit
+val se_mpq : t -> 'a Mpq.tt -> unit
+")
+quote(ML,"
+let get_mpq mpq x = Linyyy0.get_mpq mpq x.Common.val0
+let set_mpq x mpq = Linyyy0.set_mpq x.Common.val0 mpq
+")
+#endif
+
+quote(MLI,"
+(** {3 Change of environment} *)
+val extend_environment : t -> t -> Environment.t -> unit
+")
+
+quote(MLI,"
+(** {2 Arrays} *)
+(** {3  Pretty printing} *)
+
+val array_print :
+  ?first:(unit, Format.formatter, unit) format ->
+  ?sep:(unit, Format.formatter, unit) format ->
+  ?last:(unit, Format.formatter, unit) format ->
+ Format.formatter -> earray -> unit
+
+(** {3 Initialization and Assignement Functions} *)
+val array_init : Common.discr -> int -> Environment.t -> earray
+val array_init_set : earray -> earray
+val array_resize : earray -> int -> unit
+val array_minimize : earray -> unit
+
+(** {3 Assignements with conversions} *)
+
+val array_set : earray -> earray -> Common.num_internal -> bool
+val array_set_linyyyD_array : earray -> LinyyyD.earray -> Common.num_internal -> bool
+val array_set_linyyyMPQ_array : earray -> LinyyyMPQ.earray -> Common.num_internal -> bool
+val array_set_linyyyMPFR_array : earray -> LinyyyMPFR.earray -> Common.num_internal -> bool
+val array_get_linyyyD_array : LinyyyD.earray -> earray -> Common.num_internal -> bool
+val array_get_linyyyMPQ_array : LinyyyMPQ.earray -> earray -> Common.num_internal -> bool
+val array_get_linyyyMPFR_array : LinyyyMPFR.earray -> earray -> Common.num_internal -> bool
+
+(** {3 Access} *)
+val array_size : earray -> int
+val array_set_index : earray -> int -> t -> Common.num_internal -> bool
+val array_get_index : t -> earray -> int -> Common.num_internal -> bool
+val array_set_index_linexprD : earray -> int -> LinexprD.t -> Common.num_internal -> bool
+val array_set_index_linexprMPQ : earray -> int -> LinexprMPQ.t -> Common.num_internal -> bool
+val array_set_index_linexprMPFR : earray -> int -> LinexprMPFR.t -> Common.num_internal -> bool
+val array_get_index_linexprD : LinexprD.t -> earray -> int -> Common.num_internal -> bool
+val array_get_index_linexprMPQ : LinexprMPQ.t -> earray -> int -> Common.num_internal -> bool
+val array_get_index_linexprMPFR : LinexprMPFR.t -> earray -> int -> Common.num_internal -> bool
+
+(** {3 Change of dimensions} *)
+val array_extend_environment : earray -> earray -> Environment.t -> unit
+")
+
+quote(ML,"
+let print fmt (x:t) = Linyyy0.print (Environment.string_of_dim x.Common.env) fmt x.Common.val0
+let init (discr:Common.discr) length env : t = Common.make_val1 (Linyyy0.init discr length) env
+let init_set (x:t) : t = Common.make_val1 (Linyyy0.init_set x.Common.val0) x.Common.env
+let init_set_linyyyD x env : t = Common.make_val1 (Linyyy0.init_set_linyyyD x) env
+let init_set_linyyyMPQ x env : t = Common.make_val1 (Linyyy0.init_set_linyyyMPQ x) env
+let init_set_linyyyMPFR x env : t = Common.make_val1 (Linyyy0.init_set_linyyyMPFR x) env
+let resize (x:t) length = Linyyy0.resize x.Common.val0 length
+let minimize (x:t) = Linyyy0.minimize x.Common.val0
+
+let set (x:t) (y:t) intern = x.Common.env <- y.Common.env; Linyyy0.set x.Common.val0 y.Common.val0 intern
+let set_linexpr0 (x:t) y intern = Linyyy0.set x.Common.val0 y intern
+let set_linyyyD (x:t) y intern = Linyyy0.set_linyyyD x.Common.val0 y intern
+let set_linyyyMPQ (x:t) y intern = Linyyy0.set_linyyyMPQ x.Common.val0 y intern
+let set_linyyyMPFR (x:t) y intern = Linyyy0.set_linyyyMPFR x.Common.val0 y intern
+let get_linyyyD x (y:t) intern = Linyyy0.get_linyyyD x y.Common.val0 intern
+let get_linyyyMPQ x (y:t) intern = Linyyy0.get_linyyyMPQ x y.Common.val0 intern
+let get_linyyyMPFR x (y:t) intern = Linyyy0.get_linyyyMPFR x y.Common.val0 intern
+
+let iter f x =
+  match x.Common.val0 with
+  | Common.D e -> LinyyyD.iter1 (fun eitvD var -> f (Common.D eitvD) var) e x.Common.env
+  | Common.MPQ e -> LinyyyMPQ.iter1 (fun eitvMPQ var -> f (Common.MPQ eitvMPQ) var) e x.Common.env
+  | Common.MPFR e -> LinyyyMPFR.iter1 (fun eitvMPFR var -> f (Common.MPFR eitvMPFR) var) e x.Common.env
+let extend_environment res expr newenv =
+  res.Common.env <- newenv;
+  Linyyy0.extend_environment res.Common.val0 ~newenv expr.Common.val0 ~oldenv:expr.Common.env
+
+let array_print ?first ?sep ?last fmt (x:earray) = Linyyy0.array_print ?first ?sep ?last (Environment.string_of_dim x.Common.env) fmt x.Common.val0
+let array_init (discr:Common.discr) length env : earray = Common.make_val1 (Linyyy0.array_init discr length) env
+let array_init_set (x:earray) : earray = Common.make_val1 (Linyyy0.array_init_set x.Common.val0) x.Common.env
+let array_init_set_linyyyD_array x env : earray = Common.make_val1 (Linyyy0.array_init_set_linyyyD_array x) env
+let array_init_set_linyyyMPQ_array x env : earray = Common.make_val1 (Linyyy0.array_init_set_linyyyMPQ_array x) env
+let array_init_set_linyyyMPFR_array x env : earray = Common.make_val1 (Linyyy0.array_init_set_linyyyMPFR_array x) env
+let array_resize (x:earray) length = Linyyy0.array_resize x.Common.val0 length
+let array_minimize (x:earray) = Linyyy0.array_minimize x.Common.val0
+
+let array_set (x:earray) (y:earray) intern = x.Common.env <- y.Common.env; Linyyy0.array_set x.Common.val0 y.Common.val0 intern
+let array_set_linexpr0_array (x:earray) (y:Linyyy0.earray) intern = Linyyy0.array_set  x.Common.val0 y intern
+let array_set_linyyyD_array (x:earray) y intern = Linyyy0.array_set_linyyyD_array x.Common.val0 y intern
+let array_set_linyyyMPQ_array (x:earray) y intern = Linyyy0.array_set_linyyyMPQ_array x.Common.val0 y intern
+let array_set_linyyyMPFR_array (x:earray) y intern = Linyyy0.array_set_linyyyMPFR_array x.Common.val0 y intern
+let array_get_linyyyD_array x (y:earray) intern = Linyyy0.array_get_linyyyD_array x y.Common.val0 intern
+let array_get_linyyyMPQ_array x (y:earray) intern = Linyyy0.array_get_linyyyMPQ_array x y.Common.val0 intern
+let array_get_linyyyMPFR_array x (y:earray) intern = Linyyy0.array_get_linyyyMPFR_array x y.Common.val0 intern
+let array_size x = Linyyy0.array_size x.Common.val0
+
+let array_set_index_linyyyD (x:earray) i a intern = Linyyy0.array_set_index_linyyyD x.Common.val0 i a intern
+let array_set_index_linyyyMPQ (x:earray) i a intern = Linyyy0.array_set_index_linyyyMPQ x.Common.val0 i a intern
+let array_set_index_linyyyMPFR (x:earray) i a intern = Linyyy0.array_set_index_linyyyMPFR x.Common.val0 i a intern
+let array_get_index_linyyyD a (x:earray) i intern = Linyyy0.array_get_index_linyyyD a x.Common.val0 i intern
+let array_get_index_linyyyMPQ a (x:earray) i intern = Linyyy0.array_get_index_linyyyMPQ a x.Common.val0 i intern
+let array_get_index_linyyyMPFR a (x:earray) i intern = Linyyy0.array_get_index_linyyyMPFR a x.Common.val0 i intern
+let array_set_index (x:earray) i a intern =
+  if (x.Common.env<>a.Common.env) then raise (Invalid_argument (\"Apron.Linyyy1.array_set_index: the environments of the arguments should be the same\"));
+  Linyyy0.array_set_index x.Common.val0 i a.Common.val0 intern
+let array_get_index a (x:earray) i intern =
+  a.Common.env <- x.Common.env;
+  Linyyy0.array_get_index a.Common.val0 x.Common.val0 i intern
+let array_extend_environment res expr newenv =
+  res.Common.env <- newenv;
+  Linyyy0.array_extend_environment res.Common.val0 ~newenv expr.Common.val0 ~oldenv:expr.Common.env
+")
