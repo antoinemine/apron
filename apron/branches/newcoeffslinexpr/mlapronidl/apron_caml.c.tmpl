@@ -617,9 +617,9 @@ int camlidl_apron_abstract0_ptr_compare(value v1, value v2)
   else {
     dim1 = ap_abstract0_dimension(a1->man,a1);
     dim2 = ap_abstract0_dimension(a2->man,a2);
-    res = dim1.intdim-dim2.intdim;
+    res = dim1.intd-dim2.intd;
     if (!res){
-      res = dim1.realdim-dim2.realdim;
+      res = dim1.reald-dim2.reald;
       if (!res){
 	if (ap_abstract0_is_eq(a1->man,a1,a2))
 	  res=0;
@@ -687,15 +687,15 @@ struct custom_operations camlidl_apron_custom_abstract0_ptr = {
 /* linyyy1, tzzz1 */
 /* ********************************************************************** */
 
-MACRO_FOREACH TTT ("expr","cons","gen")
+MACRO_FOREACH TTT ("linexpr","lincons","lingen","texpr")
 MACRO_FOREACH AAA ("","_array")
-value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_ptr* p)
+value camlidl_TTT1AAA_ptr_c2ml(ap_TTT1AAA_t* p)
 {
   CAMLparam0();
   CAMLlocal3(v0,v1,v);
-  ap_linTTT1AAA_ptr pp = *p;
-  v0 = camlidl_linTTT0AAA_ptr_c2ml(&p->linTTT0AAA);
-  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
+  ap_TTT1AAA_ptr pp = *p;
+  v0 = camlidl_TTT0AAA_ptr_c2ml(&(pp->TTT0AAA));
+  v1 = camlidl_apron_environment_ptr_c2ml(&(pp->env));
   v = alloc_small(2,0);
   Field(v,0) = v0;
   Field(v,1) = v1;
@@ -703,8 +703,6 @@ value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_ptr* p)
 }
 ENDMACRO
 ENDMACRO
-
-
 
 /* ********************************************************************** */
 /* init */

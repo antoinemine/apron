@@ -139,12 +139,12 @@ val array_get_linyyyMPFR_array : LinyyyMPFR.earray -> earray -> Common.num_inter
 val array_size : earray -> int
 val array_set_index : earray -> int -> t -> Common.num_internal -> bool
 val array_get_index : t -> earray -> int -> Common.num_internal -> bool
-val array_set_index_linexprD : earray -> int -> LinexprD.t -> Common.num_internal -> bool
-val array_set_index_linexprMPQ : earray -> int -> LinexprMPQ.t -> Common.num_internal -> bool
-val array_set_index_linexprMPFR : earray -> int -> LinexprMPFR.t -> Common.num_internal -> bool
-val array_get_index_linexprD : LinexprD.t -> earray -> int -> Common.num_internal -> bool
-val array_get_index_linexprMPQ : LinexprMPQ.t -> earray -> int -> Common.num_internal -> bool
-val array_get_index_linexprMPFR : LinexprMPFR.t -> earray -> int -> Common.num_internal -> bool
+val array_set_index_linyyyD : earray -> int -> LinyyyD.t -> Common.num_internal -> bool
+val array_set_index_linyyyMPQ : earray -> int -> LinyyyMPQ.t -> Common.num_internal -> bool
+val array_set_index_linyyyMPFR : earray -> int -> LinyyyMPFR.t -> Common.num_internal -> bool
+val array_get_index_linyyyD : LinyyyD.t -> earray -> int -> Common.num_internal -> bool
+val array_get_index_linyyyMPQ : LinyyyMPQ.t -> earray -> int -> Common.num_internal -> bool
+val array_get_index_linyyyMPFR : LinyyyMPFR.t -> earray -> int -> Common.num_internal -> bool
 
 (** {3 Change of dimensions} *)
 val array_extend_environment : earray -> earray -> Environment.t -> unit
@@ -161,7 +161,7 @@ let resize (x:t) length = Linyyy0.resize x.Common.val0 length
 let minimize (x:t) = Linyyy0.minimize x.Common.val0
 
 let set (x:t) (y:t) intern = x.Common.env <- y.Common.env; Linyyy0.set x.Common.val0 y.Common.val0 intern
-let set_linexpr0 (x:t) y intern = Linyyy0.set x.Common.val0 y intern
+let set_linyyy0 (x:t) y intern = Linyyy0.set x.Common.val0 y intern
 let set_linyyyD (x:t) y intern = Linyyy0.set_linyyyD x.Common.val0 y intern
 let set_linyyyMPQ (x:t) y intern = Linyyy0.set_linyyyMPQ x.Common.val0 y intern
 let set_linyyyMPFR (x:t) y intern = Linyyy0.set_linyyyMPFR x.Common.val0 y intern
@@ -188,7 +188,7 @@ let array_resize (x:earray) length = Linyyy0.array_resize x.Common.val0 length
 let array_minimize (x:earray) = Linyyy0.array_minimize x.Common.val0
 
 let array_set (x:earray) (y:earray) intern = x.Common.env <- y.Common.env; Linyyy0.array_set x.Common.val0 y.Common.val0 intern
-let array_set_linexpr0_array (x:earray) (y:Linyyy0.earray) intern = Linyyy0.array_set  x.Common.val0 y intern
+let array_set_linyyy0_array (x:earray) (y:Linyyy0.earray) intern = Linyyy0.array_set  x.Common.val0 y intern
 let array_set_linyyyD_array (x:earray) y intern = Linyyy0.array_set_linyyyD_array x.Common.val0 y intern
 let array_set_linyyyMPQ_array (x:earray) y intern = Linyyy0.array_set_linyyyMPQ_array x.Common.val0 y intern
 let array_set_linyyyMPFR_array (x:earray) y intern = Linyyy0.array_set_linyyyMPFR_array x.Common.val0 y intern
