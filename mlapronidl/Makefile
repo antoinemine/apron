@@ -44,7 +44,7 @@ TMPL = MPZ D MPQ MPFR
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
-IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0
+IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 texpr1
 IDL_TMPL_FILES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX

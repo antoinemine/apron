@@ -236,17 +236,24 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 /* linyyy1, tzzz1 */
 /* ********************************************************************** */
 
-MACRO_FOREACH TTT ("expr","cons","gen")
+MACRO_FOREACH TTT ("linexpr","lincons","lingen","texpr")
 MACRO_FOREACH AAA ("","_array")
-static inline void camlidl_linTTT1AAA_ptr_ml2c(value v, ap_linTTT1AAA_ptr* p)
+static inline void camlidl_TTT1AAA_ptr_ml2c(value v, ap_TTT1AAA_t* p)
 {
-  ap_linTTT1AAA_ptr pp = *p;
-  camlidl_linTTT0AAA_ptr_ml2c(Field(v,0),&(pp->linTTT0AAA));
+  ap_TTT1AAA_ptr pp = *p;
+  camlidl_TTT0AAA_ptr_ml2c(Field(v,0),&(pp->TTT0AAA));
   camlidl_apron_environment_ptr_ml2c(Field(v,1),&(pp->env));
 }
-value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_ptr* p);
+value camlidl_TTT1AAA_ptr_c2ml(ap_TTT1AAA_t* p);
 ENDMACRO
 ENDMACRO
+static inline void camlidl_tcons1_t_ml2c(value v, ap_tcons1_t* p)
+{
+  ap_tcons1_ptr pp = *p;
+  camlidl_TTT0AAA_ptr_ml2c(Field(v,0),&(pp->TTT0AAA));
+  camlidl_apron_environment_ptr_ml2c(Field(v,1),&(pp->env));
+}
+value camlidl_tcons1_ptr_c2ml(ap_tcons1_t* p);
 
 /* ********************************************************************** */
 /* init */
