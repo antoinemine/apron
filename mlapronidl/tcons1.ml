@@ -1,85 +1,60 @@
-(* File generated from tcons1.idl *)
+(** APRON tree constraints and array of tree constraints of level 1 *)
 
 (* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  *)
 
 type t = Tcons0.t Common.val1
-and earray = Tcons0.t array Common.val1
+type earray = Tcons0.t array Common.val1
 
-(** APRON tree constraints and array of tree constraints of level 1 *)
+(*  ********************************************************************** *)
+(** {2 Constraints} *)
+(*  ********************************************************************** *)
 
-type typ = Lincons0.typ =
-  | EQ
-  | SUPEQ
-  | SUP
-  | DISEQ
-  | EQMOD of Scalar.t
-
-external extend_environment : t -> Environment.t -> t	= "camlidl_tcons1_ap_tcons1_extend_environment"
-external extend_environment_with : t -> Environment.t -> unit	= "camlidl_tcons1_ap_tcons1_extend_environment_with"
-
-let make texpr1 typ = {
-  tcons0 = {
-    Tcons0.texpr0 = texpr1.Texpr1.texpr0;
-    Tcons0.typ = typ;
-  };
-  env = texpr1.Texpr1.env;
-}
-let copy cons = {
-  tcons0 = Tcons0.copy cons.tcons0;
-  env = cons.env;
-}
-let string_of_typ = Tcons0.string_of_typ
-
+let make texpr1 typ =
+  Common.make_val1 (Tcons0.make texpr1.Common.val0 typ) texpr1.Common.env
+let of_lincons1 e = Common.make_val1 (Tcons0.of_lincons0 e.Common.val0) e.Common.env
+let copy e = Common.make_val1 (Tcons0.copy e.Common.val0) e.Common.env
 let print fmt cons =
   Tcons0.print
-   (fun dim -> Var.to_string (Environment.var_of_dim cons.env dim)) fmt cons.tcons0;
-   ()
-let get_typ cons = cons.tcons0.Tcons0.typ
-let set_typ cons typ = cons.tcons0.Tcons0.typ <- typ
-let get_tcons0 cons = cons.tcons0
-let get_env cons = cons.env
-let get_texpr1 cons = {
-  Texpr1.texpr0 = cons.tcons0.Tcons0.texpr0;
-  Texpr1.env = cons.env;
-}
+   (Environment.string_of_dim cons.Common.env)
+   fmt cons.Common.val0
 
-let extend_environment x env =
-  Common.make_val1 (Tcons0.extend_environment x.Common.val0 ~oldenv:x.Common.env ~newenv:env) env
-let extend_environment_with x env =
-  Tcons0.extend_environment_with x.Common.val0 ~oldenv:x.Common.env ~newenv:env;
-  x.Common.env <- env
+let get_typ cons = cons.Common.val0.Tcons0.typ
+let set_typ cons typ = cons.Common.val0.Tcons0.typ <- typ
+let get_mpq mpq cons = Mpq.set mpq cons.Common.val0.Tcons0.mpq 
+let set_mpq cons mpq = Mpq.set cons.Common.val0.Tcons0.mpq mpq
+let get_texpr1 cons =  Common.make_val1 cons.Common.val0.Tcons0.texpr0 cons.Common.env
+
+let extend_environment array env =
+  let change = Environment.dimchange array.Common.env env in
+  Common.make_val1 (Tcons0.add_dimensions array.Common.val0 change) env
+let extend_environment_with array env =
+  let change = Environment.dimchange array.Common.env env in
+  Tcons0.add_dimensions_with array.Common.val0 change
 
 (* ====================================================================== *)
 (** {2 Type array} *)
 (* ====================================================================== *)
-external array_extend_environment : ap_tcons1_array_t -> Environment.t -> ap_tcons1_array_t	= "camlidl_tcons1_ap_tcons1_array_extend_environment"
-external array_extend_environment_with : ap_tcons1_array_t -> Environment.t -> unit	= "camlidl_tcons1_ap_tcons1_array_extend_environment_with"
 
-let array_make env size =
-  let cons = Tcons0.make (Texpr0.cst (Coeff.s_of_int 0)) Tcons0.EQ in
-  {
-    tcons0_array = Array.make size cons;
-    array_env = env
-  }
-let array_print
-  ?(first=("[|@[<hov>":(unit,Format.formatter,unit) format))
-  ?(sep = (";@ ":(unit,Format.formatter,unit) format))
-  ?(last = ("@]|]":(unit,Format.formatter,unit) format))
-  fmt array
-  =
-  Abstract0.print_array ~first ~sep ~last
-    (Tcons0.print
-     (fun dim -> Var.to_string (Environment.var_of_dim array.array_env dim)))
-	    fmt array.tcons0_array;
-  ()
-let array_length array = Array.length (array.tcons0_array)
-let array_get_env array = array.array_env
-let array_get array index =
-  let cons0 = array.tcons0_array.(index) in
-  { tcons0 = cons0; env = array.array_env; }
-let array_set array index cons1 =
-  if not (Environment.equal array.array_env cons1.env) then
-    failwith "Tcons1.array_set: environments are not the same"
-  else
-    array.tcons0_array.(index) <- cons1.tcons0;
+let array_make env length =
+  let cons0 = Tcons0.make (Texpr0.cst (Coeff.init_set_int (Common.D 0))) Common.EQ in
+  Common.make_val1 (Array.make length cons0) env
+let array_of_lincons1_array array = Common.make_val1 (Tcons0.array_of_lincons0_array array.Common.val0) array.Common.env
+let array_length array = Array.length array.Common.val0
+let array_copy array = Common.make_val1 (Array.map Tcons0.copy array.Common.val0) array.Common.env
+let array_print ?first ?sep ?last fmt array =
+  Tcons0.array_print ?first ?sep ?last (Environment.string_of_dim array.Common.env) fmt array.Common.val0
+
+(** {3 Access} *)
+let array_get_index array index = Common.make_val1 array.Common.val0.(index) array.Common.env
+let array_set_index array index x =
+  if (array.Common.env<>x.Common.env)  then raise (Invalid_argument ("Apron.Tcons1.array_set_index: the environments of the arguments should be the same"));
+  array.Common.val0.(index) <- x.Common.val0
+
+(** {3 Operations} *)
+let array_extend_environment array env =
+  let change = Environment.dimchange array.Common.env env in
+  Common.make_val1 (Tcons0.array_add_dimensions array.Common.val0 change) env
+let array_extend_environment_with array env =
+  let change = Environment.dimchange array.Common.env env in
+  Tcons0.array_add_dimensions_with array.Common.val0 change

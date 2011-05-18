@@ -23,7 +23,7 @@ typedef [\
     mltype("(LinyyyD.earray, LinyyyMPQ.earray, LinyyyMPFR.earray) Common.t")\
 ] struct ap_linyyy0_array_struct ap_linyyy0_array_t;
 
-#define _AP_linyyy0_MARK
+#define _AP_linyyy0_MARK_
 #if defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
 #elif defined(_AP_lincons0_MARK_)
@@ -99,7 +99,7 @@ val array_resize : earray -> int -> unit
 val array_minimize : earray -> unit
 
 (** {3 Assignements and access with possible conversions} *)
-val array_size : earray -> int
+val array_length : earray -> int
 val array_set : earray -> earray -> Common.num_internal -> bool
 val array_set_linyyyD_array : earray -> LinyyyD.earray -> Common.num_internal -> bool
 val array_set_linyyyMPQ_array : earray -> LinyyyMPQ.earray -> Common.num_internal -> bool
@@ -264,15 +264,15 @@ let array_init_set_linyyyMPFR_array x : earray =
   Common.MPFR(LinyyyMPFR.array_init_set x)
 let array_resize discr size = Common.apply_discr_arg LinyyyD.array_resize LinyyyMPQ.array_resize LinyyyMPFR.array_resize discr size
 let array_minimize discr = Common.apply_discr LinyyyD.array_minimize LinyyyMPQ.array_minimize LinyyyMPFR.array_minimize discr
-let array_size = Common.apply_discr LinyyyD.array_size LinyyyMPQ.array_size LinyyyMPFR.array_size
-let array_set (linyyy1:earray) (linyyy2:earray) intern =
-  Common.apply_arg_discr_arg array_set_linyyyD_array array_set_linyyyMPQ_array array_set_linyyyMPFR_array linyyy1 linyyy2 intern
+let array_length = Common.apply_discr LinyyyD.array_length LinyyyMPQ.array_length LinyyyMPFR.array_length
 let array_set_linyyyD_array (earray:earray) x intern =
   Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyD_array Conv.linyyyMPQ_array_set_linyyyD_array Conv.linyyyMPFR_array_set_linyyyD_array earray x intern
 let array_set_linyyyMPQ_array (earray:earray) x intern =
   Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyMPQ_array_set_linyyyMPQ_array Conv.linyyyMPFR_array_set_linyyyMPQ_array earray x intern
 let array_set_linyyyMPFR_array (earray:earray) x intern =
   Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPFR_array Conv.linyyyMPQ_array_set_linyyyMPFR_array Conv.linyyyMPFR_array_set_linyyyMPFR_array earray x intern
+let array_set (linyyy1:earray) (linyyy2:earray) intern =
+  Common.apply_arg_discr_arg array_set_linyyyD_array array_set_linyyyMPQ_array array_set_linyyyMPFR_array linyyy1 linyyy2 intern
 let array_get_linyyyD_array x (earray:earray) intern =
   Common.apply_arg_discr_arg Conv.linyyyD_array_set_linyyyD_array Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyD_array_set_linyyyMPFR_array x earray intern
 let array_get_linyyyMPQ_array x (earray:earray) intern =

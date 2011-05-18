@@ -11,19 +11,19 @@ quote(C, "\n\
 
 typedef [abstract,c2ml(camlidl_num_internal_ptr_c2ml),ml2c(camlidl_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;
 
-enum exprtyp {
+enum ap_exprtyp_t {
   AP_LINEXPR_INTLINEAR,
   AP_LINEXPR_QUASILINEAR,
   AP_LINEXPR_LINEAR
 };
-enum constyp {
+enum ap_constyp_t {
   AP_CONS_EQ,    /* equality constraint */
   AP_CONS_SUPEQ, /* >= constraint */
   AP_CONS_SUP,   /* > constraint */
   AP_CONS_EQMOD, /* congruence equality constraint */
   AP_CONS_DISEQ  /* disequality constraint */
 };
-enum gentyp {
+enum ap_gentyp_t {
   AP_GEN_LINE,   /* Bidirectional ray (real coefficient) */
   AP_GEN_RAY,    /* Ray (positive real coefficient) */
   AP_GEN_VERTEX, /* Vertex ("barycenter" coefficient) */
@@ -58,7 +58,7 @@ val earray_print :
   ?first:(unit,Format.formatter,unit) format ->
   ?sep:(unit,Format.formatter,unit) format ->
   ?last:(unit,Format.formatter,unit) format ->
-  size:int ->
+  length:int ->
   print_index:(Format.formatter -> int -> unit) ->
   Format.formatter -> unit
 val make_val1 : 'a -> Environment.t -> 'a val1
@@ -137,13 +137,13 @@ let earray_print
   ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
   ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
   ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))
-  ~(size:int)
+  ~(length:int)
   ~(print_index: Format.formatter -> int -> unit)
   (fmt:Format.formatter)
   : unit
   =
   Format.fprintf fmt first;
-  for i=0 to size-1 do
+  for i=0 to length-1 do
     if i>0 then Format.fprintf fmt sep;
     print_index fmt i
   done;
