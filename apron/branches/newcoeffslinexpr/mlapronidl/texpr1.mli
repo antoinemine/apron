@@ -48,6 +48,11 @@ val print_expr : Format.formatter -> expr -> unit
   (** Print a tree expression *)
 val print : Format.formatter -> t -> unit
   (** Print an abstract tree expression *)
+val array_print :
+  ?first:(unit, Format.formatter, unit) format ->
+  ?sep:(unit, Format.formatter, unit) format ->
+  ?last:(unit, Format.formatter, unit) format ->
+  Format.formatter -> earray -> unit
 
 (*  ********************************************************************** *)
 (** {2 Expressions} *)
@@ -71,9 +76,9 @@ val is_interval_polyfrac : t -> bool
 val is_scalar : t -> bool
 
 (** {3 Operations} *)
-external extend_environment : t -> Environment.t -> t	= "camlidl_texpr1_ap_texpr1_extend_environment"
+val extend_environment : t -> Environment.t -> t
   (** Change the environment of the expression for a super-environement. Raise [Failure] if it is not the case *)
-external extend_environment_with : t -> Environment.t -> unit	= "camlidl_texpr1_ap_texpr1_extend_environment_with"
+val extend_environment_with : t -> Environment.t -> unit
   (** Side-effet version of the previous function *)
 
 (*  ********************************************************************** *)
@@ -81,14 +86,14 @@ external extend_environment_with : t -> Environment.t -> unit	= "camlidl_texpr1_
 (*  ********************************************************************** *)
 
 (** {3 Constructors and Destructor} *)
-val array_make : int -> earray
-val array_of_lincons1_array : Lincons1.earray -> earray
-val array_size : earray -> int
+val array_make : Environment.t -> int -> earray
+val array_of_linexpr1_array : Linexpr1.earray -> earray
+val array_length : earray -> int
 
 (** {3 Access} *)
 val array_get_index : earray -> int -> t
-val array_set_index : earray -> int -> t -> unity
+val array_set_index : earray -> int -> t -> unit
 
 (** {3 Operations} *)
-val array_extend_environment : earray -> env -> earray
-val array_extend_environment_with : earray -> env -> unit
+val array_extend_environment : earray -> Environment.t -> earray
+val array_extend_environment_with : earray -> Environment.t -> unit

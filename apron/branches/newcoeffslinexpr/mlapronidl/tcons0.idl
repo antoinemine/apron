@@ -45,8 +45,8 @@ val copy : t -> t\n\
 
 quote(MLI,"(** Create the constraint -1>=0 *)")
 [ref]ap_tcons0_t* ap_tcons0_make_unsat(void);
-[ref]ap_tcons0_t* ap_tcons0_from_lincons0(ap_lincons0_t cons);
-
+[ref]ap_tcons0_t* ap_tcons0_of_lincons0(ap_lincons0_t cons)
+quote(call,"_res = ap_tcons0_from_lincons0(cons);");
 quote(MLI,"\n
 (** {3 Operations} *)\n\
 val add_dimensions : t -> Dim.change -> t\n\
@@ -58,7 +58,7 @@ val permute_dimensions_with : t -> Dim.perm -> unit\n\
 \n\
 (** {3 Constructors and destructors} *)\n\
 val array_make : int -> t array\n\
-val array_size : t array -> int\n\
+val array_length : t array -> int\n\
 ");
 
 ap_tcons0_array_t ap_tcons0_array_of_lincons0_array(ap_lincons0_array_t e)
@@ -93,9 +93,9 @@ texpr0 = Texpr0.copy cons.texpr0; typ = cons.typ; mpq = Mpq.init_set cons.mpq;\n
 let add_dimensions x y = { x with texpr0 = Texpr0.add_dimensions x.texpr0 y }\n\
 let permute_dimensions x y = { x with texpr0 = Texpr0.permute_dimensions x.texpr0 y}\n\
 let add_dimensions_with x y = Texpr0.add_dimensions_with x.texpr0 y\n\
-let permute_dimensions_with x y = Texpr0.permute_dimensions x.texpr0 y\n\
-let array_make length = Array.make length (make (cst (let x = Coeff.init (D()) in Coeff.set_int x 0; x)) Common.EQ)\n\
-let array_size = Array.length\n\
+let permute_dimensions_with x y = Texpr0.permute_dimensions_with x.texpr0 y\n\
+let array_make length = Array.make length (make (Texpr0.cst (Coeff.init_set_int (Common.D(0)))) Common.EQ)\n\
+let array_length = Array.length\n\
 let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x\n\
 let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x\n\
 let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x\n\

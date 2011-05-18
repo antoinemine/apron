@@ -114,7 +114,7 @@ FILES_TOINSTALL = \
 
 all: $(FILES_TOINSTALL)
 
-src: $(IDL_MODULES) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES) $(H_FILES)
+src: $(IDL_MODULES:%=%.idl) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES) $(H_FILES)
 
 # Example of compilation command with ocamlfind
 %.byte: %.ml
@@ -198,7 +198,7 @@ distclean: clean
 # IDL
 #-----------------------------------
 
-%_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl #sedscript_caml sedscript_c
+%_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 	@mkdir -p tmp
 	@echo "module $*"; 
 	@cp $*.idl tmp/$*.idl; 
@@ -315,10 +315,12 @@ define generate-ml-yyy
 $(subst yyy,$(1),$(2)): $(2)
 	@echo "(* GENERATED FROM $$<, DO NOT MODIFY *)" >$$@
 	@echo "# 1 \"$(SRCDIR)/$$<\"" >>$$@
-	$(CC) -E $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/# \1 \"\2$$<\"/g" >>$$@
+	$(SED) -e "s/yyy/$(1)/g;" $(SRCDIR)/$$< | cpp | $(SED) -e "s/# \([0-9]*\) \"<stdin>\"/# \1 \"$$<\"/g" >>$$@
+#	$(SED) -e "s/yyy/$(1)/g;" $(SRCDIR)/$$< | cpp >t1.ml
+#	$(SED) -e "s/# \([0-9]*\) \"<tsdin>\"/# \1 \"$$<\"/g" t1.ml >t2.ml
 endef
 
-$(foreach Y,$(YYY),$(foreach F,$(IDL_ML_MODULES_yyy:%=%.idl),$(eval $(call generate-ml-yyy,$(Y),$(F)))))
+$(foreach Y,$(YYY),$(foreach F,$(ML_TMPL_MODULES_yyy:%=%.mli) $(ML_TMPL_MODULES_yyy:%=%.ml),$(eval $(call generate-ml-yyy,$(Y),$(F)))))
 
 #---------------------------------------
 # Dependencies
@@ -327,4 +329,4 @@ $(foreach Y,$(YYY),$(foreach F,$(IDL_ML_MODULES_yyy:%=%.idl),$(eval $(call gener
 depend: $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)
 	$(OCAMLDEP) $^ >Makefile.depend
 
-include Makefile.depend
+-include Makefile.depend

@@ -68,7 +68,7 @@ boolean ap_linyyyXXX_is_real(ap_linyyyXXX_ptr a, unsigned int intdim);
 
 boolean ap_linyyyXXX_is_linear(ap_linyyyXXX_ptr a);
 boolean ap_linyyyXXX_is_quasilinear(ap_linyyyXXX_ptr a);
-enum exprtyp ap_linyyyXXX_typ(ap_linyyyXXX_ptr a)
+enum ap_exprtyp_t ap_linyyyXXX_typ(ap_linyyyXXX_ptr a)
   quote(call, "_res = ap_linyyyXXX_type(a);");
 
 [size_is(size)]ap_dim_t* ap_linyyyXXX__supportinterval(ap_linyyyXXX_ptr a, [out]unsigned int size)
@@ -97,7 +97,7 @@ if (error){
 #if !defined(_AP_expr_MARK_)
 void ap_linyyyXXX_get_linexpr(ap_linexprXXX_ptr a, ap_linyyyXXX_ptr b)
   quote(call,"ap_linexprXXX_set(a,b->linexpr);");
-enum yyytyp ap_linyyyXXX_get_yyytyp(ap_linyyyXXX_ptr a)
+enum ap_yyytyp_t ap_linyyyXXX_get_yyytyp(ap_linyyyXXX_ptr a)
   quote(call,"_res = a->yyytyp;");
 #endif
 #if defined(_AP_cons_MARK_)
@@ -157,7 +157,7 @@ if (error){
 #if !defined(_AP_expr_MARK_)
 void ap_linyyyXXX_set_linexpr(ap_linyyyXXX_ptr a, ap_linexprXXX_ptr b)
   quote(call,"ap_linexprXXX_set(a->linexpr,b);");
-void ap_linyyyXXX_set_yyytyp(ap_linyyyXXX_ptr a, enum yyytyp b)
+void ap_linyyyXXX_set_yyytyp(ap_linyyyXXX_ptr a, enum ap_yyytyp_t b)
   quote(call,"a->yyytyp = b;");
 #endif
 #if defined(_AP_cons_MARK_)
@@ -345,7 +345,7 @@ quote(MLMLI,"\n(** {3 Tests and Simplifications} *)")
 
 boolean ap_linyyyXXX_array_is_linear(ap_linyyyXXX_array_ptr array);
 boolean ap_linyyyXXX_array_is_quasilinear(ap_linyyyXXX_array_ptr array);
-enum exprtyp ap_linyyyXXX_array_typ(ap_linyyyXXX_array_ptr array)
+enum ap_exprtyp_t ap_linyyyXXX_array_typ(ap_linyyyXXX_array_ptr array)
   quote(call, "_res = ap_linyyyXXX_array_type(array);");
 
 [size_is(size)]ap_dim_t* ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_ptr array, [out]unsigned int size)
@@ -363,7 +363,7 @@ size = ap_linyyyXXX_array_supportinterval(array,_res,maxdim);
 
 quote(MLMLI,"\n(** {3 Access} *)")
 
-int ap_linyyyXXX_array_size(ap_linyyyXXX_array_ptr array)
+int ap_linyyyXXX_array_length(ap_linyyyXXX_array_ptr array)
   quote(call,"_res = array->size;");
 void ap_linyyyXXX_array_get_index(ap_linyyyXXX_ptr a, ap_linyyyXXX_array_ptr array, int i)
   quote(call, "
@@ -406,7 +406,7 @@ quote(ML,"
 let array_print ?first ?sep ?last assoc fmt array =
   let a = init 0 in
   Common.earray_print ?first ?sep ?last
-    ~size:(array_size array)
+    ~length:(array_length array)
     ~print_index:(fun fmt index ->
       array_get_index a array index;
       print assoc fmt a)

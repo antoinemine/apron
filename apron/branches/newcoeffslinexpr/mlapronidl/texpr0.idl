@@ -301,7 +301,7 @@ quote(MLI,"
 
 (** {3 Constructors and destructors} *)
 val array_make : int -> t array
-val array_size : t array -> int
+val array_length : t array -> int
 ");
 
 ap_texpr0_array_t ap_texpr0_array_of_linexpr0_array(ap_linexpr0_array_t e)
@@ -431,8 +431,8 @@ let print_expr = print_gexpr
 let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)
 let array_print ?first ?sep ?last string_of_dim fmt tab =
   Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab
-let array_make length = Array.make length (cst (let x = Coeff.init (D()) in Coeff.set_int x 0; x))
-let array_size = Array.length
+let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D(0))))
+let array_length = Array.length
 let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x
 let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x
 let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x

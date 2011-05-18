@@ -11,7 +11,7 @@ type t = Texpr0.t Common.val1
     (** Types of expressions *)
 type earray = Texpr0.t array Common.val1
     (** Types of arrays of expressions *)
-    
+
 (** Unary operators *)
 type unop =   Texpr0.unop = Neg | Cast | Sqrt
 
@@ -21,9 +21,9 @@ type binop = Texpr0.binop = Add | Sub | Mul | Div | Mod
 (** Destination type for rounding *)
 type typ =   Texpr0.typ =   Real | Int | Single | Double | Extended | Quad
 
- (** Rounding direction *) 
+ (** Rounding direction *)
 type round = Texpr0.round = Near | Zero | Up | Down | Rnd
- 
+
 (** User type for tree expressions *)
 type 'a gexpr = 'a Texpr0.gexpr =
   | Cst of Coeff.f Coeff.tt
@@ -50,7 +50,7 @@ let print fmt expr =
    (Environment.string_of_dim expr.Common.env)
    fmt expr.Common.val0
 let array_print ?first ?sep ?last fmt array =
-  Texpr0.array_print ?first ?sep ?last (Environment.string_of_dim array.Common.env) array.Common.val0
+  Texpr0.array_print ?first ?sep ?last (Environment.string_of_dim array.Common.env) fmt array.Common.val0
 
 (*  ********************************************************************** *)
 (** {2 Expressions} *)
@@ -73,7 +73,7 @@ let to_expr texpr1 =
 
 (** {4 Incremental constructors} *)
 let cst env x = Common.make_val1 (Texpr0.cst x) env
-let var env x = Common.make_val1 (Texpr0.var x) env
+let var env x = Common.make_val1 (Texpr0.dim (Environment.dim_of_var env x)) env
 let unop op x t r = Common.make_val1 (Texpr0.unop x.Common.val0 t r) x.Common.env
 let binop op x1 x2 t r =
   if x1.Common.env<>x2.Common.env then raise (Invalid_argument "Texpr1.binop: two operands are not based on the same environment");
@@ -87,21 +87,22 @@ let is_interval_polyfrac (x:t) = Texpr0.is_interval_polyfrac x.Common.val0
 let is_scalar (x:t) = Texpr0.is_scalar x.Common.val0
 
 (** {3 Operations} *)
-let extend_environment x env =
-  Common.make_val1 (Texpr0.extend_environment x.Common.val0 ~oldenv:x.Common.env ~newenv:env) env
-let extend_environment_with x env =
-  Texpr0.extend_environment_with x.Common.val0 ~oldenv:x.Common.env ~newenv:env;
-  x.Common.env <- env
+let extend_environment array env =
+  let change = Environment.dimchange array.Common.env env in
+  Common.make_val1 (Texpr0.add_dimensions array.Common.val0 change) env
+let extend_environment_with array env =
+  let change = Environment.dimchange array.Common.env env in
+  Texpr0.add_dimensions_with array.Common.val0 change
 
 (*  ********************************************************************** *)
 (** {2 Arrays} *)
 (*  ********************************************************************** *)
 
 (** {3 Constructors and Destructor} *)
-let array_make length env : earray =
+let array_make env length : earray =
   Common.make_val1 (Array.make length (Texpr0.cst (Coeff.init_set_int (Common.D 0)))) env
-let array_of_lincons1_array array = Common.make_val1 Tcons0.array_of_lincons0_array array.Common.val0) array.Common.env
-let array_size array = Array.length array.Common.val0
+let array_of_linexpr1_array array = Common.make_val1 (Texpr0.array_of_linexpr0_array array.Common.val0) array.Common.env
+let array_length array = Array.length array.Common.val0
 let array_copy array = Common.make_val1 (Array.map Texpr0.copy array.Common.val0) array.Common.env
 
 (** {3 Access} *)
