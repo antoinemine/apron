@@ -89,6 +89,7 @@ let print fmt a = Format.pp_print_string fmt (to_string a)
 quote(MLMLI,"(** {2 Initialization Functions} *)\n")
 void numXXX_init([out]numXXX_ptrg OUTOUTOUT);
 void numXXX_init_set([out]numXXX_ptrg OUTOUTOUT, numXXX_ptrg b);
+void numXXX_init_set_int([out]numXXX_ptrg OUTOUTOUT, long b);
 
 quote(MLMLI,"(** {2 Assignement Functions} *)\n")
 
