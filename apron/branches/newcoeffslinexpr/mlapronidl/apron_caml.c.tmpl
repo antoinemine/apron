@@ -536,32 +536,6 @@ value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array)
   CAMLreturn(v_array);
 }
 
-value camlidl_apron_texpr1_t_c2ml(ap_texpr1_t* expr)
-{
-  CAMLparam0();
-  CAMLlocal3(v0,v1,v);
-  v0 = camlidl_apron_texpr0_ptr_c2ml(&p->texpr0);
-  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
-  v = alloc_small(2,0);
-  Field(v,0) = v0;
-  Field(v,1) = v1;
-  free(expr);
-  CAMLreturn(v);
-}
-
-value camlidl_apron_texpr1_array_t_c2ml(struct ap_texpr1_array_t* array)
-{
-  CAMLparam0();
-  CAMLlocal3(v0,v1,v);
-  v0 = camlidl_apron_texpr0_array_t_c2ml(&p->texpr0);
-  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
-  v = alloc_small(2,0);
-  Field(v,0) = v0;
-  Field(v,1) = v1;
-  CAMLreturn(v);
-}
-
-
 /* ********************************************************************** */
 /* tcons0 */
 /* ********************************************************************** */
@@ -616,35 +590,6 @@ value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array)
   }
   free(array->p);
   CAMLreturn(v_array);
-}
-void camlidl_apron_tcons1_t_ml2c(value v, ap_tcons1_t* cons, camlidl_ctx ctx)
-{
-  cons->tcons0 = camlidl_malloc(sizeof(ap_tcons0_t),ctx);
-  camlidl_apron_tcons0_t_ml2c(Field(v,0),p->tcons0);
-  camlidl_apron_environment_ptr_ml2c(Field(v,1),&p->env);
-}
-value camlidl_apron_cons1_t_c2ml(ap_cons1_t* cons)
-{
-  CAMLparam0();
-  CAMLlocal3(v0,v1,v);
-  v0 = camlidl_apron_cons0_t_c2ml(p->cons0);
-  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
-  v = alloc_small(2,0);
-  Field(v,0) = v0;
-  Field(v,1) = v1;
-  free(cons);
-  CAMLreturn(v);
-}
-value camlidl_apron_tcons1_array_t_c2ml(struct ap_tcons1_array_t* array)
-{
-  CAMLparam0();
-  CAMLlocal3(v0,v1,v);
-  v0 = camlidl_apron_tcons0_array_t_c2ml(&p->tcons0);
-  v1 = camlidl_apron_environment_ptr_c2ml(&p->env);
-  v = alloc_small(2,0);
-  Field(v,0) = v0;
-  Field(v,1) = v1;
-  CAMLreturn(v);
 }
 
 /* ********************************************************************** */
@@ -790,27 +735,6 @@ struct custom_operations camlidl_apron_custom_abstract0_ptr = {
   camlidl_apron_abstract0_serialize,
   camlidl_apron_abstract0_deserialize
 };
-
-/* ********************************************************************** */
-/* linyyy1, tzzz1 */
-/* ********************************************************************** */
-
-MACRO_FOREACH TTT ("expr","cons","gen");
-MACRO_FOREACH AAA ("","_array");
-value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_t* p)
-{
-  CAMLparam0();
-  CAMLlocal3(v0,v1,v);
-  ap_linTTT1AAA_ptr pp = *p;
-  v0 = camlidl_linTTT0AAA_ptr_c2ml(&(pp->linTTT0AAA));
-  v1 = camlidl_apron_environment_ptr_c2ml(&(pp->env));
-  v = alloc_small(2,0);
-  Field(v,0) = v0;
-  Field(v,1) = v1;
-  CAMLreturn(v);
-}
-ENDMACRO
-ENDMACRO
 
 /* ********************************************************************** */
 /* init */

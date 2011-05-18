@@ -62,6 +62,7 @@ val earray_print :
   print_index:(Format.formatter -> int -> unit) ->
   Format.formatter -> unit
 val make_val1 : 'a -> Environment.t -> 'a val1
+val check_val1 : 'a val1 -> 'a val1 -> unit
 val map_discr :
   ('a -> 'b) ->
   ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
@@ -149,6 +150,9 @@ let earray_print
   done;
   Format.fprintf fmt last
 let make_val1 x env = { val0 = x; env = env }
+let check_val1 x y =
+  if x.env!=y.env && not (Environment.equal x.env y.env) then
+    raise (Invalid_argument \"The two values of level 1 are not based on the same environment\")
 let map_discr d mpq mpfr discr =
   match discr with
   | D x -> D(d x)

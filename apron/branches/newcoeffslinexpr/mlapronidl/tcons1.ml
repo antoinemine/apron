@@ -21,7 +21,7 @@ let print fmt cons =
 
 let get_typ cons = cons.Common.val0.Tcons0.typ
 let set_typ cons typ = cons.Common.val0.Tcons0.typ <- typ
-let get_mpq mpq cons = Mpq.set mpq cons.Common.val0.Tcons0.mpq 
+let get_mpq mpq cons = Mpq.set mpq cons.Common.val0.Tcons0.mpq
 let set_mpq cons mpq = Mpq.set cons.Common.val0.Tcons0.mpq mpq
 let get_texpr1 cons =  Common.make_val1 cons.Common.val0.Tcons0.texpr0 cons.Common.env
 
