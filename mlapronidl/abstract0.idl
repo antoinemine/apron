@@ -3,13 +3,7 @@
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_expr0.h\"\n\
-#include \"ap_abstract0.h\"\n\
-#include \"caml/callback.h\"\n\
-#include \"apron_caml.h\"\n\
-")
+quote(C, "#include \"apron_caml.h\"")
 
 import "dim.idl";
 import "coeff.idl";
@@ -77,7 +71,13 @@ void ap_abstract0_fdump(ap_manager_ptr man, ap_abstract0_ptr a)
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Print as a set of constraints *)")
-quote(MLI,"val print: (int -> string) -> Format.formatter -> 'a t -> unit")
+quote(MLI,"
+val print:
+  ?first:(unit,Format.formatter,unit) format ->
+  ?sep:(unit,Format.formatter,unit) format ->
+  ?last:(unit,Format.formatter,unit) format ->
+  (int -> string) -> Format.formatter -> 'a t -> unit
+")
 
 quote(MLMLI,"(* ============================================================ *)")
 quote(MLMLI,"(** {3 Serialization} *)")
@@ -676,7 +676,7 @@ void ap_abstract0_substitute_texpr_with(ap_manager_ptr man, ap_abstract0_ptr a,
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(ML,"\n\
-let print assoc fmt a =\n\
+let print ?first ?sep ?last assoc fmt a =\n\
 let man = manager a in\n\
 if is_bottom man a then\n	\
   Format.pp_print_string fmt \"bottom\"\n\
@@ -685,6 +685,6 @@ else if is_top man a then\n\
 else begin\n\
   let tab = Lincons0.array_init (Common.D()) 0 in\n\
   to_lincons_array man tab a;\n\
-  Lincons0.array_print assoc fmt tab;\n\
+  Lincons0.array_print ?first ?sep ?last assoc fmt tab;\n\
 end\n\
 ")

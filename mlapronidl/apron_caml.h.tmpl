@@ -112,7 +112,7 @@ value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_t* plinTTT0);
 ENDMACRO
 
 /* ********************************************************************** */
-/* texpr0,texpr1 */
+/* texpr0 */
 /* ********************************************************************** */
 
 typedef ap_texpr_op_t ap_texpr_unop_t;
@@ -156,24 +156,11 @@ static inline value camlidl_apron_texpr0_ptr_c2ml(ap_texpr0_ptr* p)
   *((ap_texpr0_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
-void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array, camlidl_ctx ctx);
+void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array, struct camlidl_ctx_struct* ctx);
 value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array);
 
-static inline void camlidl_apron_texpr1_t_ml2c(value v, ap_texpr1_t* expr)
-{
-  camlidl_apron_texpr0_ptr_ml2c(Field(v,0),&p->texpr0);
-  camlidl_apron_environment_ptr_ml2c(Field(v,1),&p->env);
-}
-value camlidl_apron_texpr1_t_c2ml(ap_texpr1_t* expr);
-static inline void camlidl_apron_texpr1_array_t_ml2c(value v_array, struct ap_texpr1_array_t* array, camlidl_ctx ctx)
-{
-  camlidl_apron_texpr0_array_t_ml2c(Field(v,0),&p->texpr0_array,ctx);
-  camlidl_apron_environment_ptr_ml2c(Field(v,1),&p->env);
-}
-value camlidl_apron_texpr1_array_t_c2ml(struct ap_texpr1_array_t* array);
-
 /* ********************************************************************** */
-/* tcons0,tcons1 */
+/* tcons0 */
 /* ********************************************************************** */
 
 extern int camlidl_ml2c_common_enum_constyp(value _v1);
@@ -183,18 +170,8 @@ typedef ap_tcons0_t* ap_tcons0_ptr;
 void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p);
 value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p);
 
-void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array, camlidl_ctx ctx);
+void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array, struct camlidl_ctx_struct* ctx);
 value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array);
-
-void camlidl_apron_tcons1_t_ml2c(value v, ap_tcons1_t* cons, camlidl_ctx ctx);
-value camlidl_apron_tcons1_t_c2ml(ap_tcons1_t* cons);
-static inline void camlidl_apron_tcons1_array_t_ml2c(value v_array, struct ap_tcons1_array_t* array, camlidl_ctx ctx)
-{
-  camlidl_apron_tcons0_array_t_ml2c(Field(v,0),&p->tcons0_array,ctx);
-  camlidl_apron_environment_ptr_ml2c(Field(v,1),&p->env);
-}
-value camlidl_apron_tcons1_array_t_c2ml(struct ap_tcons1_array_t* array);
-
 
 /* ********************************************************************** */
 /* manager */
@@ -254,22 +231,6 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
   *((ap_abstract0_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
-
-/* ********************************************************************** */
-/* linyyy1, tzzz1 */
-/* ********************************************************************** */
-
-MACRO_FOREACH TTT ("expr","cons","gen")
-MACRO_FOREACH AAA ("","_array")
-static inline void camlidl_linTTT1AAA_ptr_ml2c(value v, ap_linTTT1AAA_t* p)
-{
-  ap_linTTT1AAA_ptr pp = *p;
-  camlidl_linTTT0AAA_ptr_ml2c(Field(v,0),&(pp->linTTT0AAA));
-  camlidl_apron_environment_ptr_ml2c(Field(v,1),&(pp->env));
-}
-value camlidl_linTTT1AAA_ptr_c2ml(ap_linTTT1AAA_t* p);
-ENDMACRO
-ENDMACRO
 
 /* ********************************************************************** */
 /* init */

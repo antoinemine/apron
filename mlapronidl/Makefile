@@ -314,10 +314,7 @@ $(foreach Y,$(YYY),$(foreach F,$(IDL_TMPL_MODULES_yyy:%=%.idl),$(eval $(call gen
 define generate-ml-yyy
 $(subst yyy,$(1),$(2)): $(2)
 	@echo "(* GENERATED FROM $$<, DO NOT MODIFY *)" >$$@
-	@echo "# 1 \"$(SRCDIR)/$$<\"" >>$$@
-	$(SED) -e "s/yyy/$(1)/g;" $(SRCDIR)/$$< | cpp | $(SED) -e "s/# \([0-9]*\) \"<stdin>\"/# \1 \"$$<\"/g" >>$$@
-#	$(SED) -e "s/yyy/$(1)/g;" $(SRCDIR)/$$< | cpp >t1.ml
-#	$(SED) -e "s/# \([0-9]*\) \"<tsdin>\"/# \1 \"$$<\"/g" t1.ml >t2.ml
+	$(SED) -e "s/yyy/$(1)/g;" $(SRCDIR)/$$< | cpp -P | $(SED) -e "s/# \([0-9]*\) \"<stdin>\"/# \1 \"$$<\"/g" >>$$@
 endef
 
 $(foreach Y,$(YYY),$(foreach F,$(ML_TMPL_MODULES_yyy:%=%.mli) $(ML_TMPL_MODULES_yyy:%=%.ml),$(eval $(call generate-ml-yyy,$(Y),$(F)))))
