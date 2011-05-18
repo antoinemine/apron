@@ -29,6 +29,7 @@ val print : Format.formatter -> 'a tt -> unit
 
 (** {2 Initialization} *)
 val init : Common.discr -> 'a tt
+val init_set_int : (int,int,int) Common.t -> 'a tt
 val init_set : 'a tt -> 'b tt
 val init_set_eitvD : 'a EitvD.tt -> 'b tt
 val init_set_eitvMPQ : 'a EitvMPQ.tt -> 'b tt
@@ -65,6 +66,8 @@ let print fmt (coeff:'a tt) =
 
 let init (discr:discr) : 'a tt =
   map_discr EitvD.init EitvMPQ.init EitvMPFR.init discr
+let init_set_int discr : 'a tt =
+  map_discr EitvD.init_set_int EitvMPQ.init_set_int EitvMPFR.init_set_int discr
 let init_set (coeff:'a tt) : 'b tt =
   map_discr EitvD.init_set EitvMPQ.init_set EitvMPFR.init_set coeff
 let init_set_eitvD x : 'a tt =
