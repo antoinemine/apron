@@ -3,29 +3,22 @@
 /* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_tcons1.h\"\n\
-#include \"apron_caml.h\"\n\
-")
+quote(C, "#include \"apron_caml.h\"")
 
-import "scalar.idl";
-import "interval.idl";
-import "coeff.idl";
-import "dim.idl";
-import "texpr0.idl";
 import "tcons0.idl";
-import "environment.idl";
-import "texpr1.idl";
 
-struct ap_tcons1_t {
-  [mlname(mutable_tcons0)] ap_tcons0_t tcons0;
-  [mlname(mutable_env)] ap_environment_ptr env;
-};
-struct ap_tcons1_array_t {
-  [mlname(mutable_tcons0_array)] struct ap_tcons0_array_t tcons0_array;
-  [mlname(mutable_array_env)] ap_environment_ptr env;
-};
+typedef [\
+    abstract,\
+    c2ml(camlidl_tcons1_t_c2ml),\
+    ml2c(camlidl_tcons1_t_ml2c),\
+    mltype("Tcons0.t Common.val1")\
+] struct ap_tcons1_t ap_tcons1_t;
+typedef [\
+    abstract,\
+    c2ml(camlidl_tcons1_array_t_c2ml),\
+    ml2c(camlidl_tcons1_array_t_ml2c),\
+    mltype("Tcons0.t array Common.val1")\
+] struct ap_tcons1_array_t ap_tcons1_array_t;
 
 quote(MLMLI,"(** APRON tree constraints and array of tree constraints of level 1 *)")
 
@@ -62,7 +55,7 @@ val set_typ: t -> typ -> unit\n\
 
 quote(MLI,"(** Change the environement of the constraint for a super-environement. Raise [Failure] if it is not the case *)")
 struct ap_tcons1_t ap_tcons1_extend_environment(const struct ap_tcons1_t tcons,
-					        ap_environment_ptr env)
+						ap_environment_ptr env)
      quote(call,"\n\
 {\n\
   bool b;\n\

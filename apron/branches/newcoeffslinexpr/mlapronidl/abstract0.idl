@@ -185,8 +185,8 @@ void ap_abstract0_to_lincons_array(ap_manager_ptr man, ap_lincons0_array_t array
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a conjunction of tree expression constraints. *)")
-struct ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a)
-     quote(dealloc,"free(_res.p); I0_CHECK_EXC(man)");
+ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a)
+     quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a set of generators that defines it. *)")
 void ap_abstract0_to_lingen_array(ap_manager_ptr man, ap_lingen0_array_t array, ap_abstract0_ptr a)
@@ -219,7 +219,7 @@ ap_abstract0_ptr ap_abstract0_meet_lincons_array(ap_manager_ptr man, ap_abstract
 
 quote(MLI,"(** Meet of an abstract value with an array of tree expression constraints. *)")
 ap_abstract0_ptr ap_abstract0_meet_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a,
-					       [ref]struct ap_tcons0_array_t* array)
+					       [ref]ap_tcons0_array_t* array)
      quote(call,"_res = ap_abstract0_meet_tcons_array(man,false,a,array);")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
@@ -256,7 +256,7 @@ void ap_abstract0_meet_lincons_array_with(ap_manager_ptr man, ap_abstract0_ptr a
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 void ap_abstract0_meet_tcons_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
-					[ref]struct ap_tcons0_array_t* array)
+					[ref]ap_tcons0_array_t* array)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_meet_tcons_array(man,true,a,array);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
@@ -313,7 +313,7 @@ quote(MLI,"(** Parallel assignement of an array of dimensions by an array of sam
 ap_abstract0_ptr ap_abstract0_assign_texpr_array(
     ap_manager_ptr man, ap_abstract0_ptr a,
     [size_is(size)]ap_dim_t* tdim, unsigned int size,
-    [ref]struct ap_texpr0_array_t* array,
+    [ref]ap_texpr0_array_t* array,
     ap_abstract0_ptr* dest
 )
      quote(call,"\n\
@@ -326,7 +326,7 @@ quote(MLI,"(** Parallel substitution of an array of dimensions by an array of sa
 ap_abstract0_ptr ap_abstract0_substitute_texpr_array(
     ap_manager_ptr man, ap_abstract0_ptr a,
     [size_is(size)]ap_dim_t* tdim, unsigned int size,
-    [ref]struct ap_texpr0_array_t* array,
+    [ref]ap_texpr0_array_t* array,
     ap_abstract0_ptr* dest
 )
      quote(call,"\n\
@@ -369,7 +369,7 @@ if (size!=ap_linexpr0_array_size(array)) caml_failwith(\"Abstract0.substitute_li
 
 void ap_abstract0_assign_texpr_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 					 [size_is(size)]ap_dim_t* tdim, unsigned int size,
-					 [ref]struct ap_texpr0_array_t* array,
+					 [ref]ap_texpr0_array_t* array,
 					 ap_abstract0_ptr* dest)
      quote(call,"\n\
 if (size!=array->size) caml_failwith(\"Abstract0.assign_texpr_array_with: arrays of different size\");\n\
@@ -381,7 +381,7 @@ if (size!=array->size) caml_failwith(\"Abstract0.assign_texpr_array_with: arrays
 
 void ap_abstract0_substitute_texpr_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 					     [size_is(size)]ap_dim_t* tdim, unsigned int size,
-					     [ref]struct ap_texpr0_array_t* array,
+					     [ref]ap_texpr0_array_t* array,
 					     ap_abstract0_ptr* dest)
      quote(call,"\n\
 if (size!=array->size) caml_failwith(\"Abstract0.substitute_texpr_array_with: arrays of different size\");\n\

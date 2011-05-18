@@ -7,16 +7,17 @@ quote(C, "#include \"apron_caml.h\"")
 import "texpr0.idl";
 
 typedef [\
-    abstract,c2ml(camlidl_texpr1_ptr_c2ml),\
-    ml2c(camlidl_texpr1_ptr_ml2c),\
+    abstract,\
+    c2ml(camlidl_texpr1_t_c2ml),\
+    ml2c(camlidl_texpr1_t_ml2c),\
     mltype("Texpr0.t Common.val1")\
-] struct ap_texpr1_struct ap_texpr1_t;
+] struct ap_texpr1_t ap_texpr1_t;
 typedef [\
     abstract,\
-    c2ml(camlidl_texpr1_array_ptr_c2ml),\
-    ml2c(camlidl_texpr1_array_ptr_ml2c),\
+    c2ml(camlidl_texpr1_array_t_c2ml),\
+    ml2c(camlidl_texpr1_array_t_ml2c),\
     mltype("Texpr0.t array Common.val1")\
-] struct ap_texpr1_array_struct ap_texpr1_array_t;
+] struct ap_texpr1_array_t ap_texpr1_array_t;
 
 quote(MLMLI,"\n\
 (** Unary operators *) \n\
@@ -76,7 +77,9 @@ val print_expr : Format.formatter -> expr -> unit\n\
 val print : Format.formatter -> t -> unit\n\
   (** Print an abstract tree expression *)\n\
 \n\
-(** {2 Constructors and Destructor} *)\n\
+(** {2 Expressions} *)\n\
+\n\
+(** {3 Constructors and Destructor} *)\n\
 \n\
 (** General constructor (actually the most efficient) *)\n\
 val of_expr : Environment.t -> expr -> t\n\
@@ -84,22 +87,22 @@ val to_expr : t -> expr\n\
 val copy : t -> t\n\
 val of_linexpr1 : Linexpr1.t -> t\n\
 \n\
-(** {3 Incremental constructors} *)\n\
+(** {4 Incremental constructors} *)\n\
 ")
 
-[ref]ap_texpr1_t* ap_texpr1_cst(ap_environment_ptr env, ap_coeff_tg coeff);
-[ref]ap_texpr1_t* ap_texpr1_var(ap_environment_ptr env, ap_var_t var);
-[ref]ap_texpr1_t* ap_texpr1_unop(ap_texpr_unop_t op,
-			     [ref]ap_texpr1_t* expr,
-			     ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
+[ref]struct ap_texpr1_t* ap_texpr1_cst(ap_environment_ptr env, ap_coeff_tg coeff);
+[ref]struct ap_texpr1_t* ap_texpr1_var(ap_environment_ptr env, ap_var_t var);
+[ref]struct ap_texpr1_t* ap_texpr1_unop(ap_texpr_unop_t op,
+				 [ref]struct ap_texpr1_t* expr,
+				 ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
 quote(call,"_res = ap_texpr1_unop(op,ap_texpr1_copy(expr),type,dir);");
-[ref]ap_texpr1_t* ap_texpr1_binop(ap_texpr_binop_t op,
-			      [ref]ap_texpr1_t* exprA, [ref]ap_texpr1_t* exprB,
-			      ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
+[ref]struct ap_texpr1_t* ap_texpr1_binop(ap_texpr_binop_t op,
+				  [ref]struct ap_texpr1_t* exprA, [ref]struct ap_texpr1_t* exprB,
+				  ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
 quote(call,"_res = ap_texpr1_binop(op,ap_texpr1_copy(exprA),ap_texpr1_copy(exprB),type,dir);");
 
 quote(MLI,"\n\
-(** {2 Tests} *)\n\
+(** {3 Tests} *)\n\
 \n\
 val is_interval_cst : t -> bool \n\
 val is_interval_linear : t -> bool \n\
@@ -107,11 +110,11 @@ val is_interval_polynomial : t -> bool \n\
 val is_interval_polyfrac : t -> bool \n\
 val is_scalar : t -> bool \n\
 \n\
-(** {2 Operations} *)\n\
+(** {3 Operations} *)\n\
 (** Change the environment of the expression for a super-environement. Raise [Failure] if it is not the case *)\
 ")
-[ref]ap_texpr1_t* ap_texpr1_extend_environment([ref]ap_texpr1_t* texpr,
-					       ap_environment_ptr env)
+[ref]struct ap_texpr1_t* ap_texpr1_extend_environment([ref]struct ap_texpr1_t* texpr,
+						      ap_environment_ptr env)
      quote(call,"\n\
 {\n\
   bool b;\n\
@@ -121,7 +124,7 @@ val is_scalar : t -> bool \n\
 ")
 ;
 quote(MLI,"(** Side-effet version of the previous function *)")
-void ap_texpr1_extend_environment_with([ref]ap_texpr1_t* texpr,
+void ap_texpr1_extend_environment_with([ref]struct ap_texpr1_t* texpr,
 				       ap_environment_ptr env)
      quote(call,"\n\
   Begin_roots2(_v_texpr,_v_env);\n\
@@ -138,6 +141,23 @@ void ap_texpr1_extend_environment_with([ref]ap_texpr1_t* texpr,
   }\n\
   End_roots()\n\
 ");
+
+quote(MLI,"\n\
+(** {2 Arrays} *)\n\
+\n\
+(** {3 Constructors and Destructor} *)\n\
+val array_make : int -> earray\n\
+val array_size : earray -> int\n\
+val array_of_lincons1_array : Lincons1.earray -> earray\n\
+\n\
+(** {3 Access} *)y\n\
+val array_get_index : earray -> int -> ty\n\
+val array_set_index : earray -> int -> t -> unity\n\
+\n\
+(** {3 Operations} *)\n\
+val array_extend_environment : earray -> env -> earray\n\
+val array_extend_environment_with : earray -> env -> unit\n\
+")
 
 quote(ML,"\n\
 let string_of_unop = Texpr0.string_of_unop\n\
@@ -171,4 +191,19 @@ let is_interval_linear (x:t) = Texpr0.is_interval_linear x.Common.val0 \n\
 let is_interval_polynomial (x:t) = Texpr0.is_interval_polynomial x.Common.val0 \n\
 let is_interval_polyfrac (x:t) = Texpr0.is_interval_polyfrac x.Common.val0 \n\
 let is_scalar (x:t) = Texpr0.is_scalar x.Common.val0 \n\
+\n\
+let array_print ?first ?sep ?last fmt array =\n\
+  Texpr0.array_print ?first ?sep ?last (Environment.string_of_dim array.Common.env) array.Common.val0\n\
+let array_make length env : Texpr0.t array Common.val1 =\n\
+  Common.make_val1 (Array.make length (Texpr0.cst 0)) env\n\
+let array_size array = Array.length array.Common.val0\n\
+let array_copy array = Common.make_val1 (Array.map Texpr0.copy array.Common.val0) array.Common.env\n\
+let array_of_lincons1_array array = Common.make_val1 Tcons0.array_of_lincons0_array array.Common.val0) array.Common.env\n\
+let array_get_index array index = Common.make_val1 array.Common.val0.(index) array.Common.env\n\
+let array_set_index array index x =\n\
+  if (array.Common.env<>x.Common.env)  then raise (Invalid_argument (\"Apron.Texpr1.array_set_index: the environments of the arguments should be the same\"));\n\
+  array.Common.val0.(index) <- x.Common.val0\n\
+let extend_environment array env =\n\
+  let change = Environment.dimchange array.Common.env env in\n\
+  Common.make_val1 (Texpr0.array_add_dimensions array.Common.val0 change) env\n\
 ")

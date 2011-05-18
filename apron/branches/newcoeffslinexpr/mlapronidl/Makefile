@@ -44,11 +44,11 @@ TMPL = MPZ D MPQ MPFR
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
-IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 texpr1
+IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0
 IDL_TMPL_FILES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
-IDL_TMPL_MODULES_yyy = linyyy0 linyyy1
+IDL_TMPL_MODULES_yyy = linyyy0
 IDL_GENERATED_MODULES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
@@ -196,7 +196,7 @@ distclean: clean
 # IDL
 #-----------------------------------
 
-%_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
+%_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl #sedscript_caml sedscript_c
 	@mkdir -p tmp
 	@echo "module $*"; 
 	@cp $*.idl tmp/$*.idl; 
