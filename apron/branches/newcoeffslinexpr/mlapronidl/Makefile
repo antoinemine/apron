@@ -57,8 +57,12 @@ $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy)))
 
 IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
 
-ML_ORIG_MODULES = #apron_parser apron_lexer parser
-ML_GENERATED_MODULES = $(IDL_MODULES) 
+ML_TMPL_MODULES_yyy = linyyy1
+ML_ORIG_MODULES = texpr1 tcons1 # abstract1 apron_parser apron_lexer parser
+ML_GENERATED_MODULES = \
+$(IDL_MODULES) \
+$(foreach Y,$(YYY),$(subst yyy,$(Y),$(ML_TMPL_MODULES_yyy)))
+
 ML_MODULES = $(ML_GENERATED_MODULES) $(ML_ORIG_MODULES)
 
 C_ORIG_FILES = 
@@ -110,9 +114,7 @@ FILES_TOINSTALL = \
 
 all: $(FILES_TOINSTALL)
 
-src: 
-	echo "$(C_FILES) $(H_FILES) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)"
-	echo "$(IDL_MODULES)"
+src: $(IDL_MODULES) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES) $(H_FILES)
 
 # Example of compilation command with ocamlfind
 %.byte: %.ml
@@ -282,33 +284,41 @@ apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	../macros.pl $(SRCDIR)/$< >>$@
 
-define generate-file-XXX
+define generate-idl-XXX
 $(subst XXX,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
 	$(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"$$@\"/#line \1 \"$$<\"/g" $$< >>$$@
 endef
 
-$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_XXX:%=%.idl),$(eval $(call generate-file-XXX,$(T),$(F)))))
+$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_XXX:%=%.idl),$(eval $(call generate-idl-XXX,$(T),$(F)))))
 
-define generate-file-yyyXXX
+define generate-idl-yyyXXX
 $(subst yyy,$(1),$(subst XXX,$(2),$(3))): $(3)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
 	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
-$(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_yyyXXX:%=%.idl),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))
+$(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(IDL_TMPL_MODULES_yyyXXX:%=%.idl),$(eval $(call generate-idl-yyyXXX,$(Y),$(T),$(F))))))
 
-define generate-file-yyy
+define generate-idl-yyy
 $(subst yyy,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
 	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
-$(foreach Y,$(YYY),$(foreach F,$(IDL_TMPL_MODULES_yyy:%=%.idl),$(eval $(call generate-file-yyy,$(Y),$(F)))))
+$(foreach Y,$(YYY),$(foreach F,$(IDL_TMPL_MODULES_yyy:%=%.idl),$(eval $(call generate-idl-yyy,$(Y),$(F)))))
 
+define generate-ml-yyy
+$(subst yyy,$(1),$(2)): $(2)
+	@echo "(* GENERATED FROM $$<, DO NOT MODIFY *)" >$$@
+	@echo "# 1 \"$(SRCDIR)/$$<\"" >>$$@
+	$(CC) -E $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/# \1 \"\2$$<\"/g" >>$$@
+endef
+
+$(foreach Y,$(YYY),$(foreach F,$(IDL_ML_MODULES_yyy:%=%.idl),$(eval $(call generate-ml-yyy,$(Y),$(F)))))
 
 #---------------------------------------
 # Dependencies
