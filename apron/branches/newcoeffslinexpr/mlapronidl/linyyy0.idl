@@ -23,15 +23,17 @@ typedef [\
     mltype("(LinyyyD.earray, LinyyyMPQ.earray, LinyyyMPFR.earray) Common.t")\
 ] struct ap_linyyy0_array_struct ap_linyyy0_array_t;
 
+#if !defined(_AP_linexpr0_MARK_)
+import "linexpr0.idl";
+#endif
+
 #define _AP_linyyy0_MARK_
 #if defined(_AP_linexpr0_MARK_)
 quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
 #elif defined(_AP_lincons0_MARK_)
 quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
-import "linexpr0.idl";
 #elif defined(_AP_lingen0_MARK_)
 quote(MLMLI,"(** Linear generators *)\n\n")
-import "linexpr0.idl";
 #endif
 
 quote(MLI,"
@@ -138,6 +140,8 @@ void ap_linyyy0_set_yyytyp(ap_linyyy0_t c, enum ap_yyytyp_t yyytyp);
 #if defined (_AP_lincons0_MARK_)
 quote(MLI,"
 (** {2 Specific to constraints} *)
+(** {3 Constructor} *)
+val make : Linexpr0.t -> Common.constyp -> 'a Mpq.tt option -> t
 (** {3 Access} *)
 val get_mpq : Mpq.t -> t -> unit
 val set_mpq : t -> 'a Mpq.tt -> unit
@@ -145,13 +149,25 @@ val set_mpq : t -> 'a Mpq.tt -> unit
 val set_bool : t -> bool -> unit
 ")
 quote(ML,"
-let set_bool (linyyy:t) b =
-  Common.apply_discr_arg LinyyyD.set_bool LinyyyMPQ.set_bool LinyyyMPFR.set_bool linyyy b
-let get_mpq mpq discr = Common.apply_arg_discr LinyyyD.get_mpq LinyyyMPQ.get_mpq LinyyyMPFR.get_mpq mpq discr
-let set_mpq discr mpq = Common.apply_discr_arg LinyyyD.set_mpq LinyyyMPQ.set_mpq LinyyyMPFR.set_mpq discr mpq
+let make linexpr0 constyp ompq =
+  Common.map_discr_arg2 LinconsD.make LinconsMPQ.make LinconsMPFR.make linexpr0 constyp ompq
+let get_mpq mpq discr = Common.apply_arg_discr LinconsD.get_mpq LinconsMPQ.get_mpq LinconsMPFR.get_mpq mpq discr
+let set_mpq discr mpq = Common.apply_discr_arg LinconsD.set_mpq LinconsMPQ.set_mpq LinconsMPFR.set_mpq discr mpq
+let set_bool (lincons:t) b =
+  Common.apply_discr_arg LinconsD.set_bool LinconsMPQ.set_bool LinconsMPFR.set_bool lincons b
 ")
 #endif
-
+#if defined (_AP_lingen0_MARK_)
+quote(MLI,"
+(** {2 Specific to generators} *)
+(** {3 Constructor} *)
+val make : Linexpr0.t -> Common.gentyp -> t
+")
+quote(ML,"
+let make linexpr0 gentyp =
+  Common.map_discr_arg LingenD.make LingenMPQ.make LingenMPFR.make linexpr0 gentyp
+")
+#endif
 #if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
 quote(MLI,"
 (** {2 Specific to expressions and constraints} *)

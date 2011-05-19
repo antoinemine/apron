@@ -36,7 +36,7 @@ val approximate : 'a Manager.t -> 'a t -> int -> unit
 (* ============================================================ *)
 
 (** Print as a set of constraints *)
-val print: 
+val print:
   ?first:(unit, Format.formatter, unit) format ->
   ?sep:(unit, Format.formatter, unit) format ->
   ?last:(unit, Format.formatter, unit) format ->

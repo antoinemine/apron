@@ -87,38 +87,23 @@ let raise_error str = raise (Error str)
 type scalar = (float,Mpqf.t,unit) Common.t
 type coeff = scalar * scalar
 
-let numD_of_scalar (scalar:scalar) intern =
-  let res = NumD.init() in
+MACRO_FOREACH XXX ("D","MPQ")
+let numXXX_of_scalar (scalar:scalar) intern =
+  let res = NumXXX.init() in
   ignore
     begin match scalar with
-    | D x -> NumD.set_double res x intern
-    | MPQ x -> NumD.set_mpq res x intern
+    | D x -> NumXXX.set_double res x intern
+    | MPQ x -> NumXXX.set_mpq res x intern
     | _ -> failwith ""
     end;
   res
-
-let numMPQ_of_scalar (scalar:scalar) intern =
-  let res = NumMPQ.init() in
-  begin match scalar with
-  | D x -> Mpq.set_d res x
-  | MPQ x -> NumMPQ.set res x
-  | _ -> failwith ""
-  end;
-  res
-
-let eitvD_of_coeff (coeff:coeff) intern =
+let eitvXXX_of_coeff (coeff:coeff) intern =
   let (neginf,sup) = coeff in
-  let neginf = numD_of_scalar neginf intern in
-  NumD.neg neginf neginf;
-  let sup = numD_of_scalar sup intern in
-  EitvD.init_set_num2 neginf sup
-
-let eitvMPQ_of_coeff (coeff:coeff) intern =
-  let (neginf,sup) = coeff in
-  let neginf = numMPQ_of_scalar neginf intern in
-  NumMPQ.neg neginf neginf;
-  let sup = numMPQ_of_scalar sup intern in
-  EitvMPQ.init_set_num2 neginf sup
+  let neginf = numXXX_of_scalar neginf intern in
+  NumXXX.neg neginf neginf;
+  let sup = numXXX_of_scalar sup intern in
+  EitvXXX.init_set_num2 neginf sup
+ENDMACRO
 
 let coeff_of_coeff intern (coeff:coeff) : Coeff.f Coeff.tt =
   let (neginf,sup) = coeff in
@@ -163,7 +148,6 @@ let check_list intern eitv_of_coeff list
     | _ -> failwith ""
   in
   (cst,list)
-
 
 
 let linexpr1_of_linexpr intern (discr:Common.discr) (env:Environment.t) (list:(string*coeff) list)
@@ -231,26 +215,14 @@ let lingen1_of_lingen intern (discr:Common.discr) (env:Environment.t) (lingen:Co
 (** {2 Exported functions: using lexbuf} *)
 (*  **********************************************************************)
 
-let linexpr1_of_lexbuf intern (discr:Common.discr) (env:Environment.t) (lexbuf:Lexing.lexbuf)
+MACRO_FOREACH yyy ("expr","cons","gen")
+let linyyy1_of_lexbuf intern (discr:Common.discr) (env:Environment.t) (lexbuf:Lexing.lexbuf)
   :
-  Linexpr1.t
+  Linyyy1.t
   =
-  let x = Apron_parser.linexpr Apron_lexer.lex lexbuf in
-  linexpr1_of_linexpr intern discr env x
-
-let lincons1_of_lexbuf intern (discr:Common.discr) (env:Environment.t) (lexbuf:Lexing.lexbuf)
-  :
-  Lincons1.t
-  =
-  let x = Apron_parser.lincons Apron_lexer.lex lexbuf in
-  lincons1_of_lincons intern discr env x
-
-let lingen1_of_lexbuf intern (discr:Common.discr) (env:Environment.t) (lexbuf:Lexing.lexbuf)
-  :
-  Lingen1.t
-  =
-  let x = Apron_parser.lingen Apron_lexer.lex lexbuf in
-  lingen1_of_lingen intern discr env x
+  let x = Apron_parser.linyyy Apron_lexer.lex lexbuf in
+  linyyy1_of_linyyy intern discr env x
+ENDMACRO
 
 let expr_of_gexpr intern e =
   Texpr0.map_gexpr
@@ -304,9 +276,9 @@ let lincons1_of_string intern (discr:Common.discr) (env:Environment.t) (str:stri
   =
   linyyy1_of_string lincons1_of_lexbuf "constraint" intern discr env str
 
-let lincons1_of_string intern (discr:Common.discr) (env:Environment.t) (str:string) : Lincons1.t
+let lingen1_of_string intern (discr:Common.discr) (env:Environment.t) (str:string) : Lingen1.t
   =
-  linyyy1_of_string lincons1_of_lexbuf "generator" intern discr env str
+  linyyy1_of_string lingen1_of_lexbuf "generator" intern discr env str
 
 let tyyy1_of_string tyyy1_of_lexbuf msg intern env str =
   try
@@ -334,43 +306,48 @@ let tcons1_of_string intern (env:Environment.t) (str:string) : Tcons1.t
   =
   tyyy1_of_string tcons1_of_lexbuf "constraint" intern env str
 
-let lincons1_of_lstring intern (discr:Common.discr) (env:Environment.t) (lstr:string list)
+MACRO_FOREACH yyy ("expr","cons","gen")
+let linyyy1_of_lstring intern (discr:Common.discr) (env:Environment.t) (lstr:string list)
   :
-  Lincons1.earray
+  Linyyy1.earray
   =
   let length = List.length lstr in
-  let res = Lincons1.array_init discr length env in
+  let res = Linyyy1.array_init discr length env in
   let i = ref (-1) in
   List.iter
     (fun str ->
       incr i;
-      let x = lincons1_of_string intern discr env str in
-      ignore (Lincons1.array_set_index res !i x intern)
+      let x = linyyy1_of_string intern discr env str in
+      ignore (Linyyy1.array_set_index res !i x intern)
     )
     lstr
   ;
   res
+ENDMACRO
 
-let tcons1_of_lstring (env:Environment.t) (lstr:string list)
+MACRO_FOREACH yyy ("expr","cons")
+let tyyy1_of_lstring intern (env:Environment.t) (lstr:string list)
   :
-  Tcons1.earray
+  Tyyy1.earray
   =
   let length = List.length lstr in
-  let res = Tcons1.array_make env length in
+  let res = Tyyy1.array_make env length in
   let i = ref (-1) in
   List.iter
     (fun str ->
       incr i;
-      let x = tcons1_of_string env str in
-      Tcons1.array_set res !i x
+      let x = tyyy1_of_string intern env str in
+      Tyyy1.array_set_index res !i x
     )
     lstr
   ;
   res
+ENDMACRO
 
-let of_lstring (man:'a Manager.t) (env:Environment.t) (lstr:string list)
+let of_lstring (man:'a Manager.t) ?(discr=(MPQ())) (env:Environment.t) (lstr:string list)
   :
   'a Abstract1.t
   =
-  let array = lincons1_of_lstring env lstr in
+  let intern = Manager.get_num_internal man in
+  let array = lincons1_of_lstring intern discr env lstr in
   Abstract1.of_lincons_array man env array
