@@ -57,13 +57,16 @@ $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy)))
 
 IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
 
+ML_TMPL_MODULES_tmpl = parser
 ML_TMPL_MODULES_yyy = linyyy1
-ML_ORIG_MODULES = texpr1 tcons1 abstract1 apron_parser apron_lexer parser
-ML_GENERATED_MODULES = \
+ML_ORIG_MODULES = texpr1 tcons1 abstract1 apron_parser apron_lexer
+ML_GENERATED_MODULES_1 = \
 $(IDL_MODULES) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(ML_TMPL_MODULES_yyy)))
-
-ML_MODULES = $(ML_GENERATED_MODULES) $(ML_ORIG_MODULES)
+ML_GENERATED_MODULES_2 = \
+$(ML_TMPL_MODULES_tmpl:%.tmpl=%)
+ML_GENERATED_MODULES = $(ML_GENERATED_MODULES_1) $(ML_GENERATED_MODULES_2)
+ML_MODULES = $(ML_GENERATED_MODULES_1) $(ML_ORIG_MODULES) $(ML_GENERATED_MODULES_2)
 
 C_ORIG_FILES = 
 C_TMPL_FILES_tmpl = apron_caml.c.tmpl
@@ -280,6 +283,14 @@ apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
 	../macros.pl $(SRCDIR)/$< >>$@
+%.ml: %.ml.tmpl
+	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
+	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
+%.mli: %.mli.tmpl
+	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
+	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@

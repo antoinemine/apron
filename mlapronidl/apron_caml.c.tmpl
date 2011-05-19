@@ -238,15 +238,11 @@ struct custom_operations camlidl_custom_num_internal = {
   custom_deserialize_default
 };
 
-value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
+value camlidl_num_internal_ptr_c2ml(num_internal_ptr* p)
 {
   value val;
-  TTTXXX_ptr p;
-
-  p = malloc(sizeof(TTTXXX_t));
-  *p = **a;
-  val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_ptr), 0, 1);
-  *(((TTTXXX_ptr*)(Data_custom_val(val)))) = p;
+  val = alloc_custom(&camlidl_custom_num_internal, sizeof(num_internal_ptr), 0, 1);
+  *(((num_internal_ptr*)(Data_custom_val(val)))) = *p;
   return val;
 }
 

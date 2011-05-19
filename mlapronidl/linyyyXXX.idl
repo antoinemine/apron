@@ -3,10 +3,7 @@
 /* This file is part of the APRON library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
-quote(C, "\n\
-#include \"apron_caml.h\"\n\
-#include \"ap_linyyyXXX.h\"\n\
-")
+quote(C, "#include \"apron_caml.h\"")
 
 import "mpz.idl";
 import "mpq.idl";
@@ -19,51 +16,51 @@ import "dim.idl";
 import "var.idl";
 import "environment.idl";
 
-#define _AP_yyy_MARK_
+#define _AP_linyyyXXX_MARK_
 
-#if !defined(_AP_expr_MARK_)
+#if !defined(_AP_linexprXXX_MARK_)
 import "linexprXXX.idl";
 #endif
 
 typedef [abstract,c2ml(camlidl_ap_linyyyXXX_ptr_c2ml),ml2c(camlidl_ap_linyyyXXX_ptr_ml2c)] struct ap_linyyyXXX_struct* ap_linyyyXXX_ptr;
 typedef [abstract,c2ml(camlidl_ap_linyyyXXX_array_ptr_c2ml),ml2c(camlidl_ap_linyyyXXX_array_ptr_ml2c)] struct ap_linyyyXXX_array_struct* ap_linyyyXXX_array_ptr;
 
-#if defined(_AP_expr_MARK_)
+#if defined(_AP_linexprXXX_MARK_)
 quote(MLMLI,"(** (Interval) linear expressions *)\n\n")
-#elif defined(_AP_cons_MARK_)
+#elif defined(_AP_linconsXXX_MARK_)
 quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
-#elif defined(_AP_expr_MARK_)
+#elif defined(_AP_linexprXXX_MARK_)
 quote(MLMLI,"(** Linear generators *)\n\n")
 #endif
 
 /* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
 
-quote(MLMLI,"\n(** {2 Single object} *)\n")
+quote(MLI,"
+(** {2 Linear expressions/constraints/generators} *)
 
-quote(MLI,"\n(** {3 Pretty printing} *)\n")
-quote(MLI,"val print : (Dim.t -> string) -> Format.formatter -> t -> unit")
+(** {3 Pretty printing} *)
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit
 
-quote(MLMLI,"\n(** {3 Initialization and Assignement Functions} *)")
-
+(** {3 Initialization and Assignement Functions} *)
+")
 void ap_linyyyXXX__init([out]ap_linyyyXXX_ptr OUTOUTOUT, unsigned int size)
     quote(call,"ap_linyyyXXX_init(OUTOUTOUT,size);");
-quote(MLI,"val init : ?size:int -> unit -> t")
+quote(MLI,"
+val init : ?size:int -> unit -> t
+")
 void ap_linyyyXXX_init_set([out]ap_linyyyXXX_ptr OUTOUTOUT, ap_linyyyXXX_ptr a);
-quote(MLI,"\
-val of_list0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> t\n\
-val of_array0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> t\n\
-val of_list1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) list -> t\n\
-val of_array1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) array -> t\
+quote(MLI,"
+val of_list0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> t
+val of_array0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> t
+val of_list1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) list -> t
+val of_array1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) array -> t
 ")
 void ap_linyyyXXX_set(ap_linyyyXXX_ptr res, ap_linyyyXXX_ptr a);
 void ap_linyyyXXX_resize(ap_linyyyXXX_ptr a, unsigned int size);
 void ap_linyyyXXX_resize_strict(ap_linyyyXXX_ptr a, unsigned int size);
 void ap_linyyyXXX_minimize(ap_linyyyXXX_ptr e);
-#if defined(_AP_cons_MARK_)
-void ap_linconsXXX_set_bool(ap_linconsXXX_ptr lincons, boolean value);
-#endif
 
-quote(MLMLI,"\n(** {3 Tests and Simplifications} *)")
+quote(MLI,"\n(** {3 Tests and Simplifications} *)")
 
 boolean ap_linyyyXXX_is_integer(ap_linyyyXXX_ptr a, unsigned int intdim);
 boolean ap_linyyyXXX_is_real(ap_linyyyXXX_ptr a, unsigned int intdim);
@@ -83,7 +80,7 @@ size = ap_linyyyXXX_supportinterval(a,_res);
 quote(MLI,"val supportinterval : t -> Dim.t array")
 quote(ML,"let supportinterval a = fst (_supportinterval a)")
 
-quote(MLMLI,"\n(** {3 Access} *)")
+quote(MLI,"\n(** {3 Access} *)")
 
 unsigned int ap_linyyyXXX_size(ap_linyyyXXX_ptr a);
 void ap_linyyyXXX_get_cst(eitvXXX_ptrm eitv, ap_linyyyXXX_ptr a);
@@ -96,54 +93,37 @@ if (error){
   caml_invalid_argument(\"unknown variable in the environment\");
 }
 ");
-#if !defined(_AP_expr_MARK_)
-void ap_linyyyXXX_get_linexpr(ap_linexprXXX_ptr a, ap_linyyyXXX_ptr b)
-  quote(call,"ap_linexprXXX_set(a,b->linexpr);");
-enum ap_yyytyp_t ap_linyyyXXX_get_yyytyp(ap_linyyyXXX_ptr a)
-  quote(call,"_res = a->yyytyp;");
-#endif
-#if defined(_AP_cons_MARK_)
-void ap_linyyyXXX_get_mpq(mpq_ptrm a, ap_linyyyXXX_ptr b)
-  quote(call,"mpq_set(a,b->mpq);");
-#endif
 
-quote(MLMLI,"(** Iters the function on the pairs coefficient/dimension of the linear expression/constraint/generator *)\n\
-external ap_linyyyXXX_iter0: ('a EitvXXX.tt -> Dim.t -> unit) -> t -> unit = \"camlidl_apron_linyyyXXX_iter0\"\
+quote(MLMLI,"
+external ap_linyyyXXX_iter0: ('a EitvXXX.tt -> Dim.t -> unit) -> t -> unit = \"camlidl_apron_linyyyXXX_iter0\"
+    (** Iters the function on the pairs coefficient/dimension of the linear expression/constraint/generator *)
 ")
 
-quote(C,"\
-value camlidl_apron_linyyyXXX_iter0(value _v_closure, value _v_linyyy)\n\
-{\n\
-  CAMLparam2(_v_closure,_v_linyyy);\n\
-  CAMLlocal2(_v_dim,_v_eitv);\n\
-  size_t i;\n\
-  ap_dim_t dim;\n\
-  eitvXXX_ptr peitv1,peitv2;\n\
-  eitvXXX_t eitv;\n\
-  ap_linyyyXXX_ptr linyyy;\n\
-\n\
- camlidl_ap_linyyyXXX_ptr_ml2c(_v_linyyy,&linyyy);\n\
- peitv2 = eitv;\n\
- ap_linyyyXXX_ForeachLinterm0(linyyy,i,dim,peitv1){\n\
-    _v_dim = Val_int(dim);\n\
-    eitvXXX_init_set(eitv,peitv1);\n\
-    _v_eitv = camlidl_eitvXXX_ptr_c2ml(&peitv2);\n\
-    callback2(_v_closure,_v_eitv,_v_dim);\n\
-  }\n\
-  CAMLreturn(Val_unit);\n\
-}\n\
+quote(C,"
+value camlidl_apron_linyyyXXX_iter0(value _v_closure, value _v_linyyy)
+{
+  CAMLparam2(_v_closure,_v_linyyy);
+  CAMLlocal2(_v_dim,_v_eitv);
+  size_t i;
+  ap_dim_t dim;
+  eitvXXX_ptr peitv1,peitv2;
+  eitvXXX_t eitv;
+  ap_linyyyXXX_ptr linyyy;
+
+ camlidl_ap_linyyyXXX_ptr_ml2c(_v_linyyy,&linyyy);
+ peitv2 = eitv;
+ ap_linyyyXXX_ForeachLinterm0(linyyy,i,dim,peitv1){
+    _v_dim = Val_int(dim);
+    eitvXXX_init_set(eitv,peitv1);
+    _v_eitv = camlidl_eitvXXX_ptr_c2ml(&peitv2);
+    callback2(_v_closure,_v_eitv,_v_dim);
+  }
+  CAMLreturn(Val_unit);
+}
 ")
 
-quote(MLI,"val iter1 : ('a EitvXXX.tt -> Var.t -> unit) -> t -> Environment.t -> unit")
-
-quote(ML,"\
-let iter1 f a env =\n\
-  iter0\n\
-    (begin fun eitv dim ->\n\
-      let var = Environment.var_of_dim env dim in\n\
-      f eitv var\n\
-    end)\n\
-    a\n\
+quote(MLI,"
+val iter1 : ('a EitvXXX.tt -> Var.t -> unit) -> t -> Environment.t -> unit
 ")
 
 void ap_linyyyXXX_set_cst(ap_linyyyXXX_ptr a, eitvXXX_ptrg eitv);
@@ -156,147 +136,16 @@ if (error){
   caml_invalid_argument(\"unknown variable in the environment\");
 }
 ");
-#if !defined(_AP_expr_MARK_)
-void ap_linyyyXXX_set_linexpr(ap_linyyyXXX_ptr a, ap_linexprXXX_ptr b)
-  quote(call,"ap_linexprXXX_set(a->linexpr,b);");
-void ap_linyyyXXX_set_yyytyp(ap_linyyyXXX_ptr a, enum ap_yyytyp_t b)
-  quote(call,"a->yyytyp = b;");
-#endif
-#if defined(_AP_cons_MARK_)
-void ap_linyyyXXX_set_mpq(ap_linyyyXXX_ptr a, mpq_ptrg b)
-  quote(call,"mpq_set(a->mpq,b);");
-#endif
 
-quote(MLI,"\
-val set_list0 : t ->  ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> unit\n\
-val set_array0 : t -> ?cst:'b EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> unit\n \
-val set_list1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) list -> unit\n \
-val set_array1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) array -> unit\n\
+quote(MLI,"
+val set_list0 : t ->  ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> unit
+val set_array0 : t -> ?cst:'b EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> unit\n
+val set_list1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) list -> unit\n
+val set_array1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) array -> unit
 ")
 
-quote(ML,"\n\
-let set_list0 expr ?cst list = \n\
-  List.iter\n\
-    (fun (dim,eitv) -> set_eitv0 expr dim eitv)\n\
-    list;\n\
-  begin match cst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-let set_array0 expr ?cst tab = \n\
-  Array.iter\n\
-    (fun (dim,eitv) -> set_eitv0 expr dim eitv )\n\
-    tab;\n\
-  begin match cst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-\n\
-let set_list1 expr env ?cst list = \n\
-  List.iter\n\
-    (fun (var,eitv) -> set_eitv1 expr env var eitv)\n\
-    list;\n\
-  begin match cst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-let set_array1 expr env ?cst tab = \n\
-  Array.iter\n\
-    (fun (var,eitv) -> set_eitv1 expr env var eitv )\n\
-    tab;\n\
-  begin match cst with\n\
-  | Some cst -> set_cst expr cst\n\
-  | None -> ()\n\
-  end;\n\
-  ()\n\
-\n\
-let init ?(size=0) () = _init size\n\
-let of_list0 ?size ?cst list =\n\
-  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in\n\
-  set_list0 a ?cst list;\n\
-  a\n\
-let of_array0 ?size ?cst tab =\n\
-  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in\n\
-  set_array0 a ?cst tab;\n\
-  a\n\
-let of_list1 ?size ?cst env list =\n\
-  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in\n\
-  set_list1 a env ?cst list;\n\
-  a\n\
-let of_array1 ?size ?cst env tab =\n\
-  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in\n\
-  set_array1 a env ?cst tab;\n\
-  a\n\
-\n\
-")
-quote(ML,"\
-let printexpr assoc fmt expr = \n\
-  Format.fprintf fmt \"@[<hov>\";\n\
-  let first = ref true in\n\
-  let print_eitv ~cst eitv =\n\
-    if not !first then Format.fprintf fmt \"@,\";\n\
-    if EitvXXX.is_point eitv then begin\n\
-      let bound = BoundXXX.init () in\n\
-      EitvXXX.get_sup bound eitv;\n\
-      let sgn = BoundXXX.sgn bound in\n\
-      if sgn>0 then begin\n\
-	if not !first then Format.pp_print_string fmt \"+\";\n\
-      end else begin\n\
-	Format.pp_print_string fmt \"-\";\n\
-	BoundXXX.neg bound bound;\n\
-      end;\n\
-      if cst || BoundXXX.cmp_int bound 1 <> 0 then\n\
-	BoundXXX.print fmt bound;\n\
-    end else begin\n\
-      if not !first then Format.pp_print_string fmt \"+\";\n\
-	EitvXXX.print fmt eitv\n\
-    end;\n\
-    ()\n\
-  in\n\
-  iter0\n\
-    (begin fun eitv dim ->\n\
-      if not (EitvXXX.is_zero eitv) then begin\n\
-	print_eitv ~cst:false eitv;\n\
-	Format.pp_print_string fmt (assoc dim);\n\
-	first := false;\n\
-      end;\n\
-    end)\n\
-    expr\n\
-  ;\n\
-  let eitv = EitvXXX.init() in\n\
-  get_cst eitv expr;\n\
-  if not (EitvXXX.is_zero eitv) then print_eitv ~cst:true eitv;\n\
-    Format.fprintf fmt \"@]\";\n\
-  ()\n\
-")
-#if defined(_AP_expr_MARK_)
-quote(ML,"let print = printexpr")
-#elif defined(_AP_cons_MARK_)
-quote(ML,"\
-let print assoc fmt cons =
-  printexpr assoc fmt cons;
-  let constyp = get_constyp cons in
-  Format.pp_print_string fmt (Common.string_of_constyp constyp);
-  if constyp = Common.EQMOD then begin
-    let mpq = Mpq.init() in
-    get_mpq mpq cons;
-    Format.fprintf fmt \" mod %a\" Mpq.print mpq
-  end
-")
-#elif defined(_AP_gen_MARK_)
-quote(ML,"\
-let print assoc fmt gen =
-  let gentyp = get_gentyp gen in
-  Format.fprintf fmt \"%s:%a\"
-    (Common.string_of_gentyp gentyp)
-    (printexpr assoc) gen
-")
-#endif
 
-quote(MLMLI,"\n(** {3 Change of dimension and permutation} *)")
+quote(MLI,"\n(** {3 Change of dimension and permutation} *)")
 void ap_linyyyXXX_add_dimensions(ap_linyyyXXX_ptr res,
 				ap_linyyyXXX_ptr a,
 				[ref]struct ap_dimchange_t* dimchange);
@@ -314,10 +163,11 @@ if (error){
   caml_invalid_argument(\"The new (first) environment is not a super-environment of the old (second) one as expected\");
 }
 ");
-quote(MLI,"val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit")
-quote(ML,"let extend_environment res ~newenv old ~oldenv = _extend_environment res newenv old oldenv")
+quote(MLI,"
+val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit
+")
 
-quote(MLMLI,"\n(** {3 Hashing and comparison} *)")
+quote(MLI,"\n(** {3 Hashing and comparison} *)")
 
 int ap_linyyyXXX_hash(ap_linyyyXXX_ptr a);
 boolean ap_linyyyXXX_equal(ap_linyyyXXX_ptr a1,ap_linyyyXXX_ptr a2);
@@ -325,7 +175,7 @@ boolean ap_linyyyXXX_equal(ap_linyyyXXX_ptr a1,ap_linyyyXXX_ptr a2);
 /* Lexicographic ordering, terminating by constant coefficients */
 int ap_linyyyXXX_cmp(ap_linyyyXXX_ptr a1, ap_linyyyXXX_ptr a2);
 
-quote(MLMLI,"\n(** {2 Arrays} *)")
+quote(MLI,"\n(** {2 Arrays} *)")
 
 quote(MLI,"\n(** {3 Pretty printing} *)\n")
 quote(MLI,"
@@ -336,7 +186,7 @@ val array_print :
  (Dim.t -> string) -> Format.formatter -> earray -> unit
 ")
 
-quote(MLMLI,"\n(** {3 Initialization and Assignement Functions} *)")
+quote(MLI,"\n(** {3 Initialization and Assignement Functions} *)")
 
 void ap_linyyyXXX_array_init([out]ap_linyyyXXX_array_ptr OUTOUTOUT, unsigned int size);
 void ap_linyyyXXX_array_init_set([out]ap_linyyyXXX_array_ptr OUTOUTOUT, ap_linyyyXXX_array_ptr array);
@@ -344,7 +194,7 @@ void ap_linyyyXXX_array_set(ap_linyyyXXX_array_ptr res, ap_linyyyXXX_array_ptr a
 void ap_linyyyXXX_array_resize(ap_linyyyXXX_array_ptr array, unsigned int size);
 void ap_linyyyXXX_array_minimize(ap_linyyyXXX_array_ptr array);
 
-quote(MLMLI,"\n(** {3 Tests and Simplifications} *)")
+quote(MLI,"\n(** {3 Tests and Simplifications} *)")
 
 boolean ap_linyyyXXX_array_is_linear(ap_linyyyXXX_array_ptr array);
 boolean ap_linyyyXXX_array_is_quasilinear(ap_linyyyXXX_array_ptr array);
@@ -364,7 +214,7 @@ size = ap_linyyyXXX_array_supportinterval(array,_res,maxdim);
 ")
   quote(dealloc,"free(_res);");
 
-quote(MLMLI,"\n(** {3 Access} *)")
+quote(MLI,"\n(** {3 Access} *)")
 
 int ap_linyyyXXX_array_length(ap_linyyyXXX_array_ptr array)
   quote(call,"_res = array->size;");
@@ -379,7 +229,7 @@ if (i<0 || i>=(int)array->size) caml_invalid_argument(\"Out of bound array acces
 ap_linyyyXXX_set(array->p[i],a);
 ");
 
-quote(MLMLI,"\n(** {3 Change of dimension and permutation} *)")
+quote(MLI,"\n(** {3 Change of dimension and permutation} *)")
 
 void ap_linyyyXXX_array_add_dimensions(ap_linyyyXXX_array_ptr res,
 				      ap_linyyyXXX_array_ptr array,
@@ -398,12 +248,204 @@ if (error){
   caml_invalid_argument(\"The new (first) environment is not a super-environment of the old (second) one as expected\");
 }
 ");
-quote(MLI,"val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit")
-quote(ML,"let array_extend_environment res ~newenv old ~oldenv = _array_extend_environment res newenv old oldenv")
+quote(MLI,"
+val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit
+")
 
 /* ====================================================================== */
 /* III. ML part */
 /* ====================================================================== */
+
+quote(ML,"
+let init ?(size=0) () = _init size
+let iter1 f a env =
+  iter0
+    (begin fun eitv dim ->
+      let var = Environment.var_of_dim env dim in
+      f eitv var
+    end)
+    a
+let set_list0 expr ?cst list =
+  List.iter
+    (fun (dim,eitv) -> set_eitv0 expr dim eitv)
+    list;
+  begin match cst with
+  | Some cst -> set_cst expr cst
+  | None -> ()
+  end;
+  ()
+let set_array0 expr ?cst tab =
+  Array.iter
+    (fun (dim,eitv) -> set_eitv0 expr dim eitv )
+    tab;
+  begin match cst with
+  | Some cst -> set_cst expr cst
+  | None -> ()
+  end;
+  ()
+
+let set_list1 expr env ?cst list =
+  List.iter
+    (fun (var,eitv) -> set_eitv1 expr env var eitv)
+    list;
+  begin match cst with
+  | Some cst -> set_cst expr cst
+  | None -> ()
+  end;
+  ()
+let set_array1 expr env ?cst tab =
+  Array.iter
+    (fun (var,eitv) -> set_eitv1 expr env var eitv )
+    tab;
+  begin match cst with
+  | Some cst -> set_cst expr cst
+  | None -> ()
+  end;
+  ()
+
+let of_list0 ?size ?cst list =
+  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in
+  set_list0 a ?cst list;
+  a
+let of_array0 ?size ?cst tab =
+  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in
+  set_array0 a ?cst tab;
+  a
+let of_list1 ?size ?cst env list =
+  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in
+  set_list1 a env ?cst list;
+  a
+let of_array1 ?size ?cst env tab =
+  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in
+  set_array1 a env ?cst tab;
+  a
+
+let printexpr assoc fmt expr =
+  Format.fprintf fmt \"@[<hov>\";
+  let first = ref true in
+  let print_eitv ~cst eitv =
+    if not !first then Format.fprintf fmt \"@,\";
+    if EitvXXX.is_point eitv then begin
+      let bound = BoundXXX.init () in
+      EitvXXX.get_sup bound eitv;
+      let sgn = BoundXXX.sgn bound in
+      if sgn>0 then begin
+	if not !first then Format.pp_print_string fmt \"+\";
+      end else begin
+	Format.pp_print_string fmt \"-\";
+	BoundXXX.neg bound bound;
+      end;
+      if cst || BoundXXX.cmp_int bound 1 <> 0 then
+	BoundXXX.print fmt bound;
+    end else begin
+      if not !first then Format.pp_print_string fmt \"+\";
+	EitvXXX.print fmt eitv
+    end;
+    ()
+  in
+  iter0
+    (begin fun eitv dim ->
+      if not (EitvXXX.is_zero eitv) then begin
+	print_eitv ~cst:false eitv;
+	Format.pp_print_string fmt (assoc dim);
+	first := false;
+      end;
+    end)
+    expr
+  ;
+  let eitv = EitvXXX.init() in
+  get_cst eitv expr;
+  if not (EitvXXX.is_zero eitv) then print_eitv ~cst:true eitv;
+    Format.fprintf fmt \"@]\";
+  ()
+let extend_environment res ~newenv old ~oldenv = _extend_environment res newenv old oldenv
+let array_extend_environment res ~newenv old ~oldenv = _array_extend_environment res newenv old oldenv
+")
+
+
+#if !defined(_AP_linexprXXX_MARK_)
+quote(MLI,"
+(** {2 Specific to constraints and generators} *)
+(** {3 Access} *)
+")
+void ap_linyyyXXX_get_linexpr(ap_linexprXXX_ptr a, ap_linyyyXXX_ptr b)
+  quote(call,"ap_linexprXXX_set(a,b->linexpr);");
+enum ap_yyytyp_t ap_linyyyXXX_get_yyytyp(ap_linyyyXXX_ptr a)
+  quote(call,"_res = a->yyytyp;");
+void ap_linyyyXXX_set_linexpr(ap_linyyyXXX_ptr a, ap_linexprXXX_ptr b)
+  quote(call,"ap_linexprXXX_set(a->linexpr,b);");
+void ap_linyyyXXX_set_yyytyp(ap_linyyyXXX_ptr a, enum ap_yyytyp_t b)
+  quote(call,"a->yyytyp = b;");
+#endif
+
+#if defined(_AP_linconsXXX_MARK_)
+quote(MLI,"
+(** {2 Specific to constraints only} *)
+(** {3 Assignement} *)
+")
+void ap_linconsXXX_set_bool(ap_linconsXXX_ptr lincons, boolean value);
+quote(MLI,"
+(** {3 Access} *)
+")
+void ap_linyyyXXX_get_mpq(mpq_ptrm a, ap_linyyyXXX_ptr b)
+  quote(call,"mpq_set(a,b->mpq);");
+void ap_linyyyXXX_set_mpq(ap_linyyyXXX_ptr a, mpq_ptrg b)
+  quote(call,"mpq_set(a->mpq,b);");
+quote(MLI,"
+(** {3 Constructor} *)
+val make : LinexprXXX.t -> Common.constyp -> 'a Mpq.tt option -> t
+")
+quote(ML,"
+let make linexpr constyp ompq =
+  let res = init () in
+  set_linexpr res linexpr;
+  set_constyp res constyp;
+  begin match ompq with
+  | None -> ()
+  | Some mpq -> set_mpq res mpq
+  end;
+  res
+")
+#endif
+
+#if defined(_AP_lingenXXX_MARK_)
+quote(MLI,"
+(** {2 Specific to generators only} *)
+(** {3 Constructor} *)
+val make : LinexprXXX.t -> Common.gentyp -> t
+")
+quote(ML,"
+let make linexpr gentyp =
+  let res = init () in
+  set_linexpr res linexpr;
+  set_gentyp res gentyp;
+  res
+")
+#endif
+
+#if defined(_AP_linexprXXX_MARK_)
+quote(ML,"let print = printexpr")
+#elif defined(_AP_linconsXXX_MARK_)
+quote(ML,"
+let print assoc fmt cons =
+  printexpr assoc fmt cons;
+  let constyp = get_constyp cons in
+  Format.pp_print_string fmt (Common.string_of_constyp constyp);
+  if constyp = Common.EQMOD then begin
+    let mpq = Mpq.init() in
+    get_mpq mpq cons;
+    Format.fprintf fmt \" mod %a\" Mpq.print mpq
+  end
+")
+#elif defined(_AP_lingenXXX_MARK_)
+quote(ML,"
+let print assoc fmt gen =
+  let gentyp = get_gentyp gen in
+  Format.fprintf fmt \"%s:%a\"
+    (Common.string_of_gentyp gentyp)
+    (printexpr assoc) gen
+")
+#endif
 
 quote(ML,"
 let array_print ?first ?sep ?last assoc fmt array =
@@ -415,6 +457,5 @@ let array_print ?first ?sep ?last assoc fmt array =
       print assoc fmt a)
     fmt
 ")
-
 
 #undef _AP_yyy_MARK_

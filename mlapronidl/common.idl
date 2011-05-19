@@ -69,6 +69,14 @@ val check_val1_add : 'a val1 -> 'b val1 -> ('b -> Dim.change -> 'b) -> 'b
 val map_discr :
   ('a -> 'b) ->
   ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
+val map_discr_arg :
+  ('a -> 'b -> 'c) ->
+  ('d -> 'b -> 'e) ->
+  ('f -> 'b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t
+val map_discr_arg2 :
+  ('a -> 'b -> 'c -> 'd) ->
+  ('e -> 'b -> 'c -> 'f) ->
+  ('g -> 'b -> 'c -> 'h) -> ('a, 'e, 'g) t -> 'b -> 'c -> ('d, 'f, 'h) t
 val map_discr0_arg :
   ('b -> 'c) ->
   ('b -> 'e) ->
@@ -174,6 +182,16 @@ let map_discr d mpq mpfr discr =
   | D x -> D(d x)
   | MPQ x -> MPQ(mpq x)
   | MPFR x -> MPFR(mpfr x)
+let map_discr_arg d mpq mpfr discr arg =
+  match discr with
+  | D x -> D(d x arg)
+  | MPQ x -> MPQ(mpq x arg)
+  | MPFR x -> MPFR(mpfr x arg)
+let map_discr_arg2 d mpq mpfr discr arg1 arg2 =
+  match discr with
+  | D x -> D(d x arg1 arg2)
+  | MPQ x -> MPQ(mpq x arg1 arg2)
+  | MPFR x -> MPFR(mpfr x arg1 arg2)
 let map_discr0_arg d mpq mpfr discr arg =
   match discr with
   | D x -> D(d arg)
