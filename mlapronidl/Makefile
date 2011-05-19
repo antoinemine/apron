@@ -109,7 +109,7 @@ clean:
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
 	/bin/rm -f *.o *.a *.so *.annot *.cmi *.cmo *.cmx *.cmxa *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
 	/bin/rm -fr tmp html
-	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
+	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty apron_ocamldoc.mli
 
 distclean: clean
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
