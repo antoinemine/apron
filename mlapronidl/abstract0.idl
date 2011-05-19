@@ -423,7 +423,7 @@ ap_abstract0_ptr ap_abstract0_remove_dimensions(ap_manager_ptr man, ap_abstract0
      quote(call,"_res = ap_abstract0_remove_dimensions(man,false,a,dimchange);")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
-ap_abstract0_ptr ap_abstract0_apply_dimchange2(ap_manager_ptr man, ap_abstract0_ptr a, struct ap_dimchange2_t* dimchange2, boolean project)
+ap_abstract0_ptr ap_abstract0_apply_dimchange2(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
      quote(call,"
 _res = ap_abstract0_apply_dimchange2(man,false,a,dimchange2,project);
 ")
@@ -448,14 +448,14 @@ void ap_abstract0_remove_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a,
 }")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
-void ap_abstract0_apply_dimchange2_with(ap_manager_ptr man, ap_abstract0_ptr a, struct ap_dimchange2_t* dimchange2, boolean project)
+void ap_abstract0_apply_dimchange2_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
      quote(call,"
 ap_abstract0_t* res  = ap_abstract0_apply_dimchange2(man,true,a,dimchange2,project);
 *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;
 ")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
-void ap_abstract0_permute_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, struct ap_dimperm_t* perm)
+void ap_abstract0_permute_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimperm_t* perm)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_permute_dimensions(man,true,a,perm);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\

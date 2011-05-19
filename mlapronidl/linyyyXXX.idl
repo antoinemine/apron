@@ -45,13 +45,15 @@ quote(MLI,"val print : (Dim.t -> string) -> Format.formatter -> t -> unit")
 
 quote(MLMLI,"\n(** {3 Initialization and Assignement Functions} *)")
 
-void ap_linyyyXXX_init([out]ap_linyyyXXX_ptr OUTOUTOUT, unsigned int size);
+void ap_linyyyXXX__init([out]ap_linyyyXXX_ptr OUTOUTOUT, unsigned int size)
+    quote(call,"ap_linyyyXXX_init(OUTOUTOUT,size);");
+quote(MLI,"val init : ?size:int -> unit -> t")
 void ap_linyyyXXX_init_set([out]ap_linyyyXXX_ptr OUTOUTOUT, ap_linyyyXXX_ptr a);
 quote(MLI,"\
-val of_list0 : ?size:int -> ?cst:'a EitvXXX.tt -> ('b EitvXXX.tt * Dim.t) list -> t\n\
-val of_array0 : ?size:int -> ?cst:'a EitvXXX.tt -> ('b EitvXXX.tt * Dim.t) array -> t\n\
-val of_list1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> ('b EitvXXX.tt * Var.t) list -> t\n\
-val of_array1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> ('b EitvXXX.tt * Var.t) array -> t\
+val of_list0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> t\n\
+val of_array0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> t\n\
+val of_list1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) list -> t\n\
+val of_array1 : ?size:int -> ?cst:'a EitvXXX.tt -> Environment.t -> (Var.t * 'b EitvXXX.tt) array -> t\
 ")
 void ap_linyyyXXX_set(ap_linyyyXXX_ptr res, ap_linyyyXXX_ptr a);
 void ap_linyyyXXX_resize(ap_linyyyXXX_ptr a, unsigned int size);
@@ -166,16 +168,16 @@ void ap_linyyyXXX_set_mpq(ap_linyyyXXX_ptr a, mpq_ptrg b)
 #endif
 
 quote(MLI,"\
-val set_list0 : t ->  ?cst:'a EitvXXX.tt -> ('b EitvXXX.tt * Dim.t) list -> unit\n\
-val set_array0 : t -> ?cst:'b EitvXXX.tt -> ('b EitvXXX.tt * Dim.t) array -> unit\n \
-val set_list1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> ('b EitvXXX.tt * Var.t) list -> unit\n \
-val set_array1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> ('b EitvXXX.tt * Var.t) array -> unit\n\
+val set_list0 : t ->  ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> unit\n\
+val set_array0 : t -> ?cst:'b EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> unit\n \
+val set_list1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) list -> unit\n \
+val set_array1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX.tt) array -> unit\n\
 ")
 
 quote(ML,"\n\
 let set_list0 expr ?cst list = \n\
   List.iter\n\
-    (fun (eitv,dim) -> set_eitv0 expr dim eitv)\n\
+    (fun (dim,eitv) -> set_eitv0 expr dim eitv)\n\
     list;\n\
   begin match cst with\n\
   | Some cst -> set_cst expr cst\n\
@@ -184,7 +186,7 @@ let set_list0 expr ?cst list = \n\
   ()\n\
 let set_array0 expr ?cst tab = \n\
   Array.iter\n\
-    (fun (eitv,dim) -> set_eitv0 expr dim eitv )\n\
+    (fun (dim,eitv) -> set_eitv0 expr dim eitv )\n\
     tab;\n\
   begin match cst with\n\
   | Some cst -> set_cst expr cst\n\
@@ -194,7 +196,7 @@ let set_array0 expr ?cst tab = \n\
 \n\
 let set_list1 expr env ?cst list = \n\
   List.iter\n\
-    (fun (eitv,var) -> set_eitv1 expr env var eitv)\n\
+    (fun (var,eitv) -> set_eitv1 expr env var eitv)\n\
     list;\n\
   begin match cst with\n\
   | Some cst -> set_cst expr cst\n\
@@ -203,7 +205,7 @@ let set_list1 expr env ?cst list = \n\
   ()\n\
 let set_array1 expr env ?cst tab = \n\
   Array.iter\n\
-    (fun (eitv,var) -> set_eitv1 expr env var eitv )\n\
+    (fun (var,eitv) -> set_eitv1 expr env var eitv )\n\
     tab;\n\
   begin match cst with\n\
   | Some cst -> set_cst expr cst\n\
@@ -211,20 +213,21 @@ let set_array1 expr env ?cst tab = \n\
   end;\n\
   ()\n\
 \n\
+let init ?(size=0) () = _init size\n\
 let of_list0 ?size ?cst list =\n\
-  let a = init (match size with None -> List.length list | Some x -> x) in\n\
+  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in\n\
   set_list0 a ?cst list;\n\
   a\n\
 let of_array0 ?size ?cst tab =\n\
-  let a = init (match size with None -> Array.length tab | Some x -> x) in\n\
+  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in\n\
   set_array0 a ?cst tab;\n\
   a\n\
 let of_list1 ?size ?cst env list =\n\
-  let a = init (match size with None -> List.length list | Some x -> x) in\n\
+  let a = init ~size:(match size with None -> List.length list | Some x -> x) () in\n\
   set_list1 a env ?cst list;\n\
   a\n\
 let of_array1 ?size ?cst env tab =\n\
-  let a = init (match size with None -> Array.length tab | Some x -> x) in\n\
+  let a = init ~size:(match size with None -> Array.length tab | Some x -> x) () in\n\
   set_array1 a env ?cst tab;\n\
   a\n\
 \n\
@@ -404,7 +407,7 @@ quote(ML,"let array_extend_environment res ~newenv old ~oldenv = _array_extend_e
 
 quote(ML,"
 let array_print ?first ?sep ?last assoc fmt array =
-  let a = init 0 in
+  let a = init () in
   Common.earray_print ?first ?sep ?last
     ~length:(array_length array)
     ~print_index:(fun fmt index ->

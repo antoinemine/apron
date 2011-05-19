@@ -15,7 +15,7 @@ type earray = Linyyy0.earray Common.val1
 (*  ********************************************************************** *)
 
 let print fmt (x:t) = Linyyy0.print (Environment.string_of_dim x.Common.env) fmt x.Common.val0
-let init (discr:Common.discr) length env : t = Common.make_val1 (Linyyy0.init discr length) env
+let init ?size (discr:Common.discr) env : t = Common.make_val1 (Linyyy0.init ?size discr) env
 let init_set (x:t) : t = Common.make_val1 (Linyyy0.init_set x.Common.val0) x.Common.env
 let init_set_linyyyD x env : t = Common.make_val1 (Linyyy0.init_set_linyyyD x) env
 let init_set_linyyyMPQ x env : t = Common.make_val1 (Linyyy0.init_set_linyyyMPQ x) env

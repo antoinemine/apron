@@ -15,7 +15,7 @@ type earray = Tcons0.t array Common.val1
 (** Make a tree expression constraint. Modifying later the linear expression ({e not
     advisable}) modifies correspondingly the tree expression constraint and conversely,
     except for changes of environements *)
-val make: Texpr1.t -> Common.constyp -> t
+val make : Texpr1.t -> Common.constyp -> 'a Mpq.tt option -> t
 val of_lincons1 : Lincons1.t -> t
 val copy : t -> t
   (** Copy (deep copy) *)

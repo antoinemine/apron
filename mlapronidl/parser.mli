@@ -40,18 +40,18 @@
   For tree expressions [texpr], by default the operations have an exact
   arithmetic semantics in the real numbers (even if involved variables are of
   integer). The type qualifiers modify this default semantics. Their meaning is
-  as follows: 
-  - [i] integer semantics 
-  - [f] IEEE754 32 bits floating-point semantics 
-  - [d] IEEE754 64 bits floating-point semantics 
-  - [l] IEEE754 80 bits floating-point semantics 
+  as follows:
+  - [i] integer semantics
+  - [f] IEEE754 32 bits floating-point semantics
+  - [d] IEEE754 64 bits floating-point semantics
+  - [l] IEEE754 80 bits floating-point semantics
   - [q] IEEE754 129 bits floating-point semantics
 
   By default, the rounding mode is "any" (this applies only in non-real
-  semantics), which allows to emulate all the following rounding modes: 
-  - [n] nearest 
-  - [0] towards zero 
-  - [+oo] towards infinity 
+  semantics), which allows to emulate all the following rounding modes:
+  - [n] nearest
+  - [0] towards zero
+  - [+oo] towards infinity
   - [-oo] towards minus infinity
   - [?] any
 
@@ -80,9 +80,9 @@
 exception Error of string
   (** Raised by conversion functions *)
 
-val linexpr1_of_lexbuf : Environment.t -> Lexing.lexbuf -> Linexpr1.t
-val lincons1_of_lexbuf : Environment.t -> Lexing.lexbuf -> Lincons1.t
-val generator1_of_lexbuf : Environment.t -> Lexing.lexbuf -> Generator1.t
+val linexpr1_of_lexbuf : Common.discr -> Environment.t -> Lexing.lexbuf -> Linexpr1.t
+val lincons1_of_lexbuf : Common.discr -> Environment.t -> Lexing.lexbuf -> Lincons1.t
+val lingen1_of_lexbuf : Common.discr -> Environment.t -> Lexing.lexbuf -> Lingen1.t
   (** Conversion from lexing buffers to resp. linear expressions, linear
     constraints and generators, defined on the given environment. *)
 
@@ -92,9 +92,9 @@ val tcons1_of_lexbuf : Environment.t -> Lexing.lexbuf -> Tcons1.t
   (** Conversion from lexing buffers to resp. tree expressions and
       constraints, defined on the given environment. *)
 
-val linexpr1_of_string : Environment.t -> string -> Linexpr1.t
-val lincons1_of_string : Environment.t -> string -> Lincons1.t
-val generator1_of_string : Environment.t -> string -> Generator1.t
+val linexpr1_of_string : Common.discr -> Environment.t -> string -> Linexpr1.t
+val lincons1_of_string : Common.discr -> Environment.t -> string -> Lincons1.t
+val lingen1_of_string : Common.discr -> Environment.t -> string -> Lingen1.t
   (** Conversion from strings to resp. linear expressions, linear
     constraints and generators, defined on the given environment. *)
 
@@ -104,8 +104,8 @@ val tcons1_of_string : Environment.t -> string -> Tcons1.t
   (** Conversion from lexing buffers to resp. tree expressions and
       constraints, defined on the given environment. *)
 
-val lincons1_of_lstring : Environment.t -> string list -> Lincons1.earray
-val generator1_of_lstring : Environment.t -> string list -> Generator1.earray
+val lincons1_of_lstring : Common.discr -> Environment.t -> string list -> Lincons1.earray
+val lingen1_of_lstring : Common.discr -> Environment.t -> string list -> Lingen1.earray
   (** Conversion from lists of strings to array of resp. linear
       constraints and generators, defined on the given environment. *)
 

@@ -25,12 +25,12 @@ type typ =   Texpr0.typ =   Real | Int | Single | Double | Extended | Quad
 type round = Texpr0.round = Near | Zero | Up | Down | Rnd
 
 (** User type for tree expressions *)
-type 'a gexpr = 'a Texpr0.gexpr =
-  | Cst of Coeff.f Coeff.tt
-  | DimVar of 'a
-  | Unop of unop * 'a gexpr * typ * round
-  | Binop of binop * 'a gexpr * 'a gexpr * typ * round
-type expr = Var.t gexpr
+type ('a,'b) gexpr = ('a,'b) Texpr0.gexpr =
+  | Cst of 'a
+  | DimVar of 'b
+  | Unop of unop * ('a,'b) gexpr * typ * round
+  | Binop of binop * ('a,'b) gexpr * ('a,'b) gexpr * typ * round
+type expr = (Coeff.f Coeff.tt, Var.t) gexpr
 
 (*  ********************************************************************** *)
 (** {2 Printing} *)

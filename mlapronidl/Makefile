@@ -58,7 +58,7 @@ $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy)))
 IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
 
 ML_TMPL_MODULES_yyy = linyyy1
-ML_ORIG_MODULES = texpr1 tcons1 # abstract1 apron_parser apron_lexer parser
+ML_ORIG_MODULES = texpr1 tcons1 abstract1 apron_parser apron_lexer parser
 ML_GENERATED_MODULES = \
 $(IDL_MODULES) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(ML_TMPL_MODULES_yyy)))
@@ -242,6 +242,11 @@ mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
 #-----------------------------------
 # CAML
 #-----------------------------------
+
+apron_parser.ml apron_parser.mli: apron_parser.mly
+	$(OCAMLYACC) -v $^
+apron_lexer.ml: apron_lexer.mll
+	$(OCAMLLEX) $^
 
 apron.cmo apron.cmi: $(ML_MODULES:%=%.cmo) $(ML_MODULES:%=%.cmi)
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) \

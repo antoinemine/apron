@@ -41,7 +41,7 @@ quote(MLI,"
 val print : (Dim.t -> string) -> Format.formatter -> t -> unit
 
 (** {3 Initialization} *)
-val init : Common.discr -> int -> t
+val init : ?size:int -> Common.discr -> t
 val init_set : t -> t
 val init_set_linyyyD : LinyyyD.t -> t
 val init_set_linyyyMPQ : LinyyyMPQ.t -> t
@@ -189,8 +189,11 @@ quote(ML,"
 let print assoc fmt (linyyy:t) =
   Common.apply_arg2_discr LinyyyD.print LinyyyMPQ.print LinyyyMPFR.print assoc fmt linyyy
 
-let init (discr:Common.discr) length : t =
-  Common.map_discr0_arg LinyyyD.init LinyyyMPQ.init LinyyyMPFR.init discr length
+let init ?size (discr:Common.discr) : t =
+  match discr with
+  | Common.D () -> Common.D(LinyyyD.init ?size ())
+  | Common.MPQ () -> Common.MPQ(LinyyyMPQ.init ?size ())
+  | Common.MPFR () -> Common.MPFR(LinyyyMPFR.init ?size ())
 let init_set (linyyy:t) : t =
   Common.map_discr LinyyyD.init_set LinyyyMPQ.init_set LinyyyMPFR.init_set linyyy
 let init_set_linyyyD x : t =

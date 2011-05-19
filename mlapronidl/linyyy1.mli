@@ -18,7 +18,7 @@ type earray = Linyyy0.earray Common.val1
 val print : Format.formatter -> t -> unit
 
 (** {3 Initialization} *)
-val init : Common.discr -> int -> Environment.t -> t
+val init : ?size:int -> Common.discr -> Environment.t -> t
 val init_set : t -> t
 val init_set_linyyyD : LinyyyD.t -> Environment.t -> t
 val init_set_linyyyMPQ : LinyyyMPQ.t -> Environment.t -> t
