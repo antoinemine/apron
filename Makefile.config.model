@@ -60,7 +60,7 @@ MPFR_PREFIX = /usr
 
 # Where to find PPL ($(PPL_PREFIX)/include, $(PPL_PREFIX)/lib
 #
-PPL_PREFIX = /tmp
+PPL_PREFIX = /usr
 
 # Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
 #
@@ -98,6 +98,11 @@ JNIINC    = -I/java/include
 
 # C compiler
 #CC = gcc
+
+# NOTE: for MACINTOSH (under MacOS 10.6), add in CFLAGS and their variants:
+#
+# -undefined supress -flat_namespace
+#
 
 # C compilation flags
 CFLAGS = \
