@@ -100,6 +100,8 @@ static inline void boundXXX_init(boundXXX_t a)
 { numXXX_init(boundXXX_numref(a)); _boundXXX_inf(a); }
 static inline void boundXXX_init_set_int(boundXXX_t a, long int i)
 { numXXX_init_set_int(boundXXX_numref(a),i); _boundXXX_inf(a); }
+static inline void boundXXX_init_set_num(boundXXX_t a, numXXX_t b)
+{ numXXX_init_set(boundXXX_numref(a),b); _boundXXX_inf(a); }
 static inline void boundXXX_clear(boundXXX_t a)
 { numXXX_clear(boundXXX_numref(a)); }
 
@@ -421,11 +423,11 @@ bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
 bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
 bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool boundXXX_set_numZZZ(boundXXX_t a, numZZZ_t b, num_internal_t intern);
 ENDMACRO
 
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern);
 bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern);
 ENDMACRO
