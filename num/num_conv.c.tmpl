@@ -13,7 +13,7 @@
 /* 1. numIyyy_t */
 /* ====================================================================== */
 
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 extern inline bool lint_fits_numIyyy(long int a)
 { return true; }
 extern inline bool lfrac_fits_numIyyy(long int i, long int j)
@@ -66,7 +66,7 @@ extern inline bool numIl_fits_lint(numIl_t a)
 { return true; }
 extern inline bool numIll_fits_lint(numIll_t a)
 { return llint_fits_numIl(*a); }
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 extern inline bool numIyyy_fits_llint(numIyyy_t a)
 { return true; }
 extern inline bool numIyyy_fits_mpz(numIyyy_t a)
@@ -146,7 +146,7 @@ bool numIll_set_mpz(numIll_t a, mpz_t b, num_internal_t intern)
   }
   return res;
 }
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 extern inline bool numIyyy_set_mpq(numIyyy_t a, mpq_t b, num_internal_t intern)
 {
   mpz_cdiv_qr(intern->q, intern->r, mpq_numref(b),mpq_denref(b));
@@ -181,7 +181,7 @@ extern inline bool numIll_set_mpfr(numIll_t a, mpfr_t b, num_internal_t intern)
   return mpfr_integer_p(b);
 }
 
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 extern inline bool lint_set_numIyyy(long int* a, numIyyy_t b, num_internal_t intern)
 { *a = *b; return true; }
 extern inline bool llint_set_numIyyy(long long int* a, numIyyy_t b, num_internal_t intern)
@@ -212,7 +212,7 @@ bool mpz_set_numIll(mpz_t a, numIll_t b, num_internal_t intern)
     mpz_neg(a,a);
   return true;
 }
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 extern inline bool lfrac_set_numIyyy(long int *a, long int* b, numIyyy_t c, num_internal_t intern)
 {
   *a = *c;
@@ -379,7 +379,7 @@ extern inline bool mpfr_set_numMPZ(mpfr_t a, numMPZ_t b, num_internal_t intern)
 /* 3. numRyyy and numintIyyy */
 /* ====================================================================== */
 
-MACRO_numIRyyy
+MACRO_FOREACH yyy ("l","ll")
 /* ---------------------------------------------------------------------- */
 /* Fits zzz_fits_numRyyy */
 /* ---------------------------------------------------------------------- */
@@ -763,7 +763,7 @@ extern inline bool mpfr_set_numMPQ(mpfr_t a, numMPQ_t b, num_internal_t intern)
 /* 5. numDyyy */
 /* ====================================================================== */
 
-MACRO_numDyyy
+MACRO_FOREACH yyy ("","l")
 /* ---------------------------------------------------------------------- */
 /* Fits zzz_fits_numDyyy */
 /* ---------------------------------------------------------------------- */
@@ -1024,7 +1024,7 @@ extern inline bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern
 /* 7. Conversions between numZZZ */
 /* ====================================================================== */
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 #ifndef MARK_XXX_D
 #define MARK_XXX_D
 extern inline bool numD_fits_numXXX(numD_t a)
@@ -1074,7 +1074,7 @@ extern inline bool numMPFR_set_numXXX(numMPFR_t a, numXXX_t b, num_internal_t in
 #endif
 ENDMACRO
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 #undef MARK_XXX_D
 #undef MARK_XXX_MPQ
 #undef MARK_XXX_MPFR
@@ -1087,7 +1087,7 @@ ENDMACRO
 /* II. boundXXX */
 /* ********************************************************************** */
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 extern inline void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
 {
   if (boundXXX_infty(b) || !numXXX_fits_float(boundXXX_numref(b)))
@@ -1234,7 +1234,7 @@ ENDMACRO
 /* III. itvXXX */
 /* ********************************************************************** */
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 extern inline void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
   boundXXX_to_float(a->sup,b->sup,intern);
@@ -1318,7 +1318,8 @@ extern inline bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal
 }
 ENDMACRO
 
-MACRO_ALLX_ALLZ
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH ZZZ @AllNum
 extern inline bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
 {
   numZZZ_neg(b,b);
@@ -1331,8 +1332,9 @@ extern inline bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t inte
   return itvXXX_set_numZZZ2(a,b,b,intern);
 }
 ENDMACRO
+ENDMACRO
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 bool itvXXX_set_generic(num_internal_t intern,
 			itvXXX_t a, itv_tag_t tag, va_list* va)
 {
@@ -1503,7 +1505,7 @@ ENDMACRO
 /* IV. eitvXXX */
 /* ********************************************************************** */
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 void eitvXXX_to_float(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
   itvXXX_to_float(a->itv,b->itv, intern);
@@ -1553,14 +1555,16 @@ bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
 { bool res = itvXXX_set_mpfr2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 ENDMACRO
 
-MACRO_ALLX_ALLZ
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH ZZZ @AllNum
 bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern)
 { a->eq = itvXXX_set_numZZZ(a->itv,b,intern); return a->eq; }
 bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern)
 { bool res = itvXXX_set_numZZZ2(a->itv,b,c,intern); a->eq = res && eitvXXX_is_point(a); return res; }
 ENDMACRO
+ENDMACRO
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 bool eitvXXX_set_generic(num_internal_t intern,
 			 eitvXXX_t a, eitv_tag_t tag, va_list* va)
 {
@@ -1731,7 +1735,8 @@ ENDMACRO
 /* V. Conversions between numZZZ, boundZZZ, itvZZZ and eitvZZZ */
 /* ********************************************************************** */
 
-MACRO_ALLX_MAINZ
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH ZZZ @MainNum
 #define MARK1_XXX
 #define MARK2_ZZZ
 
@@ -1795,7 +1800,11 @@ extern inline bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t 
 #undef MARK1_XXX
 #undef MARK2_ZZZ
 ENDMACRO
-MACRO_ALLX_MAINZ
+ENDMACRO
+
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH ZZZ @MainNum
 #undef MARK_XXX_ZZZ
 #undef MARK_ZZZ_XXX
+ENDMACRO
 ENDMACRO

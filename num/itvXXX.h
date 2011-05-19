@@ -27,6 +27,10 @@ extern "C" {
 static inline void itvXXX_init(itvXXX_t a);
 void itvXXX_init_array(itvXXX_t* a, size_t size);
 static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b);
+static inline void itvXXX_init_set_int(itvXXX_t a, long b);
+  static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c);
+static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b);
+static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c);
 static inline void itvXXX_clear(itvXXX_t a);
 static inline void itvXXX_clear_array(itvXXX_t* a, size_t size);
 itvXXX_t* itvXXX_array_alloc(size_t size);
@@ -181,12 +185,12 @@ bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_
 bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern);
 bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
 bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
 ENDMACRO
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern);
 bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern);
 ENDMACRO
@@ -226,6 +230,26 @@ static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b)
 {
   boundXXX_init_set(a->neginf,b->neginf);
   boundXXX_init_set(a->sup,b->sup);
+}
+static inline void itvXXX_init_set_int(itvXXX_t a, long b)
+{
+  boundXXX_init_set_int(a->neginf,-b);
+  boundXXX_init_set_int(a->sup,b);
+}
+static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c)
+{
+  boundXXX_init_set_int(a->neginf,-b);
+  boundXXX_init_set_int(a->sup,c);
+}
+static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b)
+{
+  boundXXX_init_set_num(a->neginf,-b);
+  boundXXX_init_set_num(a->sup,b);
+}
+static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c)
+{
+  boundXXX_init_set_num(a->neginf,-b);
+  boundXXX_init_set_num(a->sup,c);
 }
 static inline void itvXXX_clear(itvXXX_t a)
 {

@@ -24,6 +24,10 @@ extern "C" {
 static inline void eitvXXX_init(eitvXXX_t a);
 void eitvXXX_init_array(eitvXXX_t* a, size_t size);
 static inline void eitvXXX_init_set(eitvXXX_t a, eitvXXX_t b);
+static inline void eitvXXX_init_set_int(eitvXXX_t a, long b);
+static inline void eitvXXX_init_set_int2(eitvXXX_t a, long b, long c);
+static inline void eitvXXX_init_set_num(eitvXXX_t a, numXXX_t b);
+static inline void eitvXXX_init_set_num2(eitvXXX_t a, numXXX_t b, numXXX_t c);
 static inline void eitvXXX_clear(eitvXXX_t a);
 static inline void eitvXXX_clear_array(eitvXXX_t* a, size_t size);
 static inline eitvXXX_ptr eitvXXX_alloc(void);
@@ -182,12 +186,12 @@ bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, num_interna
 bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, num_internal_t intern);
 bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern);
 bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
 ENDMACRO
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern);
 bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern);
 ENDMACRO
@@ -227,6 +231,26 @@ static inline void eitvXXX_init_set(eitvXXX_t a, eitvXXX_t b)
 {
   itvXXX_init_set(a->itv,b->itv);
   a->eq = b->eq;
+}
+static inline void eitvXXX_init_set_int(eitvXXX_t a, long b)
+{
+  itvXXX_init_set_int(a->itv,b);
+  a->eq = true;
+}
+  static inline void eitvXXX_init_set_int2(eitvXXX_t a, long b, long c)
+{
+  itvXXX_init_set_int2(a->itv,b,c);
+  a->eq = b==c;
+}
+static inline void eitvXXX_init_set_num(eitvXXX_t a, numXXX_t b)
+{
+  itvXXX_init_set_num(a->itv,b);
+  a->eq = true;
+}
+static inline void eitvXXX_init_set_num2(eitvXXX_t a, numXXX_t b, numXXX_t c)
+{
+  itvXXX_init_set_num2(a->itv,b,c);
+  a->eq = numXXX_is_eq(b,c);
 }
 static inline void eitvXXX_clear(eitvXXX_t a)
 { itvXXX_clear(a->itv); }
