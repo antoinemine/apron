@@ -66,6 +66,12 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p);
 /* Numbers, bounds, intervales, linear expressions/constraints/generators */
 /* ********************************************************************** */
 
+value camlidl_num_internal_ptr_c2ml(num_internal_ptr* a);
+static inline void camlidl_num_internal_ptr_ml2c(value val, num_internal_ptr* a)
+{
+  *a = *(num_internal_ptr*)(Data_custom_val(val));
+}
+
 MACRO_FOREACH XXX @AllNumIdl
 typedef numXXX_ptr numXXX_ptrg;
 typedef numXXX_ptr numXXX_ptrm;

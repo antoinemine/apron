@@ -36,7 +36,11 @@ val approximate : 'a Manager.t -> 'a t -> int -> unit
 (* ============================================================ *)
 
 (** Print as a set of constraints *)
-val print: Format.formatter -> 'a t -> unit
+val print: 
+  ?first:(unit, Format.formatter, unit) format ->
+  ?sep:(unit, Format.formatter, unit) format ->
+  ?last:(unit, Format.formatter, unit) format ->
+  Format.formatter -> 'a t -> unit
 
 (* ============================================================ *)
 (** {3 Serialization} *)
@@ -57,7 +61,7 @@ val top : 'a Manager.t -> Environment.t -> 'a t
 
 (** Abstract an hypercube.
 [of_box man intdim realdim array] abstracts an hypercube defined by the array of intervals of size [intdim+realdim] *)
-val of_box : 'a Manager.t -> Linexpr1.t -> 'a t
+val of_box : 'a Manager.t -> Environment.t -> Linexpr1.t -> 'a t
 (* ============================================================ *)
 (** {3 Accessors} *)
 (* ============================================================ *)
@@ -90,7 +94,7 @@ val sat_tcons : 'a Manager.t -> 'a t -> Tcons1.t -> bool
 val sat_interval : 'a Manager.t -> 'a t -> Var.t -> 'a Coeff.tt -> bool
 
 (** Is the dimension unconstrained in the abstract value ? If yes, this means that the existential quantification of the dimension does not change the value. *)
-val is_dimension_unconstrained : 'a Manager.t -> 'a t -> Var.t -> bool
+val is_var_unconstrained : 'a Manager.t -> 'a t -> Var.t -> bool
 (* ============================================================ *)
 (** {3 Extraction of properties} *)
 (* ============================================================ *)
@@ -116,7 +120,8 @@ val to_lincons_array : 'a Manager.t -> Lincons1.earray -> 'a t -> unit
 val to_tcons_array : 'a Manager.t -> 'a t -> Tcons1.earray
 
 (** Convert the abstract value to a set of generators that defines it. *)
-val to_lingen_array : 'a Manager.t -> Lingen0.earray -> 'a t -> unit
+val to_lingen_array : 'a Manager.t -> Lingen1.earray -> 'a t -> unit
+
 (* ********************************************************************** *)
 (** {2 Operations} *)
 (* ********************************************************************** *)
@@ -140,7 +145,7 @@ val join_array : 'a Manager.t -> 'a t array -> 'a t
 (** Add the array of generators to the abstract value (time elapse operator).
 
  The generators should either lines or rays, not vertices. *)
-val add_ray_array : 'a Manager.t -> 'a t -> Lingen0.earray -> 'a t
+val add_ray_array : 'a Manager.t -> 'a t -> Lingen1.earray -> 'a t
 
 (** {5 Side-effect versions of the previous functions} *)
 
@@ -148,7 +153,7 @@ val meet_with : 'a Manager.t -> 'a t -> 'a t -> unit
 val meet_lincons_array_with : 'a Manager.t -> 'a t -> Lincons1.earray -> unit
 val meet_tcons_array_with : 'a Manager.t -> 'a t -> Tcons1.earray -> unit
 val join_with : 'a Manager.t -> 'a t -> 'a t -> unit
-val add_ray_array_with : 'a Manager.t -> 'a t -> Lingen0.earray -> unit
+val add_ray_array_with : 'a Manager.t -> 'a t -> Lingen1.earray -> unit
 (* ============================================================ *)
 (** {3 Assignements and Substitutions} *)
 (* ============================================================ *)
@@ -177,22 +182,19 @@ val forget_array : 'a Manager.t -> 'a t -> Var.t array -> bool -> 'a t
 val forget_array_with : 'a Manager.t -> 'a t -> Var.t array -> bool -> unit
 
 (* ============================================================ *)
-(** {3 Change and permutation of dimensions} *)
+(** {3 Change of environments} *)
 (* ============================================================ *)
 
-
-val add_dimensions : 'a Manager.t -> 'a t -> Dim.change option -> bool -> 'a t
-val remove_dimensions : 'a Manager.t -> 'a t -> Dim.change option -> 'a t
-val apply_dimchange2 : 'a Manager.t -> 'a t -> Dim.change2 option -> bool -> 'a t
-val permute_dimensions : 'a Manager.t -> 'a t -> Dim.perm -> 'a t
+val change_environment : 'a Manager.t -> 'a t -> Environment.t -> bool -> 'a t
+val minimize_environment : 'a Manager.t -> 'a t -> 'a t
+val rename_array : 'a Manager.t -> 'a t -> Var.t array -> Var.t array -> 'a t
 
 (** {5 Side-effect versions of the previous functions} *)
-
-
-val add_dimensions_with : 'a Manager.t -> 'a t -> Dim.change option -> bool -> unit
-val remove_dimensions_with : 'a Manager.t -> 'a t -> Dim.change option -> unit
-val apply_dimchange2_with : 'a Manager.t -> 'a t -> Dim.change2 option -> bool -> unit
-val permute_dimensions_with : 'a Manager.t -> 'a t -> Dim.perm option -> unit
+val change_environment_with :
+  'a Manager.t -> 'a t -> Environment.t -> bool -> unit
+val minimize_environment_with : 'a Manager.t -> 'a t -> unit
+val rename_array_with :
+  'a Manager.t -> 'a t -> Var.t array -> Var.t array -> unit
 
 (* ============================================================ *)
 (** {3 Expansion and folding of dimensions} *)

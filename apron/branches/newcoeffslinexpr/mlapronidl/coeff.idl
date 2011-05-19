@@ -29,7 +29,7 @@ val print : Format.formatter -> 'a tt -> unit
 
 (** {2 Initialization} *)
 val init : Common.discr -> 'a tt
-val init_set_int : (int,int,int) Common.t -> 'a tt
+val init_set_int : Common.discr -> int -> 'a tt
 val init_set : 'a tt -> 'b tt
 val init_set_eitvD : 'a EitvD.tt -> 'b tt
 val init_set_eitvMPQ : 'a EitvMPQ.tt -> 'b tt
@@ -49,7 +49,7 @@ val get_eitvD : EitvD.t -> t -> Common.num_internal -> bool
 val get_eitvMPQ : EitvMPQ.t -> t -> Common.num_internal -> bool
 val get_eitvMPFR : EitvMPFR.t -> t -> Common.num_internal -> bool
 
-(** {3 Tests} *)
+(** {2 Tests} *)
 val is_point : 'a tt -> bool
 val is_zero : 'a tt -> bool
 val is_pos : 'a tt -> bool
@@ -58,6 +58,9 @@ val is_top : 'a tt -> bool
 val is_bottom : 'a tt -> Common.num_internal -> bool
 val is_eq : 'a tt -> 'b tt -> bool
 val hash : 'a tt -> int
+
+(** {2 Operations} *)
+val neg : t -> 'a tt -> unit
 ")
 
 quote(ML,"
@@ -66,8 +69,8 @@ let print fmt (coeff:'a tt) =
 
 let init (discr:discr) : 'a tt =
   map_discr EitvD.init EitvMPQ.init EitvMPFR.init discr
-let init_set_int discr : 'a tt =
-  map_discr EitvD.init_set_int EitvMPQ.init_set_int EitvMPFR.init_set_int discr
+let init_set_int discr arg : 'a tt =
+  map_discr0_arg EitvD.init_set_int EitvMPQ.init_set_int EitvMPFR.init_set_int discr arg
 let init_set (coeff:'a tt) : 'b tt =
   map_discr EitvD.init_set EitvMPQ.init_set EitvMPFR.init_set coeff
 let init_set_eitvD x : 'a tt =
@@ -122,4 +125,7 @@ let is_eq (coeff1:'a tt) (coeff2:'b tt) =
 
 let hash (coeff:'a tt) =
   apply_discr EitvD.hash EitvMPQ.hash EitvMPFR.hash coeff
+
+let neg (x:t) (y:'a tt) =
+  mapsame_discr2 EitvD.neg EitvMPQ.neg EitvMPFR.neg x y
 ")

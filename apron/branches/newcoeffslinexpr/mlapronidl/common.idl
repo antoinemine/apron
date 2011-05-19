@@ -43,6 +43,8 @@ type 'a val1 = {
 }
 ")
 
+num_internal_ptr num_internal_alloc();
+
 quote(MLI,"
 val string_of_exprtyp : exprtyp -> string
 val string_of_constyp : constyp -> string
@@ -62,7 +64,8 @@ val earray_print :
   print_index:(Format.formatter -> int -> unit) ->
   Format.formatter -> unit
 val make_val1 : 'a -> Environment.t -> 'a val1
-val check_val1 : 'a val1 -> 'a val1 -> unit
+val check_val1 : 'a val1 -> 'b val1 -> unit
+val check_val1_add : 'a val1 -> 'b val1 -> ('b -> Dim.change -> 'b) -> 'b
 val map_discr :
   ('a -> 'b) ->
   ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
@@ -70,6 +73,10 @@ val map_discr0_arg :
   ('b -> 'c) ->
   ('b -> 'e) ->
   ('b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t
+val mapsame_discr2 :
+  ('a -> 'b -> 'c) ->
+  ('e -> 'f -> 'c) ->
+  ('g -> 'h -> 'c) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c
 val mapsame_discr2_arg :
   ('a -> 'b -> 'c -> 'd) ->
   ('e -> 'f -> 'c -> 'd) ->
@@ -153,6 +160,15 @@ let make_val1 x env = { val0 = x; env = env }
 let check_val1 x y =
   if x.env!=y.env && not (Environment.equal x.env y.env) then
     raise (Invalid_argument \"The two values of level 1 are not based on the same environment\")
+let check_val1_add x y add =
+  if x.env==y.env || Environment.equal x.env y.env then
+    y.val0
+  else
+    try
+      let dimchange = Environment.dimchange x.env y.env in
+      add y.val0 dimchange
+    with Failure _ ->
+      raise (Invalid_argument \"The environment of the first value of level 1 is not a superenvironment of the environment of the second value of level1\")
 let map_discr d mpq mpfr discr =
   match discr with
   | D x -> D(d x)
@@ -163,6 +179,12 @@ let map_discr0_arg d mpq mpfr discr arg =
   | D x -> D(d arg)
   | MPQ x -> MPQ(mpq arg)
   | MPFR x -> MPFR(mpfr arg)
+let mapsame_discr2 d mpq mpfr discr1 discr2 =
+  match discr1,discr2 with
+  | (D x1),(D x2) -> d x1 x2
+  | (MPQ x1),(MPQ x2) -> mpq x1 x2
+  | (MPFR x1),(MPFR x2) -> mpfr x1 x2
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
 let mapsame_discr2_arg d mpq mpfr discr1 discr2 arg =
   match discr1,discr2 with
   | (D x1),(D x2) -> d x1 x2 arg

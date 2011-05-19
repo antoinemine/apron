@@ -39,6 +39,9 @@ quote(MLMLI,"\n(** {2 Initialization Functions} *)")
 void eitvXXX_init([out]eitvXXX_ptrg OUTOUTOUT);
 void eitvXXX_init_set([out]eitvXXX_ptrg OUTOUTOUT, eitvXXX_ptrg b);
 void eitvXXX_init_set_int([out]eitvXXX_ptrg OUTOUTOUT, long b);
+void eitvXXX_init_set_int2([out]eitvXXX_ptrg OUTOUTOUT, long b, long c);
+void eitvXXX_init_set_num([out]eitvXXX_ptrg OUTOUTOUT, numXXX_ptrg b);
+void eitvXXX_init_set_num2([out]eitvXXX_ptrg OUTOUTOUT, numXXX_ptrg b, numXXX_ptrg c);
 
 quote(MLMLI,"\n(** {2 Assignement Functions} *)")
 quote(MLMLI,"(** The first parameter holds the result. *)\n")

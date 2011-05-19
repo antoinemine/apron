@@ -57,6 +57,7 @@ quote(MLMLI,"(** {2 Initialization Functions} *)\n")
 void boundXXX_init([out]boundXXX_ptrg OUTOUTOUT);
 void boundXXX_init_set([out]boundXXX_ptrg OUTOUTOUT, boundXXX_ptrg b);
 void boundXXX_init_set_int([out]boundXXX_ptrg OUTOUTOUT, long b);
+void boundXXX_init_set_num([out]boundXXX_ptrg OUTOUTOUT, numXXX_ptrg b);
 
 quote(MLMLI,"(** {2 Assignement Functions} *)\n")
 

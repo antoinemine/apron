@@ -183,12 +183,12 @@ struct ap_texpr_rdir_t ap_texpr_rdir_t;
 
 quote(MLMLI,"
 (** User type for tree expressions *)
-type 'a gexpr =
-  | Cst of Coeff.f Coeff.tt
-  | DimVar of 'a
-  | Unop of unop * 'a gexpr * typ * round
-  | Binop of binop * 'a gexpr * 'a gexpr * typ * round
-type expr = Dim.t gexpr
+type ('a,'b) gexpr =
+  | Cst of 'a
+  | DimVar of 'b
+  | Unop of unop * ('a,'b) gexpr * typ * round
+  | Binop of binop * ('a,'b) gexpr * ('a,'b) gexpr * typ * round
+type expr = (Coeff.f Coeff.tt, Dim.t) gexpr
 ")
 
 quote(MLMLI,"\n(** {2 Printing} *)\n")
@@ -393,7 +393,7 @@ let print_precedence_of_binop = function
   | Mul | Div | Mod -> 2
 
 
-let rec print_gexpr (string_of_a:'a -> string) fmt (expr:'a gexpr) =\n  \
+let rec print_gexpr print_coeff (string_of_a:'b -> string) fmt (expr:('a,'b) gexpr) =\n \
   let precedence_of_expr = function
     | Cst _
     | DimVar _ -> 5
@@ -401,7 +401,7 @@ let rec print_gexpr (string_of_a:'a -> string) fmt (expr:'a gexpr) =\n  \
     | Binop(op,_,_,_,_) -> print_precedence_of_binop op
   in
   match expr with
-  | Cst x -> Coeff.print fmt x
+  | Cst x -> print_coeff fmt x
   | DimVar x -> Format.pp_print_string fmt (string_of_a x)
   | Unop(op,e,typ,round) ->
       let prec = print_precedence_of_unop op in
@@ -410,7 +410,7 @@ let rec print_gexpr (string_of_a:'a -> string) fmt (expr:'a gexpr) =\n  \
       Format.fprintf fmt \"%s%s%a%s\"
 	(print_sprint_unop op typ round)
 	(if par then \"(\" else \"\")
-	(print_gexpr string_of_a) e
+	(print_gexpr print_coeff string_of_a) e
 	(if par then \")\" else \"\")
   | Binop(op,e1,e2,typ,round) ->
       let prec = print_precedence_of_binop op in
@@ -420,30 +420,30 @@ let rec print_gexpr (string_of_a:'a -> string) fmt (expr:'a gexpr) =\n  \
       let par2 = prec2<=prec in
       Format.fprintf fmt \"%s%a%s %s %s%a%s\"
 	(if par1 then \"(\" else \"\")
-	(print_gexpr string_of_a) e1
+	(print_gexpr print_coeff string_of_a) e1
 	(if par1 then \")\" else \"\")
 	(print_sprint_binop op typ round)
 	(if par2 then \"(\" else \"\")
-	(print_gexpr string_of_a) e2
+	(print_gexpr print_coeff string_of_a) e2
 	(if par2 then \")\" else \"\")
 
-let print_expr = print_gexpr
+let print_expr = print_gexpr Coeff.print
 let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)
 let array_print ?first ?sep ?last string_of_dim fmt tab =
   Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab
-let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D(0))))
+let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D()) 0))
 let array_length = Array.length
 let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x
 let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x
 let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x
 let array_permute_dimensions_with x y = Array.iter (fun x -> permute_dimensions_with x y) x
-let rec map_gexpr f = function
-| Cst x -> Cst x
-| DimVar x -> DimVar(f x)
+let rec map_gexpr f g = function
+| Cst x -> Cst(f x)
+| DimVar x -> DimVar(g x)
 | Unop(op,e,typ,round) ->
-    Unop(op,(map_gexpr f e),typ,round)
+    Unop(op,(map_gexpr f g e),typ,round)
 | Binop(op,e1,e2,typ,round) ->
-    Binop(op,(map_gexpr f e1),(map_gexpr f e2),typ,round)
+    Binop(op,(map_gexpr f g e1),(map_gexpr f g e2),typ,round)
 ")
 
 quote(MLI,"(** {2 Internal usage for level 1} *)")
@@ -453,6 +453,6 @@ val print_sprint_unop : unop -> typ -> round -> string
 val print_sprint_binop : binop -> typ -> round -> string
 val print_precedence_of_unop : unop -> int
 val print_precedence_of_binop : binop -> int
-val print_gexpr : ('a -> string) -> Format.formatter -> 'a gexpr -> unit
-val map_gexpr : ('a -> 'b) -> 'a gexpr -> 'b gexpr
+val print_gexpr : (Format.formatter -> 'a -> unit) -> ('b -> string) -> Format.formatter -> ('a,'b) gexpr -> unit
+val map_gexpr : ('a -> 'b) -> ('c -> 'd) -> ('a,'c) gexpr -> ('b,'d) gexpr
 ")

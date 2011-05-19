@@ -46,12 +46,12 @@ assert(_res->count >= 1);\n\
 ")
 ;
 
-quote(MLI,"\n(** Adding to an environment a set of integer and real variables. Raise [Failure] in case of name conflict. *)")
-ap_environment_ptr ap_environment_add(ap_environment_ptr e,
-				      [size_is(intdim)]ap_var_t* name_of_intdim,
-				      int intdim,
-				      [size_is(realdim)]ap_var_t* name_of_realdim,
-				      int realdim)
+ quote(MLI,"\n(** Adding to an environment a set of integer and real variables. Raise [Failure] in case of name conflict. *)")
+ap_environment_ptr ap_environment_add(
+    ap_environment_ptr e,
+    [size_is(intdim)]ap_var_t* name_of_intdim, int intdim,
+    [size_is(realdim)]ap_var_t* name_of_realdim, int realdim
+)
      quote(call,"\n\
 _res = ap_environment_add(e,name_of_intdim,intdim,name_of_realdim,realdim);\n\
 if (_res==NULL){\n\
@@ -60,6 +60,25 @@ if (_res==NULL){\n\
 }\n\
 assert(_res->count >= 1);")
 ;
+
+ap_environment_ptr ap_environment_add_perm(
+    ap_environment_ptr e,
+    [size_is(intdim)]ap_var_t* name_of_intdim, int intdim,
+    [size_is(realdim)]ap_var_t* name_of_realdim, int realdim,
+    [out]struct ap_dimperm_t perm
+)
+     quote(call,"\n\
+_res = ap_environment_add_perm(e,name_of_intdim,intdim,name_of_realdim,realdim,&perm);\n\
+if (_res==NULL){\n\
+  camlidl_free(_ctx);\n\
+  caml_failwith(\"Environment.add: duplicated variable names\");\n\
+}\n\
+assert(_res->count >= 1);")
+   quote(dealloc,"ap_dimperm_clear(&perm);")
+   ;
+
+quote(MLI,"    (** Same as previous function, but returns also \n\
+    the permutation on dimensions induced by the renaming. *)")
 
 quote(MLI,"\n(** Remove from an environment a set of variables. Raise [Failure] in case of non-existing variables. *)")
 ap_environment_ptr ap_environment_remove(ap_environment_ptr e,
@@ -95,6 +114,7 @@ else {\n\
 }\n\
 assert(_res->count >= 1);")
 ;
+
 
 quote(MLI,"\n(** Similar to previous function, but returns also \n\
 the permutation on dimensions induced by the renaming. *)")

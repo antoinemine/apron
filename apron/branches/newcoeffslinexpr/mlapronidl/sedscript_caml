@@ -11,6 +11,7 @@ s/num_internal_ptr/num_internal/g;
 s/\(Common\.\)\{0,1\}ap_\(expr\|cons\|gen\)typ_t/\1\2typ/g;
 s/external \(\(\(num\|bound\|eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\|ap_\([a-zA-Z0-1]\{1,\}\)\)_/external /g;
 s/'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt -> 'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt/'a \1tt -> 'b \6tt/g;
+s/'b \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt -> 'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt/'b \1tt -> 'c \6tt/g;
 s/ap_dim_t/t/g;
 s/ap_dimension_t/dimension/g;
 s/ap_dim\(change\|change2\|perm\)\_t/\1/g;

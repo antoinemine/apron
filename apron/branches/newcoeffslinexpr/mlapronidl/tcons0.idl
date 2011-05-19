@@ -11,7 +11,7 @@ import "common.idl";
 import "texpr0.idl";
 import "lincons0.idl";
 
-typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Common.constyp;\n  mutable mpq : Mpq.t\n}"),
+typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Common.constyp;\n  mpq : Mpq.t\n}"),
 	 abstract,
 	 ml2c(camlidl_apron_tcons0_t_ml2c),
 	 c2ml(camlidl_apron_tcons0_t_c2ml)]
@@ -37,7 +37,7 @@ val array_print :\n\
 \n\
 (** Make a tree expression constraint. Modifying later the tree expression expression\n\
   modifies correspondingly the tree expression constraint and conversely *)\n\
-val make : Texpr0.t -> Common.constyp -> t\n\
+val make : Texpr0.t -> Common.constyp -> 'a Mpq.tt option -> t\n\
 \n\
 (** Copy a tree expression constraint (deep copy) *)\n\
 val copy : t -> t\n\
@@ -84,8 +84,8 @@ let print assoc fmt cons = \n\
   ()\n\
 let array_print ?first ?sep ?last string_of_dim fmt tab = \n\
   Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab\n\
-let make expr typ = {\n\
-texpr0 = expr; typ = typ; mpq = Mpq.init(); \n\
+let make expr typ ompq = {\n\
+texpr0 = expr; typ = typ; mpq = match ompq with None -> Mpq.init() | Some mpq -> Mpq.init_set mpq \n\
 }\n\
 let copy cons = {\n\
 texpr0 = Texpr0.copy cons.texpr0; typ = cons.typ; mpq = Mpq.init_set cons.mpq;\n\
@@ -94,7 +94,7 @@ let add_dimensions x y = { x with texpr0 = Texpr0.add_dimensions x.texpr0 y }\n\
 let permute_dimensions x y = { x with texpr0 = Texpr0.permute_dimensions x.texpr0 y}\n\
 let add_dimensions_with x y = Texpr0.add_dimensions_with x.texpr0 y\n\
 let permute_dimensions_with x y = Texpr0.permute_dimensions_with x.texpr0 y\n\
-let array_make length = Array.make length (make (Texpr0.cst (Coeff.init_set_int (Common.D(0)))) Common.EQ)\n\
+let array_make length = Array.make length (make (Texpr0.cst (Coeff.init_set_int (Common.D()) 0)) Common.EQ None)\n\
 let array_length = Array.length\n\
 let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x\n\
 let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x\n\
