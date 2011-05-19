@@ -145,7 +145,7 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/dllbox*.so $(PREFIX)/lib/dlloct*_debug.so
 	/bin/rm -f $(PREFIX)/lib/box.mli $(PREFIX)/lib/box.ml $(PREFIX)/lib/box.cm[ix] $(PREFIX)/lib/box.idl $(PREFIX)/lib/box*.cma $(PREFIX)/lib/box*.cmxa $(PREFIX)/lib/box*.a
 
-distclean: clean
+distclean: mostlyclean
 	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) Makefile sedscript_caml box.texi box.idl box.ml box.mli box_caml.c COPYING README
