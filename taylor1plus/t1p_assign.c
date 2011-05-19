@@ -19,7 +19,7 @@
 t1p_t* t1p_assign_linexpr_array(ap_manager_t* man,
 		bool destructive,
 		t1p_t* a,
-		ap_dim_t* tdim, ap_linexpr0_t** lexpr, 
+		ap_dim_t* tdim, ap_linexpr0_t** lexpr,
 		size_t size,
 		t1p_t* dest)
 {
@@ -42,7 +42,7 @@ t1p_t* t1p_assign_linexpr_array(ap_manager_t* man,
 t1p_t* t1p_substitute_linexpr_array(ap_manager_t* man,
 		bool destructive,
 		t1p_t* org,
-		ap_dim_t* tdim, ap_linexpr0_t** lexpr, 
+		ap_dim_t* tdim, ap_linexpr0_t** lexpr,
 		size_t size,
 		t1p_t* dest)
 {
@@ -62,14 +62,14 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
 			      t1p_t* dest)
 {
     CALL();
-    /* 
+    /*
      * NOTA: si on initialise "pr" avant la copie, le pr contiendra la fonction "copy".
      * en mettant la copie avant, on s'assure que le pr contiendra reellement le bon funid.
      */
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_ASSIGN_TEXPR_ARRAY);
     size_t i = 0;
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### ASSIGN TEXPR ARRAY (des %d) %x ###\n", destructive,(intptr_t)a);
+    fprintf(stdout, "### ASSIGN TEXPR ARRAY (des %d) %tx ###\n", destructive,(intptr_t)a);
     //t1p_fprint(stdout, man, a, NULL);
     for (i=0; i<size; i++) {
 	fprintf(stdout, "(%d) = ", tdim[i]);
@@ -97,7 +97,7 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
     man->result.flag_best = tbool_top;
     man->result.flag_exact = tbool_top;
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### RESULT OF ASSIGN TEXPR ARRAY (des %d) [%x] ###\n", destructive, (intptr_t)res);
+    fprintf(stdout, "### RESULT OF ASSIGN TEXPR ARRAY (des %d) [%tx] ###\n", destructive, (intptr_t)res);
     t1p_fprint(stdout, man, res, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
@@ -107,7 +107,7 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
 t1p_t* t1p_substitute_texpr_array(ap_manager_t* man,
 		bool destructive,
 		t1p_t* org,
-		ap_dim_t* tdim, ap_texpr0_t** texpr, 
+		ap_dim_t* tdim, ap_texpr0_t** texpr,
 		size_t size,
 		t1p_t* dest)
 {
@@ -115,4 +115,3 @@ t1p_t* t1p_substitute_texpr_array(ap_manager_t* man,
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_SUBSTITUTE_TEXPR_ARRAY);
     not_implemented();
 }
-

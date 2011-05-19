@@ -30,6 +30,7 @@ HAS_OCAMLOPT = 1
 
 # If defined to non-empty value, assumed to be the right executable,
 # use FINDLIB/ocamlfind package system
+# (advised)
 # OCAMLFIND = ocamlfind
 
 ######################################################################

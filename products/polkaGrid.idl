@@ -79,7 +79,7 @@ val manager_is_polkagrid : 'a Apron.Manager.t -> bool
 val manager_of_polkagrid : 'a t Apron.Manager.t -> 'b Apron.Manager.t
   (** Makes a polkagrid manager generic *)
 val manager_to_polkagrid : 'a Apron.Manager.t -> 'b t Apron.Manager.t
-  (** Instanciate the type of a polkagrid manager. 
+  (** Instanciate the type of a polkagrid manager.
       Raises [Failure] if the argument manager is not a polkagrid manager *)
 
 module Abstract0 : sig
@@ -156,7 +156,7 @@ a C++ linker.
   bigarray.cma gmp.cma apron.cma polkaMPQ.cma ppl.cma polkaGrid.cma mlexample.ml]}
 
 {[ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -make-runtime -o myrun \\
-  bigarray.cma gmp.cma apron.cma polkaMPQ.cma ppl.cma polkaGrid.cma 
+  bigarray.cma gmp.cma apron.cma polkaMPQ.cma ppl.cma polkaGrid.cma
 
 ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myrun -o mlexample.byte \\
   bigarray.cma gmp.cma apron.cma polkaMPQ.cma ppl.cma polkaGrid.cma mlexample.ml ]}
@@ -171,8 +171,8 @@ ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myr
 {[ocamlopt -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -noautolink -o mlexample.opt \\
   bigarray.cmxa gmp.cmxa apron.cmxa polkaMPQ.cmxa ppl.cmxa polkaGrid.cmxa mlexample.ml \\
   -cclib \"-L$MLGMPIDL_PREFIX/lib -L$APRON_PREFIX/lib -L$PPL_PREFIX/lib \\
-          -lpolkaGrid_caml_debug -lap_pkgrid_debug \\
-          -lpolkaMPQ_caml_debug -lpolkaMPQ_debug \\
+	  -lpolkaGrid_caml_debug -lap_pkgrid_debug \\
+	  -lpolkaMPQ_caml_debug -lpolkaMPQ_debug \\
 	  -lap_ppl_caml_debug -lap_ppl_debug -lppl -lgmpxx \\
 	  -lapron_caml_debug -lapron_debug \\
 	  -lgmp_caml -L$MPFR_PREFIX/lib -lmpfr -L$GMP_PREFIX/lib -lgmp \\

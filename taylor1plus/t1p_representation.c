@@ -70,7 +70,7 @@ t1p_t* t1p_copy(ap_manager_t* man, t1p_t* a)
     man->result.flag_best = tbool_true;
     man->result.flag_exact = tbool_true;
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "********* %x -> %x *********\n",(intptr_t)a, (intptr_t)res);
+    fprintf(stdout, "********* %tx -> %tx *********\n",(intptr_t)a, (intptr_t)res);
 #endif
     return res;
 }

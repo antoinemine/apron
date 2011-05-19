@@ -35,7 +35,8 @@ ap_texpr1.h ap_tcons1.h ap_expr1.h \
 ap_abstract1.h \
 ap_global0.h ap_global1.h \
 ap_linearize.h ap_linearize_aux.h \
-ap_reducedproduct.h
+ap_reducedproduct.h \
+ap_disjunction.h 
 
 C_FILES = \
 ap_scalar.c ap_interval.c ap_coeff.c ap_dimension.c \
@@ -47,7 +48,8 @@ ap_linexpr1.c ap_lincons1.c ap_generator1.c \
 ap_texpr1.c ap_tcons1.c \
 ap_abstract1.c \
 ap_linearize.c \
-ap_reducedproduct.c
+ap_reducedproduct.c \
+ap_disjunction.c 
 
 C_FILES_AUX = ap_linearize_aux.c
 H_FILES_AUX = ap_linearize_aux.h
@@ -317,6 +319,12 @@ ap_reducedproduct.o: ap_reducedproduct.c ap_global0.h ap_config.h \
   ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
   ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
   ap_linearize.h ap_reducedproduct.h
+ap_disjunction.o: ap_disjunction.c ap_global0.h ap_config.h \
+  ap_scalar.h \
+  ap_interval.h \
+  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
+  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
+  ap_linearize.h ap_disjunction.h
 ap_policy.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
   ap_scalar.h ap_interval.h \
   ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
@@ -419,9 +427,17 @@ ap_reducedproduct_debug.o: ap_reducedproduct.c ap_global0.h ap_config.h \
   ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
   ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
   ap_linearize.h ap_reducedproduct.h
+ap_disjunction_debug.o: ap_disjunction.c ap_global0.h ap_config.h \
+  ap_scalar.h \
+  ap_interval.h \
+  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
+  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
+  ap_linearize.h ap_disjunction.h
+
 ap_policy_debug.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
   ap_scalar.h ap_interval.h \
   ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
   ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract1.h \
   ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h ap_lincons1.h \
   ap_generator1.h ap_texpr1.h ap_tcons1.h
+

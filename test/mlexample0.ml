@@ -39,44 +39,44 @@ let f man name =
   in
   let a2 = match name with
     | "bottom" -> Abstract0.bottom man 0 2
-    | "top" -> 
+    | "top" ->
 	let tcons = [|
-	  Lincons0.make 
+	  Lincons0.make
 	    (Linexpr0.of_list
-	      (Some 2) 
+	      (Some 2)
 	      [((Coeff.s_of_int 1),0)]
 	      None)
 	    Lincons0.EQ;
-	  Lincons0.make 
+	  Lincons0.make
 	    (Linexpr0.of_list
-	      (Some 2) 
+	      (Some 2)
 	      [((Coeff.s_of_int 1),1)]
 	      None)
 	    Lincons0.EQ
 	|]
-	in	  
+	in
 	let a0 = Abstract0.of_lincons_array man 0 2 tcons in
 	let tcons = [|
-	  Lincons0.make 
+	  Lincons0.make
 	    (Linexpr0.of_list
-	      (Some 2) 
+	      (Some 2)
 	      [((Coeff.s_of_int 1),0)]
 	      (Some(Coeff.s_of_int 2)))
 	    Lincons0.EQ;
-	  Lincons0.make 
+	  Lincons0.make
 	    (Linexpr0.of_list
-	      (Some 2) 
+	      (Some 2)
 	      [((Coeff.s_of_int 1),1)]
 	      (Some(Coeff.s_of_int 2)))
 	    Lincons0.EQ
 	|]
-	in	
+	in
 	let a1 = Abstract0.of_lincons_array man 0 2 tcons in
 	Abstract0.join_with man a0 a1;
 	a0
     | _ -> failwith ""
   in
-  
+
   let linexpr = Linexpr0.make None in
   Linexpr0.set_cst linexpr (Coeff.s_of_int (-2));
   let lincons = Lincons0.make linexpr Lincons0.SUPEQ in
@@ -125,7 +125,7 @@ let f man name =
     (Abstract0.sat_lincons man x lincons);
   printf "sat_tcons(x) = %b@ "
     (Abstract0.sat_tcons man x tcons);
-  
+
   printf "a2 = %a@ " (Abstract0.print string_of_dim) a2;
   printf "remove_dimensions(a2) = %a@ "
     (Abstract0.print string_of_dim)
@@ -139,7 +139,7 @@ let f man name =
 let test_widening_strict man =
   let var_x = Var.of_string "x" in
   let var_y = Var.of_string "y" in
-  let var_z = Var.of_string "z" in 
+  let var_z = Var.of_string "z" in
   let env = Environment.make
     [|var_x|]
     [|var_y; var_z|]

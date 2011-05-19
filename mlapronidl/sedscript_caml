@@ -72,3 +72,8 @@ s/external ap_policy_/external /g;
 s/external policy_/external /g;
 s/\(\([A-Z][a-z0-9]*[.]\)\?\)ap_policy_ptr/'a \1t/g;
 s/ap_policy_mode_t/mode/g;
+s/ap_disjunction_manager_alloc : 'a Manager.t -> 'a Manager.t/manager_alloc : 'a Manager.t -> 'a t Manager.t/g;
+s/ap_disjunction_manager_decompose : 'a Manager.t -> 'a Manager.t/manager_decompose : 'a t Manager.t -> 'a Manager.t/g;
+s/ap_disjunction_to_lincons0_set : 'a Manager.t -> 'a Abstract0.t -> Lincons0.t array/to_lincons0_set : 'a t Manager.t -> 'a t Abstract0.t -> Lincons0.t array/g;
+s/ap_disjunction__decompose : 'a Manager.t -> 'a Abstract0.t -> 'a Abstract0.t array \* int/_decompose : 'a t Manager.t -> 'a t Abstract0.t -> 'a Abstract0.t array * int/g;
+s/ap_disjunction_compose : 'a Manager.t -> 'a Abstract0.t array -> 'a Abstract0.t/compose : 'a t Manager.t -> 'a Abstract0.t array -> 'a t Abstract0.t/g;

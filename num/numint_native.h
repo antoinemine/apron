@@ -55,7 +55,7 @@ static inline void numint_set_array(numint_t* a, numint_t* b, size_t size)
 { memcpy(a,b,size*sizeof(numint_t)); }
 static inline void numint_set_int(numint_t a, long int i)
 { *a = (numint_native)i; }
- 
+
 /* ====================================================================== */
 /* Constructors and Destructors */
 /* ====================================================================== */
@@ -64,8 +64,8 @@ static inline void numint_init(numint_t a)
 { *a = NUMINT_ZERO; }
 static inline void numint_init_array(numint_t* a, size_t size)
 {
-  size_t i; 
-  for (i=0; i<size; i++) *(a[i]) = NUMINT_ZERO; 
+  size_t i;
+  for (i=0; i<size; i++) *(a[i]) = NUMINT_ZERO;
 }
 static inline void numint_init_set(numint_t a, numint_t b)
 { numint_set(a,b); }
@@ -112,12 +112,12 @@ static inline void numint_fdiv_q(numint_t q, numint_t a, numint_t b)
 {
   if (numint_sgn(a)*numint_sgn(b)<0 && *a % *b) *q = *a / *b - 1;
   else *q = *a / *b;
-} 
+}
 static inline void numint_cdiv_q(numint_t q, numint_t a, numint_t b)
 {
   if (numint_sgn(a)*numint_sgn(b)>0 && *a % *b) *q = *a / *b + 1;
   else *q = *a / *b;
-} 
+}
 static inline void numint_cdiv_qr(numint_t q, numint_t r, numint_t a, numint_t b)
 {
   numint_t qq,rr;
@@ -131,7 +131,7 @@ static inline void numint_cdiv_qr(numint_t q, numint_t r, numint_t a, numint_t b
     *q = *qq;
     *r = *rr;
   }
-} 
+}
 
 static inline void numint_cdiv_2(numint_t a, numint_t b)
 { *a = (*b>=NUMINT_ZERO) ? (*b+1)/2 : *b/2; }
@@ -244,7 +244,7 @@ static inline int numint_snprint(char* s, size_t size, numint_t a)
 
 /* int2 -> numint */
 static inline bool numint_set_int2(numint_t a, long int i, long int j)
-{ 
+{
   assert(j>0);
   if (i>=0) *a = (i+j-1)/j;
   else *a = i/j;
@@ -259,11 +259,11 @@ static inline bool numint_set_mpz(numint_t a, mpz_t b)
   }
   else if (sizeof(numint_t)==2*sizeof(long int)) {
     int sgn;
-    size_t count; 
+    size_t count;
     unsigned long int tab[2];
-    
+
     sgn = mpz_sgn(b);
-    mpz_export(&tab,&count,1,sizeof(long int),0,0,b); 
+    mpz_export(&tab,&count,1,sizeof(long int),0,0,b);
     if (count==0){
       *a = 0;
     }
@@ -284,16 +284,16 @@ static inline bool numint_set_mpz(numint_t a, mpz_t b)
 }
 
 /* mpq -> numint */
-static inline bool numint_set_mpq_tmp(numint_t a, mpq_t b, 
+static inline bool numint_set_mpq_tmp(numint_t a, mpq_t b,
 				      mpz_t q, mpz_t r)
-{ 
+{
   mpz_cdiv_qr(q,r, mpq_numref(b),mpq_denref(b));
   numint_set_mpz(a,q);
   bool res = (mpz_sgn(r)==0);
   return res;
 }
 static inline bool numint_set_mpq(numint_t a, mpq_t b)
-{ 
+{
   mpz_t q,r;
   mpz_init(q);mpz_init(r);
   bool res = numint_set_mpq_tmp(a,b,q,r);
@@ -327,12 +327,12 @@ static inline bool int_set_numint(long int* a, numint_t b)
 static inline bool mpz_set_numint(mpz_t a, numint_t b)
 {
   if (sizeof(numint_t)==sizeof(long int)) {
-    mpz_set_si(a,*b); 
+    mpz_set_si(a,*b);
   }
   else if (sizeof(numint_t)==2*sizeof(long int)) {
     unsigned long long int n;
     unsigned long int rep[2];
-    
+
     n = llabs(*b);
     rep[1] = n & ULONG_MAX;
     rep[0] = n >> (sizeof(long int)*8);
@@ -348,8 +348,8 @@ static inline bool mpz_set_numint(mpz_t a, numint_t b)
 static inline bool mpq_set_numint(mpq_t a, numint_t b)
 {
   if (sizeof(numint_t)==sizeof(long int)) {
-    mpq_set_si(a,*b,1); 
-    return true; 
+    mpq_set_si(a,*b,1);
+    return true;
   }
   else {
     mpz_set_ui(mpq_denref(a),1);
@@ -359,15 +359,15 @@ static inline bool mpq_set_numint(mpq_t a, numint_t b)
 
 /* numint -> double */
 static inline bool double_set_numint(double* a, numint_t b)
-{ 
-  *a = (double)(*b); 
+{
+  *a = (double)(*b);
   double aa = -((double)(-(*b)));
   return (*a==aa);
 }
 
 /* numint -> mpfr */
 static inline bool mpfr_set_numint(mpfr_t a, numint_t b)
-{ 
+{
 #if defined(NUMINT_LONGINT)
   return !mpfr_set_si(a,*b,GMP_RNDU);
 #else
@@ -378,7 +378,7 @@ static inline bool mpfr_set_numint(mpfr_t a, numint_t b)
 static inline bool mpz_fits_numint(mpz_t a)
 {
   if (sizeof(numint_t)==sizeof(long int)) {
-    return mpz_fits_slong_p(a); 
+    return mpz_fits_slong_p(a);
   }
   else {
     size_t size = mpz_sizeinbase(a,2);
