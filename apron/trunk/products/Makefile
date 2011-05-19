@@ -34,7 +34,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl -I ../newpolka -I ../ppl
 # Files
 #---------------------------------------
 
-CCMODULES = ap_pkgrid
+CCMODULES = ap_pkgrid 
 CCSRC = $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = ap_pkgrid.h
@@ -42,12 +42,13 @@ CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libap_pkgrid.a libap_pkgrid_debug.a \
 polkaGrid.mli polkaGrid.cmi polkaGrid.cma \
-libpolkaGrid_caml.a libpolkaGrid_caml_debug.a
+libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
 ifneq ($(HAS_OCAMLOPT),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) polkaGrid.cmxa polkaGrid.a
+CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) polkaGrid.cmxa polkaGrid.a 
 endif
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
+CCLIB_TO_INSTALL += \
+libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl
@@ -57,12 +58,12 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apro
 # Rules
 #---------------------------------------
 
-all: libap_pkgrid.a libap_pkgrid_debug.a
+all: libap_pkgrid.a libap_pkgrid_debug.a 
 ifneq ($(HAS_SHARED),)
-all: libap_pkgrid.so libap_pkgrid_debug.so
+all: libap_pkgrid.so libap_pkgrid_debug.so 
 endif
 
-ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a
+ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
 ifneq ($(HAS_OCAMLOPT),)
 ml: polkaGrid.cmxa polkaGrid.a
 endif
@@ -91,7 +92,7 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-	for i in dllpolkaGrid_caml*.so; do \
+	for i in dllpolkaGrid_caml*.so dllpkDisj_caml*.so; do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
 

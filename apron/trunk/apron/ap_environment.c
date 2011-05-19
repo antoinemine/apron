@@ -193,7 +193,7 @@ static env_t env_add(env_t* env, ap_var_t* var_of_dim, size_t size, ap_dim_t* pe
 
 /* Remove from an environment an array of names.
 
-- May reorder the input array 
+- May reorder the input array
 - If a name to be removed was not present, return { NULL, UINT_MAX }.
 */
 static env_t env_remove(env_t* env, ap_var_t* var_of_dim, size_t size)
@@ -548,9 +548,9 @@ ap_environment_t* ap_environment_remove(ap_environment_t* env,
     }
   }
   tvarint = intdim ? &tvar2[0] : NULL;
-  realdim = size-intdim; 
+  realdim = size-intdim;
   tvarreal = realdim ? &tvar2[intdim] : NULL;
-  
+
   denv1 = denv_of_environment(env);
   denv2.envint = env_remove(&denv1.envint, tvarint, intdim);
   denv2.envreal = env_remove(&denv1.envreal, tvarreal, realdim);
@@ -747,13 +747,13 @@ ap_dimchange2_t* ap_environment_dimchange2(ap_environment_t* env1,
   denv_t denv;
   bool eq1,eq2;
   ap_dimchange2_t* res;
- 
+
   if (ap_environment_check_compatibility(env1,env2))
     return NULL;
 
   denv_t denv1 = denv_of_environment(env1);
   denv_t denv2 = denv_of_environment(env2);
-  
+
   denv.envint = env_lce(&denv1.envint, &denv2.envint);
   denv.envreal = env_lce(&denv1.envreal, &denv2.envreal);
   size = denv.envint.size+denv.envreal.size;

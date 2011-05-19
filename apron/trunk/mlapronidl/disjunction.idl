@@ -1,0 +1,152 @@
+/* -*- mode: c -*- */
+
+quote(C,"#include \"ap_global0.h\"")
+quote(C,"#include \"ap_disjunction.h\"")
+quote(C,"#include \"apron_caml.h\"")
+
+import "manager.idl";
+import "abstract0.idl";
+
+quote(MLMLI,"(** Disjunctions of APRON abstract values *)")
+
+quote(MLMLI,"
+type 'a t
+")
+
+ap_manager_ptr ap_disjunction_manager_alloc(ap_manager_ptr man)
+quote(call,"
+_res = ap_disjunction_manager_alloc(man,NULL);
+if (_res==NULL) caml_failwith(\"Disjunction.manager_alloc\");
+{ ap_exc_t i;
+for (i=1; i<AP_EXC_SIZE; i++){
+ap_manager_set_abort_if_exception(_res,i,false);
+}}
+");
+
+ap_manager_ptr ap_disjunction_manager_decompose(ap_manager_ptr man)
+  quote(call,"
+ap_disjunction_internal_t* intern = (ap_disjunction_internal_t*)man->internal;
+_res = ap_manager_copy(intern->manager);
+");
+
+struct ap_lincons0_array_t ap_disjunction_to_lincons0_set(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"_res = ap_disjunction_to_lincons0_set(man, a->value);")
+  quote(dealloc,"free(_res.p); I0_CHECK_EXC(man)");
+
+quote(MLI,"val to_lincons1_set : 'a t Manager.t -> 'a t Abstract1.t -> Lincons1.earray")
+quote(ML,"
+let to_lincons1_set man abs1 =
+  let env = abs1.Abstract1.env in
+  let abs0 = abs1.Abstract1.abstract0 in
+  let tab0 = to_lincons0_set man abs0 in
+  { Lincons1.lincons0_array = tab0;
+    Lincons1.array_env = env; }
+")
+
+quote(MLI,"\n\n(** Decompose an abstract value *)")
+
+[size_is(size)] ap_abstract0_ptr* ap_disjunction__decompose(ap_manager_ptr manager, ap_abstract0_ptr abs, [out]unsigned int size)
+quote(call,"
+{
+  ap_disjunction_internal_t* intern = manager->internal;
+  ap_manager_t* man = intern->manager;
+  unsigned int i;
+
+  void** tabvoid = ap_disjunction_decompose(manager,false,(ap_disjunction_t*)abs->value,(size_t*)&size);
+  ap_abstract0_ptr* tababs0 = malloc(size*sizeof(ap_abstract0_ptr));
+  for (i=0; i<size; i++){
+    tababs0[i] = malloc(sizeof(ap_abstract0_t));
+    tababs0[i]->man = ap_manager_copy(man);
+    tababs0[i]->value = tabvoid[i];
+  }
+  free(tabvoid);
+  _res = tababs0;
+}
+")
+quote(dealloc,"free(_res);");
+
+quote(ML,"let decompose man abs = fst(_decompose man abs)")
+quote(MLI,"val decompose : 'a t Manager.t -> 'a t Abstract0.t -> 'a Abstract0.t array")
+
+ap_abstract0_ptr ap_disjunction_compose(ap_manager_ptr manager, [size_is(size)] ap_abstract0_ptr* tabs, int size)
+quote(call,"
+{
+  int i;
+  if (size==0){
+    caml_invalid_argument(\"Array of size 0\");
+  }
+  ap_disjunction_internal_t* intern = manager->internal;
+  ap_manager_t* man = intern->manager;
+
+  void** tabvoid = malloc(size*sizeof(void*));
+  for (i=0; i<size; i++) tabvoid[i] = tabs[i]->value;
+
+  ap_disjunction_t* disj = ap_disjunction_compose(manager, false, tabvoid, (size_t)size);
+
+  free(tabvoid);
+  _res = malloc(sizeof(ap_abstract0_t));
+  _res->man = ap_manager_copy(manager);
+  _res->value = disj;
+}
+");
+
+quote(MLI,"\n(** {2 Type conversions} *)
+
+val manager_is_disjunction : 'a Manager.t -> bool
+  (** Return [true] iff the argument manager is a disjunction manager *)
+val manager_of_disjunction : 'a t Manager.t -> 'b Manager.t
+  (** Make a disjunction manager generic *)
+val manager_to_disjunction : 'a Manager.t -> 'b t Manager.t
+  (** Instanciate the type of a disjunction manager.
+      Raises [Failure] if the argument manager is not a disjunction manager *)
+module Abstract0 : sig
+  val is_disjunction : 'a Abstract0.t -> bool
+    (** Return [true] iff the argument value is a disjunction value *)
+  val of_disjunction : 'a t Abstract0.t -> 'b Abstract0.t
+    (** Make a disjunction value generic *)
+  val to_disjunction : 'a Abstract0.t -> 'b t Abstract0.t
+    (** Instanciate the type of a disjunction value.
+	Raises [Failure] if the argument value is not a disjunction value *)
+end
+module Abstract1 : sig
+  val is_disjunction : 'a Abstract1.t -> bool
+    (** Return [true] iff the argument value is a disjunction value *)
+  val of_disjunction : 'a t Abstract1.t -> 'b Abstract1.t
+    (** Make a disjunction value generic *)
+  val to_disjunction : 'a Abstract1.t -> 'b t Abstract1.t
+    (** Instanciate the type of a disjunction value.
+	Raises [Failure] if the argument value is not a disjunction value *)
+end
+")
+
+quote(ML,"
+let manager_is_disjunction man =
+  let str = Manager.get_library man in
+  (String.compare (String.sub str 0 11) \"disjunction\")==0
+let manager_of_disjunction (man:'a t Manager.t) : 'b Manager.t = Obj.magic man
+let manager_to_disjunction (man:'a Manager.t) : 'b t Manager.t =
+  if manager_is_disjunction man then
+    Obj.magic man
+  else
+    failwith \"Disjunction.manager_to_disjunction: the argument manager is not a Disjunction manager\"
+module Abstract0 = struct
+  let is_disjunction abs =
+    manager_is_disjunction (Abstract0.manager abs)
+  let of_disjunction (abs: 'a t Abstract0.t) : 'b Abstract0.t = Obj.magic abs
+  let to_disjunction (abs:'a Abstract0.t) : 'b t Abstract0.t =
+  if is_disjunction abs then
+    Obj.magic abs
+  else
+    failwith \"Disjunction.Abstract0.to_disjunction: the argument value is not a Disjunction value\"
+end
+module Abstract1 = struct
+  let is_disjunction abs =
+    manager_is_disjunction (Abstract1.manager abs)
+  let of_disjunction (abs: 'a t Abstract1.t) : 'b Abstract1.t = Obj.magic abs
+  let to_disjunction (abs:'a Abstract1.t) : 'b t Abstract1.t =
+  if is_disjunction abs then
+    Obj.magic abs
+  else
+    failwith \"Disjunction.Abstract1.to_disjunction: the argument value is not a Disjunction value\"
+end
+")

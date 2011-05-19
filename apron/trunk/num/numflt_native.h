@@ -53,7 +53,7 @@ static inline void numflt_set_array(numflt_t* a, numflt_t* b, size_t size)
 { memcpy(a,b,size*sizeof(numflt_t)); }
 static inline void numflt_set_int(numflt_t a, long int i)
 { *a = (numflt_native)i; }
- 
+
 /* ====================================================================== */
 /* Constructors and Destructors */
 /* ====================================================================== */
@@ -62,8 +62,8 @@ static inline void numflt_init(numflt_t a)
 { *a = NUMFLT_ZERO; }
 static inline void numflt_init_array(numflt_t* a, size_t size)
 {
-  size_t i; 
-  for (i=0; i<size; i++) *(a[i]) = NUMFLT_ZERO; 
+  size_t i;
+  for (i=0; i<size; i++) *(a[i]) = NUMFLT_ZERO;
 }
 static inline void numflt_init_set(numflt_t a, numflt_t b)
 { numflt_set(a,b); }
@@ -164,9 +164,9 @@ static inline int numflt_sgn(numflt_t a)
 static inline int numflt_cmp(numflt_t a, numflt_t b)
 { return (*a==*b ? 0 : (*a>*b ? 1 : -1)); }
 static inline int numflt_cmp_int(numflt_t a, long int b)
-{ 
+{
   numflt_native bb = (numflt_native)b;
-  return (*a==bb ? 0 : (*a>bb ? 1 : -1)); 
+  return (*a==bb ? 0 : (*a>bb ? 1 : -1));
 }
 static inline bool numflt_equal(numflt_t a, numflt_t b)
 { return *a==*b; }
@@ -204,7 +204,7 @@ static inline int numflt_snprint(char* s, size_t size, numflt_t a)
 
 /* int2 -> numflt */
 static inline bool numflt_set_int2(numflt_t a, long int i, long int j)
-{ 
+{
   assert(j>0);
   *a = (numflt_native)i/(numflt_native)j;
   return (-*a==(numflt_native)(-i)/(numflt_native)j);
@@ -213,7 +213,7 @@ static inline bool numflt_set_int2(numflt_t a, long int i, long int j)
 /* mpz -> numflt */
 /* mpfr is supposed to have exactly the IEEE754 double precision of NUMFLT_MANT_DIG bits */
 static inline bool numflt_set_mpz_tmp(numflt_t a, mpz_t b, mpfr_t mpfr)
-{ 
+{
   int res = mpfr_set_z(mpfr,b,GMP_RNDU);
 #if defined(NUMFLT_DOUBLE)
   *a = mpfr_get_d(mpfr,GMP_RNDU);/* Normally, exact conversion here (unless overfloww) */
@@ -241,7 +241,7 @@ static inline bool numflt_set_mpq_tmp(numflt_t a, mpq_t b, mpfr_t mpfr)
   *a = mpfr_get_ld(mpfr,GMP_RNDU);/* Normally, exact conversion here (unless overfloww) */
 #endif
   return (res==0);
-}  
+}
 static inline bool numflt_set_mpq(numflt_t a, mpq_t b)
 {
   mpfr_t mpfr;
@@ -255,12 +255,12 @@ static inline bool numflt_set_double(numflt_t a, double k)
 { *a = (numflt_native)k; return true; }
 /* mpfr -> numflt */
 static inline bool numflt_set_mpfr(numflt_t a, mpfr_t b)
-{ 
+{
 #if defined(NUMFLT_DOUBLE)
-  *a = mpfr_get_d(b,GMP_RNDU); 
+  *a = mpfr_get_d(b,GMP_RNDU);
   return !mpfr_cmp_d(b,*a);
 #else
-  *a = mpfr_get_ld(b,GMP_RNDU); 
+  *a = mpfr_get_ld(b,GMP_RNDU);
   return !mpfr_cmp_ld(b,*a);
 #endif
 }
@@ -277,7 +277,7 @@ static inline bool int_set_numflt(long int* a, numflt_t b)
 }
 /* numflt -> mpz */
 static inline bool mpz_set_numflt(mpz_t a, numflt_t b)
-{ 
+{
   double c = ceil(*b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_ui(a,0); return false; }
   mpz_set_d(a,c);
@@ -286,10 +286,10 @@ static inline bool mpz_set_numflt(mpz_t a, numflt_t b)
 /* numflt -> mpq */
 static inline bool mpq_set_numflt(mpq_t a, numflt_t b)
 #if defined(NUMFLT_DOUBLE)
-{ 
+{
   if (!isfinite(*b)) { DEBUG_SPECIAL; mpq_set_ui(a,0,1); return false; }
-  mpq_set_d(a,*b); 
-  return true; 
+  mpq_set_d(a,*b);
+  return true;
 }
 #else
 {
@@ -330,7 +330,7 @@ static inline bool double_fits_numflt(double a)
 static inline bool mpfr_fits_numflt(mpfr_t a)
 { return mpfr_get_exp(a)<1022; /* XXX >1022 for long double */ }
 static inline bool numflt_fits_int(numflt_t a)
-{ 
+{
   numflt_native d;
   numflt_ceil(&d,a);
   return isfinite(d) && d >= (numflt_native)(-LONG_MAX) && d<= (numflt_native)LONG_MAX;
@@ -356,7 +356,7 @@ static inline bool numflt_fits_double(numflt_t a)
 #endif
 }
 static inline bool numflt_fits_mpfr(numflt_t a)
-{  
+{
   int e;
 #if defined(NUMFLT_DOUBLE)
   frexp(*a,&e);

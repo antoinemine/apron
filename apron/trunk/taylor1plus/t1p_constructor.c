@@ -148,7 +148,7 @@ tbool_t t1p_is_leq(ap_manager_t* man, t1p_t* a, t1p_t* b)
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_IS_LEQ);
     arg_assert(a && b && (a->dims == b->dims), abort(););
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "### IS LESS or EQUAL %x < %x ###\n",(int)a,(int)b);
+    fprintf(stdout, "### IS LESS or EQUAL %tx < %tx ###\n",(intptr_t)a,(intptr_t)b);
 //    t1p_fprint(stdout, man, a, 0x0);
  //   t1p_fprint(stdout, man, b, 0x0);
     fprintf(stdout, "### ### ###\n");
@@ -355,7 +355,7 @@ ap_lincons0_array_t t1p_to_lincons_array(ap_manager_t* man, t1p_t* a)
 	}
 	array = ap_lincons0_array_make(size);
 	size = 0;
-	for (i=0;i<nbdims;i++){      
+	for (i=0;i<nbdims;i++){
 	    point = false;
 	    //if (!bound_infty(tmp[i]->inf)){
 	    if (!bound_infty(a->box[i]->inf)){
@@ -401,4 +401,3 @@ ap_generator0_array_t t1p_to_generator_array(ap_manager_t* man, t1p_t* a)
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_TO_GENERATOR_ARRAY);
     not_implemented();
   }
-

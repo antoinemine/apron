@@ -627,13 +627,13 @@ pk_t* poly_asssub_texpr_array(bool assign,
     return destructive ? pa : pk_bottom(man,pa->intdim,pa->realdim);
   }
   /* Choose the right technique */
-  if (ap_texpr0_array_is_scalar(texpr,size) && 
+  if (ap_texpr0_array_is_scalar(texpr,size) &&
       ap_texpr0_array_is_interval_linear(texpr,size)){
     ap_abstract0_t abs;
     abs.value = pa;
     abs.man = man;
     if (size==1){
-      ap_linexpr0_t* linexpr0 = 
+      ap_linexpr0_t* linexpr0 =
 	ap_intlinearize_texpr0(man,&abs,texpr[0],NULL,
 			       AP_SCALAR_MPQ,false);
       po = poly_asssub_linexpr_det(assign,man,destructive,
@@ -641,7 +641,7 @@ pk_t* poly_asssub_texpr_array(bool assign,
       ap_linexpr0_free(linexpr0);
     }
     else {
-      ap_linexpr0_t** tlinexpr = 
+      ap_linexpr0_t** tlinexpr =
 	ap_intlinearize_texpr0_array(man,&abs,texpr,size,NULL,
 				     AP_SCALAR_MPQ,false);
       po = poly_asssub_linexpr_array_det(assign,man,destructive,

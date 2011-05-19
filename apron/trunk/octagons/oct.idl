@@ -58,7 +58,7 @@ ap_abstract0_ptr ap_abstract0_oct_of_generator_array(ap_manager_ptr man, int v1,
 
 quote(MLI,"(** Widening with scalar thresholds. *)")
 ap_abstract0_ptr ap_abstract0_oct_widening_thresholds(ap_manager_ptr man,ap_abstract0_ptr a1,ap_abstract0_ptr a2,struct ap_scalar_array_t array)
-     quote(call,"_res = ap_abstract0_oct_widening_thresholds(man,a1,a2,(const ap_scalar_t**)array.p,array.size);")
+     quote(call,"_res = ap_abstract0_oct_widening_thresholds(man,a1,a2,(ap_scalar_t**)array.p,array.size);")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Standard narrowing. *)")
@@ -91,8 +91,8 @@ module Abstract0 : sig
   val of_oct : t Apron.Abstract0.t -> 'a Apron.Abstract0.t
     (** Make an oct value generic *)
   val to_oct : 'a Apron.Abstract0.t -> t Apron.Abstract0.t
-    (** Instanciate the type of an oct value. 
-        Raises [Failure] if the argument value is not an oct value *)
+    (** Instanciate the type of an oct value.
+	Raises [Failure] if the argument value is not an oct value *)
 end
 module Abstract1 : sig
   val is_oct : 'a Apron.Abstract1.t -> bool
@@ -100,8 +100,8 @@ module Abstract1 : sig
   val of_oct : t Apron.Abstract1.t -> 'a Apron.Abstract1.t
     (** Make an oct value generic *)
   val to_oct : 'a Apron.Abstract1.t -> t Apron.Abstract1.t
-    (** Instanciate the type of an oct value. 
-        Raises [Failure] if the argument value is not an oct value *)
+    (** Instanciate the type of an oct value.
+	Raises [Failure] if the argument value is not an oct value *)
 end
 ")
 
@@ -111,26 +111,26 @@ let manager_is_oct man =
   (String.compare str \"oct\")==0
 let manager_of_oct (man:t Apron.Manager.t) : 'a Apron.Manager.t = Obj.magic man
 let manager_to_oct (man:'a Apron.Manager.t) : t Apron.Manager.t =
-  if manager_is_oct man then 
+  if manager_is_oct man then
     Obj.magic man
   else
     failwith \"Oct.manager_to_oct: the argument manager is not an Oct manager\"
 module Abstract0 = struct
-  let is_oct abs = 
+  let is_oct abs =
     manager_is_oct (Apron.Abstract0.manager abs)
   let of_oct (abs: t Apron.Abstract0.t) : 'a Apron.Abstract0.t = Obj.magic abs
   let to_oct (abs:'a Apron.Abstract0.t) : t Apron.Abstract0.t =
-  if is_oct abs then 
+  if is_oct abs then
     Obj.magic abs
   else
     failwith \"Oct.Abstract0.to_oct: the argument value is not an oct value\"
 end
 module Abstract1 = struct
-  let is_oct abs = 
+  let is_oct abs =
     manager_is_oct (Apron.Abstract1.manager abs)
   let of_oct (abs: t Apron.Abstract1.t) : 'a Apron.Abstract1.t = Obj.magic abs
   let to_oct (abs:'a Apron.Abstract1.t) : t Apron.Abstract1.t =
-  if is_oct abs then 
+  if is_oct abs then
     Obj.magic abs
   else
     failwith \"Oct.Abstract1.to_oct: the argument value is not an oct value\"
@@ -140,7 +140,7 @@ end
 quote(MLI,"\n(**
 {2 Compilation information}
 
-See {!Introduction.compilation} for complete explanations. 
+See {!Introduction.compilation} for complete explanations.
 We just show examples with the file [mlexample.ml].
 
 {3 Bytecode compilation}

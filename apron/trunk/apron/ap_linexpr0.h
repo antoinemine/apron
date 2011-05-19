@@ -69,7 +69,7 @@ typedef struct ap_linexpr0_t {
      coefficient is the constant coefficient.
 
    - A linear expression contains no non-scalar coefficients
-*/ 
+*/
 typedef enum ap_linexpr_type_t {
   AP_LINEXPR_INTLINEAR,
   AP_LINEXPR_QUASILINEAR,
