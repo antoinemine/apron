@@ -85,7 +85,7 @@ CCLIB_TO_INSTALL =
 # Rules
 #---------------------------------------
 
-all: libapron.a libapron_debug.a
+all: src libapron.a libapron_debug.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 

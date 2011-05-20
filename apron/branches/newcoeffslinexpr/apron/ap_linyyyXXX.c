@@ -617,7 +617,7 @@ int ap_linexprXXX_hash(ap_linexprXXX_t expr)
   size = expr->effsize;
   res = size << 8;
   dec = 0;
-  for (i=0; i<size; i += (size+7)/8){
+  for (i=0; i<size; i += (size+6)/7){
     eitv = expr->linterm[i]->eitv;
     res1 = eitvXXX_hash(eitv);
     res += res1<<dec;
@@ -996,6 +996,50 @@ void ap_linyyyXXX_array_extend_environment(ap_linyyyXXX_array_t res,
 	ap_dimchange_free(dimchange);
       }
     }
+  }
+}
+
+/* ====================================================================== */
+/* II.6 Hashing, comparison */
+/* ====================================================================== */
+
+int ap_linyyyXXX_array_hash(ap_linyyyXXX_array_t a)
+{
+  unsigned int i;
+  int res = a->size*3;
+  for (i=0; i<a->size; i+=(a->size+4)/5){
+    res = res*7;
+    res += ap_linyyyXXX_hash(a->p[i]);
+  }
+  return res;
+}
+bool ap_linyyyXXX_array_equal(ap_linyyyXXX_array_t a1,ap_linyyyXXX_array_t a2)
+{
+  if (a1->size!=a2->size)
+    return false;
+  else {
+    unsigned int i;
+    for (i=0; i<a1->size; i++){
+      if (!ap_linyyyXXX_equal(a1->p[i],a2->p[i]))
+        return false;
+    }
+    return true;
+  }
+}
+int ap_linyyyXXX_array_cmp(ap_linyyyXXX_array_t a1, ap_linyyyXXX_array_t a2)
+{
+  if (a1->size<a2->size)
+    return -1;
+  else if (a1->size>a2->size)
+    return 1;
+  else {
+    unsigned int i;
+    for (i=0; i<a1->size; i++){
+      int res = ap_linyyyXXX_cmp(a1->p[i],a2->p[i]);
+      if (res)
+        return res;
+    }
+    return 0;
   }
 }
 

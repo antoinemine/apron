@@ -11,6 +11,12 @@ quote(C, "\n\
 
 typedef [abstract,c2ml(camlidl_apron_num_internal_ptr_c2ml_dummy),ml2c(camlidl_apron_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;
 
+enum num_discr_t {
+  NUM_Il, NUM_Ill, NUM_MPZ,
+  NUM_Rl, NUM_Rll, NUM_MPQ,
+  NUM_D, NUM_Dl, NUM_MPFR
+};
+
 enum ap_exprtyp_t {
   AP_LINEXPR_INTLINEAR,
   AP_LINEXPR_QUASILINEAR,
@@ -41,6 +47,11 @@ type 'a val1 = {
   mutable val0: 'a;
   mutable env: Environment.t;
 }
+
+type numD
+type numMPQ
+type numMPFR
+type numRll
 ")
 
 quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"

@@ -197,8 +197,8 @@ ap_manager_t* pkXXX_manager_alloc(bool strict)
 
   pk = pkXXX_internal_alloc(strict);
   pkXXX_set_approximate_max_coeff_size(pk, 1);
-  man = ap_manager_alloc(strict ? "polka, strict mode" : "polka, loose mode",
-			 "3.0 with NUM_MPZ",
+  man = ap_manager_alloc(strict ? "polka, strict mode" : "polka, loose mode, numXXX",
+			 "3.0",
 			 pk, (void (*)(void*))pkXXX_internal_free);
   pk->num = man->num;
 

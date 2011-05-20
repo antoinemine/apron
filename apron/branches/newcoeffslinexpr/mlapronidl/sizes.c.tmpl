@@ -1,0 +1,16 @@
+#include <stdio.h>
+#include "ap_global0.h"
+
+int main(int argc, char**argv)
+{
+  MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
+    MACRO_FOREACH XXX @AllNumIdl
+    printf("#define TTTXXX_SIZE_ARCH %ld\n",sizeof(TTTXXX_t));
+  ENDMACRO
+  ENDMACRO
+  MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+    MACRO_FOREACH XXX @AllNumIdl
+    printf("#define TTTXXX_array_SIZE_ARCH %ld\n",sizeof(TTTXXX_array_t));
+  ENDMACRO
+  ENDMACRO
+}
