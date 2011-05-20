@@ -452,10 +452,10 @@ void pkXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkXXX_t* po)
   }
   else {
     matrixXXX_to_box(pk,pk->envXXX,po->F);
-    size_t oldsize = pk->envXXX->size;
-    pk->envXXX->size = size;
+    size_t oldsize = pk->envXXX->effsize;
+    pk->envXXX->effsize = size;
     exact = ap_linexpr0_set_linexprXXX(box,pk->envXXX,pk->num);
-    pk->envXXX->size = oldsize;
+    pk->envXXX->effsize = oldsize;
   }
   man->result.flag_exact = exact;
   man->result.flag_best = true;

@@ -9,7 +9,11 @@
 #define _AP_ABSTRACT0_H_
 
 #include "ap_manager.h"
-#include "ap_expr0.h"
+#include "ap_linexpr0.h"
+#include "ap_lincons0.h"
+#include "ap_lingen0.h"
+#include "ap_texpr0.h"
+#include "ap_tcons0.h"
 
 #ifdef __cplusplus
 extern "C" {

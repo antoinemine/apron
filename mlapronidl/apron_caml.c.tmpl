@@ -224,28 +224,6 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 /* Numbers, bounds, intervals, linear expressions/constraints/generators */
 /* ********************************************************************** */
 
-void camlidl_custom_num_internal_finalize(value val)
-{
-  num_internal_ptr a = *(num_internal_ptr*)(Data_custom_val(val));
-  num_internal_free(a);
-}
-struct custom_operations camlidl_custom_num_internal = {
-  "camlidl_apron_custom_num_internal",
-  &camlidl_custom_num_internal_finalize,
-  custom_compare_default,
-  custom_hash_default,
-  custom_serialize_default,
-  custom_deserialize_default
-};
-
-value camlidl_num_internal_ptr_c2ml(num_internal_ptr* p)
-{
-  value val;
-  val = alloc_custom(&camlidl_custom_num_internal, sizeof(num_internal_ptr), 0, 1);
-  *(((num_internal_ptr*)(Data_custom_val(val)))) = *p;
-  return val;
-}
-
 MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
 MACRO_FOREACH XXX @AllNumIdl
 void camlidl_custom_TTTXXX_finalize(value val)
@@ -654,6 +632,35 @@ void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx)
   }
   value v = camlidl_c2ml_manager_struct_ap_exclog_t(man->result.exclog,NULL);
   caml_raise_with_arg(*p,v);
+}
+
+typedef struct caml_num_internal_struct {
+  num_internal_ptr num;
+  ap_manager_t* man;
+} caml_num_internal_struct;
+typedef num_internal_ptr caml_num_internal_ptr;
+
+void camlidl_custom_num_internal_finalize(value val)
+{
+  caml_num_internal_struct* a = (caml_num_internal_struct*)(Data_custom_val(val));
+  ap_manager_free(a->man);
+}
+struct custom_operations camlidl_custom_num_internal = {
+  "camlidl_apron_custom_num_internal",
+  &camlidl_custom_num_internal_finalize,
+  custom_compare_default,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default
+};
+
+value camlidl_apron_num_internal_ptr_c2ml(num_internal_ptr num, ap_manager_t* man)
+{
+  value val = alloc_custom(&camlidl_custom_num_internal, sizeof(caml_num_internal_struct), 0, 1);
+  caml_num_internal_struct* p = (caml_num_internal_struct*)(Data_custom_val(val));
+  p->num = num;
+  p->man = ap_manager_copy(man);
+  return val;
 }
 
 /* ********************************************************************** */

@@ -66,12 +66,6 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p);
 /* Numbers, bounds, intervales, linear expressions/constraints/generators */
 /* ********************************************************************** */
 
-value camlidl_num_internal_ptr_c2ml(num_internal_ptr* a);
-static inline void camlidl_num_internal_ptr_ml2c(value val, num_internal_ptr* a)
-{
-  *a = *(num_internal_ptr*)(Data_custom_val(val));
-}
-
 MACRO_FOREACH XXX @AllNumIdl
 typedef numXXX_ptr numXXX_ptrg;
 typedef numXXX_ptr numXXX_ptrm;
@@ -210,14 +204,13 @@ extern value camlidl_c2ml_manager_struct_ap_exclog_t(struct ap_exclog_t*, struct
 extern void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx);
 
 /* ********************************************************************** */
-/* abstract0 */
+/* abstract0 and num_internal */
 /* ********************************************************************** */
 
 #define I0_CHECK_EXC(man) if (man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(man,_ctx);
 
 extern struct custom_operations camlidl_apron_custom_abstract0_ptr;
 extern mlsize_t camlidl_apron_heap;
-
 typedef ap_abstract0_t* ap_abstract0_ptr;
 
 static inline
@@ -236,6 +229,18 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 		   camlidl_apron_heap);
   *((ap_abstract0_ptr *) Data_custom_val(v)) = *p;
   return v;
+}
+
+extern struct custom_operations camlidl_custom_num_internal;
+static inline value camlidl_apron_num_internal_ptr_c2ml_dummy(void* x)
+{
+  abort();
+}
+value camlidl_apron_num_internal_ptr_c2ml(num_internal_ptr num, ap_manager_t* man);
+/* We cheat here, look at Manager.get_num_internal */
+static inline void camlidl_apron_num_internal_ptr_ml2c(value val, num_internal_ptr* a)
+{
+  *a = *(num_internal_ptr*)(Data_custom_val(val));
 }
 
 /* ********************************************************************** */

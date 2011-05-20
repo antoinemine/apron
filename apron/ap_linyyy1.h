@@ -35,14 +35,27 @@ typedef struct ap_linyyy1_struct {
 typedef ap_linyyy1_struct ap_linyyy1_t[1];
 typedef ap_linyyy1_struct* ap_linyyy1_ptr;
 
+/* Array of linear expressions */
+typedef struct ap_linyyy1_array_struct {
+  ap_linyyy0_array_t linyyy0_array;
+  ap_environment_t* env;
+} ap_linyyy1_array_struct;
+typedef ap_linyyy1_array_struct* ap_linyyy1_array_ptr;
+typedef ap_linyyy1_array_struct ap_linyyy1_array_t[1];
+
+/* ********************************************************************** */
+/* I. ap_linyyy1_t */
+/* ********************************************************************** */
+
+
 /* ====================================================================== */
-/* I. Memory management and printing */
+/* I.1 Memory management and printing */
 /* ====================================================================== */
 
 void ap_linyyy1_init(ap_linyyy1_t res, ap_scalar_discr_t discr, size_t size, ap_environment_t* env);
 void ap_linyyy1_init_set(ap_linyyy1_t res, ap_linyyy1_t e);
 void ap_linyyy1_init_set_linyyy0(ap_linyyy1_t res, ap_linyyy0_t e, ap_environment_t* env);
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 void ap_linyyy1_init_set_linyyyZZZ(ap_linyyy1_t res, ap_linyyyZZZ_t e, ap_environment_t* env);
 ENDMACRO
 void ap_linyyy1_clear(ap_linyyy1_t e);
@@ -50,18 +63,18 @@ void ap_linyyy1_fprint(FILE* stream, ap_linyyy1_t e);
 void ap_linyyy1_minimize(ap_linyyy1_t a);
 
 /* ====================================================================== */
-/* II. Conversions */
+/* I.2 Conversions */
 /* ====================================================================== */
 
 bool ap_linyyy1_set(ap_linyyy1_t res, ap_linyyy1_t e, num_internal_t intern);
 bool ap_linyyy1_set_linyyy0(ap_linyyy1_t res, ap_linyyy0_t e, ap_environment_t* env, num_internal_t intern);
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 bool ap_linyyy1_set_linyyyZZZ(ap_linyyy1_t a, ap_linyyyZZZ_t b, ap_environment_t* env, num_internal_t intern);
 bool ap_linyyyZZZ_set_linyyy1(ap_linyyyZZZ_t a, ap_linyyy1_t b, num_internal_t intern);
 ENDMACRO
 
 /* ====================================================================== */
-/* III. Access */
+/* I.3 Access */
 /* ====================================================================== */
 
 static inline
@@ -135,13 +148,84 @@ void ap_linyyy1_set_yyytyp(ap_linyyy1_t c, ap_yyytyp_t yyytyp);
 #endif
 
 /* ====================================================================== */
-/* IV. Change of dimensions and permutations */
+/* I.4 Change of dimensions and permutations */
 /* ====================================================================== */
 
 void ap_linyyy1_extend_environment(ap_linyyy1_t nexpr,
 				   bool* perror,
 				   ap_linyyy1_t expr,
 				   ap_environment_t* nenv);
+
+/* ********************************************************************** */
+/* II. ap_lincons1_array_t */
+/* ********************************************************************** */
+
+/* ====================================================================== */
+/* II.1 Memory management and printing */
+/* ====================================================================== */
+
+void ap_linyyy1_array_init(ap_linyyy1_array_t e, ap_scalar_discr_t discr, size_t size, ap_environment_t* env);
+void ap_linyyy1_array_init_set(ap_linyyy1_array_t res, ap_linyyy1_array_t e);
+void ap_linyyy1_array_init_set_linyyy0_array(ap_linyyy1_array_t res, ap_linyyy0_array_t e, ap_environment_t* env);
+MACRO_FOREACH ZZZ @MainNum
+void ap_linyyy1_array_init_set_linyyyZZZ_array(ap_linyyy1_array_t res, ap_linyyyZZZ_array_t e, ap_environment_t* env);
+ENDMACRO
+void ap_linyyy1_array_minimize(ap_linyyy1_array_t a);
+void ap_linyyy1_array_clear(ap_linyyy1_array_t e);
+void ap_linyyy1_array_fprint(FILE* stream, ap_linyyy1_array_t e);
+
+/* ====================================================================== */
+/* II.2 Access, possibly with conversions */
+/* ====================================================================== */
+
+static inline
+ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr);
+static inline
+ap_environment_t* ap_linyyy1_envref(ap_linyyy1_t expr);
+  /* Get a reference to the environment. Do not free it. */
+static inline
+ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
+  /* Get a reference to the underlying linear expression of level
+     0. Do not free it. */
+
+
+static inline ap_scalar_discr_t ap_linyyy1_array_discr(ap_linyyy1_array_t p);
+size_t ap_linyyy1_array_size(ap_linyyy1_array_t p);
+
+#if !defined(_AP_lingen1_ARRAY_H_)
+ap_linexpr_type_t ap_linyyy1_array_type(ap_linyyy1_array_t array);
+bool ap_linyyy1_array_is_quasilinear(ap_linyyy1_array_t array);
+bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t array);
+  /* Are all the constraints involved linear (resp. quasilinear) */
+#endif
+
+bool ap_linyyy1_array_set(ap_linyyy1_array_t res, ap_linyyy1_array_t e, num_internal_t intern);
+bool ap_linyyy1_array_set_index(ap_linyyy1_array_t p, bool* perror, size_t i, ap_linyyy1_t a, num_internal_t intern);
+bool ap_linyyy1_array_get_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern);
+void ap_linyyy1_array_ref_index(ap_linyyy1_t a, ap_linyyy1_array_t p, size_t i);
+
+bool ap_linyyy1_array_set_linyyy0_array(ap_linyyy1_array_t res, ap_linyyy0_array_t e, ap_environment_t* env, num_internal_t intern);
+
+MACRO_FOREACH XXX @AllNum
+bool ap_linyyy1_array_set_linyyyXXX_array(ap_linyyy1_array_t a, ap_linyyyXXX_array_t b, ap_environment_t* env, num_internal_t intern);
+bool ap_linyyyXXX_array_set_linyyy1_array(ap_linyyyXXX_array_t a, ap_linyyy1_array_t b, num_internal_t intern);
+
+bool ap_linyyy1_array_set_index_linyyyXXX(ap_linyyy1_array_t p, size_t i, ap_linyyyXXX_t a, num_internal_t intern);
+bool ap_linyyy1_array_get_index_linyyyXXX(ap_linyyyXXX_t a, ap_linyyy1_array_t p, size_t i, num_internal_t intern);
+ENDMACRO
+
+/* ====================================================================== */
+/* II.3 Change of dimensions and permutations */
+/* ====================================================================== */
+
+void ap_linyyy1_array_extend_environment(ap_linyyy1_array_t nexpr,
+					 bool* perror,
+					 ap_linyyy1_array_t expr,
+					 ap_environment_t* nenv);
+
+/* ********************************************************************** */
+/* III. Inline definitions */
+/* ********************************************************************** */
 
 static inline
 ap_scalar_discr_t ap_linyyy1_discr(ap_linyyy1_t expr)
@@ -158,7 +242,7 @@ static inline void ap_linyyy1_cons(ap_linyyy1_t res, ap_linyyy0_t e, ap_environm
   ap_linyyy0_cons(res->linyyy0,e);
   res->env = env;
 }
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 static inline void ap_linyyy1_cons_ZZZ(ap_linyyy1_t res, ap_linyyyZZZ_t e, ap_environment_t* env)
 {
   res->linyyy0->discr = AP_SCALAR_ZZZ;
@@ -166,6 +250,26 @@ static inline void ap_linyyy1_cons_ZZZ(ap_linyyy1_t res, ap_linyyyZZZ_t e, ap_en
   res->env = env;
 }
 ENDMACRO
+
+static inline ap_scalar_discr_t ap_linyyy1_array_discr(ap_linyyy1_array_t p)
+{ return p->linyyy0_array->discr; }
+static inline
+ap_environment_t* ap_linyyy1_array_envref(ap_linyyy1_array_t e)
+{ return e->env; }
+static inline
+ap_linyyy0_array_ptr ap_linyyy1_array_linyyy0_arrayref(ap_linyyy1_array_t e)
+{ return e->linyyy0_array; }
+
+MACRO_FOREACH ZZZ @MainNum
+static inline void ap_linyyy1_array_cons_ZZZ(ap_linyyy1_array_t res, ap_linyyyZZZ_array_t e, ap_environment_t* env)
+{
+  res->linyyy0_array->discr = AP_SCALAR_ZZZ;
+  res->linyyy0_array->linyyy_array.ZZZ = e;
+  res->env = env;
+};
+ENDMACRO
+
+
 
 #undef _AP_linyyy1_MARK_
 

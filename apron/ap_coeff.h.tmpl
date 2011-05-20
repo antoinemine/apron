@@ -107,7 +107,7 @@ typedef enum ap_coeff_tag_t {
 
 void ap_coeff_init(ap_coeff_t coeff, ap_scalar_discr_t discr);
 void ap_coeff_init_set(ap_coeff_t coeff, ap_coeff_t coeff2);
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 void ap_coeff_init_set_eitvZZZ(ap_coeff_t coeff, eitvZZZ_t eitv);
 ENDMACRO
 void ap_coeff_clear(ap_coeff_t coeff);
@@ -132,7 +132,7 @@ bool ap_coeff_set_generic(num_internal_t intern,
 bool ap_coeff_set_val(num_internal_t intern,
 		      ap_coeff_t a, ap_coeff_tag_t tag, ...);
 
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, num_internal_t intern);
 bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern);
 ENDMACRO
@@ -169,7 +169,7 @@ static inline void ap_coeff_print(ap_coeff_t a)
 { ap_coeff_fprint(stdout,a); }
   /* Printing */
 
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 static inline void ap_coeff_cons_eitvZZZ(ap_coeff_t res, eitvZZZ_t e)
 { res->discr = AP_SCALAR_ZZZ; res->eitv.ZZZ = e; };
 ENDMACRO

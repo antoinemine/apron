@@ -103,7 +103,7 @@ ap_environment_t* ap_environment_add(ap_environment_t* env,
 ap_environment_t* ap_environment_add_perm(ap_environment_t* env,
 					  ap_var_t* name_of_intdim, size_t intdim,
 					  ap_var_t* name_of_realdim, size_t realdim,
-					  ap_dimperm_t* dimpermu);
+					  ap_dimperm_t* dimperm);
   /* Same as previous functions, but in addition return in *dimperm
      the permutation to apply after having added new variables at the end of their
      respective slice, in order to get them sorted.

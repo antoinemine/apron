@@ -5,7 +5,7 @@
 
 #include "num_types.h"
 
-MACRO_ALLX
+MACRO_FOREACH XXX @AllNum
 #include "boundXXX.h"
 #include "itvXXX.h"
 #include "eitvXXX.h"
@@ -16,7 +16,8 @@ ENDMACRO
 
 #define _APXXX_MARK_
 
-MACRO_ALLX_MAINZ
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH ZZZ @MainNum
 #define MARK1_XXX
 #define MARK2_ZZZ
 
@@ -150,6 +151,7 @@ bool ap_lingenZZZ_array_set_lingenXXX_array(ap_lingenZZZ_array_t a, ap_lingenXXX
 #endif
 #undef MARK1_XXX
 #undef MARK2_ZZZ
+ENDMACRO
 ENDMACRO
 
 #undef _APXXX_MARK_

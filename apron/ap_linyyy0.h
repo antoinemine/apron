@@ -63,7 +63,7 @@ typedef ap_linyyy0_array_struct ap_linyyy0_array_t[1];
 
 void ap_linyyy0_init(ap_linyyy0_t res, ap_scalar_discr_t discr, size_t size);
 void ap_linyyy0_init_set(ap_linyyy0_t res, ap_linyyy0_t e);
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 void ap_linyyy0_init_set_linyyyZZZ(ap_linyyy0_t res, ap_linyyyZZZ_t e);
 ENDMACRO
 #if defined (_AP_lincons0_MARK_)
@@ -79,7 +79,7 @@ void ap_linyyy0_minimize(ap_linyyy0_t a);
 /* ====================================================================== */
 
 bool ap_linyyy0_set(ap_linyyy0_t res, ap_linyyy0_t e, num_internal_t intern);
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool ap_linyyy0_set_linyyyZZZ(ap_linyyy0_t a, ap_linyyyZZZ_t b, num_internal_t intern);
 bool ap_linyyyZZZ_set_linyyy0(ap_linyyyZZZ_t a, ap_linyyy0_t b, num_internal_t intern);
 ENDMACRO
@@ -229,7 +229,7 @@ int ap_linyyy0_compare(ap_linyyy0_t expr1, ap_linyyy0_t expr2);
 
 void ap_linyyy0_array_init(ap_linyyy0_array_t e, ap_scalar_discr_t discr, size_t size);
 void ap_linyyy0_array_init_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e);
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 void ap_linyyy0_array_init_set_linyyyZZZ_array(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e);
 ENDMACRO
 void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
@@ -242,7 +242,7 @@ void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_
 /* ====================================================================== */
 
 bool ap_linyyy0_array_set(ap_linyyy0_array_t res, ap_linyyy0_array_t e, num_internal_t intern);
-MACRO_ALLZ
+MACRO_FOREACH ZZZ @AllNum
 bool ap_linyyy0_array_set_linyyyZZZ_array(ap_linyyy0_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
 bool ap_linyyyZZZ_array_set_linyyy0_array(ap_linyyyZZZ_array_t a, ap_linyyy0_array_t b, num_internal_t intern);
 
@@ -296,14 +296,14 @@ static inline void ap_linyyy0_cons(ap_linyyy0_t res, ap_linyyy0_t e)
   res->discr = e->discr;
   res->linyyy = e->linyyy;
 }
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 static inline void ap_linyyy0_cons_ZZZ(ap_linyyy0_t res, ap_linyyyZZZ_t e)
 { res->discr = AP_SCALAR_ZZZ; res->linyyy.ZZZ = e; };
 ENDMACRO
 
 static inline ap_scalar_discr_t ap_linyyy0_array_discr(ap_linyyy0_array_t p)
 { return p->discr; }
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 static inline void ap_linyyy0_array_cons_ZZZ(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e)
 { res->discr = AP_SCALAR_ZZZ; res->linyyy_array.ZZZ = e; };
 ENDMACRO

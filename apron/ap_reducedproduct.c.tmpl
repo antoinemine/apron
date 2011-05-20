@@ -518,17 +518,9 @@ static
 void ap_coeff_meet_with(ap_coeff_t a, ap_coeff_t b,num_internal_t num)
 {
   assert (a->discr==b->discr);
-  switch(a->discr){
-  case AP_SCALAR_D:
-    eitvD_meet(a->eitv.D,a->eitv.D,b->eitv.D,num);
-    return;
-  case AP_SCALAR_MPQ:
-    eitvMPQ_meet(a->eitv.MPQ,a->eitv.MPQ,b->eitv.MPQ,num);
-    return;
-  case AP_SCALAR_MPFR:
-    eitvMPFR_meet(a->eitv.MPFR,a->eitv.MPFR,b->eitv.MPFR,num);
-    return;
-  }
+  MACRO_SWITCH(a->discr) ZZZ
+    eitvZZZ_meet(a->eitv.ZZZ,a->eitv.ZZZ,b->eitv.ZZZ,num);
+  ENDMACRO;
 }
 
 void ap_reducedproduct_bound_linexpr(ap_manager_t* manager,
@@ -600,31 +592,15 @@ void ap_lincons0_array_add(ap_lincons0_array_t a, size_t sizea,
 {
   size_t i;
   assert (a->discr==b->discr);
-  switch(a->discr){
-  case AP_SCALAR_D:
-    assert(sizea+sizeb <= a->lincons_array.D->size);
+  MACRO_SWITCH(a->discr) ZZZ {
+    assert(sizea+sizeb <= a->lincons_array.ZZZ->size);
     for (i=0;i<sizeb;i++){
-      ap_linconsD_set(a->lincons_array.D->p[sizea+i],
-		      b->lincons_array.D->p[i]);
+      ap_linconsZZZ_set(a->lincons_array.ZZZ->p[sizea+i],
+			b->lincons_array.ZZZ->p[i]);
     }
     return;
-  case AP_SCALAR_MPQ:
-    assert(sizea+sizeb <= a->lincons_array.MPQ->size);
-    for (i=0;i<sizeb;i++){
-      ap_linconsMPQ_set(a->lincons_array.MPQ->p[sizea+i],
-			b->lincons_array.MPQ->p[i]);
-    }
-    return;
-  case AP_SCALAR_MPFR:
-    assert(sizea+sizeb <= a->lincons_array.MPFR->size);
-    for (i=0;i<sizeb;i++){
-      ap_linconsMPFR_set(a->lincons_array.MPFR->p[sizea+i],
-			 b->lincons_array.MPFR->p[i]);
-    }
-    return;
-  default:
-    abort();
   }
+  ENDMACRO;
 }
 
 void ap_reducedproduct_to_lincons_array(ap_manager_t* manager, ap_lincons0_array_t array, ap_reducedproduct_t* a)

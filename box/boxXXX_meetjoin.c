@@ -126,30 +126,29 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
     man->result.flag_exact = true;
     return res;
   }
-  SWITCHZ(array->discr)
-    {
-      ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
-      eitvZZZ_ptr eitvref;
-      for (i=0;i<tab->size; i++){
-	ap_lingenZZZ_ptr gen = tab->p[i];
-	ap_linexprZZZ_ptr expr = gen->linexpr;
-	assert(gen->gentyp != AP_GEN_VERTEX);
-	ap_linexprZZZ_ForeachLinterm0(expr,j,dim,eitvref){
-	  assert(eitvref->eq);
-	  int sgn = boundZZZ_sgn(eitvref->itv->sup);
-	  if (sgn!=0){
-	    res->e->linterm[dim]->eitv->eq = false;
-	    if (sgn>0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->sup,1);
-	    }
-	    if (sgn<0 || gen->gentyp==AP_GEN_LINE){
-	      boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->neginf,1);
-	    }
-	  }
-	}
+  MACRO_SWITCH(array->discr) ZZZ {
+    ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
+    eitvZZZ_ptr eitvref;
+    for (i=0;i<tab->size; i++){
+      ap_lingenZZZ_ptr gen = tab->p[i];
+      ap_linexprZZZ_ptr expr = gen->linexpr;
+      assert(gen->gentyp != AP_GEN_VERTEX);
+      ap_linexprZZZ_ForeachLinterm0(expr,j,dim,eitvref){
+        assert(eitvref->eq);
+        int sgn = boundZZZ_sgn(eitvref->itv->sup);
+        if (sgn!=0){
+          res->e->linterm[dim]->eitv->eq = false;
+          if (sgn>0 || gen->gentyp==AP_GEN_LINE){
+            boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->sup,1);
+          }
+          if (sgn<0 || gen->gentyp==AP_GEN_LINE){
+            boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->neginf,1);
+          }
+        }
       }
     }
-  ENDSWITCH;
+  }
+  ENDMACRO;
   return res;
 }
 

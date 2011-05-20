@@ -900,25 +900,12 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
   ap_linexprMPFR_array_t arrayMPFR;
 
   array->discr = expr->discr;
-  switch (array->discr){
-  case AP_SCALAR_D:
-    array->linexpr_array.D = arrayD;
-    arrayD->size = 1;
-    arrayD->p = (ap_linexprD_t*)&(expr->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    array->linexpr_array.MPQ = arrayMPQ;
-    arrayMPQ->size = 1;
-    arrayMPQ->p = (ap_linexprMPQ_t*)&(expr->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    array->linexpr_array.MPFR = arrayMPFR;
-    arrayMPFR->size = 1;
-    arrayMPFR->p = (ap_linexprMPFR_t*)&(expr->linexpr.MPFR);
-    break;
-  default:
-    abort();
+  MACRO_SWITCH(array->discr) ZZZ {
+    array->linexpr_array.ZZZ = arrayZZZ;
+    arrayZZZ->size = 1;
+    arrayZZZ->p = (ap_linexprZZZ_t*)&(expr->linexpr.ZZZ);
   }
+  ENDMACRO;
   return ap_abstract0_asssub_linexpr_array(funid,
 					   man,destructive,a,&dim,array,dest);
 }
@@ -1013,19 +1000,9 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
 
     ptr2 = man->funptr[AP_FUNID_SAT_LINCONS];
     psize = NULL;
-    switch(array->discr){
-    case AP_SCALAR_D:
-      psize = &array->lincons_array.D->size;
-      break;
-    case AP_SCALAR_MPQ:
-      psize = &array->lincons_array.MPQ->size;
-      break;
-    case AP_SCALAR_MPFR:
-      psize = &array->lincons_array.MPFR->size;
-      break;
-    default:
-      abort();
-    }
+    MACRO_SWITCH(array->discr) ZZZ
+      psize = &array->lincons_array.ZZZ->size;
+    ENDMACRO;
     size = *psize;
     i = j = 0;
     while (i<size-j){

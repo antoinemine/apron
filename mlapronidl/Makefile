@@ -45,20 +45,30 @@ YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
 IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0
-IDL_TMPL_FILES_tmpl = conv
+IDL_ORIG_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_ORIG_MODULES_2)
+IDL_TMPL_MODULES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
 IDL_TMPL_MODULES_yyy = linyyy0
+IDL_TMPL_MODULES = \
+$(IDL_TMPL_MODULES_tmpl) \
+$(IDL_TMPL_MODULES_XXX) \
+$(IDL_TMPL_MODULES_yyyXXX) \
+$(IDL_TMPL_MODULES_yyy )
+
 IDL_GENERATED_MODULES = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
-$(IDL_TMPL_FILES_tmpl:%.tmpl=%) \
+$(IDL_TMPL_MODULES_tmpl:%.tmpl=%) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy)))
 
 IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
 
+IDL_SRC_MODULES = $(IDL_ORIG_MODULES) $(IDL_TMPL_MODULES)
+
 ML_TMPL_MODULES_tmpl = parser
 ML_TMPL_MODULES_yyy = linyyy1
+ML_TMPL_MODULES = $(ML_TMPL_MODULES_tmpl) $(ML_TMPL_MODULES_yyy)
 ML_ORIG_MODULES = texpr1 tcons1 abstract1 apron_parser apron_lexer
 ML_GENERATED_MODULES_1 = \
 $(IDL_MODULES) \
@@ -67,14 +77,17 @@ ML_GENERATED_MODULES_2 = \
 $(ML_TMPL_MODULES_tmpl:%.tmpl=%)
 ML_GENERATED_MODULES = $(ML_GENERATED_MODULES_1) $(ML_GENERATED_MODULES_2)
 ML_MODULES = $(ML_GENERATED_MODULES_1) $(ML_ORIG_MODULES) $(ML_GENERATED_MODULES_2)
+ML_SRC_MODULES = $(ML_ORIG_MODULES) $(ML_TMPL_MODULES)
 
 C_ORIG_FILES = 
 C_TMPL_FILES_tmpl = apron_caml.c.tmpl
 C_GENERATED_FILES = $(IDL_MODULES:%=%_caml.c) $(C_TMPL_FILES_tmpl:%.c.tmpl=%.c)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES_tmpl)
 
 H_ORIG_FILES = 
 H_TMPL_FILES_tmpl = apron_caml.h.tmpl
 H_GENERATED_FILES = $(H_TMPL_FILES_tmpl:%.h.tmpl=%.h)
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES_tmpl)
 
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES) 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES) 
@@ -180,12 +193,12 @@ uninstall:
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
-	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot apron_parser.ml apron_parser.mli apron_lexer.ml
+	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot apron_parser.ml apron_parser.mli apron_parser.output apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
 distclean: clean
-	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl
+	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl META
 
 #---------------------------------------
 # Library rules
@@ -343,3 +356,9 @@ depend: $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)
 	$(OCAMLDEP) $^ >Makefile.depend
 
 -include Makefile.depend
+
+.PHONY: tags TAGS
+tags: TAGS
+TAGS: $(H_SRC_FILES) $(C_SRC_FILES) $(ML_SRC_MODULES:%=%.ml) $(ML_SRC_MODULES:%=%.mli) $(IDL_SRC_MODULES:%=%.idl)
+	etags $^
+

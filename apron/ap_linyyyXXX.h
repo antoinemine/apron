@@ -194,7 +194,7 @@ bool ap_linexprXXX_set_list_generic(
 /* I.4 Conversions */
 /* ====================================================================== */
 
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 bool ap_linyyyXXX_set_linyyyZZZ(ap_linyyyXXX_t a, ap_linyyyZZZ_t b, num_internal_t intern);
 bool ap_linyyyZZZ_set_linyyyXXX(ap_linyyyZZZ_t a, ap_linyyyXXX_t b, num_internal_t intern);
 ENDMACRO
@@ -285,7 +285,7 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array, ap_dim_t* 
 /* II.4 Conversions */
 /* ====================================================================== */
 
-MACRO_MAINZ
+MACRO_FOREACH ZZZ @MainNum
 bool ap_linyyyXXX_array_set_linyyyZZZ_array(ap_linyyyXXX_array_t a, ap_linyyyZZZ_array_t b, num_internal_t intern);
 bool ap_linyyyZZZ_array_set_linyyyXXX_array(ap_linyyyZZZ_array_t a, ap_linyyyXXX_array_t b, num_internal_t intern);
 ENDMACRO

@@ -351,7 +351,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
       if (!boundXXX_infty(a->e->linterm[i]->eitv->itv->neginf)) size++;
       if (!boundXXX_infty(a->e->linterm[i]->eitv->itv->sup)) size++;
     }
-    SWITCHZ(array->discr)
+    MACRO_SWITCH(array->discr) ZZZ
       {
 	eitvZZZ_t eitv;
 	ap_linconsZZZ_ptr lincons;
@@ -398,7 +398,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	}
 	if (j<size) ap_linconsZZZ_array_resize(tab,j);
       }
-    ENDSWITCH;
+    ENDMACRO;
   }
 }
 
@@ -428,104 +428,103 @@ void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_
     ap_lingen0_array_resize(array,0);
     return;
   }
-  SWITCHZ(array->discr)
-    {
-      eitvZZZ_t eitv,coeff;
-      ap_lingenZZZ_t vertex;
-      ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
+  MACRO_SWITCH(array->discr) ZZZ {
+    eitvZZZ_t eitv,coeff;
+    ap_lingenZZZ_t vertex;
+    ap_lingenZZZ_array_ptr tab = array->lingen_array.ZZZ;
 
-      eitvZZZ_init(eitv);
-      eitvZZZ_init(coeff);
-      ap_lingenZZZ_init(vertex,0);
-      vertex->gentyp = AP_GEN_VERTEX;
+    eitvZZZ_init(eitv);
+    eitvZZZ_init(coeff);
+    ap_lingenZZZ_init(vertex,0);
+    vertex->gentyp = AP_GEN_VERTEX;
 
-      exact = true;
-      /* Count the number of generators */
-      nbvertices = 1; /* we take into account the vertex */
-      nbrays = 0;
-      nblines = 0;
-      for (i=0;i<size;i++){
-	exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num) && exact;
-	bool iinf = boundZZZ_infty(eitv->itv->neginf);
-	bool isup = boundZZZ_infty(eitv->itv->sup);
-	if (iinf && isup){
-	  nblines++;
-	}
-	else {
-	  if (iinf || isup){
-	    nbrays++;
-	  }
-	  else {
-	    if (!eitv->eq){
-	      nbvertices *= 2;
-	    }
-	    ap_linexprZZZ_set_eitv0(vertex->linexpr,i,coeff);
-	  }
-	}
+    exact = true;
+    /* Count the number of generators */
+    nbvertices = 1; /* we take into account the vertex */
+    nbrays = 0;
+    nblines = 0;
+    for (i=0;i<size;i++){
+      exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num) && exact;
+      bool iinf = boundZZZ_infty(eitv->itv->neginf);
+      bool isup = boundZZZ_infty(eitv->itv->sup);
+      if (iinf && isup){
+        nblines++;
       }
-
-      /* Preparation */
-      ap_lingenZZZ_array_resize(tab,nblines+nbrays+nbvertices);
-      eitvZZZ_set_int(coeff,0);
-      for (i=0; i<nblines+nbrays+nbvertices;i++){
-	ap_linexprZZZ_set_cst(tab->p[i]->linexpr,coeff);
+      else {
+        if (iinf || isup){
+          nbrays++;
+        }
+        else {
+          if (!eitv->eq){
+            nbvertices *= 2;
+          }
+          ap_linexprZZZ_set_eitv0(vertex->linexpr,i,coeff);
+        }
       }
-      /* Let's go now ! */
-      v = r = l = 0;
-      /* Creates the vertices */
-      ap_lingenZZZ_set(tab->p[nblines+nbrays + v], vertex);
-      v=1;
-      for (i=0; i<size; i++){
-	eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num);
-	bool iinf = boundZZZ_infty(eitv->itv->neginf);
-	bool isup = boundZZZ_infty(eitv->itv->sup);
-	if (iinf || isup){
-	  /* line or ray */
-	  eitvZZZ_set_int(coeff, (iinf && !isup) ? -1 : 1);
-	  j = (iinf && isup) ? l : (nbrays + r);
-	  ap_linexprZZZ_resize(tab->p[j]->linexpr,1);
-	  ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
-	  if (iinf && isup){ /* line */
-	    tab->p[j]->gentyp =
-	      i<a->dim.intd ? AP_GEN_LINEMOD : AP_GEN_LINE;
-	    l++;
-	  }
-	  else { /* ray */
-	    tab->p[j]->gentyp =
-	      i<a->dim.intd ? AP_GEN_RAYMOD : AP_GEN_RAY;
-	    r++;
-	  }
-	}
-	else { /* vertex */
-	  if (!eitv->eq){
-	    /* Duplication, and in same time set inf and sup */
-	    for (j=0; j<v; j++){
-	      ap_lingenZZZ_set(tab->p[nblines+nbrays + v + j],
-			       tab->p[nblines+nbrays + j]);
-	      eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->neginf));
-	      eitvZZZ_neg(coeff,coeff);
-	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + j]->linexpr,
-				    i,coeff);
-	      eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->sup));
-	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
-				    i,coeff);
-	    }
-	    v *= 2;
-	  }
-	  else {
-	    for (j=0; j<v; j++){
-	      ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
-				      i,eitv);
-	    }
-	  }
-	}
-      }
-      eitvZZZ_clear(eitv);
-      eitvZZZ_clear(coeff);
-      ap_lingenZZZ_clear(vertex);
-      man->result.flag_exact = exact;
     }
-  ENDSWITCH;
+
+    /* Preparation */
+    ap_lingenZZZ_array_resize(tab,nblines+nbrays+nbvertices);
+    eitvZZZ_set_int(coeff,0);
+    for (i=0; i<nblines+nbrays+nbvertices;i++){
+      ap_linexprZZZ_set_cst(tab->p[i]->linexpr,coeff);
+    }
+    /* Let's go now ! */
+    v = r = l = 0;
+    /* Creates the vertices */
+    ap_lingenZZZ_set(tab->p[nblines+nbrays + v], vertex);
+    v=1;
+    for (i=0; i<size; i++){
+      eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num);
+      bool iinf = boundZZZ_infty(eitv->itv->neginf);
+      bool isup = boundZZZ_infty(eitv->itv->sup);
+      if (iinf || isup){
+        /* line or ray */
+        eitvZZZ_set_int(coeff, (iinf && !isup) ? -1 : 1);
+        j = (iinf && isup) ? l : (nbrays + r);
+        ap_linexprZZZ_resize(tab->p[j]->linexpr,1);
+        ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
+        if (iinf && isup){ /* line */
+          tab->p[j]->gentyp =
+            i<a->dim.intd ? AP_GEN_LINEMOD : AP_GEN_LINE;
+          l++;
+        }
+        else { /* ray */
+          tab->p[j]->gentyp =
+            i<a->dim.intd ? AP_GEN_RAYMOD : AP_GEN_RAY;
+          r++;
+        }
+      }
+      else { /* vertex */
+        if (!eitv->eq){
+          /* Duplication, and in same time set inf and sup */
+          for (j=0; j<v; j++){
+            ap_lingenZZZ_set(tab->p[nblines+nbrays + v + j],
+                             tab->p[nblines+nbrays + j]);
+            eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->neginf));
+            eitvZZZ_neg(coeff,coeff);
+            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + j]->linexpr,
+				    i,coeff);
+            eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->sup));
+            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+				    i,coeff);
+          }
+          v *= 2;
+        }
+        else {
+          for (j=0; j<v; j++){
+            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+                                    i,eitv);
+          }
+        }
+      }
+    }
+    eitvZZZ_clear(eitv);
+    eitvZZZ_clear(coeff);
+    ap_lingenZZZ_clear(vertex);
+    man->result.flag_exact = exact;
+  }
+  ENDMACRO;
 }
 
 /* Converts an abstract value to an interval/hypercube.
@@ -539,9 +538,9 @@ void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t res, boxXXX_t* a)
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  a->e->size--;
+  a->e->effsize--;
   man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,intern->num);
-  a->e->size++;
+  a->e->effsize++;
 }
 
 #undef _BOXXX_MARK_BOXXX_

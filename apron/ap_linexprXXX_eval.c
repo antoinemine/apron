@@ -167,29 +167,28 @@ bool eitvXXX_eval_ap_linexpr0(
   ap_coeff_t coeff;
   bool exact;
 
-  SWITCHZ(expr->discr)
-    {
-      eitvZZZ_ptr eitv;
+  MACRO_SWITCH(expr->discr) ZZZ {
+    eitvZZZ_ptr eitv;
 
-      exact = eitvXXX_set_eitvZZZ(res,expr->linexpr.ZZZ->cst,intern);
-      ap_linexprZZZ_ForeachLinterm0(expr->linexpr.ZZZ,i,dim,eitv){
-	eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
-	if (envdim==NULL){
-	  if (!eitvZZZ_is_zero(eitv)){
-	    eitvXXX_set_top(res);
-	    break;
-	  }
-	}
-	else {
-	  exact = eitvXXX_set_eitvZZZ(intern->XXX.eval_eitv,eitv,intern) && exact;
-	  eitvXXX_mul(intern->XXX.eval_eitv, intern->XXX.eval_eitv, envdim, intern);
-	  eitvXXX_add(res,res,intern->XXX.eval_eitv);
-	  if (eitvXXX_is_top(res))
-	    break;
+    exact = eitvXXX_set_eitvZZZ(res,expr->linexpr.ZZZ->cst,intern);
+    ap_linexprZZZ_ForeachLinterm0(expr->linexpr.ZZZ,i,dim,eitv){
+      eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
+      if (envdim==NULL){
+	if (!eitvZZZ_is_zero(eitv)){
+	  eitvXXX_set_top(res);
+	  break;
 	}
       }
+      else {
+	exact = eitvXXX_set_eitvZZZ(intern->XXX.eval_eitv,eitv,intern) && exact;
+	eitvXXX_mul(intern->XXX.eval_eitv, intern->XXX.eval_eitv, envdim, intern);
+	eitvXXX_add(res,res,intern->XXX.eval_eitv);
+	if (eitvXXX_is_top(res))
+	  break;
+      }
     }
-  ENDSWITCH
+  }
+  ENDMACRO;
 #if NUMXXX_EXACT
   return exact;
 #else

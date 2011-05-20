@@ -250,7 +250,7 @@ static inline void eitvXXX_init_set_num(eitvXXX_t a, numXXX_t b)
 static inline void eitvXXX_init_set_num2(eitvXXX_t a, numXXX_t b, numXXX_t c)
 {
   itvXXX_init_set_num2(a->itv,b,c);
-  a->eq = numXXX_is_eq(b,c);
+  a->eq = numXXX_equal(b,c);
 }
 static inline void eitvXXX_clear(eitvXXX_t a)
 { itvXXX_clear(a->itv); }
