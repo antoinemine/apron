@@ -7,7 +7,8 @@ s/\(\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\.\)\{0,1\}\(num\|bound\|eitv\)\(MP
 s/and ap_coeff_tm//g;
 s/\(Coeff\.\)\{0,1\}ap_coeff_tm/\1t/g;
 s/\(Coeff\.\)\{0,1\}ap_coeff_tg/'a \1tt/g;
-s/num_internal_ptr/num_internal/g;
+s/\(num_\)\{0,1\}internal_ptr/\1internal/g;
+s/num_discr_t/num_discr/g;
 s/\(Common\.\)\{0,1\}ap_\(expr\|cons\|gen\)typ_t/\1\2typ/g;
 s/external \(\(\(num\|bound\|eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\|ap_\([a-zA-Z0-1]\{1,\}\)\)_/external /g;
 s/'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt -> 'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt/'a \1tt -> 'b \6tt/g;

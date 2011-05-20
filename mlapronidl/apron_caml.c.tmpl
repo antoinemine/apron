@@ -228,9 +228,9 @@ MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
 MACRO_FOREACH XXX @AllNumIdl
 void camlidl_custom_TTTXXX_finalize(value val)
 {
-  TTTXXX_ptr a = *(TTTXXX_ptr*)(Data_custom_val(val));
+  TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
   TTTXXX_clear(a);
-  free(a);
+  mlapronidl_free(a);
 }
 int camlidl_custom_TTTXXX_compare(value val1, value val2)
 {
@@ -238,40 +238,59 @@ int camlidl_custom_TTTXXX_compare(value val1, value val2)
   TTTXXX_ptr a1;
   TTTXXX_ptr a2;
 
-  a1 = *(TTTXXX_ptr*)(Data_custom_val(val1));
-  a2 = *(TTTXXX_ptr*)(Data_custom_val(val2));
+  a1 = mlapronidl_ptr_of_value(TTTXXX,val1);
+  a2 = mlapronidl_ptr_of_value(TTTXXX,val2);
   res = TTTXXX_cmp(a1,a2);
   res = res > 0 ? 1 : res==0 ? 0 : -1;
   return res;
 }
-long camlidl_custom_TTTXXX_hash(value val)
+intnat camlidl_custom_TTTXXX_hash(value val)
 {
-  TTTXXX_ptr a = *(TTTXXX_ptr*)(Data_custom_val(val));
-  return TTTXXX_hash(a);
+  TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
+  intnat hash = TTTXXX_hash(a);
+  return hash;
 }
-void camlidl_custom_TTTXXX_serialize(
-    value v, unsigned long* wsize_32, unsigned long* wsize_64
-)
+static void camlidl_TTTXXX_serialize(TTTXXX_ptr a)
 {
-  TTTXXX_ptr a = *(TTTXXX_ptr*)(Data_custom_val(v));
   char* buf = malloc(TTTXXX_serialized_size(a));
   size_t count = TTTXXX_serialize(buf,a);
   caml_serialize_int_4((int32)count);
   caml_serialize_block_1(buf,(intnat)count);
-  *wsize_32 = 4;
-  *wsize_64 = 8;
   free(buf);
 }
-unsigned long camlidl_custom_TTTXXX_deserialize(void * dst)
+static void camlidl_TTTXXX_deserialize(TTTXXX_ptr a)
 {
-  TTTXXX_ptr a = malloc(sizeof(TTTXXX_t));
-  *(TTTXXX_ptr*)dst = a;
   int32 count = caml_deserialize_sint_4();
   char* buf = malloc(count);
   caml_deserialize_block_1(buf,count);
   TTTXXX_deserialize(a,buf);
   free(buf);
+}
+void camlidl_custom_TTTXXX_serialize(
+    value val, unsigned long* wsize_32, unsigned long* wsize_64
+)
+{
+  TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
+  camlidl_TTTXXX_serialize(a);
+#if defined(MLAPRONIDL_CALLBACK)
+  *wsize_32 = 4;
+  *wsize_64 = 8;
+#else
+  *wsize_32 = TTTXXX_SIZE_ARCH32;
+  *wsize_64 = TTTXXX_SIZE_ARCH64;
+#endif
+}
+unsigned long camlidl_custom_TTTXXX_deserialize(void * dst)
+{
+#if defined(MLGMPIDL_CALLBACK)
+  TTTXXX_ptr a = *(TTTXXX_ptr*)dst = malloc(sizeof(TTTXXX_t));
+  camlidl_TTTXXX_deserialize(a);
   return sizeof(a);
+#else
+  TTTXXX_ptr a = (TTTXXX_ptr)dst;
+  camlidl_TTTXXX_deserialize(a);
+  return sizeof(*a);
+#endif
 }
 struct custom_operations camlidl_custom_TTTXXX = {
   "camlidl_apron_custom_TTTXXX",
@@ -285,12 +304,16 @@ struct custom_operations camlidl_custom_TTTXXX = {
 value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
 {
   value val;
-  TTTXXX_ptr p;
 
-  p = malloc(sizeof(TTTXXX_t));
-  *p = **a;
+#if defined(MLGMPIDL_CALLBACK)
   val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_ptr), 0, 1);
-  *(((TTTXXX_ptr*)(Data_custom_val(val)))) = p;
+  TTTXXX_ptr p = malloc(sizeof(TTTXXX_t));
+  *(TTTXXX_ptr*)(Data_custom_val(val)) = p;
+  *p = **a;
+#else
+  val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_t), 0, 1);
+  *(TTTXXX_ptr)(Data_custom_val(val)) = **a;
+#endif
   return val;
 }
 ENDMACRO
@@ -300,9 +323,9 @@ MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
 MACRO_FOREACH XXX @AllNumIdl
 void camlidl_custom_TTTXXX_array_finalize(value val)
 {
-  TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
+  TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
   TTTXXX_array_clear(a);
-  free(a);
+  mlapronidl_free(a);
 }
 int camlidl_custom_TTTXXX_array_compare(value val1, value val2)
 {
@@ -310,48 +333,65 @@ int camlidl_custom_TTTXXX_array_compare(value val1, value val2)
   TTTXXX_array_ptr a1;
   TTTXXX_array_ptr a2;
 
-  a1 = *(TTTXXX_array_ptr*)(Data_custom_val(val1));
-  a2 = *(TTTXXX_array_ptr*)(Data_custom_val(val2));
-  res = (int)a1->size - (int)a2->size;
-  if (res==0){
-    size_t i;
-    for(i=0;i<a1->size;i++){
-      res = TTTXXX_cmp(a1->p[i],a2->p[i]);
-      if (res) break;
-    }
-  }
+  a1 = mlapronidl_ptr_of_value(TTTXXX_array,val1);
+  a2 = mlapronidl_ptr_of_value(TTTXXX_array,val2);
+  res = TTTXXX_array_cmp(a1,a2);
   res = res > 0 ? 1 : res==0 ? 0 : -1;
   return res;
 }
-void camlidl_custom_TTTXXX_array_serialize(
-    value v, unsigned long* wsize_32, unsigned long* wsize_64
-)
+intnat camlidl_custom_TTTXXX_array_hash(value val)
 {
-  TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)(Data_custom_val(v));
+  TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
+  intnat hash = TTTXXX_array_hash(a);
+  return hash;
+}
+static void camlidl_TTTXXX_array_serialize(TTTXXX_array_ptr a)
+{
   char* buf = malloc(TTTXXX_array_serialized_size(a));
   size_t count = TTTXXX_array_serialize(buf,a);
   caml_serialize_int_4((int32)count);
   caml_serialize_block_1(buf,(intnat)count);
-  *wsize_32 = 4;
-  *wsize_64 = 8;
   free(buf);
 }
-unsigned long camlidl_custom_TTTXXX_array_deserialize(void * dst)
+static void camlidl_TTTXXX_array_deserialize(TTTXXX_array_ptr a)
 {
-  TTTXXX_array_ptr a = malloc(sizeof(TTTXXX_array_t));
-  *(TTTXXX_array_ptr*)dst = a;
   int32 count = caml_deserialize_sint_4();
   char* buf = malloc(count);
   caml_deserialize_block_1(buf,count);
   TTTXXX_array_deserialize(a,buf);
   free(buf);
+}
+void camlidl_custom_TTTXXX_array_serialize(
+    value val, unsigned long* wsize_32, unsigned long* wsize_64
+)
+{
+  TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
+  camlidl_TTTXXX_array_serialize(a);
+#if defined(MLAPRONIDL_CALLBACK)
+  *wsize_32 = 4;
+  *wsize_64 = 8;
+#else
+  *wsize_32 = TTTXXX_array_SIZE_ARCH32;
+  *wsize_64 = TTTXXX_array_SIZE_ARCH64;
+#endif
+}
+unsigned long camlidl_custom_TTTXXX_array_deserialize(void * dst)
+{
+#if defined(MLGMPIDL_CALLBACK)
+  TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)dst = malloc(sizeof(TTTXXX_array_t));
+  camlidl_TTTXXX_array_deserialize(a);
   return sizeof(a);
+#else
+  TTTXXX_array_ptr a = (TTTXXX_array_ptr)dst;
+  camlidl_TTTXXX_array_deserialize(a);
+  return sizeof(*a);
+#endif
 }
 struct custom_operations camlidl_custom_TTTXXX_array = {
   "camlidl_apron_custom_TTTXXX_array",
   &camlidl_custom_TTTXXX_array_finalize,
   &camlidl_custom_TTTXXX_array_compare,
-  custom_hash_default,
+  &camlidl_custom_TTTXXX_array_hash,
   &camlidl_custom_TTTXXX_array_serialize,
   &camlidl_custom_TTTXXX_array_deserialize
 };
@@ -359,12 +399,16 @@ struct custom_operations camlidl_custom_TTTXXX_array = {
 value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
 {
   value val;
-  TTTXXX_array_ptr p;
 
-  p = malloc(sizeof(TTTXXX_array_t));
-  *p = **a;
+#if defined(MLGMPIDL_CALLBACK)
   val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_ptr), 0, 1);
-  *(((TTTXXX_array_ptr*)(Data_custom_val(val)))) = p;
+  TTTXXX_array_ptr p = malloc(sizeof(TTTXXX_array_t));
+  *(TTTXXX_array_ptr*)(Data_custom_val(val)) = p;
+  *p = **a;
+#else
+  val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_t), 0, 1);
+  *(TTTXXX_array_ptr)(Data_custom_val(val)) = **a;
+#endif
   return val;
 }
 ENDMACRO
@@ -403,36 +447,20 @@ void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0)
   ap_scalar_discr_t discr = Tag_val(v);
   ap_linTTT0_ptr linTTT0 = *plinTTT0;
   linTTT0->discr = discr;
-  switch(discr){
-  case AP_SCALAR_D:
-    camlidl_ap_linTTTD_ptr_ml2c(Field(v,0),&linTTT0->linTTT.D);
-    break;
-  case AP_SCALAR_MPQ:
-    camlidl_ap_linTTTMPQ_ptr_ml2c(Field(v,0),&linTTT0->linTTT.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    camlidl_ap_linTTTMPFR_ptr_ml2c(Field(v,0),&linTTT0->linTTT.MPFR);
-    break;
-  default: abort();
+  MACRO_SWITCH(discr) XXX {
+    camlidl_ap_linTTTXXX_ptr_ml2c(Field(v,0),&linTTT0->linTTT.XXX);
   }
+  ENDMACRO;
 }
 value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_t* plinTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
   ap_linTTT0_ptr linTTT0 = *plinTTT0;
-  switch(linTTT0->discr){
-  case AP_SCALAR_D:
-    v2 = camlidl_ap_linTTTD_ptr_c2ml(&linTTT0->linTTT.D);
-    break;
-  case AP_SCALAR_MPQ:
-    v2 = camlidl_ap_linTTTMPQ_ptr_c2ml(&linTTT0->linTTT.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    v2 = camlidl_ap_linTTTMPFR_ptr_c2ml(&linTTT0->linTTT.MPFR);
-    break;
-  default: abort();
+  MACRO_SWITCH(linTTT0->discr) XXX {
+    v2 = camlidl_ap_linTTTXXX_ptr_c2ml(&linTTT0->linTTT.XXX);
   }
+  ENDMACRO;
   v = alloc_small(1,linTTT0->discr);
   Field(v,0) = v2;
   CAMLreturn(v);
@@ -442,36 +470,20 @@ void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_t* plinTTT0)
   ap_scalar_discr_t discr = Tag_val(v);
   ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
   linTTT0->discr = discr;
-  switch(discr){
-  case AP_SCALAR_D:
-    camlidl_ap_linTTTD_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.D);
-    break;
-  case AP_SCALAR_MPQ:
-    camlidl_ap_linTTTMPQ_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    camlidl_ap_linTTTMPFR_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.MPFR);
-    break;
-  default: abort();
+  MACRO_SWITCH(discr) XXX {
+    camlidl_ap_linTTTXXX_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.XXX);
   }
+  ENDMACRO;
 }
 value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_t* plinTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
   ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
-  switch(linTTT0->discr){
-  case AP_SCALAR_D:
-    v2 = camlidl_ap_linTTTD_array_ptr_c2ml(&linTTT0->linTTT_array.D);
-    break;
-  case AP_SCALAR_MPQ:
-    v2 = camlidl_ap_linTTTMPQ_array_ptr_c2ml(&linTTT0->linTTT_array.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    v2 = camlidl_ap_linTTTMPFR_array_ptr_c2ml(&linTTT0->linTTT_array.MPFR);
-    break;
-  default: abort();
+  MACRO_SWITCH(linTTT0->discr) XXX {
+    v2 = camlidl_ap_linTTTXXX_array_ptr_c2ml(&linTTT0->linTTT_array.XXX);
   }
+  ENDMACRO;
   v = alloc_small(1,linTTT0->discr);
   Field(v,0) = v2;
   CAMLreturn(v);

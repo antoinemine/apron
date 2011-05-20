@@ -44,7 +44,7 @@ TMPL = MPZ D MPQ MPFR
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
-IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0
+IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 polka
 IDL_ORIG_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_ORIG_MODULES_2)
 IDL_TMPL_MODULES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
@@ -80,7 +80,7 @@ ML_MODULES = $(ML_GENERATED_MODULES_1) $(ML_ORIG_MODULES) $(ML_GENERATED_MODULES
 ML_SRC_MODULES = $(ML_ORIG_MODULES) $(ML_TMPL_MODULES)
 
 C_ORIG_FILES = 
-C_TMPL_FILES_tmpl = apron_caml.c.tmpl
+C_TMPL_FILES_tmpl = apron_caml.c.tmpl sizes.c.tmpl
 C_GENERATED_FILES = $(IDL_MODULES:%=%_caml.c) $(C_TMPL_FILES_tmpl:%.c.tmpl=%.c)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES_tmpl)
 
@@ -104,16 +104,21 @@ Dim.tex Linexpr0.tex Lincons0.tex Generator0.tex  Texpr0.tex Tcons0.tex Texpr1.t
 Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex \
 Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex
 
-ML_LIB = $(ML_MODULES:%=%.cmi) apron.cma
+ML_LIB = $(ML_MODULES:%=%.cmi) apron.cma apron.callback.cma
 ifneq ($(HAS_OCAMLOPT),)
 ML_LIB += \
 	$(ML_MODULES:%=%.cmx) apron.cmxa apron.a \
-	$(ML_MODULES:%=%.p.cmx) apron.p.cmxa apron.p.a
+	$(ML_MODULES:%=%.p.cmx) apron.d.cmxa apron.d.a \
+	$(ML_MODULES:%=%.p.cmx) apron.p.cmxa apron.p.a \
+	apron.callback.cmxa apron.callback.a \
+	apron.callback.d.cmxa apron.callback.d.a
 endif
 
-C_LIB = libapron_caml.a libapron_caml.p.a 
+C_LIB = \
+	libapron_caml.a libapron_caml.d.a libapron_caml.p.a \
+	libapron_caml.callback.a libapron_caml.callback.d.a 
 ifneq ($(HAS_SHARED),)
-CCLIB += dllapron_caml.so
+CCLIB += dllapron_caml.so dllapron_caml.callback.so
 endif
 
 FILES_TOINSTALL = \
@@ -134,31 +139,35 @@ src: $(IDL_MODULES:%=%.idl) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES
 
 # Example of compilation command with ocamlfind
 %.byte: %.ml
-	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $*.ml \
-	-package apron -linkpkg
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $*.ml -package apron -linkpkg
 %.opt: %.ml 
-	$(OCAMLFIND) ocamlopt -verbose $(OCAMLOPTFLAGS) -o $@ $*.ml \
-	-package apron -linkpkg
+	$(OCAMLFIND) ocamlopt -verbose $(OCAMLOPTFLAGS) -o $@ $*.ml -package apron -linkpkg
 
 # CAML rules
 apron.cma: apron.cmo $(C_LIB)
-	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ \
-	apron.cmo \
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmo \
 	-dllib -lapron_caml \
 	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron
+apron.callback.cma: apron.cmo $(C_LIB)
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmo \
+	-dllib -lapron_caml.callback \
+	$(OCAMLCCOPT) -cclib -lapron_caml.callback -cclib -lapron
 
 apron.cmxa: apron.cmx $(C_LIB)
-	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
-	apron.cmx \
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron 
-apron.p.cmxa: apron.p.cmx $(C_LIB)
-	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
-	apron.p.cmx \
-	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
 apron.d.cmxa: $(MLMODULES:%=%.cmx) $(C_LIB)
-	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ \
-	apron.cmx \
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.d -cclib -lapron.d
+apron.callback.cmxa: apron.cmx $(C_LIB)
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.callback -cclib -lapron 
+apron.callback.d.cmxa: $(MLMODULES:%=%.cmx) $(C_LIB)
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.callback.d -cclib -lapron.d
+apron.p.cmxa: apron.p.cmx $(C_LIB)
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.p.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
 
 # C rules
 libapron_caml.a: $(C_MODULES:%=%.o)
@@ -167,10 +176,18 @@ libapron_caml.a: $(C_MODULES:%=%.o)
 libapron_caml.d.a: $(C_MODULES:%=%.d.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
+libapron_caml.callback.a: $(C_MODULES:%=%.callback.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
+libapron_caml.callback.d.a: $(C_MODULES:%=%.callback.d.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
 libapron_caml.p.a: $(C_MODULES:%=%.p.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 dllapron_caml.so: $(C_MODULES:%=%.o)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lapron
+dllapron_caml.callback.so: $(C_MODULES:%=%.callback.o)
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lapron
 
 META: Makefile
@@ -179,9 +196,12 @@ META: Makefile
 	echo "version = \"2.0.0\"" >>META
 	echo "requires = \"$(REQ_PKG)\"" >>META
 	echo "archive(byte) = \"apron.cma\"" >>META
+	echo "archive(byte,callback) = \"apron.callback.cma\"" >>META
 	echo "archive(native) = \"apron.cmxa\"" >>META
 	echo "archive(native,debug) = \"apron.d.cmxa\"" >>META
 	echo "archive(native,gprof) = \"apron.p.cmxa\"" >>META
+	echo "archive(native,callback) = \"apron.callback.cmxa\"" >>META
+	echo "archive(native,callback,debug) = \"apron.callback.d.cmxa\"" >>META
 
 install: $(FILES_TOINSTALL)
 	$(OCAMLFIND) remove $(PKG-NAME)
@@ -216,23 +236,12 @@ distclean: clean
 
 %_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 	@mkdir -p tmp
-	@echo "module $*"; 
-	@cp $*.idl tmp/$*.idl; 
-	@$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$*.idl; 
-	@$(SED) -f sedscript_c tmp/$*_stubs.c >$*_caml.c; 
-	@$(SED) -f sedscript_caml tmp/$*.ml | ../cleanupidl.pl - >$*.ml; 
-	@$(SED) -f sedscript_caml tmp/$*.mli | ../cleanupidl.pl - >$*.mli; 
-
-#$(IDL_MODULES:%=%_caml.c) $(IDL_MODULES:%=%.ml) $(IDL_MODULES:%=%.mli): $(IDL_MODULES:%=%.idl) mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
-#	mkdir -p tmp
-#	for i in $(IDL_MODULES); do \
-#		echo "module $$i"; \
-#		cp $${i}.idl tmp/$${i}.idl; \
-#		$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$${i}.idl; \
-#		$(SED) -f sedscript_c tmp/$${i}_stubs.c >$${i}_caml.c; \
-#		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
-#		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
-#	done
+	@echo "module $*" 
+	@cp $*.idl tmp/$*.idl 
+	$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$*.idl 
+	$(SED) -f sedscript_c tmp/$*_stubs.c >$*_caml.c 
+	$(SED) -f sedscript_caml tmp/$*.ml | ../cleanupidl.pl - >$*.ml 
+	$(SED) -f sedscript_caml tmp/$*.mli | ../cleanupidl.pl - >$*.mli 
 
 mpz.idl: $(SITE-LIB-gmp)/mpz.idl
 	ln -s $^ $@
@@ -243,17 +252,20 @@ mpf.idl: $(SITE-LIB-gmp)/mpf.idl
 mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
 	ln -s $^ $@
 
-
 #-----------------------------------
 # C
 #-----------------------------------
 
 %.o: %.c apron_caml.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-%.p.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 %.d.o: %.c apron_caml.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+%.callback.o: %.c apron_caml.h
+	$(CC) $(CFLAGS) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
+%.callback.d.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
+%.p.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #-----------------------------------
 # CAML

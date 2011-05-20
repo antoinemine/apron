@@ -1,0 +1,246 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license.  Please
+   read the COPYING file packaged in the distribution */
+
+import "manager.idl";
+import "common.idl";
+
+quote(C,"#include \"pk.h\"\n\
+#include \"pkeq.h\"\n\
+#include \"apron_caml.h\"
+
+typedef struct pk_internal_t* internal_ptr;
+")
+
+typedef [abstract] struct pk_internal_t* internal_ptr;
+
+quote(MLMLI,"(** Convex Polyhedra and Linear Equalities abstract domains *)")
+
+quote(MLMLI,"
+type loose
+type strict
+  (** Two flavors for convex polyhedra: loose or strict.
+
+      Loose polyhedra cannot have strict inequality constraints like [x>0].
+      They are algorithmically more efficient
+      (less generators, simpler normalization).
+
+      Convex polyhedra are defined by the conjunction of a set of linear
+      constraints of the form [a_0*x_0 + ... + a_n*x_n + b >= 0] or
+      [a_0*x_0 + ... + a_n*x_n + b > 0]
+      where [a_0, ..., a_n, b, c] are constants and [x_0, ..., x_n] variables.
+  *)
+type equalities
+  (** Linear equalities.
+
+      Linear equalities are conjunctions of linear
+      equalities of the form [a_0*x_0 + ... + a_n*x_n + b = 0].
+  *)
+type numMPQ = Common.numMPQ
+type numRll = Common.numRll
+
+type ('a,'b) t
+(** Type of convex polyhedra/linear equalities, where ['a] is [loose], [strict] or [equalities],
+    and ['b] is either [Common.numMPQ] or [Common.numRll] (unsafe).
+
+    Abstract values which are convex polyhedra have the type
+    [((loose,numMPQ) t) Apron.Abstract0.t] or [((loose,numMPQ) t) Apron.Abstract1.t] or
+    [((strict,numMPQ) t) Apron.Abstract0.t] or [((strict,numMPQ) t) Apron.Abstract1.t].
+
+    Abstract values which are conjunction of linear equalities have the type
+    [((equalities,numMPQ)) t Apron.Abstract0.t] or [((equalities,numMPQ) t) Apron.Abstract1.t].
+
+    Managers allocated by NewPolka have the type [('a,'b) t Apron.Manager.t].
+*)
+")
+
+MACRO_FOREACH XXX ("MPQ","Rll")
+quote(C,"
+ap_manager_t* camlidl_pk_manager_alloc_loose_numXXX(value vunit)
+{
+  ap_manager_t* man = pkXXX_manager_alloc(false);
+  ap_exc_t i;
+  for (i=1; i<AP_EXC_SIZE; i++){
+    ap_manager_set_abort_if_exception(_res,i,false);
+  }
+  value v = camlidl_apron_manager_ptr_c2ml(&man);
+  return v;
+}
+ap_manager_t* camlidl_pk_manager_alloc_strict_numXXX(value vunit)
+{
+  ap_manager_t* man = pkXXX_manager_alloc(false);
+  ap_exc_t i;
+  for (i=1; i<AP_EXC_SIZE; i++){
+    ap_manager_set_abort_if_exception(_res,i,false);
+  }
+  value v = camlidl_apron_manager_ptr_c2ml(&man);
+  return v;
+}
+ap_manager_t* camlidl_pk_manager_alloc_equalities_numXXX(value vunit)
+{
+  ap_manager_t* man = pkXXX_manager_alloc(false);
+  ap_exc_t i;
+  for (i=1; i<AP_EXC_SIZE; i++){
+    ap_manager_set_abort_if_exception(_res,i,false);
+  }
+  value v = camlidl_apron_manager_ptr_c2ml(&man);
+  return v;
+}
+")
+quote(MLMLI,"
+external manager_alloc_loose_numXXX : unit -> (loose,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_loose_numXXX\"
+external manager_alloc_strict_numXXX : unit -> (strict,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_strict_numXXX\"
+external manager_alloc_equalities_numXXX : unit -> (equalities,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_equalities_numXXX\"
+")
+ENDMACRO
+
+quote(MLI,"(** Get the internal submanager of a NewPolka manager. *)")
+internal_ptr manager_get_internal(ap_manager_ptr man)
+  quote(call,"_res = (internal_ptr)man->internal;");
+
+quote(MLI,"(** Various options. See the C documentation *)\n")
+void pk_set_max_coeff_size(internal_ptr pk, unsigned int size);
+void pk_set_approximate_max_coeff_size(internal_ptr pk, unsigned int size);
+int pk_get_max_coeff_size(internal_ptr pk);
+int pk_get_approximate_max_coeff_size(internal_ptr pk);
+
+quote(MLI,"
+(** {2 Type conversions} *)
+
+val manager_is_polka : 'a Manager.t -> bool
+val manager_is_polka_loose : 'a Manager.t -> bool
+val manager_is_polka_strict : 'a Manager.t -> bool
+val manager_is_polka_equalities : 'a Manager.t -> bool
+val manager_is_polka_numMPQ : 'a Manager.t -> bool
+val manager_is_polka_numRll : 'a Manager.t -> bool
+  (** Return [true] iff the argument manager is a polka manager *)
+
+val manager_of_polka : ('a,'b) t Manager.t -> 'c Manager.t
+  (** Makes a polka manager generic *)
+
+val manager_to_polka : 'a Manager.t -> ('b,'c) t Manager.t
+val manager_polka_to_loose : ('a,'b) t Manager.t -> (loose,'b) t Manager.t
+val manager_polka_to_strict : ('a,'b) t Manager.t -> (strict,'b) t Manager.t
+val manager_polka_to_equalities : ('a,'b) t Manager.t -> (equalities,'b) t Manager.t
+val manager_polka_to_numMPQ : ('a,'b) t Manager.t -> ('a,Common.numMPQ) t Manager.t
+val manager_polka_to_numRll : ('a,'b) t Manager.t -> ('a,Common.numRll) t Manager.t
+  (** Instanciate the type of a polka manager.
+      Raises [Failure] if the argument manager is not a right manager *)
+")
+
+MACRO_FOREACH NNN ("0","1")
+quote(MLI,"
+module AbstractNNN : sig
+  val is_polka : 'a AbstractNNN.t -> bool
+  val is_polka_loose : 'a AbstractNNN.t -> bool
+  val is_polka_strict : 'a AbstractNNN.t -> bool
+  val is_polka_equalities : 'a AbstractNNN.t -> bool
+  val is_polka_numMPQ : 'a AbstractNNN.t -> bool
+  val is_polka_numRll : 'a AbstractNNN.t -> bool
+    (** Return [true] iff the argument value is a polka value *)
+
+  val of_polka : ('a,'b) t AbstractNNN.t -> 'c AbstractNNN.t
+    (** Makes a polka value generic *)
+
+  val to_polka : 'a AbstractNNN.t -> ('b,'c) t AbstractNNN.t
+  val polka_to_loose : ('a,'b) t AbstractNNN.t -> (loose,'b) t AbstractNNN.t
+  val polka_to_strict : ('a,'b) t AbstractNNN.t -> (strict,'b) t AbstractNNN.t
+  val polka_to_equalities : ('a,'b) t AbstractNNN.t -> (equalities,'b) t AbstractNNN.t
+  val polka_to_numMPQ : ('a,'b) t AbstractNNN.t -> ('a,Common.numMPQ) t AbstractNNN.t
+  val polka_to_numRll : ('a,'b) t AbstractNNN.t -> ('a,Common.numRll) t AbstractNNN.t
+    (** Instanciate the type of a polka value.
+	Raises [Failure] if the argument value is not a right value *)
+end
+")
+ENDMACRO
+
+quote(ML,"
+let regexp_polka = Str.regexp \"polka\"
+let manager_is_polka man =
+  let str = Manager.get_library man in
+  Str.string_match regexp_polka str 0
+let manager_of_polka (man:('a,'b) t Manager.t) : 'c Manager.t = Obj.magic man
+let manager_to_polka (man:'a Manager.t) : ('b,'c) t Manager.t =
+  if manager_is_polka man then
+    Obj.magic man
+  else
+    failwith \"Polka.to_polka: the argument manager is not a Polka manager\"
+")
+
+MACRO_FOREACH xxx ("loose","strict","equalities","numMPQ","numRll")
+quote(ML,"
+let regexp_xxx = Str.regexp \"polka.*xxx\"
+let manager_is_polka_xxx man =
+  let str = Manager.get_library man in
+  Str.string_match regexp_xxx str 0
+let manager_polka_to_xxx man =
+  if manager_is_polka_xxx man then
+    Obj.magic man
+  else
+    failwith \"Polka.manager_polka_to_xxx: the argument manager is not a xxx Polka manager\"
+")
+ENDMACRO
+
+MACRO_FOREACH NNN ("0","1")
+quote(ML,"
+module AbstractNNN = struct
+  let is_polka abs =
+    manager_is_polka (AbstractNNN.manager abs)
+  let of_polka = Obj.magic
+  let to_polka abs =
+    if is_polka abs then
+      Obj.magic abs
+    else
+      failwith \"Polka.Abstract0.to_polka: the argument value is not a Polka value\"
+")
+MACRO_FOREACH xxx ("loose","strict","equalities","numMPQ","numRll")
+quote(ML,"
+  let is_polka_xxx abs =
+    manager_is_polka_xxx (AbstractNNN.manager abs)
+  let polka_to_xxx abs =
+    if is_polka_xxx abs then
+      Obj.magic abs
+    else
+      failwith \"Polka.AbstractNNN.polka_to_xxx: the argument value is not a xxx Polka value\"
+")
+ENDMACRO
+quote(ML,"
+end
+")
+ENDMACRO
+
+quote(MLI,"\n(**
+{2 Compilation information}
+
+See {!Introduction.compilation} for complete explanations.
+We just show examples with the file [mlexample.ml].
+
+{3 Bytecode compilation}
+
+{[ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma polkaMPQ.cma mlexample.ml]}
+
+{[ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -make-runtime -o myrun \\
+  bigarray.cma gmp.cma apron.cma polkaMPQ.cma
+
+ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myrun -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma polkaMPQ.cma mlexample.ml ]}
+
+{3 Native-code compilation}
+
+{[ocamlopt -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa polkaMPQ.cmxa mlexample.ml ]}
+
+{3 Without auto-linking feature}
+
+{[ocamlopt -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -noautolink -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa polkaMPQ.cmxa mlexample.ml \\
+  -cclib \"-L$MLGMPIDL_PREFIX/lib -L$APRON_PREFIX/lib \\
+	  -lpolkaMPQ_caml_debug -lpolkaMPQ_debug \\
+	  -lapron_caml_debug -lapron_debug \\
+	  -lgmp_caml -L$MPFR_PREFIX/lib -lmpfr -L$GMP_PREFIX/lib -lgmp \\
+	  -L$CAMLIDL_PREFIX/lib/ocaml -lcamlidl \\
+	  -lbigarray\" ]}
+
+*)")

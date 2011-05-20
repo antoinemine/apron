@@ -11,8 +11,6 @@
 #define _APRON_CAML_H_
 
 #include <string.h>
-#include "gmp_caml.h"
-
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
@@ -22,15 +20,99 @@
 #include <caml/bigarray.h>
 #include <caml/intext.h>
 
-struct camlidl_ctx_struct;
-
 #include "ap_global1.h"
 #include "ap_linconsMPZ.h"
 #include "ap_lingenMPZ.h"
 
+#include "gmp_caml.h"
+struct camlidl_ctx_struct;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if defined(MLGMPIDL_CALLBAK)
+#define mlapronidl_ptr_of_value(X,val) (*(X ## _ptr*)(Data_custom_val(val)))
+#define mlapronidl_free(p) free(p)
+#else
+#define mlapronidl_ptr_of_value(X,val) ((X ## _ptr)(Data_custom_val(val)))
+#define mlapronidl_free(p)
+#endif
+
+#define numMPZ_SIZE_ARCH32 12
+#define numD_SIZE_ARCH32 8
+#define numMPQ_SIZE_ARCH32 24
+#define numMPFR_SIZE_ARCH32 16
+#define boundMPZ_SIZE_ARCH32 16
+#define boundD_SIZE_ARCH32 8
+#define boundMPQ_SIZE_ARCH32 24
+#define boundMPFR_SIZE_ARCH32 16
+#define eitvMPZ_SIZE_ARCH32 36
+#define eitvD_SIZE_ARCH32 20
+#define eitvMPQ_SIZE_ARCH32 52
+#define eitvMPFR_SIZE_ARCH32 36
+#define ap_linexprMPZ_SIZE_ARCH32 48
+#define ap_linexprD_SIZE_ARCH32 32
+#define ap_linexprMPQ_SIZE_ARCH32 64
+#define ap_linexprMPFR_SIZE_ARCH32 48
+#define ap_linconsMPZ_SIZE_ARCH32 76
+#define ap_linconsD_SIZE_ARCH32 60
+#define ap_linconsMPQ_SIZE_ARCH32 92
+#define ap_linconsMPFR_SIZE_ARCH32 76
+#define ap_lingenMPZ_SIZE_ARCH32 52
+#define ap_lingenD_SIZE_ARCH32 36
+#define ap_lingenMPQ_SIZE_ARCH32 68
+#define ap_lingenMPFR_SIZE_ARCH32 52
+#define ap_linexprMPZ_array_SIZE_ARCH32 8
+#define ap_linexprD_array_SIZE_ARCH32 8
+#define ap_linexprMPQ_array_SIZE_ARCH32 8
+#define ap_linexprMPFR_array_SIZE_ARCH32 8
+#define ap_linconsMPZ_array_SIZE_ARCH32 8
+#define ap_linconsD_array_SIZE_ARCH32 8
+#define ap_linconsMPQ_array_SIZE_ARCH32 8
+#define ap_linconsMPFR_array_SIZE_ARCH32 8
+#define ap_lingenMPZ_array_SIZE_ARCH32 8
+#define ap_lingenD_array_SIZE_ARCH32 8
+#define ap_lingenMPQ_array_SIZE_ARCH32 8
+#define ap_lingenMPFR_array_SIZE_ARCH32 8
+
+#define numMPZ_SIZE_ARCH64 16
+#define numD_SIZE_ARCH64 8
+#define numMPQ_SIZE_ARCH64 32
+#define numMPFR_SIZE_ARCH64 32
+#define boundMPZ_SIZE_ARCH64 24
+#define boundD_SIZE_ARCH64 8
+#define boundMPQ_SIZE_ARCH64 32
+#define boundMPFR_SIZE_ARCH64 32
+#define eitvMPZ_SIZE_ARCH64 56
+#define eitvD_SIZE_ARCH64 24
+#define eitvMPQ_SIZE_ARCH64 72
+#define eitvMPFR_SIZE_ARCH64 72
+#define ap_linexprMPZ_SIZE_ARCH64 72
+#define ap_linexprD_SIZE_ARCH64 40
+#define ap_linexprMPQ_SIZE_ARCH64 88
+#define ap_linexprMPFR_SIZE_ARCH64 88
+#define ap_linconsMPZ_SIZE_ARCH64 112
+#define ap_linconsD_SIZE_ARCH64 80
+#define ap_linconsMPQ_SIZE_ARCH64 128
+#define ap_linconsMPFR_SIZE_ARCH64 128
+#define ap_lingenMPZ_SIZE_ARCH64 80
+#define ap_lingenD_SIZE_ARCH64 48
+#define ap_lingenMPQ_SIZE_ARCH64 96
+#define ap_lingenMPFR_SIZE_ARCH64 96
+#define ap_linexprMPZ_array_SIZE_ARCH64 16
+#define ap_linexprD_array_SIZE_ARCH64 16
+#define ap_linexprMPQ_array_SIZE_ARCH64 16
+#define ap_linexprMPFR_array_SIZE_ARCH64 16
+#define ap_linconsMPZ_array_SIZE_ARCH64 16
+#define ap_linconsD_array_SIZE_ARCH64 16
+#define ap_linconsMPQ_array_SIZE_ARCH64 16
+#define ap_linconsMPFR_array_SIZE_ARCH64 16
+#define ap_lingenMPZ_array_SIZE_ARCH64 16
+#define ap_lingenD_array_SIZE_ARCH64 16
+#define ap_lingenMPQ_array_SIZE_ARCH64 16
+#define ap_lingenMPFR_array_SIZE_ARCH64 16
+
 
 /* ********************************************************************** */
 /* Dimensions, variables, environments */
@@ -80,7 +162,7 @@ MACRO_FOREACH XXX @AllNumIdl
 value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a);
 static inline void camlidl_TTTXXX_ptr_ml2c(value val, TTTXXX_ptr* a)
 {
-  *a = *(TTTXXX_ptr*)(Data_custom_val(val));
+  *a = mlapronidl_ptr_of_value(TTTXXX,val);
 }
 ENDMACRO
 ENDMACRO
@@ -90,7 +172,7 @@ MACRO_FOREACH XXX @AllNumIdl
 value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a);
 static inline void camlidl_TTTXXX_array_ptr_ml2c(value val, TTTXXX_array_ptr* a)
 {
-  *a = *(TTTXXX_array_ptr*)(Data_custom_val(val));
+  *a = mlapronidl_ptr_of_value(TTTXXX_array,val);
 }
 ENDMACRO
 ENDMACRO
@@ -232,7 +314,7 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 }
 
 extern struct custom_operations camlidl_custom_num_internal;
-static inline value camlidl_apron_num_internal_ptr_c2ml_dummy(void* x)
+static inline value camlidl_apron_num_internal_ptr_c2ml_dummy(num_internal_ptr* x)
 {
   abort();
 }

@@ -311,6 +311,13 @@ void ap_linyyyXXX_array_extend_environment(ap_linyyyXXX_array_t res,
 					   ap_environment_t* nenv,
 					   ap_linyyyXXX_array_t expr,
 					   ap_environment_t* env);
+/* ====================================================================== */
+/* II.6 Hashing, comparison */
+/* ====================================================================== */
+
+int ap_linyyyXXX_array_hash(ap_linyyyXXX_array_t a);
+bool ap_linyyyXXX_array_equal(ap_linyyyXXX_array_t a1,ap_linyyyXXX_array_t a2);
+int ap_linyyyXXX_array_cmp(ap_linyyyXXX_array_t a1, ap_linyyyXXX_array_t a2);
 
 /* ====================================================================== */
 /* II.7 Serialization */
