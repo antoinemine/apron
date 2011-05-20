@@ -26,6 +26,7 @@ ICFLAGS = \
 -I$(SITE-LIB-gmp) \
 -I../num \
 -I../apron \
+-I../newpolka \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
@@ -44,25 +45,34 @@ TMPL = MPZ D MPQ MPFR
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
-IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 polka
+IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 
 IDL_ORIG_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_ORIG_MODULES_2)
-IDL_TMPL_MODULES_tmpl = conv
 IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
+IDL_TMPL_MODULES_tmpl_1 = conv
+IDL_TMPL_MODULES_tmpl_2 = polka
+IDL_TMPL_MODULES_tmpl = $(IDL_TMPL_MODULES_tmpl_1) $(IDL_TMPL_MODULES_tmpl_2)
 IDL_TMPL_MODULES_yyy = linyyy0
 IDL_TMPL_MODULES = \
-$(IDL_TMPL_MODULES_tmpl) \
 $(IDL_TMPL_MODULES_XXX) \
 $(IDL_TMPL_MODULES_yyyXXX) \
+$(IDL_TMPL_MODULES_tmpl) \
 $(IDL_TMPL_MODULES_yyy )
 
-IDL_GENERATED_MODULES = \
+IDL_GENERATED_MODULES_1 = \
 $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
-$(IDL_TMPL_MODULES_tmpl:%.tmpl=%) \
-$(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy)))
+$(IDL_TMPL_MODULES_tmpl_1:%.tmpl=%) \
+$(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy))) 
 
-IDL_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES) $(IDL_ORIG_MODULES_2) 
+IDL_GENERATED_MODULES_2 = \
+$(IDL_TMPL_MODULES_tmpl_2:%.tmpl=%)
+
+IDL_GENERATED_MODULES = $(IDL_GENERATED_MODULES_1) $(IDL_GENERATED_MODULES_2)
+
+IDL_MODULES_1 = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES_1) $(IDL_ORIG_MODULES_2) 
+IDL_MODULES_2 = $(IDL_GENERATED_MODULES_2)
+IDL_MODULES = $(IDL_MODULES_1) $(IDL_MODULES_2)
 
 IDL_SRC_MODULES = $(IDL_ORIG_MODULES) $(IDL_TMPL_MODULES)
 
@@ -71,16 +81,17 @@ ML_TMPL_MODULES_yyy = linyyy1
 ML_TMPL_MODULES = $(ML_TMPL_MODULES_tmpl) $(ML_TMPL_MODULES_yyy)
 ML_ORIG_MODULES = texpr1 tcons1 abstract1 apron_parser apron_lexer
 ML_GENERATED_MODULES_1 = \
-$(IDL_MODULES) \
+$(IDL_MODULES_1) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(ML_TMPL_MODULES_yyy)))
 ML_GENERATED_MODULES_2 = \
-$(ML_TMPL_MODULES_tmpl:%.tmpl=%)
+$(ML_TMPL_MODULES_tmpl:%.tmpl=%) \
+$(IDL_MODULES_2)
 ML_GENERATED_MODULES = $(ML_GENERATED_MODULES_1) $(ML_GENERATED_MODULES_2)
 ML_MODULES = $(ML_GENERATED_MODULES_1) $(ML_ORIG_MODULES) $(ML_GENERATED_MODULES_2)
 ML_SRC_MODULES = $(ML_ORIG_MODULES) $(ML_TMPL_MODULES)
 
 C_ORIG_FILES = 
-C_TMPL_FILES_tmpl = apron_caml.c.tmpl sizes.c.tmpl
+C_TMPL_FILES_tmpl = apron_caml.c.tmpl 
 C_GENERATED_FILES = $(IDL_MODULES:%=%_caml.c) $(C_TMPL_FILES_tmpl:%.c.tmpl=%.c)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES_tmpl)
 
@@ -133,7 +144,11 @@ FILES_TOINSTALL = \
 # Rules
 #---------------------------------------
 
+
 all: $(FILES_TOINSTALL)
+
+essai:
+	echo "$(ICFLAGS)"
 
 src: $(IDL_MODULES:%=%.idl) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES) $(H_FILES)
 
@@ -228,7 +243,6 @@ distclean: clean
 # IMPLICIT RULES AND DEPENDENCIES
 #--------------------------------------------------------------
 
-.SUFFIXES: .tex .fig .c .h .o .ml .mli .cmi .cmo .cmx .idl _debug.o _prof.o _caml.c .nw
 
 #-----------------------------------
 # IDL

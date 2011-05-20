@@ -123,19 +123,19 @@ ap_pkgrid.texi: ../products/ap_pkgrid.texi
 	ln -s $< $@
 ap_ppl.texi: ../ppl/ap_ppl.texi
 	ln -s $< $@
-newpolka.texi: ../newpolka/newpolka.texi
+polka.texi: ../polka/polka.texi
 	ln -s $< $@
 box.texi: ../box/box.texi
 	ln -s $< $@
 
-apron.pdf: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
+apron.pdf: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi polka.texi box.texi 
 	$(TEXI2DVI) --pdf -o $@ $<
 
-apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi
+apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi polka.texi box.texi
 	$(MAKEINFO) -o $@ $<
 
 
-html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
+html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi polka.texi box.texi 
 	$(TEXI2HTML) -split=section -nonumber -menu -subdir=html $<
 	cp -f ../octagons/oct_doc.html html
 

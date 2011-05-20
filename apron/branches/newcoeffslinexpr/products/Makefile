@@ -13,14 +13,14 @@ ICFLAGS = \
 -I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../num -I../itv \
--I../newpolka \
+-I../polka \
 -I../ppl \
 -I../mlapronidl \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml
 
 # Caml
-OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl -I ../newpolka -I ../ppl
+OCAMLINC = -I $(MLGMPIDL_PREFIX)/lib -I ../mlapronidl -I ../polka -I ../ppl
 
 #---------------------------------------
 # Files
