@@ -18,12 +18,14 @@ depend:
 	make -C apron depend
 	make -C box depend
 	make -C polka depend
+	make -C mlapronidl depend
 
 src:
 	make -C num src
 	make -C apron src
 	make -C box src
 	make -C polka src
+	make -C mlapronidl src
 
 c:
 	make -C num 
@@ -35,6 +37,7 @@ cxx:
 	(cd apronxx; make)
 
 ml:
+	make -C mlapronidl
 
 .PHONY: aprontop apronppltop
 

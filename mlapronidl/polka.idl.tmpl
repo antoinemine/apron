@@ -3,9 +3,6 @@
 /* This file is part of the APRON Library, released under LGPL license.  Please
    read the COPYING file packaged in the distribution */
 
-import "manager.idl";
-import "common.idl";
-
 quote(C,"\n\
 #include \"pkMPQ.h\"\n\
 #include \"pkeqMPQ.h\"\n\
@@ -15,6 +12,9 @@ quote(C,"\n\
 
 typedef struct pk_internal_t* internal_ptr;
 ")
+
+import "manager.idl";
+import "common.idl";
 
 typedef [abstract] struct pk_internal_t* internal_ptr;
 
@@ -60,32 +60,32 @@ type ('a,'b) t
 
 MACRO_FOREACH XXX ("MPQ","Rll")
 quote(C,"
-ap_manager_t* camlidl_pk_manager_alloc_loose_numXXX(value vunit)
+value camlidl_pk_manager_alloc_loose_numXXX(value vunit)
 {
   ap_manager_t* man = pkXXX_manager_alloc(false);
   ap_exc_t i;
   for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(_res,i,false);
+    ap_manager_set_abort_if_exception(man,i,false);
   }
   value v = camlidl_apron_manager_ptr_c2ml(&man);
   return v;
 }
-ap_manager_t* camlidl_pk_manager_alloc_strict_numXXX(value vunit)
+value camlidl_pk_manager_alloc_strict_numXXX(value vunit)
 {
   ap_manager_t* man = pkXXX_manager_alloc(false);
   ap_exc_t i;
   for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(_res,i,false);
+    ap_manager_set_abort_if_exception(man,i,false);
   }
   value v = camlidl_apron_manager_ptr_c2ml(&man);
   return v;
 }
-ap_manager_t* camlidl_pk_manager_alloc_equalities_numXXX(value vunit)
+value camlidl_pk_manager_alloc_equalities_numXXX(value vunit)
 {
   ap_manager_t* man = pkXXX_manager_alloc(false);
   ap_exc_t i;
   for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(_res,i,false);
+    ap_manager_set_abort_if_exception(man,i,false);
   }
   value v = camlidl_apron_manager_ptr_c2ml(&man);
   return v;
