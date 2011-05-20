@@ -40,14 +40,14 @@ ICXXFLAGS = \
 -I../apron \
 -I../num \
 -I../itv \
--I../newpolka \
+-I../polka \
 -I../octagons \
 -I../box \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 LIBS = \
  -L. -lapronxx_debug \
- -L../newpolka -lpolkaMPQ_debug \
+ -L../polka -lpolkaMPQ_debug \
  -L../octagons -loctMPQ_debug \
  -L../box -lboxMPQ_debug
 

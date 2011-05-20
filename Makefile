@@ -17,19 +17,19 @@ depend:
 	make -C num depend
 	make -C apron depend
 	make -C box depend
-	make -C newpolka depend
+	make -C polka depend
 
 src:
 	make -C num src
 	make -C apron src
 	make -C box src
-	make -C newpolka src
+	make -C polka src
 
 c:
 	make -C num 
 	make -C apron
 	make -C box 
-	make -C newpolka
+	make -C polka
 
 cxx:
 	(cd apronxx; make)
@@ -49,7 +49,7 @@ apronppltop:
 rebuild:
 ifneq ($(HAS_OCAML),)
 	make -C mlapronidl rebuild
-	make -C newpolka rebuild
+	make -C polka rebuild
 	make -C box rebuild
 	make -C octagons rebuild
 	make -C ppl rebuild
@@ -59,7 +59,7 @@ endif
 install:
 	make -C num install
 	make -C apron install
-	make -C newpolka install
+	make -C polka install
 	make -C box install
 	make -C octagons install
 ifneq ($(HAS_PPL),)
@@ -83,7 +83,7 @@ clean:
 	make -C apron clean
 	make -C mlapronidl clean
 	make -C box clean
-	make -C newpolka clean
+	make -C polka clean
 	make -C octagons clean
 	make -C ppl clean
 	make -C products clean
@@ -96,7 +96,7 @@ mostlyclean: clean
 	make -C mlapronidl mostlyclean
 	make -C box mostlyclean
 	make -C octagons mostlyclean
-	make -C newpolka mostlyclean
+	make -C polka mostlyclean
 	make -C ppl mostlyclean
 	make -C products mostlyclean
 	make -C apronxx mostlyclean
@@ -109,7 +109,7 @@ distclean:
 	make -C apron distclean
 	make -C mlapronidl distclean
 	make -C box distclean
-	make -C newpolka distclean
+	make -C polka distclean
 	make -C octagons distclean
 	make -C examples distclean
 	make -C ppl distclean
@@ -129,7 +129,7 @@ endif
 
 PKGNAME  = apron-0.9.10
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box newpolka ppl products mlapronidl examples test apronxx
+PKGDIRS  = apron num itv octagons box polka ppl products mlapronidl examples test apronxx
 
 dist:
 	$(MAKE) all

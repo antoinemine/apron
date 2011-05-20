@@ -30,7 +30,7 @@ SRCDIR = $(shell pwd)
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
 -I$(MLGMPIDL_PREFIX)/include \
--I../newpolka \
+-I../polka \
 -I../apron \
 -I../mlapronidl \
 -I../num \
@@ -40,7 +40,7 @@ ICFLAGS = \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
 ICXXFLAGS = \
--I../newpolka \
+-I../polka \
 -I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../mlapronidl \
@@ -133,7 +133,7 @@ libap_ppl_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
 ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 	$(CXX) $(CXXFLAGS) -o $@ ppl_test_debug.o \
 	-L. -lap_ppl_debug \
-	-L../newpolka -L$(APRON_PREFIX)/lib -lpolkaMPQ_debug \
+	-L../polka -L$(APRON_PREFIX)/lib -lpolkaMPQ_debug \
 	-L../apron -L$(APRON_PREFIX)/lib -lapron \
 	-L$(PPL_PREFIX)/lib -lppl \
 	-L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -lgmpxx -lmpfr -lgmp -lm
