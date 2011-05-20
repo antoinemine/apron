@@ -10,7 +10,11 @@
 
 #include "ap_manager.h"
 #include "ap_abstract0.h"
-#include "ap_expr1.h"
+#include "ap_linexpr1.h"
+#include "ap_lincons1.h"
+#include "ap_lingen1.h"
+#include "ap_texpr1.h"
+#include "ap_tcons1.h"
 
 #ifdef __cplusplus
 extern "C" {

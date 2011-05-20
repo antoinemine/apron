@@ -42,8 +42,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  SWITCH(discr)
-  {
+  MACRO_SWITCH(discr) XXX {
     ap_linconsXXX_t lincons;
     ap_linconsXXX_init(lincons,0);
     exact = ap_linconsXXX_set_tcons0(lincons,&error,cons,man->num);
@@ -66,11 +65,10 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
 	  to_box(man,env,abs);
 	}
 	exact =
-	  ap_linconsXXX_quasilinearize
-	  (
-	   lincons,
-	   env->linexpr.XXX,false,man->num
-	   ) && exact;
+	  ap_linconsXXX_quasilinearize(
+	      lincons,
+	      env->linexpr.XXX,false,man->num
+	  ) && exact;
       }
     }
     ap_lincons0_cons_XXX(lincons0,lincons);
@@ -80,7 +78,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
       ap_linexpr0_clear(env);
     }
   }
-  ENDSWITCH;
+  ENDMACRO;
   man->result.flag_exact &= exact;
   return res;
 }
@@ -108,8 +106,7 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
     ap_coeff_set_bottom(interval);
     return;
   }
-  SWITCH(discr)
-  {
+  MACRO_SWITCH(discr) XXX {
     ap_linexprXXX_t linexpr;
     ap_linexprXXX_init(linexpr,0);
     exact = ap_linexprXXX_set_texpr0(linexpr,&error,expr,man->num);
@@ -139,7 +136,7 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
     ap_linexpr0_clear(linexpr0);
     if (error) ap_linexpr0_clear(env);
   }
-  ENDSWITCH;
+  ENDMACRO;
   man->result.flag_exact &= exact;
   return;
 }
@@ -240,8 +237,7 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
       dim = dimension(man,abs);
       ap_linexpr0_init(env,discr,0);
       to_box(man,env,abs);
-      SWITCH(discr)
-      {
+      MACRO_SWITCH(discr) XXX {
 	ap_linconsXXX_array_t arrayX;
 	ap_lincons0_array_t array0;
 	ap_linconsXXX_array_init(arrayX,0);
@@ -254,7 +250,7 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
 	ap_lincons0_array_clear(array0);
 	ap_linexpr0_clear(env);
       }
-      ENDSWITCH;
+      ENDMACRO;
       man->result.flag_exact &= exact;
     }
   }
@@ -289,8 +285,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
     res = destructive ? abs : copy(man,abs);
   }
   else {
-    SWITCH(discr)
-    {
+    MACRO_SWITCH(discr) XXX {
       bool error,exact;
       ap_linconsXXX_array_t arrayX;
       ap_lincons0_array_t array0;
@@ -326,7 +321,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
       ap_lincons0_array_clear(array0);
       if (error) ap_linexpr0_clear(env);
     }
-    ENDSWITCH;
+    ENDMACRO;
     man->result.flag_exact &= exact;
   }
   return res;
@@ -438,8 +433,7 @@ ap_generic_asssub_linexpr_array(bool assign,
      an equality constraint -x'_i + a_ij x_j + b_i = 0
      Primed and unprimed dimensiosn permuted if dest!=NULL
   */
-  SWITCH(discr)
-  {
+  MACRO_SWITCH(discr) XXX {
     ap_linconsXXX_array_t arrayXXX;
     ap_linexpr0_t linexpr0;
     eitvXXX_t eitv;
@@ -459,7 +453,7 @@ ap_generic_asssub_linexpr_array(bool assign,
     eitvXXX_clear(eitv);
     ap_lincons0_array_cons_XXX(array,arrayXXX);
   }
-  ENDSWITCH;
+  ENDMACRO;
   /* 6. Permute unprimed and primed dimensions if !assign */
   if (!assign){
     abs2 = permute_dimensions(man,true,abs2,&permutation);

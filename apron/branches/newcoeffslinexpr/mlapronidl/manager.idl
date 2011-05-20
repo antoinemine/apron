@@ -4,8 +4,6 @@
    Please read the COPYING file packaged in the distribution  */
 
 quote(C, "\n\
-#include <limits.h>\n\
-#include \"ap_manager.h\"\n\
 #include \"apron_caml.h\"\n\
 \n\
 void camlidl_apron_manager_funid_ml2c(value _v, enum ap_funid_t* res)\n\
@@ -161,13 +159,28 @@ quote(MLMLI,"(** Concerning the other types,\n\n\
 *)\n")
 
 
-
 quote(MLI,"(** Get the name of the effective library which allocated the manager *)")
 [string]const char* ap_manager_get_library(ap_manager_ptr man);
 
 quote(MLI,"(** Get the version of the effective library which allocated the manager *)")
 [string]const char* ap_manager_get_version(ap_manager_ptr man);
 
+quote(MLMLI,"
+external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron__manager_get_num_internal\"
+  (** Get the included num_internal workspace structure *)
+")
+
+quote(C,"
+value camlidl_apron_manager_get_num_internal(value vman)
+{
+  CAMLparam1(vman);
+  CAMLlocal1(vres);
+  ap_manager_t* man;
+  camlidl_apron_manager_ptr_ml2c(vman,&man);
+  vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);
+  CAMLreturn(vres);
+}
+")
 
 quote(MLI,"(** Return the default options for any function ([0] or [false] for al fields) *)")
 void ap_funopt_make([ref,out]struct ap_funopt_t* x)

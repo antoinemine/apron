@@ -243,12 +243,16 @@ static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c)
 }
 static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b)
 {
-  boundXXX_init_set_num(a->neginf,-b);
+  boundXXX_init_set_num(a->neginf,b);
+  numXXX_ptr p = boundXXX_numref(a->neginf);
+  numXXX_neg(p,p);
   boundXXX_init_set_num(a->sup,b);
 }
 static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c)
 {
-  boundXXX_init_set_num(a->neginf,-b);
+  boundXXX_init_set_num(a->neginf,b);
+  numXXX_ptr p = boundXXX_numref(a->neginf);
+  numXXX_neg(p,p);
   boundXXX_init_set_num(a->sup,c);
 }
 static inline void itvXXX_clear(itvXXX_t a)

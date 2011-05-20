@@ -9,7 +9,7 @@ quote(C, "\n\
 #include \"ap_lin_types.h\"\n\
 ")
 
-typedef [abstract,c2ml(camlidl_num_internal_ptr_c2ml),ml2c(camlidl_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;
+typedef [abstract,c2ml(camlidl_apron_num_internal_ptr_c2ml_dummy),ml2c(camlidl_apron_num_internal_ptr_ml2c)] struct num_internal_struct* num_internal_ptr;
 
 enum ap_exprtyp_t {
   AP_LINEXPR_INTLINEAR,
@@ -43,7 +43,17 @@ type 'a val1 = {
 }
 ")
 
-num_internal_ptr num_internal_alloc();
+quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"
+")
+quote(C,"
+value camlidl_apron_num_internal_alloc(value vunit)
+{
+  ap_manager_t* man = ap_manager_alloc(\"dummy\",\"dummy\",NULL,NULL);
+  man->count--;
+  value vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);
+  return vres;
+}
+")
 
 quote(MLI,"
 val string_of_exprtyp : exprtyp -> string

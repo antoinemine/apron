@@ -8,11 +8,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+
 #include "ap_coeff.h"
 #include "ap_manager.h"
 #include "ap_abstract0.h"
-#include "ap_expr0.h"
-#include "ap_expr1.h"
 #include "ap_abstract1.h"
 
 /* Normal constructor */
@@ -1298,25 +1297,12 @@ ap_abstract1_t* ap_abstract1_asssub_linexpr(ap_funid_t funid,
 
   array0 = array->linexpr0_array;
   array0->discr = expr->linexpr0->discr;
-  switch (array0->discr){
-  case AP_SCALAR_D:
-    array0->linexpr_array.D = arrayD;
-    arrayD->size = 1;
-    arrayD->p = (ap_linexprD_t*)&(expr->linexpr0->linexpr.D);
-    break;
-  case AP_SCALAR_MPQ:
-    array0->linexpr_array.MPQ = arrayMPQ;
-    arrayMPQ->size = 1;
-    arrayMPQ->p = (ap_linexprMPQ_t*)&(expr->linexpr0->linexpr.MPQ);
-    break;
-  case AP_SCALAR_MPFR:
-    array0->linexpr_array.MPFR = arrayMPFR;
-    arrayMPFR->size = 1;
-    arrayMPFR->p = (ap_linexprMPFR_t*)&(expr->linexpr0->linexpr.MPFR);
-    break;
-  default:
-    abort();
+  MACRO_SWITCH(array0->discr) ZZZ {
+    array0->linexpr_array.ZZZ = arrayZZZ;
+    arrayZZZ->size = 1;
+    arrayZZZ->p = (ap_linexprZZZ_t*)&(expr->linexpr0->linexpr.ZZZ);
   }
+  ENDMACRO;
   return ap_abstract1_asssub_linexpr_array(funid,
 					   man,destructive,a,&var,array,dest);
 }

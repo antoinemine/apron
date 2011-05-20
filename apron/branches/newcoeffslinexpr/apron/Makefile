@@ -28,18 +28,19 @@ YYY = expr cons gen
 ZZZ = expr cons
 
 H_TMPL_FILES_XXX = ap_linexprXXX_eval.h ap_linconsXXX_eval.h
-H_TMPL_FILES_yyy = ap_linyyy0.h ap_linyyy1.h ap_linyyy1_array.h 
+H_TMPL_FILES_yyy = ap_linyyy0.h ap_linyyy1.h
 H_TMPL_FILES_zzz = ap_tzzz1.h
-H_TMPL_FILES_tmpl = ap_lin_types.h.tmpl ap_coeff.h.tmpl
+H_TMPL_FILES_tmpl = ap_lin_types.h.tmpl ap_coeff.h.tmpl ap_check0.h.tmpl 
 H_TMPL_FILES_yyyXXX = ap_linyyyXXX.h
 H_TMPL_FILES = $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_yyy) $(H_TMPL_FILES_zzz) $(H_TMPL_FILES_tmpl) $(H_TMPL_FILES_yyyXXX)
 
 C_TMPL_FILES_XXX = ap_linexprXXX_eval.c ap_linconsXXX_eval.c
-C_TMPL_FILES_yyy = ap_linyyy0.c ap_linyyy1.c ap_linyyy1_array.c
+C_TMPL_FILES_yyy = ap_linyyy0.c ap_linyyy1.c
 C_TMPL_FILES_zzz = ap_tzzz0_array.c ap_tzzz1.c
 C_TMPL_FILES_tmpl = \
 ap_lin_conv.c.tmpl ap_coeff.c.tmpl \
-ap_check0.c.tmpl ap_generic.c.tmpl
+ap_check0.c.tmpl ap_abstract0.c.tmpl ap_generic.c.tmpl ap_abstract1.c.tmpl \
+ap_reducedproduct.c.tmpl
 C_TMPL_FILES_yyyXXX = ap_linyyyXXX.c
 
 C_TMPL_FILES = \
@@ -50,12 +51,12 @@ H_ORIG_FILES = \
 ap_config.h ap_dimension.h ap_texpr0.h ap_tcons0.h \
 ap_manager.h ap_var.h ap_environment.h \
 ap_check0.h ap_abstract0.h \
-ap_generic.h ap_abstract1.h ap_reducedproduct.h
+ap_generic.h ap_abstract1.h ap_reducedproduct.h \
+ap_global0.h ap_global1.h
 
 C_ORIG_FILES = \
 ap_dimension.c ap_texpr0.c ap_tcons0.c \
-ap_manager.c ap_var.c ap_environment.c \
-ap_abstract0.c ap_abstract1.c ap_reducedproduct.c
+ap_manager.c ap_var.c ap_environment.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
@@ -163,17 +164,17 @@ libapron_debug.a: $(C_FILES:%.c=%_debug.o)
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	./macros.pl $(SRCDIR)/$< >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	./macros.pl $(SRCDIR)/$< >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-file-XXX
 $(subst XXX,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES_XXX) $(C_TMPL_FILES_XXX),$(eval $(call generate-file-XXX,$(T),$(F)))))
@@ -182,7 +183,7 @@ define generate-file-yyy
 $(subst yyy,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach Y,$(YYY),$(foreach F,$(H_TMPL_FILES_yyy) $(C_TMPL_FILES_yyy),$(eval $(call generate-file-yyy,$(Y),$(F)))))
@@ -191,7 +192,7 @@ define generate-file-zzz
 $(subst zzz,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/zzz/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/zzz/$(1)/g;s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach Z,$(ZZZ),$(foreach F,$(H_TMPL_FILES_zzz) $(C_TMPL_FILES_zzz),$(eval $(call generate-file-zzz,$(Z),$(F)))))
@@ -200,7 +201,7 @@ define generate-file-yyyXXX
 $(subst yyy,$(1),$(subst XXX,$(2),$(3))): $(3)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/yyy/$(1)/g; s/XXX/$(2)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES_yyyXXX) $(C_TMPL_FILES_yyyXXX),$(eval $(call generate-file-yyyXXX,$(Y),$(T),$(F))))))

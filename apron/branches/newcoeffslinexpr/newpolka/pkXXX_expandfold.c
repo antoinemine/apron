@@ -51,7 +51,7 @@ matrixXXX_t* matrixXXX_expand(pkXXX_internal_t* pk,
   for (i=0;i<dimsup;i++){
     dimchange.p[i]=offset;
   }
-  nC = matrixXXX_add_dimensions(pk,destructive,C,dimchange);
+  nC = matrixXXX_add_dimensions(pk,destructive,C,&dimchange);
   ap_dimchange_clear(&dimchange);
   matrixXXX_resize_rows(nC,nbrows+nb*dimsup);
   if (nb==0)

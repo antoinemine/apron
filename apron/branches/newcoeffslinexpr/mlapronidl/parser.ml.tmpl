@@ -155,14 +155,12 @@ let linexpr1_of_linexpr intern (discr:Common.discr) (env:Environment.t) (list:(s
   Linexpr1.t
   =
   match discr with
-  | D() ->
-      let (cst,list) = check_list intern eitvD_of_coeff list in
-      let linexprD = LinexprD.of_list1 env ?cst list in
-      Linexpr1.init_set_linexprD linexprD env
-  | MPQ() ->
-      let (cst,list) = check_list intern eitvMPQ_of_coeff list in
-      let linexprMPQ = LinexprMPQ.of_list1 env ?cst list in
-      Linexpr1.init_set_linexprMPQ linexprMPQ env
+    MACRO_FOREACH XXX ("D","MPQ")
+  | XXX() ->
+      let (cst,list) = check_list intern eitvXXX_of_coeff list in
+      let linexprXXX = LinexprXXX.of_list1 env ?cst list in
+      Linexpr1.init_set_linexprXXX linexprXXX env
+    ENDMACRO
   | _ -> failwith ""
 
 let lincons1_of_lincons intern (discr:Common.discr) (env:Environment.t) (lincons:Common.constyp * (string*coeff) list * Mpqf.t option)
@@ -170,26 +168,18 @@ let lincons1_of_lincons intern (discr:Common.discr) (env:Environment.t) (lincons
   Lincons1.t
   =
   match discr with
-  | D() ->
+    MACRO_FOREACH XXX ("D","MPQ")
+  | XXX() ->
       let (constyp,list,ompq) = lincons in
-      let (cst,list) = check_list intern eitvD_of_coeff list in
-      let linconsD = LinconsD.of_list1 env ?cst list in
-      LinconsD.set_constyp linconsD constyp;
+      let (cst,list) = check_list intern eitvXXX_of_coeff list in
+      let linconsXXX = LinconsXXX.of_list1 env ?cst list in
+      LinconsXXX.set_constyp linconsXXX constyp;
       begin match ompq with
-      | Some mpq -> LinconsD.set_mpq linconsD mpq
+      | Some mpq -> LinconsXXX.set_mpq linconsXXX mpq
       | None -> ()
       end;
-      Lincons1.init_set_linconsD linconsD env
-  | MPQ() ->
-      let (constyp,list,ompq) = lincons in
-      let (cst,list) = check_list intern eitvMPQ_of_coeff list in
-      let linconsMPQ = LinconsMPQ.of_list1 env ?cst list in
-      LinconsMPQ.set_constyp linconsMPQ constyp;
-      begin match ompq with
-      | Some mpq -> LinconsMPQ.set_mpq linconsMPQ mpq
-      | None -> ()
-      end;
-      Lincons1.init_set_linconsMPQ linconsMPQ env
+      Lincons1.init_set_linconsXXX linconsXXX env
+    ENDMACRO
   | _ -> failwith ""
 
 let lingen1_of_lingen intern (discr:Common.discr) (env:Environment.t) (lingen:Common.gentyp * (string*coeff) list)
@@ -197,18 +187,14 @@ let lingen1_of_lingen intern (discr:Common.discr) (env:Environment.t) (lingen:Co
   Lingen1.t
   =
   match discr with
-  | D() ->
+    MACRO_FOREACH XXX ("D","MPQ")
+  | XXX() ->
       let (gentyp,list) = lingen in
-      let (cst,list) = check_list intern eitvD_of_coeff list in
-      let lingenD = LingenD.of_list1 env ?cst list in
-      LingenD.set_gentyp lingenD gentyp;
-      Lingen1.init_set_lingenD lingenD env
-  | MPQ() ->
-      let (gentyp,list) = lingen in
-      let (cst,list) = check_list intern eitvMPQ_of_coeff list in
-      let lingenMPQ = LingenMPQ.of_list1 env ?cst list in
-      LingenMPQ.set_gentyp lingenMPQ gentyp;
-      Lingen1.init_set_lingenMPQ lingenMPQ env
+      let (cst,list) = check_list intern eitvXXX_of_coeff list in
+      let lingenXXX = LingenXXX.of_list1 env ?cst list in
+      LingenXXX.set_gentyp lingenXXX gentyp;
+      Lingen1.init_set_lingenXXX lingenXXX env
+    ENDMACRO
   | _ -> failwith ""
 
 (*  **********************************************************************)
@@ -344,10 +330,10 @@ let tyyy1_of_lstring intern (env:Environment.t) (lstr:string list)
   res
 ENDMACRO
 
-let of_lstring (man:'a Manager.t) ?(discr=(MPQ())) (env:Environment.t) (lstr:string list)
+let of_lstring (man:'a Manager.t) (env:Environment.t) (lstr:string list)
   :
   'a Abstract1.t
   =
   let intern = Manager.get_num_internal man in
-  let array = lincons1_of_lstring intern discr env lstr in
-  Abstract1.of_lincons_array man env array
+  let array = tcons1_of_lstring intern env lstr in
+  Abstract1.of_tcons_array man env array

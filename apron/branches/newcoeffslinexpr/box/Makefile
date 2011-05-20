@@ -98,7 +98,7 @@ define generate-file
 $(subst XXX,$(1),$(2)): $(2)
 	@echo "/* GENERATED FROM $$<, DO NOT MODIFY */" >$$@
 	@echo "#line 1 \"$(SRCDIR)/$$<\"" >>$$@
-	./macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
+	../macros.pl $(SRCDIR)/$$< | $(SED) -e "s/XXX/$(1)/g; s/#line \([0-9]*\) \"\(.*\)$$@\"/#line \1 \"\2$$<\"/g" >>$$@
 endef
 
 $(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES) $(C_TMPL_FILES), $(eval $(call generate-file,$(T),$(F)))))
@@ -126,4 +126,3 @@ depend: $(C_FILES) $(H_FILES)
 tags: TAGS
 TAGS: $(H_SRC_FILES) $(C_SRC_FILES)
 	etags $^
-	etags -a macros.pl

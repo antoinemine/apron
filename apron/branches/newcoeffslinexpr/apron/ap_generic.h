@@ -4,9 +4,7 @@
 #ifndef _AP_GENERIC_H_
 #define _AP_GENERIC_H_
 
-#include "ap_manager.h"
-#include "ap_expr0.h"
-#include "ap_abstract0.h"
+#include "ap_global0.h"
 
 #ifdef __cplusplus
 extern "C" {

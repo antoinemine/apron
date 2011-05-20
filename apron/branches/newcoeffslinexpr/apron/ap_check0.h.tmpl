@@ -73,58 +73,47 @@ void ap_check0_expr_raise(ap_funid_t funid, ap_manager_t* man,
 			  char* prefix);
 
 /* Check that the linear expression makes sense in the given dimensionality */
-ap_dim_t ap_check0_linexprD_dim(ap_dimension_t dimension,
-				ap_linexprD_t expr);
-ap_dim_t ap_check0_linexprMPQ_dim(ap_dimension_t dimension,
-				  ap_linexprMPQ_t expr);
-ap_dim_t ap_check0_linexprMPFR_dim(ap_dimension_t dimension,
-				   ap_linexprMPFR_t expr);
-ap_dim_t ap_check0_linexpr_dim(ap_dimension_t dimension,
-			       ap_linexpr0_t expr);
-ap_dim_t ap_check0_lincons_dim(ap_dimension_t dimension,
-			       ap_lincons0_t cons);
-bool ap_check0_linexpr(ap_funid_t funid, ap_manager_t* man,
-		       ap_dimension_t dimension,
-		       ap_linexpr0_t expr);
-bool ap_check0_texpr(ap_funid_t funid, ap_manager_t* man,
-		     ap_dimension_t dimension,
-		     ap_texpr0_t* expr);
-bool ap_check0_lincons(ap_funid_t funid, ap_manager_t* man,
-		       ap_dimension_t dimension,
-		       ap_lincons0_t cons);
-bool ap_check0_tcons(ap_funid_t funid, ap_manager_t* man,
-		     ap_dimension_t dimension,
-		     ap_tcons0_t* cons);
+MACRO_FOREACH XXX @MainNum;
+ap_dim_t ap_check0_linexprXXX_dim(ap_dimension_t dimension,
+				  ap_linexprXXX_t expr);
+MACRO_FOREACH TTT ("cons","gen")
+static inline
+ap_dim_t ap_check0_linTTTXXX_dim(ap_dimension_t dimension,
+				 ap_linTTTXXX_t a)
+{
+  return ap_check0_linexprXXX_dim(dimension,a->linexpr);
+}
+ENDMACRO
+ENDMACRO
 
+MACRO_FOREACH TTT ("expr","cons");
+bool ap_check0_linTTT(ap_funid_t funid, ap_manager_t* man,
+		      ap_dimension_t dimension,
+		      ap_linTTT0_t a);
+bool ap_check0_tTTT(ap_funid_t funid, ap_manager_t* man,
+		    ap_dimension_t dimension,
+		    ap_tTTT0_t* expr);
+ENDMACRO
 
 /* ********************************************************************** */
 /* 6. Checking compatibility of arguments: array of expressions/constraints/generators */
 /* ********************************************************************** */
 
-/* Check that array of linear expressions makes sense in the given dimensionality */
-bool ap_check0_linexpr_array(ap_funid_t funid, ap_manager_t* man,
+/* Check that array of linear expressions/constraints/generators makes sense
+   in the given dimensionality */
+MACRO_FOREACH TTT ("expr","cons","gen");
+bool ap_check0_linTTT_array(ap_funid_t funid, ap_manager_t* man,
 			     ap_dimension_t dimension,
-			     ap_linexpr0_array_t array);
+			     ap_linTTT0_array_t array);
+ENDMACRO
 
-/* Check that array of linear constraint makes sense in the given dimensionality */
-bool ap_check0_lincons_array(ap_funid_t funid, ap_manager_t* man,
-			     ap_dimension_t dimension,
-			     ap_lincons0_array_t array);
-
-/* Check that array of generator makes sense in the given dimensionality */
-bool ap_check0_lingen_array(ap_funid_t funid, ap_manager_t* man,
-			    ap_dimension_t dimension, ap_lingen0_array_t array);
-
-/* Check that array of tree expressions makes sense in the given dimensionality */
-bool ap_check0_texpr_array(ap_funid_t funid, ap_manager_t* man,
-			   ap_dimension_t dimension,
-			   ap_texpr0_array_t* array);
-
-/* Check that array of tree constraint makes sense in the given dimensionality */
-bool ap_check0_tcons_array(ap_funid_t funid, ap_manager_t* man,
-			   ap_dimension_t dimension,
-			   ap_tcons0_array_t* array);
-
+/* Check that array of tree expressions/constraints makes sense
+   in the given dimensionality */
+MACRO_FOREACH TTT ("expr","cons");
+bool ap_check0_tTTT_array(ap_funid_t funid, ap_manager_t* man,
+			  ap_dimension_t dimension,
+			  ap_tTTT0_array_t* array);
+ENDMACRO
 /* ********************************************************************** */
 /* 7. Checking compatibility of arguments: dimchange */
 /* ********************************************************************** */
