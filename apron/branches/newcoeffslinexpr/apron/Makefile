@@ -85,7 +85,7 @@ CCLIB_TO_INSTALL =
 # Rules
 #---------------------------------------
 
-all: src libapron.a libapron_debug.a
+all: src libapron.a libapron_debug.a libapron_prof.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
@@ -151,6 +151,10 @@ libapron_debug.a: $(C_FILES:%.c=%_debug.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
 	$(RANLIB) $@
 
+libapron_prof.a: $(C_FILES:%.c=%_prof.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
+	$(RANLIB) $@
+
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
 #--------------------------------------------------------------
@@ -214,6 +218,8 @@ $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------
 # dependencies (generated with make depend)

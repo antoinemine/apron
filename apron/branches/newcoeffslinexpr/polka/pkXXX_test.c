@@ -363,9 +363,11 @@ bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
   - dim >= -bound if sgn<0
 */
 
-bool do_generators_sat_bound(pkXXX_internal_t* pk, matrixXXX_t* F,
-			     ap_dim_t dim, numXXX_t bound,
-			     int sgn)
+bool do_generators_sat_boundXXX(
+    pkXXX_internal_t* pk, matrixXXX_t* F,
+    ap_dim_t dim, numXXX_t bound,
+    int sgn
+)
 {
   size_t i,index;
   int sgn2;
@@ -424,18 +426,18 @@ bool pkXXX_sat_interval(ap_manager_t* man, pkXXX_t* po,
   eitvXXX_set_ap_coeff(pk->eitvXXX, interval, pk->num);
   if (eitvXXX_is_point(pk->eitvXXX)){
     /* interval is a point */
-    sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->sup,0);
+    sat = do_generators_sat_boundXXX(pk,po->F,dim,pk->eitvXXX->itv->sup,0);
   }
   else {
     sat = true;
     /* inferior bound */
     if (!boundXXX_infty(pk->eitvXXX->itv->neginf)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->neginf,-1);
+      sat = do_generators_sat_boundXXX(pk,po->F,dim,pk->eitvXXX->itv->neginf,-1);
       if (!sat) goto poly_sat_interval_exit0;
     }
     /* superior bound */
     if (!boundXXX_infty(pk->eitvXXX->itv->sup)){
-      sat = do_generators_sat_bound(pk,po->F,dim,pk->eitvXXX->itv->sup,1);
+      sat = do_generators_sat_boundXXX(pk,po->F,dim,pk->eitvXXX->itv->sup,1);
     }
   }
  poly_sat_interval_exit0:

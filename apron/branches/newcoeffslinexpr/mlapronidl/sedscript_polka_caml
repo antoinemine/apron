@@ -1,0 +1,1 @@
+s/pk_\(.*\) : 'a Manager.t/\1 : ('a,'b) t Manager.t/g;

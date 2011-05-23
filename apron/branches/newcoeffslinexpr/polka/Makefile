@@ -22,10 +22,10 @@ ICFLAGS = \
 
 TMPL = Rll MPQ
 
-H_TMPL_FILES = pkXXX.h pkXXX_cherni.h pkXXX_internal.h pkeqXXX.h
+H_TMPL_FILES = pkXXX.h pkXXX_internal.h pkeqXXX.h
 C_TMPL_FILES = \
 pkXXX_vector.c pkXXX_matrix.c pkXXX_cherni.c \
-pkXXX_internal.c pkXXX_user.c \
+pkXXX_manager.c pkXXX_user.c \
 pkXXX_representation.c pkXXX_constructor.c pkXXX_approximate.c \
 pkXXX_test.c pkXXX_extract.c \
 pkXXX_meetjoin.c pkXXX_assign.c pkXXX_project.c pkXXX_expandfold.c pkXXX_resize.c \
@@ -33,7 +33,7 @@ pkXXX_widening.c pkXXX_closure.c \
 pkeqXXX.c
 
 H_ORIG_FILES = mf_qsort.h pk_bit.h pk_satmat.h
-C_ORIG_FILES = mf_qsort.c pk_bit.c pk_satmat.c
+C_ORIG_FILES = mf_qsort.c pk_bit.c pk_satmat.c pk_option.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
@@ -53,7 +53,7 @@ CCINC_TO_INSTALL = $(TMPL:%=pk%.h)
 # Rules
 #---------------------------------------
 
-all: src libpk.a libpk_debug.a
+all: src libpolka.a libpolka_debug.a libpolka_prof.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
@@ -75,12 +75,16 @@ uninstall:
 # C rules
 #---------------------------------------
 
-libpk.a: $(C_FILES:%.c=%.o) 
+libpolka.a: $(C_FILES:%.c=%.o) 
 	$(AR) rcs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libpk_debug.a: $(C_FILES:%.c=%_debug.o)
+libpolka_debug.a: $(C_FILES:%.c=%_debug.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
+	$(RANLIB) $@
+
+libpolka_prof.a: $(C_FILES:%.c=%_prof.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
 	$(RANLIB) $@
 
 #--------------------------------------------------------------
@@ -110,6 +114,8 @@ $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------
 # dependencies (generated with make dep)

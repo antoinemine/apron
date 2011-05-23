@@ -48,10 +48,12 @@ type 'a val1 = {
   mutable env: Environment.t;
 }
 
-type numD
-type numMPQ
-type numMPFR
+type numIll
 type numRll
+type numMPZ
+type numMPQ
+type numD
+type numMPFR
 ")
 
 quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"
