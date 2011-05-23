@@ -49,6 +49,7 @@ void pkXXX_internal_init(pkXXX_internal_t* pk, size_t maxdims)
   for (i=0;i<maxdims;i++){
     pk->envXXX->linterm[i]->dim = i;
   }
+  pk->envXXX->effsize = maxdims;
   numXXX_init(pk->numratXXX);
   pk->numintXXXp = vectorXXX_alloc(pk->maxcols);
   pk->numintXXXp2 = vectorXXX_alloc(pk->maxcols);

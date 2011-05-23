@@ -401,7 +401,7 @@ void linconsXXX_set_vector(pkXXX_internal_t* pk,
   }
   mpq_set_si(lincons->mpq,0,1);
 }
-bool lincons0_set_vector(pkXXX_internal_t* pk,
+bool lincons0_set_vectorXXX(pkXXX_internal_t* pk,
 			 ap_lincons0_t lincons0, numintXXX_t* q,size_t size)
 {
   linconsXXX_set_vector(pk,pk->ap_linconsXXX,q,size);
@@ -441,7 +441,7 @@ void lingenXXX_set_vector(pkXXX_internal_t* pk,
   }
 }
 
-bool vectorXXX_set_lingen0(pkXXX_internal_t* pk,
+bool lingen0_set_vectorXXX(pkXXX_internal_t* pk,
 			   ap_lingen0_t lingen0, numintXXX_t* q, size_t size)
 {
   lingenXXX_set_vector(pk,pk->ap_lingenXXX,q,size);

@@ -87,10 +87,10 @@ pkXXX_internal_t* pkXXX_manager_get_internal(ap_manager_t* man);
 /* For setting options when one has a ap_manager_t object, one can use the
    APRON function ap_manager_get_internal with a cast. */
 
-void pkXXX_set_max_coeff_size(pkXXX_internal_t* pk, size_t size);
-void pkXXX_set_approximate_max_coeff_size(pkXXX_internal_t* pk, size_t size);
-size_t pkXXX_get_max_coeff_size(pkXXX_internal_t* pk);
-size_t pkXXX_get_approximate_max_coeff_size(pkXXX_internal_t* pk);
+void pk_set_max_coeff_size(ap_manager_t* man, unsigned int size);
+void pk_set_approximate_max_coeff_size(ap_manager_t* man, unsigned int size);
+unsigned int pk_get_max_coeff_size(ap_manager_t* man);
+unsigned int pk_get_approximate_max_coeff_size(ap_manager_t* man);
 
 /* ============================================================ */
 /* D. Conversions */

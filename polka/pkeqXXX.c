@@ -331,12 +331,11 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr(bool assign,
     if (linexpr0->discr==AP_SCALAR_MPQ)
       po = pkXXX_asssub_linexprXXX_det(assign,man,destructive,pa,dim,linexpr0->linexpr.MPQ);
     else
-#else
+#endif
       {
 	bool exact = ap_linexprXXX_set_linexpr0(pk->ap_linexprXXX,linexpr0,pk->num);
 	po = pkXXX_asssub_linexprXXX_det(assign,man,destructive,pa,dim,pk->ap_linexprXXX);
       }
-#endif
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn) goto _pkeqXXX_asssub_linexpr_error;
     pkeqXXX_reduce(man,po);
@@ -593,7 +592,7 @@ ap_manager_t* pkeqXXX_manager_alloc(void)
   void** funptr;
 
   man = pkXXX_manager_alloc(false);
-  man->library = "polka, equalities mode";
+  man->library = "polka, equalities mode, numXXX";
   funptr = man->funptr;
   // funptr[AP_FUNID_COPY] = &pkXXX_copy;
   // funptr[AP_FUNID_FREE] = &pkXXX_free;

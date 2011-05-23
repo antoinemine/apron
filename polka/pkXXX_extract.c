@@ -404,7 +404,7 @@ void pkXXX_to_lincons_array(ap_manager_t* man,
   for (i=0,k=0; i<C->nbrows; i++){
     if (! vectorXXX_is_dummy_constraint(pk, C->p[i], C->nbcolumns)){
       ap_lincons0_array_ref_index(lincons0,array,k);
-      exact = lincons0_set_vector(pk, lincons0, C->p[i], C->nbcolumns) && exact;
+      exact = lincons0_set_vectorXXX(pk, lincons0, C->p[i], C->nbcolumns) && exact;
       k++;
     }
   }
@@ -498,7 +498,7 @@ void pkXXX_to_lingen_array(ap_manager_t* man,
   for (i=0,k=0; i<F->nbrows; i++){
     if (! vectorXXX_is_dummy_or_strict_generator(pk, F->p[i], F->nbcolumns)){
       ap_lingen0_array_ref_index(lingen0,array,k);
-      exact = lingen0_set_vector(pk, lingen0, F->p[i], F->nbcolumns) && exact;
+      exact = lingen0_set_vectorXXX(pk, lingen0, F->p[i], F->nbcolumns) && exact;
       k++;
     }
   }

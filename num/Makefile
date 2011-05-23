@@ -63,7 +63,7 @@ CCINC_TO_INSTALL = $(H_TMPL_FILES) $(H_FILES)
 # Rules
 #---------------------------------------
 
-all: src libitv.a libitv_debug.a
+all: src libnum.a libnum_debug.a libnum_prof.a
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 
 clean:
@@ -140,10 +140,13 @@ $(foreach T,$(TMPL),$(foreach F,$(C_TMPL_FILES_TEST),$(eval $(call generate-file
 # C part
 #-----------------------------------
 
-libitv.a: $(C_FILES:%.c=%.o)
+libnum.a: $(C_FILES:%.c=%.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libitv_debug.a: $(C_FILES:%.c=%_debug.o)
+libnum_debug.a: $(C_FILES:%.c=%_debug.o)
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libnum_prof.a: $(C_FILES:%.c=%_prof.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
@@ -152,6 +155,9 @@ $(C_FILES:%.c=%.o): %.o: %.c
 
 $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+
+$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #-----------------------------------
 # Test
@@ -165,8 +171,8 @@ out: tests
 		./testi2$$i >> out.$$i; \
 	done
 
-$(C_GENERATED_FILES_TEST:%.c=%): %: %.c libitv_debug.a
-	$(CC) -g $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ $< -L. -litv_debug $(CLIBS)
+$(C_GENERATED_FILES_TEST:%.c=%): %: %.c libnum_debug.a
+	$(CC) -g $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ $< -L. -lnum_debug $(CLIBS)
 
 depend: $(C_FILES) $(H_FILES) $(C_FILES_TEST) 
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) $(C_FILES_TEST) >Makefile.depend

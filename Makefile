@@ -13,12 +13,20 @@ ifneq ($(HAS_CPP),)
 all: cxx
 endif
 
+SUBDIR_C = num apron box polka
+SUBDIR_ALL = $(SUBDIR_C) 
+ifneq ($(HAS_OCAML),)
+SUBDIR_ALL += mlapronidl
+endif
+ifneq ($(HAS_CPP),)
+SUBDIR_ALL += apronxx
+endif
+ifneq ($(HAS_JAVA),)
+SUBDIR_ALL += java
+endif
+
 depend:
-	make -C num depend
-	make -C apron depend
-	make -C box depend
-	make -C polka depend
-	make -C mlapronidl depend
+	for i in $(SUBDIR_ALL); do make -C $$i depend; done
 
 src:
 	make -C num src
@@ -33,21 +41,14 @@ c:
 	make -C box 
 	make -C polka
 
+
 cxx:
-	(cd apronxx; make)
+	make -C apronxx
 
 ml:
 	make -C mlapronidl
 
 .PHONY: aprontop apronppltop
-
-aprontop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma
-
-apronppltop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX) -I $(APRON_PREFIX) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma
 
 rebuild:
 ifneq ($(HAS_OCAML),)
@@ -81,43 +82,47 @@ ifneq ($(HAS_CPP),)
 	make -C apronxx install
 endif
 
+uninstall:
+
 clean:
 	make -C num clean
 	make -C apron clean
-	make -C mlapronidl clean
 	make -C box clean
 	make -C polka clean
 	make -C octagons clean
 	make -C ppl clean
 	make -C products clean
 	make -C apronxx clean
+	make -C mlapronidl clean
 	make -C examples clean
 	make -C test clean
 	rm -fr online tmp apron*run aprontop apronppltop
 
-mostlyclean: clean
-	make -C mlapronidl mostlyclean
+mostlyclean:
+	make -C num mostlyclean
+	make -C apron mostlyclean
 	make -C box mostlyclean
-	make -C octagons mostlyclean
 	make -C polka mostlyclean
+	make -C octagons mostlyclean
 	make -C ppl mostlyclean
 	make -C products mostlyclean
 	make -C apronxx mostlyclean
-
-uninstall: distclean
+	make -C mlapronidl mostlyclean
+	make -C examples mostlyclean
+	make -C test mostlyclean
 
 distclean:
 	make -C num distclean
-	make -C itv distclean
 	make -C apron distclean
-	make -C mlapronidl distclean
 	make -C box distclean
 	make -C polka distclean
 	make -C octagons distclean
-	make -C examples distclean
 	make -C ppl distclean
 	make -C products distclean
 	make -C apronxx distclean
+	make -C mlapronidl distclean
+	make -C examples distclean
+	make -C test mostlyclean
 
 doc:
 	make -C apron html apron.pdf
@@ -127,6 +132,39 @@ endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx doc
 endif
+
+# C part
+MOD = num apron box polka
+
+define generate-sublib
+.PHONY: $(1)/lib$(1)$(2).a
+$(1)/lib$(1)$(2).a:
+	make -C $(1) lib$(1)$(2).a
+endef
+$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),)))
+$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),_debug)))
+$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),_prof)))
+
+define generate-clib
+libapron$(1).a: $(foreach M,$(MOD),$(M)/lib$(M)$(1).a)
+	mkdir -p tmp
+	rm -f tmp/*
+	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
+	$(AR) rcs $$@ tmp/*.o
+	$(RANLIB) $$@
+ifneq ($(HAS_SHARED),)
+libapron$(1).so: $(foreach M,$(MOD),$(M)/lib$(M)$(1).a)
+	mkdir -p tmp
+	rm -f tmp/*
+	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
+	$(CC) $(CFLAGS) -shared -o $$@ tmp/*.o -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp
+endif
+endef
+$(eval $(call generate-clib,))
+$(eval $(call generate-clib,_debug))
+$(eval $(call generate-clib,_prof))
+
+
 
 # make distribution, update to reflect current version
 

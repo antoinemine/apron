@@ -1,0 +1,168 @@
+/* -*- mode: c -*- */
+
+quote(C,"\n\
+#include \"boxIll.h\"\n\
+#include \"boxMPZ.h\"\n\
+#include \"boxRll.h\"\n\
+#include \"boxMPQ.h\"\n\
+#include \"boxD.h\"\n                         \
+#include \"boxMPFR.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "manager.idl";
+
+quote(MLMLI,"(** Intervals abstract domain *)")
+
+quote(MLMLI,"
+type numIll = Common.numIll
+type numRll = Common.numRll
+  (** The two previous types may silently overflow: be cautious ! *)
+type numMPZ = Common.numMPZ
+type numMPQ = Common.numMPQ
+type numD = Common.numD
+type numMPFR = Common.numMPFR
+
+type 'a t
+  (** Type of boxes, where ['a] is one of the [numXXX] types
+      above and indicates the underlying number representation.
+
+      Boxes constrains each dimension/variable [x_i] to belong to an interval
+      [I_i].
+
+      Abstract values which are boxes have the type ['a t Apron.AbstractX.t].
+
+      Managers allocated for boxes have the type ['a t Apron.manager.t].
+  *)
+")
+
+quote(MLI,"(** {2 Create a Box manager} *)")
+MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+quote(C,"
+value camlidl_box_manager_alloc_numXXX(value vunit)
+{
+  ap_manager_t* man = boxXXX_manager_alloc();
+  ap_exc_t i;
+  for (i=1; i<AP_EXC_SIZE; i++){
+    ap_manager_set_abort_if_exception(man,i,false);
+  }
+  value v = camlidl_apron_manager_ptr_c2ml(&man);
+  return v;
+}
+")
+quote(MLMLI,"
+external manager_alloc_numXXX : unit -> numXXX t Manager.t = \"camlidl_box_manager_alloc_numXXX\"
+")
+ENDMACRO
+
+quote(MLI,"
+(** {2 Type conversions} *)
+
+val manager_is_box : 'a Manager.t -> bool
+val manager_is_box_numIll  : 'a Manager.t -> bool
+val manager_is_box_numRll  : 'a Manager.t -> bool
+val manager_is_box_numMPZ  : 'a Manager.t -> bool
+val manager_is_box_numMPQ  : 'a Manager.t -> bool
+val manager_is_box_numD    : 'a Manager.t -> bool
+val manager_is_box_numMPFR : 'a Manager.t -> bool
+  (** Return [true] iff the argument manager is a box manager *)
+
+val manager_of_box : 'a t Manager.t -> 'b Manager.t
+  (** Makes a box manager generic *)
+
+val manager_to_box : 'a Manager.t -> 'b t  Manager.t
+val manager_box_to_numIll  : 'a t Manager.t -> numIll t  Manager.t
+val manager_box_to_numRll  : 'a t Manager.t -> numRll t  Manager.t
+val manager_box_to_numMPZ  : 'a t Manager.t -> numMPZ t  Manager.t
+val manager_box_to_numMPQ  : 'a t Manager.t -> numMPQ t  Manager.t
+val manager_box_to_numD    : 'a t Manager.t -> numD   t  Manager.t
+val manager_box_to_numMPFR : 'a t Manager.t -> numMPFR t Manager.t
+  (** Instanciate the type of a box manager.
+      Raises [Failure] if the argument manager is not a right manager *)
+")
+
+
+MACRO_FOREACH NNN ("0","1")
+quote(MLI,"
+module AbstractNNN : sig
+  val is_box : 'a AbstractNNN.t -> bool
+  val is_box_numIll  : 'a AbstractNNN.t -> bool
+  val is_box_numRll  : 'a AbstractNNN.t -> bool
+  val is_box_numMPZ  : 'a AbstractNNN.t -> bool
+  val is_box_numMPQ  : 'a AbstractNNN.t -> bool
+  val is_box_numD    : 'a AbstractNNN.t -> bool
+  val is_box_numMPFR : 'a AbstractNNN.t -> bool
+    (** Return [true] iff the argument manager is a box manager *)
+
+  val of_box : 'a t AbstractNNN.t -> 'b AbstractNNN.t
+    (** Makes a box manager generic *)
+
+  val to_box : 'a AbstractNNN.t -> 'b t  AbstractNNN.t
+  val box_to_numIll  : 'a t AbstractNNN.t -> numIll t  AbstractNNN.t
+  val box_to_numRll  : 'a t AbstractNNN.t -> numRll t  AbstractNNN.t
+  val box_to_numMPZ  : 'a t AbstractNNN.t -> numMPZ t  AbstractNNN.t
+  val box_to_numMPQ  : 'a t AbstractNNN.t -> numMPQ t  AbstractNNN.t
+  val box_to_numD    : 'a t AbstractNNN.t -> numD   t  AbstractNNN.t
+  val box_to_numMPFR : 'a t AbstractNNN.t -> numMPFR t AbstractNNN.t
+    (** Instanciate the type of a box manager.
+	Raises [Failure] if the argument manager is not a right manager *)
+end
+")
+ENDMACRO
+
+
+quote(ML,"
+let regexp_box = Str.regexp \"box\"
+let manager_is_box man =
+  let str = Manager.get_library man in
+  Str.string_match regexp_box str 0
+let manager_of_box (man:'a t Manager.t) : 'b Manager.t = Obj.magic man
+let manager_to_box (man:'a Manager.t) : 'b t Manager.t =
+  if manager_is_box man then
+    Obj.magic man
+  else
+    failwith \"Box.to_box: the argument manager is not a Box manager\"
+")
+
+
+MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+quote(ML,"
+let regexp_numXXX = Str.regexp \"box.*numXXX\"
+let manager_is_box_numXXX man =
+  let str = Manager.get_library man in
+  Str.string_match regexp_numXXX str 0
+let manager_box_to_numXXX man =
+  if manager_is_box_numXXX man then
+    Obj.magic man
+  else
+    raise (Failure \"Box.manager_box_to_numXXX: the argument manager is not a numXXX Box manager\")
+")
+ENDMACRO
+
+MACRO_FOREACH NNN ("0","1")
+quote(ML,"
+module AbstractNNN = struct
+  let is_box abs =
+    manager_is_box (AbstractNNN.manager abs)
+  let of_box = Obj.magic
+  let to_box abs =
+    if is_box abs then
+      Obj.magic abs
+    else
+      raise (Failure \"Box.Abstract0.to_box: the argument value is not a Box value\")
+")
+MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+quote(ML,"
+  let is_box_numXXX abs =
+    manager_is_box_numXXX (AbstractNNN.manager abs)
+  let box_to_numXXX abs =
+    if is_box_numXXX abs then
+      Obj.magic abs
+    else
+      raise (Failure \"Box.AbstractNNN.box_to_numXXX: the argument value is not a numXXX Box value\")
+")
+ENDMACRO
+quote(ML,"
+end
+")
+ENDMACRO

@@ -6,7 +6,6 @@
    read the COPYING file packaged in the distribution */
 
 #include "pkXXX_internal.h"
-#include "pkXXX_cherni.h"
 #include "ap_linconsXXX.h"
 #include "ap_generic.h"
 

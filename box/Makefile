@@ -27,7 +27,7 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = Ill D MPQ MPFR
+TMPL = Ill MPZ Rll MPQ D MPFR
 
 H_TMPL_FILES = \
 boxXXX.h boxXXX_internal.h
@@ -54,7 +54,7 @@ CCINC_TO_INSTALL = box.h $(TMPL:%=box%.h)
 # Rules
 #---------------------------------------
 
-all: libbox.a libbox_debug.a
+all: libbox.a libbox_debug.a libbox_prof.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
@@ -84,6 +84,10 @@ libbox_debug.a: $(C_FILES:%.c=%_debug.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
 	$(RANLIB) $@
 
+libbox_prof.a: $(C_FILES:%.c=%_prof.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
+	$(RANLIB) $@
+
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
 #--------------------------------------------------------------
@@ -111,6 +115,8 @@ $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 $(C_FILES:%.c=%_debug.o): %_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 
 #---------------------------------------
