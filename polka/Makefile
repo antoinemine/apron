@@ -65,11 +65,10 @@ distclean: clean
 	/bin/rm -f Makefile.depend
 
 install: $(CCINC_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+	$(INSTALL) -d $(PREFIX)/include/apron
+	$(INSTALL) -t $(PREFIX)/include/apron $^
 
 uninstall:
-	/bin/rm -f $(CCINC_TO_INSTALL:%=$(PREFIX)/include/%)
 
 #---------------------------------------
 # C rules
