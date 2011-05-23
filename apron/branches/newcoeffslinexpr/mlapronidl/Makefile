@@ -9,7 +9,7 @@ SRCDIR = $(shell pwd)
 SITE-LIB = $(shell $(OCAMLFIND) printconf destdir)
 PKG-NAME = apron
 SITE-LIB-PKG = $(SITE-LIB)/$(PKG-NAME)
-REQ_PKG = bigarray,gmp
+REQ_PKG = bigarray,str,gmp
 
 SITE-LIB-gmp = $(shell $(OCAMLFIND) query gmp)
 
@@ -31,11 +31,7 @@ ICFLAGS = \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
-LDFLAGS = \
--L$(APRON_PREFIX)/lib \
--L$(GMP_PREFIX)/lib \
--L$(MPFR_PREFIX)/lib \
--L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml
+LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml
 
 #---------------------------------------
 # Files
@@ -129,7 +125,7 @@ C_LIB = \
 	libapron_caml.a libapron_caml.d.a libapron_caml.p.a \
 	libapron_caml.callback.a libapron_caml.callback.d.a 
 ifneq ($(HAS_SHARED),)
-CCLIB += dllapron_caml.so dllapron_caml.callback.so
+C_LIB += dllapron_caml.so dllapron_caml.callback.so
 endif
 
 FILES_TOINSTALL = \
@@ -139,11 +135,9 @@ FILES_TOINSTALL = \
 	$(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) \
 	$(ML_LIB) $(C_LIB)
 
-
 #---------------------------------------
 # Rules
 #---------------------------------------
-
 
 all: $(FILES_TOINSTALL)
 
@@ -204,19 +198,6 @@ dllapron_caml.so: $(C_MODULES:%=%.o)
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lapron
 dllapron_caml.callback.so: $(C_MODULES:%=%.callback.o)
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lapron
-
-META: Makefile
-	/bin/rm -f META
-	echo "description = \"OCaml Interface to APRON library\"" >META
-	echo "version = \"2.0.0\"" >>META
-	echo "requires = \"$(REQ_PKG)\"" >>META
-	echo "archive(byte) = \"apron.cma\"" >>META
-	echo "archive(byte,callback) = \"apron.callback.cma\"" >>META
-	echo "archive(native) = \"apron.cmxa\"" >>META
-	echo "archive(native,debug) = \"apron.d.cmxa\"" >>META
-	echo "archive(native,gprof) = \"apron.p.cmxa\"" >>META
-	echo "archive(native,callback) = \"apron.callback.cmxa\"" >>META
-	echo "archive(native,callback,debug) = \"apron.callback.d.cmxa\"" >>META
 
 install: $(FILES_TOINSTALL)
 	$(OCAMLFIND) remove $(PKG-NAME)

@@ -1,12 +1,11 @@
 include ../Makefile.config
 
+PREFIX = $(APRON_PREFIX)
+SRCDIR = $(shell pwd)
+
 #---------------------------------------
 # Directories
 #---------------------------------------
-
-PREFIX = $(APRON_PREFIX)
-
-SRCDIR = $(shell pwd)
 
 #---------------------------------------
 # Programs
@@ -54,7 +53,7 @@ CCINC_TO_INSTALL = box.h $(TMPL:%=box%.h)
 # Rules
 #---------------------------------------
 
-all: libbox.a libbox_debug.a libbox_prof.a
+all: src libbox.a libbox_debug.a libbox_prof.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
@@ -65,12 +64,11 @@ mostlyclean distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
-install: all
-	$(INSTALLd) $(PREFIX)/include
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+install: $(CCINC_TO_INSTALL) 
+	$(INSTALL) -d $(PREFIX)/include/apron
+	$(INSTALL) -t $(PREFIX)/include/apron $^
 
 uninstall:
-	/bin/rm -f $(CCINC_TO_INSTALL:%=$(PREFIX)/include/%)
 
 #---------------------------------------
 # C rules

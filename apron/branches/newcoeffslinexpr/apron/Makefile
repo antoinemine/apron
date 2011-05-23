@@ -8,11 +8,6 @@ SRCDIR = $(shell pwd)
 #
 PREFIX = $(APRON_PREFIX)
 #
-# C include and lib directories
-INCDIR = $(PREFIX)/include
-LIBDIR = $(PREFIX)/lib
-BINDIR = $(PREFIX)/bin
-#
 
 #---------------------------------------
 # C part
@@ -78,8 +73,6 @@ H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
 CCINC_TO_INSTALL = $(H_FILES)
-CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = 
 
 #---------------------------------------
 # Rules
@@ -105,13 +98,11 @@ distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
-install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include 
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+install: $(CCINC_TO_INSTALL) 
+	$(INSTALL) -d $(PREFIX)/include/apron
+	$(INSTALL) -t $(PREFIX)/include/apron $^
 
 uninstall:
-	/bin/rm -f $(CCINC_TO_INSTALL:%=$(APRON_PREFIX)/include/%)
-	/bin/rm -f $(CCLIB_TO_INSTALL:%=$(APRON_PREFIX)/lib/%)
 
 #---------------------------------------
 # Latex rules

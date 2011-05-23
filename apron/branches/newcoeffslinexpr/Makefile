@@ -1,5 +1,13 @@
 include Makefile.config
 
+CCLIB_TO_INSTALL = libapron.a libapron_debug.a libapron_prof.a 
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libapron.so libapron_debug.so libapron_prof.so
+endif
+ifneq ($(HAS_CPP),)
+CCLIB_TO_INSTALL += libapronxx.so libapronxx_debug.so libapronxx_prof.so
+endif
+
 LCFLAGS = \
 -L$(PPL_PREFIX)/lib \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
@@ -12,9 +20,15 @@ endif
 ifneq ($(HAS_CPP),)
 all: cxx
 endif
+ifneq ($(HAS_JAVA),)
+all: java
+endif
 
 SUBDIR_C = num apron box polka
 SUBDIR_ALL = $(SUBDIR_C) 
+ifneq ($(HAS_PPL),)
+SUBDIR_ALL += ppl products
+endif
 ifneq ($(HAS_OCAML),)
 SUBDIR_ALL += mlapronidl
 endif
@@ -27,102 +41,39 @@ endif
 
 depend:
 	for i in $(SUBDIR_ALL); do make -C $$i depend; done
-
 src:
-	make -C num src
-	make -C apron src
-	make -C box src
-	make -C polka src
-	make -C mlapronidl src
-
+	for i in $(SUBDIR_ALL); do make -C $$i src; done
 c:
-	make -C num 
-	make -C apron
-	make -C box 
-	make -C polka
-
-
+	for i in $(SUBDIR_C); do make -C $$i all; done
 cxx:
 	make -C apronxx
-
 ml:
 	make -C mlapronidl
 
-.PHONY: aprontop apronppltop
-
-rebuild:
-ifneq ($(HAS_OCAML),)
-	make -C mlapronidl rebuild
-	make -C polka rebuild
-	make -C box rebuild
-	make -C octagons rebuild
-	make -C ppl rebuild
-	make -C products rebuild
-endif
-
-install:
-	make -C num install
-	make -C apron install
-	make -C polka install
-	make -C box install
-	make -C octagons install
+install: $(CCLIB_TO_INSTALL)
+	$(INSTALL) -d $(APRON_PREFIX)/lib/apron
+	$(INSTALL) -t $(APRON_PREFIX)/lib/apron $(CCLIB_TO_INSTALL)
+	for i in $(SUBDIR_C); do make -C $$i install; done
 ifneq ($(HAS_PPL),)
 	make -C ppl install
 	make -C products install
 endif
 ifneq ($(HAS_OCAML),)
 	make -C mlapronidl install
-	$(INSTALLd) $(APRON_PREFIX)/bin
-	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
-ifneq ($(HAS_PPL),)
-	if test -f aprontop; then $(INSTALL) apronppltop $(APRON_PREFIX)/bin; fi
-endif
 endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx install
 endif
-
 uninstall:
+	rm -fr $(APRON_PREFIX)/lib/apron
+	rm -fr $(APRON_PREFIX)/include/apron
 
 clean:
-	make -C num clean
-	make -C apron clean
-	make -C box clean
-	make -C polka clean
-	make -C octagons clean
-	make -C ppl clean
-	make -C products clean
-	make -C apronxx clean
-	make -C mlapronidl clean
-	make -C examples clean
-	make -C test clean
-	rm -fr online tmp apron*run aprontop apronppltop
-
+	for i in $(SUBDIR_ALL); do make -C $$i clean; done
 mostlyclean:
-	make -C num mostlyclean
-	make -C apron mostlyclean
-	make -C box mostlyclean
-	make -C polka mostlyclean
-	make -C octagons mostlyclean
-	make -C ppl mostlyclean
-	make -C products mostlyclean
-	make -C apronxx mostlyclean
-	make -C mlapronidl mostlyclean
-	make -C examples mostlyclean
-	make -C test mostlyclean
-
+	for i in $(SUBDIR_ALL); do make -C $$i mostlyclean; done
 distclean:
-	make -C num distclean
-	make -C apron distclean
-	make -C box distclean
-	make -C polka distclean
-	make -C octagons distclean
-	make -C ppl distclean
-	make -C products distclean
-	make -C apronxx distclean
-	make -C mlapronidl distclean
-	make -C examples distclean
-	make -C test mostlyclean
+	for i in $(SUBDIR_ALL); do make -C $$i distclean; done
 
 doc:
 	make -C apron html apron.pdf
@@ -133,31 +84,32 @@ ifneq ($(HAS_CPP),)
 	make -C apronxx doc
 endif
 
+# ######################################################################
 # C part
-MOD = num apron box polka
+# ######################################################################
 
 define generate-sublib
 .PHONY: $(1)/lib$(1)$(2).a
 $(1)/lib$(1)$(2).a:
 	make -C $(1) lib$(1)$(2).a
 endef
-$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),)))
-$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),_debug)))
-$(foreach M,$(MOD),$(eval $(call generate-sublib,$(M),_prof)))
+$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),)))
+$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),_debug)))
+$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),_prof)))
 
 define generate-clib
-libapron$(1).a: $(foreach M,$(MOD),$(M)/lib$(M)$(1).a)
+libapron$(1).a: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
 	mkdir -p tmp
 	rm -f tmp/*
 	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
 	$(AR) rcs $$@ tmp/*.o
 	$(RANLIB) $$@
 ifneq ($(HAS_SHARED),)
-libapron$(1).so: $(foreach M,$(MOD),$(M)/lib$(M)$(1).a)
+libapron$(1).so: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
 	mkdir -p tmp
 	rm -f tmp/*
 	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
-	$(CC) $(CFLAGS) -shared -o $$@ tmp/*.o -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp
+	$(CC) $(CFLAGS) -shared -o $$@ -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp tmp/*.o 
 endif
 endef
 $(eval $(call generate-clib,))

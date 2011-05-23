@@ -73,12 +73,11 @@ distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 	/bin/rm -f Makefile.depend
 
-install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include 
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+install: $(CCINC_TO_INSTALL) 
+	$(INSTALL) -d $(PREFIX)/include/apron
+	$(INSTALL) -t $(PREFIX)/include/apron $^
 
 uninstall:
-	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
 
 #---------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
