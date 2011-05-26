@@ -1,61 +1,34 @@
 include ../Makefile.config
-
+SRCDIR = $(shell pwd)
 ICFLAGS = \
--I$(GMP_PREFIX)/include \
--I$(MPFR_PREFIX)/include \
--I$(APRON_PREFIX)/include \
--I$(PPL_PREFIX)/include 
+-I$(MPFR_PREFIX)/include -I$(GMP_PREFIX)/include \
+-I../num -I../apron -I../box -I../polka
 
 LCFLAGS = \
--L$(GMP_PREFIX)/lib \
--L$(MPFR_PREFIX)/lib \
--L$(APRON_PREFIX)/lib \
--L$(PPL_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)/lib/ocaml
+-L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib \
+-L../num -L../apron -L../box -L../polka
+# -lpolka_debug -lbox_debug -lapron_debug -lnum_debug -lmpfr -lgmp
 
-OCAMLINC = \
--I $(MLGMPIDL_PREFIX)/lib \
--I $(APRON_PREFIX)/lib 
+C_TMPL_FILES_tmpl = test_num.c.tmpl
+C_GENERATED_FILES = $(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
+C_SRC_FILES = $(C_TMPL_FILES)
+C_FILES = $(C_GENERATED_FILES)
 
-OCAMLLDFLAGS = \
--verbose -cc "g++" \
-bigarray.cma gmp.cma apron.cma boxMPQ.cma polkaMPQ.cma octD.cma ppl.cma polkaGrid.cma
-
-OCAMLOPTLDFLAGS = \
--noautolink -verbose -ccopt "$(LCFLAGS)" \
-bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa polkaMPQ.cmxa octD.cmxa ppl.cmxa polkaGrid.cmxa
-all: C
+all: test_num
 
 # C examples
 
-C: ctest1
-
-%: %.o
-	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
-	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
-
-%_debug: %_debug.o
-	$(CXX) -g $(ICFLAGS) $(LCFLAGS) -o $@  $< \
-	-lap_pkgrid_debug -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -lmpfr -lgmp
-
-%.o : %.c
-	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
-%_debug.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
-
-# OCaml examples
-%.opt: %.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
-
-%.byte: %.ml
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -o $@ $<
+test_num: test_num.c ../num/libnum_debug.a
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^  -lnum_debug -lmpfr -lgmp
 
 clean:
-	rm -f ctest1 ctest1_debug *.o *.cm[xoia] *.opt *.byte
-
-distclean: clean
-
+	rm -f test_num *.o
 mostlyclean: clean
 
-dist: ctest1.c Makefile README
-	(cd ..; tar zcvf test.tgz $(^:%=test/%))
+distclean: mostlyclean
+	rm -f $(C_GENERATED_FILES)
+
+%.c: %.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	../macros.pl $(SRCDIR)/$< >>$@
