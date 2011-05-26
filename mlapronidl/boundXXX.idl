@@ -72,7 +72,6 @@ void boundXXX_get_num(numXXX_ptrm a, boundXXX_ptrg b)
 quote(MLMLI,"(** {2 Arithmetic operations} *)\n")
 
 void boundXXX_neg(boundXXX_ptrm a, boundXXX_ptrg b);
-void boundXXX_abs(boundXXX_ptrm a, boundXXX_ptrg b);
 void boundXXX_add(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 void boundXXX_add_uint(boundXXX_ptrm a, boundXXX_ptrg b, unsigned long c);
 void boundXXX_add_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);

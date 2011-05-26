@@ -350,9 +350,9 @@ int main(void)
   MACRO_FOREACH ttt ("num","bound","itv","eitv");
   MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
   {
-    fprintf(stdout,"Testing tttXXX\n");
+    fprintf(stdout,"Testing tttXXX, result written on file out/test_num_tttXXX.out\n");
 
-    output = fopen("test_num_tttXXX.out","w");
+    output = fopen("out/test_num_tttXXX.out","w");
     if (output==NULL) exit(-1);
 
     tttXXX_t a,b;
