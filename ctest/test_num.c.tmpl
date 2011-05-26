@@ -1,0 +1,405 @@
+/* -*- mode: c -*- */
+
+/* Testing num, bound, itv, etiv */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+MACRO_FOREACH XXX ("MPZ","D","MPQ","MPFR");
+#include "eitvXXX.h"
+ENDMACRO;
+
+num_internal_t intern;
+FILE* output = NULL;
+
+/* ********************************************************************** */
+/* FPU init */
+/* ********************************************************************** */
+
+/* simple run-time test that fpu behaves correctly */
+static bool test_fpu(void)
+{
+  int i;
+  long double d = 1., dd;
+  /* find the minimal long double, as the fixpoint of x -> x/2 with rounding
+     towards +oo;
+     the max iteration value should be enough for 128-bit floating-point */
+  for (i=0;i<5000000;i++) {
+    dd = d;
+    d /= 2;
+    if (d==dd || d==0.) break;
+  }
+  /* fails if flush to 0 */
+  if (d!=dd) { fprintf(stderr,"test_fpu failed test #1 after %i iterations\n",i); return false; }
+  /* fails if long double rounding is not towards +oo */
+  if (d*0.25!=dd) { fprintf(stderr,"test_fpu failed test #2\n"); return false; }
+  /* fails if double rounding is not towards +oo */
+  if ((double)d<dd) { fprintf(stderr,"test_fpu failed test #3\n"); return false; }
+  /* fails if float rounding is not towards +oo */
+  if ((float)d<dd) { fprintf(stderr,"test_fpu failed test #4\n"); return false; }
+  return true;
+}
+
+#if defined(__ppc__)
+static bool fpu_init(void)
+{
+  __asm volatile ("mtfsfi 7,2");
+  return test_fpu();
+}
+#elif defined(__linux) || defined (__APPLE__)
+#include <fenv.h>
+static bool fpu_init(void)
+{
+  if (!fesetround(FE_UPWARD)) return test_fpu();
+  fprintf(stderr,"could not set fpu rounding mode: fesetround failed\n");
+  return false;
+}
+#elif defined(__FreeBSD__) || defined(sun)
+#include <ieeefp.h>
+static bool fpu_init(void)
+{
+  fpsetround(FP_RP);
+  return test_fpu();
+}
+#else
+static bool fpu_init(void)
+{
+  fprintf(stderr,"could not set fpu rounding mode: platform not supported\n");
+  return false;
+}
+
+#endif
+
+/* ********************************************************************** */
+/* Testing normal ops */
+/* ********************************************************************** */
+
+#define error(fmt,msg)					\
+  do {							\
+    fprintf(output,"error: ");                           \
+    fprintf(output,fmt,msg);                            \
+    fprintf(output,"\n");                               \
+  } while (0)
+
+
+MACRO_FOREACH ttt ("num","bound","itv","eitv");
+#define MARK_ttt
+MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
+
+
+
+void checkapprox_tttXXX(tttXXX_t x, tttXXX_t y, bool exact, char* msg)
+{
+  int cmp = tttXXX_cmp(x,y);
+#if defined(MARK_num) || defined(MARK_bound)
+  if (cmp>0)
+    error("%s: incorrect approximation",msg);
+  else if (cmp<0 && exact)
+    error("%s: exact is true but should be false",msg);
+#else
+  if (cmp!=0 && cmp!=-1)
+    error("%s: incorrect approximation",msg);
+  else if (cmp==-1 && exact)
+    error("%s: exact is true but should be false,msg",msg);
+#endif
+}
+
+void testconv_tttXXX(tttXXX_t x)
+{
+  tttXXX_t y;
+  bool exact1,exact2;
+  int cmp;
+
+  tttXXX_init(y);
+
+  fprintf(output,"x = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+
+  MACRO_FOREACH YYY ("D","MPQ","MPFR")
+  {
+    tttYYY_t z;
+    tttYYY_init(z);
+    exact1 = tttYYY_set_tttXXX(z,x,intern);
+    fprintf(output,"YYY_set(z,x); z = "); tttYYY_fprint(output,z); fprintf(output," exact = %d\n",exact1);
+    exact2 = tttXXX_set_tttYYY(y,z,intern);
+    fprintf(output,"set_YYY(y,z); y = "); tttXXX_fprint(output,y); fprintf(output," exact = %d\n",exact2);
+    cmp = tttXXX_cmp(x,y);
+    checkapprox_tttXXX(x,y,exact1 && exact2, "Conversion XXX -> YYY -> XXX");
+    tttYYY_clear(z);
+  }
+  ENDMACRO;
+  tttXXX_clear(y);
+}
+
+void testun_tttXXX(tttXXX_t a)
+{
+  tttXXX_t b;
+  bool exact;
+  tttXXX_init(b);
+  fprintf(output,"x = "); tttXXX_fprint(output,a); fprintf(output,"\n");
+#if defined (MARK_bound)
+  if (!boundXXX_infty(a))
+#endif
+    {
+      tttXXX_neg(b,a); fprintf(output,"-x = "); tttXXX_fprint(output,b); fprintf(output,"\n");
+    }
+
+#if !defined (MARK_bound)
+  tttXXX_abs(b,a); fprintf(output,"abs(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+#endif
+  tttXXX_ceil(b,a); fprintf(output,"ceil(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_floor(b,a); fprintf(output,"floor(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_trunc(b,a); fprintf(output,"trunc(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+#if !defined(MARK_num) && !defined(MARK_bound)
+  exact = tttXXX_sqrt(b,a,intern); fprintf(output,"sqrt(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output," (%i)\n",exact);
+  tttXXX_to_int(b,a); fprintf(output,"to_int(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_to_float(b,a, intern); fprintf(output,"to_float(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_to_double(b,a, intern); fprintf(output,"to_double(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+#endif
+  tttXXX_mul_2exp(b,a,2); fprintf(output,"x << 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_mul_2exp(b,a,-2); fprintf(output,"x >> 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  fprintf(output,"\n");
+  testconv_tttXXX(a);
+  tttXXX_clear(b);
+}
+
+void testbin_tttXXX(tttXXX_t a, tttXXX_t b, unsigned long int c)
+{
+  tttXXX_t r,rr;
+  tttXXX_init(r);
+  tttXXX_init(rr);
+  fprintf(output,"x = "); tttXXX_fprint(output,a); fprintf(output,"\n");
+  fprintf(output,"y = "); tttXXX_fprint(output,b); fprintf(output,"\n");
+  fprintf(output,"z = %lu\n",c);
+
+  tttXXX_add(r,a,b);
+  fprintf(output,"x + y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+#if !defined(MARK_bound)
+  tttXXX_sub(r,a,b);
+  fprintf(output,"x - y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+  tttXXX_add(r,a,b); tttXXX_sub(rr,r,b);
+  fprintf(output,"(x + y) - y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+
+  tttXXX_sub(r,a,b); tttXXX_add(rr,r,b);
+  fprintf(output,"(x - y) + y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+#endif
+
+#if defined(MARK_num) || defined(MARK_bound)
+  tttXXX_mul(r,a,b);
+  fprintf(output,"x * y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+#if defined(MARK_num)
+  if (tttXXX_cmp_int(b,0)!=0)
+#endif
+    {
+      tttXXX_div(r,a,b);
+      fprintf(output,"x / y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+      tttXXX_mul(r,a,b); tttXXX_div(rr,r,b);
+      fprintf(output,"(x * y) / y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+
+      tttXXX_div(r,a,b); tttXXX_mul(rr,r,b);
+      fprintf(output,"(x / y) * y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+    }
+#else
+  tttXXX_mul(r,a,b,intern);
+  fprintf(output,"x * y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+  tttXXX_div(r,a,b,intern);
+  fprintf(output,"x / y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+  tttXXX_mul(r,a,b,intern); tttXXX_div(rr,r,b,intern);
+  fprintf(output,"(x * y) / y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+
+  tttXXX_div(r,a,b,intern); tttXXX_mul(rr,r,b,intern);
+  fprintf(output,"(x / y) * y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+#endif
+
+#if defined(MARK_num) || defined(MARK_bound)
+  tttXXX_add_uint(r,a,c);
+  fprintf(output,"x + z = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+  tttXXX_sub_uint(r,a,c);
+  fprintf(output,"x - z = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+  tttXXX_add_uint(r,a,c); tttXXX_sub_uint(rr,r,c);
+  fprintf(output,"(x + z) - z = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+
+  tttXXX_sub_uint(r,a,c); tttXXX_add_uint(rr,r,c);
+  fprintf(output,"(x - z) + z = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+  checkapprox_tttXXX(a,rr,false,"");
+#endif
+#if defined(MARK_bound) || defined(MARK_itv) || defined(MARK_eitv)
+  {
+#if defined(MARK_bound)
+    boundXXX_ptr bound = b;
+#elif defined(MARK_itv)
+    boundXXX_ptr bound = b->sup;
+#else
+    boundXXX_ptr bound = b->itv->sup;
+#endif
+
+#if !defined(MARK_bound)
+    tttXXX_mul_bound(r,a,bound);
+    fprintf(output,"x *_b y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+    tttXXX_div_bound(r,a,bound);
+    fprintf(output,"x /_b y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+    tttXXX_mul_bound(r,a,bound); tttXXX_div_bound(rr,r,bound);
+    fprintf(output,"(x *_b y) /_b y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+    checkapprox_tttXXX(a,rr,false,"");
+
+    tttXXX_div_bound(r,a,bound); tttXXX_mul_bound(rr,r,bound);
+    fprintf(output,"(x /_b y) *_b y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+    checkapprox_tttXXX(a,rr,false,"");
+#endif
+    if (!boundXXX_infty(bound)){
+      numXXX_ptr num = boundXXX_numref(bound);
+      tttXXX_add_num(r,a,num);
+      fprintf(output,"x +_n y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+      tttXXX_sub_num(r,a,num);
+      fprintf(output,"x -_n y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+      tttXXX_add_num(r,a,num); tttXXX_sub_num(rr,r,num);
+      fprintf(output,"(x +_n y) -_n y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+
+      tttXXX_sub_num(r,a,num); tttXXX_add_num(rr,r,num);
+      fprintf(output,"(x - y) + y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+
+      tttXXX_mul_num(r,a,num);
+      fprintf(output,"x *_n y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+      tttXXX_div_num(r,a,num);
+      fprintf(output,"x /_n y = "); tttXXX_fprint(output,r); fprintf(output,"\n");
+
+      tttXXX_mul_num(r,a,num); tttXXX_div_num(rr,r,num);
+      fprintf(output,"(x *_n y) /_n y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+
+      tttXXX_div_num(r,a,num); tttXXX_mul_num(rr,r,num);
+      fprintf(output,"(x /_n y) *_n y = "); tttXXX_fprint(output,rr); fprintf(output,"\n");
+      checkapprox_tttXXX(a,rr,false,"");
+    }
+  }
+#endif
+  tttXXX_clear(r); tttXXX_clear(rr);
+  fprintf(output,"\n");
+}
+
+void tttXXX__set_double_2(tttXXX_t a, double inf, double sup)
+{
+#if defined(MARK_num)
+  if (sup==1./0. || !double_fits_tttXXX(sup))
+    tttXXX_set_int(a,1);
+  else
+    tttXXX_set_double(a,sup,intern);
+#elif defined(MARK_bound)
+  boundXXX_set_double(a,sup,intern);
+#else
+  tttXXX_set_double2(a,inf,sup,intern);
+#endif
+}
+
+/*
+void testmod(tttXXX_t a, tttXXX_t b)
+{
+  tttXXX_t c;
+  tttXXX_init(c);
+  fprintf(output,"x = "); tttXXX_fprint(output,a); fprintf(output,"\n");
+  fprintf(output,"y = "); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_mod(c,a,b,1, intern);
+  fprintf(output,"x mod_i y = "); tttXXX_fprint(output,c); fprintf(output,"\n");
+  tttXXX_mod(c,a,b,0, intern);
+  fprintf(output,"x mod_f y = "); tttXXX_fprint(output,c); fprintf(output,"\n");
+  fprintf(output,"\n");
+  tttXXX_clear(c);
+}
+
+void set_frac(tttXXX_t a, int ninf, int dinf, int nsup, int dsup)
+{
+  numXXX_t n;
+  numXXX_init(n);
+  fprintf(output,"[%i/%i,%i/%i]\n",ninf,dinf,nsup,dsup);
+  numXXX_set_lfrac(n,nsup,dsup,intern);  boundXXX_set_num(a->sup,n);
+  numXXX_set_lfrac(n,-ninf,dinf,intern); boundXXX_set_num(a->neginf,n);
+  numXXX_clear(n);
+}
+*/
+
+ENDMACRO;
+
+#undef MARK_ttt
+
+ENDMACRO;
+
+int main(void)
+{
+
+  fpu_init();
+  /*  mpfr_set_default_prec(4046);*/
+  mpfr_set_default_prec(53);
+  num_internal_init(intern);
+
+  MACRO_FOREACH ttt ("num","bound","itv","eitv");
+  MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
+  {
+    fprintf(stdout,"Testing tttXXX\n");
+
+    output = fopen("test_num_tttXXX.out","w");
+    if (output==NULL) exit(-1);
+
+    tttXXX_t a,b;
+    tttXXX_init(a); tttXXX_init(b);
+
+    tttXXX__set_double_2(a,2,9); testun_tttXXX(a);
+    tttXXX__set_double_2(a,2.25,9.5); testun_tttXXX(a);
+    tttXXX__set_double_2(a,-9.5,-2.25); testun_tttXXX(a);
+    tttXXX__set_double_2(a,-5.5,7.25); testun_tttXXX(a);
+    tttXXX__set_double_2(a,15,1./0.); testun_tttXXX(a);
+    tttXXX__set_double_2(a,-1./0.,6); testun_tttXXX(a);
+    tttXXX__set_double_2(a,-1./0.,1./0.); testun_tttXXX(a);
+    // set_frac(a,-1,10,1,100); testun_tttXXX(a);
+    tttXXX__set_double_2(a,1,-2); testun_tttXXX(a);
+
+    tttXXX__set_double_2(a,1,2); tttXXX__set_double_2(b,3,4); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,2,6); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,2,6); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-4,-1); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-2,3); tttXXX__set_double_2(b,0,2); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,-2,0); testbin_tttXXX(a,b,3);
+    tttXXX__set_double_2(a,-2,3); tttXXX__set_double_2(b,-1,1); testbin_tttXXX(a,b,3);
+
+    /*
+      tttXXX__set_double_2(a,1,5); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,15,18); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,2,28); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,-15,28); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,-15,-2); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,-15,-10); tttXXX__set_double_2(b,10,10); testmod(a,b);
+      tttXXX__set_double_2(a,1,5); tttXXX__set_double_2(b,12,24); testmod(a,b);
+      tttXXX__set_double_2(a,-4,6); tttXXX__set_double_2(b,12,24); testmod(a,b);
+      tttXXX__set_double_2(a,0,10); tttXXX__set_double_2(b,6,8); testmod(a,b);
+      tttXXX__set_double_2(a,0,7); tttXXX__set_double_2(b,6,8); testmod(a,b);
+      tttXXX__set_double_2(a,2,10); tttXXX__set_double_2(b,6,8); testmod(a,b);
+      tttXXX__set_double_2(a,1.5,10.5); tttXXX__set_double_2(b,12.3,14.5); testmod(a,b);
+    */
+
+    tttXXX_clear(a); tttXXX_clear(b);
+
+    fclose(output);
+    output = NULL;
+  }
+  ENDMACRO;
+  ENDMACRO;
+
+  num_internal_clear(intern);
+  return 0;
+}
