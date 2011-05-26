@@ -70,13 +70,13 @@ static bool numXXX_fpu_init(void)
 /* Program */
 /* ********************************************************************** */
 void numXXX(numXXX_t a, numXXX_t b, numXXX_t c,
-	 unsigned long int u, long int l,
-	 unsigned long long int u2, long long int l2,
-	 mpz_t mpz,
-	 mpq_t mpq,
-	 double d,
-	 long double ld,
-	 mpfr_t mpfr)
+            unsigned long int u, long int l,
+            unsigned long long int u2, long long int l2,
+            mpz_t mpz,
+            mpq_t mpq,
+            double d,
+            long double ld,
+            mpfr_t mpfr)
 {
   num_internal_t intern;
   numXXX_t bb,cc;

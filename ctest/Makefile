@@ -19,10 +19,10 @@ all: test_num
 # C examples
 
 test_num: test_num.c ../num/libnum_debug.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^  -lnum_debug -lmpfr -lgmp
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum_debug -lmpfr -lgmp
 
 clean:
-	rm -f test_num *.o
+	rm -f test_num *.o out/*
 mostlyclean: clean
 
 distclean: mostlyclean

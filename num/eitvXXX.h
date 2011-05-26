@@ -119,8 +119,10 @@ static inline void eitvXXX_add_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
 static inline void eitvXXX_sub_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
 void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c);
+  /*
 static inline void eitvXXX_add_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 static inline void eitvXXX_sub_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
+  */
 void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c);
 static inline bool eitvXXX_sqrt(eitvXXX_t a, eitvXXX_t b, num_internal_t intern);
@@ -447,6 +449,7 @@ static inline void eitvXXX_sub_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
     a->eq = false;
   }
 }
+  /*
 static inline void eitvXXX_add_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   boundXXX_add(a->itv->sup,b->itv->sup,c);
@@ -471,6 +474,7 @@ static inline void eitvXXX_sub_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
     a->eq = false;
   }
 }
+  */
 static inline void eitvXXX_magnitude(boundXXX_t a, eitvXXX_t b)
 {
   itvXXX_magnitude(a,b->itv);

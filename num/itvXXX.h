@@ -119,8 +119,10 @@ static inline void itvXXX_add_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
 static inline void itvXXX_sub_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
 void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
 void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
+  /*
 static inline void itvXXX_add_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
 static inline void itvXXX_sub_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
+  */
 void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
 void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
 bool itvXXX_sqrt(itvXXX_t a, itvXXX_t b, num_internal_t intern);
@@ -306,8 +308,8 @@ static inline void itvXXX_set_bottom(itvXXX_t a)
 }
 static inline void itvXXX_set_top(itvXXX_t a)
 {
-  boundXXX_set_infty(a->neginf,1);
-  boundXXX_set_infty(a->sup,1);
+  boundXXX_set_infty(a->neginf);
+  boundXXX_set_infty(a->sup);
 }
 static inline void itvXXX_swap(itvXXX_t a, itvXXX_t b)
 { itvXXX_t t; *t=*a;*a=*b;*b=*t; }
@@ -388,6 +390,7 @@ static inline void itvXXX_sub_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
   boundXXX_sub_num(a->sup,b->sup,c);
   boundXXX_add_num(a->neginf,b->neginf,c);
 }
+  /*
 static inline void itvXXX_add_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
   boundXXX_add(a->sup,b->sup,c);
@@ -398,6 +401,7 @@ static inline void itvXXX_sub_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
   boundXXX_sub(a->sup,b->sup,c);
   boundXXX_add(a->neginf,b->neginf,c);
 }
+  */
 static inline void itvXXX_mul_2exp(itvXXX_t a, itvXXX_t b, int c)
 { boundXXX_mul_2exp(a->sup,b->sup,c); boundXXX_mul_2exp(a->neginf,b->neginf,c); }
 

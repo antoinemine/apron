@@ -22,8 +22,8 @@ void matrixXXX_bound_dimension(pkXXX_internal_t* pk,
   assert(pk->dec+dim<F->nbcolumns);
 
   eitv->eq = false;
-  boundXXX_set_infty(eitv->itv->neginf,-1);
-  boundXXX_set_infty(eitv->itv->sup,-1);
+  boundXXX_set_infty(eitv->itv->neginf);
+  boundXXX_set_infty(eitv->itv->sup);
   index = pk->dec+dim;
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintXXX_sgn(F->p[i][polka_eps])==0){
@@ -38,12 +38,12 @@ void matrixXXX_bound_dimension(pkXXX_internal_t* pk,
       else if (numintXXX_sgn(F->p[i][polka_cst])==0){
 	/* ray */
 	if (sgn > 0){
-	  boundXXX_set_infty(eitv->itv->sup,+1);
+	  boundXXX_set_infty(eitv->itv->sup);
 	  if (boundXXX_infty(eitv->itv->neginf) && boundXXX_sgn(eitv->itv->neginf)>0)
 	    return;
 	}
 	else if (sgn < 0){
-	  boundXXX_set_infty(eitv->itv->neginf,+1);
+	  boundXXX_set_infty(eitv->itv->neginf);
 	  if (boundXXX_infty(eitv->itv->sup) && boundXXX_sgn(eitv->itv->sup)>0)
 	    return;
 	}
@@ -94,8 +94,8 @@ void matrixXXX_bound_vector(pkXXX_internal_t* pk,
   int sgn;
 
   eitv->eq = false;
-  boundXXX_set_infty(eitv->itv->neginf,-1);
-  boundXXX_set_infty(eitv->itv->sup,-1);
+  boundXXX_set_infty(eitv->itv->neginf);
+  boundXXX_set_infty(eitv->itv->sup);
 
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintXXX_sgn(F->p[i][polka_eps])==0 ){
@@ -111,12 +111,12 @@ void matrixXXX_bound_vector(pkXXX_internal_t* pk,
       else if (numintXXX_sgn(F->p[i][polka_cst])==0){
 	/* ray */
 	if (sgn > 0){
-	  boundXXX_set_infty(eitv->itv->sup,+1);
+	  boundXXX_set_infty(eitv->itv->sup);
 	  if (boundXXX_infty(eitv->itv->neginf) && boundXXX_sgn(eitv->itv->neginf)>0)
 	    return;
 	}
 	else if (sgn < 0){
-	  boundXXX_set_infty(eitv->itv->neginf,+1);
+	  boundXXX_set_infty(eitv->itv->neginf);
 	  if (boundXXX_infty(eitv->itv->sup) && boundXXX_sgn(eitv->itv->sup)>0)
 	    return;
 	}
@@ -199,8 +199,8 @@ void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
   eitvXXX_t prod;
 
   eitv->eq = false;
-  boundXXX_set_infty(eitv->itv->neginf,-1);
-  boundXXX_set_infty(eitv->itv->sup,-1);
+  boundXXX_set_infty(eitv->itv->neginf);
+  boundXXX_set_infty(eitv->itv->sup);
 
   eitvXXX_init(prod);
   for (i=0; i<F->nbrows; i++){
@@ -218,13 +218,13 @@ void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
 	if (!eitvXXX_is_zero(prod)){
 	  if (boundXXX_sgn(prod->itv->neginf)<0){
 	    /* [inf,sup]>0 */
-	    boundXXX_set_infty(eitv->itv->sup,+1);
+	    boundXXX_set_infty(eitv->itv->sup);
 	    if (boundXXX_infty(eitv->itv->neginf) && boundXXX_sgn(eitv->itv->neginf)>0)
 	      goto _matrixXXX_bound_ap_linexprXXX_exit;
 	  }
 	  else if (boundXXX_sgn(prod->itv->sup)<0){
 	    /* [inf,sup]<0 */
-	    boundXXX_set_infty(eitv->itv->neginf,+1);
+	    boundXXX_set_infty(eitv->itv->neginf);
 	    if (boundXXX_infty(eitv->itv->sup) && boundXXX_sgn(eitv->itv->sup)>0)
 	      goto _matrixXXX_bound_ap_linexprXXX_exit;
 	  }
