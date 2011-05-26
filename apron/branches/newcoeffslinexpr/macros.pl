@@ -57,12 +57,12 @@ sub parse_macro {
 	    foreach my $n (@list) {
 		my $rr = $r;
 		$rr =~ s/$var/$n/g;
-		if ($first){
-		    $first = 0;
-		} else {
-		    $result = $result . "$tab#line $nb \"$file\"\n";
-		}
-		$result = $result . $rr
+#		if ($first){
+#		    $first = 0;
+#		} else {
+#		    $result = $result . "$tab#line $nb \"$file\"\n";
+#		}
+		$result = $result . "$tab#line $nb \"$file\"\n" . $rr
 	    }
 	}
 	else {

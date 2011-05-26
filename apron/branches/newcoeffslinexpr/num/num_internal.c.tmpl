@@ -9,35 +9,35 @@
 MACRO_FOREACH ZZZ @AllNum
 static void numZZZ_floatconst_init_set(numZZZ_floatconst* cst, int frac_bits, int exp_bits, int exp_bias)
 {
-  boundZZZ_t b,c;
-  boundZZZ_init(b); boundZZZ_init(c);
+  numZZZ_t b,c;
+  numZZZ_init(b); numZZZ_init(c);
   itvZZZ_init(cst->ulp); itvZZZ_init(cst->min); itvZZZ_init(cst->min_normal);
   itvZZZ_init(cst->max); itvZZZ_init(cst->max_exact);
 
-  boundZZZ_set_int(b,1);
-  boundZZZ_mul_2exp(b,b,-frac_bits);
-  itvZZZ_set_unit_bound(cst->ulp,b);
+  numZZZ_set_int(b,1);
+  numZZZ_mul_2exp(b,b,-frac_bits);
+  itvZZZ_set_unit_num(cst->ulp,b);
 
-  boundZZZ_set_int(b,1);
-  boundZZZ_mul_2exp(b,b,1-exp_bias-frac_bits);
-  itvZZZ_set_unit_bound(cst->min,b);
+  numZZZ_set_int(b,1);
+  numZZZ_mul_2exp(b,b,1-exp_bias-frac_bits);
+  itvZZZ_set_unit_num(cst->min,b);
 
-  boundZZZ_set_int(b,1);
-  boundZZZ_mul_2exp(b,b,1-exp_bias);
-  itvZZZ_set_unit_bound(cst->min_normal,b);
+  numZZZ_set_int(b,1);
+  numZZZ_mul_2exp(b,b,1-exp_bias);
+  itvZZZ_set_unit_num(cst->min_normal,b);
 
-  boundZZZ_set_int(b,2);
-  boundZZZ_set_int(c,1);
-  boundZZZ_mul_2exp(c,c,-frac_bits);
-  boundZZZ_sub(b,b,c);
-  boundZZZ_mul_2exp(b,b,(1<<exp_bits)-2-exp_bias);
-  itvZZZ_set_unit_bound(cst->max,b);
+  numZZZ_set_int(b,2);
+  numZZZ_set_int(c,1);
+  numZZZ_mul_2exp(c,c,-frac_bits);
+  numZZZ_sub(b,b,c);
+  numZZZ_mul_2exp(b,b,(1<<exp_bits)-2-exp_bias);
+  itvZZZ_set_unit_num(cst->max,b);
 
-  boundZZZ_set_int(b,1);
-  boundZZZ_mul_2exp(b,b,frac_bits);
-  itvZZZ_set_unit_bound(cst->max_exact,b);
+  numZZZ_set_int(b,1);
+  numZZZ_mul_2exp(b,b,frac_bits);
+  itvZZZ_set_unit_num(cst->max_exact,b);
 
-  boundZZZ_clear(b); boundZZZ_clear(c);
+  numZZZ_clear(b); numZZZ_clear(c);
 }
 static void numZZZ_floatconst_clear(numZZZ_floatconst* cst)
 {

@@ -31,7 +31,8 @@ ICFLAGS = \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
 
-LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml
+LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
+
 
 #---------------------------------------
 # Files
@@ -214,7 +215,7 @@ clean:
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
 distclean: clean
-	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl META
+	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl 
 
 #---------------------------------------
 # Library rules

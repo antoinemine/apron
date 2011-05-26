@@ -216,10 +216,11 @@ void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
 
 void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
-  if (b->eq)
-    eitvXXX_mul_bound(a,c,b->itv->sup);
-  else if (c->eq){
+  if (c->eq){
     eitvXXX_mul_bound(a,b,c->itv->sup);
+  }
+  else if (b->eq){
+    eitvXXX_mul_bound(a,c,b->itv->sup);
   }
   else {
     itvXXX_mul(a->itv,b->itv,c->itv, intern);
@@ -233,13 +234,11 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 
 void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
-  if (b->eq)
-    eitvXXX_div_bound(a,c,b->itv->sup);
-  else if (c->eq)
+  if (c->eq)
     eitvXXX_div_bound(a,b,c->itv->sup);
   else {
-    itvXXX_mul(a->itv,b->itv,c->itv, intern);
-    a->eq = true;
+    itvXXX_div(a->itv,b->itv,c->itv, intern);
+    a->eq = false;
   }
 }
 /* ********************************************************************** */
@@ -254,7 +253,7 @@ void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
     a->eq = true;
   }
   else {
-    boundXXX_floor(a->itv->neginf,b->itv->sup);
+    boundXXX_floor(a->itv->neginf,b->itv->neginf);
     a->eq = itvXXX_is_point(a->itv);
   }
 }
@@ -267,15 +266,22 @@ void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
     a->eq = true;
   }
   else {
-    boundXXX_ceil(a->itv->neginf,b->itv->sup);
+    boundXXX_ceil(a->itv->neginf,b->itv->neginf);
     a->eq = itvXXX_is_point(a->itv);
   }
 }
 
 void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
 {
-  itvXXX_trunc(a->itv,b->itv);
-  a->eq = itvXXX_is_point(a->itv);
+  boundXXX_trunc(a->itv->sup,b->itv->sup);
+  if (b->eq){
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    a->eq = true;
+  }
+  else {
+    boundXXX_trunc(a->itv->neginf,b->itv->neginf);
+    a->eq = itvXXX_is_point(a->itv);
+  }
 }
 
 void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)

@@ -729,7 +729,7 @@ ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */,
     if (envdim){
       eitvXXX_magnitude(intern->XXX.linear_bound3,envdim);
     } else {
-      boundXXX_set_infty(intern->XXX.linear_bound3,+1);
+      boundXXX_set_infty(intern->XXX.linear_bound3);
     }
     boundXXX_mul(intern->XXX.linear_bound2,intern->XXX.linear_bound2,intern->XXX.linear_bound3);
     boundXXX_add(intern->XXX.linear_bound,intern->XXX.linear_bound,intern->XXX.linear_bound2);

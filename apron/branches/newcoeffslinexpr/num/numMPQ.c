@@ -36,21 +36,25 @@ void numMPQ_sub_uint(numMPQ_t a, numMPQ_t b, unsigned long int c)
 }
 void numMPQ_sqrt(numMPQ_t up, numMPQ_t down, numMPQ_t b)
 {
-  /* compute sqrt(p/q) as sqrt(p*q)/q */
-  mpz_t tmp;
-  int perfect;
-  assert(mpq_sgn(b)>=0);
-  mpz_init(tmp);
-  mpz_mul(tmp,mpq_numref(b),mpq_denref(b));
-  perfect = mpz_perfect_square_p(tmp);
-  mpz_sqrt(mpq_numref(down),tmp);
-  if (perfect) mpz_set(mpq_numref(up),mpq_numref(down));
-  else mpz_add_ui(mpq_numref(up),mpq_numref(down),1);
-  mpz_set(mpq_denref(up),mpq_denref(b));
-  mpz_set(mpq_denref(down),mpq_denref(b));
-  numMPQ_canonicalize(up);
-  numMPQ_canonicalize(down);
-  mpz_clear(tmp);
+  if (mpz_cmp_ui(mpq_denref(b),1)==0){
+    numMPZ_sqrt(mpq_numref(up),mpq_numref(down),mpq_numref(b));
+    mpz_set_ui(mpq_denref(up),1);
+    mpz_set_ui(mpq_denref(down),1);
+  }
+  else {
+    /* compute sqrt(p/q) as sqrt(p*q)/q */
+    mpz_t tmp;
+    int perfect;
+    assert(mpq_sgn(b)>=0);
+    mpz_init(tmp);
+    mpz_mul(tmp,mpq_numref(b),mpq_denref(b));
+    numMPZ_sqrt(mpq_numref(up),mpq_numref(down),tmp);
+    mpz_set(mpq_denref(up),mpq_denref(b));
+    mpz_set(mpq_denref(down),mpq_denref(b));
+    numMPQ_canonicalize(up);
+    numMPQ_canonicalize(down);
+    mpz_clear(tmp);
+  }
 }
 
 int numMPQ_hash(numMPQ_t a)

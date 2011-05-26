@@ -125,8 +125,6 @@ void eitvXXX_add_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
 void eitvXXX_sub_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
 void eitvXXX_mul_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
 void eitvXXX_div_num(eitvXXX_ptrm a, eitvXXX_ptrg b, numXXX_ptrg c);
-void eitvXXX_add_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
-void eitvXXX_sub_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
 void eitvXXX_mul_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
 void eitvXXX_div_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
 boolean eitvXXX_sqrt(eitvXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
