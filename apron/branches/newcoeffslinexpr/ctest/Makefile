@@ -9,20 +9,23 @@ LCFLAGS = \
 -L../num -L../apron -L../box -L../polka
 # -lpolka_debug -lbox_debug -lapron_debug -lnum_debug -lmpfr -lgmp
 
-C_TMPL_FILES_tmpl = test_num.c.tmpl
+C_TMPL_FILES_tmpl = num.c.tmpl domain.c.tmpl
 C_GENERATED_FILES = $(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 C_SRC_FILES = $(C_TMPL_FILES)
 C_FILES = $(C_GENERATED_FILES)
 
-all: test_num
+all: num
 
 # C examples
 
-test_num: test_num.c ../num/libnum_debug.a
+num: num.c ../num/libnum_debug.a
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum_debug -lmpfr -lgmp
+domain: domain.c ../num/libnum_debug.a ../apron/libapron_debug.a ../box/libbox_debug.a ../polka/libpolka_debug.a
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka_debug -lbox_debug -lapron_debug -lnum_debug -lmpfr -lgmp
 
 clean:
-	rm -f test_num *.o out/*
+	rm -f num *.o out/*
+
 mostlyclean: clean
 
 distclean: mostlyclean
