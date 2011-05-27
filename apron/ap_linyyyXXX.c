@@ -1021,7 +1021,7 @@ bool ap_linyyyXXX_array_equal(ap_linyyyXXX_array_t a1,ap_linyyyXXX_array_t a2)
     unsigned int i;
     for (i=0; i<a1->size; i++){
       if (!ap_linyyyXXX_equal(a1->p[i],a2->p[i]))
-        return false;
+	return false;
     }
     return true;
   }
@@ -1037,7 +1037,7 @@ int ap_linyyyXXX_array_cmp(ap_linyyyXXX_array_t a1, ap_linyyyXXX_array_t a2)
     for (i=0; i<a1->size; i++){
       int res = ap_linyyyXXX_cmp(a1->p[i],a2->p[i]);
       if (res)
-        return res;
+	return res;
     }
     return 0;
   }

@@ -153,6 +153,9 @@ bool ap_coeff_is_top(ap_coeff_t a);
 bool ap_coeff_is_bottom(ap_coeff_t a, num_internal_t num);
   /* Return true iff the interval is empty */
 bool ap_coeff_is_eq(ap_coeff_t a, ap_coeff_t b);
+  /* True if same discriminant and equality */
+int ap_coeff_cmp(ap_coeff_t a, ap_coeff_t b);
+  /* Assume same discriminant */
 
 /* ====================================================================== */
 /* Other operations */
