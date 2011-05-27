@@ -194,6 +194,7 @@ bool ap_coeff_is_bottom(ap_coeff_t a, num_internal_t num)
 bool ap_coeff_equal(ap_coeff_t a, ap_coeff_t b)
 {
   bool res;
+  if (a==b) return true;
   if (a->discr==b->discr){
     MACRO_SWITCH(a->discr) XXX
       res = eitvXXX_is_eq(a->eitv.XXX,b->eitv.XXX);
@@ -202,6 +203,20 @@ bool ap_coeff_equal(ap_coeff_t a, ap_coeff_t b)
   }
   else {
     return false;
+  }
+}
+int ap_coeff_cmp(ap_coeff_t a, ap_coeff_t b)
+{
+  bool res;
+  if (a==b) return 0;
+  if (a->discr==b->discr){
+    MACRO_SWITCH(a->discr) XXX
+      res = eitvXXX_cmp(a->eitv.XXX,b->eitv.XXX);
+    ENDMACRO;
+    return res;
+  }
+  else {
+    return a>b ? 3 : -3;
   }
 }
 
