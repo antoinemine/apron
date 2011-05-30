@@ -25,6 +25,8 @@ HAS_OCAML = 1
 # HAS_LONG_DOUBLE = 1
 
 APRON_NUMTYPES = Il Ill MPZ Rl Rll MPQ D Dl MPFR
+BOX_NUMTYPES = MPQ D
+POLKA_NUMTYPES = MPQ Rll
 
 ######################################################################
 # Directories
