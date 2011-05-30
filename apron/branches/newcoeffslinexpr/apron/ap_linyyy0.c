@@ -73,6 +73,8 @@ void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim)
     ap_linyyyXXX_fprint(stream,e->linyyy.XXX,name_of_dim);
   ENDMACRO;
 }
+void ap_linyyy0_print(ap_linyyy0_t a, char** name_of_dim)
+{ ap_linyyy0_fprint(stdout,a,name_of_dim); }
 void ap_linyyy0_minimize(ap_linyyy0_t e)
 {
   MACRO_SWITCH(e->discr) XXX
@@ -482,6 +484,8 @@ void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_
     ap_linyyyXXX_array_fprint(stream,e->linyyy_array.XXX,name_of_dim);
   ENDMACRO;
 }
+void ap_linyyy0_array_print(ap_linyyy0_array_t a, char** name_of_dim)
+{ ap_linyyy0_array_fprint(stdout,a,name_of_dim); }
 
 /* ====================================================================== */
 /* II.2 Conversions */

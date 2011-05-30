@@ -60,6 +60,7 @@ void ap_linyyy1_init_set_linyyyZZZ(ap_linyyy1_t res, ap_linyyyZZZ_t e, ap_enviro
 ENDMACRO
 void ap_linyyy1_clear(ap_linyyy1_t e);
 void ap_linyyy1_fprint(FILE* stream, ap_linyyy1_t e);
+void ap_linyyy1_print(ap_linyyy1_t e);
 void ap_linyyy1_minimize(ap_linyyy1_t a);
 
 /* ====================================================================== */
@@ -173,6 +174,7 @@ ENDMACRO
 void ap_linyyy1_array_minimize(ap_linyyy1_array_t a);
 void ap_linyyy1_array_clear(ap_linyyy1_array_t e);
 void ap_linyyy1_array_fprint(FILE* stream, ap_linyyy1_array_t e);
+void ap_linyyy1_array_print(ap_linyyy1_array_t e);
 
 /* ====================================================================== */
 /* II.2 Access, possibly with conversions */
@@ -268,8 +270,6 @@ static inline void ap_linyyy1_array_cons_ZZZ(ap_linyyy1_array_t res, ap_linyyyZZ
   res->env = env;
 };
 ENDMACRO
-
-
 
 #undef _AP_linyyy1_MARK_
 

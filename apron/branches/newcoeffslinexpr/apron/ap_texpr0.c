@@ -94,7 +94,7 @@ ap_texpr0_t* ap_texpr0_copy(ap_texpr0_t* expr)
     return NULL;
   }
 }
-void ap_texpr0_node_clear(ap_texpr0_node_t* node)
+void ap_texpr0_node_free(ap_texpr0_node_t* node)
 {
   ap_texpr0_free(node->exprA);
   ap_texpr0_free(node->exprB);

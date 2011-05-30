@@ -60,6 +60,9 @@ void ap_linyyy1_fprint(FILE* stream, ap_linyyy1_t e)
   ap_linyyy0_fprint(stream, e->linyyy0, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
+void ap_linyyy1_print(ap_linyyy1_t a)
+{ ap_linyyy1_fprint(stdout,a); }
+
 void ap_linyyy1_minimize(ap_linyyy1_t e)
 {
   ap_linyyy0_minimize(e->linyyy0);
@@ -259,6 +262,8 @@ void ap_linyyy1_array_fprint(FILE* stream, ap_linyyy1_array_t e)
   ap_linyyy0_array_fprint(stream, e->linyyy0_array, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
+void ap_linyyy1_array_print(ap_linyyy1_array_t a)
+{ ap_linyyy1_array_fprint(stdout,a); }
 
 /* ====================================================================== */
 /* II.2 Access with possible conversions */

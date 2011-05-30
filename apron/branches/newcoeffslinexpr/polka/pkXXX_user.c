@@ -381,12 +381,12 @@ void linconsXXX_set_vector(pkXXX_internal_t* pk,
   bool error;
   size_t i;
   ap_linexprXXX_resize(lincons->linexpr,0);
-  eitvXXX_set_val(pk->num,lincons->linexpr->cst,EITV_MPZ,q[polka_cst]);
+  eitvXXX_set_val(pk->num,lincons->linexpr->cst,EITV_NUMINTXXX,q[polka_cst]);
   for (i=pk->dec; i<size; i++){
     if (numintXXX_sgn(q[i])!=0){
       ap_dim_t dim = i - pk->dec;
       ap_linexprXXX_set_list0(pk->num,lincons->linexpr,&error,
-			      AP_COEFF_MPZ,q[i],dim,AP_END);
+			      AP_COEFF_NUMINTXXX,q[i],dim,AP_END);
       assert(!error);
     }
   }

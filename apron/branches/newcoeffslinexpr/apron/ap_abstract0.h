@@ -459,6 +459,9 @@ ap_abstract0_widening_threshold(ap_manager_t* man,
 				ap_abstract0_t* a1, ap_abstract0_t* a2,
 				ap_lincons0_array_t array);
 
+void ap_abstract0_print(ap_manager_t* man,
+			ap_abstract0_t* a, char** name_of_dim);
+
 /* ********************************************************************** */
 /* ********************************************************************** */
 /* Internal functions */

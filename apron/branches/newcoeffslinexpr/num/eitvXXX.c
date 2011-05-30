@@ -38,12 +38,13 @@ bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, num_internal_t intern)
 {
   bool exc,cmp;
 
+  a->eq = false;
   if (integer){
     boundXXX_floor(a->itv->neginf,a->itv->neginf);
     boundXXX_floor(a->itv->sup,a->itv->sup);
-    a->eq = false;
   }
-  if (boundXXX_infty(a->itv->neginf) || boundXXX_infty(a->itv->sup)) return false;
+  if (boundXXX_infty(a->itv->neginf) || boundXXX_infty(a->itv->sup))
+    return false;
 
   /* Check that it is not bottom */
   numXXX_neg(intern->XXX.canonicalize_num,boundXXX_numref(a->itv->neginf));
@@ -77,9 +78,15 @@ bool eitvXXX_is_int(eitvXXX_t a, num_internal_t intern)
 
 bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
-  boundXXX_min(a->itv->sup,b->itv->sup,c->itv->sup);
-  boundXXX_min(a->itv->neginf,b->itv->neginf,c->itv->neginf);
-  return eitvXXX_canonicalize(a,false, intern);
+  if (b==c) {
+    eitvXXX_set(a,b);
+    return eitvXXX_is_bottom(a,intern);
+  }
+  else {
+    boundXXX_min(a->itv->sup,b->itv->sup,c->itv->sup);
+    boundXXX_min(a->itv->neginf,b->itv->neginf,c->itv->neginf);
+    return eitvXXX_canonicalize(a,false, intern);
+  }
 }
 
 
@@ -94,16 +101,18 @@ bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 
 void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
-  boundXXX_mul_num(a->itv->sup,b->itv->sup,c);
+  assert (c!=boundXXX_numref(a->itv->neginf));
+  int sgnc = numXXX_sgn(c);
+  boundXXX_mul_num(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_EXACT && b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    boundXXX_neg(a->itv->sup,a->itv->neginf);
     a->eq = true;
   }
   else {
-    boundXXX_mul_num(a->itv->neginf,b->itv->neginf,c);
+    boundXXX_mul_num(a->itv->sup,b->itv->sup,c);
     a->eq = false;
   }
-  if (numXXX_sgn(c)<0){
+  if (sgnc<0){
     boundXXX_swap(a->itv->neginf,a->itv->sup);
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
@@ -112,17 +121,18 @@ void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 
 void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
-  assert (c!=a->itv->neginf && c!=a->itv->sup && c!=b->itv->neginf && c!=b->itv->sup);
-  boundXXX_mul(a->itv->sup,b->itv->sup,c);
+  assert (c!=a->itv->neginf);
+  int sgnc = boundXXX_sgn(c);
+  boundXXX_mul(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_EXACT && b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    boundXXX_neg(a->itv->sup,a->itv->neginf);
     a->eq = true;
   }
   else {
-    boundXXX_mul(a->itv->neginf,b->itv->neginf,c);
+    boundXXX_mul(a->itv->sup,b->itv->sup,c);
     a->eq = false;
   }
-  if (boundXXX_sgn(c)<0){
+  if (sgnc<0){
     boundXXX_swap(a->itv->neginf,a->itv->sup);
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
@@ -131,16 +141,18 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
-  boundXXX_div_num(a->itv->sup,b->itv->sup,c);
+  assert (c!=boundXXX_numref(a->itv->neginf));
+  int sgnc = numXXX_sgn(c);
+  boundXXX_div_num(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    boundXXX_neg(a->itv->sup,a->itv->neginf);
     a->eq = true;
   }
   else {
-    boundXXX_div_num(a->itv->neginf,b->itv->neginf,c);
+    boundXXX_div_num(a->itv->sup,b->itv->sup,c);
     a->eq = false;
   }
-  if (numXXX_sgn(c)<0){
+  if (sgnc<0){
     boundXXX_swap(a->itv->neginf,a->itv->sup);
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
@@ -148,17 +160,18 @@ void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 }
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
-  assert (c!=a->itv->neginf && c!=a->itv->sup && c!=b->itv->neginf && c!=b->itv->sup);
-  boundXXX_div(a->itv->sup,b->itv->sup,c);
+  assert (c!=a->itv->neginf);
+  int sgnc = boundXXX_sgn(c);
+  boundXXX_div(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    boundXXX_neg(a->itv->sup,a->itv->neginf);
     a->eq = true;
-  }
+    }
   else {
-    boundXXX_div(a->itv->neginf,b->itv->neginf,c);
+    boundXXX_div(a->itv->sup,b->itv->sup,c);
     a->eq = false;
   }
-  if (boundXXX_sgn(c)<0){
+  if (sgnc<0){
     boundXXX_swap(a->itv->neginf,a->itv->sup);
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
@@ -333,3 +346,5 @@ size_t eitvXXX_serialized_size_array(eitvXXX_t* src, size_t size)
     n += eitvXXX_serialized_size(src[i]);
   return n;
 }
+void eitvXXX_print(eitvXXX_t a)
+{ eitvXXX_fprint(stdout, a); }

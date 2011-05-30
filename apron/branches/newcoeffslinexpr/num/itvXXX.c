@@ -145,58 +145,52 @@ void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 
 void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
-  if (numXXX_sgn(c)>=0){
-    boundXXX_mul_num(a->sup,b->sup,c);
-    boundXXX_mul_num(a->neginf,b->neginf,c);
-  } else {
-    numXXX_neg(c,c);
-    boundXXX_mul_num(a->sup,b->sup,c);
-    boundXXX_mul_num(a->neginf,b->neginf,c);
+  assert (c!=boundXXX_numref(a->neginf));
+  int sgnc = numXXX_sgn(c);
+  boundXXX_mul_num(a->neginf,b->neginf,c);
+  boundXXX_mul_num(a->sup,b->sup,c);
+  if (sgnc<0){
     boundXXX_swap(a->neginf,a->sup);
-    numXXX_neg(c,c);
+    boundXXX_neg(a->sup,a->sup);
+    boundXXX_neg(a->neginf,a->neginf);
   }
 }
 
 void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
-  assert (c!=a->neginf && c!=a->sup && c!=b->neginf && c!=b->sup);
-  if (boundXXX_sgn(c)>=0){
-    boundXXX_mul(a->sup,b->sup,c);
-    boundXXX_mul(a->neginf,b->neginf,c);
-  } else {
-    boundXXX_neg(c,c);
-    boundXXX_mul(a->sup,b->sup,c);
-    boundXXX_mul(a->neginf,b->neginf,c);
+  assert (c!=a->neginf);
+  int sgnc = boundXXX_sgn(c);
+  boundXXX_mul(a->neginf,b->neginf,c);
+  boundXXX_mul(a->sup,b->sup,c);
+  if (sgnc<0){
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(c,c);
+    boundXXX_neg(a->sup,a->sup);
+    boundXXX_neg(a->neginf,a->neginf);
   }
 }
 
 void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
-  if (numXXX_sgn(c)>=0){
-    boundXXX_div_num(a->sup,b->sup,c);
-    boundXXX_div_num(a->neginf,b->neginf,c);
-  } else {
-    numXXX_neg(c,c);
-    boundXXX_div_num(a->sup,b->sup,c);
-    boundXXX_div_num(a->neginf,b->neginf,c);
+  assert (c!=boundXXX_numref(a->neginf));
+  int sgnc = numXXX_sgn(c);
+  boundXXX_div_num(a->neginf,b->neginf,c);
+  boundXXX_div_num(a->sup,b->sup,c);
+  if (sgnc<0){
     boundXXX_swap(a->neginf,a->sup);
-    numXXX_neg(c,c);
+    boundXXX_neg(a->sup,a->sup);
+    boundXXX_neg(a->neginf,a->neginf);
   }
 }
 void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
-  assert (c!=a->neginf && c!=a->sup && c!=b->neginf && c!=b->sup);
-  if (boundXXX_sgn(c)>=0){
-    boundXXX_div(a->sup,b->sup,c);
-    boundXXX_div(a->neginf,b->neginf,c);
-  } else {
-    boundXXX_neg(c,c);
-    boundXXX_div(a->sup,b->sup,c);
-    boundXXX_div(a->neginf,b->neginf,c);
+  assert (c!=a->neginf);
+  int sgnc = boundXXX_sgn(c);
+  boundXXX_div(a->neginf,b->neginf,c);
+  boundXXX_div(a->sup,b->sup,c);
+  if (sgnc<0){
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(c,c);
+    boundXXX_neg(a->sup,a->sup);
+    boundXXX_neg(a->neginf,a->neginf);
   }
 }
 void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
@@ -262,7 +256,7 @@ void itvXXX_abs(itvXXX_t a, itvXXX_t b)
 }
 
 void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c,
-		     bool is_int, num_internal_t intern)
+		bool is_int, num_internal_t intern)
 {
   /* b-|c|*trunc(b/|c|) */
   itvXXX_abs(intern->XXX.eval_itv, c);

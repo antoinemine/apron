@@ -20,7 +20,8 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = Rll MPQ
+# POLKA_NUMTYPES set in ../Makefile.config
+TMPL = $(POLKA_NUMTYPES)
 
 H_TMPL_FILES = pkXXX.h pkXXX_internal.h pkeqXXX.h
 C_TMPL_FILES = \
@@ -53,12 +54,14 @@ CCINC_TO_INSTALL = $(TMPL:%=pk%.h)
 # Rules
 #---------------------------------------
 
-all: src libpolka.a libpolka_debug.a libpolka_prof.a
+all: src libpolka.a 
+debug: src libpolka.d.a 
+prof: src libpolka.p.a 
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
 clean:
-	/bin/rm -f *.[ao]
+	/bin/rm -f *.[ao] *.so
 
 distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
@@ -78,12 +81,12 @@ libpolka.a: $(C_FILES:%.c=%.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libpolka_debug.a: $(C_FILES:%.c=%_debug.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
+libpolka.d.a: $(C_FILES:%.c=%.d.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.d.o)
 	$(RANLIB) $@
 
-libpolka_prof.a: $(C_FILES:%.c=%_prof.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
+libpolka.p.a: $(C_FILES:%.c=%.p.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.p.o)
 	$(RANLIB) $@
 
 #--------------------------------------------------------------
@@ -111,9 +114,9 @@ $(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES) $(C_TMPL_FILES), $(eval $(call g
 
 $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_debug.o): %_debug.o: %.c
+$(C_FILES:%.c=%.d.o): %.d.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+$(C_FILES:%.c=%.p.o): %.p.o: %.c
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------

@@ -5,9 +5,10 @@ ICFLAGS = \
 -I../num -I../apron -I../box -I../polka
 
 LCFLAGS = \
+-undefined error \
 -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib \
 -L../num -L../apron -L../box -L../polka
-# -lpolka_debug -lbox_debug -lapron_debug -lnum_debug -lmpfr -lgmp
+# -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp
 
 C_TMPL_FILES_tmpl = num.c.tmpl domain.c.tmpl
 C_GENERATED_FILES = $(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
@@ -18,13 +19,13 @@ all: num
 
 # C examples
 
-num: num.c ../num/libnum_debug.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum_debug -lmpfr -lgmp
-domain: domain.c ../num/libnum_debug.a ../apron/libapron_debug.a ../box/libbox_debug.a ../polka/libpolka_debug.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka_debug -lbox_debug -lapron_debug -lnum_debug -lmpfr -lgmp
+num: num.c ../num/libnum.d.a
+	$(CC) $(CFLAGS.D) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum.d -lmpfr -lgmp
+domain: domain.c ../num/libnum.d.a ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp
 
 clean:
-	rm -f num *.o out/*
+	rm -f num domain *.o out/*
 
 mostlyclean: clean
 

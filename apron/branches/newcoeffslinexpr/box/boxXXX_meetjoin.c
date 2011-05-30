@@ -139,10 +139,10 @@ boxXXX_t* boxXXX_add_ray_array(ap_manager_t* man,
 	if (sgn!=0){
 	  res->e->linterm[dim]->eitv->eq = false;
 	  if (sgn>0 || gen->gentyp==AP_GEN_LINE){
-	    boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->sup);
+	    boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->sup,+1);
 	  }
 	  if (sgn<0 || gen->gentyp==AP_GEN_LINE){
-	    boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->neginf);
+	    boundXXX_set_infty(res->e->linterm[dim]->eitv->itv->neginf,+1);
 	  }
 	}
       }

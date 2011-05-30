@@ -1,11 +1,8 @@
 include Makefile.config
 
-CCLIB_TO_INSTALL = libapron.a libapron_debug.a libapron_prof.a 
+CCLIB_TO_INSTALL = libapron.a libapron.d.a libapron.p.a 
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += libapron.so libapron_debug.so libapron_prof.so
-endif
-ifneq ($(HAS_CPP),)
-CCLIB_TO_INSTALL += libapronxx.so libapronxx_debug.so libapronxx_prof.so
+CCLIB_TO_INSTALL += libapron.so libapron.d.so libapron.p.so
 endif
 
 LCFLAGS = \
@@ -13,15 +10,21 @@ LCFLAGS = \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
 -L$(CAMLIDL_PREFIX)/lib/ocaml
 
-all: c
+all: c_all
+debug: c_debug
+prof: c_prof
 ifneq ($(HAS_OCAML),)
-all: ml
+all: ml_all
+debug: ml_debug
+prof: ml_prof
 endif
 ifneq ($(HAS_CPP),)
-all: cxx
+all: cxx_all
+debug: cxx_debug
+prof: cxx_prof
 endif
 ifneq ($(HAS_JAVA),)
-all: java
+all: java_all
 endif
 
 SUBDIR_C = num apron box polka
@@ -39,16 +42,29 @@ ifneq ($(HAS_JAVA),)
 SUBDIR_ALL += java
 endif
 
+c_all:
+	for i in $(SUBDIR_C); do make -C $$i all; done
+cxx_all:
+	make -C apronxx all
+ml_all:
+	make -C mlapronidl all
+
+c_debug:
+	for i in $(SUBDIR_C); do make -C $$i debug; done
+cxx_debug:
+	make -C apronxx debug
+ml_debug:
+	make -C mlapronidl debug
+c_prof:
+	for i in $(SUBDIR_C); do make -C $$i prof; done
+cxx_prof:
+	make -C apronxx prof
+ml_prof:
+	make -C mlapronidl prof
 depend:
 	for i in $(SUBDIR_ALL); do make -C $$i depend; done
 src:
 	for i in $(SUBDIR_ALL); do make -C $$i src; done
-c:
-	for i in $(SUBDIR_C); do make -C $$i all; done
-cxx:
-	make -C apronxx
-ml:
-	make -C mlapronidl
 
 install: $(CCLIB_TO_INSTALL)
 	$(INSTALL) -d $(APRON_PREFIX)/lib/apron
@@ -94,8 +110,8 @@ $(1)/lib$(1)$(2).a:
 	make -C $(1) lib$(1)$(2).a
 endef
 $(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),)))
-$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),_debug)))
-$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),_prof)))
+$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.d)))
+$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.p)))
 
 define generate-clib
 libapron$(1).a: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
@@ -113,8 +129,8 @@ libapron$(1).so: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
 endif
 endef
 $(eval $(call generate-clib,))
-$(eval $(call generate-clib,_debug))
-$(eval $(call generate-clib,_prof))
+$(eval $(call generate-clib,.d))
+$(eval $(call generate-clib,.p))
 
 
 

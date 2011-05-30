@@ -63,7 +63,10 @@ CCINC_TO_INSTALL = $(H_TMPL_FILES) $(H_FILES)
 # Rules
 #---------------------------------------
 
-all: src libnum.a libnum_debug.a libnum_prof.a
+all: src libnum.a 
+debug: src libnum.d.a
+prof: src libnum.p.a
+
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES)
 
 clean:
@@ -142,20 +145,20 @@ $(foreach T,$(TMPL),$(foreach F,$(C_TMPL_FILES_TEST),$(eval $(call generate-file
 libnum.a: $(C_FILES:%.c=%.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libnum_debug.a: $(C_FILES:%.c=%_debug.o)
+libnum.d.a: $(C_FILES:%.c=%.d.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libnum_prof.a: $(C_FILES:%.c=%_prof.o)
+libnum.p.a: $(C_FILES:%.c=%.p.o)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
 $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 
-$(C_FILES:%.c=%_debug.o): %_debug.o: %.c
+$(C_FILES:%.c=%.d.o): %.d.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
-$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+$(C_FILES:%.c=%.p.o): %.p.o: %.c
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #-----------------------------------
@@ -169,9 +172,6 @@ out: tests
 		./testi1$$i >> out.$$i; \
 		./testi2$$i >> out.$$i; \
 	done
-
-$(C_GENERATED_FILES_TEST:%.c=%): %: %.c libnum_debug.a
-	$(CC) -g $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ $< -L. -lnum_debug $(CLIBS)
 
 depend: $(C_FILES) $(H_FILES) $(C_FILES_TEST) 
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) $(C_FILES_TEST) >Makefile.depend

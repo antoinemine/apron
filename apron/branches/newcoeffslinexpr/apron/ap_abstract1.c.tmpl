@@ -1,5 +1,7 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
-/* ap_abstract1.c: level 1 of interface */
+/* ap_abstract1.c.tmpl: level 1 of interface */
 /* ************************************************************************* */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
@@ -1396,6 +1398,9 @@ in the two abstract values");
   }
   return res;
 }
+
+void ap_abstract1_print(ap_manager_t* man, ap_abstract1_t* a)
+{ ap_abstract1_fprint(stdout,man,a); }
 
 /* /\* Evaluate the interval linear expression expr on the abstract value a and */
 /*    approximate it by a quasilinear expression. discr indicates which type of */

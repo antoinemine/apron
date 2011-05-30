@@ -23,10 +23,11 @@ boxXXX_t* boxXXX_add_dimensions(ap_manager_t* man,
   }
   size = ap_dimension_size(a->dim);
   dimsup = dimchange->dim.intd+dimchange->dim.reald;
-  ap_linexprXXX_resize(res->e,size+dimsup+1);
+  ap_linexprXXX_resize_strict(res->e,size+dimsup+1);
+  res->e->effsize = res->e->maxsize-1;
   for (i=(int)size+1;i<(int)(size+dimsup+1);i++){
-    res->e->linterm[i]->dim = (size_t)i;
-    eitvXXX_init(res->e->linterm[i]->eitv);
+    ap_lintermXXX_ptr linterm = res->e->linterm[i];
+    linterm->dim = (ap_dim_t)i;
   }
   k = dimsup;
   for (i=(int)size; i>=0; i--){
@@ -74,7 +75,8 @@ boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
     eitvXXX_set(res->e->linterm[i]->eitv,a->e->linterm[i+k]->eitv);
   }
   eitvXXX_set_int(res->e->linterm[size-dimsup]->eitv,0);
-  ap_linexprXXX_resize(res->e,size+1-dimsup);
+  ap_linexprXXX_resize_strict(res->e,size+1-dimsup);
+  res->e->effsize = res->e->maxsize-1;
  boxXXX_remove_dimensions_exit:
   res->dim.intd = a->dim.intd-dimchange->dim.intd;
   res->dim.reald = a->dim.reald-dimchange->dim.reald;
@@ -82,9 +84,9 @@ boxXXX_t* boxXXX_remove_dimensions(ap_manager_t* man,
 }
 
 boxXXX_t* boxXXX_permute_dimensions(ap_manager_t* man,
-                                    bool destructive,
-                                    boxXXX_t* a,
-                                    ap_dimperm_t* perm)
+				    bool destructive,
+				    boxXXX_t* a,
+				    ap_dimperm_t* perm)
 {
   boxXXX_t* res;
   size_t size;
