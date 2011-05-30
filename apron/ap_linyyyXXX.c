@@ -23,7 +23,7 @@ void ap_linexprXXX_init(ap_linexprXXX_t expr, size_t size)
   expr->effsize = 0;
   expr->maxsize = 0;
   eitvXXX_init(expr->cst);
-  ap_linexprXXX_resize(expr,size);
+  ap_linexprXXX_resize_strict(expr,size);
 }
 void ap_linexprXXX_init_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 {
@@ -68,19 +68,17 @@ void ap_linexprXXX_resize_strict(ap_linexprXXX_t expr, size_t size)
   size_t i;
 
   if (size!=expr->maxsize){
-    expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
-    expr->maxsize = size;
-    if (size<expr->maxsize){
-      for (i=expr->maxsize;i<size;i++){
-	ap_lintermXXX_init(expr->linterm[i]);
-      }
-    }
-    else {
-      for (i=size; i<expr->maxsize; i++){
+    if (size<expr->effsize){
+      for (i=size; i<expr->effsize; i++){
 	ap_lintermXXX_clear(expr->linterm[i]);
       }
-      if (expr->effsize>size) expr->effsize = size;
+      expr->effsize = size;
     }
+    expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
+    for (i=expr->effsize; i<size; i++){
+      ap_lintermXXX_init(expr->linterm[i]);
+    }
+    expr->maxsize = size;
   }
   return;
 }
@@ -106,6 +104,9 @@ void ap_linexprXXX_minimize(ap_linexprXXX_t e)
       }
       else
 	ap_lintermXXX_clear(lin);
+    }
+    for (i=e->effsize; i<e->maxsize; i++){
+      ap_lintermXXX_clear(e->linterm[i]);
     }
     free(e->linterm);
     e->linterm = linterm;
@@ -361,7 +362,9 @@ eitvXXX_ptr ap_linexprXXX_eitvref0(ap_linexprXXX_t expr, ap_dim_t dim, bool crea
   }
   else {
     if (expr->effsize==expr->maxsize){
-      ap_linexprXXX_resize_strict(expr, expr->effsize+4);
+      unsigned int addsize = (expr->maxsize+3)/4;
+      if (addsize<4) addsize=4;
+      ap_linexprXXX_resize_strict(expr, expr->maxsize+addsize);
     }
     /* We insert a new linterm at the end */
     expr->linterm[expr->effsize]->dim=dim;
@@ -438,7 +441,7 @@ bool ap_linexprXXX_set_list_generic(
     }
     else {
       res =
-	eitvXXX_set_val(intern,intern->XXX.generic_eitv,(eitv_tag_t)tag,&va)
+	eitvXXX_set_generic(intern,intern->XXX.generic_eitv,(eitv_tag_t)tag,va)
 	&& res;
     }
     a = get_eitvXXX_of_dimvar(expr,env,cst,va);
@@ -950,8 +953,15 @@ size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
   return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval,array,tdim,nbdim);
 }
 
+
 /* ====================================================================== */
-/* I.5 Change of dimensions and permutations */
+/* II.4 Conversions */
+/* ====================================================================== */
+
+/* See ap_lin_conv.c.tmpl */
+
+/* ====================================================================== */
+/* II.5 Change of dimensions and permutations */
 /* ====================================================================== */
 
 void ap_linyyyXXX_array_add_dimensions(ap_linyyyXXX_array_t res,

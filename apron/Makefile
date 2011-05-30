@@ -78,7 +78,9 @@ CCINC_TO_INSTALL = $(H_FILES)
 # Rules
 #---------------------------------------
 
-all: src libapron.a libapron_debug.a libapron_prof.a
+all: src libapron.a 
+debug: src libapron.d.a
+prof: src libapron.p.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
@@ -138,12 +140,12 @@ libapron.a: $(C_FILES:%.c=%.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libapron_debug.a: $(C_FILES:%.c=%_debug.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
+libapron.d.a: $(C_FILES:%.c=%.d.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.d.o)
 	$(RANLIB) $@
 
-libapron_prof.a: $(C_FILES:%.c=%_prof.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
+libapron.p.a: $(C_FILES:%.c=%.p.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.p.o)
 	$(RANLIB) $@
 
 #--------------------------------------------------------------
@@ -207,9 +209,9 @@ $(foreach Y,$(YYY),$(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES_yyyXXX) $(C_TM
 
 $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_debug.o): %_debug.o: %.c
+$(C_FILES:%.c=%.d.o): %.d.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+$(C_FILES:%.c=%.p.o): %.p.o: %.c
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 #---------------------------------------

@@ -190,9 +190,6 @@ bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
 MACRO_FOREACH ZZZ @AllNum
 bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
 bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
-ENDMACRO
-
-MACRO_FOREACH ZZZ @AllNum
 bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern);
 bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern);
 ENDMACRO
@@ -308,8 +305,8 @@ static inline void itvXXX_set_bottom(itvXXX_t a)
 }
 static inline void itvXXX_set_top(itvXXX_t a)
 {
-  boundXXX_set_infty(a->neginf);
-  boundXXX_set_infty(a->sup);
+  boundXXX_set_infty(a->neginf,1);
+  boundXXX_set_infty(a->sup,1);
 }
 static inline void itvXXX_swap(itvXXX_t a, itvXXX_t b)
 { itvXXX_t t; *t=*a;*a=*b;*b=*t; }

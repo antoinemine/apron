@@ -62,8 +62,8 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       eitvD_ptr eitv;
       ap_linexprD_ForeachLinterm0(box->linexpr.D,i,dim,eitv){
 	man->result.flag_exact &=
-	  eitvXXX_set_eitvD(a->e->linterm[dim]->eitv,eitv,intern->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,intern->num);
+	  eitvXXX_set_eitvD(a->e->linterm[dim]->eitv,eitv,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }
@@ -73,8 +73,8 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       eitvMPQ_ptr eitv;
       ap_linexprMPQ_ForeachLinterm0(box->linexpr.MPQ,i,dim,eitv){
 	  man->result.flag_exact &=
-	  eitvXXX_set_eitvMPQ(a->e->linterm[dim]->eitv,eitv,intern->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,intern->num);
+	  eitvXXX_set_eitvMPQ(a->e->linterm[dim]->eitv,eitv,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }
@@ -84,8 +84,8 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       eitvMPFR_ptr eitv;
       ap_linexprMPFR_ForeachLinterm0(box->linexpr.MPFR,i,dim,eitv){
 	man->result.flag_exact &=
-	  eitvXXX_set_eitvMPFR(a->e->linterm[dim]->eitv,eitv,intern->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,intern->num);
+	  eitvXXX_set_eitvMPFR(a->e->linterm[dim]->eitv,eitv,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }
@@ -201,7 +201,7 @@ bool boxXXX_sat_interval(ap_manager_t* man,
   if (a->e->linterm==NULL)
     return true;
 
-  eitvXXX_set_ap_coeff(intern->sat_interval_eitv, interval, intern->num);
+  eitvXXX_set_ap_coeff(intern->sat_interval_eitv, interval, man->num);
   return eitvXXX_is_leq(a->e->linterm[dim]->eitv,intern->sat_interval_eitv);
 }
 
@@ -222,13 +222,13 @@ bool boxXXX_sat_lincons(ap_manager_t* man,
 
   ap_lincons0_linexpr0ref(linexpr0,cons);
   exact = eitvXXX_eval_ap_linexpr0(intern->sat_lincons_itv,
-				   linexpr0,a->e,intern->num);
+				   linexpr0,a->e,man->num);
   ap_linconsXXX_init(lincons,0);
   eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
   lincons->constyp = ap_lincons0_get_constyp(cons);
   ap_lincons0_get_mpq(lincons->mpq,cons);
 
-  res = ap_linconsXXX_evalcst(lincons,intern->num);
+  res = ap_linconsXXX_evalcst(lincons,man->num);
   ap_linconsXXX_clear(lincons);
   man->result.flag_exact = exact;
   return res==tbool_true;
@@ -251,12 +251,12 @@ bool boxXXX_sat_tcons(ap_manager_t* man,
   man->result.flag_best = man->result.flag_exact = false;
 
   eitvXXX_eval_ap_texpr0(intern->sat_lincons_itv,
-			 cons->texpr0,a->e,intern->num);
+			 cons->texpr0,a->e,man->num);
   ap_linconsXXX_init(lincons,0);
   eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
   lincons->constyp = cons->constyp;
   mpq_set(lincons->mpq, cons->mpq);
-  res = ap_linconsXXX_evalcst(lincons,intern->num);
+  res = ap_linconsXXX_evalcst(lincons,man->num);
   ap_linconsXXX_clear(lincons);
   return res==tbool_true;
 }
@@ -275,7 +275,7 @@ void boxXXX_bound_dimension(ap_manager_t* man,
     exact = true;
   }
   else {
-    exact = ap_coeff_set_eitvXXX(interval,a->e->linterm[dim]->eitv,intern->num);
+    exact = ap_coeff_set_eitvXXX(interval,a->e->linterm[dim]->eitv,man->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = exact;
@@ -295,8 +295,8 @@ void boxXXX_bound_linexpr(ap_manager_t* man,
   }
   else {
     exact = eitvXXX_eval_ap_linexpr0(intern->bound_linexpr_itv,
-				     expr,a->e,intern->num);
-    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv,intern->num);
+				     expr,a->e,man->num);
+    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv,man->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = exact;
@@ -315,8 +315,8 @@ void boxXXX_bound_texpr(ap_manager_t* man,
     exact = true;
   }
   else {
-    eitvXXX_eval_ap_texpr0(intern->bound_linexpr_itv,expr,a->e, intern->num);
-    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv, intern->num);
+    eitvXXX_eval_ap_texpr0(intern->bound_linexpr_itv,expr,a->e, man->num);
+    ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv, man->num);
   }
   man->result.flag_best = true;
   man->result.flag_exact = false;
@@ -362,11 +362,12 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	exact = true;
 	j = 0;
 	for (i=0;i<nbdims;i++){
-	  exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num) && exact;
+	  exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,man->num) && exact;
 
 	  if (eitv->eq){
 	    lincons = tab->p[j];
 	    ap_linconsZZZ_resize(lincons,1);
+	    lincons->linexpr->effsize = 1;
 	    lincons->linexpr->linterm[0]->dim = i;
 	    eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,1);
 	    eitvZZZ_neg(lincons->linexpr->cst,eitv);
@@ -377,6 +378,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	    if (!boundZZZ_infty(eitv->itv->neginf)){
 	      lincons = tab->p[j];
 	      ap_linconsZZZ_resize(lincons,1);
+	      lincons->linexpr->effsize = 1;
 	      lincons->linexpr->linterm[0]->dim = i;
 	      eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,1);
 	      eitvZZZ_set_num(lincons->linexpr->cst,
@@ -387,6 +389,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	    if (!boundZZZ_infty(eitv->itv->sup)){
 	      lincons = tab->p[j];
 	      ap_linconsZZZ_resize(lincons,1);
+	      lincons->linexpr->effsize = 1;
 	      lincons->linexpr->linterm[0]->dim = i;
 	      eitvZZZ_set_int(lincons->linexpr->linterm[0]->eitv,-1);
 	      eitvZZZ_set_num(lincons->linexpr->cst,
@@ -444,22 +447,22 @@ void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_
     nbrays = 0;
     nblines = 0;
     for (i=0;i<size;i++){
-      exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num) && exact;
+      exact = eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,man->num) && exact;
       bool iinf = boundZZZ_infty(eitv->itv->neginf);
       bool isup = boundZZZ_infty(eitv->itv->sup);
       if (iinf && isup){
-        nblines++;
+	nblines++;
       }
       else {
-        if (iinf || isup){
-          nbrays++;
-        }
-        else {
-          if (!eitv->eq){
-            nbvertices *= 2;
-          }
-          ap_linexprZZZ_set_eitv0(vertex->linexpr,i,coeff);
-        }
+	if (iinf || isup){
+	  nbrays++;
+	}
+	else {
+	  if (!eitv->eq){
+	    nbvertices *= 2;
+	  }
+	  ap_linexprZZZ_set_eitv0(vertex->linexpr,i,coeff);
+	}
       }
     }
 
@@ -475,48 +478,48 @@ void boxXXX_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, boxXXX_
     ap_lingenZZZ_set(tab->p[nblines+nbrays + v], vertex);
     v=1;
     for (i=0; i<size; i++){
-      eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,intern->num);
+      eitvZZZ_set_eitvXXX(eitv,a->e->linterm[i]->eitv,man->num);
       bool iinf = boundZZZ_infty(eitv->itv->neginf);
       bool isup = boundZZZ_infty(eitv->itv->sup);
       if (iinf || isup){
-        /* line or ray */
-        eitvZZZ_set_int(coeff, (iinf && !isup) ? -1 : 1);
-        j = (iinf && isup) ? l : (nbrays + r);
-        ap_linexprZZZ_resize(tab->p[j]->linexpr,1);
-        ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
-        if (iinf && isup){ /* line */
-          tab->p[j]->gentyp =
-            i<a->dim.intd ? AP_GEN_LINEMOD : AP_GEN_LINE;
-          l++;
-        }
-        else { /* ray */
-          tab->p[j]->gentyp =
-            i<a->dim.intd ? AP_GEN_RAYMOD : AP_GEN_RAY;
-          r++;
-        }
+	/* line or ray */
+	eitvZZZ_set_int(coeff, (iinf && !isup) ? -1 : 1);
+	j = (iinf && isup) ? l : (nbrays + r);
+	ap_linexprZZZ_resize(tab->p[j]->linexpr,1);
+	ap_linexprZZZ_set_eitv0(tab->p[j]->linexpr,i,coeff);
+	if (iinf && isup){ /* line */
+	  tab->p[j]->gentyp =
+	    i<a->dim.intd ? AP_GEN_LINEMOD : AP_GEN_LINE;
+	  l++;
+	}
+	else { /* ray */
+	  tab->p[j]->gentyp =
+	    i<a->dim.intd ? AP_GEN_RAYMOD : AP_GEN_RAY;
+	  r++;
+	}
       }
       else { /* vertex */
-        if (!eitv->eq){
-          /* Duplication, and in same time set inf and sup */
-          for (j=0; j<v; j++){
-            ap_lingenZZZ_set(tab->p[nblines+nbrays + v + j],
-                             tab->p[nblines+nbrays + j]);
-            eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->neginf));
-            eitvZZZ_neg(coeff,coeff);
-            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + j]->linexpr,
+	if (!eitv->eq){
+	  /* Duplication, and in same time set inf and sup */
+	  for (j=0; j<v; j++){
+	    ap_lingenZZZ_set(tab->p[nblines+nbrays + v + j],
+			     tab->p[nblines+nbrays + j]);
+	    eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->neginf));
+	    eitvZZZ_neg(coeff,coeff);
+	    ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + j]->linexpr,
 				    i,coeff);
-            eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->sup));
-            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+	    eitvZZZ_set_num(coeff,boundZZZ_numref(eitv->itv->sup));
+	    ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
 				    i,coeff);
-          }
-          v *= 2;
-        }
-        else {
-          for (j=0; j<v; j++){
-            ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
-                                    i,eitv);
-          }
-        }
+	  }
+	  v *= 2;
+	}
+	else {
+	  for (j=0; j<v; j++){
+	    ap_linexprZZZ_set_eitv0(tab->p[nblines+nbrays + v + j]->linexpr,
+				    i,eitv);
+	  }
+	}
       }
     }
     eitvZZZ_clear(eitv);
@@ -539,7 +542,7 @@ void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t res, boxXXX_t* a)
   man->result.flag_best = true;
   man->result.flag_exact = true;
   a->e->effsize--;
-  man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,intern->num);
+  man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,man->num);
   a->e->effsize++;
 }
 

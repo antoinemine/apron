@@ -33,19 +33,19 @@ typedef enum num_discr_t {
   NUM_D, NUM_Dl, NUM_MPFR
 } num_discr_t;
 
+#define NUMINT_Rl NUM_Il
+#define NUMINT_Rll NUM_Ill
+#define NUMINT_MPQ NUM_MPZ
+
 typedef enum itv_tag_t {
   ITV_NUM,      /* waiting for 1 numXXX_t of same type */
   ITV_NUM2,     /* waiting for 2 numXXX_t of same type */
   ITV_ITV,	/* waiting for 1 itvXXX_t of same type */
-  ITV_ITVD,	/* waiting for 1 itvD_t */
-  ITV_ITVMPQ,	/* waiting for 1 itvMPQ_t */
-  ITV_ITVMPFR,	/* waiting for 1 itvMPFR_t */
-  ITV_NUMD,	/* waiting for 1 numD_t */
-  ITV_NUMMPQ,	/* waiting for 1 numMPQ_t */
-  ITV_NUMMPFR,	/* waiting for 1 numMPFR_t */
-  ITV_NUMD2,	/* waiting for 2 numD_t */
-  ITV_NUMMPQ2,	/* waiting for 2 numMPQ_t */
-  ITV_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  ITV_NUMXXX,   /* waiting for 1 numXXX_t */
+  ITV_NUMXXX2,  /* waiting for 2 numXXX_t */
+  ITV_ITVXXX,	/* waiting for 1 itvXXX_t */
+  ENDMACRO;
   ITV_LINT,	/* waiting for 1 long int */
   ITV_LINT2,	/* waiting for 2 long int */
   ITV_LLINT,	/* waiting for 1 long long int */
@@ -65,19 +65,23 @@ typedef enum itv_tag_t {
   ITV_MPFR,	/* waiting for 1 mpfr_t */
   ITV_MPFR2,	/* waiting for 2 mpfr_t double */
 } itv_tag_t;
+
+#define ITV_NUMINTRl ITV_NUMIl
+#define ITV_NUMINTRll ITV_NUMIll
+#define ITV_NUMINTMPQ ITV_NUMMPZ
+#define ITV_NUMINTRl2 ITV_NUMIl2
+#define ITV_NUMINTRll2 ITV_NUMIll2
+#define ITV_NUMINTMPQ2 ITV_NUMMPZ2
+
 typedef enum eitv_tag_t {
   EITV_NUM,             /* waiting for 1 numXXX_t of same type */
   EITV_NUM2,            /* waiting for 2 numXXX_t of same type */
   EITV_EITV,		/* waiting for 1 eitvXXX_t of same type */
-  EITV_EITVD,		/* waiting for 1 eitvD_t */
-  EITV_EITVMPQ,		/* waiting for 1 eitvMPQ_t */
-  EITV_EITVMPFR,	/* waiting for 1 eitvMPFR_t */
-  EITV_NUMD,		/* waiting for 1 numD_t */
-  EITV_NUMMPQ,		/* waiting for 1 numMPQ_t */
-  EITV_NUMMPFR,		/* waiting for 1 numMPFR_t */
-  EITV_NUMD2,		/* waiting for 2 numD_t */
-  EITV_NUMMPQ2,		/* waiting for 2 numMPQ_t */
-  EITV_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  EITV_NUMXXX,          /* waiting for 1 numXXX_t */
+  EITV_NUMXXX2,         /* waiting for 2 numXXX_t */
+  EITV_EITVXXX,	        /* waiting for 1 eitvXXX_t */
+  ENDMACRO;
   EITV_LINT,		/* waiting for 1 long int */
   EITV_LINT2,		/* waiting for 2 long int */
   EITV_LLINT,		/* waiting for 1 long long int */
@@ -98,7 +102,12 @@ typedef enum eitv_tag_t {
   EITV_MPFR2,		/* waiting for 2 mpfr_t double */
 } eitv_tag_t;
 
-
+#define EITV_NUMINTRl EITV_NUMIl
+#define EITV_NUMINTRll EITV_NUMIll
+#define EITV_NUMINTMPQ EITV_NUMMPZ
+#define EITV_NUMINTRl2 EITV_NUMIl2
+#define EITV_NUMINTRll2 EITV_NUMIll2
+#define EITV_NUMINTMPQ2 EITV_NUMMPZ2
 
 /* prints attempts to convert NaN and infinities to non floating-point types */
 #define DEBUG_SPECIAL fprintf(stderr,"invalid floating-point in %s\n",__func__)

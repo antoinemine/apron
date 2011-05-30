@@ -24,10 +24,13 @@ void boxXXX_init(boxXXX_t* a)
   size_t nbdims = ap_dimension_size(a->dim);
   assert(a->e->linterm==NULL);
   ap_linexprXXX_init(a->e,nbdims+1);
+  a->e->effsize = nbdims;
   /* Add an unused dimension to differentiate
      empty and top values in dimension 0+0 */
-  for (i=0;i<=nbdims;i++)
-    a->e->linterm[i]->dim = i;
+  for (i=0;i<nbdims;i++){
+    ap_lintermXXX_ptr linterm = a->e->linterm[i];
+    linterm->dim = i;
+  }
 }
 
 void boxXXX_set_bottom(boxXXX_t* a)
@@ -56,9 +59,11 @@ void boxXXX_set(boxXXX_t* a, boxXXX_t* b)
   size_t i;
   size_t nbdims;
 
-  if (b->e->linterm==NULL)
+  a->dim = b->dim;
+  if (b->e->linterm==NULL){
+    ap_linexprXXX_clear(a->e);
     return;
-
+  }
   nbdims = b->dim.intd + b->dim.reald;
   if (a->e->linterm==NULL){
     boxXXX_init(a);

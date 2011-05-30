@@ -109,9 +109,9 @@ void ap_option_init(ap_option_t* opt)
 /* II. Constructor and destructor for result */
 /* ********************************************************************** */
 
-ap_exclog_t* ap_exc_cons(ap_exc_t exn, 
+ap_exclog_t* ap_exc_cons(ap_exc_t exn,
 			 ap_funid_t funid,
-			 const char* msg, 
+			 const char* msg,
 			 ap_exclog_t* tail)
 {
   ap_exclog_t* head = (ap_exclog_t*)malloc(sizeof(ap_exclog_t));
@@ -157,8 +157,8 @@ void ap_result_clear(ap_result_t* result)
 /* ********************************************************************** */
 
 /* Constructor and destructor for manager */
-ap_manager_t* ap_manager_alloc(char* library, char* version, 
-			       void* internal, 
+ap_manager_t* ap_manager_alloc(char* library, char* version,
+			       void* internal,
 			       void (*internal_free)(void*))
 {
   ap_manager_t* man;
@@ -203,7 +203,7 @@ const char* ap_manager_get_version(ap_manager_t* man)
 { return man->version; }
 ap_funopt_t ap_manager_get_funopt(ap_manager_t* man, ap_funid_t funid)
 {
-  if (funid<AP_FUNID_SIZE) 
+  if (funid<AP_FUNID_SIZE)
     return man->option.funopt[funid];
   else {
     fprintf(stderr,"ap_manager.c: ap_manager_get_funopt: funid should be less than AP_FUNID_SIZE\n");
@@ -227,15 +227,15 @@ void ap_manager_clear_exclog(ap_manager_t* man)
 {
   ap_exclog_free(man->result.exclog);
   man->result.exclog = NULL;
-}  
+}
 
 /* ********************************************************************** */
 /* V. Other Implementor functions */
 /* ********************************************************************** */
 
-void ap_manager_raise_exception(ap_manager_t* man, 
-				ap_exc_t exn, 
-				ap_funid_t funid, 
+void ap_manager_raise_exception(ap_manager_t* man,
+				ap_exc_t exn,
+				ap_funid_t funid,
 				const char* msg)
 {
   bool pabort;
@@ -286,16 +286,16 @@ static bool test_fpu(void)
 }
 
 #if defined(__ppc__)
-bool ap_fpu_init(void) 
-{ 
+bool ap_fpu_init(void)
+{
   __asm volatile ("mtfsfi 7,2");
   return test_fpu();
 }
 
 #elif defined(__linux) || defined (__APPLE__)
 #include <fenv.h>
-bool ap_fpu_init(void) 
-{ 
+bool ap_fpu_init(void)
+{
   if (!fesetround(FE_UPWARD)) return test_fpu();
   fprintf(stderr,"could not set fpu rounding mode: fesetround failed\n");
   return false;
@@ -304,8 +304,8 @@ bool ap_fpu_init(void)
 #elif defined(__FreeBSD__) || defined(sun)
 #include <ieeefp.h>
 bool ap_fpu_init(void)
-{ 
-  fpsetround(FP_RP); 
+{
+  fpsetround(FP_RP);
   return test_fpu();
 }
 

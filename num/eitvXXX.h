@@ -152,8 +152,6 @@ void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern);
 /* Conversions */
 /* ====================================================================== */
 
-bool eitvXXX_set_generic(num_internal_t intern,
-			 eitvXXX_t a, eitv_tag_t tag, va_list* va);
 bool eitvXXX_set_val(num_internal_t intern,
 		     eitvXXX_t a, eitv_tag_t tag, ...);
   /* This function assigns the interval from a value defined by a number of
@@ -198,12 +196,15 @@ bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern);
 bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern);
 ENDMACRO
 
+/* internal */
+bool eitvXXX_set_generic(num_internal_t intern,
+			 eitvXXX_t a, eitv_tag_t tag, va_list* va);
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
 static inline int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a);
 static inline void eitvXXX_fprint(FILE* stream, eitvXXX_t a);
-static inline void eitvXXX_print(eitvXXX_t a);
+void eitvXXX_print(eitvXXX_t a);
 
 /* ====================================================================== */
 /* Serialization */
@@ -516,8 +517,6 @@ static inline void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
   else
     itvXXX_fprint(stream,a->itv);
  }
-static inline void eitvXXX_print(eitvXXX_t a)
-{ eitvXXX_fprint(stdout, a); }
 static inline int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a)
 {
   return a->eq ?

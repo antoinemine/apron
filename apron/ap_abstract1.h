@@ -417,6 +417,8 @@ ap_abstract1_t* ap_abstract1_unify(ap_manager_t* man,
 
 /*      This implies calls to ap_abstract0_bound_dimension. *\/ */
 
+void ap_abstract1_print(ap_manager_t* man, ap_abstract1_t* a);
+
 #ifdef __cplusplus
 }
 #endif

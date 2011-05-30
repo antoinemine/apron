@@ -44,12 +44,12 @@ static inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b);
 cinline void ap_linyyyXXX_init(ap_linyyyXXX_t a,size_t size);
 cinline void ap_linyyyXXX_init_set(ap_linyyyXXX_t res, ap_linyyyXXX_t a);
 cinline void ap_linyyyXXX_set(ap_linyyyXXX_t res, ap_linyyyXXX_t a);
-static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t a, size_t size);
-cinline void ap_linyyyXXX_resize_strict(ap_linyyyXXX_t a, size_t size);
 cinline void ap_linyyyXXX_minimize(ap_linyyyXXX_t e);
 cinline void ap_linyyyXXX_clear(ap_linyyyXXX_t a);
 static inline void ap_linyyyXXX_swap(ap_linyyyXXX_t a, ap_linyyyXXX_t b);
 
+static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t a, size_t size);
+static inline void ap_linyyyXXX_set_zero(ap_linyyyXXX_t a);
 #if defined(_AP_cons_MARK_)
 void ap_linconsXXX_set_bool(ap_linconsXXX_t lincons, bool value);
 #endif
@@ -60,6 +60,10 @@ void ap_linyyyXXX_free(ap_linyyyXXX_ptr gen);
 
 void ap_linyyyXXX_fprint(FILE* stream, ap_linyyyXXX_t a, char** name);
 void ap_linyyyXXX_print(ap_linyyyXXX_t a, char** name);
+
+/* These two resizing functions are internal, look at what they do before
+   using them */
+cinline void ap_linyyyXXX_resize_strict(ap_linyyyXXX_t a, size_t size);
 
 /* ====================================================================== */
 /* I.2 Tests and Simplifications */
@@ -136,7 +140,7 @@ bool ap_linyyyXXX_set_list0(num_internal_t intern, ap_linyyyXXX_t a, bool* perro
 			  expr,
 			  AP_COEFF_LFRAC,7,9,0,
 			  AP_COEFF_DOUBLE2,-3.0,4.5,1,
-			  AP_COEFF_LLINT,3LL,AP_DIM_MAX,
+			  AP_CST_LLINT,3LL,
 			  AP_END)
      sets expr to "7/9 x0 + [-3,4.5] x1 + 3"
      assuming that the expression was "0" before the call and that all the
@@ -355,8 +359,13 @@ static inline void ap_linexprXXX_resize(ap_linexprXXX_t expr, size_t size)
 {
   if (size>expr->maxsize) ap_linexprXXX_resize_strict(expr,size);
 }
+static inline void ap_linexprXXX_set_zero(ap_linexprXXX_t expr)
+{
+  ap_linexprXXX_resize(expr,0);
+  eitvXXX_set_int(expr->cst, 0);
+}
 #else
-  static inline void ap_linyyyXXX_init(ap_linyyyXXX_t a, size_t size)
+static inline void ap_linyyyXXX_init(ap_linyyyXXX_t a, size_t size)
 {
   ap_linexprXXX_init(a->linexpr,size);
   a->yyytyp = 0;
@@ -386,6 +395,8 @@ static inline void ap_linyyyXXX_init_set(ap_linyyyXXX_t a, ap_linyyyXXX_t b)
 }
 static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t e, size_t size)
 { ap_linexprXXX_resize(e->linexpr,size); }
+static inline void ap_linyyyXXX_set_zero(ap_linyyyXXX_t e)
+{ ap_linexprXXX_set_zero(e->linexpr); }
 static inline void ap_linyyyXXX_resize_strict(ap_linyyyXXX_t e, size_t size)
 { ap_linexprXXX_resize_strict(e->linexpr,size); }
 static inline void ap_linyyyXXX_minimize(ap_linyyyXXX_t e)

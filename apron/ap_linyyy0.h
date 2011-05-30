@@ -72,6 +72,7 @@ void ap_lincons0_set_bool(ap_lincons0_t res, bool b);
 void ap_linyyy0_resize(ap_linyyy0_t e, size_t size);
 void ap_linyyy0_clear(ap_linyyy0_t e);
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim);
+void ap_linyyy0_print(ap_linyyy0_t e, char** name_of_dim);
 void ap_linyyy0_minimize(ap_linyyy0_t a);
 
 /* ====================================================================== */
@@ -236,6 +237,7 @@ void ap_linyyy0_array_resize(ap_linyyy0_array_t a, size_t size);
 void ap_linyyy0_array_minimize(ap_linyyy0_array_t a);
 void ap_linyyy0_array_clear(ap_linyyy0_array_t e);
 void ap_linyyy0_array_fprint(FILE* stream, ap_linyyy0_array_t e, char** name_of_dim);
+void ap_linyyy0_array_print(ap_linyyy0_array_t e, char** name_of_dim);
 
 /* ====================================================================== */
 /* II.2 Conversions */
@@ -307,7 +309,6 @@ MACRO_FOREACH ZZZ @MainNum
 static inline void ap_linyyy0_array_cons_ZZZ(ap_linyyy0_array_t res, ap_linyyyZZZ_array_t e)
 { res->discr = AP_SCALAR_ZZZ; res->linyyy_array.ZZZ = e; };
 ENDMACRO
-
 
 #undef _AP_linyyy0_MARK_
 

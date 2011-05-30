@@ -112,35 +112,49 @@ Dim.tex Linexpr0.tex Lincons0.tex Generator0.tex  Texpr0.tex Tcons0.tex Texpr1.t
 Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex \
 Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex
 
-ML_LIB = $(ML_MODULES:%=%.cmi) apron.cma apron.callback.cma
+ML_LIB_ALL = apron.cma apron.callback.cma
+C_LIB_ALL = libapron_caml.a libapron_caml.callback.a
 ifneq ($(HAS_OCAMLOPT),)
-ML_LIB += \
-	$(ML_MODULES:%=%.cmx) apron.cmxa apron.a \
-	$(ML_MODULES:%=%.p.cmx) apron.d.cmxa apron.d.a \
-	$(ML_MODULES:%=%.p.cmx) apron.p.cmxa apron.p.a \
-	apron.callback.cmxa apron.callback.a \
+ML_LIB_ALL += \
+	apron.cmx apron.cmxa apron.a \
+	apron.callback.cmxa apron.callback.a
+endif
+ifneq ($(HAS_SHARED),)
+C_LIB_ALL += dllapron_caml.so dllapron_caml.callback.so
+endif
+
+ML_LIB_DEBUG = 
+C_LIB_DEBUG = libapron_caml.d.a libapron_caml.callback.d.a
+ifneq ($(HAS_OCAMLOPT),)
+ML_LIB_DEBUG += \
+	apron.cmx apron.d.cmxa apron.d.a \
 	apron.callback.d.cmxa apron.callback.d.a
 endif
 
-C_LIB = \
-	libapron_caml.a libapron_caml.d.a libapron_caml.p.a \
-	libapron_caml.callback.a libapron_caml.callback.d.a 
-ifneq ($(HAS_SHARED),)
-C_LIB += dllapron_caml.so dllapron_caml.callback.so
+ML_LIB_PROF = 
+C_LIB_PROF = libapron_caml.p.a libapron_caml.callback.p.a
+ifneq ($(HAS_OCAMLOPT),)
+ML_LIB_PROF += \
+	apron.p.cmx apron.p.cmxa apron.p.a \
+	apron.callback.p.cmxa apron.callback.p.a
 endif
 
 FILES_TOINSTALL = \
 	META \
 	apron_caml.h \
 	$(IDL_MODULES:%=%.idl) \
-	$(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) \
-	$(ML_LIB) $(C_LIB)
+	apron.cmi \
+	$(ML_LIB_ALL) $(C_LIB_ALL) \
+	$(ML_LIB_DEBUG) $(C_LIB_DEBUG) \
+	$(ML_LIB_PROF) $(C_LIB_PROF)
 
 #---------------------------------------
 # Rules
 #---------------------------------------
 
-all: $(FILES_TOINSTALL)
+all: src apron.cmi $(ML_LIB_ALL) $(C_LIB_ALL)
+debug: src apron.cmi $(ML_LIB_DEBUG) $(C_LIB_DEBUG)
+prof: src apron.cmi $(ML_LIB_PROF) $(C_LIB_PROF)
 
 essai:
 	echo "$(ICFLAGS)"
@@ -154,28 +168,28 @@ src: $(IDL_MODULES:%=%.idl) $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli) $(C_FILES
 	$(OCAMLFIND) ocamlopt -verbose $(OCAMLOPTFLAGS) -o $@ $*.ml -package apron -linkpkg
 
 # CAML rules
-apron.cma: apron.cmo $(C_LIB)
+apron.cma: apron.cmo $(C_LIB_ALL)
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmo \
 	-dllib -lapron_caml \
 	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron
-apron.callback.cma: apron.cmo $(C_LIB)
+apron.callback.cma: apron.cmo $(C_LIB_ALL)
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmo \
 	-dllib -lapron_caml.callback \
 	$(OCAMLCCOPT) -cclib -lapron_caml.callback -cclib -lapron
 
-apron.cmxa: apron.cmx $(C_LIB)
+apron.cmxa: apron.cmx $(C_LIB_ALL)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml -cclib -lapron 
-apron.d.cmxa: $(MLMODULES:%=%.cmx) $(C_LIB)
+apron.d.cmxa: $(MLMODULES:%=%.d.cmx) $(C_LIB_DEBUG)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.d -cclib -lapron.d
-apron.callback.cmxa: apron.cmx $(C_LIB)
+apron.callback.cmxa: apron.cmx $(C_LIB_ALL)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.callback -cclib -lapron 
-apron.callback.d.cmxa: $(MLMODULES:%=%.cmx) $(C_LIB)
+apron.callback.d.cmxa: $(MLMODULES:%=%.d.cmx) $(C_LIB_DEBUG)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.callback.d -cclib -lapron.d
-apron.p.cmxa: apron.p.cmx $(C_LIB)
+apron.p.cmxa: apron.p.cmx $(C_LIB_PROF)
 	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.p.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
 

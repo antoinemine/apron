@@ -52,6 +52,7 @@ typedef ap_lintermXXX_struct* ap_lintermXXX_ptr;
 typedef ap_lintermXXX_struct ap_lintermXXX_t[1];
 
 /* Interval linear expression */
+/* Invariants: all linterms from 0 to maxsize-1 are initialized */
 typedef struct ap_linexprXXX_struct {
   ap_lintermXXX_t* linterm;
   unsigned int effsize;

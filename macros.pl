@@ -41,7 +41,7 @@ sub parse_macroblock {
 sub parse_macro {
     my $depth = $_[0];
     my $result = "";
-    my $first = 1;
+    my $count = 0;
     $l =~ /^(\h*)MACRO_(\w+)/;
     my $tab = $1;
     my $cmd = $2;
@@ -57,13 +57,17 @@ sub parse_macro {
 	    foreach my $n (@list) {
 		my $rr = $r;
 		$rr =~ s/$var/$n/g;
-#		if ($first){
-#		    $first = 0;
-#		} else {
-#		    $result = $result . "$tab#line $nb \"$file\"\n";
-#		}
-		$result = $result . "$tab#line $nb \"$file\"\n" . $rr
+		if ($count == 0){
+		    $result = $result . "\n";
+		}
+		else {
+		    $result = $result . "$tab#line $nb \"$file\"\n";
+		}
+		$result = $result . $rr;
+#		$result = $result . "$tab#line $nb \"$file\"\n" . $rr
+		$count = $count+1;
 	    }
+	    $result = $result . "\n";
 	}
 	else {
 	    die "macros.pl: in file $file, line $nbline: wrong syntax for MACRO_FOREACH\n";
@@ -87,6 +91,8 @@ sub parse_macro {
 	    }
 	    $result = $result . "$tab" . "default:\n$tab  abort();\n";
 	    $result = $result . "$tab}\n";
+            $nb = $nbline;
+            $result = $result . "$tab#line $nb \"$file\"\n";
 	}
 	else {
 	    die "macros.pl: in file $file, line $nbline: wrong syntax for MACRO_SWITCH\n";
@@ -95,7 +101,5 @@ sub parse_macro {
     else {
 	die "macros.pl: in file $file, line $nbline: MACRO not followed by a known macro name\n";
     }
-    my $nb = $nbline+1;
-    $result = $result . "$tab#line $nb \"$file\"\n";
     return $result;
 }

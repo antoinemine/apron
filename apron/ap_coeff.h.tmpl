@@ -42,15 +42,11 @@ typedef ap_coeff_struct ap_coeff_t[1];
 
 typedef enum ap_coeff_tag_t {
   AP_COEFF=EITV_EITV,	/* waiting for 1 ap_coeff_t* and a dimension/var */
-  AP_COEFF_EITVD,	/* waiting for 1 eitvD_t and a dimension/var */
-  AP_COEFF_EITVMPQ,	/* waiting for 1 eitvMPQ_t and a dimension/var */
-  AP_COEFF_EITVMPFR,	/* waiting for 1 eitvMPFR_t and a dimension/var */
-  AP_COEFF_NUMD,	/* waiting for 1 numD_t and a dimension/var */
-  AP_COEFF_NUMMPQ,	/* waiting for 1 numMPQ_t and a dimension/var */
-  AP_COEFF_NUMMPFR,	/* waiting for 1 numMPFR_t and a dimension/var */
-  AP_COEFF_NUMD2,	/* waiting for 2 numD_t and a dimension/var */
-  AP_COEFF_NUMMPQ2,	/* waiting for 2 numMPQ_t and a dimension/var */
-  AP_COEFF_NUMMPFR2,	/* waiting for 2 numMPFR_t and a dimension/var */
+  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  AP_COEFF_NUMXXX,      /* waiting for 1 numXXX_t */
+  AP_COEFF_NUMXXX2,     /* waiting for 2 numXXX_t */
+  AP_COEFF_EITVXXX,	/* waiting for 1 eitvXXX_t */
+  ENDMACRO;
   AP_COEFF_LINT,	/* waiting for 1 long int and a dimension/var */
   AP_COEFF_LINT2,	/* waiting for 2 long int and a dimension/var */
   AP_COEFF_LLINT,	/* waiting for 1 long long int and a dimension/var */
@@ -71,15 +67,11 @@ typedef enum ap_coeff_tag_t {
   AP_COEFF_MPFR2,	/* waiting for 2 mpfr_t double and a dimension/var */
 
   AP_CST,		/* waiting for 1 ap_coeff_t* */
-  AP_CST_EITVD,		/* waiting for 1 eitvD_t */
-  AP_CST_EITVMPQ,	/* waiting for 1 eitvMPQ_t */
-  AP_CST_EITVMPFR,	/* waiting for 1 eitvMPFR_t */
-  AP_CST_NUMD,		/* waiting for 1 numD_t */
-  AP_CST_NUMMPQ,	/* waiting for 1 numMPQ_t */
-  AP_CST_NUMMPFR,	/* waiting for 1 numMPFR_t */
-  AP_CST_NUMD2,		/* waiting for 2 numD_t */
-  AP_CST_NUMMPQ2,	/* waiting for 2 numMPQ_t */
-  AP_CST_NUMMPFR2,	/* waiting for 2 numMPFR_t */
+  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  AP_CST_NUMXXX,      /* waiting for 1 numXXX_t */
+  AP_CST_NUMXXX2,     /* waiting for 2 numXXX_t */
+  AP_CST_EITVXXX,	/* waiting for 1 eitvXXX_t */
+  ENDMACRO;
   AP_CST_LINT,		/* waiting for 1 long int */
   AP_CST_LINT2,		/* waiting for 2 long int */
   AP_CST_LLINT,		/* waiting for 1 long long int */
@@ -100,6 +92,19 @@ typedef enum ap_coeff_tag_t {
   AP_CST_MPFR2,		/* waiting for 2 mpfr_t double */
   AP_END
 } ap_coeff_tag_t;
+
+#define AP_COEFF_NUMINTRl AP_COEFF_NUMIl
+#define AP_COEFF_NUMINTRll AP_COEFF_NUMIll
+#define AP_COEFF_NUMINTMPQ AP_COEFF_NUMMPZ
+#define AP_COEFF_NUMINTRl2 AP_COEFF_NUMIl2
+#define AP_COEFF_NUMINTRll2 AP_COEFF_NUMIll2
+#define AP_COEFF_NUMINTMPQ2 AP_COEFF_NUMMPZ2
+#define AP_CST_NUMINTRl AP_CST_NUMIl
+#define AP_CST_NUMINTRll AP_CST_NUMIll
+#define AP_CST_NUMINTMPQ AP_CST_NUMMPZ
+#define AP_CST_NUMINTRl2 AP_CST_NUMIl2
+#define AP_CST_NUMINTRll2 AP_CST_NUMIll2
+#define AP_CST_NUMINTMPQ2 AP_CST_NUMMPZ2
 
 /* ====================================================================== */
 /* Basics */
@@ -127,8 +132,6 @@ static inline void ap_coeff_swap(ap_coeff_t a, ap_coeff_t b)
 /* Conversions */
 /* ====================================================================== */
 
-bool ap_coeff_set_generic(num_internal_t intern,
-			  ap_coeff_t a, ap_coeff_tag_t tag, va_list* va);
 bool ap_coeff_set_val(num_internal_t intern,
 		      ap_coeff_t a, ap_coeff_tag_t tag, ...);
 
@@ -137,6 +140,10 @@ bool ap_coeff_set_eitvZZZ(ap_coeff_t a, eitvZZZ_t b, num_internal_t intern);
 bool eitvZZZ_set_ap_coeff(eitvZZZ_t a, ap_coeff_t b, num_internal_t intern);
 ENDMACRO
   /* Return true if conversion is exact */
+
+/* Internal use */
+bool ap_coeff_set_generic(num_internal_t intern,
+			  ap_coeff_t a, ap_coeff_tag_t tag, va_list* va);
 
 /* ====================================================================== */
 /* Tests */

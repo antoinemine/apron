@@ -64,7 +64,7 @@ quote(MLMLI,"(** {2 Assignement Functions} *)\n")
 void boundXXX_set(boundXXX_ptrm a, boundXXX_ptrg b);
 void boundXXX_set_int(boundXXX_ptrm a, long i);
 void boundXXX_set_num(boundXXX_ptrm a, numXXX_ptrg b);
-void boundXXX_set_infty(boundXXX_ptrm a);
+void boundXXX_set_infty(boundXXX_ptrm a, int sgn);
 
 void boundXXX_get_num(numXXX_ptrm a, boundXXX_ptrg b)
   quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); numXXX_set(a,boundXXX_numref(b));");

@@ -1,5 +1,7 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
-/* ap_abstract0.c: generic interface */
+/* ap_abstract0.c.tmpl: generic interface */
 /* ************************************************************************* */
 
 /* This file is part of the APRON Library, released under LGPL license.  Please
@@ -316,7 +318,7 @@ void ap_abstract0_bound_texpr(ap_manager_t* man,
   if (ap_check0_man1(AP_FUNID_BOUND_TEXPR,man,a) &&
       ap_check0_texpr(AP_FUNID_BOUND_TEXPR,man,_ap_abstract0_dimension(a),expr)){
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_TEXPR];
-    return ptr(man,a->value,expr);
+    return ptr(man,interval,a->value,expr);
   }
   else {
     ap_coeff_set_top(interval);
@@ -329,7 +331,7 @@ void ap_abstract0_bound_dimension(ap_manager_t* man,
   if (ap_check0_man1(AP_FUNID_BOUND_DIMENSION,man,a) &&
       ap_check0_dim(AP_FUNID_BOUND_DIMENSION,man,_ap_abstract0_dimension(a),dim)){
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_DIMENSION];
-    return ptr(man,a->value,dim);
+    return ptr(man,interval,a->value,dim);
   }
   else {
     ap_coeff_set_top(interval);
@@ -894,20 +896,20 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
 					    ap_abstract0_t* dest)
 {
   ap_abstract0_t* res;
-  ap_linexpr0_array_t array;
-  ap_linexprD_array_t arrayD;
-  ap_linexprMPQ_array_t arrayMPQ;
-  ap_linexprMPFR_array_t arrayMPFR;
+  ap_linexpr0_array_struct array;
+  ap_linexprD_array_struct arrayD;
+  ap_linexprMPQ_array_struct arrayMPQ;
+  ap_linexprMPFR_array_struct arrayMPFR;
 
-  array->discr = expr->discr;
-  MACRO_SWITCH(array->discr) ZZZ {
-    array->linexpr_array.ZZZ = arrayZZZ;
-    arrayZZZ->size = 1;
-    arrayZZZ->p = (ap_linexprZZZ_t*)&(expr->linexpr.ZZZ);
+  array.discr = expr->discr;
+  MACRO_SWITCH(array.discr) ZZZ {
+    array.linexpr_array.ZZZ = &arrayZZZ;
+    arrayZZZ.p = (ap_linexprZZZ_t*)expr->linexpr.ZZZ;
+    arrayZZZ.size = 1;
   }
   ENDMACRO;
   return ap_abstract0_asssub_linexpr_array(funid,
-					   man,destructive,a,&dim,array,dest);
+					   man,destructive,a,&dim,&array,dest);
 }
 ap_abstract0_t* ap_abstract0_assign_linexpr(ap_manager_t* man,
 					    bool destructive,
@@ -1028,3 +1030,7 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
     return ap_abstract0_top(man,dimension);
   }
 }
+
+void ap_abstract0_print(ap_manager_t* man,
+			ap_abstract0_t* a, char** name_of_dim)
+{ ap_abstract0_fprint(stdout,man,a,name_of_dim); }

@@ -532,6 +532,21 @@ bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t lres, bool* perror, struct ap_texp
   }
   return exact;
 }
+bool ap_linexprXXX_array_set_texpr0_array(
+    ap_linexprXXX_array_t linexpr, bool* perror,
+    struct ap_texpr0_array_t* expr, num_internal_t intern)
+{
+  unsigned int i;
+  bool error,exact;
+
+  ap_linexprXXX_array_resize(linexpr,expr->size);
+  exact = true;
+  for (i=0;i<linexpr->size; i++){
+    exact = ap_linexprXXX_set_texpr0(linexpr->p[i],&error,expr->p[i],intern) && exact;
+    if (error) break;
+  }
+  return exact;
+}
 
 /* ====================================================================== */
 /* III.2 Evaluation of tree expressions */
@@ -729,7 +744,7 @@ ap_linexprXXX_round_float(ap_linexprXXX_t l /* in/out */,
     if (envdim){
       eitvXXX_magnitude(intern->XXX.linear_bound3,envdim);
     } else {
-      boundXXX_set_infty(intern->XXX.linear_bound3);
+      boundXXX_set_infty(intern->XXX.linear_bound3,+1);
     }
     boundXXX_mul(intern->XXX.linear_bound2,intern->XXX.linear_bound2,intern->XXX.linear_bound3);
     boundXXX_add(intern->XXX.linear_bound,intern->XXX.linear_bound,intern->XXX.linear_bound2);

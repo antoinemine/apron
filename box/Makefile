@@ -26,7 +26,8 @@ ICFLAGS = \
 # Files
 #---------------------------------------
 
-TMPL = Ill MPZ Rll MPQ D MPFR
+# BOX_NUMTYPES set in ../Makefile.config
+TMPL = $(BOX_NUMTYPES)
 
 H_TMPL_FILES = \
 boxXXX.h boxXXX_internal.h
@@ -53,12 +54,14 @@ CCINC_TO_INSTALL = box.h $(TMPL:%=box%.h)
 # Rules
 #---------------------------------------
 
-all: src libbox.a libbox_debug.a libbox_prof.a
+all: src libbox.a
+debug: src libbox.d.a
+prof: src libbox.p.a
 
 src: $(H_GENERATED_FILES) $(C_GENERATED_FILES) 
 
 clean:
-	/bin/rm -f *.[ao]
+	/bin/rm -f *.[ao] *.so
 
 mostlyclean distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
@@ -78,12 +81,12 @@ libbox.a: $(C_FILES:%.c=%.o)
 	$(AR) rcs $@ $(C_FILES:%.c=%.o) 
 	$(RANLIB) $@
 
-libbox_debug.a: $(C_FILES:%.c=%_debug.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_debug.o)
+libbox.d.a: $(C_FILES:%.c=%.d.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.d.o)
 	$(RANLIB) $@
 
-libbox_prof.a: $(C_FILES:%.c=%_prof.o)
-	$(AR) rcs $@ $(C_FILES:%.c=%_prof.o)
+libbox.p.a: $(C_FILES:%.c=%.p.o)
+	$(AR) rcs $@ $(C_FILES:%.c=%.p.o)
 	$(RANLIB) $@
 
 #--------------------------------------------------------------
@@ -111,9 +114,9 @@ $(foreach T,$(TMPL),$(foreach F,$(H_TMPL_FILES) $(C_TMPL_FILES), $(eval $(call g
 
 $(C_FILES:%.c=%.o): %.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_debug.o): %_debug.o: %.c
+$(C_FILES:%.c=%.d.o): %.d.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
-$(C_FILES:%.c=%_prof.o): %_prof.o: %.c
+$(C_FILES:%.c=%.p.o): %.p.o: %.c
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 
 
