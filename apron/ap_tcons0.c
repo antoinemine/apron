@@ -27,6 +27,8 @@ void ap_tcons0_fprint(FILE* stream, ap_tcons0_t* cons, char** name_of_dim)
     mpq_out_str(stream,10,cons->mpq);
   }
 }
+void ap_tcons0_print(ap_tcons0_t* a, char** name_of_dim)
+{ ap_tcons0_fprint(stdout,a,name_of_dim); }
 
 ap_tcons0_t* ap_tcons0_make_unsat()
 {

@@ -19,7 +19,7 @@ all: num
 # C examples
 
 num: num.c ../num/libnum.d.a
-	$(CC) $(CFLAGS.D) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum.d -lmpfr -lgmp -lm
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum.d -lmpfr -lgmp -lm
 domain: domain.c ../num/libnum.d.a ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp -lm
 

@@ -70,6 +70,7 @@ void ap_tcons0_free(ap_tcons0_t* cons);
 
 void ap_tcons0_fprint(FILE* stream,
 		      ap_tcons0_t* cons, char** name_of_dim);
+void ap_tcons0_print(ap_tcons0_t* a, char** name_of_dim);
   /* Printing a linear constraint */
 
 /* ====================================================================== */

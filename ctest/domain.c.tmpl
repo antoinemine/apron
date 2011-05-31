@@ -104,9 +104,11 @@ void ap_coeff_set_random_lfrac(ap_coeff_t i)
 void ap_coeff_set_random_lfrac2(ap_coeff_t i)
 {
   long n1 = rand()%20-10;
-  long n2 = n1 + rand()%10;
   long d1  = rand()%4+1;
-  long d2  = rand()%d1+1;
+  long n2 = rand()%20;
+  long d2  = rand()%4+1;
+  n2 = n1*d2+n2*d1;
+  d2 = d1*d2;
   ap_coeff_set_val(intern,i,AP_COEFF_LFRAC2,n1,d1,n2,d2);
 }
 
@@ -715,8 +717,10 @@ void test_bound_dimension(void)
   } ENDLOOP;
 }
 
+size_t test_bound_linexpr_count = 0;
 void test_bound_linexpr(void)
 {
+  test_bound_linexpr_count++;
   printf("\nbound_linexpr\n");
   LOOP {
     int cmp;
@@ -759,6 +763,11 @@ void test_bound_texpr(void)
 
     ap_coeff_init(roughi,global_discr); ap_coeff_init(preci,global_discr);
     ap_texpr0_t* e = random_texpr0(dim,depth);
+    if (1){
+      printf("\n");
+      ap_texpr0_print(e,NULL);
+      printf("\n");
+    }
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     ap_abstract0_bound_texpr(manrough,roughi,rougha,e);
     ap_abstract0_bound_texpr(manprec,preci,preca,e);
@@ -846,6 +855,11 @@ void test_sat_tcons(void)
     size_t dim = 6, depth=3;
     ap_abstract0_t* rougha,*preca;
     ap_tcons0_t* l = random_tcons0(dim,depth,100);
+    if (1){
+      printf("\n");
+      ap_tcons0_print(l,NULL);
+      printf("\n");
+    }
     bool roughs,precs;
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     roughs = ap_abstract0_sat_tcons(manrough,rougha,l);
@@ -971,6 +985,11 @@ void test_meet_tcons_array(void)
     size_t i, dim = 6, depth = 4, nb = 3;
     ap_abstract0_t* rougha,*roughr, *preca,*precr;
     ap_tcons0_array_t array = random_tcons0_array(dim,depth,nb);
+    if (1){
+      printf("\n");
+      ap_tcons0_array_print(&array,NULL);
+      printf("\n");
+    }
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     roughr = ap_abstract0_meet_tcons_array(manrough,false,rougha,&array);
     precr = ap_abstract0_meet_tcons_array(manprec,false,preca,&array);
