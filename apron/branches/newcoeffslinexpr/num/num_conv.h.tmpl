@@ -1,0 +1,117 @@
+/* -*- mode: c -*- */
+/* ********************************************************************** */
+/* num_conv.h.tmpl */
+/* ********************************************************************** */
+
+#include "num_types.h"
+
+MACRO_FOREACH XXX @AllNum
+MACRO_FOREACH YYY @AllNum
+
+bool numYYY_fits_numXXX(numYYY_t a, num_internal_t intern);
+bool numXXX_set_numYYY(numXXX_t a, numYYY_t b, num_internal_t intern);
+
+bool boundXXX_set_boundYYY(boundXXX_t a, boundYYY_t b, num_internal_t intern);
+bool itvXXX_set_itvYYY(itvXXX_t a, itvYYY_t b, num_internal_t intern);
+bool eitvXXX_set_eitvYYY(eitvXXX_t a, eitvYYY_t b, num_internal_t intern);
+
+bool boundXXX_set_numYYY(boundXXX_t a, numYYY_t b, num_internal_t intern);
+bool itvXXX_set_numYYY(itvXXX_t a, numYYY_t b, num_internal_t intern);
+bool eitvXXX_set_numYYY(eitvXXX_t a, numYYY_t b, num_internal_t intern);
+
+bool itvXXX_set_boundYYY(itvXXX_t a, boundYYY_t b, num_internal_t intern);
+bool eitvXXX_set_boundYYY(eitvXXX_t a, boundYYY_t b, num_internal_t intern);
+
+bool itvXXX_set_numYYY2(itvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t intern);
+bool eitvXXX_set_numYYY2(eitvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t intern);
+bool itvXXX_set_boundYYY2(itvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t intern);
+bool eitvXXX_set_boundYYY2(eitvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t intern);
+ENDMACRO
+
+static inline bool lint_fits_numXXX(long int a, num_internal_t intern);
+static inline bool mpz_fits_numXXX(mpz_t a, num_internal_t intern);
+static inline bool lfrac_fits_numXXX(long int i, long int j, num_internal_t intern);
+static inline bool mpq_fits_numXXX(mpq_t a, num_internal_t intern);
+static inline bool double_fits_numXXX(double k, num_internal_t intern);
+static inline bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern);
+
+MACRO_FOREACH ttt ("num","bound","itv","eitv")
+static inline bool tttXXX_set_lint(tttXXX_t a, long int i, num_internal_t intern);
+static inline bool tttXXX_set_mpz(tttXXX_t a, mpz_t b, num_internal_t intern);
+static inline bool tttXXX_set_lfrac(tttXXX_t a, long int i, long int j, num_internal_t intern);
+static inline bool tttXXX_set_mpq(tttXXX_t a, mpq_t b, num_internal_t intern);
+static inline bool tttXXX_set_double(tttXXX_t a, double k, num_internal_t intern);
+static inline bool tttXXX_set_mpfr(tttXXX_t a, mpfr_t b, num_internal_t intern);
+ENDMACRO
+
+MACRO_FOREACH ttt ("itv","eitv")
+static inline bool tttXXX_set_lint2(tttXXX_t a, long int i, long int j, num_internal_t intern);
+static inline bool tttXXX_set_mpz2(tttXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
+static inline bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern);
+static inline bool tttXXX_set_mpq2(tttXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
+static inline bool tttXXX_set_double2(tttXXX_t a, double k1, double k2, num_internal_t intern);
+static inline bool tttXXX_set_mpfr2(tttXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
+ENDMACRO
+ENDMACRO
+
+/* ********************************************************************** */
+/* ********************************************************************** */
+/* Inline definitions */
+/* ********************************************************************** */
+/* ********************************************************************** */
+
+MACRO_FOREACH XXX @AllNum
+static inline bool lint_fits_numXXX(long int a, num_internal_t intern)
+{ return numIl_fits_numXXX(&a,intern); }
+static inline bool mpz_fits_numXXX(mpz_t a, num_internal_t intern)
+{ return numMPZ_fits_numXXX(a,intern); }
+static inline bool lfrac_fits_numXXX(long int i, long int j, num_internal_t intern)
+{
+  numRl_t a; *a->n=i; *a->d=j;
+  return numRl_fits_numXXX(a,intern);
+}
+static inline bool mpq_fits_numXXX(mpq_t a, num_internal_t intern)
+{ return numMPQ_fits_numXXX(a,intern); }
+static inline bool double_fits_numXXX(double k, num_internal_t intern)
+{ return numD_fits_numXXX(&k,intern); }
+static inline bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern)
+{ return numMPFR_fits_numXXX(a,intern); }
+
+MACRO_FOREACH ttt ("num","bound","itv","eitv")
+static inline bool tttXXX_set_lint(tttXXX_t a, long int i, num_internal_t intern)
+{ return tttXXX_set_numIl(a,&i,intern); }
+static inline bool tttXXX_set_mpz(tttXXX_t a, mpz_t b, num_internal_t intern)
+{ return tttXXX_set_numMPZ(a,b,intern); }
+static inline bool tttXXX_set_lfrac(tttXXX_t a, long int i, long int j, num_internal_t intern)
+{
+  numRl_t b; *b->n=i; *b->d=j;
+  return tttXXX_set_numRl(a,b,intern);
+}
+static inline bool tttXXX_set_mpq(tttXXX_t a, mpq_t b, num_internal_t intern)
+{ return tttXXX_set_numMPQ(a,b,intern); }
+static inline bool tttXXX_set_double(tttXXX_t a, double k, num_internal_t intern)
+{ return tttXXX_set_numD(a,&k,intern); }
+static inline bool tttXXX_set_mpfr(tttXXX_t a, mpfr_t b, num_internal_t intern)
+{ return tttXXX_set_numMPFR(a,b,intern); }
+ENDMACRO
+
+MACRO_FOREACH ttt ("itv","eitv")
+static inline bool tttXXX_set_lint2(tttXXX_t a, long int i, long int j, num_internal_t intern)
+{ return tttXXX_set_numIl2(a,&i,&j,intern); }
+static inline bool tttXXX_set_mpz2(tttXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
+{ return tttXXX_set_numMPZ2(a,b,c,intern); }
+static inline bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern)
+{
+  numRl_t b1; *b1->n=n1; *b1->d=d1;
+  numRl_t b2; *b2->n=n2; *b2->d=d2;
+  return tttXXX_set_numRl2(a,b1,b2,intern);
+}
+static inline bool tttXXX_set_mpq2(tttXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
+{ return tttXXX_set_numMPQ2(a,b,c,intern); }
+static inline bool tttXXX_set_double2(tttXXX_t a, double k1, double k2, num_internal_t intern)
+{ return tttXXX_set_numD2(a,&k1,&k2,intern); }
+static inline bool tttXXX_set_mpfr2(tttXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
+{ return tttXXX_set_numMPFR2(a,b,c,intern); }
+ENDMACRO
+
+ENDMACRO
