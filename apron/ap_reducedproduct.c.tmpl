@@ -515,11 +515,11 @@ bool ap_reducedproduct_is_dimension_unconstrained(ap_manager_t* manager, ap_redu
 /* ============================================================ */
 
 static
-void ap_coeff_meet_with(ap_coeff_t a, ap_coeff_t b,num_internal_t num)
+void ap_coeff_meet_with(ap_coeff_t a, ap_coeff_t b)
 {
   assert (a->discr==b->discr);
   MACRO_SWITCH(a->discr) ZZZ
-    eitvZZZ_meet(a->eitv.ZZZ,a->eitv.ZZZ,b->eitv.ZZZ,num);
+    eitvZZZ_meet(a->eitv.ZZZ,a->eitv.ZZZ,b->eitv.ZZZ);
   ENDMACRO;
 }
 
@@ -537,8 +537,8 @@ void ap_reducedproduct_bound_linexpr(ap_manager_t* manager,
     ap_manager_t* man = intern->tmanagers[i];
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
     ptr(man,res1,a->p[i],expr);
-    ap_coeff_meet_with(res,res1,man->num);
-    if (ap_coeff_is_bottom(res,man->num))
+    ap_coeff_meet_with(res,res1);
+    if (ap_coeff_is_bottom(res))
       break;
   }
   ap_coeff_clear(res1);
@@ -558,8 +558,8 @@ void ap_reducedproduct_bound_texpr(ap_manager_t* manager,
     ap_manager_t* man = intern->tmanagers[i];
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_TEXPR];
     ptr(man,res1,a->p[i],expr);
-    ap_coeff_meet_with(res,res1,man->num);
-    if (ap_coeff_is_bottom(res,man->num))
+    ap_coeff_meet_with(res,res1);
+    if (ap_coeff_is_bottom(res))
       break;
   }
   ap_coeff_clear(res1);
@@ -579,8 +579,8 @@ void ap_reducedproduct_bound_dimension(ap_manager_t* manager,
     ap_manager_t* man = intern->tmanagers[i];
     void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_DIMENSION];
     ptr(man,res1,a->p[i],dim);
-    ap_coeff_meet_with(res,res1,man->num);
-    if (ap_coeff_is_bottom(res,man->num))
+    ap_coeff_meet_with(res,res1);
+    if (ap_coeff_is_bottom(res))
       break;
   }
   ap_coeff_clear(res1);
@@ -674,8 +674,8 @@ void ap_reducedproduct_to_box(ap_manager_t* manager, ap_linexpr0_t box, ap_reduc
       for (j=0; j<nbdims;j++){
 	ap_linexpr0_coeffref(coeff,box,j);
 	ap_linexpr0_coeffref(coeff1,box1,j);
-	ap_coeff_meet_with(coeff,coeff1,man->num);
-	if (ap_coeff_is_bottom(coeff,man->num))
+	ap_coeff_meet_with(coeff,coeff1);
+	if (ap_coeff_is_bottom(coeff))
 	  break;
       }
       if (j<nbdims){

@@ -39,7 +39,6 @@ void pkXXX_internal_init(pkXXX_internal_t* pk, size_t maxdims)
   pk->cherni_intp = (int*)malloc(pk->maxcols * sizeof(int));
   numintXXX_init(pk->cherni_prod);
 
-  pk->num = NULL;
   eitvXXX_init(pk->eitvXXX);
   ap_linexprXXX_init(pk->ap_linexprXXX,maxdims);
   ap_linconsXXX_init(pk->ap_linconsXXX,maxdims);
@@ -107,7 +106,6 @@ void pkXXX_internal_clear(pkXXX_internal_t* pk)
 
   numintXXX_clear(pk->cherni_prod);
 
-  pk->num = NULL;
   eitvXXX_clear(pk->eitvXXX);
   ap_linexprXXX_clear(pk->ap_linexprXXX);
   ap_linconsXXX_clear(pk->ap_linconsXXX);

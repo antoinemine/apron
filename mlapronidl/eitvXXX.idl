@@ -81,7 +81,7 @@ quote(MLMLI,"
     - if integer is true, narrows bound to integers
     - return true if the interval is bottom
     - return false otherwise *)")
-boolean eitvXXX_canonicalize(eitvXXX_ptrm a, boolean integer, num_internal_ptr intern);
+boolean eitvXXX_canonicalize(eitvXXX_ptrm a, boolean integer);
 quote(MLMLI,"(** has integer bounds *)")
 boolean eitvXXX_is_int(eitvXXX_ptrg a, num_internal_ptr intern);
 boolean eitvXXX_is_point(eitvXXX_ptrg a);
@@ -89,7 +89,7 @@ boolean eitvXXX_is_zero(eitvXXX_ptrg a);
 boolean eitvXXX_is_pos(eitvXXX_ptrg a);
 boolean eitvXXX_is_neg(eitvXXX_ptrg a);
 boolean eitvXXX_is_top(eitvXXX_ptrg a);
-boolean eitvXXX_is_bottom(eitvXXX_ptrg a, num_internal_ptr intern);
+boolean eitvXXX_is_bottom(eitvXXX_ptrg a);
 boolean eitvXXX_is_leq(eitvXXX_ptrg a, eitvXXX_ptrg b);
 boolean eitvXXX_is_eq(eitvXXX_ptrg a, eitvXXX_ptrg b);
 

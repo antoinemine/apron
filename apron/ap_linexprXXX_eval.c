@@ -666,7 +666,7 @@ bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, ap_linexprX
       eitvXXX_init(x);
       exact = eitvXXX_eval_ap_texpr0(x,expr->val.node->exprA,env,intern);
       exact = eitvXXX_eval_ap_texpr0(res,expr->val.node->exprB,env,intern) && exact;
-      if (eitvXXX_is_bottom(x,intern) || eitvXXX_is_bottom(res,intern)){
+      if (eitvXXX_is_bottom(x) || eitvXXX_is_bottom(res)){
 	eitvXXX_set_bottom(res);
       }
       else {
@@ -677,7 +677,7 @@ bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, ap_linexprX
     else {
       /* unary */
       exact = eitvXXX_eval_ap_texpr0(res,expr->val.node->exprA,env,intern);
-      if (!eitvXXX_is_bottom(res,intern)){
+      if (!eitvXXX_is_bottom(res)){
 	eitvXXX_eval_ap_texpr0_node(res,expr->val.node,res,res,intern) && exact;
       }
     }
@@ -848,8 +848,8 @@ ap_linexprXXX_texpr0_reduce(ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in/ou
   eitvXXX_t tmp;
   eitvXXX_init(tmp);
   ap_linexprXXX_eval(tmp,l,env, intern);
-  eitvXXX_meet(i,i,tmp, intern);
-  if (eitvXXX_is_bottom(i, intern) || eitvXXX_is_bottom(l->cst, intern)) {
+  eitvXXX_meet(i,i,tmp);
+  if (eitvXXX_is_bottom(i) || eitvXXX_is_bottom(l->cst)) {
     eitvXXX_set_bottom(i);
     eitvXXX_set_bottom(l->cst);
     if (l->effsize>0) ap_linexprXXX_resize_strict(l,0);
@@ -948,7 +948,7 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
     /* intlinearize arguments */
     t1 = ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprA,env,intdim, intern);
     t2 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
       eitvXXX_set_bottom(ires);
       ap_linexprXXX_resize(lres,0);
       eitvXXX_set(lres->cst,ires);
@@ -981,7 +981,7 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
     /* intlinearize arguments, l1 is not used */
     ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
     ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
       eitvXXX_set_bottom(ires);
       ap_linexprXXX_resize(lres,0);
       eitvXXX_set(lres->cst,ires);
@@ -1005,7 +1005,7 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
     /* intlinearize arguments */
     t1 = ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprA,env,intdim, intern);
     t2 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
       eitvXXX_set_bottom(ires);
       ap_linexprXXX_resize(lres,0);
       eitvXXX_set(lres->cst,ires);
@@ -1049,7 +1049,7 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
     /* intlinearize arguments, lres & l1 are not used */
     ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
     ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1, intern) || eitvXXX_is_bottom(ires, intern)){
+    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
       eitvXXX_set_bottom(ires);
       ap_linexprXXX_resize(lres,0);
       eitvXXX_set(lres->cst,ires);
@@ -1132,9 +1132,9 @@ void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t res,
   eitvXXX_t i;
   eitvXXX_init(i);
   ap_linexprXXX_intlinearize_texpr0_rec(res,i,expr,env,intdim,intern);
-  if (!eitvXXX_is_bottom(i, intern) && !eitvXXX_is_bottom(res->cst, intern)) {
+  if (!eitvXXX_is_bottom(i) && !eitvXXX_is_bottom(res->cst)) {
     if (res->effsize==0){
-      eitvXXX_meet(res->cst,res->cst,i, intern);
+      eitvXXX_meet(res->cst,res->cst,i);
     }
   }
   else {

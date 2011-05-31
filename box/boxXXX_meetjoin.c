@@ -38,7 +38,7 @@ boxXXX_t* boxXXX_meet(ap_manager_t* man, bool destructive, boxXXX_t* a1, boxXXX_
   }
   nbdims = a1->dim.intd + a1->dim.reald;
   for (i=0; i<nbdims; i++){
-    exc = eitvXXX_meet(res->e->linterm[i]->eitv,a1->e->linterm[i]->eitv,a2->e->linterm[i]->eitv,intern->num);
+    exc = eitvXXX_meet(res->e->linterm[i]->eitv,a1->e->linterm[i]->eitv,a2->e->linterm[i]->eitv);
     if (exc){
       boxXXX_set_bottom(res);
       break;
@@ -362,7 +362,7 @@ bool boxXXX_meet_lincons_internal(boxXXX_internal_t* intern,
     eitvXXX_swap(intern->meet_lincons_internal_itv2,peitv);
     if (change){
       globalchange = true;
-      exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,dim<a->dim.intd,intern->num);
+      exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,dim<a->dim.intd);
       if (exc){
 	boxXXX_set_bottom(a);
 	goto _boxXXX_meet_boxXXX_lincons_exit;
@@ -427,7 +427,7 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
     ap_linconsXXX_array_boxize(res->e,NULL,
 			       tlincons,res->e,a->dim.intd,kmax,false,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv,intern->num)){
+    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv)){
     _boxXXX_meet_lincons_array_bottom:
       boxXXX_set_bottom(res);
     }
@@ -468,7 +468,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
     ap_linconsXXX_array_boxize(res->e,NULL,
 			       tlincons,res->e,a->dim.intd,kmax,false,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv,intern->num)){
+    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv)){
     _boxXXX_meet_tcons_array_bottom:
       boxXXX_set_bottom(res);
     }

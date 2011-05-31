@@ -358,6 +358,7 @@ static inline void ap_lintermXXX_swap(ap_lintermXXX_t a, ap_lintermXXX_t b)
 static inline void ap_linexprXXX_resize(ap_linexprXXX_t expr, size_t size)
 {
   if (size>expr->maxsize) ap_linexprXXX_resize_strict(expr,size);
+  if (size<expr->effsize) expr->effsize = size;
 }
 static inline void ap_linexprXXX_set_zero(ap_linexprXXX_t expr)
 {

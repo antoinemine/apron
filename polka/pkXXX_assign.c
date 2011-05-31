@@ -694,7 +694,7 @@ pkXXX_t* pkXXX_asssub_texpr_array(bool assign,
 				  ap_dim_t* tdim, ap_texpr0_array_t* array,
 				  pkXXX_t* pb)
 {
-  bool error;
+  bool error = false;
   ap_linexpr0_array_t linexpr0_array;
   pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
 
