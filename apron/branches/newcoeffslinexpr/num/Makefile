@@ -18,7 +18,7 @@ CLIBS = -lmpfr -lgmp -lm
 TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES_XXX = boundXXX.h itvXXX.h eitvXXX.h 
-H_TMPL_FILES_tmpl = num_types.h.tmpl
+H_TMPL_FILES_tmpl = num_types.h.tmpl numMPQ.h.tmpl
 H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
 $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_tmpl)
@@ -31,7 +31,7 @@ $(C_TMPL_FILES_XXX) $(C_TMPL_FILES_tmpl)
 
 H_ORIG_FILES = \
 num_internal.h \
-numMPZ.h numMPQ.h numMPFR.h \
+numMPZ.h numMPFR.h \
 num_all.h bound_all.h itv_all.h eitv_all.h
 
 C_ORIG_FILES = numMPZ.c numMPQ.c numMPFR.c 
@@ -89,32 +89,32 @@ uninstall:
 numIl.h numIl.c: numIl.%: numIyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/l/g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 numIll.h numIll.c: numIll.%: numIyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/ll/g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/ll/g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 numRl.h numRl.c: numRl.%: numRyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/l/g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 numRll.h numRll.c: numRll.%: numRyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/ll/g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/ll/g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 numD.h numD.c: numD.%: numDyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy//g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy//g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 numDl.h numDl.c: numDl.%: numDyyy.%
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	$(SED) -e "s/yyy/l/g" $< >>$@
+	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/yyy/l/g; s/#line \([0-9]*\) \"\(.*\)$@\"/#line \1 \"\2$<\"/g" >>$@
 
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@

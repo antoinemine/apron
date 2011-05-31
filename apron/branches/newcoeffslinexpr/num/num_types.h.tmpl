@@ -48,29 +48,21 @@ typedef enum itv_tag_t {
   ENDMACRO;
   ITV_LINT,	/* waiting for 1 long int */
   ITV_LINT2,	/* waiting for 2 long int */
-  ITV_LLINT,	/* waiting for 1 long long int */
-  ITV_LLINT2,	/* waiting for 2 long long int */
   ITV_MPZ,	/* waiting for 1 mpz_t */
   ITV_MPZ2,	/* waiting for 2 mpz_t */
   ITV_LFRAC,	/* waiting for 2 long int */
   ITV_LFRAC2,	/* waiting for 4 long int */
-  ITV_LLFRAC,	/* waiting for 2 long long int */
-  ITV_LLFRAC2,	/* waiting for 4 long long int */
   ITV_MPQ,	/* waiting for 1 mpq_t */
   ITV_MPQ2,	/* waiting for 2 mpq_t */
   ITV_DOUBLE,	/* waiting for 1 double */
   ITV_DOUBLE2,	/* waiting for 2 double */
-  ITV_LDOUBLE,	/* waiting for 1 long double */
-  ITV_LDOUBLE2,	/* waiting for 2 long double */
   ITV_MPFR,	/* waiting for 1 mpfr_t */
   ITV_MPFR2,	/* waiting for 2 mpfr_t double */
 } itv_tag_t;
 
 #define ITV_NUMINTRl ITV_NUMIl
-#define ITV_NUMINTRll ITV_NUMIll
 #define ITV_NUMINTMPQ ITV_NUMMPZ
 #define ITV_NUMINTRl2 ITV_NUMIl2
-#define ITV_NUMINTRll2 ITV_NUMIll2
 #define ITV_NUMINTMPQ2 ITV_NUMMPZ2
 
 typedef enum eitv_tag_t {
@@ -84,29 +76,21 @@ typedef enum eitv_tag_t {
   ENDMACRO;
   EITV_LINT,		/* waiting for 1 long int */
   EITV_LINT2,		/* waiting for 2 long int */
-  EITV_LLINT,		/* waiting for 1 long long int */
-  EITV_LLINT2,		/* waiting for 2 long long int */
   EITV_MPZ,		/* waiting for 1 mpz_t */
   EITV_MPZ2,		/* waiting for 2 mpz_t */
   EITV_LFRAC,		/* waiting for 2 long int */
   EITV_LFRAC2,		/* waiting for 4 long int */
-  EITV_LLFRAC,		/* waiting for 2 long long int */
-  EITV_LLFRAC2,		/* waiting for 4 long long int */
   EITV_MPQ,		/* waiting for 1 mpq_t */
   EITV_MPQ2,		/* waiting for 2 mpq_t */
   EITV_DOUBLE,		/* waiting for 1 double */
   EITV_DOUBLE2,		/* waiting for 2 double */
-  EITV_LDOUBLE,		/* waiting for 1 long double */
-  EITV_LDOUBLE2,	/* waiting for 2 long double */
   EITV_MPFR,		/* waiting for 1 mpfr_t */
   EITV_MPFR2,		/* waiting for 2 mpfr_t double */
 } eitv_tag_t;
 
 #define EITV_NUMINTRl EITV_NUMIl
-#define EITV_NUMINTRll EITV_NUMIll
 #define EITV_NUMINTMPQ EITV_NUMMPZ
 #define EITV_NUMINTRl2 EITV_NUMIl2
-#define EITV_NUMINTRll2 EITV_NUMIll2
 #define EITV_NUMINTMPQ2 EITV_NUMMPZ2
 
 /* prints attempts to convert NaN and infinities to non floating-point types */

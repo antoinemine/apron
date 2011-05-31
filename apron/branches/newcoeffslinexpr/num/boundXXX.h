@@ -419,24 +419,7 @@ static inline void boundXXX_widening(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 /* Conversions */
 /* ====================================================================== */
 
-bool boundXXX_set_lint(boundXXX_t a, long int b, num_internal_t intern);
-bool boundXXX_set_llint(boundXXX_t a, long long int b, num_internal_t intern);
-bool boundXXX_set_mpz(boundXXX_t a, mpz_t b, num_internal_t intern);
-bool boundXXX_set_lfrac(boundXXX_t a, long int i, long int j, num_internal_t intern);
-bool boundXXX_set_llfrac(boundXXX_t a, long long int i, long long int j, num_internal_t intern);
-bool boundXXX_set_mpq(boundXXX_t a, mpq_t b, num_internal_t intern);
-bool boundXXX_set_double(boundXXX_t a, double b, num_internal_t intern);
-bool boundXXX_set_ldouble(boundXXX_t a, long double b, num_internal_t intern);
-bool boundXXX_set_mpfr(boundXXX_t a, mpfr_t b, num_internal_t intern);
-
-MACRO_FOREACH ZZZ @AllNum
-bool boundXXX_set_numZZZ(boundXXX_t a, numZZZ_t b, num_internal_t intern);
-ENDMACRO
-
-MACRO_FOREACH ZZZ @MainNum
-bool boundXXX_set_boundZZZ(boundXXX_t a, boundZZZ_t b, num_internal_t intern);
-bool boundZZZ_set_boundXXX(boundZZZ_t a, boundXXX_t b, num_internal_t intern);
-ENDMACRO
+/* see num_conv.h */
 
 /* ====================================================================== */
 /* Printing */

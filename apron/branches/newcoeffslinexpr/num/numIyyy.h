@@ -18,8 +18,6 @@
 extern "C" {
 #endif
 
-#define _NUMIyyy_MARK_
-
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */
@@ -205,60 +203,7 @@ size_t numIyyy_serialized_size_array(numIyyy_t* src, size_t size);
 /* Conversions */
 /* ====================================================================== */
 
-bool lint_fits_numIyyy(long int a);
-bool llint_fits_numIyyy(long long int a);
-bool mpz_fits_numIyyy(mpz_t a);
-bool lfrac_fits_numIyyy(long int i, long int j);
-bool llfrac_fits_numIyyy(long long int i, long long int j);
-bool mpq_fits_numIyyy(mpq_t a);
-bool double_fits_numIyyy(double k);
-bool ldouble_fits_numIyyy(long double k);
-bool mpfr_fits_numIyyy(mpfr_t a, num_internal_t intern);
-bool numD_fits_numIyyy(numD_t a);
-bool numMPQ_fits_numIyyy(numMPQ_t a);
-bool numMPFR_fits_numIyyy(numMPFR_t a, num_internal_t intern);
-
-bool numIyyy_fits_lint(numIyyy_t a);
-bool numIyyy_fits_llint(numIyyy_t a);
-bool numIyyy_fits_mpz(numIyyy_t a);
-bool numIyyy_fits_lfrac(numIyyy_t a);
-bool numIyyy_fits_llfrac(numIyyy_t a);
-bool numIyyy_fits_mpq(numIyyy_t a);
-bool numIyyy_fits_float(numIyyy_t a);
-bool numIyyy_fits_double(numIyyy_t a);
-bool numIyyy_fits_ldouble(numIyyy_t a);
-bool numIyyy_fits_mpfr(numIyyy_t a);
-bool numIyyy_fits_numD(numIyyy_t a);
-bool numIyyy_fits_numMPQ(numIyyy_t a);
-bool numIyyy_fits_numMPFR(numIyyy_t a);
-
-bool numIyyy_set_lint(numIyyy_t a, long int i, num_internal_t intern);
-bool numIyyy_set_llint(numIyyy_t a, long long int i, num_internal_t intern);
-bool numIyyy_set_mpz(numIyyy_t a, mpz_t b, num_internal_t intern);
-bool numIyyy_set_lfrac(numIyyy_t a, long int i, long int j, num_internal_t intern);
-bool numIyyy_set_llfrac(numIyyy_t a, long long int i, long long int j, num_internal_t intern);
-bool numIyyy_set_mpq(numIyyy_t a, mpq_t b, num_internal_t intern);
-bool numIyyy_set_double(numIyyy_t a, double k, num_internal_t intern);
-bool numIyyy_set_ldouble(numIyyy_t a, long double k, num_internal_t intern);
-bool numIyyy_set_mpfr(numIyyy_t a, mpfr_t b, num_internal_t intern);
-bool numIyyy_set_numD(numIyyy_t a, numD_t b, num_internal_t intern);
-bool numIyyy_set_numMPQ(numIyyy_t a, numMPQ_t b, num_internal_t intern);
-bool numIyyy_set_numMPFR(numIyyy_t a, numMPFR_t b, num_internal_t intern);
-
-bool lint_set_numIyyy(long int* a, numIyyy_t b, num_internal_t intern);
-bool llint_set_numIyyy(long long int* a, numIyyy_t b, num_internal_t intern);
-bool mpz_set_numIyyy(mpz_t a, numIyyy_t b, num_internal_t intern);
-bool lfrac_set_numIyyy(long int* i, long int* j, numIyyy_t b, num_internal_t intern);
-bool llfrac_set_numIyyy(long long int* i, long long int* j, numIyyy_t b, num_internal_t intern);
-bool mpq_set_numIyyy(mpq_t a, numIyyy_t b, num_internal_t intern);
-bool double_set_numIyyy(double* a, numIyyy_t b, num_internal_t intern);
-bool ldouble_set_numIyyy(long double* a, numIyyy_t b, num_internal_t intern);
-bool mpfr_set_numIyyy(mpfr_t a, numIyyy_t b, num_internal_t intern);
-bool numD_set_numIyyy(numD_t a, numIyyy_t b, num_internal_t intern);
-bool numMPQ_set_numIyyy(numMPQ_t a, numIyyy_t b, num_internal_t intern);
-bool numMPFR_set_numIyyy(numMPFR_t a, numIyyy_t b, num_internal_t intern);
-
-#undef _NUMIyyy_MARK_
+/* see num_conv.h.tmpl */
 
 #ifdef __cplusplus
 }
