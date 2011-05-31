@@ -34,8 +34,8 @@ boxXXX.h boxXXX_internal.h
 C_TMPL_FILES = \
 boxXXX_internal.c boxXXX_representation.c boxXXX_constructor.c boxXXX_meetjoin.c boxXXX_assign.c boxXXX_resize.c boxXXX_otherops.c
 
-H_ORIG_FILES = box.h
-C_ORIG_FILES = box.c
+H_ORIG_FILES = 
+C_ORIG_FILES = 
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
@@ -125,7 +125,11 @@ $(C_FILES:%.c=%.p.o): %.p.o: %.c
 #---------------------------------------
 
 depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend.pattern
+	cp Makefile.depend.pattern Makefile.depend
+	$(SED) -e "s/.o:/.d.o:/g" Makefile.depend.pattern >>Makefile.depend
+	$(SED) -e "s/.o:/.p.o:/g" Makefile.depend.pattern >>Makefile.depend
+	rm Makefile.depend.pattern
 
 -include Makefile.depend
 

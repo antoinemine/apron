@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define _AP_linyyy1_MARK_
+#define MARK_linyyy1
 
 /* ====================================================================== */
 /* Datatypes */
@@ -88,6 +88,13 @@ ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
   /* Get a reference to the underlying linear expression of level
      0. Do not free it. */
 
+#if !defined(MARK_lingen1)
+static inline ap_linexpr_type_t ap_linyyy1_type(ap_linyyy1_t array);
+static inline bool ap_linyyy1_is_quasilinear(ap_linyyy1_t array);
+static inline bool ap_linyyy1_is_linear(ap_linyyy1_t array);
+  /* Are all the constraints involved linear (resp. quasilinear) */
+#endif
+
 bool ap_linyyy1_get_cst(ap_coeff_t coeff, ap_linyyy1_t expr, num_internal_t intern);
   /* Get the constant and assign it to coeff with possible conversion */
 bool ap_linyyy1_get_coeff(ap_coeff_t coeff, bool* perror, ap_linyyy1_t expr, ap_var_t var, num_internal_t intern);
@@ -126,13 +133,13 @@ bool ap_linyyy1_set_list(num_internal_t intern, ap_linyyy1_t expr, bool* perror,
      number conversions were exact.
   */
 
-#if defined (_AP_lincons1_MARK_)
+#if defined (MARK_lincons1)
 void ap_lincons1_get_mpq(mpq_t mpq, ap_lincons1_t c);
 mpq_ptr ap_lincons1_mpqref(ap_lincons1_t c);
 void ap_lincons1_set_mpq(ap_lincons1_t c, mpq_t mpq);
 #endif
 
-#if defined(_AP_lincons1_MARK_) || defined (_AP_lingen1_MARK_)
+#if defined(MARK_lincons1) || defined (MARK_lingen1)
 
 bool ap_linyyy1_get_linexpr1(ap_linexpr1_t e, ap_linyyy1_t c, num_internal_t intern);
   /* Get the underlying expression and assign it to e with possible
@@ -194,10 +201,10 @@ ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e);
 static inline ap_scalar_discr_t ap_linyyy1_array_discr(ap_linyyy1_array_t p);
 size_t ap_linyyy1_array_size(ap_linyyy1_array_t p);
 
-#if !defined(_AP_lingen1_ARRAY_H_)
-ap_linexpr_type_t ap_linyyy1_array_type(ap_linyyy1_array_t array);
-bool ap_linyyy1_array_is_quasilinear(ap_linyyy1_array_t array);
-bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t array);
+#if !defined(MARK_lingen1)
+static inline ap_linexpr_type_t ap_linyyy1_array_type(ap_linyyy1_array_t array);
+static inline bool ap_linyyy1_array_is_quasilinear(ap_linyyy1_array_t array);
+static inline bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t array);
   /* Are all the constraints involved linear (resp. quasilinear) */
 #endif
 
@@ -239,6 +246,21 @@ static inline
 ap_linyyy0_ptr ap_linyyy1_linyyy0ref(ap_linyyy1_t e)
 { return e->linyyy0; }
 
+#if !defined(MARK_lingen1)
+static inline ap_linexpr_type_t ap_linyyy1_type(ap_linyyy1_t a)
+{ return ap_linyyy0_type(a->linyyy0); }
+static inline bool ap_linyyy1_is_quasilinear(ap_linyyy1_t a)
+{ return ap_linyyy0_is_quasilinear(a->linyyy0); }
+static inline bool ap_linyyy1_is_linear(ap_linyyy1_t a)
+{ return ap_linyyy0_is_linear(a->linyyy0); }
+static inline ap_linexpr_type_t ap_linyyy1_array_type(ap_linyyy1_array_t a)
+{ return ap_linyyy0_array_type(a->linyyy0_array); }
+static inline bool ap_linyyy1_array_is_quasilinear(ap_linyyy1_array_t a)
+{ return ap_linyyy0_array_is_quasilinear(a->linyyy0_array); }
+static inline bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t a)
+{ return ap_linyyy0_array_is_linear(a->linyyy0_array); }
+#endif
+
 static inline void ap_linyyy1_cons(ap_linyyy1_t res, ap_linyyy0_t e, ap_environment_t* env)
 {
   ap_linyyy0_cons(res->linyyy0,e);
@@ -271,7 +293,7 @@ static inline void ap_linyyy1_array_cons_ZZZ(ap_linyyy1_array_t res, ap_linyyyZZ
 };
 ENDMACRO
 
-#undef _AP_linyyy1_MARK_
+#undef MARK_linyyy1
 
 #ifdef __cplusplus
 }

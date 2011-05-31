@@ -6,6 +6,7 @@
    read the COPYING file packaged in the distribution */
 
 #include "pkXXX_internal.h"
+#include "num_conv.h"
 
 /* ********************************************************************** */
 /* I. Basic operations: creation, destruction, copying and printing */
@@ -588,10 +589,10 @@ long vectorXXX_hash(pkXXX_internal_t* pk,numintXXX_t* vec, size_t size)
   long res,t;
   size_t i;
 
-  lint_set_numintXXX(&t,vec[polka_cst],pk->num);
+  numIl_set_numintXXX(&t,vec[polka_cst],pk->num);
   res = t;
   for (i=pk->dec; i<size; i += ((size-pk->dec)+2)/3){
-    lint_set_numintXXX(&t,vec[i],pk->num);
+    numIl_set_numintXXX(&t,vec[i],pk->num);
     res = res*3 + t;
   }
   return res;

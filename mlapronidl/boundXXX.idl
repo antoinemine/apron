@@ -6,6 +6,7 @@
 quote(C, "\n\
 #include \"apron_caml.h\"\n\
 #include \"boundXXX.h\"\n\
+#include \"num_conv.h\"\n\
 ")
 
 import "mpz.idl";
@@ -112,11 +113,11 @@ void boundXXX_widening(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 quote(MLMLI,"(** {2 Conversions} *)\n")
 
 void boundXXX_get_double([out,ref]double* a, [out]boolean approx, boundXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); approx = double_set_numXXX(a,boundXXX_numref(b),intern);");
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); approx = numD_set_numXXX(a,boundXXX_numref(b),intern);");
 boolean boundXXX_get_mpq(mpq_ptrm a, boundXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = mpq_set_numXXX(a,boundXXX_numref(b),intern);");
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = numMPQ_set_numXXX(a,boundXXX_numref(b),intern);");
 boolean boundXXX_get_mpfr(mpfr_ptrm a, boundXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = mpfr_set_numXXX(a,boundXXX_numref(b),intern);");
+  quote(call,"if (boundXXX_infty(b)) caml_invalid_argument(\"infty cannot be assigned to a number\"); _res = numMPFR_set_numXXX(a,boundXXX_numref(b),intern);");
 
 boolean boundXXX_set_double(boundXXX_ptrm a, double b, num_internal_ptr intern);
 boolean boundXXX_set_mpq(boundXXX_ptrm a, mpq_ptrg b, num_internal_ptr intern);

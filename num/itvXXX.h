@@ -152,8 +152,8 @@ void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern);
 /* Conversions */
 /* ====================================================================== */
 
-bool itvXXX_set_generic(num_internal_t intern,
-			itvXXX_t a, itv_tag_t tag, va_list* va);
+/* See num_conv.h.tmpl for all the functions */
+
 bool itvXXX_set_val(num_internal_t intern,
 		    itvXXX_t a, itv_tag_t tag, ...);
   /* This function assigns the interval from a value defined by a number of
@@ -168,31 +168,10 @@ bool itvXXX_set_val(num_internal_t intern,
      sets resp. itv to 7/9, [-3,4.5], 3.
      assuming that all the number conversions were exact.
   */
-bool itvXXX_set_lint(itvXXX_t a, long int b, num_internal_t intern);
-bool itvXXX_set_lint2(itvXXX_t a, long int b, long int c, num_internal_t intern);
-bool itvXXX_set_llint(itvXXX_t a, long long int b, num_internal_t intern);
-bool itvXXX_set_llint2(itvXXX_t a, long long int b, long long int c, num_internal_t intern);
-bool itvXXX_set_mpz(itvXXX_t a, mpz_t b, num_internal_t intern);
-bool itvXXX_set_mpz2(itvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
-bool itvXXX_set_lfrac(itvXXX_t a, long int i, long int j, num_internal_t intern);
-bool itvXXX_set_lfrac2(itvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern);
-bool itvXXX_set_llfrac(itvXXX_t a, long long int i, long long int j, num_internal_t intern);
-bool itvXXX_set_llfrac2(itvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern);
-bool itvXXX_set_mpq(itvXXX_t a, mpq_t b, num_internal_t intern);
-bool itvXXX_set_mpq2(itvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
-bool itvXXX_set_double(itvXXX_t a, double b, num_internal_t intern);
-bool itvXXX_set_double2(itvXXX_t a, double b, double c, num_internal_t intern);
-bool itvXXX_set_ldouble(itvXXX_t a, long double b, num_internal_t intern);
-bool itvXXX_set_ldouble2(itvXXX_t a, long double b, long double c, num_internal_t intern);
-bool itvXXX_set_mpfr(itvXXX_t a, mpfr_t b, num_internal_t intern);
-bool itvXXX_set_mpfr2(itvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
 
-MACRO_FOREACH ZZZ @AllNum
-bool itvXXX_set_numZZZ(itvXXX_t a, numZZZ_t b, num_internal_t intern);
-bool itvXXX_set_numZZZ2(itvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
-bool itvXXX_set_itvZZZ(itvXXX_t a, itvZZZ_t b, num_internal_t intern);
-bool itvZZZ_set_itvXXX(itvZZZ_t a, itvXXX_t b, num_internal_t intern);
-ENDMACRO
+/* Internal function */
+bool itvXXX_set_generic(num_internal_t intern,
+			itvXXX_t a, itv_tag_t tag, va_list* va);
 
 /* ====================================================================== */
 /* Printing */

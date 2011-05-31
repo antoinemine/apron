@@ -538,10 +538,10 @@ void pkXXX_meet_ap_linconsXXX_array(bool lazy,
   /* quasilinearize if needed */
   if (!quasilinear){
     matrixXXX_to_box(pk,pk->envXXX,pa->F);
-    ap_linconsXXX_array_quasilinearize(array,pk->envXXX,true,pk->num);
+    ap_linconsXXX_array_quasilinearize(array,pk->envXXX,true,man->num);
   }
-  ap_linconsXXX_array_linearize(array,true,pk->num);
-  ap_linconsXXX_array_reduce_integer(array,po->dim.intd,pk->num);
+  ap_linconsXXX_array_linearize(array,true,man->num);
+  ap_linconsXXX_array_reduce_integer(array,po->dim.intd,man->num);
   bool exact = matrixXXX_set_ap_linconsXXX_array(pk,&mat,array,po->dim,true);
   matrixXXX_sort_rows(pk,mat);
   if (!lazy) pkXXX_obtain_satC(pa);
@@ -564,7 +564,7 @@ pkXXX_t* pkXXX_meet_lincons_array(ap_manager_t* man, bool destructive, pkXXX_t* 
   /*  const size_t size = ap_lincons0_array_size(array);*/
 
   ap_linconsXXX_array_init(tcons,0);
-  bool exact = ap_linconsXXX_array_set_lincons0_array(tcons,array,pk->num);
+  bool exact = ap_linconsXXX_array_set_lincons0_array(tcons,array,man->num);
   pkXXX_meet_ap_linconsXXX_array(pk->funopt->algorithm<0,man,po,pa,tcons);
   ap_linconsXXX_array_clear(tcons);
   assert(pkXXX_check(pk,po));
