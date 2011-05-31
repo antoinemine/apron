@@ -121,7 +121,8 @@ typedef numIl_native numIl_t[1];
 typedef numIl_ptr boundIl_ptr;
 typedef numIl_t boundIl_t;
 #define boundIl_numref(a) a
-#define _boundIl_inf(a)
+#define _boundIl_set_finite(a)
+#define _boundIl_set_inf(a,b)
 
 /* Ill: long long int */
 typedef long long int numIll_native;
@@ -138,7 +139,8 @@ typedef numIll_native numIll_t[1];
 typedef numIll_ptr boundIll_ptr;
 typedef numIll_t boundIll_t;
 #define boundIll_numref(a) a
-#define _boundIll_inf(a)
+#define _boundIll_set_finite(a)
+#define _boundIll_set_inf(a,b)
 
 /* MPZ: GMP mpz_t */
 typedef mpz_ptr numMPZ_ptr;
@@ -160,7 +162,8 @@ typedef struct _boundMPZ_struct {
 typedef struct  _boundMPZ_struct boundMPZ_t[1];
 
 #define boundMPZ_numref(a) a->num
-#define _boundMPZ_inf(a) a->inf = 0
+#define _boundMPZ_set_finite(a) a->inf = 0
+#define _boundMPZ_set_inf(a,b) a->inf = b->inf
 
 /* ====================================================================== */
 /* 1.2 Rationals */
@@ -183,7 +186,8 @@ typedef numIl_t numintRl_t;
 typedef numRl_ptr boundRl_ptr;
 typedef numRl_t boundRl_t;
 #define boundRl_numref(a) a
-#define _boundRl_inf(a)
+#define _boundRl_set_finite(a)
+#define _boundRl_set_inf(a,b)
 
 /* Rll: fraction on long long int */
 typedef struct numRll_native {
@@ -202,7 +206,8 @@ typedef numIll_t numintRll_t;
 typedef numRll_ptr boundRll_ptr;
 typedef numRll_t boundRll_t;
 #define boundRll_numref(a) a
-#define _boundRll_inf(a)
+#define _boundRll_set_finite(a)
+#define _boundRll_set_inf(a,b)
 
 /* MPQ: GMP mpq_t */
 typedef mpq_ptr numMPQ_ptr;
@@ -217,7 +222,8 @@ typedef numMPZ_t numintMPQ_t;
 typedef numMPQ_ptr boundMPQ_ptr;
 typedef numMPQ_t boundMPQ_t;
 #define boundMPQ_numref(a) a
-#define _boundMPQ_inf(a)
+#define _boundMPQ_set_finite(a)
+#define _boundMPQ_set_inf(a,b)
 
 /* ====================================================================== */
 /* 1.3 Floating-points */
@@ -247,7 +253,8 @@ typedef numD_native numD_t[1];
 typedef numD_ptr boundD_ptr;
 typedef numD_t boundD_t;
 #define boundD_numref(a) a
-#define _boundD_inf(a)
+#define _boundD_set_finite(a)
+#define _boundD_set_inf(a,b)
 
 /* Dl: long double */
 typedef long double numDl_native;
@@ -265,7 +272,8 @@ typedef numDl_native numDl_t[1];
 typedef numDl_ptr boundDl_ptr;
 typedef numDl_t boundDl_t;
 #define boundDl_numref(a) a
-#define _boundDl_inf(a)
+#define _boundDl_set_finite(a)
+#define _boundDl_set_inf(a,b)
 
 /* MPFR: MPFR mpfr_t */
 typedef mpfr_ptr numMPFR_ptr;
@@ -282,7 +290,8 @@ typedef mpfr_t numMPFR_t;
 typedef numMPFR_ptr boundMPFR_ptr;
 typedef numMPFR_t boundMPFR_t;
 #define boundMPFR_numref(a) a
-#define _boundMPFR_inf(a)
+#define _boundMPFR_set_finite(a)
+#define _boundMPFR_set_inf(a,b)
 
 /* ********************************************************************** */
 /* 2. Intervals */

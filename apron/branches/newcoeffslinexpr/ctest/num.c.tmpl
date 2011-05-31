@@ -10,6 +10,7 @@
 MACRO_FOREACH XXX ("MPZ","D","MPQ","MPFR");
 #include "eitvXXX.h"
 ENDMACRO;
+#include "num_conv.h"
 
 num_internal_t intern;
 FILE* output = NULL;
@@ -88,8 +89,6 @@ MACRO_FOREACH ttt ("num","bound","itv","eitv");
 #define MARK_ttt
 MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
 
-
-
 void checkapprox_tttXXX(tttXXX_t x, tttXXX_t y, bool exact, char* msg)
 {
   int cmp = tttXXX_cmp(x,y);
@@ -134,32 +133,69 @@ void testconv_tttXXX(tttXXX_t x)
 
 void testun_tttXXX(tttXXX_t a)
 {
-  tttXXX_t b;
+  tttXXX_t b,c;
   bool exact;
-  tttXXX_init(b);
+  tttXXX_init(b); tttXXX_init(c);
   fprintf(output,"x = "); tttXXX_fprint(output,a); fprintf(output,"\n");
-#if defined (MARK_bound)
-  if (!boundXXX_infty(a))
-#endif
-    {
-      tttXXX_neg(b,a); fprintf(output,"-x = "); tttXXX_fprint(output,b); fprintf(output,"\n");
-    }
+  tttXXX_neg(b,a); fprintf(output,"neg(x) = "); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_neg(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
 
 #if !defined (MARK_bound)
   tttXXX_abs(b,a); fprintf(output,"abs(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_abs(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
 #endif
+
   tttXXX_ceil(b,a); fprintf(output,"ceil(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_ceil(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_floor(b,a); fprintf(output,"floor(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_floor(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_trunc(b,a); fprintf(output,"trunc(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_trunc(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
+
 #if !defined(MARK_num) && !defined(MARK_bound)
   exact = tttXXX_sqrt(b,a,intern); fprintf(output,"sqrt(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output," (%i)\n",exact);
+  tttXXX_set(c,a);
+  tttXXX_sqrt(c,c,intern);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_to_int(b,a); fprintf(output,"to_int(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_to_int(c,c);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_to_float(b,a, intern); fprintf(output,"to_float(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_to_float(c,c,intern);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_to_double(b,a, intern); fprintf(output,"to_double(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_to_double(c,c,intern);
+  if (tttXXX_cmp(b,c)) assert(0);
 #endif
   tttXXX_mul_2exp(b,a,2); fprintf(output,"x << 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_mul_2exp(c,c,2);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   tttXXX_mul_2exp(b,a,-2); fprintf(output,"x >> 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
   fprintf(output,"\n");
+  tttXXX_set(c,a);
+  tttXXX_mul_2exp(c,c,-2);
+  if (tttXXX_cmp(b,c)) assert(0);
+
   testconv_tttXXX(a);
   tttXXX_clear(b);
 }
@@ -296,7 +332,7 @@ void testbin_tttXXX(tttXXX_t a, tttXXX_t b, unsigned long int c)
 void tttXXX__set_double_2(tttXXX_t a, double inf, double sup)
 {
 #if defined(MARK_num)
-  if (sup==1./0. || !double_fits_tttXXX(sup))
+  if (sup==1./0. || !double_fits_tttXXX(sup,intern))
     tttXXX_set_int(a,1);
   else
     tttXXX_set_double(a,sup,intern);
@@ -347,6 +383,13 @@ int main(void)
   mpfr_set_default_prec(53);
   num_internal_init(intern);
 
+  {
+    eitvMPQ_t a;
+    eitvMPQ_init(a);
+    eitvMPQ_set_lfrac2(a,-5,2,-3,1,intern);
+    bool b = eitvMPQ_is_bottom(a);
+  }
+
   MACRO_FOREACH ttt ("num","bound","itv","eitv");
   MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
   {
@@ -366,7 +409,7 @@ int main(void)
     tttXXX__set_double_2(a,-1./0.,6); testun_tttXXX(a);
     tttXXX__set_double_2(a,-1./0.,1./0.); testun_tttXXX(a);
     // set_frac(a,-1,10,1,100); testun_tttXXX(a);
-    tttXXX__set_double_2(a,1,-2); testun_tttXXX(a);
+    //tttXXX__set_double_2(a,1,-2); testun_tttXXX(a);
 
     tttXXX__set_double_2(a,1,2); tttXXX__set_double_2(b,3,4); testbin_tttXXX(a,b,3);
     tttXXX__set_double_2(a,2,6); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);

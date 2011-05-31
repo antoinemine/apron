@@ -500,6 +500,7 @@ extern inline bool numMPQ_set_numRyyy(numMPQ_t a, numRyyy_t b, num_internal_t in
 {
   numMPZ_set_numIyyy(mpq_numref(a), numRyyy_numref(b),intern);
   numMPZ_set_numIyyy(mpq_denref(a), numRyyy_denref(b),intern);
+  mpq_canonicalize(a);
   return true;
 }
 extern inline bool numD_set_numRyyy(numD_t a, numRyyy_t b, num_internal_t intern)
@@ -677,7 +678,7 @@ extern inline bool boundXXX_set_boundYYY(boundXXX_t a, boundYYY_t b, num_interna
 extern inline bool boundXXX_set_numYYY(boundXXX_t a, numYYY_t b, num_internal_t intern)
 {
   if (numYYY_fits_numXXX(b,intern)){
-    _boundXXX_inf(a);
+    _boundXXX_set_finite(a);
     return numXXX_set_numYYY(boundXXX_numref(a),b,intern);
   }
   else {
@@ -1049,7 +1050,7 @@ void boundXXX_to_float(boundXXX_t a, boundXXX_t b, num_internal_t intern)
     numD_set_numXXX(&d,boundXXX_numref(b),intern);
     d = (double)((float)d);
     numXXX_set_numD(boundXXX_numref(a),&d,intern);
-    _boundXXX_inf(a);
+    _boundXXX_set_finite(a);
   }
 }
 void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
@@ -1060,7 +1061,7 @@ void boundXXX_to_double(boundXXX_t a, boundXXX_t b, num_internal_t intern)
     double d;
     numD_set_numXXX(&d,boundXXX_numref(b),intern);
     numXXX_set_numD(boundXXX_numref(a),&d,intern);
-    _boundXXX_inf(a);
+    _boundXXX_set_finite(a);
   }
 }
 void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)

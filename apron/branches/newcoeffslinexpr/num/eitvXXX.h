@@ -308,7 +308,7 @@ static inline void eitvXXX_set_unit_bound(eitvXXX_t a, boundXXX_t b)
 static inline void eitvXXX_enlarge_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   itvXXX_enlarge_bound(a->itv,b->itv,c);
-  a->eq = NUMXXX_EXACT && b->eq && (boundXXX_sgn(c)==0);
+  a->eq = b->eq && itvXXX_is_point(a->itv);
 }
 
 /* ====================================================================== */
@@ -460,16 +460,16 @@ static inline void eitvXXX_neg(eitvXXX_t a, eitvXXX_t b)
   if (a!=b){
     boundXXX_set(a->itv->neginf,b->itv->sup);
     boundXXX_set(a->itv->sup,b->itv->neginf);
+    a->eq = b->eq;
   } else {
     boundXXX_swap(a->itv->neginf,a->itv->sup);
   }
-  a->eq = b->eq;
 }
 
 static inline bool eitvXXX_sqrt(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
 {
   bool exact = itvXXX_sqrt(a->itv,b->itv, intern);
-  a->eq = b->eq && exact;
+  a->eq = itvXXX_is_point(a->itv);
   return exact;
 }
 

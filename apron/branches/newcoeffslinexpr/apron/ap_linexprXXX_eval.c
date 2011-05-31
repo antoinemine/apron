@@ -455,7 +455,7 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
     ap_linexprXXX_init(l1,0);
 
     /* intlinearize arguments */
-    exact  =ap_linexprXXX_set_texpr0(l1,perror,n->exprA,intern);
+    exact = ap_linexprXXX_set_texpr0(l1,perror,n->exprA,intern);
     if (*perror) break;
     exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern) && exact;
     if (*perror) break;
@@ -1138,7 +1138,8 @@ void ap_linexprXXX_intlinearize_texpr0(ap_linexprXXX_t res,
     }
   }
   else {
-    abort();
+    ap_linexprXXX_resize(res,0);
+    eitvXXX_set_bottom(res->cst);
   }
   eitvXXX_clear(i);
 }

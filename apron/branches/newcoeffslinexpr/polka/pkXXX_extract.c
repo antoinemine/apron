@@ -354,17 +354,24 @@ void pkXXX_bound_texpr(ap_manager_t* man,
   matrixXXX_to_box(pk,pk->envXXX,po->F);
   ap_linexprXXX_intlinearize_texpr0(
       pk->ap_linexprXXX, expr, pk->envXXX, po->dim.intd, pk->num);
-  eitvXXX_init(eitv1);
-  eitvXXX_init(eitv2);
-  matrixXXX_bound_ap_linexprXXX(pk,eitv1,pk->ap_linexprXXX,po->F);
-  eitvXXX_eval_ap_texpr0(eitv2,expr,pk->envXXX,pk->num);
-  eitvXXX_meet(eitv1,eitv1,eitv2);
-  exact = ap_coeff_set_eitvXXX(interval,eitv1,pk->num);
-  eitvXXX_clear(eitv1);
-  eitvXXX_clear(eitv2);
-  man->result.flag_exact = exact && ap_linexprXXX_is_quasilinear(pk->ap_linexprXXX) && ap_linexprXXX_is_real(pk->ap_linexprXXX,po->dim.intd);
-
-  man->result.flag_best = exact;
+  if (eitvXXX_is_bottom(pk->ap_linexprXXX->cst)){
+    ap_coeff_set_bottom(interval);
+    man->result.flag_exact = true;
+    man->result.flag_best = true;
+  }
+  else {
+    eitvXXX_init(eitv1);
+    eitvXXX_init(eitv2);
+    matrixXXX_bound_ap_linexprXXX(pk,eitv1,pk->ap_linexprXXX,po->F);
+    eitvXXX_eval_ap_texpr0(eitv2,expr,pk->envXXX,pk->num);
+    eitvXXX_meet(eitv1,eitv1,eitv2);
+    exact = ap_coeff_set_eitvXXX(interval,eitv1,pk->num);
+    eitvXXX_clear(eitv1);
+    eitvXXX_clear(eitv2);
+    man->result.flag_exact = exact && ap_linexprXXX_is_quasilinear(pk->ap_linexprXXX) && ap_linexprXXX_is_real(pk->ap_linexprXXX,po->dim.intd);
+    
+    man->result.flag_best = exact;
+  }
 }
 
 

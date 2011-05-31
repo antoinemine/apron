@@ -51,7 +51,7 @@ bool itvXXX_canonicalize(itvXXX_t a, bool integer)
   numXXX_neg(neginf,neginf);
   if (numXXX_cmp(boundXXX_numref(a->sup),neginf) < 0)
     exc = true;
-  numXXX_neg(neginf,neginf);  
+  numXXX_neg(neginf,neginf);
   return exc;
 }
 
@@ -127,11 +127,13 @@ bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 }
 void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   boundXXX_max(a->sup,b->sup,c->sup);
   boundXXX_max(a->neginf,b->neginf,c->neginf);
 }
 void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   boundXXX_widening(a->sup,b->sup,c->sup);
   boundXXX_widening(a->neginf,b->neginf,c->neginf);
 }
@@ -147,6 +149,7 @@ void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 
 void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b));
   assert (c!=boundXXX_numref(a->neginf));
   int sgnc = numXXX_sgn(c);
   boundXXX_mul_num(a->neginf,b->neginf,c);
@@ -160,6 +163,7 @@ void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 
 void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b));
   assert (c!=a->neginf);
   int sgnc = boundXXX_sgn(c);
   boundXXX_mul(a->neginf,b->neginf,c);
@@ -173,6 +177,7 @@ void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 
 void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b));
   assert (c!=boundXXX_numref(a->neginf));
   int sgnc = numXXX_sgn(c);
   boundXXX_div_num(a->neginf,b->neginf,c);
@@ -192,6 +197,7 @@ void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 }
 void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b));
   assert (c!=a->neginf);
   int sgnc = boundXXX_sgn(c);
   boundXXX_div(a->neginf,b->neginf,c);
@@ -211,6 +217,7 @@ void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 }
 void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   if (a!=c){
     boundXXX_add(a->neginf,b->neginf,c->sup);
     boundXXX_add(a->sup,b->sup,c->neginf);
@@ -224,6 +231,7 @@ void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 }
 void itvXXX_neg(itvXXX_t a, itvXXX_t b)
 {
+  assert(!itvXXX_is_bottom(b));
   if (a!=b){
     boundXXX_set(a->neginf,b->sup);
     boundXXX_set(a->sup,b->neginf);
@@ -259,6 +267,7 @@ bool itvXXX_sqrt(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 
 void itvXXX_abs(itvXXX_t a, itvXXX_t b)
 {
+  assert(!itvXXX_is_bottom(b));
   if (boundXXX_sgn(b->neginf)<=0)
     /* positive interval */
     itvXXX_set(a,b);
@@ -274,6 +283,7 @@ void itvXXX_abs(itvXXX_t a, itvXXX_t b)
 void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c,
 		bool is_int, num_internal_t intern)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   /* b-|c|*trunc(b/|c|) */
   itvXXX_abs(intern->XXX.eval_itv, c);
   if (!boundXXX_sgn(intern->XXX.eval_itv->neginf)) itvXXX_set_top(a);
@@ -390,6 +400,7 @@ void itvXXX_muln(itvXXX_t a,
 
 void itvXXX_mul(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   if (boundXXX_sgn(c->neginf)<=0){
     /* c is positive, */
     itvXXX_mulp(a,b,c, intern);
@@ -507,6 +518,7 @@ void itvXXX_divn(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 
 void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 {
+  assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
   if (boundXXX_sgn(c->neginf)<0){
     /* c is positive */
     itvXXX_divp(a,b,c, intern);

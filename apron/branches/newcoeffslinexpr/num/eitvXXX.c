@@ -36,7 +36,8 @@ void eitvXXX_array_free(eitvXXX_t* a, size_t size)
 */
 bool eitvXXX_canonicalize(eitvXXX_t a, bool integer)
 {
-  bool exc,cmp;
+  bool exc;
+  int cmp;
 
   a->eq = false;
   if (integer){
@@ -50,7 +51,7 @@ bool eitvXXX_canonicalize(eitvXXX_t a, bool integer)
   numXXX_ptr neginf = boundXXX_numref(a->itv->neginf);
   numXXX_neg(neginf,neginf);
   cmp = numXXX_cmp(boundXXX_numref(a->itv->sup),neginf);
-  numXXX_neg(neginf,neginf);  
+  numXXX_neg(neginf,neginf);
   if (cmp<0){
     a->eq = false;
     exc = true;
@@ -103,6 +104,7 @@ bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 
 void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
+  assert(!eitvXXX_is_bottom(b));
   assert (c!=boundXXX_numref(a->itv->neginf));
   int sgnc = numXXX_sgn(c);
   boundXXX_mul_num(a->itv->neginf,b->itv->neginf,c);
@@ -123,6 +125,7 @@ void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 
 void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
+  assert(!eitvXXX_is_bottom(b));
   assert (c!=a->itv->neginf);
   int sgnc = boundXXX_sgn(c);
   boundXXX_mul(a->itv->neginf,b->itv->neginf,c);
@@ -143,6 +146,7 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
+  assert(!eitvXXX_is_bottom(b));
   assert (c!=boundXXX_numref(a->itv->neginf));
   int sgnc = numXXX_sgn(c);
   boundXXX_div_num(a->itv->neginf,b->itv->neginf,c);
@@ -169,6 +173,7 @@ void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 }
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
+  assert(!eitvXXX_is_bottom(b));
   assert (c!=a->itv->neginf);
   int sgnc = boundXXX_sgn(c);
   boundXXX_div(a->itv->neginf,b->itv->neginf,c);
@@ -195,6 +200,7 @@ void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 }
 void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
+  assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (a!=c){
     boundXXX_add(a->itv->sup,b->itv->sup,c->itv->neginf);
     if (NUMXXX_EXACT && b->eq && c->eq){
@@ -212,6 +218,7 @@ void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 }
 void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
 {
+  assert(!eitvXXX_is_bottom(b));
   if (boundXXX_sgn(b->itv->neginf)<=0)
     /* positive interval */
     eitvXXX_set(a,b);
@@ -226,6 +233,7 @@ void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
 }
 void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
 {
+  assert(!eitvXXX_is_bottom(b));
   boundXXX_mul_2exp(a->itv->sup,b->itv->sup,c);
   if (NUMXXX_EXACT && b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
@@ -245,6 +253,7 @@ void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
 
 void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
+  assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (c->eq){
     eitvXXX_mul_bound(a,b,c->itv->sup);
   }
@@ -263,6 +272,7 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 
 void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
+  assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (c->eq && boundXXX_sgn(c->itv->sup))
     eitvXXX_div_bound(a,b,c->itv->sup);
   else {
@@ -276,6 +286,7 @@ void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 
 void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
 {
+  assert(!eitvXXX_is_bottom(b));
   boundXXX_ceil(a->itv->sup,b->itv->sup);
   if (b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
@@ -289,6 +300,7 @@ void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
 
 void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
 {
+  assert(!eitvXXX_is_bottom(b));
   boundXXX_floor(a->itv->sup,b->itv->sup);
   if (b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
@@ -302,6 +314,7 @@ void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
 
 void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
 {
+  assert(!eitvXXX_is_bottom(b));
   boundXXX_trunc(a->itv->sup,b->itv->sup);
   if (b->eq){
     boundXXX_neg(a->itv->neginf,a->itv->sup);
@@ -315,6 +328,7 @@ void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
 
 void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
 {
+  assert(!eitvXXX_is_bottom(b));
   itvXXX_to_int(a->itv,b->itv);
   a->eq = itvXXX_is_point(a->itv);
 }
