@@ -6,6 +6,7 @@
 quote(C, "\n\
 #include \"apron_caml.h\"\n\
 #include \"numXXX.h\"\n\
+#include \"num_conv.h\"\n\
 ")
 
 import "mpz.idl";
@@ -133,11 +134,11 @@ int numXXX_hash(numXXX_ptrg a);
 quote(MLMLI,"(** {2 Conversions} *)\n")
 
 void numXXX_get_double([out,ref]double* a, [out]boolean approx, numXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"approx = double_set_numXXX(a,b,intern);");
+  quote(call,"approx = numD_set_numXXX(a,b,intern);");
 boolean numXXX_get_mpq(mpq_ptrm a, numXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"_res = mpq_set_numXXX(a,b,intern);");
+  quote(call,"_res = numMPQ_set_numXXX(a,b,intern);");
 boolean numXXX_get_mpfr(mpfr_ptrm a, numXXX_ptrg b, num_internal_ptr intern)
-  quote(call,"_res = mpfr_set_numXXX(a,b,intern);");
+  quote(call,"_res = numMPFR_set_numXXX(a,b,intern);");
 
 boolean numXXX_set_double(numXXX_ptrm a, double b, num_internal_ptr intern);
 boolean numXXX_set_mpq(numXXX_ptrm a, mpq_ptrg b, num_internal_ptr intern);

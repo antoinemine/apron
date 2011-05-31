@@ -8,6 +8,7 @@
 #include "boxXXX_internal.h"
 #include "ap_linconsXXX.h"
 #include "ap_generic.h"
+#include "num_conv.h"
 
 #define _BOXXX_MARK_BOXXX_
   /* Undefined at the end */

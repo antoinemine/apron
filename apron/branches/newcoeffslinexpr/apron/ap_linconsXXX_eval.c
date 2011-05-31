@@ -6,6 +6,7 @@
 
 #include "ap_linconsXXX.h"
 #include "ap_tcons0.h"
+#include "num_conv.h"
 
 #define _ITVXXX_MARK_
 
@@ -243,7 +244,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
       if (!numXXX_integer(pitv->itv->sup))
 	return;
-      mpz_set_numXXX(intern->XXX.reduce_lincons_mpz,pitv->itv->sup,intern);
+      numMPZ_set_numXXX(intern->XXX.reduce_lincons_mpz,pitv->itv->sup,intern);
       mpz_gcd(intern->XXX.reduce_lincons_gcd,
 	      intern->XXX.reduce_lincons_gcd,
 	      intern->XXX.reduce_lincons_mpz);

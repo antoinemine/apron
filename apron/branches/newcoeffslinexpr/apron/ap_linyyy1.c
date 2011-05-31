@@ -271,14 +271,6 @@ void ap_linyyy1_array_print(ap_linyyy1_array_t a)
 
 size_t ap_linyyy1_array_size(ap_linyyy1_array_t p)
 { return ap_linyyy0_array_size(p->linyyy0_array); }
-#if !defined(_AP_lingen1_ARRAY_H_)
-ap_linexpr_type_t ap_linyyy1_array_type(ap_linyyy1_array_t array)
-{ return ap_linyyy0_array_type(array->linyyy0_array); }
-bool ap_linyyy1_array_is_quasilinear(ap_linyyy1_array_t array)
-{ return ap_linyyy0_array_is_quasilinear(array->linyyy0_array); }
-#endif
-bool ap_linyyy1_array_is_linear(ap_linyyy1_array_t array)
-{ return ap_linyyy0_array_is_linear(array->linyyy0_array); }
 
 bool ap_linyyy1_array_set(ap_linyyy1_array_t res, ap_linyyy1_array_t e, num_internal_t intern)
 {

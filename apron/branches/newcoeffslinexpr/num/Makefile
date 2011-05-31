@@ -18,7 +18,7 @@ CLIBS = -lmpfr -lgmp -lm
 TMPL = $(APRON_NUMTYPES)
 
 H_TMPL_FILES_XXX = boundXXX.h itvXXX.h eitvXXX.h 
-H_TMPL_FILES_tmpl = num_types.h.tmpl numMPQ.h.tmpl
+H_TMPL_FILES_tmpl = num_types.h.tmpl numMPQ.h.tmpl num_conv.h.tmpl
 H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
 $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_tmpl)
@@ -174,7 +174,11 @@ out: tests
 	done
 
 depend: $(C_FILES) $(H_FILES) $(C_FILES_TEST) 
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES) $(C_FILES_TEST) >Makefile.depend
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) $(C_FILES_TEST) >Makefile.depend.pattern
+	cp Makefile.depend.pattern Makefile.depend
+	$(SED) -e "s/.o:/.d.o:/g" Makefile.depend.pattern >>Makefile.depend
+	$(SED) -e "s/.o:/.p.o:/g" Makefile.depend.pattern >>Makefile.depend
+	rm Makefile.depend.pattern
 
 -include Makefile.depend
 

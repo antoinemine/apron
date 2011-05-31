@@ -5,8 +5,8 @@
 
 quote(C, "\n\
 #include \"apron_caml.h\"\n\
-#include \"eitvXXX.h\"
-
+#include \"eitvXXX.h\"\n\
+#include \"num_conv.h\"\n\
 ")
 
 import "mpz.idl";

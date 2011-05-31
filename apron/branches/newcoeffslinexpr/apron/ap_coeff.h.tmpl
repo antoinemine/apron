@@ -49,20 +49,14 @@ typedef enum ap_coeff_tag_t {
   ENDMACRO;
   AP_COEFF_LINT,	/* waiting for 1 long int and a dimension/var */
   AP_COEFF_LINT2,	/* waiting for 2 long int and a dimension/var */
-  AP_COEFF_LLINT,	/* waiting for 1 long long int and a dimension/var */
-  AP_COEFF_LLINT2,	/* waiting for 2 long long int and a dimension/var */
   AP_COEFF_MPZ,		/* waiting for 1 mpz_t and a dimension/var */
   AP_COEFF_MPZ2,	/* waiting for 2 mpz_t and a dimension/var */
   AP_COEFF_LFRAC,	/* waiting for 2 long int and a dimension/var */
   AP_COEFF_LFRAC2,	/* waiting for 4 long int and a dimension/var */
-  AP_COEFF_LLFRAC,	/* waiting for 2 long long int and a dimension/var */
-  AP_COEFF_LLFRAC2,	/* waiting for 4 long long int and a dimension/var */
   AP_COEFF_MPQ,		/* waiting for 1 mpq_t and a dimension/var */
   AP_COEFF_MPQ2,	/* waiting for 2 mpq_t and a dimension/var */
   AP_COEFF_DOUBLE,	/* waiting for 1 double and a dimension/var */
   AP_COEFF_DOUBLE2,	/* waiting for 2 double and a dimension/var */
-  AP_COEFF_LDOUBLE,	/* waiting for 1 long double and a dimension/var */
-  AP_COEFF_LDOUBLE2,	/* waiting for 2 long double and a dimension/var */
   AP_COEFF_MPFR,	/* waiting for 1 mpfr_t and a dimension/var */
   AP_COEFF_MPFR2,	/* waiting for 2 mpfr_t double and a dimension/var */
 
@@ -74,36 +68,26 @@ typedef enum ap_coeff_tag_t {
   ENDMACRO;
   AP_CST_LINT,		/* waiting for 1 long int */
   AP_CST_LINT2,		/* waiting for 2 long int */
-  AP_CST_LLINT,		/* waiting for 1 long long int */
-  AP_CST_LLINT2,	/* waiting for 2 long long int */
   AP_CST_MPZ,		/* waiting for 1 mpz_t */
   AP_CST_MPZ2,		/* waiting for 2 mpz_t */
   AP_CST_LFRAC,		/* waiting for 2 long int */
   AP_CST_LFRAC2,	/* waiting for 4 long int */
-  AP_CST_LLFRAC,	/* waiting for 2 long long int */
-  AP_CST_LLFRAC2,	/* waiting for 4 long long int */
   AP_CST_MPQ,		/* waiting for 1 mpq_t */
   AP_CST_MPQ2,		/* waiting for 2 mpq_t */
   AP_CST_DOUBLE,	/* waiting for 1 double */
   AP_CST_DOUBLE2,	/* waiting for 2 double */
-  AP_CST_LDOUBLE,	/* waiting for 1 long double */
-  AP_CST_LDOUBLE2,	/* waiting for 2 long double */
   AP_CST_MPFR,		/* waiting for 1 mpfr_t */
   AP_CST_MPFR2,		/* waiting for 2 mpfr_t double */
   AP_END
 } ap_coeff_tag_t;
 
 #define AP_COEFF_NUMINTRl AP_COEFF_NUMIl
-#define AP_COEFF_NUMINTRll AP_COEFF_NUMIll
 #define AP_COEFF_NUMINTMPQ AP_COEFF_NUMMPZ
 #define AP_COEFF_NUMINTRl2 AP_COEFF_NUMIl2
-#define AP_COEFF_NUMINTRll2 AP_COEFF_NUMIll2
 #define AP_COEFF_NUMINTMPQ2 AP_COEFF_NUMMPZ2
 #define AP_CST_NUMINTRl AP_CST_NUMIl
-#define AP_CST_NUMINTRll AP_CST_NUMIll
 #define AP_CST_NUMINTMPQ AP_CST_NUMMPZ
 #define AP_CST_NUMINTRl2 AP_CST_NUMIl2
-#define AP_CST_NUMINTRll2 AP_CST_NUMIll2
 #define AP_CST_NUMINTMPQ2 AP_CST_NUMMPZ2
 
 /* ====================================================================== */

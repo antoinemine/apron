@@ -5,6 +5,7 @@
 #include "ap_linexprXXX_eval.h"
 #include "ap_linexprXXX.h"
 #include "ap_texpr0.h"
+#include "num_conv.h"
 
 /* ********************************************************************** */
 /* I. Arithmetic */

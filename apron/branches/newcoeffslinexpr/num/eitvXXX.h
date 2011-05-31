@@ -152,6 +152,8 @@ void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern);
 /* Conversions */
 /* ====================================================================== */
 
+/* See num_conv.h.tmpl for all the functions */
+
 bool eitvXXX_set_val(num_internal_t intern,
 		     eitvXXX_t a, eitv_tag_t tag, ...);
   /* This function assigns the interval from a value defined by a number of
@@ -167,38 +169,10 @@ bool eitvXXX_set_val(num_internal_t intern,
      assuming that all the number conversions were exact.
   */
 
-bool eitvXXX_set_lint(eitvXXX_t a, long int b, num_internal_t intern);
-bool eitvXXX_set_lint2(eitvXXX_t a, long int b, long int c, num_internal_t intern);
-bool eitvXXX_set_llint(eitvXXX_t a, long long int b, num_internal_t intern);
-bool eitvXXX_set_llint2(eitvXXX_t a, long long int b, long long int c, num_internal_t intern);
-bool eitvXXX_set_mpz(eitvXXX_t a, mpz_t b, num_internal_t intern);
-bool eitvXXX_set_mpz2(eitvXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
-bool eitvXXX_set_lfrac(eitvXXX_t a, long int i, long int j, num_internal_t intern);
-bool eitvXXX_set_lfrac2(eitvXXX_t a, long int i, long int j, long int k, long int l, num_internal_t intern);
-bool eitvXXX_set_llfrac(eitvXXX_t a, long long int i, long long int j, num_internal_t intern);
-bool eitvXXX_set_llfrac2(eitvXXX_t a, long long int i, long long int j, long long int k, long long int l, num_internal_t intern);
-bool eitvXXX_set_mpq(eitvXXX_t a, mpq_t b, num_internal_t intern);
-bool eitvXXX_set_mpq2(eitvXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
-bool eitvXXX_set_double(eitvXXX_t a, double b, num_internal_t intern);
-bool eitvXXX_set_double2(eitvXXX_t a, double b, double c, num_internal_t intern);
-bool eitvXXX_set_ldouble(eitvXXX_t a, long double b, num_internal_t intern);
-bool eitvXXX_set_ldouble2(eitvXXX_t a, long double b, long double c, num_internal_t intern);
-bool eitvXXX_set_mpfr(eitvXXX_t a, mpfr_t b, num_internal_t intern);
-bool eitvXXX_set_mpfr2(eitvXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
-
-MACRO_FOREACH ZZZ @AllNum
-bool eitvXXX_set_numZZZ(eitvXXX_t a, numZZZ_t b, num_internal_t intern);
-bool eitvXXX_set_numZZZ2(eitvXXX_t a, numZZZ_t b, numZZZ_t c, num_internal_t intern);
-ENDMACRO
-
-MACRO_FOREACH ZZZ @AllNum
-bool eitvXXX_set_eitvZZZ(eitvXXX_t a, eitvZZZ_t b, num_internal_t intern);
-bool eitvZZZ_set_eitvXXX(eitvZZZ_t a, eitvXXX_t b, num_internal_t intern);
-ENDMACRO
-
 /* internal */
 bool eitvXXX_set_generic(num_internal_t intern,
 			 eitvXXX_t a, eitv_tag_t tag, va_list* va);
+
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */

@@ -6,6 +6,7 @@
    read the COPYING file packaged in the distribution */
 
 #include "pkXXX_internal.h"
+#include "num_conv.h"
 
 /* ********************************************************************** */
 /* I. Checking function */
@@ -554,7 +555,7 @@ int cherniXXX_simplify(pkXXX_internal_t* pk,
   /* remove trivially redundants inequalities (nb < nbcols-nbeq-2) */
   i = nbeq;
   while (i < nbcons){
-    lint_set_numintXXX(&nb, con->p[i][0],pk->num);
+    numIl_set_numintXXX(&nb, con->p[i][0],pk->num);
     if (nb < (long int)(nbcols-nbeq-2)){ /* redundant constraint */
       nbcons--;
       matrixXXX_exch_rows(con, i,nbcons);
@@ -566,11 +567,11 @@ int cherniXXX_simplify(pkXXX_internal_t* pk,
   /* remove others redundants inequalities */
   i=nbeq;
   while (i < nbcons){
-    lint_set_numintXXX(&nb,con->p[i][0],pk->num);
+    numIl_set_numintXXX(&nb,con->p[i][0],pk->num);
     redundant = false;
     j = nbeq;
     while (j < nbcons){
-      lint_set_numintXXX(&nbj,con->p[j][0],pk->num);
+      numIl_set_numintXXX(&nbj,con->p[j][0],pk->num);
       if (nbj > nb){
 	/* does j saturates a strictly overset ? */
 	redundant = true;

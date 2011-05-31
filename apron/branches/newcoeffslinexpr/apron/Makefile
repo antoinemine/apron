@@ -221,7 +221,11 @@ $(C_FILES:%.c=%.p.o): %.p.o: %.c
 src: $(C_FILES) $(H_FILES)
 
 depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) >Makefile.depend.pattern
+	cp Makefile.depend.pattern Makefile.depend
+	$(SED) -e "s/.o:/.d.o:/g" Makefile.depend.pattern >>Makefile.depend
+	$(SED) -e "s/.o:/.p.o:/g" Makefile.depend.pattern >>Makefile.depend
+	rm Makefile.depend.pattern
 
 -include Makefile.depend
 

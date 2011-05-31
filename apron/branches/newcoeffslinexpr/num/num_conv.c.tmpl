@@ -4,6 +4,8 @@
 /* ********************************************************************** */
 
 #include "num_conv.h"
+#include "eitv_all.h"
+#include <float.h>
 
 /* ********************************************************************** */
 /* I. numXXX */
@@ -65,7 +67,7 @@ extern inline bool numMPFR_fits_numIll(numMPFR_t a, num_internal_t intern)
 }
 
 MACRO_FOREACH yyy ("l","ll")
-extern inline bool numIyyy_fits_mpz(numIyyy_t a, num_internal_t intern)
+extern inline bool numIyyy_fits_numMPZ(numIyyy_t a, num_internal_t intern)
 { return true; }
 extern inline bool numIyyy_fits_numRl(numIyyy_t a, num_internal_t intern)
 { return numIyyy_fits_numIl(a,intern); }
@@ -666,7 +668,7 @@ extern inline bool boundXXX_set_boundYYY(boundXXX_t a, boundYYY_t b, num_interna
     boundXXX_set_infty(a,boundYYY_sgn(b));
     return true;
   }
-  else { 
+  else {
     return boundXXX_set_numYYY(a,boundYYY_numref(b),intern);
   }
 }
@@ -685,7 +687,9 @@ extern inline bool boundXXX_set_numYYY(boundXXX_t a, numYYY_t b, num_internal_t 
 }
 bool itvXXX_set_numYYY2(itvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t intern)
 {
+#if defined(MARK_XXX_XXX)
   assert(boundXXX_numref(a->neginf)!=b && boundXXX_numref(a->neginf)!=c);
+#endif
   numYYY_neg(b,b);
   bool exact1 = boundXXX_set_numYYY(a->neginf,b,intern);
   numYYY_neg(b,b);
@@ -694,7 +698,9 @@ bool itvXXX_set_numYYY2(itvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t inter
 }
 bool itvXXX_set_boundYYY2(itvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t intern)
 {
+#if defined(MARK_XXX_XXX)
   assert(a->neginf!=b && a->neginf!=c);
+#endif
   boundYYY_neg(b,b);
   bool exact1 = boundXXX_set_boundYYY(a->neginf,b,intern);
   boundYYY_neg(b,b);
@@ -703,7 +709,9 @@ bool itvXXX_set_boundYYY2(itvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t
 }
 extern inline bool itvXXX_set_numYYY(itvXXX_t a, numYYY_t b, num_internal_t intern)
 {
+#if defined(MARK_XXX_XXX)
   assert(boundXXX_numref(a->neginf)!=b);
+#endif
   bool exact1 = boundXXX_set_numYYY(a->sup,b,intern);
   if (exact1){
     boundXXX_neg(a->neginf,a->sup);
@@ -739,13 +747,13 @@ extern inline bool eitvXXX_set_boundYYY(eitvXXX_t a, boundYYY_t b, num_internal_
 
 #if !defined(MARK_XXX_XXX)
 extern inline bool itvXXX_set_itvYYY(itvXXX_t a, itvYYY_t b, num_internal_t intern)
-{ 
+{
   bool exact1 = boundXXX_set_boundYYY(a->neginf,b->neginf,intern);
   bool exact2 = boundXXX_set_boundYYY(a->sup,b->sup,intern);
   return exact1 && exact2;
 }
 bool eitvXXX_set_eitvYYY(eitvXXX_t a, eitvYYY_t b, num_internal_t intern)
-{ 
+{
   if (b->eq){
     assert(!boundYYY_infty(b->itv->sup));
     bool exact1 = boundXXX_set_boundYYY(a->itv->sup,b->itv->sup,intern);
@@ -1060,10 +1068,19 @@ void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern)
   boundXXX_to_float(a->sup,b->sup,intern);
   boundXXX_to_float(a->neginf,b->neginf,intern);
 }
-
 void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
   boundXXX_to_double(a->sup,b->sup,intern);
   boundXXX_to_double(a->neginf,b->neginf,intern);
+}
+void eitvXXX_to_float(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
+{
+  itvXXX_to_float(a->itv,b->itv,intern);
+  a->eq = itvXXX_is_point(a->itv);
+}
+void eitvXXX_to_double(eitvXXX_t a, eitvXXX_t b, num_internal_t intern)
+{
+  itvXXX_to_double(a->itv,b->itv,intern);
+  a->eq = itvXXX_is_point(a->itv);
 }
 ENDMACRO
