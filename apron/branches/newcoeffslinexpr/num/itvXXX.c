@@ -35,7 +35,7 @@ void itvXXX_array_free(itvXXX_t* a, size_t size)
 /* If integer is true, narrow the interval to integer bounds.
    In any case, return true if the interval is bottom
 */
-bool itvXXX_canonicalize(itvXXX_t a, bool integer,num_internal_t intern)
+bool itvXXX_canonicalize(itvXXX_t a, bool integer)
 {
   bool exc;
 
@@ -47,9 +47,11 @@ bool itvXXX_canonicalize(itvXXX_t a, bool integer,num_internal_t intern)
 
   /* Check that it is not bottom */
   exc = false;
-  numXXX_neg(intern->XXX.canonicalize_num,boundXXX_numref(a->neginf));
-  if (boundXXX_cmp_num(a->sup,intern->XXX.canonicalize_num) < 0)
+  numXXX_ptr neginf = boundXXX_numref(a->neginf);
+  numXXX_neg(neginf,neginf);
+  if (numXXX_cmp(boundXXX_numref(a->sup),neginf) < 0)
     exc = true;
+  numXXX_neg(neginf,neginf);  
   return exc;
 }
 
@@ -117,11 +119,11 @@ void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern)
 /* Lattice operations */
 /* ********************************************************************** */
 
-bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
+bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
   boundXXX_min(a->sup,b->sup,c->sup);
   boundXXX_min(a->neginf,b->neginf,c->neginf);
-  return itvXXX_canonicalize(a,false, intern);
+  return itvXXX_canonicalize(a,false);
 }
 void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
@@ -180,6 +182,13 @@ void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
     boundXXX_neg(a->sup,a->sup);
     boundXXX_neg(a->neginf,a->neginf);
   }
+#ifndef NDEBUG
+  boundXXX_neg(a->neginf,a->neginf);
+  if (boundXXX_cmp(a->neginf,a->sup)>0)
+    abort();
+  else
+    boundXXX_neg(a->neginf,a->neginf);
+#endif
 }
 void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
@@ -192,6 +201,13 @@ void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
     boundXXX_neg(a->sup,a->sup);
     boundXXX_neg(a->neginf,a->neginf);
   }
+#ifndef NDEBUG
+  boundXXX_neg(a->neginf,a->neginf);
+  if (boundXXX_cmp(a->neginf,a->sup)>0)
+    abort();
+  else
+    boundXXX_neg(a->neginf,a->neginf);
+#endif
 }
 void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
@@ -219,7 +235,7 @@ void itvXXX_neg(itvXXX_t a, itvXXX_t b)
 bool itvXXX_sqrt(itvXXX_t a, itvXXX_t b, num_internal_t intern)
 {
   bool exact = true;
-  if (itvXXX_is_bottom(b, intern) || boundXXX_sgn(b->sup)<0) {
+  if (itvXXX_is_bottom(b) || boundXXX_sgn(b->sup)<0) {
     /* empty result */
     itvXXX_set_bottom(a);
     return true;
@@ -278,7 +294,7 @@ void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c,
       /* [0,max|c|] */
       boundXXX_set_int(intern->XXX.eval_itv->neginf, 0);
     itvXXX_sub(a, b, intern->XXX.eval_itv2);
-    itvXXX_meet(a, a, intern->XXX.eval_itv, intern);
+    itvXXX_meet(a, a, intern->XXX.eval_itv);
   }
 }
 
@@ -506,6 +522,13 @@ void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
   else {
     itvXXX_set_top(a);
   }
+#ifndef NDEBUG
+  boundXXX_neg(a->neginf,a->neginf);
+  if (boundXXX_cmp(a->neginf,a->sup)>0)
+    abort();
+  else
+    boundXXX_neg(a->neginf,a->neginf);
+#endif
 }
 
 /* ********************************************************************** */
@@ -517,14 +540,9 @@ void itvXXX_fprint(FILE* stream, itvXXX_t a)
   numXXX_t num;
 
   fprintf(stream,"[");
-  if (boundXXX_infty(a->neginf))
-    fprintf(stream,"-oo");
-  else {
-    numXXX_init(num);
-    numXXX_neg(num,boundXXX_numref(a->neginf));
-    numXXX_fprint(stream,num);
-    numXXX_clear(num);
-  }
+  boundXXX_neg(a->neginf,a->neginf);
+  boundXXX_fprint(stream,a->neginf);
+  boundXXX_neg(a->neginf,a->neginf);
   fprintf(stream,",");
   boundXXX_fprint(stream,a->sup);
   fprintf(stream,"]");

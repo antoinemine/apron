@@ -34,7 +34,7 @@ void eitvXXX_array_free(eitvXXX_t* a, size_t size)
 /* If integer is true, narrow the interval to integer bounds.
    In any case, return true if the interval is bottom
 */
-bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, num_internal_t intern)
+bool eitvXXX_canonicalize(eitvXXX_t a, bool integer)
 {
   bool exc,cmp;
 
@@ -47,8 +47,10 @@ bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, num_internal_t intern)
     return false;
 
   /* Check that it is not bottom */
-  numXXX_neg(intern->XXX.canonicalize_num,boundXXX_numref(a->itv->neginf));
-  cmp = boundXXX_cmp_num(a->itv->sup,intern->XXX.canonicalize_num);
+  numXXX_ptr neginf = boundXXX_numref(a->itv->neginf);
+  numXXX_neg(neginf,neginf);
+  cmp = numXXX_cmp(boundXXX_numref(a->itv->sup),neginf);
+  numXXX_neg(neginf,neginf);  
   if (cmp<0){
     a->eq = false;
     exc = true;
@@ -76,16 +78,16 @@ bool eitvXXX_is_int(eitvXXX_t a, num_internal_t intern)
 /* Lattice operations */
 /* ********************************************************************** */
 
-bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
+bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   if (b==c) {
     eitvXXX_set(a,b);
-    return eitvXXX_is_bottom(a,intern);
+    return eitvXXX_is_bottom(a);
   }
   else {
     boundXXX_min(a->itv->sup,b->itv->sup,c->itv->sup);
     boundXXX_min(a->itv->neginf,b->itv->neginf,c->itv->neginf);
-    return eitvXXX_canonicalize(a,false, intern);
+    return eitvXXX_canonicalize(a,false);
   }
 }
 
@@ -157,6 +159,13 @@ void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
   }
+#ifndef NDEBUG
+  boundXXX_neg(a->itv->neginf,a->itv->neginf);
+  if (boundXXX_cmp(a->itv->neginf,a->itv->sup)>0)
+    abort();
+  else
+    boundXXX_neg(a->itv->neginf,a->itv->neginf);
+#endif
 }
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
@@ -176,6 +185,13 @@ void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
     boundXXX_neg(a->itv->sup,a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->neginf);
   }
+#ifndef NDEBUG
+  boundXXX_neg(a->itv->neginf,a->itv->neginf);
+  if (boundXXX_cmp(a->itv->neginf,a->itv->sup)>0)
+    abort();
+  else
+    boundXXX_neg(a->itv->neginf,a->itv->neginf);
+#endif
 }
 void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
@@ -247,7 +263,7 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 
 void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
-  if (c->eq)
+  if (c->eq && boundXXX_sgn(c->itv->sup))
     eitvXXX_div_bound(a,b,c->itv->sup);
   else {
     itvXXX_div(a->itv,b->itv,c->itv, intern);

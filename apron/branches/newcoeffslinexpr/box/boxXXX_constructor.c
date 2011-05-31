@@ -64,7 +64,7 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       ap_linexprD_ForeachLinterm0(box->linexpr.D,i,dim,eitv){
 	man->result.flag_exact &=
 	  eitvXXX_set_eitvD(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }
@@ -75,7 +75,7 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       ap_linexprMPQ_ForeachLinterm0(box->linexpr.MPQ,i,dim,eitv){
 	  man->result.flag_exact &=
 	  eitvXXX_set_eitvMPQ(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }
@@ -86,7 +86,7 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
       ap_linexprMPFR_ForeachLinterm0(box->linexpr.MPFR,i,dim,eitv){
 	man->result.flag_exact &=
 	  eitvXXX_set_eitvMPFR(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd,man->num);
+	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
 	if (exc) { boxXXX_set_bottom(a); break; }
       }
     }

@@ -428,6 +428,7 @@ bool ap_linexprXXX_set_list_generic(
   bool res;
 
   res = true;
+  *perror = false;
   while (true){
     tag = va_arg(*va,ap_coeff_tag_t);
     if (tag==AP_END)

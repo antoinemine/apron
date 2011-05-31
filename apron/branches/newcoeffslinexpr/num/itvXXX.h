@@ -58,7 +58,7 @@ static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
 /* ====================================================================== */
 /* Normalization and tests */
 /* ====================================================================== */
-bool itvXXX_canonicalize(itvXXX_t a, bool integer, num_internal_t intern);
+bool itvXXX_canonicalize(itvXXX_t a, bool integer);
   /* Canonicalize an interval:
      - if integer is true, narrows bound to integers
      - return true if the interval is bottom
@@ -74,8 +74,8 @@ static inline bool itvXXX_is_pos(itvXXX_t a);
 static inline bool itvXXX_is_neg(itvXXX_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
 static inline bool itvXXX_is_top(itvXXX_t a);
-static inline bool itvXXX_is_bottom(itvXXX_t a, num_internal_t intern);
-  /* Return true iff the interval is resp. [-oo,+oo] or empty */
+static inline bool itvXXX_is_bottom(itvXXX_t a);
+  /* Return true iff the interval is empty */
 static inline bool itvXXX_is_leq(itvXXX_t a, itvXXX_t b);
   /* Inclusion test */
 static inline bool itvXXX_is_eq(itvXXX_t a, itvXXX_t b);
@@ -100,7 +100,7 @@ void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern);
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern);
+bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c);
   /* Assign a with the intersection of b and c */
 void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c);
   /* Assign a with the union of b and c */
@@ -323,9 +323,9 @@ static inline bool itvXXX_is_top(itvXXX_t a)
 {
   return boundXXX_infty(a->neginf) && boundXXX_infty(a->sup);
 }
-static inline bool itvXXX_is_bottom(itvXXX_t a, num_internal_t intern)
+static inline bool itvXXX_is_bottom(itvXXX_t a)
 {
-  return itvXXX_canonicalize(a, false, intern);
+  return itvXXX_canonicalize(a, false);
 }
 static inline bool itvXXX_is_leq(itvXXX_t a, itvXXX_t b)
 {

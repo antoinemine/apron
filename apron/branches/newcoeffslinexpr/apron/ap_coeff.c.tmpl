@@ -184,11 +184,11 @@ bool ap_coeff_is_top(ap_coeff_t a)
   ENDMACRO;
   return res;
 }
-bool ap_coeff_is_bottom(ap_coeff_t a, num_internal_t num)
+bool ap_coeff_is_bottom(ap_coeff_t a)
 {
   bool res;
   MACRO_SWITCH(a->discr) XXX
-    res = eitvXXX_is_bottom(a->eitv.XXX,num);
+    res = eitvXXX_is_bottom(a->eitv.XXX);
   ENDMACRO;
   return res;
 }

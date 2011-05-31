@@ -23,7 +23,7 @@ H_TMPL_FILES = \
 numIyyy.h numRyyy.h numDyyy.h \
 $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_tmpl)
 
-C_TMPL_FILES_XXX = itvXXX.c eitvXXX.c
+C_TMPL_FILES_XXX = boundXXX.c itvXXX.c eitvXXX.c
 C_TMPL_FILES_tmpl = num_internal.c.tmpl num_conv.c.tmpl 
 C_TMPL_FILES = \
 numIyyy.c numRyyy.c numDyyy.c \

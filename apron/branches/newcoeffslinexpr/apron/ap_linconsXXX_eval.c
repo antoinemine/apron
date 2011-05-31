@@ -21,7 +21,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
   eitvXXX_ptr cst = lincons->linexpr->cst;
 
   assert (lincons->linexpr->effsize==0);
-  if (eitvXXX_is_bottom(cst, intern)){
+  if (eitvXXX_is_bottom(cst)){
     return tbool_false;
   }
   switch (lincons->constyp){
@@ -304,7 +304,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
 		     boundXXX_numref(expr->cst->itv->neginf));
       }
     }
-    if (eitvXXX_is_bottom(expr->cst, intern)){
+    if (eitvXXX_is_bottom(expr->cst)){
       ap_linconsXXX_set_bool(cons,false);
     }
   }
@@ -778,7 +778,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
     eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
     if (change){
       globalchange = true;
-      exc = itvXXX_canonicalize(resdim->itv,dim<intdim, intern);
+      exc = itvXXX_canonicalize(resdim->itv,dim<intdim);
       if (exc){
 	eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
 	eitvXXX_set_bottom(res0);
@@ -841,7 +841,7 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 	globalchange = globalchange || change;
 	{
 	  eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,false);
-	  if (res0 && eitvXXX_is_bottom(res0, intern)){
+	  if (res0 && eitvXXX_is_bottom(res0)){
 	    return true;
 	  }
 	}

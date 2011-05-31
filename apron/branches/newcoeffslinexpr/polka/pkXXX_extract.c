@@ -358,7 +358,7 @@ void pkXXX_bound_texpr(ap_manager_t* man,
   eitvXXX_init(eitv2);
   matrixXXX_bound_ap_linexprXXX(pk,eitv1,pk->ap_linexprXXX,po->F);
   eitvXXX_eval_ap_texpr0(eitv2,expr,pk->envXXX,pk->num);
-  eitvXXX_meet(eitv1,eitv1,eitv2,pk->num);
+  eitvXXX_meet(eitv1,eitv1,eitv2);
   exact = ap_coeff_set_eitvXXX(interval,eitv1,pk->num);
   eitvXXX_clear(eitv1);
   eitvXXX_clear(eitv2);

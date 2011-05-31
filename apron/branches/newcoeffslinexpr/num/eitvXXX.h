@@ -58,7 +58,7 @@ static inline void eitvXXX_enlarge_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 /* ====================================================================== */
 /* Normalization and tests */
 /* ====================================================================== */
-bool eitvXXX_canonicalize(eitvXXX_t a, bool integer, num_internal_t intern);
+bool eitvXXX_canonicalize(eitvXXX_t a, bool integer);
   /* Canonicalize an interval:
      - if integer is true, narrows bound to integers
      - return true if the interval is bottom
@@ -74,7 +74,7 @@ static inline bool eitvXXX_is_pos(eitvXXX_t a);
 static inline bool eitvXXX_is_neg(eitvXXX_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
 static inline bool eitvXXX_is_top(eitvXXX_t a);
-static inline bool eitvXXX_is_bottom(eitvXXX_t a, num_internal_t intern);
+static inline bool eitvXXX_is_bottom(eitvXXX_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
 static inline bool eitvXXX_is_leq(eitvXXX_t a, eitvXXX_t b);
   /* Inclusion test */
@@ -100,7 +100,7 @@ static inline void eitvXXX_range_rel(boundXXX_t a, eitvXXX_t b, num_internal_t i
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern);
+bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
   /* Assign a with the intersection of b and c */
 static inline void eitvXXX_join(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c);
   /* Assign a with the union of b and c */
@@ -332,9 +332,9 @@ static inline bool eitvXXX_is_top(eitvXXX_t a)
 {
   return !a->eq && itvXXX_is_top(a->itv);
 }
-static inline bool eitvXXX_is_bottom(eitvXXX_t a, num_internal_t intern)
+static inline bool eitvXXX_is_bottom(eitvXXX_t a)
 {
-  return !a->eq && eitvXXX_canonicalize(a, false, intern);
+  return !a->eq && eitvXXX_canonicalize(a, false);
 }
 static inline bool eitvXXX_is_leq(eitvXXX_t a, eitvXXX_t b)
 {
