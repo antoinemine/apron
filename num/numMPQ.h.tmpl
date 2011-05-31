@@ -1,3 +1,4 @@
+/* -*- mode: c -*- */
 /* ********************************************************************** */
 /* numMPQ.h */
 /* ********************************************************************** */
@@ -173,58 +174,7 @@ size_t numMPQ_serialized_size_array(numMPQ_t* src, size_t size);
 /* Conversions */
 /* ====================================================================== */
 
-bool lint_fits_numMPQ(long int a);
-bool llint_fits_numMPQ(long long int a);
-bool mpz_fits_numMPQ(mpz_t a);
-bool lfrac_fits_numMPQ(long int i, long int j);
-bool llfrac_fits_numMPQ(long long int i, long long int j);
-bool mpq_fits_numMPQ(mpq_t a);
-bool double_fits_numMPQ(double k);
-bool ldouble_fits_numMPQ(long double k);
-bool mpfr_fits_numMPQ(mpfr_t a, num_internal_t intern);
-bool numD_fits_numMPQ(numD_t a);
-bool numMPQ_fits_numMPQ(numMPQ_t a);
-bool numMPFR_fits_numMPQ(numMPFR_t a, num_internal_t intern);
-
-bool numMPQ_fits_lint(numMPQ_t a);
-bool numMPQ_fits_llint(numMPQ_t a);
-bool numMPQ_fits_mpz(numMPQ_t a);
-bool numMPQ_fits_lfrac(numMPQ_t a);
-bool numMPQ_fits_llfrac(numMPQ_t a);
-bool numMPQ_fits_mpq(numMPQ_t a);
-bool numMPQ_fits_float(numMPQ_t a);
-bool numMPQ_fits_double(numMPQ_t a);
-bool numMPQ_fits_ldouble(numMPQ_t a);
-bool numMPQ_fits_mpfr(numMPQ_t a);
-bool numMPQ_fits_numD(numMPQ_t a);
-bool numMPQ_fits_numMPQ(numMPQ_t a);
-bool numMPQ_fits_numMPFR(numMPQ_t a);
-
-bool numMPQ_set_lint(numMPQ_t a, long int i, num_internal_t intern);
-bool numMPQ_set_llint(numMPQ_t a, long long int i, num_internal_t intern);
-bool numMPQ_set_mpz(numMPQ_t a, mpz_t b, num_internal_t intern);
-bool numMPQ_set_lfrac(numMPQ_t a, long int i, long int j, num_internal_t intern);
-bool numMPQ_set_llfrac(numMPQ_t a, long long int i, long long int j, num_internal_t intern);
-bool numMPQ_set_mpq(numMPQ_t a, mpq_t b, num_internal_t intern);
-bool numMPQ_set_double(numMPQ_t a, double k, num_internal_t intern);
-bool numMPQ_set_ldouble(numMPQ_t a, long double k, num_internal_t intern);
-bool numMPQ_set_mpfr(numMPQ_t a, mpfr_t b, num_internal_t intern);
-bool numMPQ_set_numD(numMPQ_t a, numD_t b, num_internal_t intern);
-bool numMPQ_set_numMPQ(numMPQ_t a, numMPQ_t b, num_internal_t intern);
-bool numMPQ_set_numMPFR(numMPQ_t a, numMPFR_t b, num_internal_t intern);
-
-bool lint_set_numMPQ(long int* a, numMPQ_t b, num_internal_t intern);
-bool llint_set_numMPQ(long long int* a, numMPQ_t b, num_internal_t intern);
-bool mpz_set_numMPQ(mpz_t a, numMPQ_t b, num_internal_t intern);
-bool lfrac_set_numMPQ(long int* i, long int* j, numMPQ_t b, num_internal_t intern);
-bool llfrac_set_numMPQ(long long int* i, long long int* j, numMPQ_t b, num_internal_t intern);
-bool mpq_set_numMPQ(mpq_t a, numMPQ_t b, num_internal_t intern);
-bool double_set_numMPQ(double* a, numMPQ_t b, num_internal_t intern);
-bool ldouble_set_numMPQ(long double* a, numMPQ_t b, num_internal_t intern);
-bool mpfr_set_numMPQ(mpfr_t a, numMPQ_t b, num_internal_t intern);
-bool numD_set_numMPQ(numD_t a, numMPQ_t b, num_internal_t intern);
-bool numMPQ_set_numMPQ(numMPQ_t a, numMPQ_t b, num_internal_t intern);
-bool numMPFR_set_numMPQ(numMPFR_t a, numMPQ_t b, num_internal_t intern);
+/* See num_conv.h.tmpl */
 
 /* ********************************************************************** */
 /* Underlying integer */
@@ -382,81 +332,26 @@ static inline size_t numintMPQ_serialized_size_array(numintMPQ_t* src, size_t si
 /* Conversions */
 /* ====================================================================== */
 
-static inline bool lint_fits_numintMPQ(long int a)
-{ return lint_fits_numMPZ(a); }
-static inline bool llint_fits_numintMPQ(long long int a)
-{ return llint_fits_numMPZ(a); }
-static inline bool mpz_fits_numintMPQ(mpz_t a)
-{ return mpz_fits_numMPZ(a); }
-static inline bool lfrac_fits_numintMPQ(long int i, long int j)
-{ return lfrac_fits_numMPZ(i,j); }
-static inline bool llfrac_fits_numintMPQ(long long int i, long long int j)
-{ return llfrac_fits_numMPZ(i,j); }
-static inline bool mpq_fits_numintMPQ(mpq_t a)
-{ return mpq_fits_numMPZ(a); }
-static inline bool double_fits_numintMPQ(double a)
-{ return double_fits_numMPZ(a); }
-static inline bool ldouble_fits_numintMPQ(long double a)
-{ return ldouble_fits_numMPZ(a); }
-static inline bool mpfr_fits_numintMPQ(mpfr_t a, num_internal_t intern)
-{ return mpfr_fits_numMPZ(a,intern); }
+MACRO_FOREACH XXX @AllNum
+#define numintMPQ_fits_numXXX(a,b) numMPZ_fits_numXXX(a,b)
+#define numXXX_fits_numintMPQ(a,b) numXXX_fits_numMPZ(a,b)
+#define numXXX_set_numintMPQ(a,b,c) numXXX_set_numMPZ(a,b,c)
+#define numintMPQ_set_numXXX(a,b,c) numMPZ_set_numXXX(a,b,c)
+ENDMACRO
 
-static inline bool numintMPQ_fits_lint(numintMPQ_t a)
-{ return numMPZ_fits_lint(a); }
-static inline bool numintMPQ_fits_llint(numintMPQ_t a)
-{ return numMPZ_fits_llint(a); }
-static inline bool numintMPQ_fits_mpz(numintMPQ_t a)
-{ return numMPZ_fits_mpz(a); }
-static inline bool numintMPQ_fits_lfrac(numintMPQ_t a)
-{ return numMPZ_fits_lfrac(a); }
-static inline bool numintMPQ_fits_llfrac(numintMPQ_t a)
-{ return numMPZ_fits_llfrac(a); }
-static inline bool numintMPQ_fits_mpq(numintMPQ_t a)
-{ return numMPZ_fits_mpq(a); }
-static inline bool numintMPQ_fits_double(numintMPQ_t a)
-{ return numMPZ_fits_double(a); }
-static inline bool numintMPQ_fits_ldouble(numintMPQ_t a)
-{ return numMPZ_fits_ldouble(a); }
-static inline bool numintMPQ_fits_mpfr(numintMPQ_t a)
-{ return numMPZ_fits_mpfr(a); }
+#define lint_fits_numintMPQ(a,b) lint_fits_numMPZ(a,b)
+#define mpz_fits_numintMPQ(a,b) mpz_fits_numMPZ(a,b)
+#define lfrac_fits_numintMPQ(a,b,c) lfrac_fits_numMPZ(a,b,c)
+#define mpq_fits_numintMPQ(a,b) mpq_fits_numMPZ(a,b)
+#define double_fits_numintMPQ(a,b) double_fits_numMPZ(a,b)
+#define mpfr_fits_numintMPQ(a,b) mpfr_fits_numMPZ(a,b)
 
-static inline bool numintMPQ_set_lint(numintMPQ_t a, long int b, num_internal_t intern)
-{ return numMPZ_set_lint(a,b,intern); }
-static inline bool numintMPQ_set_llint(numintMPQ_t a, long long int b, num_internal_t intern)
-{ return numMPZ_set_llint(a,b,intern); }
-static inline bool numintMPQ_set_mpz(numintMPQ_t a, mpz_t b, num_internal_t intern)
-{ return numMPZ_set_mpz(a,b,intern); }
-static inline bool numintMPQ_set_lfrac(numintMPQ_t a, long int i, long int j, num_internal_t intern)
-{ return numMPZ_set_lfrac(a,i,j,intern); }
-static inline bool numintMPQ_set_llfrac(numintMPQ_t a, long long int i, long long int j, num_internal_t intern)
-{ return numMPZ_set_llfrac(a,i,j,intern); }
-static inline bool numintMPQ_set_mpq(numintMPQ_t a, mpq_t b, num_internal_t intern)
-{ return numMPZ_set_mpq(a,b,intern); }
-static inline bool numintMPQ_set_double(numintMPQ_t a, double b, num_internal_t intern)
-{ return numMPZ_set_double(a,b,intern); }
-static inline bool numintMPQ_set_ldouble(numintMPQ_t a, long double b, num_internal_t intern)
-{ return numMPZ_set_ldouble(a,b,intern); }
-static inline bool numintMPQ_set_mpfr(numintMPQ_t a, mpfr_t b, num_internal_t intern)
-{ return numMPZ_set_mpfr(a,b,intern); }
-
-static inline bool lint_set_numintMPQ(long int* a, numintMPQ_t b, num_internal_t intern)
-{ return lint_set_numMPZ(a,b,intern); }
-static inline bool llint_set_numintMPQ(long long int* a, numintMPQ_t b, num_internal_t intern)
-{ return llint_set_numMPZ(a,b,intern); }
-static inline bool mpz_set_numintMPQ(mpz_t a, numintMPQ_t b, num_internal_t intern)
-{ return mpz_set_numMPZ(a,b,intern); }
-static inline bool lfrac_set_numintMPQ(long int* i, long int* j, numintMPQ_t b, num_internal_t intern)
-{ return lfrac_set_numMPZ(i,j,b,intern); }
-static inline bool llfrac_set_numintMPQ(long long int* i, long long int* j, numintMPQ_t b, num_internal_t intern)
-{ return llfrac_set_numMPZ(i,j,b,intern); }
-static inline bool mpq_set_numintMPQ(mpq_t a, numintMPQ_t b, num_internal_t intern)
-{ return mpq_set_numMPZ(a,b,intern); }
-static inline bool double_set_numintMPQ(double* a, numintMPQ_t b, num_internal_t intern)
-{ return double_set_numMPZ(a,b,intern); }
-static inline bool ldouble_set_numintMPQ(long double* a, numintMPQ_t b, num_internal_t intern)
-{ return ldouble_set_numMPZ(a,b,intern); }
-static inline bool mpfr_set_numintMPQ(mpfr_t a, numintMPQ_t b, num_internal_t intern)
-{ return mpfr_set_numMPZ(a,b,intern); }
+#define numintMPQ_set_lint(a,b,c) numMPZ_set_lint(a,b,c)
+#define numintMPQ_set_mpz(a,b,c) numMPZ_set_mpz(a,b,c)
+#define numintMPQ_set_lfrac(a,b,c,d) numMPZ_set_lfrac(a,b,c,d)
+#define numintMPQ_set_mpq(a,b,c) numMPZ_set_mpq(a,b,c)
+#define numintMPQ_set_double(a,b,c) numMPZ_set_double(a,b,c)
+#define numintMPQ_set_mpfr(a,b,c) numMPZ_set_mpfr(a,b,c)
 
 #ifdef __cplusplus
 }

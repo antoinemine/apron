@@ -159,58 +159,7 @@ size_t numMPFR_serialized_size_array(numMPFR_t* src, size_t size);
 /* Conversions */
 /* ====================================================================== */
 
-bool lint_fits_numMPFR(long int a);
-bool llint_fits_numMPFR(long long int a);
-bool mpz_fits_numMPFR(mpz_t a);
-bool lfrac_fits_numMPFR(long int i, long int j);
-bool llfrac_fits_numMPFR(long long int i, long long int j);
-bool mpq_fits_numMPFR(mpq_t a);
-bool double_fits_numMPFR(double k);
-bool ldouble_fits_numMPFR(long double k);
-bool mpfr_fits_numMPFR(mpfr_t a, num_internal_t intern);
-bool numD_fits_numMPFR(numD_t a);
-bool numMPQ_fits_numMPFR(numMPQ_t a);
-bool numMPFR_fits_numMPFR(numMPFR_t a, num_internal_t intern);
-
-bool numMPFR_fits_lint(numMPFR_t a);
-bool numMPFR_fits_llint(numMPFR_t a);
-bool numMPFR_fits_mpz(numMPFR_t a);
-bool numMPFR_fits_lfrac(numMPFR_t a);
-bool numMPFR_fits_llfrac(numMPFR_t a);
-bool numMPFR_fits_mpq(numMPFR_t a);
-bool numMPFR_fits_float(numMPFR_t a);
-bool numMPFR_fits_double(numMPFR_t a);
-bool numMPFR_fits_ldouble(numMPFR_t a);
-bool numMPFR_fits_mpfr(numMPFR_t a);
-bool numMPFR_fits_numD(numMPFR_t a, num_internal_t intern);
-bool numMPFR_fits_numMPQ(numMPFR_t a, num_internal_t intern);
-bool numMPFR_fits_numMPFR(numMPFR_t a, num_internal_t intern);
-
-bool numMPFR_set_lint(numMPFR_t a, long int i, num_internal_t intern);
-bool numMPFR_set_llint(numMPFR_t a, long long int i, num_internal_t intern);
-bool numMPFR_set_mpz(numMPFR_t a, mpz_t b, num_internal_t intern);
-bool numMPFR_set_lfrac(numMPFR_t a, long int i, long int j, num_internal_t intern);
-bool numMPFR_set_llfrac(numMPFR_t a, long long int i, long long int j, num_internal_t intern);
-bool numMPFR_set_mpq(numMPFR_t a, mpq_t b, num_internal_t intern);
-bool numMPFR_set_double(numMPFR_t a, double k, num_internal_t intern);
-bool numMPFR_set_ldouble(numMPFR_t a, long double k, num_internal_t intern);
-bool numMPFR_set_mpfr(numMPFR_t a, mpfr_t b, num_internal_t intern);
-bool numMPFR_set_numD(numMPFR_t a, numD_t b, num_internal_t intern);
-bool numMPFR_set_numMPQ(numMPFR_t a, numMPQ_t b, num_internal_t intern);
-bool numMPFR_set_numMPFR(numMPFR_t a, numMPFR_t b, num_internal_t intern);
-
-bool lint_set_numMPFR(long int* a, numMPFR_t b, num_internal_t intern);
-bool llint_set_numMPFR(long long int* a, numMPFR_t b, num_internal_t intern);
-bool mpz_set_numMPFR(mpz_t a, numMPFR_t b, num_internal_t intern);
-bool lfrac_set_numMPFR(long int* i, long int* j, numMPFR_t b, num_internal_t intern);
-bool llfrac_set_numMPFR(long long int* i, long long int* j, numMPFR_t b, num_internal_t intern);
-bool mpq_set_numMPFR(mpq_t a, numMPFR_t b, num_internal_t intern);
-bool double_set_numMPFR(double* a, numMPFR_t b, num_internal_t intern);
-bool ldouble_set_numMPFR(long double* a, numMPFR_t b, num_internal_t intern);
-bool mpfr_set_numMPFR(mpfr_t a, numMPFR_t b, num_internal_t intern);
-bool numD_set_numMPFR(numD_t a, numMPFR_t b, num_internal_t intern);
-bool numMPQ_set_numMPFR(numMPQ_t a, numMPFR_t b, num_internal_t intern);
-bool numMPFR_set_numMPFR(numMPFR_t a, numMPFR_t b, num_internal_t intern);
+/* See num_conv.h.tmpl */
 
 #ifdef __cplusplus
 }
