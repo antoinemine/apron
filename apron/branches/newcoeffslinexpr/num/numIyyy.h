@@ -70,8 +70,6 @@ static inline void numIyyy_sub_uint(numIyyy_t a, numIyyy_t b, unsigned long int 
 { *a = *b - c; }
 static inline void numIyyy_mul(numIyyy_t a, numIyyy_t b, numIyyy_t c)
 { *a = *b * *c; }
-static inline void numIyyy_mul_2(numIyyy_t a, numIyyy_t b)
-{ *a = *b << 1; }
 
 static inline void numIyyy_tdiv_q(numIyyy_t q, numIyyy_t a, numIyyy_t b)
 { *q = *a / *b; }
@@ -92,8 +90,6 @@ static inline void numIyyy_cdiv_q(numIyyy_t q, numIyyy_t a, numIyyy_t b)
 
 void numIyyy_cdiv_qr(numIyyy_t q, numIyyy_t r, numIyyy_t a, numIyyy_t b);
 
-static inline void numIyyy_cdiv_2(numIyyy_t a, numIyyy_t b)
-{ *a = (*b>=NUMIyyy_ZERO) ? (*b+1)/2 : *b/2; }
 static inline void numIyyy_cdiv_q_2exp(numIyyy_t a, numIyyy_t b, unsigned long int c)
 { *a = (*b >> c)+(*b & ((NUMIyyy_ONE<<c)-NUMIyyy_ONE) ? 1 : 0); }
 static inline void numIyyy_fdiv_q_2exp(numIyyy_t a, numIyyy_t b, unsigned long int c)
@@ -121,8 +117,6 @@ static inline void numIyyy_ceil(numIyyy_t a, numIyyy_t b)
 { numIyyy_set(a,b); }
 static inline void numIyyy_div(numIyyy_t a, numIyyy_t b, numIyyy_t c)
 { numIyyy_cdiv_q(a,b,c); }
-static inline void numIyyy_div_2(numIyyy_t a, numIyyy_t b)
-{ numIyyy_cdiv_2(a,b); }
 
 /* ====================================================================== */
 /* Arithmetic Integer Operations */

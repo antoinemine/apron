@@ -18,6 +18,8 @@ extern "C" {
 #define NUM_NUMFLT (defined(_NUMD_MARK_NUMD_) || defined(_NUMDl_MARK_NUMDl_) || defined(_NUMMPFR_MARK_NUMMPFR_))
 #define NUM_NUMRAT (defined(_NUMRl_MARK_NUMRl_) || defined(_NUMRll_MARK_NUMRll_) || defined(_NUMMPQ_MARK_NUMMPQ_))
 
+#define DEBUG_BOUND_UNDEFINED fprintf(stderr,"undefined addition or substraction of infinite bound in %s\n",__func__)
+
 /* ---------------------------------------------------------------------- */
 static inline bool boundXXX_infty(boundXXX_t a)
 #if NUM_NUMFLT
@@ -33,11 +35,10 @@ static inline bool boundXXX_infty(boundXXX_t a)
 /* ---------------------------------------------------------------------- */
 static inline void boundXXX_set_infty(boundXXX_t a, int sgn)
 {
-  assert(sgn);
+  assert(sgn==1 || sgn==-1);
 #if NUM_NUMFLT
   numXXX_set_infty(a,sgn);
 #else
-  sgn = sgn>0 ? 1 : (-1);
 #if NUM_NUMRAT
   numintXXX_set_int(numXXX_numref(a),sgn);
   numintXXX_set_int(numXXX_denref(a),0);
@@ -165,20 +166,16 @@ static inline void boundXXX_clear_array(boundXXX_t* a, size_t size)
 #if NUM_NUMFLT
 static inline void boundXXX_neg(boundXXX_t a, boundXXX_t b)
 { numXXX_neg(a,b); }
-  /*
 static inline void boundXXX_abs(boundXXX_t a, boundXXX_t b)
 { numXXX_abs(a,b); }
-  */
 static inline void boundXXX_add(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 { numXXX_add(a,b,c); }
 static inline void boundXXX_add_uint(boundXXX_t a, boundXXX_t b, unsigned long int c)
 { numXXX_add_uint(a,b,c); }
 static inline void boundXXX_add_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 { numXXX_add(a,b,c); }
-  /*
 static inline void boundXXX_sub(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 { numXXX_sub(a,b,c); }
-  */
 static inline void boundXXX_sub_uint(boundXXX_t a, boundXXX_t b, unsigned long int c)
 { numXXX_sub_uint(a,b,c); }
 static inline void boundXXX_sub_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
@@ -187,8 +184,6 @@ static inline void boundXXX_mul(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 { if (!boundXXX_sgn(b) || !boundXXX_sgn(c)) numXXX_set_int(a,0); else numXXX_mul(a,b,c); }
 static inline void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 { if (!boundXXX_sgn(b) || !numXXX_sgn(c)) numXXX_set_int(a,0); else numXXX_mul(a,b,c); }
-static inline void boundXXX_mul_2(boundXXX_t a, boundXXX_t b)
-{ numXXX_mul_2(a,b); }
 static inline void boundXXX_div(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 {
   if (!boundXXX_sgn(b) || boundXXX_infty(c)) boundXXX_set_int(a,0);
@@ -201,8 +196,6 @@ static inline void boundXXX_div_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
   else if (!numXXX_sgn(c)) boundXXX_set_infty(a,boundXXX_sgn(b));
   else numXXX_div(a,b,c);
 }
-static inline void boundXXX_div_2(boundXXX_t a, boundXXX_t b)
-{ numXXX_div_2(a,b); }
 
 #else
 
@@ -211,18 +204,23 @@ static inline void boundXXX_neg(boundXXX_t a, boundXXX_t b)
   numXXX_neg(boundXXX_numref(a),boundXXX_numref(b));
   _boundXXX_set_inf(a,b);
 }
-  /*
-    static inline void boundXXX_abs(boundXXX_t a, boundXXX_t b)
-    { numXXX_abs(boundXXX_numref(a),boundXXX_numref(b)); }
-  */
+static inline void boundXXX_abs(boundXXX_t a, boundXXX_t b)
+{
+  numXXX_abs(boundXXX_numref(a),boundXXX_numref(b));
+  _boundXXX_set_inf(a,b);
+}
 static inline void boundXXX_add(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 {
   if (boundXXX_infty(b)){
-    assert(!(boundXXX_infty(c) && boundXXX_sgn(b)==-boundXXX_sgn(c)));
+#ifndef NDEBUG
+    if (boundXXX_infty(c) && boundXXX_sgn(b)==-boundXXX_sgn(c)) DEBUG_BOUND_UNDEFINED;
+#endif
     boundXXX_set(a,b);
   }
   else if (boundXXX_infty(c)){
-    assert(!(boundXXX_infty(b) && boundXXX_sgn(b)==-boundXXX_sgn(c)));
+#ifndef NDEBUG
+    if (boundXXX_infty(b) && boundXXX_sgn(b)==-boundXXX_sgn(c)) DEBUG_BOUND_UNDEFINED;
+#endif
     boundXXX_set(a,c);
   }
   else { numXXX_add(boundXXX_numref(a),boundXXX_numref(b),boundXXX_numref(c)); _boundXXX_set_finite(a); }
@@ -236,6 +234,22 @@ static inline void boundXXX_add_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 {
   if (boundXXX_infty(b)) boundXXX_set(a,b);
   else { numXXX_add(boundXXX_numref(a),boundXXX_numref(b),c); _boundXXX_set_finite(a); }
+}
+static inline void boundXXX_sub(boundXXX_t a, boundXXX_t b, boundXXX_t c)
+{
+  if (boundXXX_infty(b)){
+#ifndef NDEBUG
+    if (boundXXX_infty(c) && boundXXX_sgn(b)==boundXXX_sgn(c)) DEBUG_BOUND_UNDEFINED;
+#endif
+    boundXXX_set(a,b);
+  }
+  else if (boundXXX_infty(c)){
+#ifndef NDEBUG
+    if (boundXXX_infty(b) && boundXXX_sgn(b)==boundXXX_sgn(c)) DEBUG_BOUND_UNDEFINED;
+#endif
+    boundXXX_neg(a,c);
+  }
+  else { numXXX_sub(boundXXX_numref(a),boundXXX_numref(b),boundXXX_numref(c)); _boundXXX_set_finite(a); }
 }
 static inline void boundXXX_sub_uint(boundXXX_t a, boundXXX_t b, unsigned long int c)
 {
@@ -264,29 +278,25 @@ static inline void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
     boundXXX_set_infty(a,boundXXX_sgn(b)*numXXX_sgn(c));
   else { numXXX_mul(boundXXX_numref(a),boundXXX_numref(b),c); _boundXXX_set_finite(a); }
 }
-static inline void boundXXX_mul_2(boundXXX_t a, boundXXX_t b)
-{
-  if (boundXXX_infty(b)) boundXXX_set(a,b);
-  else { numXXX_mul_2(boundXXX_numref(a),boundXXX_numref(b)); _boundXXX_set_finite(a); }
-}
 static inline void boundXXX_div(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 {
-  if (!boundXXX_sgn(b) || boundXXX_infty(c)) boundXXX_set_int(a,0);
-  else if (!boundXXX_sgn(c)) boundXXX_set(a,b);
-  else if (boundXXX_infty(b))  boundXXX_set_infty(a,boundXXX_sgn(c));
+  if (!boundXXX_sgn(b) || boundXXX_infty(c)) 
+    boundXXX_set_int(a,0);
+  else if (!boundXXX_sgn(c)) 
+    boundXXX_set(a,b);
+  else if (boundXXX_infty(b))  
+    boundXXX_set_infty(a,boundXXX_sgn(b)*boundXXX_sgn(c));
   else { numXXX_div(boundXXX_numref(a),boundXXX_numref(b),boundXXX_numref(c)); _boundXXX_set_finite(a); }
 }
 static inline void boundXXX_div_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 {
-  if (!boundXXX_sgn(b)) boundXXX_set_int(a,0);
-  else if (!numXXX_sgn(c)) boundXXX_set_infty(a,boundXXX_sgn(b));
-  else if (boundXXX_infty(b)) boundXXX_set_infty(a,boundXXX_sgn(b)*numXXX_sgn(c));
+  if (!boundXXX_sgn(b)) 
+    boundXXX_set_int(a,0);
+  else if (!numXXX_sgn(c)) 
+    boundXXX_set_infty(a,boundXXX_sgn(b));
+  else if (boundXXX_infty(b)) 
+    boundXXX_set_infty(a,boundXXX_sgn(b)*numXXX_sgn(c));
   else { numXXX_div(boundXXX_numref(a),boundXXX_numref(b),c); _boundXXX_set_finite(a); }
-}
-static inline void boundXXX_div_2(boundXXX_t a, boundXXX_t b)
-{
-  if (boundXXX_infty(b)) boundXXX_set(a,b);
-  else { numXXX_div_2(boundXXX_numref(a),boundXXX_numref(b)); _boundXXX_set_finite(a); }
 }
 #endif
 

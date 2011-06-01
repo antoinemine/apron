@@ -76,10 +76,6 @@ static inline void numDyyy_div(numDyyy_t a, numDyyy_t b, numDyyy_t c)
 
 static inline void numDyyy_abs(numDyyy_t a, numDyyy_t b)
 { *a = fabsyyy(*b); }
-static inline void numDyyy_mul_2(numDyyy_t a, numDyyy_t b)
-{ *a = ldexpyyy(*b,1); }
-static inline void numDyyy_div_2(numDyyy_t a, numDyyy_t b)
-{ *a = ldexpyyy(*b,-1); }
 static inline void numDyyy_min(numDyyy_t a, numDyyy_t b, numDyyy_t c)
 { *a = fminyyy(*b,*c); }
 static inline void numDyyy_max(numDyyy_t a, numDyyy_t b, numDyyy_t c)

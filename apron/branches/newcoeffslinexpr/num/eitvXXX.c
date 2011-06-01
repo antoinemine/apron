@@ -105,115 +105,78 @@ bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  assert (c!=boundXXX_numref(a->itv->neginf));
-  int sgnc = numXXX_sgn(c);
-  boundXXX_mul_num(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_EXACT && b->eq){
-    boundXXX_neg(a->itv->sup,a->itv->neginf);
+    boundXXX_mul_num(a->itv->sup,b->itv->sup,c);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
-    boundXXX_mul_num(a->itv->sup,b->itv->sup,c);
-    a->eq = false;
-  }
-  if (sgnc<0){
-    boundXXX_swap(a->itv->neginf,a->itv->sup);
-    boundXXX_neg(a->itv->sup,a->itv->sup);
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
+    itvXXX_mul_num(a->itv,b->itv,c);
+    a->eq = (numXXX_sgn(c)==0);
   }
 }
-
 void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  assert (c!=a->itv->neginf);
-  int sgnc = boundXXX_sgn(c);
-  boundXXX_mul(a->itv->neginf,b->itv->neginf,c);
   if (NUMXXX_EXACT && b->eq){
-    boundXXX_neg(a->itv->sup,a->itv->neginf);
+    boundXXX_mul(a->itv->sup,b->itv->sup,c);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
-    boundXXX_mul(a->itv->sup,b->itv->sup,c);
-    a->eq = false;
-  }
-  if (sgnc<0){
-    boundXXX_swap(a->itv->neginf,a->itv->sup);
-    boundXXX_neg(a->itv->sup,a->itv->sup);
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
+    itvXXX_mul_bound(a->itv,b->itv,c);
+    a->eq = (boundXXX_sgn(c)==0);
   }
 }
 
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  assert (c!=boundXXX_numref(a->itv->neginf));
-  int sgnc = numXXX_sgn(c);
-  boundXXX_div_num(a->itv->neginf,b->itv->neginf,c);
+
   if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_neg(a->itv->sup,a->itv->neginf);
+    boundXXX_div_num(a->itv->sup,b->itv->sup,c);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
-    boundXXX_div_num(a->itv->sup,b->itv->sup,c);
+    itvXXX_div_num(a->itv,b->itv,c);
     a->eq = false;
   }
-  if (sgnc<0){
-    boundXXX_swap(a->itv->neginf,a->itv->sup);
-    boundXXX_neg(a->itv->sup,a->itv->sup);
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
-  }
-#ifndef NDEBUG
-  boundXXX_neg(a->itv->neginf,a->itv->neginf);
-  if (boundXXX_cmp(a->itv->neginf,a->itv->sup)>0)
-    abort();
-  else
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
-#endif
 }
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  assert (c!=a->itv->neginf);
-  int sgnc = boundXXX_sgn(c);
-  boundXXX_div(a->itv->neginf,b->itv->neginf,c);
+
   if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_neg(a->itv->sup,a->itv->neginf);
-    a->eq = true;
-    }
-  else {
     boundXXX_div(a->itv->sup,b->itv->sup,c);
-    a->eq = false;
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    a->eq = true;
   }
-  if (sgnc<0){
-    boundXXX_swap(a->itv->neginf,a->itv->sup);
-    boundXXX_neg(a->itv->sup,a->itv->sup);
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
+  else {
+    itvXXX_div_bound(a->itv,b->itv,c);
+    a->eq = boundXXX_infty(c);
   }
-#ifndef NDEBUG
-  boundXXX_neg(a->itv->neginf,a->itv->neginf);
-  if (boundXXX_cmp(a->itv->neginf,a->itv->sup)>0)
-    abort();
-  else
-    boundXXX_neg(a->itv->neginf,a->itv->neginf);
-#endif
 }
 void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
-  if (a!=c){
+  if (NUMXXX_EXACT && b->eq && c->eq){
+    numXXX_sub(boundXXX_numref(a->itv->sup),
+	       boundXXX_numref(b->itv->sup),
+	       boundXXX_numref(c->itv->sup));
+    _boundXXX_set_finite(a->itv->sup);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    a->eq = true;
+  }
+  else if (a!=c){
     boundXXX_add(a->itv->sup,b->itv->sup,c->itv->neginf);
-    if (NUMXXX_EXACT && b->eq && c->eq){
-      boundXXX_neg(a->itv->neginf,a->itv->sup);
-      a->eq = true;
-    }
-    else {
-      boundXXX_add(a->itv->neginf,b->itv->neginf,c->itv->sup);
-      a->eq = false;
-    }
-  } else {
+    boundXXX_add(a->itv->neginf,b->itv->neginf,c->itv->sup);
+    a->eq = false;
+  }
+  else {
     boundXXX_swap(a->itv->neginf,a->itv->sup);
-    eitvXXX_add(a,b,c);
+    itvXXX_add(a->itv,b->itv,c->itv);
+    a->eq = false;
   }
 }
 void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
@@ -254,11 +217,21 @@ void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
 void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
-  if (c->eq){
-    eitvXXX_mul_bound(a,b,c->itv->sup);
+  if (NUMXXX_EXACT && b->eq && c->eq){
+    numXXX_mul(boundXXX_numref(a->itv->sup),
+	       boundXXX_numref(b->itv->sup),
+	       boundXXX_numref(c->itv->sup));
+    _boundXXX_set_finite(a->itv->sup);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    a->eq = true;
+  }
+  else if (c->eq){
+    numXXX_set(intern->XXX.muldiv_num,boundXXX_numref(c->itv->sup));
+    eitvXXX_mul_num(a,b,intern->XXX.muldiv_num);
   }
   else if (b->eq){
-    eitvXXX_mul_bound(a,c,b->itv->sup);
+    numXXX_set(intern->XXX.muldiv_num,boundXXX_numref(b->itv->sup));
+    eitvXXX_mul_num(a,c,intern->XXX.muldiv_num);
   }
   else {
     itvXXX_mul(a->itv,b->itv,c->itv, intern);
@@ -273,13 +246,25 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
-  if (c->eq && boundXXX_sgn(c->itv->sup))
-    eitvXXX_div_bound(a,b,c->itv->sup);
+  if (NUMXXX_DIVEXACT && b->eq && c->eq &&
+      numXXX_sgn(boundXXX_numref(c->itv->sup))){
+    numXXX_div(boundXXX_numref(a->itv->sup),
+	       boundXXX_numref(b->itv->sup),
+	       boundXXX_numref(c->itv->sup));
+    _boundXXX_set_finite(a->itv->sup);
+    boundXXX_neg(a->itv->neginf,a->itv->sup);
+    a->eq = true;
+  }
+  else if (c->eq){
+    numXXX_set(intern->XXX.muldiv_num,boundXXX_numref(c->itv->sup));
+    eitvXXX_div_num(a,b,intern->XXX.muldiv_num);
+  }
   else {
     itvXXX_div(a->itv,b->itv,c->itv, intern);
-    a->eq = false;
+    a->eq = itvXXX_is_point(a->itv);
   }
 }
+
 /* ********************************************************************** */
 /* Casts */
 /* ********************************************************************** */

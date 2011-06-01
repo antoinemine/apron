@@ -84,10 +84,6 @@ static inline void numMPFR_div(numMPFR_t a, numMPFR_t b, numMPFR_t c)
 
 static inline void numMPFR_abs(numMPFR_t a, numMPFR_t b)
 { mpfr_abs(a,b,GMP_RNDU); }
-static inline void numMPFR_mul_2(numMPFR_t a, numMPFR_t b)
-{ mpfr_mul_2ui(a,b,1,GMP_RNDU); }
-static inline void numMPFR_div_2(numMPFR_t a, numMPFR_t b)
-{ mpfr_div_2ui(a,b,1,GMP_RNDU); }
 static inline void numMPFR_min(numMPFR_t a, numMPFR_t b, numMPFR_t c)
 { mpfr_min(a,b,c,GMP_RNDU); }
 static inline void numMPFR_max(numMPFR_t a, numMPFR_t b, numMPFR_t c)
@@ -111,7 +107,10 @@ static inline void numMPFR_mul_2exp(numMPFR_t a, numMPFR_t b, int c)
 /* ====================================================================== */
 
 static inline int numMPFR_sgn(numMPFR_t a)
-{ return mpfr_sgn(a); }
+{ int sgn = mpfr_sgn(a);
+  if (sgn) sgn = sgn>0 ? 1 : (-1);
+  return sgn;
+}
 static inline int numMPFR_cmp(numMPFR_t a, numMPFR_t b)
 { return mpfr_cmp(a,b); }
 static inline int numMPFR_cmp_int(numMPFR_t a, long int b)

@@ -99,29 +99,7 @@ static inline void numRyyy_mul(numRyyy_t a, numRyyy_t b, numRyyy_t c)
   *a->d = *b->d * *c->d;
   numRyyy_canonicalize(a);
 }
-static inline void numRyyy_mul_2(numRyyy_t a, numRyyy_t b)
-{
-  if (*b->d % 2 == 0){
-    *a->n = *b->n;
-    *a->d = *b->d / 2;
-  }
-  else {
-    *a->n = *b->n * 2;
-    *a->d = *b->d;
-  }
-}
 void numRyyy_div(numRyyy_t a, numRyyy_t b, numRyyy_t c);
-static inline void numRyyy_div_2(numRyyy_t a, numRyyy_t b)
-{
-  if (*b->n % 2 == 0){
-    *a->n = *b->n / 2;
-    *a->d = *b->d;
-  }
-  else {
-    *a->n = *b->n;
-    *a->d = *b->d * 2;
-  }
-}
 static inline void numRyyy_floor(numRyyy_t a, numRyyy_t b)
 {
   numIyyy_fdiv_q(a->n, b->n, b->d);
@@ -267,12 +245,8 @@ static inline void numintRyyy_sub_uint(numintRyyy_t a, numintRyyy_t b, unsigned 
 	      { numIyyy_sub_uint(a,b,c); }
 static inline void numintRyyy_mul(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
 	      { numIyyy_mul(a,b,c); }
-static inline void numintRyyy_mul_2(numintRyyy_t a, numintRyyy_t b)
-	      { numIyyy_mul_2(a,b); }
 static inline void numintRyyy_div(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
 	      { numIyyy_cdiv_q(a,b,c); }
-static inline void numintRyyy_div_2(numintRyyy_t a, numintRyyy_t b)
-	      { numIyyy_cdiv_2(a,b); }
 static inline void numintRyyy_min(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
 	      { numIyyy_min(a,b,c); }
 static inline void numintRyyy_max(numintRyyy_t a, numintRyyy_t b, numintRyyy_t c)
@@ -305,8 +279,6 @@ static inline void numintRyyy_tdiv_q(numintRyyy_t q, numintRyyy_t a, numintRyyy_
 	      { numIyyy_tdiv_q(q,a,b); }
 static inline void numintRyyy_cdiv_qr(numintRyyy_t q, numintRyyy_t r, numintRyyy_t a, numintRyyy_t b)
 	      { numIyyy_cdiv_qr(q,r,a,b); }
-static inline void numintRyyy_cdiv_2(numintRyyy_t a, numintRyyy_t b)
-	      { numIyyy_cdiv_2(a,b); }
 static inline void numintRyyy_cdiv_q_2exp(numintRyyy_t a, numintRyyy_t b, unsigned long int c)
 	      { numIyyy_cdiv_q_2exp(a,b,c); }
 static inline void numintRyyy_fdiv_q_2exp(numintRyyy_t a, numintRyyy_t b, unsigned long int c)

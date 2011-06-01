@@ -110,7 +110,7 @@ void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern)
   boundXXX_add(a,b->sup,b->neginf);
   if (!boundXXX_infty(a)) {
     itvXXX_magnitude(intern->XXX.muldiv_bound,b);
-    boundXXX_div_2(intern->XXX.muldiv_bound,intern->XXX.muldiv_bound);
+    boundXXX_mul_2exp(intern->XXX.muldiv_bound,intern->XXX.muldiv_bound,-1);
     boundXXX_div(a,a,intern->XXX.muldiv_bound);
   }
 }
@@ -147,45 +147,22 @@ void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c)
    - an itv and a num or a bound,
 */
 
-void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
+MACRO_FOREACH OP ("mul","div");
+void itvXXX_OP_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
 {
   assert(!itvXXX_is_bottom(b));
-  assert (c!=boundXXX_numref(a->neginf));
-  int sgnc = numXXX_sgn(c);
-  boundXXX_mul_num(a->neginf,b->neginf,c);
-  boundXXX_mul_num(a->sup,b->sup,c);
-  if (sgnc<0){
-    boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+  assert (c!=boundXXX_numref(a->neginf) && c!=boundXXX_numref(a->sup) &&
+	  c!=boundXXX_numref(b->neginf) && c!=boundXXX_numref(b->sup));
+  if (numXXX_sgn(c)>=0){
+    boundXXX_OP_num(a->neginf,b->neginf,c);
+    boundXXX_OP_num(a->sup,b->sup,c);
   }
-}
-
-void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
-{
-  assert(!itvXXX_is_bottom(b));
-  assert (c!=a->neginf);
-  int sgnc = boundXXX_sgn(c);
-  boundXXX_mul(a->neginf,b->neginf,c);
-  boundXXX_mul(a->sup,b->sup,c);
-  if (sgnc<0){
+  else {
+    numXXX_neg(c,c);
+    boundXXX_OP_num(a->neginf,b->neginf,c);
+    boundXXX_OP_num(a->sup,b->sup,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
-  }
-}
-
-void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
-{
-  assert(!itvXXX_is_bottom(b));
-  assert (c!=boundXXX_numref(a->neginf));
-  int sgnc = numXXX_sgn(c);
-  boundXXX_div_num(a->neginf,b->neginf,c);
-  boundXXX_div_num(a->sup,b->sup,c);
-  if (sgnc<0){
-    boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    numXXX_neg(c,c);
   }
 #ifndef NDEBUG
   boundXXX_neg(a->neginf,a->neginf);
@@ -195,17 +172,21 @@ void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
     boundXXX_neg(a->neginf,a->neginf);
 #endif
 }
-void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
+void itvXXX_OP_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 {
   assert(!itvXXX_is_bottom(b));
-  assert (c!=a->neginf);
-  int sgnc = boundXXX_sgn(c);
-  boundXXX_div(a->neginf,b->neginf,c);
-  boundXXX_div(a->sup,b->sup,c);
-  if (sgnc<0){
+  assert (c!=(a->neginf) && c!=(a->sup) &&
+	  c!=(b->neginf) && c!=(b->sup));
+  if (boundXXX_sgn(c)>=0){
+    boundXXX_OP(a->neginf,b->neginf,c);
+    boundXXX_OP(a->sup,b->sup,c);
+  }
+  else {
+    boundXXX_neg(c,c);
+    boundXXX_OP(a->neginf,b->neginf,c);
+    boundXXX_OP(a->sup,b->sup,c);
     boundXXX_swap(a->neginf,a->sup);
-    boundXXX_neg(a->sup,a->sup);
-    boundXXX_neg(a->neginf,a->neginf);
+    boundXXX_neg(c,c);
   }
 #ifndef NDEBUG
   boundXXX_neg(a->neginf,a->neginf);
@@ -215,6 +196,8 @@ void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
     boundXXX_neg(a->neginf,a->neginf);
 #endif
 }
+ENDMACRO;
+
 void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c)
 {
   assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
