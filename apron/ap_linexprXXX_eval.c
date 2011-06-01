@@ -328,8 +328,7 @@ eitvXXX_quasilinearize_choose_middle(
 	numXXX_sub(middle,
 		   boundXXX_numref(coeff->itv->sup),
 		   boundXXX_numref(coeff->itv->neginf));
-	numXXX_div_2(middle,
-		     middle);
+	numXXX_mul_2exp(middle,middle,-1);
       }
     }
   }

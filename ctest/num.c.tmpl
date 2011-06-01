@@ -2,18 +2,24 @@
 
 /* Testing num, bound, itv, etiv */
 
+/* MODULO NOT TESTED yet !!!!!!!!!!! */
+/* TESTS NOT TESTED yet !!!!!!!!!!! */
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 
-MACRO_FOREACH XXX ("MPZ","D","MPQ","MPFR");
-#include "eitvXXX.h"
-ENDMACRO;
+#include "eitv_all.h"
 #include "num_conv.h"
 
 num_internal_t intern;
 FILE* output = NULL;
+
+#define TABCST1 { -10.6, -7.5, -5.4, -5.0, 0.0, 3.0, 4.3, 5.5, 9.7 }
+#define TABSIZE1 9
+#define TABCST2 { -7,0,9 }
+#define TABSIZE2 3
 
 /* ********************************************************************** */
 /* FPU init */
@@ -85,9 +91,9 @@ static bool fpu_init(void)
   } while (0)
 
 
-MACRO_FOREACH ttt ("num","bound","itv","eitv");
+MACRO_FOREACH ttt ("num","bound","itv","eitv")
 #define MARK_ttt
-MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
+MACRO_FOREACH XXX @AllNum
 
 void checkapprox_tttXXX(tttXXX_t x, tttXXX_t y, bool exact, char* msg)
 {
@@ -131,76 +137,280 @@ void testconv_tttXXX(tttXXX_t x)
   tttXXX_clear(y);
 }
 
-void testun_tttXXX(tttXXX_t a)
+void test1_tttXXX(tttXXX_t x, void (*op)(tttXXX_t a, tttXXX_t b), char* nameop)
 {
-  tttXXX_t b,c;
-  bool exact;
-  tttXXX_init(b); tttXXX_init(c);
-  fprintf(output,"x = "); tttXXX_fprint(output,a); fprintf(output,"\n");
-  tttXXX_neg(b,a); fprintf(output,"neg(x) = "); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_neg(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
+  tttXXX_t xx,y;
 
-#if !defined (MARK_bound)
-  tttXXX_abs(b,a); fprintf(output,"abs(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_abs(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
-#endif
-
-  tttXXX_ceil(b,a); fprintf(output,"ceil(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_ceil(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_floor(b,a); fprintf(output,"floor(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_floor(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_trunc(b,a); fprintf(output,"trunc(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_trunc(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-#if !defined(MARK_num) && !defined(MARK_bound)
-  exact = tttXXX_sqrt(b,a,intern); fprintf(output,"sqrt(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output," (%i)\n",exact);
-  tttXXX_set(c,a);
-  tttXXX_sqrt(c,c,intern);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_to_int(b,a); fprintf(output,"to_int(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_to_int(c,c);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_to_float(b,a, intern); fprintf(output,"to_float(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_to_float(c,c,intern);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_to_double(b,a, intern); fprintf(output,"to_double(x) \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_to_double(c,c,intern);
-  if (tttXXX_cmp(b,c)) assert(0);
-#endif
-  tttXXX_mul_2exp(b,a,2); fprintf(output,"x << 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_mul_2exp(c,c,2);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  tttXXX_mul_2exp(b,a,-2); fprintf(output,"x >> 2 \t= \t"); tttXXX_fprint(output,b); fprintf(output,"\n");
-  fprintf(output,"\n");
-  tttXXX_set(c,a);
-  tttXXX_mul_2exp(c,c,-2);
-  if (tttXXX_cmp(b,c)) assert(0);
-
-  testconv_tttXXX(a);
-  tttXXX_clear(b);
+  tttXXX_init(y);
+  tttXXX_init_set(xx,x);
+  /* Test normal operation */
+  fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+  op(y,x);
+  fprintf(output,"%s(y,x) \t=> y = ",nameop); tttXXX_fprint(output,y); fprintf(output,"\n");
+  /* Test first and second args aliased */
+  op(xx,xx);
+  fprintf(output,"%s(xx,xx) \t=> xx = ",nameop); tttXXX_fprint(output,xx); fprintf(output,"\n");
+  if (tttXXX_cmp(y,xx)){
+    fprintf(stdout,"ERROR: y!=xx\n");
+  }
+  tttXXX_clear(y);
+  tttXXX_clear(xx);
 }
 
-void testbin_tttXXX(tttXXX_t a, tttXXX_t b, unsigned long int c)
+void test1arg_tttXXX(tttXXX_t x, void* arg, void (*op)(tttXXX_t a, tttXXX_t b, void* arg), char* nameop)
+{
+  tttXXX_t xx,y;
+
+  tttXXX_init(y);
+  tttXXX_init_set(xx,x);
+  /* Test normal operation */
+  fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+  op(y,x,arg);
+  fprintf(output,"%s(y,x) \t=> y = ",nameop); tttXXX_fprint(output,y); fprintf(output,"\n");
+  /* Test first and second args aliased */
+  op(xx,xx,arg);
+  fprintf(output,"%s(xx,xx) \t=> xx = ",nameop); tttXXX_fprint(output,xx); fprintf(output,"\n");
+  if (tttXXX_cmp(y,xx)){
+    fprintf(stdout,"ERROR: y!=xx\n");
+  }
+  tttXXX_clear(y);
+  tttXXX_clear(xx);
+}
+
+void test2_tttXXX(tttXXX_t x, tttXXX_t y, void (*op)(tttXXX_t a, tttXXX_t b, tttXXX_t c), char* nameop)
+{
+  assert(x!=y);
+  tttXXX_t xx,yy,z;
+
+  tttXXX_init(z);
+  tttXXX_init_set(xx,x);
+  tttXXX_init_set(yy,y);
+
+  /* Test normal operation */
+  fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+  fprintf(output,"y=yy = "); tttXXX_fprint(output,y); fprintf(output,"\n");
+  op(z,x,y);
+  fprintf(output,"%s(z,x,y) \t=> z = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  /* Test first and second args aliased */
+  op(xx,xx,yy);
+  fprintf(output,"%s(xx,xx,yy) \t=> xx = ",nameop); tttXXX_fprint(output,xx); fprintf(output,"\n");
+  if (tttXXX_cmp(y,yy)){
+    fprintf(stdout,"ERROR: yy has been modified\n");
+  }
+  if (tttXXX_cmp(z,xx)){
+    fprintf(stdout,"ERROR: z!=xx\n");
+  }
+  tttXXX_set(xx,x);
+  /* Test first and third args aliased */
+  op(yy,xx,yy);
+  fprintf(output,"%s(yy,xx,yy) \t=> yy = ",nameop); tttXXX_fprint(output,yy); fprintf(output,"\n");
+  if (tttXXX_cmp(x,xx)){
+    fprintf(stdout,"ERROR: xx has been modified\n");
+  }
+  if (tttXXX_cmp(z,yy)){
+    fprintf(stdout,"ERROR: z!=yy\n");
+  }
+  tttXXX_set(yy,y);
+  /* Test second and third args aliased */
+  op(z,y,yy);
+  fprintf(output,"%s(z,y,yy) \t=> z = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  op(xx,yy,yy);
+  fprintf(output,"%s(xx,yy,yy) \t=> xx = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  if (tttXXX_cmp(y,yy)){
+    fprintf(stdout,"ERROR: xx has been modified\n");
+  }
+  if (tttXXX_cmp(z,xx)){
+    fprintf(stdout,"ERROR: z!=xx\n");
+  }
+  /* Test all arguments aliased */
+  op(yy,yy,yy);
+  fprintf(output,"%s(yy,yy,yy) \t=> yy = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  if (tttXXX_cmp(z,yy)){
+    fprintf(stdout,"ERROR: z!=yy\n");
+  }
+  tttXXX_clear(z);
+  tttXXX_clear(yy);
+  tttXXX_clear(xx);
+}
+void test2arg_tttXXX(tttXXX_t x, tttXXX_t y, void* arg, void (*op)(tttXXX_t a, tttXXX_t b, tttXXX_t c, void* arg), char* nameop)
+{
+  assert(x!=y);
+  tttXXX_t xx,yy,z;
+
+  tttXXX_init(z);
+  tttXXX_init_set(xx,x);
+  tttXXX_init_set(yy,y);
+
+  /* Test normal operation */
+  fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+  fprintf(output,"y=yy = "); tttXXX_fprint(output,y); fprintf(output,"\n");
+  op(z,x,y,arg);
+  fprintf(output,"%s(z,x,y) \t=> z = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  /* Test first and second args aliased */
+  op(xx,xx,yy,arg);
+  fprintf(output,"%s(xx,xx,yy) \t=> xx = ",nameop); tttXXX_fprint(output,xx); fprintf(output,"\n");
+  if (tttXXX_cmp(y,yy)){
+    fprintf(stdout,"ERROR: yy has been modified\n");
+  }
+  if (tttXXX_cmp(z,xx)){
+    fprintf(stdout,"ERROR: z!=xx\n");
+  }
+  tttXXX_set(xx,x);
+  /* Test first and third args aliased */
+  op(yy,xx,yy,arg);
+  fprintf(output,"%s(yy,xx,yy) \t=> yy = ",nameop); tttXXX_fprint(output,yy); fprintf(output,"\n");
+  if (tttXXX_cmp(x,xx)){
+    fprintf(stdout,"ERROR: xx has been modified\n");
+  }
+  if (tttXXX_cmp(z,yy)){
+    fprintf(stdout,"ERROR: z!=yy\n");
+  }
+  tttXXX_set(yy,y);
+  /* Test second and third args aliased */
+  op(z,y,yy,arg);
+  fprintf(output,"%s(z,y,yy) \t=> z = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  op(xx,yy,yy,arg);
+  fprintf(output,"%s(xx,yy,yy) \t=> xx = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  if (tttXXX_cmp(y,yy)){
+    fprintf(stdout,"ERROR: xx has been modified\n");
+  }
+  if (tttXXX_cmp(z,xx)){
+    fprintf(stdout,"ERROR: z!=xx\n");
+  }
+  /* Test all arguments aliased */
+  op(yy,yy,yy,arg);
+  fprintf(output,"%s(yy,yy,yy) \t=> yy = ",nameop); tttXXX_fprint(output,z); fprintf(output,"\n");
+  if (tttXXX_cmp(z,yy)){
+    fprintf(stdout,"ERROR: z!=yy\n");
+  }
+  tttXXX_clear(z);
+  tttXXX_clear(yy);
+  tttXXX_clear(xx);
+}
+
+void testun_tttXXX(tttXXX_t x)
+{
+  bool exact;
+
+  test1_tttXXX(x,tttXXX_neg,"tttXXX_neg");
+  test1_tttXXX(x,tttXXX_abs,"tttXXX_abs");
+  test1_tttXXX(x,tttXXX_ceil,"tttXXX_ceil");
+  test1_tttXXX(x,tttXXX_floor,"tttXXX_floor");
+  test1_tttXXX(x,tttXXX_trunc,"tttXXX_trunc");
+
+  /* mul_2exp */
+  {
+    int dec;
+    tttXXX_t xx,y;
+
+    for (dec=-2; dec<=2; dec+=2){
+      tttXXX_init(y);
+      tttXXX_init_set(xx,x);
+      fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+      tttXXX_mul_2exp(y,x,dec);
+      fprintf(output,"%s(y,x,%d) \t=> y = ","tttXXX_mul_2exp",dec); tttXXX_fprint(output,y); fprintf(output,"\n");
+      tttXXX_mul_2exp(xx,xx,dec);
+      fprintf(output,"%s(xx,xx,%d) \t=> xx = ","tttXXX_mul_2exp",dec); tttXXX_fprint(output,xx); fprintf(output,"\n");
+      if (tttXXX_cmp(y,xx)){
+	fprintf(stdout,"ERROR: y!=xx\n");
+      }
+      tttXXX_clear(y);
+      tttXXX_clear(xx);
+    }
+  }
+
+#if !defined(MARK_num)
+  {
+    int i;
+    double k[TABSIZE1] = TABCST1;
+    numXXX_t num;
+    numXXX_init(num);
+    for (i=0; i<TABSIZE1; i++){
+      numXXX_set_double(num,k[i],intern);
+      fprintf(output,"num="); numXXX_fprint(output,num); fprintf(output,"\n");
+
+      test1arg_tttXXX(x,num,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_add_num,"tttXXX_add_num");
+      test1arg_tttXXX(x,num,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_sub_num,"tttXXX_sub_num");
+      test1arg_tttXXX(x,num,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_mul_num,"tttXXX_mul_num");
+      test1arg_tttXXX(x,num,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_div_num,"tttXXX_div_num");
+    }
+    numXXX_clear(num);
+  }
+#endif
+
+#if !defined(MARK_num) && !defined(MARK_bound)
+  {
+    int i;
+    double k[TABSIZE1] = TABCST1;
+    boundXXX_t bound;
+    boundXXX_init(bound);
+    for (i=-1; i<TABSIZE1+1; i++){
+      if (i==-1) boundXXX_set_infty(bound,-1);
+      else if (i==TABSIZE1) boundXXX_set_infty(bound,1);
+      else boundXXX_set_double(bound,k[i],intern);
+      fprintf(output,"bound="); boundXXX_fprint(output,bound); fprintf(output,"\n");
+      test1arg_tttXXX(x,bound,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_mul_bound,"tttXXX_mul_bound");
+      test1arg_tttXXX(x,bound,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_div_bound,"tttXXX_div_bound");
+    }
+    boundXXX_clear(bound);
+  }
+#endif
+
+#if !defined(MARK_num) && !defined(MARK_bound)
+  test1_tttXXX(x,tttXXX_to_int,"tttXXX_to_int");
+
+  /* sqrt */
+  {
+    tttXXX_t xx,y;
+    bool exact;
+
+    tttXXX_init(y);
+    tttXXX_init_set(xx,x);
+    fprintf(output,"x=xx = "); tttXXX_fprint(output,x); fprintf(output,"\n");
+    exact = tttXXX_sqrt(y,x,intern);
+    fprintf(output,"%s(y,x) \t=> exact=%hhu, y = ","tttXXX_sqrt",exact); tttXXX_fprint(output,y); fprintf(output,"\n");
+    exact = tttXXX_sqrt(xx,xx,intern);
+    fprintf(output,"%s(xx,xx) \t=> exact=%hhu, xx = ","tttXXX_sqrt",exact); tttXXX_fprint(output,xx); fprintf(output,"\n");
+    if (tttXXX_cmp(y,xx)){
+      fprintf(stdout,"ERROR: y!=xx\n");
+    }
+    tttXXX_clear(y);
+    tttXXX_clear(xx);
+  }
+
+  test1arg_tttXXX(x,intern,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_to_float,"tttXXX_to_float");
+  test1arg_tttXXX(x,intern,(void (*)(tttXXX_t,tttXXX_t,void*))tttXXX_to_double,"tttXXX_to_double");
+#endif
+
+
+  testconv_tttXXX(x);
+}
+
+void testbin_tttXXX(tttXXX_t x, tttXXX_t y)
+{
+  test2_tttXXX(x,y,tttXXX_add,"tttXXX_add");
+  test2_tttXXX(x,y,tttXXX_sub,"tttXXX_sub");
+#if defined(MARK_num) || defined(MARK_bound)
+  test2_tttXXX(x,y,tttXXX_mul,"tttXXX_mul");
+#if defined(MARK_num)
+  if (numXXX_sgn(y))
+#endif
+  test2_tttXXX(x,y,tttXXX_div,"tttXXX_div");
+#else
+  test2arg_tttXXX(x,y,intern,(void(*)(tttXXX_t,tttXXX_t,tttXXX_t,void*))tttXXX_mul,"tttXXX_mul");
+  test2arg_tttXXX(x,y,intern,(void(*)(tttXXX_t,tttXXX_t,tttXXX_t,void*))tttXXX_div,"tttXXX_div");
+#endif
+
+#if defined(MARK_num) || defined(MARK_bound)
+  test2_tttXXX(x,y,tttXXX_add,"tttXXX_min");
+  test2_tttXXX(x,y,tttXXX_sub,"tttXXX_max");
+#else
+  test2_tttXXX(x,y,tttXXX_add,"tttXXX_meet");
+  test2_tttXXX(x,y,tttXXX_sub,"tttXXX_join");
+#endif
+}
+
+void testarith_tttXXX(tttXXX_t a, tttXXX_t b, unsigned long int c)
 {
   tttXXX_t r,rr;
   tttXXX_init(r);
@@ -375,6 +585,14 @@ ENDMACRO;
 
 ENDMACRO;
 
+#if 1
+#define FOPEN(a,b) output=fopen(a,b)
+#define FCLOSE fclose(output)
+#else
+#define FOPEN(a,b) output=stdout
+#define FCLOSE
+#endif
+
 int main(void)
 {
 
@@ -383,63 +601,97 @@ int main(void)
   mpfr_set_default_prec(53);
   num_internal_init(intern);
 
-  {
-    eitvMPQ_t a;
-    eitvMPQ_init(a);
-    eitvMPQ_set_lfrac2(a,-5,2,-3,1,intern);
-    bool b = eitvMPQ_is_bottom(a);
-  }
-
+  MACRO_FOREACH XXX @AllNum;
   MACRO_FOREACH ttt ("num","bound","itv","eitv");
-  MACRO_FOREACH XXX ("MPZ","MPQ","D","MPFR");
+  FOPEN("out/test_tttXXX.out","w");
+  if (output==NULL) exit(-1);
+  FCLOSE;
+  output = NULL;
+  ENDMACRO;
+
+  MACRO_FOREACH ttt ("num","itv","eitv");
+  FOPEN("out/test_tttXXX.out","a");
   {
-    fprintf(stdout,"Testing tttXXX, result written on file out/test_num_tttXXX.out\n");
+    int i,j;
+    double k[TABSIZE1] = TABCST1;
 
-    output = fopen("out/test_num_tttXXX.out","w");
-    if (output==NULL) exit(-1);
+    tttXXX_t x,y;
+    tttXXX_init(x); tttXXX_init(y);
 
-    tttXXX_t a,b;
-    tttXXX_init(a); tttXXX_init(b);
-
-    tttXXX__set_double_2(a,2,9); testun_tttXXX(a);
-    tttXXX__set_double_2(a,2.25,9.5); testun_tttXXX(a);
-    tttXXX__set_double_2(a,-9.5,-2.25); testun_tttXXX(a);
-    tttXXX__set_double_2(a,-5.5,7.25); testun_tttXXX(a);
-    tttXXX__set_double_2(a,15,1./0.); testun_tttXXX(a);
-    tttXXX__set_double_2(a,-1./0.,6); testun_tttXXX(a);
-    tttXXX__set_double_2(a,-1./0.,1./0.); testun_tttXXX(a);
-    // set_frac(a,-1,10,1,100); testun_tttXXX(a);
-    //tttXXX__set_double_2(a,1,-2); testun_tttXXX(a);
-
-    tttXXX__set_double_2(a,1,2); tttXXX__set_double_2(b,3,4); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,2,6); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,2,6); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-4,-1); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-2,3); tttXXX__set_double_2(b,0,2); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,-2,-1); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-2,-1); tttXXX__set_double_2(b,-2,0); testbin_tttXXX(a,b,3);
-    tttXXX__set_double_2(a,-2,3); tttXXX__set_double_2(b,-1,1); testbin_tttXXX(a,b,3);
-
-    /*
-      tttXXX__set_double_2(a,1,5); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,15,18); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,2,28); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,-15,28); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,-15,-2); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,-15,-10); tttXXX__set_double_2(b,10,10); testmod(a,b);
-      tttXXX__set_double_2(a,1,5); tttXXX__set_double_2(b,12,24); testmod(a,b);
-      tttXXX__set_double_2(a,-4,6); tttXXX__set_double_2(b,12,24); testmod(a,b);
-      tttXXX__set_double_2(a,0,10); tttXXX__set_double_2(b,6,8); testmod(a,b);
-      tttXXX__set_double_2(a,0,7); tttXXX__set_double_2(b,6,8); testmod(a,b);
-      tttXXX__set_double_2(a,2,10); tttXXX__set_double_2(b,6,8); testmod(a,b);
-      tttXXX__set_double_2(a,1.5,10.5); tttXXX__set_double_2(b,12.3,14.5); testmod(a,b);
-    */
-
-    tttXXX_clear(a); tttXXX_clear(b);
-
-    fclose(output);
-    output = NULL;
+    for (i=0; i<TABSIZE1; i++){
+      tttXXX_set_double(x,k[i],intern);
+      testun_tttXXX(x);
+      for (j=0; j<TABSIZE1; j++){
+	tttXXX_set_double(y,k[j],intern);
+	testbin_tttXXX(x,y);
+	testarith_tttXXX(x,y,3);
+      }
+    }
+    tttXXX_clear(x);
+    tttXXX_clear(y);
   }
+  FCLOSE;
+  ENDMACRO;
+  /* bound */
+  FOPEN("out/test_boundXXX.out","a");
+  {
+    int i,j;
+    double k[TABSIZE1] = TABCST1;
+
+    boundXXX_t x,y;
+    boundXXX_init(x); boundXXX_init(y);
+
+    for (i=-1; i<TABSIZE1+1; i++){
+      if (i==-1) boundXXX_set_infty(x,-1);
+      else if (i==TABSIZE1) boundXXX_set_infty(x,1);
+      else boundXXX_set_double(x,k[i],intern);
+      testun_boundXXX(x);
+      for (j=-1; j<TABSIZE1+1; j++){
+	if (j==-1) boundXXX_set_infty(y,-1);
+	else if (j==TABSIZE1) boundXXX_set_infty(y,1);
+	else boundXXX_set_double(y,k[j],intern);
+	testbin_boundXXX(x,y);
+	testarith_boundXXX(x,y,3);
+      }
+    }
+    boundXXX_clear(x);
+    boundXXX_clear(y);
+  }
+  FCLOSE;
+
+  MACRO_FOREACH ttt ("itv","eitv");
+  FOPEN("out/test_tttXXX.out","a");
+  {
+    int i1,i2,j1,j2;
+    double k[TABSIZE2] = TABCST2;
+    tttXXX_t x,y;
+    tttXXX_init(x); tttXXX_init(y);
+
+    for (i1=-1; i1<TABSIZE2; i1++){
+      if (i1==-1) boundXXX_set_infty(tttXXX_neginfref(x),1);
+      else boundXXX_set_double(tttXXX_neginfref(x),-k[i1],intern);
+      for (i2=i1+1; i2<TABSIZE2+1; i2++){
+	if (i2==TABSIZE2) boundXXX_set_infty(tttXXX_supref(x),1);
+	else boundXXX_set_double(tttXXX_supref(x),k[i2],intern);
+	tttXXX_canonicalize(x,false);
+	testun_tttXXX(x);
+
+	for (j1=-1; j1<TABSIZE2; j1++){
+	  if (j1==-1) boundXXX_set_infty(tttXXX_neginfref(y),1);
+	  else boundXXX_set_double(tttXXX_neginfref(y),-k[j1],intern);
+	  for (j2=j1+1; j2<TABSIZE2+1; j2++){
+	    if (j2==TABSIZE2) boundXXX_set_infty(tttXXX_supref(y),1);
+	    else boundXXX_set_double(tttXXX_supref(y),k[j2],intern);
+	    tttXXX_canonicalize(y,false);
+
+	    testbin_tttXXX(x,y);
+	    testarith_tttXXX(x,y,3);
+	  }
+	}
+      }
+    }
+  }
+  FCLOSE;
   ENDMACRO;
   ENDMACRO;
 

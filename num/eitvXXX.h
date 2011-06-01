@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#define eitvXXX_supref(a) (a)->itv->sup
+#define eitvXXX_neginfref(a) (a)->itv->neginf
+
 /* ********************************************************************** */
 /* eitv */
 /* ********************************************************************** */
@@ -390,12 +393,16 @@ static inline void eitvXXX_widening(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 
 static inline void eitvXXX_add(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
-  boundXXX_add(a->itv->sup,b->itv->sup,c->itv->sup);
   if (NUMXXX_EXACT && b->eq && c->eq){
+    numXXX_mul(boundXXX_numref(a->itv->sup),
+	       boundXXX_numref(b->itv->sup),
+	       boundXXX_numref(c->itv->sup));
+    _boundXXX_set_finite(a->itv->sup);
     boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
   else {
+    boundXXX_add(a->itv->sup,b->itv->sup,c->itv->sup);
     boundXXX_add(a->itv->neginf,b->itv->neginf,c->itv->neginf);
     a->eq = false;
   }

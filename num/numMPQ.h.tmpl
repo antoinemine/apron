@@ -90,12 +90,8 @@ static inline void numMPQ_sub(numMPQ_t a, numMPQ_t b, numMPQ_t c)
 void numMPQ_sub_uint(numMPQ_t a, numMPQ_t b, unsigned long int c);
 static inline void numMPQ_mul(numMPQ_t a, numMPQ_t b, numMPQ_t c)
 { mpq_mul(a,b,c); }
-static inline void numMPQ_mul_2(numMPQ_t a, numMPQ_t b)
-{ mpq_mul_2exp(a,b,1); }
 static inline void numMPQ_div(numMPQ_t a, numMPQ_t b, numMPQ_t c)
 { mpq_div(a,b,c); }
-static inline void numMPQ_div_2(numMPQ_t a, numMPQ_t b)
-{ mpq_div_2exp(a,b,1); }
 static inline void numMPQ_min(numMPQ_t a, numMPQ_t b, numMPQ_t c)
 { mpq_set(a, mpq_cmp(b,c)<=0 ? b : c); }
 static inline void numMPQ_max(numMPQ_t a, numMPQ_t b, numMPQ_t c)
@@ -127,7 +123,7 @@ static inline void numMPQ_mul_2exp(numMPQ_t a, numMPQ_t b, int c)
 /* ====================================================================== */
 
 static inline int numMPQ_sgn(numMPQ_t a)
-{ return mpq_sgn(a); }
+{ return numMPZ_sgn(mpq_numref(a)); }
 static inline int numMPQ_cmp(numMPQ_t a, numMPQ_t b)
 { return mpq_cmp(a,b); }
 static inline int numMPQ_cmp_int(numMPQ_t a, long int b)
@@ -230,12 +226,8 @@ static inline void numintMPQ_sub_uint(numintMPQ_t a, numintMPQ_t b, unsigned lon
 	      { numMPZ_sub_uint(a,b,c); }
 static inline void numintMPQ_mul(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
 	      { numMPZ_mul(a,b,c); }
-static inline void numintMPQ_mul_2(numintMPQ_t a, numintMPQ_t b)
-	      { numMPZ_mul_2(a,b); }
 static inline void numintMPQ_div(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
 	      { numMPZ_cdiv_q(a,b,c); }
-static inline void numintMPQ_div_2(numintMPQ_t a, numintMPQ_t b)
-	      { numMPZ_cdiv_2(a,b); }
 static inline void numintMPQ_min(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
 	      { numMPZ_min(a,b,c); }
 static inline void numintMPQ_max(numintMPQ_t a, numintMPQ_t b, numintMPQ_t c)
@@ -268,8 +260,6 @@ static inline void numintMPQ_tdiv_q(numintMPQ_t q, numintMPQ_t a, numintMPQ_t b)
 	      { numMPZ_tdiv_q(q,a,b); }
 static inline void numintMPQ_cdiv_qr(numintMPQ_t q, numintMPQ_t r, numintMPQ_t a, numintMPQ_t b)
 	      { numMPZ_cdiv_qr(q,r,a,b); }
-static inline void numintMPQ_cdiv_2(numintMPQ_t a, numintMPQ_t b)
-	      { numMPZ_cdiv_2(a,b); }
 static inline void numintMPQ_cdiv_q_2exp(numintMPQ_t a, numintMPQ_t b, unsigned long int c)
 	      { numMPZ_cdiv_q_2exp(a,b,c); }
 static inline void numintMPQ_fdiv_q_2exp(numintMPQ_t a, numintMPQ_t b, unsigned long int c)

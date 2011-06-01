@@ -369,7 +369,7 @@ void pkXXX_bound_texpr(ap_manager_t* man,
     eitvXXX_clear(eitv1);
     eitvXXX_clear(eitv2);
     man->result.flag_exact = exact && ap_linexprXXX_is_quasilinear(pk->ap_linexprXXX) && ap_linexprXXX_is_real(pk->ap_linexprXXX,po->dim.intd);
-    
+
     man->result.flag_best = exact;
   }
 }

@@ -77,8 +77,6 @@ static inline void numMPZ_sub_uint(numMPZ_t a, numMPZ_t b, unsigned long int c)
 { mpz_sub_ui(a,b,c); }
 static inline void numMPZ_mul(numMPZ_t a, numMPZ_t b, numMPZ_t c)
 { mpz_mul(a,b,c); }
-static inline void numMPZ_mul_2(numMPZ_t a, numMPZ_t b)
-{ mpz_mul_2exp(a,b,1); }
 static inline void numMPZ_fdiv_q(numMPZ_t a, numMPZ_t b, numMPZ_t c)
 { mpz_fdiv_q(a,b,c); }
 static inline void numMPZ_cdiv_q(numMPZ_t a, numMPZ_t b, numMPZ_t c)
@@ -87,8 +85,6 @@ static inline void numMPZ_tdiv_q(numMPZ_t a, numMPZ_t b, numMPZ_t c)
 { mpz_tdiv_q(a,b,c); }
 static inline void numMPZ_cdiv_qr(numMPZ_t a, numMPZ_t b, numMPZ_t c, numMPZ_t d)
 { mpz_cdiv_qr(a,b,c,d); }
-static inline void numMPZ_cdiv_2(numMPZ_t a, numMPZ_t b)
-{ mpz_cdiv_q_2exp(a,b,1); }
 static inline void numMPZ_cdiv_q_2exp(numMPZ_t a, numMPZ_t b, unsigned long int c)
 { mpz_cdiv_q_2exp(a,b,c); }
 static inline void numMPZ_fdiv_q_2exp(numMPZ_t a, numMPZ_t b, unsigned long int c)
@@ -114,8 +110,6 @@ static inline void numMPZ_ceil(numMPZ_t a, numMPZ_t b)
 { numMPZ_set(a,b); }
 static inline void numMPZ_div(numMPZ_t a, numMPZ_t b, numMPZ_t c)
 { numMPZ_cdiv_q(a,b,c); }
-static inline void numMPZ_div_2(numMPZ_t a, numMPZ_t b)
-{ numMPZ_cdiv_2(a,b); }
 
 /* ====================================================================== */
 /* Arithmetic Integer Operations */
@@ -135,7 +129,10 @@ static inline void numMPZ_lcm(numMPZ_t a, numMPZ_t b,  numMPZ_t c)
 /* ====================================================================== */
 
 static inline int numMPZ_sgn(numMPZ_t a)
-{ return mpz_sgn(a); }
+{ int sgn = mpz_sgn(a);
+  if (sgn) sgn = sgn>0 ? 1 : (-1);
+  return sgn;
+}
 static inline int numMPZ_cmp(numMPZ_t a, numMPZ_t b)
 { return mpz_cmp(a,b); }
 static inline int numMPZ_cmp_int(numMPZ_t a, long int b)

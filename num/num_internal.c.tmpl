@@ -51,6 +51,7 @@ static void numZZZ_floatconst_clear(numZZZ_floatconst* cst)
 void numZZZ_internal_init(numZZZ_internal* intern)
 {
   numZZZ_init(intern->canonicalize_num);
+  numZZZ_init(intern->muldiv_num);
   boundZZZ_init(intern->muldiv_bound);
   boundZZZ_init(intern->mul_bound);
   boundZZZ_init(intern->sqrt_bound);
@@ -85,6 +86,7 @@ void numZZZ_internal_init(numZZZ_internal* intern)
 void numZZZ_internal_clear(numZZZ_internal* intern)
 {
   numZZZ_clear(intern->canonicalize_num);
+  numZZZ_clear(intern->muldiv_num);
   boundZZZ_clear(intern->muldiv_bound);
   boundZZZ_clear(intern->mul_bound);
   boundZZZ_clear(intern->sqrt_bound);

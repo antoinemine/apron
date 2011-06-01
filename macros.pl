@@ -52,7 +52,7 @@ sub parse_macro {
 	if ($l =~ /^\h*MACRO_FOREACH\h+(\w+)\h+(\("[^"]*"(?:,"[^"]*")*\)|@\w+)/){
 	    my $var = $1;
 	    my @list = eval $2;
-	    my $nb = $nbline;
+	    my $nb = $nbline+1;
 	    my $r = parse_macroblock($depth);
 	    foreach my $n (@list) {
 		my $rr = $r;
@@ -64,7 +64,6 @@ sub parse_macro {
 		    $result = $result . "$tab#line $nb \"$file\"\n";
 		}
 		$result = $result . $rr;
-#		$result = $result . "$tab#line $nb \"$file\"\n" . $rr
 		$count = $count+1;
 	    }
 	    $result = $result . "\n";
@@ -79,7 +78,7 @@ sub parse_macro {
 	    my $var = $2;
 	    my $last = $3;
 	    my $aftercase = "\n$tab";
-	    my $nb = $nbline;
+	    my $nb = $nbline+1;
 	    my $r = parse_macroblock($depth);
 	    $result = $result . "$tab" . "switch($discr){\n";
 	    foreach my $n (("D","MPQ","MPFR")) {
@@ -91,8 +90,8 @@ sub parse_macro {
 	    }
 	    $result = $result . "$tab" . "default:\n$tab  abort();\n";
 	    $result = $result . "$tab}\n";
-            $nb = $nbline;
-            $result = $result . "$tab#line $nb \"$file\"\n";
+	    $nb = $nbline+1;
+	    $result = $result . "$tab#line $nb \"$file\"\n";
 	}
 	else {
 	    die "macros.pl: in file $file, line $nbline: wrong syntax for MACRO_SWITCH\n";
