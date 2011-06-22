@@ -55,7 +55,7 @@ val is_zero : 'a tt -> bool
 val is_pos : 'a tt -> bool
 val is_neg : 'a tt -> bool
 val is_top : 'a tt -> bool
-val is_bottom : 'a tt -> Common.num_internal -> bool
+val is_bottom : 'a tt -> bool
 val is_eq : 'a tt -> 'b tt -> bool
 val hash : 'a tt -> int
 
@@ -114,8 +114,8 @@ let is_neg (coeff:'a tt) =
   apply_discr EitvD.is_neg EitvMPQ.is_neg EitvMPFR.is_neg coeff
 let is_top (coeff:'a tt) =
   apply_discr EitvD.is_top EitvMPQ.is_top EitvMPFR.is_top coeff
-let is_bottom (coeff:'a tt) intern =
-  apply_discr_arg EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff intern
+let is_bottom (coeff:'a tt) =
+  apply_discr EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff
 let is_eq (coeff1:'a tt) (coeff2:'b tt) =
   match (coeff1,coeff2) with
   | (D x1, D x2) -> EitvD.is_eq x1 x2

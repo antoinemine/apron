@@ -106,9 +106,7 @@ void numXXX_add_uint(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
 void numXXX_sub(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
 void numXXX_sub_uint(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
 void numXXX_mul(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
-void numXXX_mul_2(numXXX_ptrm a, numXXX_ptrg b);
 void numXXX_div(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
-void numXXX_div_2(numXXX_ptrm a, numXXX_ptrg b);
 void numXXX_min(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
 void numXXX_max(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
 
@@ -153,7 +151,6 @@ void numXXX_fdiv_q(numXXX_ptrm a, numXXX_ptrg b, numXXX_ptrg c);
 void numXXX_cdiv_q(numXXX_ptrm q, numXXX_ptrg a, numXXX_ptrg b);
 void numXXX_tdiv_q(numXXX_ptrm q, numXXX_ptrg a, numXXX_ptrg b);
 void numXXX_cdiv_qr(numXXX_ptrm q, numXXX_ptrm r, numXXX_ptrg a, numXXX_ptrg b);
-void numXXX_cdiv_2(numXXX_ptrm a, numXXX_ptrg b);
 void numXXX_cdiv_q_2exp(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
 void numXXX_fdiv_q_2exp(numXXX_ptrm a, numXXX_ptrg b, unsigned long c);
 #endif

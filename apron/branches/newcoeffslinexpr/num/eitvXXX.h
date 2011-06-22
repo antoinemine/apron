@@ -179,8 +179,8 @@ bool eitvXXX_set_generic(num_internal_t intern,
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
-static inline int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a);
-static inline void eitvXXX_fprint(FILE* stream, eitvXXX_t a);
+int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a);
+void eitvXXX_fprint(FILE* stream, eitvXXX_t a);
 void eitvXXX_print(eitvXXX_t a);
 
 /* ====================================================================== */
@@ -394,7 +394,7 @@ static inline void eitvXXX_widening(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 static inline void eitvXXX_add(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
 {
   if (NUMXXX_EXACT && b->eq && c->eq){
-    numXXX_mul(boundXXX_numref(a->itv->sup),
+    numXXX_add(boundXXX_numref(a->itv->sup),
 	       boundXXX_numref(b->itv->sup),
 	       boundXXX_numref(c->itv->sup));
     _boundXXX_set_finite(a->itv->sup);
@@ -486,23 +486,6 @@ static inline void eitvXXX_mod(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c,
 {
   itvXXX_mod(a->itv,b->itv,c->itv,is_int, intern);
   a->eq = false;
-}
-/* ====================================================================== */
-/* Printing */
-/* ====================================================================== */
-
-static inline void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
-{
-  if (a->eq)
-    boundXXX_fprint(stream,a->itv->sup);
-  else
-    itvXXX_fprint(stream,a->itv);
- }
-static inline int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a)
-{
-  return a->eq ?
-    boundXXX_snprint(s,size,a->itv->sup) :
-    itvXXX_snprint(s,size,a->itv);
 }
 
 #ifdef __cplusplus

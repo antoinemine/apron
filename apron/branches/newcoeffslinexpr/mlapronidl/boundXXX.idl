@@ -80,10 +80,8 @@ void boundXXX_sub_uint(boundXXX_ptrm a, boundXXX_ptrg b, unsigned long c);
 void boundXXX_sub_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
 void boundXXX_mul(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 void boundXXX_mul_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
-void boundXXX_mul_2(boundXXX_ptrm a, boundXXX_ptrg b);
 void boundXXX_div(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 void boundXXX_div_num(boundXXX_ptrm a, boundXXX_ptrg b, numXXX_ptrg c);
-void boundXXX_div_2(boundXXX_ptrm a, boundXXX_ptrg b);
 void boundXXX_min(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 void boundXXX_max(boundXXX_ptrm a, boundXXX_ptrg b, boundXXX_ptrg c);
 

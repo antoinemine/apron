@@ -7,6 +7,11 @@
 #include "eitv_all.h"
 #include <float.h>
 
+#define NUM_CONTINUED_FRACTION_SIZE 10
+#define NUM_CONTINUED_FRACTION_RATIO 2
+
+  /* For conversions from double to rationals */
+
 /* ********************************************************************** */
 /* I. numXXX */
 /* ********************************************************************** */
@@ -419,56 +424,27 @@ extern inline bool numRyyy_set_numMPQ(numRyyy_t a, numMPQ_t b, num_internal_t in
   numRyyy_canonicalize(a);
   return true;
 }
-bool numRyyy_set_numD(numRyyy_t a, numD_t b, num_internal_t intern)
+MACRO_FOREACH zzz ("","l")
+#define MARKZ_zzz
+bool numRyyy_set_numDzzz(numRyyy_t a, numDzzz_t b, num_internal_t intern)
 {
+#if defined(MARKZ_)
   double k = *b;
-  const int size = sizeof(numIyyy_t)*8-2;
-  int e,l;
-  bool res;
-
-  if (!isfinite(k)) { DEBUG_SPECIAL; numRyyy_set_int(a,0); return false; }
-  if (k==0.0){
-    numRyyy_set_int(a,0);
-    return true;
-  }
-  k = frexp(k,&e);
-  if (e < -size){
-    if (k>0.0){
-      *a->n = NUMIyyy_ONE;
-      *a->d = NUMIyyy_MAX;
-    }
-    else {
-      numRyyy_set_int(a,0);
-    }
-    return false;
-  }
-  else if (size-e>=0) {
-    l = (e>=0) ? size : (size + e);
-    k = ldexp(k,l);
-    res = numIyyy_set_double(a->n,k,intern);
-    *a->d = NUMIyyy_ONE << (l-e);
-    numRyyy_canonicalize(a);
-    return res;
-  }
-  else {
-    numRyyy_set_int(a,0);
-    return false;
-  }
-}
-bool numRyyy_set_numDl(numRyyy_t a, numDl_t b, num_internal_t intern)
-{
+  double t;
+#else
   long double k = *b;
-  const int size = sizeof(numIyyy_t)*8-2;
-  int e,l;
-  bool res;
+  long double t;
+#endif
+  int e;
+  const int longintsize = sizeof(long int)*8-2;
 
   if (!isfinite(k)) { DEBUG_SPECIAL; numRyyy_set_int(a,0); return false; }
   if (k==0.0){
     numRyyy_set_int(a,0);
     return true;
   }
-  k = frexpl(k,&e);
-  if (e < -size){
+  frexpzzz(k,&e);
+  if (e < -longintsize){
     if (k>0.0){
       *a->n = NUMIyyy_ONE;
       *a->d = NUMIyyy_MAX;
@@ -478,19 +454,72 @@ bool numRyyy_set_numDl(numRyyy_t a, numDl_t b, num_internal_t intern)
     }
     return false;
   }
-  else if (size-e>=0) {
-    l = (e>=0) ? size : (size + e);
-    k = ldexpl(k,l);
-    res = numIyyy_set_numDl(a->n,&k,intern);
-    *a->d = NUMIyyy_ONE << (l-e);
-    numRyyy_canonicalize(a);
-    return res;
-  }
   else {
-    numRyyy_set_int(a,0);
-    return false;
+    long int tab[NUM_CONTINUED_FRACTION_SIZE];
+    int i,last,size;
+    bool neg,stop,exact;
+    numRyyy_t acc;
+
+    if (k<0.0){
+      neg = true;
+      k = -k;
+    }
+    else {
+      neg = false;
+    }
+    stop = false;
+    size = 0;
+    for(i=0; i<NUM_CONTINUED_FRACTION_SIZE; i++){
+      frexpzzz(k,&e);
+      size += e;
+      if (size>=longintsize/NUM_CONTINUED_FRACTION_RATIO){
+	last = i-1;
+	stop = true;
+	break;
+      }
+      t = floorzzz(k);
+      tab[i] = (long int)t;
+      last = i;
+      k = k-t;
+      if (k==0.0)
+	break;
+      k = 1.0/k;
+    }
+    if (stop || i==NUM_CONTINUED_FRACTION_SIZE){
+      exact = false;
+      if (last<0){
+	*a->d = 1;
+	if (size>=longintsize)
+	  *a->n = 0; /* Out of range, we put something really wrong ! */
+	else {
+	  *a->n = neg ? -floorzzz(k) : ceilzzz(k);
+	}
+	return false;
+      }
+      else {
+	if (last % 2 == 0){
+	  if (!neg) tab[last]++;
+	}
+	else {
+	  if (neg) tab[last]++;
+	}
+      }
+    }
+    else {
+      exact = true;
+    }
+    numRyyy_set_int(a,tab[last]);
+    for (i=last-1;i>=0;i--){
+      numRyyy_inv(acc,a);
+      numRyyy_set_int(a,tab[i]);
+      numRyyy_add(a,a,acc);
+    }
+    if (neg) numRyyy_neg(a,a);
+    return exact;
   }
 }
+#undef MARKZ_zzz
+ENDMACRO
 extern inline bool numRyyy_set_numMPFR(numRyyy_t a, numMPFR_t b, num_internal_t intern)
 {
   long double k = mpfr_get_ld(b, GMP_RNDU);
