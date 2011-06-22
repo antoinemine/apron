@@ -110,7 +110,7 @@ void eitvXXX_range_rel(boundXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern)
 
 quote(MLMLI,"\n(** {2 Lattice operations} *)\n")
 
-boolean eitvXXX_meet(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c, num_internal_ptr intern);
+boolean eitvXXX_meet(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
 void eitvXXX_join(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
 void eitvXXX_widening(eitvXXX_ptrm a, eitvXXX_ptrg b, eitvXXX_ptrg c);
 

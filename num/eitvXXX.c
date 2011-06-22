@@ -168,14 +168,11 @@ void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
     boundXXX_neg(a->itv->neginf,a->itv->sup);
     a->eq = true;
   }
-  else if (a!=c){
-    boundXXX_add(a->itv->sup,b->itv->sup,c->itv->neginf);
-    boundXXX_add(a->itv->neginf,b->itv->neginf,c->itv->sup);
-    a->eq = false;
+  else if (a!=c && c->eq){
+    eitvXXX_sub_num(a,b,boundXXX_numref(c->itv->sup));
   }
   else {
-    boundXXX_swap(a->itv->neginf,a->itv->sup);
-    itvXXX_add(a->itv,b->itv,c->itv);
+    itvXXX_sub(a->itv,b->itv,c->itv);
     a->eq = false;
   }
 }
@@ -361,5 +358,16 @@ size_t eitvXXX_serialized_size_array(eitvXXX_t* src, size_t size)
     n += eitvXXX_serialized_size(src[i]);
   return n;
 }
+
+void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
+{
+  itvXXX_fprint(stream,a->itv);
+ }
+
 void eitvXXX_print(eitvXXX_t a)
 { eitvXXX_fprint(stdout, a); }
+
+int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a)
+{
+  return itvXXX_snprint(s,size,a->itv);
+}

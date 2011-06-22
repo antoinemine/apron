@@ -494,8 +494,9 @@ void itvXXX_divn(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
   else {
     /* 0 is in the middle of b: one cross-divide b by c->sup */
     boundXXX_neg(intern->XXX.mul_bound,c->sup);
-    boundXXX_div(a->neginf,b->sup,intern->XXX.mul_bound);
-    boundXXX_div(a->sup,b->neginf,intern->XXX.mul_bound);
+    boundXXX_div(a->neginf,b->neginf,intern->XXX.mul_bound);
+    boundXXX_div(a->sup,b->sup,intern->XXX.mul_bound);
+    boundXXX_swap(a->sup,a->neginf);
   }
 }
 
@@ -534,13 +535,18 @@ void itvXXX_fprint(FILE* stream, itvXXX_t a)
 {
   numXXX_t num;
 
-  fprintf(stream,"[");
-  boundXXX_neg(a->neginf,a->neginf);
-  boundXXX_fprint(stream,a->neginf);
-  boundXXX_neg(a->neginf,a->neginf);
-  fprintf(stream,",");
-  boundXXX_fprint(stream,a->sup);
-  fprintf(stream,"]");
+  if (itvXXX_is_point(a)){
+    boundXXX_fprint(stream,a->sup);
+  }
+  else {
+    fprintf(stream,"[");
+    boundXXX_neg(a->neginf,a->neginf);
+    boundXXX_fprint(stream,a->neginf);
+    boundXXX_neg(a->neginf,a->neginf);
+    fprintf(stream,",");
+    boundXXX_fprint(stream,a->sup);
+    fprintf(stream,"]");
+  }
 }
 void itvXXX_print(itvXXX_t itv){
   itvXXX_fprint(stdout,itv);
@@ -550,19 +556,24 @@ int itvXXX_snprint(char* s, size_t size, itvXXX_t a)
   numXXX_t num;
   int count = 0;
 
-  count += snprintf(s+count,size-count,"[");
-  if (boundXXX_infty(a->neginf))
-    count += snprintf(s+count,size-count,"-oo");
-  else {
-    numXXX_init(num);
-    numXXX_neg(num,boundXXX_numref(a->neginf));
-    count += numXXX_snprint(s+count,size-count,num);
-    numXXX_clear(num);
+  if (itvXXX_is_point(a)){
+    return boundXXX_snprint(s,size,a->sup);
   }
-  count += snprintf(s+count,size-count,",");
-  boundXXX_snprint(s+count,size-count,a->sup);
-  count += snprintf(s+count,size-count,"]");
-  return count;
+  else {
+    count += snprintf(s+count,size-count,"[");
+    if (boundXXX_infty(a->neginf))
+      count += snprintf(s+count,size-count,"-oo");
+    else {
+      numXXX_init(num);
+      numXXX_neg(num,boundXXX_numref(a->neginf));
+      count += numXXX_snprint(s+count,size-count,num);
+      numXXX_clear(num);
+    }
+    count += snprintf(s+count,size-count,",");
+    boundXXX_snprint(s+count,size-count,a->sup);
+    count += snprintf(s+count,size-count,"]");
+    return count;
+  }
 }
 
 /* ====================================================================== */

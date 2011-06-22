@@ -280,21 +280,21 @@ static inline void boundXXX_mul_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 }
 static inline void boundXXX_div(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 {
-  if (!boundXXX_sgn(b) || boundXXX_infty(c)) 
+  if (!boundXXX_sgn(b) || boundXXX_infty(c))
     boundXXX_set_int(a,0);
-  else if (!boundXXX_sgn(c)) 
+  else if (!boundXXX_sgn(c))
     boundXXX_set(a,b);
-  else if (boundXXX_infty(b))  
+  else if (boundXXX_infty(b))
     boundXXX_set_infty(a,boundXXX_sgn(b)*boundXXX_sgn(c));
   else { numXXX_div(boundXXX_numref(a),boundXXX_numref(b),boundXXX_numref(c)); _boundXXX_set_finite(a); }
 }
 static inline void boundXXX_div_num(boundXXX_t a, boundXXX_t b, numXXX_t c)
 {
-  if (!boundXXX_sgn(b)) 
+  if (!boundXXX_sgn(b))
     boundXXX_set_int(a,0);
-  else if (!numXXX_sgn(c)) 
+  else if (!numXXX_sgn(c))
     boundXXX_set_infty(a,boundXXX_sgn(b));
-  else if (boundXXX_infty(b)) 
+  else if (boundXXX_infty(b))
     boundXXX_set_infty(a,boundXXX_sgn(b)*numXXX_sgn(c));
   else { numXXX_div(boundXXX_numref(a),boundXXX_numref(b),c); _boundXXX_set_finite(a); }
 }
