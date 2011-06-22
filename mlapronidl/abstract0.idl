@@ -71,12 +71,12 @@ void ap_abstract0_fdump(ap_manager_ptr man, ap_abstract0_ptr a)
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Print as a set of constraints *)")
-quote(MLI,"
-val print:
-  ?first:(unit,Format.formatter,unit) format ->
-  ?sep:(unit,Format.formatter,unit) format ->
-  ?last:(unit,Format.formatter,unit) format ->
-  (int -> string) -> Format.formatter -> 'a t -> unit
+quote(MLI,"\n\
+val print:\n\
+  ?first:(unit,Format.formatter,unit) format ->\n\
+  ?sep:(unit,Format.formatter,unit) format ->\n\
+  ?last:(unit,Format.formatter,unit) format ->\n\
+  (int -> string) -> Format.formatter -> 'a t -> unit\n\
 ")
 
 quote(MLMLI,"(* ============================================================ *)")
@@ -424,9 +424,7 @@ ap_abstract0_ptr ap_abstract0_remove_dimensions(ap_manager_ptr man, ap_abstract0
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 ap_abstract0_ptr ap_abstract0_apply_dimchange2(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
-     quote(call,"
-_res = ap_abstract0_apply_dimchange2(man,false,a,dimchange2,project);
-")
+     quote(call,"_res = ap_abstract0_apply_dimchange2(man,false,a,dimchange2,project);")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 ap_abstract0_ptr ap_abstract0_permute_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimperm_t* perm)
@@ -449,9 +447,9 @@ void ap_abstract0_remove_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a,
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 void ap_abstract0_apply_dimchange2_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
-     quote(call,"
-ap_abstract0_t* res  = ap_abstract0_apply_dimchange2(man,true,a,dimchange2,project);
-*((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;
+     quote(call,"\n\
+ap_abstract0_t* res  = ap_abstract0_apply_dimchange2(man,true,a,dimchange2,project);\n\
+*((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 ")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
@@ -513,7 +511,7 @@ void ap_abstract0_expand_with(ap_manager_ptr man, ap_abstract0_ptr a,
 			   ap_dim_t v1,
 			   int v2)
      quote(call,"{\n\
-  ap_abstract0_t* res = ap_abstract0_expand(man,true,a,v1,v2);
+  ap_abstract0_t* res = ap_abstract0_expand(man,true,a,v1,v2);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
      quote(dealloc,"I0_CHECK_EXC(man)");
@@ -522,7 +520,7 @@ void ap_abstract0_fold_with(ap_manager_ptr man, ap_abstract0_ptr a,
 			 [size_is(v2)]ap_dim_t* v1,
 			 int v2)
      quote(call,"{\n\
-     ap_abstract0_t* res = ap_abstract0_fold(man,true,a,v1,v2);
+     ap_abstract0_t* res = ap_abstract0_fold(man,true,a,v1,v2);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
      quote(dealloc,"I0_CHECK_EXC(man)");
@@ -551,7 +549,7 @@ ap_abstract0_ptr ap_abstract0_closure(ap_manager_ptr man, ap_abstract0_ptr a)
 quote(MLI,"(** Side-effect version *)")
 void ap_abstract0_closure_with(ap_manager_ptr man, ap_abstract0_ptr a)
      quote(call,"{\n\
-  ap_abstract0_t* res = ap_abstract0_closure(man,true,a);
+  ap_abstract0_t* res = ap_abstract0_closure(man,true,a);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
      quote(dealloc,"I0_CHECK_EXC(man)");

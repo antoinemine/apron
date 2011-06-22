@@ -37,229 +37,228 @@ enum ap_gentyp_t {
   AP_GEN_RAYMOD  /* Integer ray (positive integer coefficient) */
 };
 
-quote(MLMLI,"
-type ('a,'b,'c) t =
-| D of 'a
-| MPQ of 'b
-| MPFR of 'c
-type discr = (unit,unit,unit) t
-type 'a val1 = {
-  mutable val0: 'a;
-  mutable env: Environment.t;
-}
-
-type numIll
-type numRll
-type numMPZ
-type numMPQ
-type numD
-type numMPFR
+quote(MLMLI,"\n\
+type ('a,'b,'c) t =\n\
+| D of 'a\n\
+| MPQ of 'b\n\
+| MPFR of 'c\n\
+type discr = (unit,unit,unit) t\n\
+type 'a val1 = {\n\
+  mutable val0: 'a;\n\
+  mutable env: Environment.t;\n\
+}\n\
+\n\
+type numIll\n\
+type numRll\n\
+type numMPZ\n\
+type numMPQ\n\
+type numD\n\
+type numMPFR\n\
 ")
 
-quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"
-")
-quote(C,"
-value camlidl_apron_num_internal_alloc(value vunit)
-{
-  ap_manager_t* man = ap_manager_alloc(\"dummy\",\"dummy\",NULL,NULL);
-  man->count--;
-  value vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);
-  return vres;
-}
+quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"")
+quote(C,"\n\
+value camlidl_apron_num_internal_alloc(value vunit)\n\
+{\n\
+  ap_manager_t* man = ap_manager_alloc(\"dummy\",\"dummy\",NULL,NULL);\n\
+  man->count--;\n\
+  value vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);\n\
+  return vres;\n\
+}\n\
 ")
 
-quote(MLI,"
-val string_of_exprtyp : exprtyp -> string
-val string_of_constyp : constyp -> string
-val string_of_gentyp : gentyp -> string
-val discr : ('a,'b,'c) t -> discr
-val array_print :
-  ?first:(unit,Format.formatter,unit) format ->
-  ?sep:(unit,Format.formatter,unit) format ->
-  ?last:(unit,Format.formatter,unit) format ->
-  (Format.formatter -> 'a -> unit) ->
-  Format.formatter -> 'a array -> unit
-val earray_print :
-  ?first:(unit,Format.formatter,unit) format ->
-  ?sep:(unit,Format.formatter,unit) format ->
-  ?last:(unit,Format.formatter,unit) format ->
-  length:int ->
-  print_index:(Format.formatter -> int -> unit) ->
-  Format.formatter -> unit
-val make_val1 : 'a -> Environment.t -> 'a val1
-val check_val1 : 'a val1 -> 'b val1 -> unit
-val check_val1_add : 'a val1 -> 'b val1 -> ('b -> Dim.change -> 'b) -> 'b
-val map_discr :
-  ('a -> 'b) ->
-  ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t
-val map_discr_arg :
-  ('a -> 'b -> 'c) ->
-  ('d -> 'b -> 'e) ->
-  ('f -> 'b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t
-val map_discr_arg2 :
-  ('a -> 'b -> 'c -> 'd) ->
-  ('e -> 'b -> 'c -> 'f) ->
-  ('g -> 'b -> 'c -> 'h) -> ('a, 'e, 'g) t -> 'b -> 'c -> ('d, 'f, 'h) t
-val map_discr0_arg :
-  ('b -> 'c) ->
-  ('b -> 'e) ->
-  ('b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t
-val mapsame_discr2 :
-  ('a -> 'b -> 'c) ->
-  ('e -> 'f -> 'c) ->
-  ('g -> 'h -> 'c) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c
-val mapsame_discr2_arg :
-  ('a -> 'b -> 'c -> 'd) ->
-  ('e -> 'f -> 'c -> 'd) ->
-  ('g -> 'h -> 'c -> 'd) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c -> 'd
-val apply_discr :
-  ('a -> 'b) -> ('c -> 'b) -> ('d -> 'b) -> ('a, 'c, 'd) t -> 'b
-val apply_arg_discr :
-  ('a -> 'b -> 'c) ->
-  ('a -> 'd -> 'c) -> ('a -> 'e -> 'c) -> 'a -> ('b, 'd, 'e) t -> 'c
-val apply_arg2_discr :
-  ('a -> 'b -> 'c -> 'd) ->
-  ('a -> 'b -> 'e -> 'd) ->
-  ('a -> 'b -> 'f -> 'd) -> 'a -> 'b -> ('c, 'e, 'f) t -> 'd
-val apply_discr_arg :
-  ('a -> 'b -> 'c) ->
-  ('d -> 'b -> 'c) -> ('e -> 'b -> 'c) -> ('a, 'd, 'e) t -> 'b -> 'c
-val apply_discr_arg2 :
-  ('a -> 'b -> 'c -> 'd) ->
-  ('e -> 'b -> 'c -> 'd) ->
-  ('f -> 'b -> 'c -> 'd) -> ('a, 'e, 'f) t -> 'b -> 'c -> 'd
-val apply_arg_discr_arg :
-  ('a -> 'b -> 'c -> 'd) ->
-  ('a -> 'e -> 'c -> 'd) ->
-  ('a -> 'f -> 'c -> 'd) -> 'a -> ('b, 'e, 'f) t -> 'c -> 'd
+quote(MLI,"\n\
+val string_of_exprtyp : exprtyp -> string\n\
+val string_of_constyp : constyp -> string\n\
+val string_of_gentyp : gentyp -> string\n\
+val discr : ('a,'b,'c) t -> discr\n\
+val array_print :\n\
+  ?first:(unit,Format.formatter,unit) format ->\n\
+  ?sep:(unit,Format.formatter,unit) format ->\n\
+  ?last:(unit,Format.formatter,unit) format ->\n\
+  (Format.formatter -> 'a -> unit) ->\n\
+  Format.formatter -> 'a array -> unit\n\
+val earray_print :\n\
+  ?first:(unit,Format.formatter,unit) format ->\n\
+  ?sep:(unit,Format.formatter,unit) format ->\n\
+  ?last:(unit,Format.formatter,unit) format ->\n\
+  length:int ->\n\
+  print_index:(Format.formatter -> int -> unit) ->\n\
+  Format.formatter -> unit\n\
+val make_val1 : 'a -> Environment.t -> 'a val1\n\
+val check_val1 : 'a val1 -> 'b val1 -> unit\n\
+val check_val1_add : 'a val1 -> 'b val1 -> ('b -> Dim.change -> 'b) -> 'b\n\
+val map_discr :\n\
+  ('a -> 'b) ->\n\
+  ('c -> 'd) -> ('e -> 'f) -> ('a, 'c, 'e) t -> ('b, 'd, 'f) t\n\
+val map_discr_arg :\n\
+  ('a -> 'b -> 'c) ->\n\
+  ('d -> 'b -> 'e) ->\n\
+  ('f -> 'b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t\n\
+val map_discr_arg2 :\n\
+  ('a -> 'b -> 'c -> 'd) ->\n\
+  ('e -> 'b -> 'c -> 'f) ->\n\
+  ('g -> 'b -> 'c -> 'h) -> ('a, 'e, 'g) t -> 'b -> 'c -> ('d, 'f, 'h) t\n\
+val map_discr0_arg :\n\
+  ('b -> 'c) ->\n\
+  ('b -> 'e) ->\n\
+  ('b -> 'g) -> ('a, 'd, 'f) t -> 'b -> ('c, 'e, 'g) t\n\
+val mapsame_discr2 :\n\
+  ('a -> 'b -> 'c) ->\n\
+  ('e -> 'f -> 'c) ->\n\
+  ('g -> 'h -> 'c) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c\n\
+val mapsame_discr2_arg :\n\
+  ('a -> 'b -> 'c -> 'd) ->\n\
+  ('e -> 'f -> 'c -> 'd) ->\n\
+  ('g -> 'h -> 'c -> 'd) -> ('a, 'e, 'g) t -> ('b, 'f, 'h) t -> 'c -> 'd\n\
+val apply_discr :\n\
+  ('a -> 'b) -> ('c -> 'b) -> ('d -> 'b) -> ('a, 'c, 'd) t -> 'b\n\
+val apply_arg_discr :\n\
+  ('a -> 'b -> 'c) ->\n\
+  ('a -> 'd -> 'c) -> ('a -> 'e -> 'c) -> 'a -> ('b, 'd, 'e) t -> 'c\n\
+val apply_arg2_discr :\n\
+  ('a -> 'b -> 'c -> 'd) ->\n\
+  ('a -> 'b -> 'e -> 'd) ->\n\
+  ('a -> 'b -> 'f -> 'd) -> 'a -> 'b -> ('c, 'e, 'f) t -> 'd\n\
+val apply_discr_arg :\n\
+  ('a -> 'b -> 'c) ->\n\
+  ('d -> 'b -> 'c) -> ('e -> 'b -> 'c) -> ('a, 'd, 'e) t -> 'b -> 'c\n\
+val apply_discr_arg2 :\n\
+  ('a -> 'b -> 'c -> 'd) ->\n\
+  ('e -> 'b -> 'c -> 'd) ->\n\
+  ('f -> 'b -> 'c -> 'd) -> ('a, 'e, 'f) t -> 'b -> 'c -> 'd\n\
+val apply_arg_discr_arg :\n\
+  ('a -> 'b -> 'c -> 'd) ->\n\
+  ('a -> 'e -> 'c -> 'd) ->\n\
+  ('a -> 'f -> 'c -> 'd) -> 'a -> ('b, 'e, 'f) t -> 'c -> 'd\n\
 ")
-quote(ML,"
-let string_of_exprtyp = function
-| INTLINEAR -> \"INTLINEAR\"
-| QUASILINEAR -> \"QUASILINEAR\"
-| LINEAR -> \"LINEAR\"
-let  string_of_constyp = function
-| EQ -> \"=\"
-| SUPEQ -> \">=\"
-| SUP -> \">\"
-| EQMOD -> \"=\"
-| DISEQ -> \"<>\"
-let  string_of_gentyp = function
-| LINE -> \"LINE\"
-| RAY -> \"RAY\"
-| VERTEX -> \"VTX\"
-| LINEMOD -> \"LINEMOD\"
-| RAYMOD -> \"RAYMOD\"
-let discr x =
-  match x with
-  | D _ -> D()
-  | MPQ _ -> MPQ()
-  | MPFR _ -> MPFR()
-let array_print
-  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
-  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
-  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))
-  (print_elt: (Format.formatter -> 'a -> unit))
-  (fmt:Format.formatter)
-  (tab:'a array)
-  : unit
-  =
-  Format.fprintf fmt first;
-  Array.iteri
-    (fun i elt ->
-      if i>0 then Format.fprintf fmt sep;
-      print_elt fmt elt
-    )
-    tab;
-  Format.fprintf fmt last
-let earray_print
-  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))
-  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))
-  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))
-  ~(length:int)
-  ~(print_index: Format.formatter -> int -> unit)
-  (fmt:Format.formatter)
-  : unit
-  =
-  Format.fprintf fmt first;
-  for i=0 to length-1 do
-    if i>0 then Format.fprintf fmt sep;
-    print_index fmt i
-  done;
-  Format.fprintf fmt last
-let make_val1 x env = { val0 = x; env = env }
-let check_val1 x y =
-  if x.env!=y.env && not (Environment.equal x.env y.env) then
-    raise (Invalid_argument \"The two values of level 1 are not based on the same environment\")
-let check_val1_add x y add =
-  if x.env==y.env || Environment.equal x.env y.env then
-    y.val0
-  else
-    try
-      let dimchange = Environment.dimchange x.env y.env in
-      add y.val0 dimchange
-    with Failure _ ->
-      raise (Invalid_argument \"The environment of the first value of level 1 is not a superenvironment of the environment of the second value of level1\")
-let map_discr d mpq mpfr discr =
-  match discr with
-  | D x -> D(d x)
-  | MPQ x -> MPQ(mpq x)
-  | MPFR x -> MPFR(mpfr x)
-let map_discr_arg d mpq mpfr discr arg =
-  match discr with
-  | D x -> D(d x arg)
-  | MPQ x -> MPQ(mpq x arg)
-  | MPFR x -> MPFR(mpfr x arg)
-let map_discr_arg2 d mpq mpfr discr arg1 arg2 =
-  match discr with
-  | D x -> D(d x arg1 arg2)
-  | MPQ x -> MPQ(mpq x arg1 arg2)
-  | MPFR x -> MPFR(mpfr x arg1 arg2)
-let map_discr0_arg d mpq mpfr discr arg =
-  match discr with
-  | D x -> D(d arg)
-  | MPQ x -> MPQ(mpq arg)
-  | MPFR x -> MPFR(mpfr arg)
-let mapsame_discr2 d mpq mpfr discr1 discr2 =
-  match discr1,discr2 with
-  | (D x1),(D x2) -> d x1 x2
-  | (MPQ x1),(MPQ x2) -> mpq x1 x2
-  | (MPFR x1),(MPFR x2) -> mpfr x1 x2
-  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
-let mapsame_discr2_arg d mpq mpfr discr1 discr2 arg =
-  match discr1,discr2 with
-  | (D x1),(D x2) -> d x1 x2 arg
-  | (MPQ x1),(MPQ x2) -> mpq x1 x2 arg
-  | (MPFR x1),(MPFR x2) -> mpfr x1 x2 arg
-  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
-let apply_discr d mpq mpfr discr =
-  match discr with
-  | D x -> d x
-  | MPQ x -> mpq x
-  | MPFR x -> mpfr x
-let apply_arg_discr d mpq mpfr arg discr =
-  match discr with
-  | D x -> d arg x
-  | MPQ x -> mpq arg x
-  | MPFR x -> mpfr arg x
-let apply_arg2_discr d mpq mpfr arg1 arg2 discr =
-  match discr with
-  | D x -> d arg1 arg2 x
-  | MPQ x -> mpq arg1 arg2 x
-  | MPFR x -> mpfr arg1 arg2 x
-let apply_discr_arg d mpq mpfr discr arg =
-  match discr with
-  | D x -> d x arg
-  | MPQ x -> mpq x arg
-  | MPFR x -> mpfr x arg
-let apply_discr_arg2 d mpq mpfr discr arg1 arg2 =
-  match discr with
-  | D x -> d x arg1 arg2
-  | MPQ x -> mpq x arg1 arg2
-  | MPFR x -> mpfr x arg1 arg2
-let apply_arg_discr_arg d mpq mpfr arg1 discr arg2 =
-  match discr with
-  | D x -> d arg1 x arg2
-  | MPQ x -> mpq arg1 x arg2
-  | MPFR x -> mpfr arg1 x arg2
+quote(ML,"\n\
+let string_of_exprtyp = function\n\
+| INTLINEAR -> \"INTLINEAR\"\n\
+| QUASILINEAR -> \"QUASILINEAR\"\n\
+| LINEAR -> \"LINEAR\"\n\
+let  string_of_constyp = function\n\
+| EQ -> \"=\"\n\
+| SUPEQ -> \">=\"\n\
+| SUP -> \">\"\n\
+| EQMOD -> \"=\"\n\
+| DISEQ -> \"<>\"\n\
+let  string_of_gentyp = function\n\
+| LINE -> \"LINE\"\n\
+| RAY -> \"RAY\"\n\
+| VERTEX -> \"VTX\"\n\
+| LINEMOD -> \"LINEMOD\"\n\
+| RAYMOD -> \"RAYMOD\"\n\
+let discr x =\n\
+  match x with\n\
+  | D _ -> D()\n\
+  | MPQ _ -> MPQ()\n\
+  | MPFR _ -> MPFR()\n\
+let array_print\n\
+  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  (print_elt: (Format.formatter -> 'a -> unit))\n\
+  (fmt:Format.formatter)\n\
+  (tab:'a array)\n\
+  : unit\n\
+  =\n\
+  Format.fprintf fmt first;\n\
+  Array.iteri\n\
+    (fun i elt ->\n\
+      if i>0 then Format.fprintf fmt sep;\n\
+      print_elt fmt elt\n\
+    )\n\
+    tab;\n\
+  Format.fprintf fmt last\n\
+let earray_print\n\
+  ?(first=(\"[|@[\":(unit,Format.formatter,unit) format))\n\
+  ?(sep = (\";@ \":(unit,Format.formatter,unit) format))\n\
+  ?(last = (\"@]|]\":(unit,Format.formatter,unit) format))\n\
+  ~(length:int)\n\
+  ~(print_index: Format.formatter -> int -> unit)\n\
+  (fmt:Format.formatter)\n\
+  : unit\n\
+  =\n\
+  Format.fprintf fmt first;\n\
+  for i=0 to length-1 do\n\
+    if i>0 then Format.fprintf fmt sep;\n\
+    print_index fmt i\n\
+  done;\n\
+  Format.fprintf fmt last\n\
+let make_val1 x env = { val0 = x; env = env }\n\
+let check_val1 x y =\n\
+  if x.env!=y.env && not (Environment.equal x.env y.env) then\n\
+    raise (Invalid_argument \"The two values of level 1 are not based on the same environment\")\n\
+let check_val1_add x y add =\n\
+  if x.env==y.env || Environment.equal x.env y.env then\n\
+    y.val0\n\
+  else\n\
+    try\n\
+      let dimchange = Environment.dimchange x.env y.env in\n\
+      add y.val0 dimchange\n\
+    with Failure _ ->\n\
+      raise (Invalid_argument \"The environment of the first value of level 1 is not a superenvironment of the environment of the second value of level1\")\n\
+let map_discr d mpq mpfr discr =\n\
+  match discr with\n\
+  | D x -> D(d x)\n\
+  | MPQ x -> MPQ(mpq x)\n\
+  | MPFR x -> MPFR(mpfr x)\n\
+let map_discr_arg d mpq mpfr discr arg =\n\
+  match discr with\n\
+  | D x -> D(d x arg)\n\
+  | MPQ x -> MPQ(mpq x arg)\n\
+  | MPFR x -> MPFR(mpfr x arg)\n\
+let map_discr_arg2 d mpq mpfr discr arg1 arg2 =\n\
+  match discr with\n\
+  | D x -> D(d x arg1 arg2)\n\
+  | MPQ x -> MPQ(mpq x arg1 arg2)\n\
+  | MPFR x -> MPFR(mpfr x arg1 arg2)\n\
+let map_discr0_arg d mpq mpfr discr arg =\n\
+  match discr with\n\
+  | D x -> D(d arg)\n\
+  | MPQ x -> MPQ(mpq arg)\n\
+  | MPFR x -> MPFR(mpfr arg)\n\
+let mapsame_discr2 d mpq mpfr discr1 discr2 =\n\
+  match discr1,discr2 with\n\
+  | (D x1),(D x2) -> d x1 x2\n\
+  | (MPQ x1),(MPQ x2) -> mpq x1 x2\n\
+  | (MPFR x1),(MPFR x2) -> mpfr x1 x2\n\
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")\n\
+let mapsame_discr2_arg d mpq mpfr discr1 discr2 arg =\n\
+  match discr1,discr2 with\n\
+  | (D x1),(D x2) -> d x1 x2 arg\n\
+  | (MPQ x1),(MPQ x2) -> mpq x1 x2 arg\n\
+  | (MPFR x1),(MPFR x2) -> mpfr x1 x2 arg\n\
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")\n\
+let apply_discr d mpq mpfr discr =\n\
+  match discr with\n\
+  | D x -> d x\n\
+  | MPQ x -> mpq x\n\
+  | MPFR x -> mpfr x\n\
+let apply_arg_discr d mpq mpfr arg discr =\n\
+  match discr with\n\
+  | D x -> d arg x\n\
+  | MPQ x -> mpq arg x\n\
+  | MPFR x -> mpfr arg x\n\
+let apply_arg2_discr d mpq mpfr arg1 arg2 discr =\n\
+  match discr with\n\
+  | D x -> d arg1 arg2 x\n\
+  | MPQ x -> mpq arg1 arg2 x\n\
+  | MPFR x -> mpfr arg1 arg2 x\n\
+let apply_discr_arg d mpq mpfr discr arg =\n\
+  match discr with\n\
+  | D x -> d x arg\n\
+  | MPQ x -> mpq x arg\n\
+  | MPFR x -> mpfr x arg\n\
+let apply_discr_arg2 d mpq mpfr discr arg1 arg2 =\n\
+  match discr with\n\
+  | D x -> d x arg1 arg2\n\
+  | MPQ x -> mpq x arg1 arg2\n\
+  | MPFR x -> mpfr x arg1 arg2\n\
+let apply_arg_discr_arg d mpq mpfr arg1 discr arg2 =\n\
+  match discr with\n\
+  | D x -> d arg1 x arg2\n\
+  | MPQ x -> mpq arg1 x arg2\n\
+  | MPFR x -> mpfr arg1 x arg2\n\
 ")

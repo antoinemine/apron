@@ -21,10 +21,10 @@ typedef [abstract,c2ml(camlidl_eitvXXX_ptr_c2ml),ml2c(camlidl_eitvXXX_ptr_ml2c)]
 
 quote(MLMLI,"(** Intervals *)\n\n")
 
-quote(MLMLI,"
-type m = Mpz.m (** Mutable tag *)
-type f = Mpz.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable interval *)
+quote(MLMLI,"\n\
+type m = Mpz.m (** Mutable tag *)\n\
+type f = Mpz.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable interval *)\n\
 ")
 
 quote(MLMLI,"(** The following operations are mapped as much as possible to their C counterpart. In case of imperative functions (like [set], [add], ...) the first parameter of type [t] is an out-parameter and holds the result when the function returns. For instance, [add x y z] adds the values of [y] and [z] and stores the result in [x].\n\n These functions are as efficient as their C counterpart: they do not imply additional memory allocation. *)\n\n")
@@ -76,10 +76,10 @@ void eitvXXX_enlarge_bound(eitvXXX_ptrm a, eitvXXX_ptrg b, boundXXX_ptrg c);
 
 quote(MLMLI,"\n(** Normalization and Tests*)\n")
 
-quote(MLMLI,"
-(** Canonicalize an interval:
-    - if integer is true, narrows bound to integers
-    - return true if the interval is bottom
+quote(MLMLI,"\n\
+(** Canonicalize an interval:\n\
+    - if integer is true, narrows bound to integers\n\
+    - return true if the interval is bottom\n\
     - return false otherwise *)")
 boolean eitvXXX_canonicalize(eitvXXX_ptrm a, boolean integer);
 quote(MLMLI,"(** has integer bounds *)")
@@ -97,13 +97,13 @@ int eitvXXX_hash(eitvXXX_ptrg a);
 
 int eitvXXX_cmp(eitvXXX_ptrg a, eitvXXX_ptrg b);
 int eitvXXX_cmp_zero(eitvXXX_ptrg a);
-quote(MLMLI,"
-(** Comparison:
-     0: equality
-     -1: i1 included in i2
-     +1: i2 included in i1
-     -2: i1->sup less than i2->sup
-     +2: i1->sup greater than i2->sup
+quote(MLMLI,"\n\
+(** Comparison:\n\
+     0: equality\n\
+     -1: i1 included in i2\n\
+     +1: i2 included in i1\n\
+     -2: i1->sup less than i2->sup\n\
+     +2: i1->sup greater than i2->sup\n\
 *)")
 void eitvXXX_range_abs(boundXXX_ptrm a, eitvXXX_ptrg b);
 void eitvXXX_range_rel(boundXXX_ptrm a, eitvXXX_ptrg b, num_internal_ptr intern);
@@ -176,18 +176,18 @@ boolean eitvXXX_set_double2(eitvXXX_ptrm a, double b, double c, num_internal_ptr
 boolean eitvXXX_set_mpfr(eitvXXX_ptrm a, mpfr_ptrg b, num_internal_ptr intern);
 boolean eitvXXX_set_mpfr2(eitvXXX_ptrm a, mpfr_ptrg b, mpfr_ptrg c, num_internal_ptr intern);
 
-quote(ML,"
-let print fmt a =
-  let bound = BoundXXX.init() in
-  if is_point a then begin
-    get_sup bound a;
-    BoundXXX.print fmt bound
-  end else begin
-    get_neginf bound a;
-    BoundXXX.neg bound bound;
-    Format.fprintf fmt \"[@[%a;@ \" BoundXXX.print bound;
-    get_sup bound a;
-    Format.fprintf fmt \"%a@]]\" BoundXXX.print bound;
-  end;
-  ()
+quote(ML,"\n\
+let print fmt a =\n\
+  let bound = BoundXXX.init() in\n\
+  if is_point a then begin\n\
+    get_sup bound a;\n\
+    BoundXXX.print fmt bound\n\
+  end else begin\n\
+    get_neginf bound a;\n\
+    BoundXXX.neg bound bound;\n\
+    Format.fprintf fmt \"[@[%a;@ \" BoundXXX.print bound;\n\
+    get_sup bound a;\n\
+    Format.fprintf fmt \"%a@]]\" BoundXXX.print bound;\n\
+  end;\n\
+  ()\n\
 ")

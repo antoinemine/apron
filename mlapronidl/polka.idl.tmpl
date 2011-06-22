@@ -16,196 +16,196 @@ import "common.idl";
 
 quote(MLMLI,"(** Convex Polyhedra and Linear Equalities abstract domains *)")
 
-quote(MLMLI,"
-type loose
-type strict
-  (** Two flavors for convex polyhedra: loose or strict.
-
-      Loose polyhedra cannot have strict inequality constraints like [x>0].
-      They are algorithmically more efficient
-      (less generators, simpler normalization).
-
-      Convex polyhedra are defined by the conjunction of a set of linear
-      constraints of the form [a_0*x_0 + ... + a_n*x_n + b >= 0] or
-      [a_0*x_0 + ... + a_n*x_n + b > 0]
-      where [a_0, ..., a_n, b, c] are constants and [x_0, ..., x_n] variables.
-  *)
-type equalities
-  (** Linear equalities.
-
-      Linear equalities are conjunctions of linear
-      equalities of the form [a_0*x_0 + ... + a_n*x_n + b = 0].
-  *)
-type numRll = Common.numRll
-type numMPQ = Common.numMPQ
-
-type ('a,'b) t
-(** Type of convex polyhedra/linear equalities, where ['a] is [loose], [strict] or [equalities],
-    and ['b] is either [numMPQ] or [numRll] (unsafe).
-
-    Abstract values which are convex polyhedra have the type
-    [((loose,numMPQ) t) Apron.Abstract0.t] or [((loose,numMPQ) t) Apron.Abstract1.t] or
-    [((strict,numMPQ) t) Apron.Abstract0.t] or [((strict,numMPQ) t) Apron.Abstract1.t].
-
-    Abstract values which are conjunction of linear equalities have the type
-    [((equalities,numMPQ)) t Apron.Abstract0.t] or [((equalities,numMPQ) t) Apron.Abstract1.t].
-
-    Managers allocated by NewPolka have the type [('a,'b) t Apron.Manager.t].
-*)
+quote(MLMLI,"\n\
+type loose\n\
+type strict\n\
+  (** Two flavors for convex polyhedra: loose or strict.\n\
+\n\
+      Loose polyhedra cannot have strict inequality constraints like [x>0].\n\
+      They are algorithmically more efficient\n\
+      (less generators, simpler normalization).\n\
+\n\
+      Convex polyhedra are defined by the conjunction of a set of linear\n\
+      constraints of the form [a_0*x_0 + ... + a_n*x_n + b >= 0] or\n\
+      [a_0*x_0 + ... + a_n*x_n + b > 0]\n\
+      where [a_0, ..., a_n, b, c] are constants and [x_0, ..., x_n] variables.\n\
+  *)\n\
+type equalities\n\
+  (** Linear equalities.\n\
+\n\
+      Linear equalities are conjunctions of linear\n\
+      equalities of the form [a_0*x_0 + ... + a_n*x_n + b = 0].\n\
+  *)\n\
+type numRll = Common.numRll\n\
+type numMPQ = Common.numMPQ\n\
+\n\
+type ('a,'b) t\n\
+(** Type of convex polyhedra/linear equalities, where ['a] is [loose], [strict] or [equalities],\n\
+    and ['b] is either [numMPQ] or [numRll] (unsafe).\n\
+\n\
+    Abstract values which are convex polyhedra have the type\n\
+    [((loose,numMPQ) t) Apron.Abstract0.t] or [((loose,numMPQ) t) Apron.Abstract1.t] or\n\
+    [((strict,numMPQ) t) Apron.Abstract0.t] or [((strict,numMPQ) t) Apron.Abstract1.t].\n\
+\n\
+    Abstract values which are conjunction of linear equalities have the type\n\
+    [((equalities,numMPQ)) t Apron.Abstract0.t] or [((equalities,numMPQ) t) Apron.Abstract1.t].\n\
+\n\
+    Managers allocated by NewPolka have the type [('a,'b) t Apron.Manager.t].\n\
+*)\n\
 ")
 
 quote(MLI,"(** {2 Create a Polka manager} *)")
 
 MACRO_FOREACH XXX ("MPQ","Rll")
-quote(C,"
-value camlidl_pk_manager_alloc_loose_numXXX(value vunit)
-{
-  ap_manager_t* man = pkXXX_manager_alloc(false);
-  ap_exc_t i;
-  for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(man,i,false);
-  }
-  value v = camlidl_apron_manager_ptr_c2ml(&man);
-  return v;
-}
-value camlidl_pk_manager_alloc_strict_numXXX(value vunit)
-{
-  ap_manager_t* man = pkXXX_manager_alloc(false);
-  ap_exc_t i;
-  for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(man,i,false);
-  }
-  value v = camlidl_apron_manager_ptr_c2ml(&man);
-  return v;
-}
-value camlidl_pk_manager_alloc_equalities_numXXX(value vunit)
-{
-  ap_manager_t* man = pkXXX_manager_alloc(false);
-  ap_exc_t i;
-  for (i=1; i<AP_EXC_SIZE; i++){
-    ap_manager_set_abort_if_exception(man,i,false);
-  }
-  value v = camlidl_apron_manager_ptr_c2ml(&man);
-  return v;
-}
+quote(C,"\n\
+value camlidl_pk_manager_alloc_loose_numXXX(value vunit)\n\
+{\n\
+  ap_manager_t* man = pkXXX_manager_alloc(false);\n\
+  ap_exc_t i;\n\
+  for (i=1; i<AP_EXC_SIZE; i++){\n\
+    ap_manager_set_abort_if_exception(man,i,false);\n\
+  }\n\
+  value v = camlidl_apron_manager_ptr_c2ml(&man);\n\
+  return v;\n\
+}\n\
+value camlidl_pk_manager_alloc_strict_numXXX(value vunit)\n\
+{\n\
+  ap_manager_t* man = pkXXX_manager_alloc(false);\n\
+  ap_exc_t i;\n\
+  for (i=1; i<AP_EXC_SIZE; i++){\n\
+    ap_manager_set_abort_if_exception(man,i,false);\n\
+  }\n\
+  value v = camlidl_apron_manager_ptr_c2ml(&man);\n\
+  return v;\n\
+}\n\
+value camlidl_pk_manager_alloc_equalities_numXXX(value vunit)\n\
+{\n\
+  ap_manager_t* man = pkXXX_manager_alloc(false);\n\
+  ap_exc_t i;\n\
+  for (i=1; i<AP_EXC_SIZE; i++){\n\
+    ap_manager_set_abort_if_exception(man,i,false);\n\
+  }\n\
+  value v = camlidl_apron_manager_ptr_c2ml(&man);\n\
+  return v;\n\
+}\n\
 ")
-quote(MLMLI,"
-external manager_alloc_loose_numXXX : unit -> (loose,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_loose_numXXX\"
-external manager_alloc_strict_numXXX : unit -> (strict,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_strict_numXXX\"
-external manager_alloc_equalities_numXXX : unit -> (equalities,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_equalities_numXXX\"
+quote(MLMLI,"\n\
+external manager_alloc_loose_numXXX : unit -> (loose,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_loose_numXXX\"\n\
+external manager_alloc_strict_numXXX : unit -> (strict,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_strict_numXXX\"\n\
+external manager_alloc_equalities_numXXX : unit -> (equalities,numXXX) t Manager.t = \"camlidl_pk_manager_alloc_equalities_numXXX\"\n\
 ")
 ENDMACRO
 
-quote(MLMLI,"
-(** {2 Various options. See the C documentation} *)
+quote(MLMLI,"\n\
+(** {2 Various options. See the C documentation} *)\n\
 ")
 void pk_set_max_coeff_size(ap_manager_ptr man, unsigned int size);
 void pk_set_approximate_max_coeff_size(ap_manager_ptr man, unsigned int size);
 unsigned int pk_get_max_coeff_size(ap_manager_ptr man);
 unsigned int pk_get_approximate_max_coeff_size(ap_manager_ptr man);
 
-quote(MLI,"
-(** {2 Type conversions} *)
-
-val manager_is_polka : 'a Manager.t -> bool
-val manager_is_polka_loose : 'a Manager.t -> bool
-val manager_is_polka_strict : 'a Manager.t -> bool
-val manager_is_polka_equalities : 'a Manager.t -> bool
-val manager_is_polka_numRll : 'a Manager.t -> bool
-val manager_is_polka_numMPQ : 'a Manager.t -> bool
-  (** Return [true] iff the argument manager is a polka manager *)
-
-val manager_of_polka : ('a,'b) t Manager.t -> 'c Manager.t
-  (** Makes a polka manager generic *)
-
-val manager_to_polka : 'a Manager.t -> ('b,'c) t Manager.t
-val manager_polka_to_loose : ('a,'b) t Manager.t -> (loose,'b) t Manager.t
-val manager_polka_to_strict : ('a,'b) t Manager.t -> (strict,'b) t Manager.t
-val manager_polka_to_equalities : ('a,'b) t Manager.t -> (equalities,'b) t Manager.t
-val manager_polka_to_numRll : ('a,'b) t Manager.t -> ('a,numRll) t Manager.t
-val manager_polka_to_numMPQ : ('a,'b) t Manager.t -> ('a,numMPQ) t Manager.t
-  (** Instanciate the type of a polka manager.
-      Raises [Failure] if the argument manager is not a right manager *)
+quote(MLI,"\n\
+(** {2 Type conversions} *)\n\
+\n\
+val manager_is_polka : 'a Manager.t -> bool\n\
+val manager_is_polka_loose : 'a Manager.t -> bool\n\
+val manager_is_polka_strict : 'a Manager.t -> bool\n\
+val manager_is_polka_equalities : 'a Manager.t -> bool\n\
+val manager_is_polka_numRll : 'a Manager.t -> bool\n\
+val manager_is_polka_numMPQ : 'a Manager.t -> bool\n\
+  (** Return [true] iff the argument manager is a polka manager *)\n\
+\n\
+val manager_of_polka : ('a,'b) t Manager.t -> 'c Manager.t\n\
+  (** Makes a polka manager generic *)\n\
+\n\
+val manager_to_polka : 'a Manager.t -> ('b,'c) t Manager.t\n\
+val manager_polka_to_loose : ('a,'b) t Manager.t -> (loose,'b) t Manager.t\n\
+val manager_polka_to_strict : ('a,'b) t Manager.t -> (strict,'b) t Manager.t\n\
+val manager_polka_to_equalities : ('a,'b) t Manager.t -> (equalities,'b) t Manager.t\n\
+val manager_polka_to_numRll : ('a,'b) t Manager.t -> ('a,numRll) t Manager.t\n\
+val manager_polka_to_numMPQ : ('a,'b) t Manager.t -> ('a,numMPQ) t Manager.t\n\
+  (** Instanciate the type of a polka manager.\n\
+      Raises [Failure] if the argument manager is not a right manager *)\n\
 ")
 
 
 MACRO_FOREACH NNN ("0","1")
-quote(MLI,"
-module AbstractNNN : sig
-  val is_polka : 'a AbstractNNN.t -> bool
-  val is_polka_loose : 'a AbstractNNN.t -> bool
-  val is_polka_strict : 'a AbstractNNN.t -> bool
-  val is_polka_equalities : 'a AbstractNNN.t -> bool
-  val is_polka_numMPQ : 'a AbstractNNN.t -> bool
-  val is_polka_numRll : 'a AbstractNNN.t -> bool
-    (** Return [true] iff the argument value is a polka value *)
-
-  val of_polka : ('a,'b) t AbstractNNN.t -> 'c AbstractNNN.t
-    (** Makes a polka value generic *)
-
-  val to_polka : 'a AbstractNNN.t -> ('b,'c) t AbstractNNN.t
-  val polka_to_loose : ('a,'b) t AbstractNNN.t -> (loose,'b) t AbstractNNN.t
-  val polka_to_strict : ('a,'b) t AbstractNNN.t -> (strict,'b) t AbstractNNN.t
-  val polka_to_equalities : ('a,'b) t AbstractNNN.t -> (equalities,'b) t AbstractNNN.t
-  val polka_to_numMPQ : ('a,'b) t AbstractNNN.t -> ('a,numMPQ) t AbstractNNN.t
-  val polka_to_numRll : ('a,'b) t AbstractNNN.t -> ('a,numRll) t AbstractNNN.t
-    (** Instanciate the type of a polka value.
-	Raises [Failure] if the argument value is not a right value *)
-end
+quote(MLI,"\n\
+module AbstractNNN : sig\n\
+  val is_polka : 'a AbstractNNN.t -> bool\n\
+  val is_polka_loose : 'a AbstractNNN.t -> bool\n\
+  val is_polka_strict : 'a AbstractNNN.t -> bool\n\
+  val is_polka_equalities : 'a AbstractNNN.t -> bool\n\
+  val is_polka_numMPQ : 'a AbstractNNN.t -> bool\n\
+  val is_polka_numRll : 'a AbstractNNN.t -> bool\n\
+    (** Return [true] iff the argument value is a polka value *)\n\
+\n\
+  val of_polka : ('a,'b) t AbstractNNN.t -> 'c AbstractNNN.t\n\
+    (** Makes a polka value generic *)\n\
+\n\
+  val to_polka : 'a AbstractNNN.t -> ('b,'c) t AbstractNNN.t\n\
+  val polka_to_loose : ('a,'b) t AbstractNNN.t -> (loose,'b) t AbstractNNN.t\n\
+  val polka_to_strict : ('a,'b) t AbstractNNN.t -> (strict,'b) t AbstractNNN.t\n\
+  val polka_to_equalities : ('a,'b) t AbstractNNN.t -> (equalities,'b) t AbstractNNN.t\n\
+  val polka_to_numMPQ : ('a,'b) t AbstractNNN.t -> ('a,numMPQ) t AbstractNNN.t\n\
+  val polka_to_numRll : ('a,'b) t AbstractNNN.t -> ('a,numRll) t AbstractNNN.t\n\
+    (** Instanciate the type of a polka value.\n\
+	Raises [Failure] if the argument value is not a right value *)\n\
+end\n\
 ")
 ENDMACRO
 
-quote(ML,"
-let regexp_polka = Str.regexp \"polka\"
-let manager_is_polka man =
-  let str = Manager.get_library man in
-  Str.string_match regexp_polka str 0
-let manager_of_polka (man:('a,'b) t Manager.t) : 'c Manager.t = Obj.magic man
-let manager_to_polka (man:'a Manager.t) : ('b,'c) t Manager.t =
-  if manager_is_polka man then
-    Obj.magic man
-  else
-    failwith \"Polka.to_polka: the argument manager is not a Polka manager\"
+quote(ML,"\n\
+let regexp_polka = Str.regexp \"polka\"\n\
+let manager_is_polka man =\n\
+  let str = Manager.get_library man in\n\
+  Str.string_match regexp_polka str 0\n\
+let manager_of_polka (man:('a,'b) t Manager.t) : 'c Manager.t = Obj.magic man\n\
+let manager_to_polka (man:'a Manager.t) : ('b,'c) t Manager.t =\n\
+  if manager_is_polka man then\n\
+    Obj.magic man\n\
+  else\n\
+    failwith \"Polka.to_polka: the argument manager is not a Polka manager\"\n\
 ")
 
 MACRO_FOREACH xxx ("loose","strict","equalities","numMPQ","numRll")
-quote(ML,"
-let regexp_xxx = Str.regexp \"polka.*xxx\"
-let manager_is_polka_xxx man =
-  let str = Manager.get_library man in
-  Str.string_match regexp_xxx str 0
-let manager_polka_to_xxx man =
-  if manager_is_polka_xxx man then
-    Obj.magic man
-  else
-    raise (Failure \"Polka.manager_polka_to_xxx: the argument manager is not a xxx Polka manager\")
+quote(ML,"\n\
+let regexp_xxx = Str.regexp \"polka.*xxx\"\n\
+let manager_is_polka_xxx man =\n\
+  let str = Manager.get_library man in\n\
+  Str.string_match regexp_xxx str 0\n\
+let manager_polka_to_xxx man =\n\
+  if manager_is_polka_xxx man then\n\
+    Obj.magic man\n\
+  else\n\
+    raise (Failure \"Polka.manager_polka_to_xxx: the argument manager is not a xxx Polka manager\")\n\
 ")
 ENDMACRO
 
 MACRO_FOREACH NNN ("0","1")
-quote(ML,"
-module AbstractNNN = struct
-  let is_polka abs =
-    manager_is_polka (AbstractNNN.manager abs)
-  let of_polka = Obj.magic
-  let to_polka abs =
-    if is_polka abs then
-      Obj.magic abs
-    else
-      raise (Failure \"Polka.Abstract0.to_polka: the argument value is not a Polka value\")
+quote(ML,"\n\
+module AbstractNNN = struct\n\
+  let is_polka abs =\n\
+    manager_is_polka (AbstractNNN.manager abs)\n\
+  let of_polka = Obj.magic\n\
+  let to_polka abs =\n\
+    if is_polka abs then\n\
+      Obj.magic abs\n\
+    else\n\
+      raise (Failure \"Polka.Abstract0.to_polka: the argument value is not a Polka value\")\n\
 ")
 MACRO_FOREACH xxx ("loose","strict","equalities","numMPQ","numRll")
-quote(ML,"
-  let is_polka_xxx abs =
-    manager_is_polka_xxx (AbstractNNN.manager abs)
-  let polka_to_xxx abs =
-    if is_polka_xxx abs then
-      Obj.magic abs
-    else
-      raise (Failure \"Polka.AbstractNNN.polka_to_xxx: the argument value is not a xxx Polka value\")
+quote(ML,"\n\
+  let is_polka_xxx abs =\n\
+    manager_is_polka_xxx (AbstractNNN.manager abs)\n\
+  let polka_to_xxx abs =\n\
+    if is_polka_xxx abs then\n\
+      Obj.magic abs\n\
+    else\n\
+      raise (Failure \"Polka.AbstractNNN.polka_to_xxx: the argument value is not a xxx Polka value\")\n\
 ")
 ENDMACRO
-quote(ML,"
-end
+quote(ML,"\n\
+end\n\
 ")
 ENDMACRO

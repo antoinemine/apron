@@ -165,21 +165,21 @@ quote(MLI,"(** Get the name of the effective library which allocated the manager
 quote(MLI,"(** Get the version of the effective library which allocated the manager *)")
 [string]const char* ap_manager_get_version(ap_manager_ptr man);
 
-quote(MLMLI,"
-external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron__manager_get_num_internal\"
-  (** Get the included num_internal workspace structure *)
+quote(MLMLI,"\n\
+external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron__manager_get_num_internal\"\n\
+  (** Get the included num_internal workspace structure *)\n\
 ")
 
-quote(C,"
-value camlidl_apron_manager_get_num_internal(value vman)
-{
-  CAMLparam1(vman);
-  CAMLlocal1(vres);
-  ap_manager_t* man;
-  camlidl_apron_manager_ptr_ml2c(vman,&man);
-  vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);
-  CAMLreturn(vres);
-}
+quote(C,"\n\
+value camlidl_apron_manager_get_num_internal(value vman)\n\
+{\n\
+  CAMLparam1(vman);\n\
+  CAMLlocal1(vres);\n\
+  ap_manager_t* man;\n\
+  camlidl_apron_manager_ptr_ml2c(vman,&man);\n\
+  vres = camlidl_apron_num_internal_ptr_c2ml(man->num,man);\n\
+  CAMLreturn(vres);\n\
+}\n\
 ")
 
 quote(MLI,"(** Return the default options for any function ([0] or [false] for al fields) *)")
