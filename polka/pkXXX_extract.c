@@ -399,7 +399,7 @@ void pkXXX_to_lincons_array(ap_manager_t* man,
     return;
   }
   if (!po->C){ /* po is empty */
-    ap_lincons0_array_resize(array,0);
+    ap_lincons0_array_resize(array,1);
     ap_lincons0_array_ref_index(lincons0,array,0);
     ap_lincons0_set_bool(lincons0,false);
     return;

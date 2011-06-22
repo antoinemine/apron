@@ -11,6 +11,7 @@ static void numZZZ_floatconst_init_set(numZZZ_floatconst* cst, int frac_bits, in
 {
   numZZZ_t b,c;
   numZZZ_init(b); numZZZ_init(c);
+
   itvZZZ_init(cst->ulp); itvZZZ_init(cst->min); itvZZZ_init(cst->min_normal);
   itvZZZ_init(cst->max); itvZZZ_init(cst->max_exact);
 
