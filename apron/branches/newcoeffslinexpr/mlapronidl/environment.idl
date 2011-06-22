@@ -140,12 +140,12 @@ assert(_res->count >= 1);")
      quote(dealloc,"ap_dimperm_clear(&perm);")
 ;
 
-quote(MLI,"\n
-(** Compute the least common environment of 2 environment, \n\
+quote(MLI,"\n\
+(** Compute the least common environment of 2 environment,\n\
 that is, the environment composed of all the variables \n\
 of the 2 environments.\n\
 Raise [Failure] if the same variable has different types \n\
-in the 2 environment.\
+in the 2 environment.\n\
 *)")
 ap_environment_ptr ap_environment_lce(ap_environment_ptr e1,
 				      ap_environment_ptr e2)
@@ -164,7 +164,7 @@ if (_res==NULL){\n\
 assert(_res->count >= 1);")
 ;
 
-quote(MLI,"\n
+quote(MLI,"\n\
 (** Similar to the previous function, but returns also the transformations \n\
 required to convert from [e1] (resp. [e2]) \n\
 to the lce. If [None] is returned, this means \n\
@@ -184,10 +184,10 @@ if (_res==NULL){\n\
 }\n\
 assert(_res->count >= 1);");
 
-quote(MLI,"\n
+quote(MLI,"\n\
 (** [dimchange e1 e2] computes the transformation for \n\
 converting from an environment [e1] to a superenvironment \n\
-[e2]. Raises [Failure] if [e2] is not a superenvironment.\
+[e2]. Raises [Failure] if [e2] is not a superenvironment.\n\
 *)")
 [ref]ap_dimchange_t *ap_environment_dimchange(ap_environment_ptr e1,
 					      ap_environment_ptr e2)
@@ -199,12 +199,12 @@ if (_res==NULL){\n\
 }\n\
 ");
 
-quote(MLI,"\n
-(** [dimchange2 e1 e2] computes the transformation for
- converting from an environment [e1] to a (compatible) environment
- [e2], by first adding (some) variables of [e2] and then removing
-(some) variables of [e1]. Raises [Failure] if the two environments
-are incompatible.
+quote(MLI,"\n\
+(** [dimchange2 e1 e2] computes the transformation for\n\
+ converting from an environment [e1] to a (compatible) environment\n\
+ [e2], by first adding (some) variables of [e2] and then removing\n\
+(some) variables of [e1]. Raises [Failure] if the two environments\n\
+are incompatible.\n\
 *)")
 [ref]struct ap_dimchange2_t *ap_environment_dimchange2(ap_environment_ptr e1,
 						ap_environment_ptr e2)

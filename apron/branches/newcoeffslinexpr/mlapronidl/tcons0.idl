@@ -47,7 +47,7 @@ quote(MLI,"(** Create the constraint -1>=0 *)")
 [ref]ap_tcons0_t* ap_tcons0_make_unsat(void);
 [ref]ap_tcons0_t* ap_tcons0_of_lincons0(ap_lincons0_t cons)
 quote(call,"_res = ap_tcons0_from_lincons0(cons);");
-quote(MLI,"\n
+quote(MLI,"\n\
 (** {3 Operations} *)\n\
 val add_dimensions : t -> Dim.change -> t\n\
 val permute_dimensions : t -> Dim.perm -> t\n\
@@ -68,8 +68,8 @@ quote(MLI,"\n\
 (** {3 Operations} *)\n\
 val array_add_dimensions : t array -> Dim.change -> t array\n\
 val array_permute_dimensions : t array -> Dim.perm -> t array\n\
-val array_add_dimensions_with : t array -> Dim.change -> unit
-val array_permute_dimensions_with : t array -> Dim.perm -> unit
+val array_add_dimensions_with : t array -> Dim.change -> unit\n\
+val array_permute_dimensions_with : t array -> Dim.perm -> unit\n\
 ")
 
 
@@ -77,7 +77,7 @@ quote(ML,"\n\
 let print assoc fmt cons = \n\
   Texpr0.print assoc fmt cons.texpr0;\n\
   Format.fprintf fmt \" %s 0\" (Common.string_of_constyp cons.typ);\n\
-  begin match cons.typ with\n                                           \
+  begin match cons.typ with\n\
   | Common.EQMOD -> Format.fprintf fmt \" mod %a\" Mpq.print cons.mpq;\n\
   | _ -> ()\n\
   end;\n\

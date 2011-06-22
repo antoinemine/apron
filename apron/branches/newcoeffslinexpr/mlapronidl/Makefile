@@ -1,3 +1,4 @@
+
 include ../Makefile.config
 
 #---------------------------------------
@@ -61,10 +62,7 @@ $(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
 $(IDL_TMPL_MODULES_tmpl_1:%.tmpl=%) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy))) 
-
-IDL_GENERATED_MODULES_2 = \
-$(IDL_TMPL_MODULES_tmpl_2:%.tmpl=%)
-
+IDL_GENERATED_MODULES_2 = $(IDL_TMPL_MODULES_tmpl_2:%.tmpl=%)
 IDL_GENERATED_MODULES = $(IDL_GENERATED_MODULES_1) $(IDL_GENERATED_MODULES_2)
 
 IDL_MODULES_1 = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES_1) $(IDL_ORIG_MODULES_2) 
@@ -229,7 +227,8 @@ clean:
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
 distclean: clean
-	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl 
+	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl
+	for i in $(APRON_NUMTYPES); do /bin/rm -f `find . -name "*$$i.*"`; done  
 
 #---------------------------------------
 # Library rules

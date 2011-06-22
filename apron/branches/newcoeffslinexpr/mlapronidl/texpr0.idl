@@ -7,144 +7,144 @@ quote(MLI,"(** APRON tree expressions of level 0 *)\n")
 
 quote(C, "#include \"apron_caml.h\"")
 
-quote(C,"
-value camlidl_apron_texpr0_to_expr_c2ml(ap_texpr0_t* expr)
-{
-  value _v_res;
-
-  switch(expr->discr){
-  case AP_TEXPR_CST:
-    {
-      value v0 = Val_unit;
-      Begin_root(v0);
-      v0 = camlidl_coeff_ptr_c2ml(&expr->val.cst);
-      _v_res = caml_alloc_small(1,0);
-       Field(_v_res,0) = v0;
-      End_roots();
-    }
-    break;
-  case AP_TEXPR_DIM:
-    _v_res = caml_alloc_small(1,1);
-    Field(_v_res,0) = Val_int(expr->val.dim);
-    break;
-  case AP_TEXPR_NODE:
-    {
-      value v0,v1,v2,v3,v4;
-      v0 = v1 = v2 = v3 = v4 = Val_unit;
-      Begin_roots5(v0,v1,v2,v3,v4);
-      ap_texpr0_node_t* node = expr->val.node;
-      v1 = camlidl_apron_texpr0_to_expr_c2ml(node->exprA);
-      v3 = camlidl_apron_texpr_rtype_t_c2ml(&node->type);
-      v4 = camlidl_apron_texpr_rdir_t_c2ml(&node->dir);
-      if (ap_texpr_is_unop(node->op)){
-	v0 = camlidl_apron_texpr_unop_t_c2ml(&node->op);
-	_v_res = caml_alloc_small(4,2);
-	Field(_v_res,0) = v0;
-	Field(_v_res,1) = v1;
-	Field(_v_res,2) = v3;
-	Field(_v_res,3) = v4;
-      }
-      else {
-	v0 = camlidl_apron_texpr_binop_t_c2ml(&node->op);
-	v2 = camlidl_apron_texpr0_to_expr_c2ml(node->exprB);
-	_v_res = caml_alloc_small(5,3);
-	Field(_v_res,0) = v0;
-	Field(_v_res,1) = v1;
-	Field(_v_res,2) = v2;
-	Field(_v_res,3) = v3;
-	Field(_v_res,4) = v4;
-      }
-      End_roots();
-    }
-    break;
-  default:
-    abort();
-  }
-  return _v_res;
-}
-value camlidl_apron_texpr0_to_expr(value _v_texpr)
-{
-  CAMLparam1(_v_texpr);
-  CAMLlocal1(_v_res);
-  ap_texpr0_t* expr;
-
-  camlidl_apron_texpr0_ptr_ml2c(_v_texpr,&expr);
-  _v_res = camlidl_apron_texpr0_to_expr_c2ml(expr);
-  CAMLreturn(_v_res);
-}
-
-void camlidl_apron_texpr0_of_expr_ml2c(value v, ap_texpr0_t** res)
-{
-  ap_texpr0_t* texpr;
-  ap_texpr0_node_t* node;
-  ap_coeff_t coeff;
-  value v0,v1,v2,v3,v4;
-
-  texpr = malloc(sizeof(ap_texpr0_t));\n \
-
-  assert (Is_block(v));
-  switch (Tag_val(v)){
-  case 0: /* Constant */
-    {
-    ap_coeff_t coeff;
-    assert(Wosize_val(v)==1);
-    v0 = Field(v,0);
-    texpr->discr = AP_TEXPR_CST;
-    camlidl_coeff_ptr_ml2c(v0,&coeff);
-    ap_coeff_init_set(texpr->val.cst,coeff);
-    }
-    break;
-  case 1: /* Dimension */
-    assert(Wosize_val(v)==1);
-    v0 = Field(v,0);
-    texpr->discr = AP_TEXPR_DIM;
-    texpr->val.dim = Int_val(v0);
-    break;
-  case 2:  /* Unary node */
-    v0 = Field(v,0);
-    v1 = Field(v,1);
-    v2 = Field(v,2);
-    v3 = Field(v,3);
-
-    node = malloc(sizeof(ap_texpr0_node_t));\n \
-    camlidl_apron_texpr_unop_t_ml2c      (v0,&node->op);
-    camlidl_apron_texpr0_of_expr_ml2c(v1,&node->exprA);\n \
-    camlidl_apron_texpr_rtype_t_ml2c     (v2,&node->type);
-    camlidl_apron_texpr_rdir_t_ml2c      (v3,&node->dir);
-    node->exprB = NULL;
-    texpr->discr = AP_TEXPR_NODE;
-    texpr->val.node = node;
-    break;
-  case 3: /* Binary node */
-    v0 = Field(v,0);
-    v1 = Field(v,1);
-    v2 = Field(v,2);
-    v3 = Field(v,3);
-    v4 = Field(v,4);
-    node = malloc(sizeof(ap_texpr0_node_t));
-    camlidl_apron_texpr_binop_t_ml2c     (v0,&node->op);
-    camlidl_apron_texpr0_of_expr_ml2c(v1,&node->exprA);\n \
-    camlidl_apron_texpr0_of_expr_ml2c(v2,&node->exprB);\n \
-    camlidl_apron_texpr_rtype_t_ml2c     (v3,&node->type);
-    camlidl_apron_texpr_rdir_t_ml2c      (v4,&node->dir);
-    texpr->discr = AP_TEXPR_NODE;
-    texpr->val.node = node;
-    break;
-  default:
-    assert(false);
-  }
-  *res = texpr;
-}
-value camlidl_apron_texpr0_of_expr(value _v_expr)
-{
-  CAMLparam1(_v_expr);
-  CAMLlocal1(_v_res);
-  ap_texpr0_t* res;
-
-  camlidl_apron_texpr0_of_expr_ml2c(_v_expr,&res);
-  _v_res = camlidl_apron_texpr0_ptr_c2ml(&res);
-  CAMLreturn(_v_res);
-}
+quote(C,"\n\
+value camlidl_apron_texpr0_to_expr_c2ml(ap_texpr0_t* expr)\n\
+{\n\
+  value _v_res;\n\
+\n\
+  switch(expr->discr){\n\
+  case AP_TEXPR_CST:\n\
+    {\n\
+      value v0 = Val_unit;\n\
+      Begin_root(v0);\n\
+      v0 = camlidl_coeff_ptr_c2ml(&expr->val.cst);\n\
+      _v_res = caml_alloc_small(1,0);\n\
+       Field(_v_res,0) = v0;\n\
+      End_roots();\n\
+    }\n\
+    break;\n\
+  case AP_TEXPR_DIM:\n\
+    _v_res = caml_alloc_small(1,1);\n\
+    Field(_v_res,0) = Val_int(expr->val.dim);\n\
+    break;\n\
+  case AP_TEXPR_NODE:\n\
+    {\n\
+      value v0,v1,v2,v3,v4;\n\
+      v0 = v1 = v2 = v3 = v4 = Val_unit;\n\
+      Begin_roots5(v0,v1,v2,v3,v4);\n\
+      ap_texpr0_node_t* node = expr->val.node;\n\
+      v1 = camlidl_apron_texpr0_to_expr_c2ml(node->exprA);\n\
+      v3 = camlidl_apron_texpr_rtype_t_c2ml(&node->type);\n\
+      v4 = camlidl_apron_texpr_rdir_t_c2ml(&node->dir);\n\
+      if (ap_texpr_is_unop(node->op)){\n\
+	v0 = camlidl_apron_texpr_unop_t_c2ml(&node->op);\n\
+	_v_res = caml_alloc_small(4,2);\n\
+	Field(_v_res,0) = v0;\n\
+	Field(_v_res,1) = v1;\n\
+	Field(_v_res,2) = v3;\n\
+	Field(_v_res,3) = v4;\n\
+      }\n\
+      else {\n\
+	v0 = camlidl_apron_texpr_binop_t_c2ml(&node->op);\n\
+	v2 = camlidl_apron_texpr0_to_expr_c2ml(node->exprB);\n\
+	_v_res = caml_alloc_small(5,3);\n\
+	Field(_v_res,0) = v0;\n\
+	Field(_v_res,1) = v1;\n\
+	Field(_v_res,2) = v2;\n\
+	Field(_v_res,3) = v3;\n\
+	Field(_v_res,4) = v4;\n\
+      }\n\
+      End_roots();\n\
+    }\n\
+    break;\n\
+  default:\n\
+    abort();\n\
+  }\n\
+  return _v_res;\n\
+}\n\
+value camlidl_apron_texpr0_to_expr(value _v_texpr)\n\
+{\n\
+  CAMLparam1(_v_texpr);\n\
+  CAMLlocal1(_v_res);\n\
+  ap_texpr0_t* expr;\n\
+\n\
+  camlidl_apron_texpr0_ptr_ml2c(_v_texpr,&expr);\n\
+  _v_res = camlidl_apron_texpr0_to_expr_c2ml(expr);\n\
+  CAMLreturn(_v_res);\n\
+}\n\
+\n\
+void camlidl_apron_texpr0_of_expr_ml2c(value v, ap_texpr0_t** res)\n\
+{\n\
+  ap_texpr0_t* texpr;\n\
+  ap_texpr0_node_t* node;\n\
+  ap_coeff_t coeff;\n\
+  value v0,v1,v2,v3,v4;\n\
+\n\
+  texpr = malloc(sizeof(ap_texpr0_t));\n\
+\n\
+  assert (Is_block(v));\n\
+  switch (Tag_val(v)){\n\
+  case 0: /* Constant */\n\
+    {\n\
+    ap_coeff_t coeff;\n\
+    assert(Wosize_val(v)==1);\n\
+    v0 = Field(v,0);\n\
+    texpr->discr = AP_TEXPR_CST;\n\
+    camlidl_coeff_ptr_ml2c(v0,&coeff);\n\
+    ap_coeff_init_set(texpr->val.cst,coeff);\n\
+    }\n\
+    break;\n\
+  case 1: /* Dimension */\n\
+    assert(Wosize_val(v)==1);\n\
+    v0 = Field(v,0);\n\
+    texpr->discr = AP_TEXPR_DIM;\n\
+    texpr->val.dim = Int_val(v0);\n\
+    break;\n\
+  case 2:  /* Unary node */\n\
+    v0 = Field(v,0);\n\
+    v1 = Field(v,1);\n\
+    v2 = Field(v,2);\n\
+    v3 = Field(v,3);\n\
+\n\
+    node = malloc(sizeof(ap_texpr0_node_t));\n\
+    camlidl_apron_texpr_unop_t_ml2c      (v0,&node->op);\n\
+    camlidl_apron_texpr0_of_expr_ml2c(v1,&node->exprA);\n\
+    camlidl_apron_texpr_rtype_t_ml2c     (v2,&node->type);\n\
+    camlidl_apron_texpr_rdir_t_ml2c      (v3,&node->dir);\n\
+    node->exprB = NULL;\n\
+    texpr->discr = AP_TEXPR_NODE;\n\
+    texpr->val.node = node;\n\
+    break;\n\
+  case 3: /* Binary node */\n\
+    v0 = Field(v,0);\n\
+    v1 = Field(v,1);\n\
+    v2 = Field(v,2);\n\
+    v3 = Field(v,3);\n\
+    v4 = Field(v,4);\n\
+    node = malloc(sizeof(ap_texpr0_node_t));\n\
+    camlidl_apron_texpr_binop_t_ml2c     (v0,&node->op);\n\
+    camlidl_apron_texpr0_of_expr_ml2c(v1,&node->exprA);\n\
+    camlidl_apron_texpr0_of_expr_ml2c(v2,&node->exprB);\n\
+    camlidl_apron_texpr_rtype_t_ml2c     (v3,&node->type);\n\
+    camlidl_apron_texpr_rdir_t_ml2c      (v4,&node->dir);\n\
+    texpr->discr = AP_TEXPR_NODE;\n\
+    texpr->val.node = node;\n\
+    break;\n\
+  default:\n\
+    assert(false);\n\
+  }\n\
+  *res = texpr;\n\
+}\n\
+value camlidl_apron_texpr0_of_expr(value _v_expr)\n\
+{\n\
+  CAMLparam1(_v_expr);\n\
+  CAMLlocal1(_v_res);\n\
+  ap_texpr0_t* res;\n\
+\n\
+  camlidl_apron_texpr0_of_expr_ml2c(_v_expr,&res);\n\
+  _v_res = camlidl_apron_texpr0_ptr_c2ml(&res);\n\
+  CAMLreturn(_v_res);\n\
+}\n\
 ")
 
 import "coeff.idl";
@@ -181,52 +181,52 @@ typedef [mltype("\n  | Near\n  | Zero\n  | Up\n  | Down\n  | Rnd (** *)\n  (** R
 	 c2ml(camlidl_apron_texpr_rdir_t_c2ml)]
 struct ap_texpr_rdir_t ap_texpr_rdir_t;
 
-quote(MLMLI,"
-(** User type for tree expressions *)
-type ('a,'b) gexpr =
-  | Cst of 'a
-  | DimVar of 'b
-  | Unop of unop * ('a,'b) gexpr * typ * round
-  | Binop of binop * ('a,'b) gexpr * ('a,'b) gexpr * typ * round
-type expr = (Coeff.f Coeff.tt, Dim.t) gexpr
+quote(MLMLI,"\n\
+(** User type for tree expressions *)\n\
+type ('a,'b) gexpr =\n\
+  | Cst of 'a\n\
+  | DimVar of 'b\n\
+  | Unop of unop * ('a,'b) gexpr * typ * round\n\
+  | Binop of binop * ('a,'b) gexpr * ('a,'b) gexpr * typ * round\n\
+type expr = (Coeff.f Coeff.tt, Dim.t) gexpr\n\
 ")
 
 quote(MLMLI,"\n(** {2 Printing} *)\n")
 
-quote(MLI,"
-val print : (Dim.t -> string) -> Format.formatter -> t -> unit
-  (** Print an abstract tree expression, using a function converting from dimensions to names *)
-val array_print :
-  ?first:(unit,Format.formatter,unit) format ->
-  ?sep:(unit,Format.formatter,unit) format ->
-  ?last:(unit,Format.formatter,unit) format ->
-  (Dim.t -> string) -> Format.formatter -> t array -> unit
-  (** Same for arrays *)
-val string_of_unop  : unop  -> string
-val string_of_binop : binop -> string
-val string_of_typ   : typ   -> string
-val string_of_round : round -> string
-val print_unop  :  Format.formatter -> unop  -> unit
-val print_binop :  Format.formatter -> binop -> unit
-val print_typ   :  Format.formatter -> typ   -> unit
-val print_round :  Format.formatter -> round -> unit
-val print_expr : (Dim.t -> string) -> Format.formatter -> expr -> unit
-  (** Print a tree expression, using a function converting from dimensions to names *)
+quote(MLI,"\n\
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+  (** Print an abstract tree expression, using a function converting from dimensions to names *)\n\
+val array_print :\n\
+  ?first:(unit,Format.formatter,unit) format ->\n\
+  ?sep:(unit,Format.formatter,unit) format ->\n\
+  ?last:(unit,Format.formatter,unit) format ->\n\
+  (Dim.t -> string) -> Format.formatter -> t array -> unit\n\
+  (** Same for arrays *)\n\
+val string_of_unop  : unop  -> string\n\
+val string_of_binop : binop -> string\n\
+val string_of_typ   : typ   -> string\n\
+val string_of_round : round -> string\n\
+val print_unop  :  Format.formatter -> unop  -> unit\n\
+val print_binop :  Format.formatter -> binop -> unit\n\
+val print_typ   :  Format.formatter -> typ   -> unit\n\
+val print_round :  Format.formatter -> round -> unit\n\
+val print_expr : (Dim.t -> string) -> Format.formatter -> expr -> unit\n\
+  (** Print a tree expression, using a function converting from dimensions to names *)\n\
 ")
 
-quote(MLI,"
-(** {2 Expressions} *)
-
-(** {3 Constructors and Destructor} *)
+quote(MLI,"\n\
+(** {2 Expressions} *)\n\
+\n\
+(** {3 Constructors and Destructor} *)\n\
 ")
 ap_texpr0_ptr ap_texpr0_copy(ap_texpr0_ptr a);
 ap_texpr0_ptr ap_texpr0_of_linexpr0(ap_linexpr0_t e)
 quote(call,"_res = ap_texpr0_from_linexpr0(e);");
 
-quote(MLMLI,"
-external of_expr : expr -> t = \"camlidl_apron_texpr0_of_expr\"
-external to_expr : t -> expr = \"camlidl_apron_texpr0_to_expr\"
-  (** (The most efficient way to build/inspect a tree expression) *)
+quote(MLMLI,"\n\
+external of_expr : expr -> t = \"camlidl_apron_texpr0_of_expr\"\n\
+external to_expr : t -> expr = \"camlidl_apron_texpr0_to_expr\"\n\
+  (** (The most efficient way to build/inspect a tree expression) *)\n\
 ")
 
 quote(MLI,"\n(** {4 Incremental constructors} *)\n")
@@ -250,32 +250,32 @@ ap_dim_t ap_texpr0_max_dim(ap_texpr0_ptr a);
 boolean ap_texpr0_has_dim(ap_texpr0_ptr a, ap_dim_t d);
 
 quote(MLMLI,"external support : t -> int array = \"camlidl_apron_texpr0_support\"")
-quote(C,"
-value camlidl_apron_texpr0_support(value _v_a)
-{
-  ap_texpr0_ptr a; /*in*/
-  ap_dim_t* tdim; /*out*/
-  unsigned int size; /*out*/
-  mlsize_t _c1;
-  value _v2;
-  value _vres;
-
-  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };
-  camlidl_ctx _ctx = &_ctxs;
-  camlidl_apron_texpr0_ptr_ml2c(_v_a, &a);
-  size = ap_texpr0_max_dim(a);
-  tdim = camlidl_malloc(size * sizeof(ap_dim_t), _ctx);
-  size = ap_texpr0_support(a,tdim);
-  _vres = camlidl_alloc(size, 0);
-  Begin_root(_vres)
-    for (_c1 = 0; _c1 < size; _c1++) {
-      _v2 = camlidl_c2ml_dim_ap_dim_t(&tdim[_c1], _ctx);
-      modify(&Field(_vres, _c1), _v2);
-    }
-  End_roots()
-  camlidl_free(_ctx);
-  return _vres;
-}
+quote(C,"\n\
+value camlidl_apron_texpr0_support(value _v_a)\n\
+{\n\
+  ap_texpr0_ptr a; /*in*/\n\
+  ap_dim_t* tdim; /*out*/\n\
+  unsigned int size; /*out*/\n\
+  mlsize_t _c1;\n\
+  value _v2;\n\
+  value _vres;\n\
+\n\
+  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };\n\
+  camlidl_ctx _ctx = &_ctxs;\n\
+  camlidl_apron_texpr0_ptr_ml2c(_v_a, &a);\n\
+  size = ap_texpr0_max_dim(a);\n\
+  tdim = camlidl_malloc(size * sizeof(ap_dim_t), _ctx);\n\
+  size = ap_texpr0_support(a,tdim);\n\
+  _vres = camlidl_alloc(size, 0);\n\
+  Begin_root(_vres)\n\
+    for (_c1 = 0; _c1 < size; _c1++) {\n\
+      _v2 = camlidl_c2ml_dim_ap_dim_t(&tdim[_c1], _ctx);\n\
+      modify(&Field(_vres, _c1), _v2);\n\
+    }\n\
+  End_roots()\n\
+  camlidl_free(_ctx);\n\
+  return _vres;\n\
+}\n\
 ")
 boolean ap_texpr0_is_interval_cst(ap_texpr0_ptr a);
 boolean ap_texpr0_is_interval_linear(ap_texpr0_ptr a);
@@ -296,163 +296,163 @@ void ap_texpr0_add_dimensions_with(ap_texpr0_ptr expr,
 void ap_texpr0_permute_dimensions_with(ap_texpr0_ptr expr,
 				       [ref]struct ap_dimperm_t* dimperm);
 
-quote(MLI,"
-(** {2 Arrays} *)
-
-(** {3 Constructors and destructors} *)
-val array_make : int -> t array
-val array_length : t array -> int
+quote(MLI,"\n\
+(** {2 Arrays} *)\n\
+\n\
+(** {3 Constructors and destructors} *)\n\
+val array_make : int -> t array\n\
+val array_length : t array -> int\n\
 ");
 
 ap_texpr0_array_t ap_texpr0_array_of_linexpr0_array(ap_linexpr0_array_t e)
 quote(call,"_res = ap_texpr0_array_from_linexpr0_array(e);");
 
-quote(MLI,"
-(** {3 Operations} *)
-val array_add_dimensions : t array -> Dim.change -> t array
-val array_permute_dimensions : t array -> Dim.perm -> t array
-val array_add_dimensions_with : t array -> Dim.change -> unit
-val array_permute_dimensions_with : t array -> Dim.perm -> unit
+quote(MLI,"\n\
+(** {3 Operations} *)\n\
+val array_add_dimensions : t array -> Dim.change -> t array\n\
+val array_permute_dimensions : t array -> Dim.perm -> t array\n\
+val array_add_dimensions_with : t array -> Dim.change -> unit\n\
+val array_permute_dimensions_with : t array -> Dim.perm -> unit\n\
 ")
 
 
-quote(ML,"
-let string_of_unop = function
-| Neg -> \"Neg\"
-| Cast -> \"Cast\"
-| Sqrt -> \"Sqrt\"
-let string_of_binop = function
-| Add -> \"Add\"
-| Sub -> \"Sub\"
-| Mul -> \"Mul\"
-| Div -> \"Div\"
-| Mod -> \"Mod\"
-let string_of_typ = function
-| Real -> \"Real\"
-| Int -> \"Int\"
-| Single -> \"Single\"
-| Double -> \"Double\"
-| Extended -> \"Extended\"
-| Quad-> \"Quad\"
-let string_of_round = function
-| Near -> \"Near\"
-| Zero -> \"Zero\"
-| Up -> \"Up\"
-| Down -> \"Down\"
-| Rnd -> \"Rnd\"
-let print_typ fmt x = Format.pp_print_string fmt (string_of_typ x)
-let print_round fmt x = Format.pp_print_string fmt (string_of_round x)
-let print_unop fmt x = Format.pp_print_string fmt (string_of_unop x)
-let print_binop fmt x = Format.pp_print_string fmt (string_of_binop x)
-
-
-let print_string_of_unop = function
-  | Neg -> \"-\"
-  | Cast -> \"cast\"
-  | Sqrt -> \"sqrt\"
-let print_string_of_binop = function
-  | Add -> \"+\"
-  | Sub -> \"-\"
-  | Mul -> \"*\"
-  | Div -> \"/\"
-  | Mod -> \"%\"
-let print_string_of_typ = function
-  | Real -> \"\"
-  | Int -> \"i\"
-  | Single -> \"f\"
-  | Double -> \"d\"
-  | Extended -> \"l\"
-  | Quad-> \"q\"
-let print_string_of_round = function
-  | Near -> \"n\"
-  | Zero -> \"0\"
-  | Up -> \"+oo\"
-  | Down -> \"-oo\"
-  | Rnd -> \"?\"
-let print_sprint_unop op typ round =
-  if op=Neg then
-    Format.sprintf \"%s\" (print_string_of_unop op)
-  else begin
-    if typ=Real then
-      Format.sprintf \"%s \" (print_string_of_unop op)
-    else
-      Format.sprintf \"%s_%s,%s \" (print_string_of_unop op)
-	(print_string_of_typ typ) (print_string_of_round round)
-  end
-let print_sprint_binop op typ round =
-  if typ=Real then
-    Format.sprintf \"%s\" (print_string_of_binop op)
-  else
-    Format.sprintf \"%s_%s,%s\" (print_string_of_binop op)
-	(print_string_of_typ typ) (print_string_of_round round)
-let print_precedence_of_unop = function
-  | Neg -> 3
-  | Cast | Sqrt -> 4
-let print_precedence_of_binop = function
-  | Add | Sub -> 1
-  | Mul | Div | Mod -> 2
-
-
-let rec print_gexpr print_coeff (string_of_a:'b -> string) fmt (expr:('a,'b) gexpr) =\n \
-  let precedence_of_expr = function
-    | Cst _
-    | DimVar _ -> 5
-    | Unop(op,_,_,_) -> print_precedence_of_unop op
-    | Binop(op,_,_,_,_) -> print_precedence_of_binop op
-  in
-  match expr with
-  | Cst x -> print_coeff fmt x
-  | DimVar x -> Format.pp_print_string fmt (string_of_a x)
-  | Unop(op,e,typ,round) ->
-      let prec = print_precedence_of_unop op in
-      let prec1 = precedence_of_expr e in
-      let par = prec1<=prec in
-      Format.fprintf fmt \"%s%s%a%s\"
-	(print_sprint_unop op typ round)
-	(if par then \"(\" else \"\")
-	(print_gexpr print_coeff string_of_a) e
-	(if par then \")\" else \"\")
-  | Binop(op,e1,e2,typ,round) ->
-      let prec = print_precedence_of_binop op in
-      let prec1 = precedence_of_expr e1 in
-      let prec2 = precedence_of_expr e2 in
-      let par1 = prec1<prec in
-      let par2 = prec2<=prec in
-      Format.fprintf fmt \"%s%a%s %s %s%a%s\"
-	(if par1 then \"(\" else \"\")
-	(print_gexpr print_coeff string_of_a) e1
-	(if par1 then \")\" else \"\")
-	(print_sprint_binop op typ round)
-	(if par2 then \"(\" else \"\")
-	(print_gexpr print_coeff string_of_a) e2
-	(if par2 then \")\" else \"\")
-
-let print_expr = print_gexpr Coeff.print
-let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)
-let array_print ?first ?sep ?last string_of_dim fmt tab =
-  Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab
-let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D()) 0))
-let array_length = Array.length
-let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x
-let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x
-let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x
-let array_permute_dimensions_with x y = Array.iter (fun x -> permute_dimensions_with x y) x
-let rec map_gexpr f g = function
-| Cst x -> Cst(f x)
-| DimVar x -> DimVar(g x)
-| Unop(op,e,typ,round) ->
-    Unop(op,(map_gexpr f g e),typ,round)
-| Binop(op,e1,e2,typ,round) ->
-    Binop(op,(map_gexpr f g e1),(map_gexpr f g e2),typ,round)
+quote(ML,"\n\
+let string_of_unop = function\n\
+| Neg -> \"Neg\"\n\
+| Cast -> \"Cast\"\n\
+| Sqrt -> \"Sqrt\"\n\
+let string_of_binop = function\n\
+| Add -> \"Add\"\n\
+| Sub -> \"Sub\"\n\
+| Mul -> \"Mul\"\n\
+| Div -> \"Div\"\n\
+| Mod -> \"Mod\"\n\
+let string_of_typ = function\n\
+| Real -> \"Real\"\n\
+| Int -> \"Int\"\n\
+| Single -> \"Single\"\n\
+| Double -> \"Double\"\n\
+| Extended -> \"Extended\"\n\
+| Quad-> \"Quad\"\n\
+let string_of_round = function\n\
+| Near -> \"Near\"\n\
+| Zero -> \"Zero\"\n\
+| Up -> \"Up\"\n\
+| Down -> \"Down\"\n\
+| Rnd -> \"Rnd\"\n\
+let print_typ fmt x = Format.pp_print_string fmt (string_of_typ x)\n\
+let print_round fmt x = Format.pp_print_string fmt (string_of_round x)\n\
+let print_unop fmt x = Format.pp_print_string fmt (string_of_unop x)\n\
+let print_binop fmt x = Format.pp_print_string fmt (string_of_binop x)\n\
+\n\
+\n\
+let print_string_of_unop = function\n\
+  | Neg -> \"-\"\n\
+  | Cast -> \"cast\"\n\
+  | Sqrt -> \"sqrt\"\n\
+let print_string_of_binop = function\n\
+  | Add -> \"+\"\n\
+  | Sub -> \"-\"\n\
+  | Mul -> \"*\"\n\
+  | Div -> \"/\"\n\
+  | Mod -> \"%\"\n\
+let print_string_of_typ = function\n\
+  | Real -> \"\"\n\
+  | Int -> \"i\"\n\
+  | Single -> \"f\"\n\
+  | Double -> \"d\"\n\
+  | Extended -> \"l\"\n\
+  | Quad-> \"q\"\n\
+let print_string_of_round = function\n\
+  | Near -> \"n\"\n\
+  | Zero -> \"0\"\n\
+  | Up -> \"+oo\"\n\
+  | Down -> \"-oo\"\n\
+  | Rnd -> \"?\"\n\
+let print_sprint_unop op typ round =\n\
+  if op=Neg then\n\
+    Format.sprintf \"%s\" (print_string_of_unop op)\n\
+  else begin\n\
+    if typ=Real then\n\
+      Format.sprintf \"%s \" (print_string_of_unop op)\n\
+    else\n\
+      Format.sprintf \"%s_%s,%s \" (print_string_of_unop op)\n\
+	(print_string_of_typ typ) (print_string_of_round round)\n\
+  end\n\
+let print_sprint_binop op typ round =\n\
+  if typ=Real then\n\
+    Format.sprintf \"%s\" (print_string_of_binop op)\n\
+  else\n\
+    Format.sprintf \"%s_%s,%s\" (print_string_of_binop op)\n\
+	(print_string_of_typ typ) (print_string_of_round round)\n\
+let print_precedence_of_unop = function\n\
+  | Neg -> 3\n\
+  | Cast | Sqrt -> 4\n\
+let print_precedence_of_binop = function\n\
+  | Add | Sub -> 1\n\
+  | Mul | Div | Mod -> 2\n\
+\n\
+\n\
+let rec print_gexpr print_coeff (string_of_a:'b -> string) fmt (expr:('a,'b) gexpr) =\n\
+  let precedence_of_expr = function\n\
+    | Cst _\n\
+    | DimVar _ -> 5\n\
+    | Unop(op,_,_,_) -> print_precedence_of_unop op\n\
+    | Binop(op,_,_,_,_) -> print_precedence_of_binop op\n\
+  in\n\
+  match expr with\n\
+  | Cst x -> print_coeff fmt x\n\
+  | DimVar x -> Format.pp_print_string fmt (string_of_a x)\n\
+  | Unop(op,e,typ,round) ->\n\
+      let prec = print_precedence_of_unop op in\n\
+      let prec1 = precedence_of_expr e in\n\
+      let par = prec1<=prec in\n\
+      Format.fprintf fmt \"%s%s%a%s\"\n\
+	(print_sprint_unop op typ round)\n\
+	(if par then \"(\" else \"\")\n\
+	(print_gexpr print_coeff string_of_a) e\n\
+	(if par then \")\" else \"\")\n\
+  | Binop(op,e1,e2,typ,round) ->\n\
+      let prec = print_precedence_of_binop op in\n\
+      let prec1 = precedence_of_expr e1 in\n\
+      let prec2 = precedence_of_expr e2 in\n\
+      let par1 = prec1<prec in\n\
+      let par2 = prec2<=prec in\n\
+      Format.fprintf fmt \"%s%a%s %s %s%a%s\"\n\
+	(if par1 then \"(\" else \"\")\n\
+	(print_gexpr print_coeff string_of_a) e1\n\
+	(if par1 then \")\" else \"\")\n\
+	(print_sprint_binop op typ round)\n\
+	(if par2 then \"(\" else \"\")\n\
+	(print_gexpr print_coeff string_of_a) e2\n\
+	(if par2 then \")\" else \"\")\n\
+\n\
+let print_expr = print_gexpr Coeff.print\n\
+let print string_of_dim fmt t = print_expr string_of_dim fmt (to_expr t)\n\
+let array_print ?first ?sep ?last string_of_dim fmt tab =\n\
+  Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab\n\
+let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D()) 0))\n\
+let array_length = Array.length\n\
+let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x\n\
+let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x\n\
+let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x\n\
+let array_permute_dimensions_with x y = Array.iter (fun x -> permute_dimensions_with x y) x\n\
+let rec map_gexpr f g = function\n\
+| Cst x -> Cst(f x)\n\
+| DimVar x -> DimVar(g x)\n\
+| Unop(op,e,typ,round) ->\n\
+    Unop(op,(map_gexpr f g e),typ,round)\n\
+| Binop(op,e1,e2,typ,round) ->\n\
+    Binop(op,(map_gexpr f g e1),(map_gexpr f g e2),typ,round)\n\
 ")
 
 quote(MLI,"(** {2 Internal usage for level 1} *)")
 
-quote(MLI,"
-val print_sprint_unop : unop -> typ -> round -> string
-val print_sprint_binop : binop -> typ -> round -> string
-val print_precedence_of_unop : unop -> int
-val print_precedence_of_binop : binop -> int
-val print_gexpr : (Format.formatter -> 'a -> unit) -> ('b -> string) -> Format.formatter -> ('a,'b) gexpr -> unit
-val map_gexpr : ('a -> 'b) -> ('c -> 'd) -> ('a,'c) gexpr -> ('b,'d) gexpr
+quote(MLI,"\n\
+val print_sprint_unop : unop -> typ -> round -> string\n\
+val print_sprint_binop : binop -> typ -> round -> string\n\
+val print_precedence_of_unop : unop -> int\n\
+val print_precedence_of_binop : binop -> int\n\
+val print_gexpr : (Format.formatter -> 'a -> unit) -> ('b -> string) -> Format.formatter -> ('a,'b) gexpr -> unit\n\
+val map_gexpr : ('a -> 'b) -> ('c -> 'd) -> ('a,'c) gexpr -> ('b,'d) gexpr\n\
 ")

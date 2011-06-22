@@ -15,117 +15,117 @@ typedef [abstract,c2ml(camlidl_coeff_ptr_c2ml),ml2c(camlidl_coeff_ptr_ml2c)] str
 
 quote(MLMLI,"(** Coefficients *)\n\n")
 
-quote(MLMLI,"
-open Common
-
-type m = Mpz.m (** Mutable tag *)
-type f = Mpz.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable interval *)
+quote(MLMLI,"\n\
+open Common\n\
+\n\
+type m = Mpz.m (** Mutable tag *)\n\
+type f = Mpz.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable interval *)\n\
 ")
 
-quote(MLI,"
-(** {2 Pretty printing} *)
-val print : Format.formatter -> 'a tt -> unit
-
-(** {2 Initialization} *)
-val init : Common.discr -> 'a tt
-val init_set_int : Common.discr -> int -> 'a tt
-val init_set : 'a tt -> 'b tt
-val init_set_eitvD : 'a EitvD.tt -> 'b tt
-val init_set_eitvMPQ : 'a EitvMPQ.tt -> 'b tt
-val init_set_eitvMPFR : 'a EitvMPFR.tt -> 'b tt
-
-(** {2 Assignement (with possible conversion)} *)
-val set_int : t -> int -> unit
-val set_bottom : t -> unit
-val set_top : t -> unit
-val set_eitvD : t -> 'a EitvD.tt -> Common.num_internal -> bool
-val set_eitvMPQ : t -> 'a EitvMPQ.tt -> Common.num_internal -> bool
-val set_eitvMPFR : t -> 'a EitvMPFR.tt -> Common.num_internal -> bool
-val set : t -> 'a tt -> Common.num_internal -> bool
-
-(** {2 Conversion} *)
-val get_eitvD : EitvD.t -> t -> Common.num_internal -> bool
-val get_eitvMPQ : EitvMPQ.t -> t -> Common.num_internal -> bool
-val get_eitvMPFR : EitvMPFR.t -> t -> Common.num_internal -> bool
-
-(** {2 Tests} *)
-val is_point : 'a tt -> bool
-val is_zero : 'a tt -> bool
-val is_pos : 'a tt -> bool
-val is_neg : 'a tt -> bool
-val is_top : 'a tt -> bool
-val is_bottom : 'a tt -> bool
-val is_eq : 'a tt -> 'b tt -> bool
-val hash : 'a tt -> int
-
-(** {2 Operations} *)
-val neg : t -> 'a tt -> unit
+quote(MLI,"\n\
+(** {2 Pretty printing} *)\n\
+val print : Format.formatter -> 'a tt -> unit\n\
+\n\
+(** {2 Initialization} *)\n\
+val init : Common.discr -> 'a tt\n\
+val init_set_int : Common.discr -> int -> 'a tt\n\
+val init_set : 'a tt -> 'b tt\n\
+val init_set_eitvD : 'a EitvD.tt -> 'b tt\n\
+val init_set_eitvMPQ : 'a EitvMPQ.tt -> 'b tt\n\
+val init_set_eitvMPFR : 'a EitvMPFR.tt -> 'b tt\n\
+\n\
+(** {2 Assignement (with possible conversion)} *)\n\
+val set_int : t -> int -> unit\n\
+val set_bottom : t -> unit\n\
+val set_top : t -> unit\n\
+val set_eitvD : t -> 'a EitvD.tt -> Common.num_internal -> bool\n\
+val set_eitvMPQ : t -> 'a EitvMPQ.tt -> Common.num_internal -> bool\n\
+val set_eitvMPFR : t -> 'a EitvMPFR.tt -> Common.num_internal -> bool\n\
+val set : t -> 'a tt -> Common.num_internal -> bool\n\
+\n\
+(** {2 Conversion} *)\n\
+val get_eitvD : EitvD.t -> t -> Common.num_internal -> bool\n\
+val get_eitvMPQ : EitvMPQ.t -> t -> Common.num_internal -> bool\n\
+val get_eitvMPFR : EitvMPFR.t -> t -> Common.num_internal -> bool\n\
+\n\
+(** {2 Tests} *)\n\
+val is_point : 'a tt -> bool\n\
+val is_zero : 'a tt -> bool\n\
+val is_pos : 'a tt -> bool\n\
+val is_neg : 'a tt -> bool\n\
+val is_top : 'a tt -> bool\n\
+val is_bottom : 'a tt -> bool\n\
+val is_eq : 'a tt -> 'b tt -> bool\n\
+val hash : 'a tt -> int\n\
+\n\
+(** {2 Operations} *)\n\
+val neg : t -> 'a tt -> unit\n\
 ")
 
-quote(ML,"
-let print fmt (coeff:'a tt) =
-  apply_arg_discr EitvD.print EitvMPQ.print EitvMPFR.print fmt coeff
-
-let init (discr:discr) : 'a tt =
-  map_discr EitvD.init EitvMPQ.init EitvMPFR.init discr
-let init_set_int discr arg : 'a tt =
-  map_discr0_arg EitvD.init_set_int EitvMPQ.init_set_int EitvMPFR.init_set_int discr arg
-let init_set (coeff:'a tt) : 'b tt =
-  map_discr EitvD.init_set EitvMPQ.init_set EitvMPFR.init_set coeff
-let init_set_eitvD x : 'a tt =
-  D(EitvD.init_set x)
-let init_set_eitvMPQ x : 'a tt =
-  MPQ(EitvMPQ.init_set x)
-let init_set_eitvMPFR x : 'a tt =
-  MPFR(EitvMPFR.init_set x)
-
-let set_int (coeff:t) n : unit =
-  apply_discr_arg EitvD.set_int EitvMPQ.set_int EitvMPFR.set_int coeff n
-let set_bottom (coeff:t) : unit =
-  apply_discr EitvD.set_bottom EitvMPQ.set_bottom EitvMPFR.set_bottom coeff
-let set_top (coeff:t) : unit =
-  apply_discr EitvD.set_top EitvMPQ.set_top EitvMPFR.set_top coeff
-
-let set_eitvD (coeff:t) x intern =
-  apply_discr_arg2 Conv.eitvD_set_eitvD Conv.eitvMPQ_set_eitvD Conv.eitvMPFR_set_eitvD coeff x intern
-let set_eitvMPQ (coeff:t) x intern =
-  apply_discr_arg2 Conv.eitvD_set_eitvMPQ Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPFR_set_eitvMPQ coeff x intern
-let set_eitvMPFR (coeff:t) x intern =
-  apply_discr_arg2 Conv.eitvD_set_eitvMPFR Conv.eitvMPQ_set_eitvMPFR Conv.eitvMPFR_set_eitvMPFR coeff x intern
-
-let get_eitvD x (coeff:t) intern =
-  apply_arg_discr_arg Conv.eitvD_set_eitvD Conv.eitvD_set_eitvMPQ Conv.eitvD_set_eitvMPFR x coeff intern
-let get_eitvMPQ x (coeff:t) intern =
-  apply_arg_discr_arg Conv.eitvMPQ_set_eitvD Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPQ_set_eitvMPFR x coeff intern
-let get_eitvMPFR x (coeff:t) intern =
-  apply_arg_discr_arg Conv.eitvMPFR_set_eitvD Conv.eitvMPFR_set_eitvMPQ Conv.eitvMPFR_set_eitvMPFR x coeff intern
-
-let set (coeff1:t) (coeff2:'a tt) intern =
-  apply_arg_discr_arg set_eitvD set_eitvMPQ set_eitvMPFR coeff1 coeff2 intern
-
-let is_point (coeff:'a tt) =
-  apply_discr EitvD.is_point EitvMPQ.is_point EitvMPFR.is_point coeff
-let is_zero (coeff:'a tt) =
-  apply_discr EitvD.is_zero EitvMPQ.is_zero EitvMPFR.is_zero coeff
-let is_pos (coeff:'a tt) =
-  apply_discr EitvD.is_pos EitvMPQ.is_pos EitvMPFR.is_pos coeff
-let is_neg (coeff:'a tt) =
-  apply_discr EitvD.is_neg EitvMPQ.is_neg EitvMPFR.is_neg coeff
-let is_top (coeff:'a tt) =
-  apply_discr EitvD.is_top EitvMPQ.is_top EitvMPFR.is_top coeff
-let is_bottom (coeff:'a tt) =
-  apply_discr EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff
-let is_eq (coeff1:'a tt) (coeff2:'b tt) =
-  match (coeff1,coeff2) with
-  | (D x1, D x2) -> EitvD.is_eq x1 x2
-  | (MPQ x1, MPQ x2) -> EitvMPQ.is_eq x1 x2
-  | (MPFR x1, MPFR x2) -> EitvMPFR.is_eq x1 x2
-  | _ -> false
-
-let hash (coeff:'a tt) =
-  apply_discr EitvD.hash EitvMPQ.hash EitvMPFR.hash coeff
-
-let neg (x:t) (y:'a tt) =
-  mapsame_discr2 EitvD.neg EitvMPQ.neg EitvMPFR.neg x y
+quote(ML,"\n\
+let print fmt (coeff:'a tt) =\n\
+  apply_arg_discr EitvD.print EitvMPQ.print EitvMPFR.print fmt coeff\n\
+\n\
+let init (discr:discr) : 'a tt =\n\
+  map_discr EitvD.init EitvMPQ.init EitvMPFR.init discr\n\
+let init_set_int discr arg : 'a tt =\n\
+  map_discr0_arg EitvD.init_set_int EitvMPQ.init_set_int EitvMPFR.init_set_int discr arg\n\
+let init_set (coeff:'a tt) : 'b tt =\n\
+  map_discr EitvD.init_set EitvMPQ.init_set EitvMPFR.init_set coeff\n\
+let init_set_eitvD x : 'a tt =\n\
+  D(EitvD.init_set x)\n\
+let init_set_eitvMPQ x : 'a tt =\n\
+  MPQ(EitvMPQ.init_set x)\n\
+let init_set_eitvMPFR x : 'a tt =\n\
+  MPFR(EitvMPFR.init_set x)\n\
+\n\
+let set_int (coeff:t) n : unit =\n\
+  apply_discr_arg EitvD.set_int EitvMPQ.set_int EitvMPFR.set_int coeff n\n\
+let set_bottom (coeff:t) : unit =\n\
+  apply_discr EitvD.set_bottom EitvMPQ.set_bottom EitvMPFR.set_bottom coeff\n\
+let set_top (coeff:t) : unit =\n\
+  apply_discr EitvD.set_top EitvMPQ.set_top EitvMPFR.set_top coeff\n\
+\n\
+let set_eitvD (coeff:t) x intern =\n\
+  apply_discr_arg2 Conv.eitvD_set_eitvD Conv.eitvMPQ_set_eitvD Conv.eitvMPFR_set_eitvD coeff x intern\n\
+let set_eitvMPQ (coeff:t) x intern =\n\
+  apply_discr_arg2 Conv.eitvD_set_eitvMPQ Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPFR_set_eitvMPQ coeff x intern\n\
+let set_eitvMPFR (coeff:t) x intern =\n\
+  apply_discr_arg2 Conv.eitvD_set_eitvMPFR Conv.eitvMPQ_set_eitvMPFR Conv.eitvMPFR_set_eitvMPFR coeff x intern\n\
+\n\
+let get_eitvD x (coeff:t) intern =\n\
+  apply_arg_discr_arg Conv.eitvD_set_eitvD Conv.eitvD_set_eitvMPQ Conv.eitvD_set_eitvMPFR x coeff intern\n\
+let get_eitvMPQ x (coeff:t) intern =\n\
+  apply_arg_discr_arg Conv.eitvMPQ_set_eitvD Conv.eitvMPQ_set_eitvMPQ Conv.eitvMPQ_set_eitvMPFR x coeff intern\n\
+let get_eitvMPFR x (coeff:t) intern =\n\
+  apply_arg_discr_arg Conv.eitvMPFR_set_eitvD Conv.eitvMPFR_set_eitvMPQ Conv.eitvMPFR_set_eitvMPFR x coeff intern\n\
+\n\
+let set (coeff1:t) (coeff2:'a tt) intern =\n\
+  apply_arg_discr_arg set_eitvD set_eitvMPQ set_eitvMPFR coeff1 coeff2 intern\n\
+\n\
+let is_point (coeff:'a tt) =\n\
+  apply_discr EitvD.is_point EitvMPQ.is_point EitvMPFR.is_point coeff\n\
+let is_zero (coeff:'a tt) =\n\
+  apply_discr EitvD.is_zero EitvMPQ.is_zero EitvMPFR.is_zero coeff\n\
+let is_pos (coeff:'a tt) =\n\
+  apply_discr EitvD.is_pos EitvMPQ.is_pos EitvMPFR.is_pos coeff\n\
+let is_neg (coeff:'a tt) =\n\
+  apply_discr EitvD.is_neg EitvMPQ.is_neg EitvMPFR.is_neg coeff\n\
+let is_top (coeff:'a tt) =\n\
+  apply_discr EitvD.is_top EitvMPQ.is_top EitvMPFR.is_top coeff\n\
+let is_bottom (coeff:'a tt) =\n\
+  apply_discr EitvD.is_bottom EitvMPQ.is_bottom EitvMPFR.is_bottom coeff\n\
+let is_eq (coeff1:'a tt) (coeff2:'b tt) =\n\
+  match (coeff1,coeff2) with\n\
+  | (D x1, D x2) -> EitvD.is_eq x1 x2\n\
+  | (MPQ x1, MPQ x2) -> EitvMPQ.is_eq x1 x2\n\
+  | (MPFR x1, MPFR x2) -> EitvMPFR.is_eq x1 x2\n\
+  | _ -> false\n\
+\n\
+let hash (coeff:'a tt) =\n\
+  apply_discr EitvD.hash EitvMPQ.hash EitvMPFR.hash coeff\n\
+\n\
+let neg (x:t) (y:'a tt) =\n\
+  mapsame_discr2 EitvD.neg EitvMPQ.neg EitvMPFR.neg x y\n\
 ")

@@ -36,79 +36,79 @@ quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
 quote(MLMLI,"(** Linear generators *)\n\n")
 #endif
 
-quote(MLI,"
-(** {2 Linear expressions/constraints/generators} *)
-
-(** {3 Pretty printing} *)
-val print : (Dim.t -> string) -> Format.formatter -> t -> unit
-
-(** {3 Initialization} *)
-val init : ?size:int -> Common.discr -> t
-val init_set : t -> t
-val init_set_linyyyD : LinyyyD.t -> t
-val init_set_linyyyMPQ : LinyyyMPQ.t -> t
-val init_set_linyyyMPFR : LinyyyMPFR.t -> t
-
-(** {3 Misc)} *)
-val resize : t -> int -> unit
-val minimize : t -> unit
-
-(** {3 Assignement (with possible conversion)} *)
-val set : t -> t -> Common.num_internal -> bool
-val set_linyyyD : t -> LinyyyD.t -> Common.num_internal -> bool
-val set_linyyyMPQ : t -> LinyyyMPQ.t -> Common.num_internal -> bool
-val set_linyyyMPFR : t -> LinyyyMPFR.t -> Common.num_internal -> bool
-val get_linyyyD : LinyyyD.t -> t -> Common.num_internal -> bool
-val get_linyyyMPQ : LinyyyMPQ.t -> t -> Common.num_internal -> bool
-val get_linyyyMPFR : LinyyyMPFR.t -> t -> Common.num_internal -> bool
-
-(** {3 Access} *)
-val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit
+quote(MLI,"\n\
+(** {2 Linear expressions/constraints/generators} *)\n\
+\n\
+(** {3 Pretty printing} *)\n\
+val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
+\n\
+(** {3 Initialization} *)\n\
+val init : ?size:int -> Common.discr -> t\n\
+val init_set : t -> t\n\
+val init_set_linyyyD : LinyyyD.t -> t\n\
+val init_set_linyyyMPQ : LinyyyMPQ.t -> t\n\
+val init_set_linyyyMPFR : LinyyyMPFR.t -> t\n\
+\n\
+(** {3 Misc)} *)\n\
+val resize : t -> int -> unit\n\
+val minimize : t -> unit\n\
+\n\
+(** {3 Assignement (with possible conversion)} *)\n\
+val set : t -> t -> Common.num_internal -> bool\n\
+val set_linyyyD : t -> LinyyyD.t -> Common.num_internal -> bool\n\
+val set_linyyyMPQ : t -> LinyyyMPQ.t -> Common.num_internal -> bool\n\
+val set_linyyyMPFR : t -> LinyyyMPFR.t -> Common.num_internal -> bool\n\
+val get_linyyyD : LinyyyD.t -> t -> Common.num_internal -> bool\n\
+val get_linyyyMPQ : LinyyyMPQ.t -> t -> Common.num_internal -> bool\n\
+val get_linyyyMPFR : LinyyyMPFR.t -> t -> Common.num_internal -> bool\n\
+\n\
+(** {3 Access} *)\n\
+val iter : (Coeff.t -> Dim.t -> unit) -> t -> unit\n\
 ")
 boolean ap_linyyy0_get_cst(ap_coeff_tm coeff, ap_linyyy0_t expr, num_internal_ptr intern);
 boolean ap_linyyy0_get_coeff(ap_coeff_tm coeff, ap_linyyy0_t expr, ap_dim_t dim, num_internal_ptr intern);
 boolean ap_linyyy0_set_cst(ap_linyyy0_t expr, ap_coeff_tg coeff, num_internal_ptr intern);
 boolean ap_linyyy0_set_coeff(ap_linyyy0_t expr, ap_dim_t dim, ap_coeff_tg coeff, num_internal_ptr intern);
 
-quote(MLI,"
-(** {3 Change of dimensions} *)
-val add_dimensions : t -> t -> Dim.change -> unit
-val permute_dimensions : t -> t -> Dim.perm -> unit
-val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit
-
-(** {3 Tests} *)
-val equal : t -> t -> bool
-val hash : t -> int
-val compare : t -> t -> int
-
-(** {2 Arrays} *)
-
-(** {3  Pretty printing} *)
-
-val array_print :
-  ?first:(unit, Format.formatter, unit) format ->
-  ?sep:(unit, Format.formatter, unit) format ->
-  ?last:(unit, Format.formatter, unit) format ->
- (Dim.t -> string) -> Format.formatter -> earray -> unit
-
-(** {3 Initialization and Assignement Functions} *)
-val array_init : Common.discr -> int -> earray
-val array_init_set : earray -> earray
-val array_init_set_linyyyD_array : LinyyyD.earray -> earray
-val array_init_set_linyyyMPQ_array : LinyyyMPQ.earray -> earray
-val array_init_set_linyyyMPFR_array : LinyyyMPFR.earray -> earray
-val array_resize : earray -> int -> unit
-val array_minimize : earray -> unit
-
-(** {3 Assignements and access with possible conversions} *)
-val array_length : earray -> int
-val array_set : earray -> earray -> Common.num_internal -> bool
-val array_set_linyyyD_array : earray -> LinyyyD.earray -> Common.num_internal -> bool
-val array_set_linyyyMPQ_array : earray -> LinyyyMPQ.earray -> Common.num_internal -> bool
-val array_set_linyyyMPFR_array : earray -> LinyyyMPFR.earray -> Common.num_internal -> bool
-val array_get_linyyyD_array : LinyyyD.earray -> earray -> Common.num_internal -> bool
-val array_get_linyyyMPQ_array : LinyyyMPQ.earray -> earray -> Common.num_internal -> bool
-val array_get_linyyyMPFR_array : LinyyyMPFR.earray -> earray -> Common.num_internal -> bool
+quote(MLI,"\n\
+(** {3 Change of dimensions} *)\n\
+val add_dimensions : t -> t -> Dim.change -> unit\n\
+val permute_dimensions : t -> t -> Dim.perm -> unit\n\
+val extend_environment: t -> newenv:Environment.t -> t -> oldenv:Environment.t -> unit\n\
+\n\
+(** {3 Tests} *)\n\
+val equal : t -> t -> bool\n\
+val hash : t -> int\n\
+val compare : t -> t -> int\n\
+\n\
+(** {2 Arrays} *)\n\
+\n\
+(** {3  Pretty printing} *)\n\
+\n\
+val array_print :\n\
+  ?first:(unit, Format.formatter, unit) format ->\n\
+  ?sep:(unit, Format.formatter, unit) format ->\n\
+  ?last:(unit, Format.formatter, unit) format ->\n\
+ (Dim.t -> string) -> Format.formatter -> earray -> unit\n\
+\n\
+(** {3 Initialization and Assignement Functions} *)\n\
+val array_init : Common.discr -> int -> earray\n\
+val array_init_set : earray -> earray\n\
+val array_init_set_linyyyD_array : LinyyyD.earray -> earray\n\
+val array_init_set_linyyyMPQ_array : LinyyyMPQ.earray -> earray\n\
+val array_init_set_linyyyMPFR_array : LinyyyMPFR.earray -> earray\n\
+val array_resize : earray -> int -> unit\n\
+val array_minimize : earray -> unit\n\
+\n\
+(** {3 Assignements and access with possible conversions} *)\n\
+val array_length : earray -> int\n\
+val array_set : earray -> earray -> Common.num_internal -> bool\n\
+val array_set_linyyyD_array : earray -> LinyyyD.earray -> Common.num_internal -> bool\n\
+val array_set_linyyyMPQ_array : earray -> LinyyyMPQ.earray -> Common.num_internal -> bool\n\
+val array_set_linyyyMPFR_array : earray -> LinyyyMPFR.earray -> Common.num_internal -> bool\n\
+val array_get_linyyyD_array : LinyyyD.earray -> earray -> Common.num_internal -> bool\n\
+val array_get_linyyyMPQ_array : LinyyyMPQ.earray -> earray -> Common.num_internal -> bool\n\
+val array_get_linyyyMPFR_array : LinyyyMPFR.earray -> earray -> Common.num_internal -> bool\n\
 ")
 boolean ap_linyyy0_array_set_index(ap_linyyy0_array_t p, unsigned int i, ap_linyyy0_t a, num_internal_ptr intern);
 boolean ap_linyyy0_array_get_index(ap_linyyy0_t a, ap_linyyy0_array_t p, unsigned int i, num_internal_ptr intern);
@@ -119,17 +119,17 @@ boolean ap_linyyy0_array_get_index_linyyyD(ap_linyyyD_ptr a, ap_linyyy0_array_t 
 boolean ap_linyyy0_array_get_index_linyyyMPQ(ap_linyyyMPQ_ptr a, ap_linyyy0_array_t p, unsigned int i, num_internal_ptr intern);
 boolean ap_linyyy0_array_get_index_linyyyMPFR(ap_linyyyMPFR_ptr a, ap_linyyy0_array_t p, unsigned int i, num_internal_ptr intern);
 
-quote(MLI,"
-(** {3 Change of dimensions} *)
-val array_add_dimensions : earray -> earray -> Dim.change -> unit
-val array_permute_dimensions : earray -> earray -> Dim.perm -> unit
-val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit
+quote(MLI,"\n\
+(** {3 Change of dimensions} *)\n\
+val array_add_dimensions : earray -> earray -> Dim.change -> unit\n\
+val array_permute_dimensions : earray -> earray -> Dim.perm -> unit\n\
+val array_extend_environment: earray -> newenv:Environment.t -> earray -> oldenv:Environment.t -> unit\n\
 ")
 
 #if defined(_AP_lincons0_MARK_) || defined(_AP_lingen0_MARK_)
-quote(MLI,"
-(** {2 Specific to constraints and generators} *)
-(** {3 Access} *)
+quote(MLI,"\n\
+(** {2 Specific to constraints and generators} *)\n\
+(** {3 Access} *)\n\
 ")
 boolean ap_linyyy0_get_linexpr0(ap_linexpr0_t e, ap_linyyy0_t c, num_internal_ptr intern);
 enum ap_yyytyp_t ap_linyyy0_get_yyytyp(ap_linyyy0_t c);
@@ -138,168 +138,168 @@ void ap_linyyy0_set_yyytyp(ap_linyyy0_t c, enum ap_yyytyp_t yyytyp);
 #endif
 
 #if defined (_AP_lincons0_MARK_)
-quote(MLI,"
-(** {2 Specific to constraints} *)
-(** {3 Constructor} *)
-val make : Linexpr0.t -> Common.constyp -> 'a Mpq.tt option -> t
-(** {3 Access} *)
-val get_mpq : Mpq.t -> t -> unit
-val set_mpq : t -> 'a Mpq.tt -> unit
-
-val set_bool : t -> bool -> unit
+quote(MLI,"\n\
+(** {2 Specific to constraints} *)\n\
+(** {3 Constructor} *)\n\
+val make : Linexpr0.t -> Common.constyp -> 'a Mpq.tt option -> t\n\
+(** {3 Access} *)\n\
+val get_mpq : Mpq.t -> t -> unit\n\
+val set_mpq : t -> 'a Mpq.tt -> unit\n\
+\n\
+val set_bool : t -> bool -> unit\n\
 ")
-quote(ML,"
-let make linexpr0 constyp ompq =
-  Common.map_discr_arg2 LinconsD.make LinconsMPQ.make LinconsMPFR.make linexpr0 constyp ompq
-let get_mpq mpq discr = Common.apply_arg_discr LinconsD.get_mpq LinconsMPQ.get_mpq LinconsMPFR.get_mpq mpq discr
-let set_mpq discr mpq = Common.apply_discr_arg LinconsD.set_mpq LinconsMPQ.set_mpq LinconsMPFR.set_mpq discr mpq
-let set_bool (lincons:t) b =
-  Common.apply_discr_arg LinconsD.set_bool LinconsMPQ.set_bool LinconsMPFR.set_bool lincons b
+quote(ML,"\n\
+let make linexpr0 constyp ompq =\n\
+  Common.map_discr_arg2 LinconsD.make LinconsMPQ.make LinconsMPFR.make linexpr0 constyp ompq\n\
+let get_mpq mpq discr = Common.apply_arg_discr LinconsD.get_mpq LinconsMPQ.get_mpq LinconsMPFR.get_mpq mpq discr\n\
+let set_mpq discr mpq = Common.apply_discr_arg LinconsD.set_mpq LinconsMPQ.set_mpq LinconsMPFR.set_mpq discr mpq\n\
+let set_bool (lincons:t) b =\n\
+  Common.apply_discr_arg LinconsD.set_bool LinconsMPQ.set_bool LinconsMPFR.set_bool lincons b\n\
 ")
 #endif
 #if defined (_AP_lingen0_MARK_)
-quote(MLI,"
-(** {2 Specific to generators} *)
-(** {3 Constructor} *)
-val make : Linexpr0.t -> Common.gentyp -> t
+quote(MLI,"\n\
+(** {2 Specific to generators} *)\n\
+(** {3 Constructor} *)\n\
+val make : Linexpr0.t -> Common.gentyp -> t\n\
 ")
-quote(ML,"
-let make linexpr0 gentyp =
-  Common.map_discr_arg LingenD.make LingenMPQ.make LingenMPFR.make linexpr0 gentyp
+quote(ML,"\n\
+let make linexpr0 gentyp =\n\
+  Common.map_discr_arg LingenD.make LingenMPQ.make LingenMPFR.make linexpr0 gentyp\n\
 ")
 #endif
 #if defined (_AP_linexpr0_MARK_) || defined (_AP_lincons0_MARK_)
-quote(MLI,"
-(** {2 Specific to expressions and constraints} *)
-(** {3 Tests} *)
-val is_linear : t -> bool
-val is_quasilinear : t -> bool
-val typ : t -> Common.exprtyp
-val is_integer : t -> int -> bool
-val is_real : t -> int -> bool
-val array_is_linear : earray -> bool
-val array_is_quasilinear : earray -> bool
-val array_typ : earray -> Common.exprtyp
+quote(MLI,"\n\
+(** {2 Specific to expressions and constraints} *)\n\
+(** {3 Tests} *)\n\
+val is_linear : t -> bool\n\
+val is_quasilinear : t -> bool\n\
+val typ : t -> Common.exprtyp\n\
+val is_integer : t -> int -> bool\n\
+val is_real : t -> int -> bool\n\
+val array_is_linear : earray -> bool\n\
+val array_is_quasilinear : earray -> bool\n\
+val array_typ : earray -> Common.exprtyp\n\
 ")
-quote(ML,"
-let is_linear linyyy =
-  Common.apply_discr LinyyyD.is_linear LinyyyMPQ.is_linear LinyyyMPFR.is_linear linyyy
-let is_quasilinear linyyy =
-  Common.apply_discr LinyyyD.is_quasilinear LinyyyMPQ.is_quasilinear LinyyyMPFR.is_quasilinear linyyy
-let typ linyyy =
-  Common.apply_discr LinyyyD.typ LinyyyMPQ.typ LinyyyMPFR.typ linyyy
-let is_integer linyyy intd =
-  Common.apply_discr_arg LinyyyD.is_integer LinyyyMPQ.is_integer LinyyyMPFR.is_integer linyyy intd
-let is_real linyyy intd =
-  Common.apply_discr_arg LinyyyD.is_real LinyyyMPQ.is_real LinyyyMPFR.is_real linyyy intd
-let array_is_linear linyyy =
-  Common.apply_discr LinyyyD.array_is_linear LinyyyMPQ.array_is_linear LinyyyMPFR.array_is_linear linyyy
-let array_is_quasilinear linyyy =
-  Common.apply_discr LinyyyD.array_is_quasilinear LinyyyMPQ.array_is_quasilinear LinyyyMPFR.array_is_quasilinear linyyy
-let array_typ linyyy =
-  Common.apply_discr LinyyyD.array_typ LinyyyMPQ.array_typ LinyyyMPFR.array_typ linyyy
+quote(ML,"\n\
+let is_linear linyyy =\n\
+  Common.apply_discr LinyyyD.is_linear LinyyyMPQ.is_linear LinyyyMPFR.is_linear linyyy\n\
+let is_quasilinear linyyy =\n\
+  Common.apply_discr LinyyyD.is_quasilinear LinyyyMPQ.is_quasilinear LinyyyMPFR.is_quasilinear linyyy\n\
+let typ linyyy =\n\
+  Common.apply_discr LinyyyD.typ LinyyyMPQ.typ LinyyyMPFR.typ linyyy\n\
+let is_integer linyyy intd =\n\
+  Common.apply_discr_arg LinyyyD.is_integer LinyyyMPQ.is_integer LinyyyMPFR.is_integer linyyy intd\n\
+let is_real linyyy intd =\n\
+  Common.apply_discr_arg LinyyyD.is_real LinyyyMPQ.is_real LinyyyMPFR.is_real linyyy intd\n\
+let array_is_linear linyyy =\n\
+  Common.apply_discr LinyyyD.array_is_linear LinyyyMPQ.array_is_linear LinyyyMPFR.array_is_linear linyyy\n\
+let array_is_quasilinear linyyy =\n\
+  Common.apply_discr LinyyyD.array_is_quasilinear LinyyyMPQ.array_is_quasilinear LinyyyMPFR.array_is_quasilinear linyyy\n\
+let array_typ linyyy =\n\
+  Common.apply_discr LinyyyD.array_typ LinyyyMPQ.array_typ LinyyyMPFR.array_typ linyyy\n\
 ")
 #endif
 
-quote(ML,"
-let print assoc fmt (linyyy:t) =
-  Common.apply_arg2_discr LinyyyD.print LinyyyMPQ.print LinyyyMPFR.print assoc fmt linyyy
-
-let init ?size (discr:Common.discr) : t =
-  match discr with
-  | Common.D () -> Common.D(LinyyyD.init ?size ())
-  | Common.MPQ () -> Common.MPQ(LinyyyMPQ.init ?size ())
-  | Common.MPFR () -> Common.MPFR(LinyyyMPFR.init ?size ())
-let init_set (linyyy:t) : t =
-  Common.map_discr LinyyyD.init_set LinyyyMPQ.init_set LinyyyMPFR.init_set linyyy
-let init_set_linyyyD x : t =
-  Common.D(LinyyyD.init_set x)
-let init_set_linyyyMPQ x : t =
-  Common.MPQ(LinyyyMPQ.init_set x)
-let init_set_linyyyMPFR x : t =
-  Common.MPFR(LinyyyMPFR.init_set x)
-let resize (linyyy:t) length =
-  Common.apply_discr_arg LinyyyD.resize LinyyyMPQ.resize LinyyyMPFR.resize linyyy length
-let minimize (linyyy:t) =
-  Common.apply_discr LinyyyD.minimize LinyyyMPQ.minimize LinyyyMPFR.minimize linyyy
-
-let set_linyyyD (linyyy:t) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyD Conv.linyyyMPQ_set_linyyyD Conv.linyyyMPFR_set_linyyyD linyyy x intern
-let set_linyyyMPQ (linyyy:t) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyMPQ Conv.linyyyMPQ_set_linyyyMPQ Conv.linyyyMPFR_set_linyyyMPQ linyyy x intern
-let set_linyyyMPFR (linyyy:t) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyMPFR Conv.linyyyMPQ_set_linyyyMPFR Conv.linyyyMPFR_set_linyyyMPFR linyyy x intern
-let set (linyyy1:t) (linyyy2:t) intern =
-  Common.apply_arg_discr_arg set_linyyyD set_linyyyMPQ set_linyyyMPFR linyyy1 linyyy2 intern
-let get_linyyyD x (linyyy:t) intern =
-  Common.apply_arg_discr_arg Conv.linyyyD_set_linyyyD Conv.linyyyD_set_linyyyMPQ Conv.linyyyD_set_linyyyMPFR x linyyy intern
-let get_linyyyMPQ x (linyyy:t) intern =
-  Common.apply_arg_discr_arg Conv.linyyyMPQ_set_linyyyD Conv.linyyyMPQ_set_linyyyMPQ Conv.linyyyMPQ_set_linyyyMPFR x linyyy intern
-let get_linyyyMPFR x (linyyy:t) intern =
-  Common.apply_arg_discr_arg Conv.linyyyMPFR_set_linyyyD Conv.linyyyMPFR_set_linyyyMPQ Conv.linyyyMPFR_set_linyyyMPFR x linyyy intern
-
-let iter f a =
-  match a with
-  | Common.D e -> LinyyyD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e
-  | Common.MPQ e -> LinyyyMPQ.iter0 (fun eitvMPQ dim -> f (Common.MPQ eitvMPQ) dim) e
-  | Common.MPFR e -> LinyyyMPFR.iter0 (fun eitvMPFR dim -> f (Common.MPFR eitvMPFR) dim) e
-
-let add_dimensions res expr dimchange =
-  Common.mapsame_discr2_arg LinyyyD.add_dimensions LinyyyMPQ.add_dimensions LinyyyMPFR.add_dimensions res expr dimchange
-let permute_dimensions res expr dimperm =
-  Common.mapsame_discr2_arg LinyyyD.permute_dimensions LinyyyMPQ.permute_dimensions LinyyyMPFR.permute_dimensions res expr dimperm
-let extend_environment res ~newenv old ~oldenv =
-  match (res,old) with
-  | (Common.D res, Common.D old) -> LinyyyD.extend_environment res ~newenv old ~oldenv
-  | (Common.MPQ res, Common.MPQ old) -> LinyyyMPQ.extend_environment res ~newenv old ~oldenv
-  | (Common.MPFR res, Common.MPFR old) -> LinyyyMPFR.extend_environment res ~newenv old ~oldenv
-  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
-let array_extend_environment res ~newenv old ~oldenv =
-  match (res,old) with
-  | (Common.D res, Common.D old) -> LinyyyD.array_extend_environment res ~newenv old ~oldenv
-  | (Common.MPQ res, Common.MPQ old) -> LinyyyMPQ.array_extend_environment res ~newenv old ~oldenv
-  | (Common.MPFR res, Common.MPFR old) -> LinyyyMPFR.array_extend_environment res ~newenv old ~oldenv
-  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")
-let equal (linyyy1:t) (linyyy2:t) =
-  match (linyyy1,linyyy2) with
-  | (Common.D x1, Common.D x2) -> LinyyyD.equal x1 x2
-  | (Common.MPQ x1, Common.MPQ x2) -> LinyyyMPQ.equal x1 x2
-  | (Common.MPFR x1, Common.MPFR x2) -> LinyyyMPFR.equal x1 x2
-  | _ -> false
-let hash (linyyy:t) =
-  Common.apply_discr LinyyyD.hash LinyyyMPQ.hash LinyyyMPFR.hash linyyy
-let compare = Pervasives.compare
-let array_print ?first ?sep ?last assoc fmt = function
-  | Common.D x -> LinyyyD.array_print ?first ?sep ?last assoc fmt x
-  | Common.MPQ x -> LinyyyMPQ.array_print ?first ?sep ?last assoc fmt x
-  | Common.MPFR x -> LinyyyMPFR.array_print ?first ?sep ?last assoc fmt x
-let array_init discr size = Common.map_discr0_arg LinyyyD.array_init LinyyyMPQ.array_init LinyyyMPFR.array_init discr size
-let array_init_set discr = Common.map_discr LinyyyD.array_init_set LinyyyMPQ.array_init_set LinyyyMPFR.array_init_set discr
-let array_init_set_linyyyD_array x : earray =
-  Common.D(LinyyyD.array_init_set x)
-let array_init_set_linyyyMPQ_array x : earray =
-  Common.MPQ(LinyyyMPQ.array_init_set x)
-let array_init_set_linyyyMPFR_array x : earray =
-  Common.MPFR(LinyyyMPFR.array_init_set x)
-let array_resize discr size = Common.apply_discr_arg LinyyyD.array_resize LinyyyMPQ.array_resize LinyyyMPFR.array_resize discr size
-let array_minimize discr = Common.apply_discr LinyyyD.array_minimize LinyyyMPQ.array_minimize LinyyyMPFR.array_minimize discr
-let array_length = Common.apply_discr LinyyyD.array_length LinyyyMPQ.array_length LinyyyMPFR.array_length
-let array_set_linyyyD_array (earray:earray) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyD_array Conv.linyyyMPQ_array_set_linyyyD_array Conv.linyyyMPFR_array_set_linyyyD_array earray x intern
-let array_set_linyyyMPQ_array (earray:earray) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyMPQ_array_set_linyyyMPQ_array Conv.linyyyMPFR_array_set_linyyyMPQ_array earray x intern
-let array_set_linyyyMPFR_array (earray:earray) x intern =
-  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPFR_array Conv.linyyyMPQ_array_set_linyyyMPFR_array Conv.linyyyMPFR_array_set_linyyyMPFR_array earray x intern
-let array_set (linyyy1:earray) (linyyy2:earray) intern =
-  Common.apply_arg_discr_arg array_set_linyyyD_array array_set_linyyyMPQ_array array_set_linyyyMPFR_array linyyy1 linyyy2 intern
-let array_get_linyyyD_array x (earray:earray) intern =
-  Common.apply_arg_discr_arg Conv.linyyyD_array_set_linyyyD_array Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyD_array_set_linyyyMPFR_array x earray intern
-let array_get_linyyyMPQ_array x (earray:earray) intern =
-  Common.apply_arg_discr_arg Conv.linyyyMPQ_array_set_linyyyD_array Conv.linyyyMPQ_array_set_linyyyMPQ_array Conv.linyyyMPQ_array_set_linyyyMPFR_array x earray intern
-let array_get_linyyyMPFR_array x (earray:earray) intern =
-  Common.apply_arg_discr_arg Conv.linyyyMPFR_array_set_linyyyD_array Conv.linyyyMPFR_array_set_linyyyMPQ_array Conv.linyyyMPFR_array_set_linyyyMPFR_array x earray intern
-let array_add_dimensions res expr dimchange =
-  Common.mapsame_discr2_arg LinyyyD.array_add_dimensions LinyyyMPQ.array_add_dimensions LinyyyMPFR.array_add_dimensions res expr dimchange
-let array_permute_dimensions res expr dimperm =
-  Common.mapsame_discr2_arg LinyyyD.array_permute_dimensions LinyyyMPQ.array_permute_dimensions LinyyyMPFR.array_permute_dimensions res expr dimperm
+quote(ML,"\n\
+let print assoc fmt (linyyy:t) =\n\
+  Common.apply_arg2_discr LinyyyD.print LinyyyMPQ.print LinyyyMPFR.print assoc fmt linyyy\n\
+\n\
+let init ?size (discr:Common.discr) : t =\n\
+  match discr with\n\
+  | Common.D () -> Common.D(LinyyyD.init ?size ())\n\
+  | Common.MPQ () -> Common.MPQ(LinyyyMPQ.init ?size ())\n\
+  | Common.MPFR () -> Common.MPFR(LinyyyMPFR.init ?size ())\n\
+let init_set (linyyy:t) : t =\n\
+  Common.map_discr LinyyyD.init_set LinyyyMPQ.init_set LinyyyMPFR.init_set linyyy\n\
+let init_set_linyyyD x : t =\n\
+  Common.D(LinyyyD.init_set x)\n\
+let init_set_linyyyMPQ x : t =\n\
+  Common.MPQ(LinyyyMPQ.init_set x)\n\
+let init_set_linyyyMPFR x : t =\n\
+  Common.MPFR(LinyyyMPFR.init_set x)\n\
+let resize (linyyy:t) length =\n\
+  Common.apply_discr_arg LinyyyD.resize LinyyyMPQ.resize LinyyyMPFR.resize linyyy length\n\
+let minimize (linyyy:t) =\n\
+  Common.apply_discr LinyyyD.minimize LinyyyMPQ.minimize LinyyyMPFR.minimize linyyy\n\
+\n\
+let set_linyyyD (linyyy:t) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyD Conv.linyyyMPQ_set_linyyyD Conv.linyyyMPFR_set_linyyyD linyyy x intern\n\
+let set_linyyyMPQ (linyyy:t) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyMPQ Conv.linyyyMPQ_set_linyyyMPQ Conv.linyyyMPFR_set_linyyyMPQ linyyy x intern\n\
+let set_linyyyMPFR (linyyy:t) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_set_linyyyMPFR Conv.linyyyMPQ_set_linyyyMPFR Conv.linyyyMPFR_set_linyyyMPFR linyyy x intern\n\
+let set (linyyy1:t) (linyyy2:t) intern =\n\
+  Common.apply_arg_discr_arg set_linyyyD set_linyyyMPQ set_linyyyMPFR linyyy1 linyyy2 intern\n\
+let get_linyyyD x (linyyy:t) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyD_set_linyyyD Conv.linyyyD_set_linyyyMPQ Conv.linyyyD_set_linyyyMPFR x linyyy intern\n\
+let get_linyyyMPQ x (linyyy:t) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyMPQ_set_linyyyD Conv.linyyyMPQ_set_linyyyMPQ Conv.linyyyMPQ_set_linyyyMPFR x linyyy intern\n\
+let get_linyyyMPFR x (linyyy:t) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyMPFR_set_linyyyD Conv.linyyyMPFR_set_linyyyMPQ Conv.linyyyMPFR_set_linyyyMPFR x linyyy intern\n\
+\n\
+let iter f a =\n\
+  match a with\n\
+  | Common.D e -> LinyyyD.iter0 (fun eitvD dim -> f (Common.D eitvD) dim) e\n\
+  | Common.MPQ e -> LinyyyMPQ.iter0 (fun eitvMPQ dim -> f (Common.MPQ eitvMPQ) dim) e\n\
+  | Common.MPFR e -> LinyyyMPFR.iter0 (fun eitvMPFR dim -> f (Common.MPFR eitvMPFR) dim) e\n\
+\n\
+let add_dimensions res expr dimchange =\n\
+  Common.mapsame_discr2_arg LinyyyD.add_dimensions LinyyyMPQ.add_dimensions LinyyyMPFR.add_dimensions res expr dimchange\n\
+let permute_dimensions res expr dimperm =\n\
+  Common.mapsame_discr2_arg LinyyyD.permute_dimensions LinyyyMPQ.permute_dimensions LinyyyMPFR.permute_dimensions res expr dimperm\n\
+let extend_environment res ~newenv old ~oldenv =\n\
+  match (res,old) with\n\
+  | (Common.D res, Common.D old) -> LinyyyD.extend_environment res ~newenv old ~oldenv\n\
+  | (Common.MPQ res, Common.MPQ old) -> LinyyyMPQ.extend_environment res ~newenv old ~oldenv\n\
+  | (Common.MPFR res, Common.MPFR old) -> LinyyyMPFR.extend_environment res ~newenv old ~oldenv\n\
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")\n\
+let array_extend_environment res ~newenv old ~oldenv =\n\
+  match (res,old) with\n\
+  | (Common.D res, Common.D old) -> LinyyyD.array_extend_environment res ~newenv old ~oldenv\n\
+  | (Common.MPQ res, Common.MPQ old) -> LinyyyMPQ.array_extend_environment res ~newenv old ~oldenv\n\
+  | (Common.MPFR res, Common.MPFR old) -> LinyyyMPFR.array_extend_environment res ~newenv old ~oldenv\n\
+  | _ -> raise (Invalid_argument \"The two argument sould have the same constructor (D, MPQ, or MPFR)\")\n\
+let equal (linyyy1:t) (linyyy2:t) =\n\
+  match (linyyy1,linyyy2) with\n\
+  | (Common.D x1, Common.D x2) -> LinyyyD.equal x1 x2\n\
+  | (Common.MPQ x1, Common.MPQ x2) -> LinyyyMPQ.equal x1 x2\n\
+  | (Common.MPFR x1, Common.MPFR x2) -> LinyyyMPFR.equal x1 x2\n\
+  | _ -> false\n\
+let hash (linyyy:t) =\n\
+  Common.apply_discr LinyyyD.hash LinyyyMPQ.hash LinyyyMPFR.hash linyyy\n\
+let compare = Pervasives.compare\n\
+let array_print ?first ?sep ?last assoc fmt = function\n\
+  | Common.D x -> LinyyyD.array_print ?first ?sep ?last assoc fmt x\n\
+  | Common.MPQ x -> LinyyyMPQ.array_print ?first ?sep ?last assoc fmt x\n\
+  | Common.MPFR x -> LinyyyMPFR.array_print ?first ?sep ?last assoc fmt x\n\
+let array_init discr size = Common.map_discr0_arg LinyyyD.array_init LinyyyMPQ.array_init LinyyyMPFR.array_init discr size\n\
+let array_init_set discr = Common.map_discr LinyyyD.array_init_set LinyyyMPQ.array_init_set LinyyyMPFR.array_init_set discr\n\
+let array_init_set_linyyyD_array x : earray =\n\
+  Common.D(LinyyyD.array_init_set x)\n\
+let array_init_set_linyyyMPQ_array x : earray =\n\
+  Common.MPQ(LinyyyMPQ.array_init_set x)\n\
+let array_init_set_linyyyMPFR_array x : earray =\n\
+  Common.MPFR(LinyyyMPFR.array_init_set x)\n\
+let array_resize discr size = Common.apply_discr_arg LinyyyD.array_resize LinyyyMPQ.array_resize LinyyyMPFR.array_resize discr size\n\
+let array_minimize discr = Common.apply_discr LinyyyD.array_minimize LinyyyMPQ.array_minimize LinyyyMPFR.array_minimize discr\n\
+let array_length = Common.apply_discr LinyyyD.array_length LinyyyMPQ.array_length LinyyyMPFR.array_length\n\
+let array_set_linyyyD_array (earray:earray) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyD_array Conv.linyyyMPQ_array_set_linyyyD_array Conv.linyyyMPFR_array_set_linyyyD_array earray x intern\n\
+let array_set_linyyyMPQ_array (earray:earray) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyMPQ_array_set_linyyyMPQ_array Conv.linyyyMPFR_array_set_linyyyMPQ_array earray x intern\n\
+let array_set_linyyyMPFR_array (earray:earray) x intern =\n\
+  Common.apply_discr_arg2 Conv.linyyyD_array_set_linyyyMPFR_array Conv.linyyyMPQ_array_set_linyyyMPFR_array Conv.linyyyMPFR_array_set_linyyyMPFR_array earray x intern\n\
+let array_set (linyyy1:earray) (linyyy2:earray) intern =\n\
+  Common.apply_arg_discr_arg array_set_linyyyD_array array_set_linyyyMPQ_array array_set_linyyyMPFR_array linyyy1 linyyy2 intern\n\
+let array_get_linyyyD_array x (earray:earray) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyD_array_set_linyyyD_array Conv.linyyyD_array_set_linyyyMPQ_array Conv.linyyyD_array_set_linyyyMPFR_array x earray intern\n\
+let array_get_linyyyMPQ_array x (earray:earray) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyMPQ_array_set_linyyyD_array Conv.linyyyMPQ_array_set_linyyyMPQ_array Conv.linyyyMPQ_array_set_linyyyMPFR_array x earray intern\n\
+let array_get_linyyyMPFR_array x (earray:earray) intern =\n\
+  Common.apply_arg_discr_arg Conv.linyyyMPFR_array_set_linyyyD_array Conv.linyyyMPFR_array_set_linyyyMPQ_array Conv.linyyyMPFR_array_set_linyyyMPFR_array x earray intern\n\
+let array_add_dimensions res expr dimchange =\n\
+  Common.mapsame_discr2_arg LinyyyD.array_add_dimensions LinyyyMPQ.array_add_dimensions LinyyyMPFR.array_add_dimensions res expr dimchange\n\
+let array_permute_dimensions res expr dimperm =\n\
+  Common.mapsame_discr2_arg LinyyyD.array_permute_dimensions LinyyyMPQ.array_permute_dimensions LinyyyMPFR.array_permute_dimensions res expr dimperm\n\
 ")

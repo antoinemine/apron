@@ -32,83 +32,83 @@ struct ap_dimperm_t {
 
 quote(MLMLI,"(** APRON Dimensions and related types *)")
 
-quote(MLI,"\n(**
-
-{ul
-{- [t=int] is the type of dimensions.}
-{- The semantics of an object [(change:change)] is the following one:
-{ul
-{- [change.intdim] and [change.realdim] indicate the number of integer and
-   real dimensions to add or to remove}
-{- In case of the addition of dimensions,
-
-   [change.dim[i]=k] means: add one dimension at dimension k and shift the
-   already existing dimensions greater than or equal to k one step on the
-   right (or increment them).
-
-   if k is equal to the size of the vector, then it means: add a dimension at
-   the end.
-
-   Repetition are allowed, and means that one inserts more than one dimensions.
-
-   Example:
-   [add_dimensions [i0 i1 r0 r1] { dim=[0 1 2 2 4]; intdim=3; realdim=1 }]
-   returns [0 i0 0 i1 0 0 r0 r1 0], considered as a vector with 6 integer
-   dimensions and 3 real dimensions.}
-{- In case of the removal of dimensions,
-
-   dimchange.dim[i]=k means: remove the dimension k and shift the dimensions
-   greater than k one step on the left (or decrement them).
-
-   Repetitions are meaningless (and are not correct specification)
-
-   Example: [remove_dimensions [i0 i1 i2 r0 r1 r2] { dim=[0 2 4]; intdim=2;
-   realdim=1 }] returns [i1 r0 r2], considered as a vector with 1 integer
-   dimensions and 2 real dimensions.
-}}}
-{- The semantics of an object [(change2:change2)] is the combination of the
-two following transformations:
-{ul
-{- [change2.add] indicates an optional addition of dimensions.}
-{- [change2.remove] indicates an optional removal of dimensions.}
-}}
-{- [perm] defines a permutation.}
-{- [dimension] defines the dimensionality of an abstract value (number of
-integer and real dimensions).
-}}
-*)
+quote(MLI,"\n(**\n\
+\n\
+{ul\n\
+{- [t=int] is the type of dimensions.}\n\
+{- The semantics of an object [(change:change)] is the following one:\n\
+{ul\n\
+{- [change.intdim] and [change.realdim] indicate the number of integer and\n\
+   real dimensions to add or to remove}\n\
+{- In case of the addition of dimensions,\n\
+\n\
+   [change.dim[i]=k] means: add one dimension at dimension k and shift the\n\
+   already existing dimensions greater than or equal to k one step on the\n\
+   right (or increment them).\n\
+\n\
+   if k is equal to the size of the vector, then it means: add a dimension at\n\
+   the end.\n\
+\n\
+   Repetition are allowed, and means that one inserts more than one dimensions.\n\
+\n\
+   Example:\n\
+   [add_dimensions [i0 i1 r0 r1] { dim=[0 1 2 2 4]; intdim=3; realdim=1 }]\n\
+   returns [0 i0 0 i1 0 0 r0 r1 0], considered as a vector with 6 integer\n\
+   dimensions and 3 real dimensions.}\n\
+{- In case of the removal of dimensions,\n\
+\n\
+   dimchange.dim[i]=k means: remove the dimension k and shift the dimensions\n\
+   greater than k one step on the left (or decrement them).\n\
+\n\
+   Repetitions are meaningless (and are not correct specification)\n\
+\n\
+   Example: [remove_dimensions [i0 i1 i2 r0 r1 r2] { dim=[0 2 4]; intdim=2;\n\
+   realdim=1 }] returns [i1 r0 r2], considered as a vector with 1 integer\n\
+   dimensions and 2 real dimensions.\n\
+}}}\n\
+{- The semantics of an object [(change2:change2)] is the combination of the\n\
+two following transformations:\n\
+{ul\n\
+{- [change2.add] indicates an optional addition of dimensions.}\n\
+{- [change2.remove] indicates an optional removal of dimensions.}\n\
+}}\n\
+{- [perm] defines a permutation.}\n\
+{- [dimension] defines the dimensionality of an abstract value (number of\n\
+integer and real dimensions).\n\
+}}\n\
+*)\n\
 ")
 
-quote(MLI,"
-(** Assuming a transformation for add_dimensions, invert it in-place to
-    obtain the inverse transformation using remove_dimensions *)
-val change_add_invert : change -> unit
-
-(** [perm_compose perm1 perm2] composes the 2 permutations perm1 and perm2
-  (in this order). The sizes of permutations are supposed to be equal. *)
-val perm_compose : perm -> perm -> perm
-
-(** Invert a permutation *)
-val perm_invert : perm -> perm
+quote(MLI,"\n\
+(** Assuming a transformation for add_dimensions, invert it in-place to\n\
+    obtain the inverse transformation using remove_dimensions *)\n\
+val change_add_invert : change -> unit\n\
+\n\
+(** [perm_compose perm1 perm2] composes the 2 permutations perm1 and perm2\n\
+  (in this order). The sizes of permutations are supposed to be equal. *)\n\
+val perm_compose : perm -> perm -> perm\n\
+\n\
+(** Invert a permutation *)\n\
+val perm_invert : perm -> perm\n\
 ")
 
-quote(ML,"
-let change_add_invert change =
-  let dim = change.dim in
-  for i=0 to (Array.length dim)-1 do
-    dim.(i) <- dim.(i) + i;
-  done
-
-let perm_compose perm1 perm2 =
-  let length = Array.length perm1 in
-  assert(length==(Array.length perm2));
-  Array.init length (fun i -> perm2.(perm1.(i)))
-
-let perm_invert perm =
-  let length = Array.length perm in
-  let res = Array.make length 0 in
-  for i=0 to length-1 do
-    res.(perm.(i)) <- i;
-  done;
-  res
+quote(ML,"\n\
+let change_add_invert change =\n\
+  let dim = change.dim in\n\
+  for i=0 to (Array.length dim)-1 do\n\
+    dim.(i) <- dim.(i) + i;\n\
+  done\n\
+\n\
+let perm_compose perm1 perm2 =\n\
+  let length = Array.length perm1 in\n\
+  assert(length==(Array.length perm2));\n\
+  Array.init length (fun i -> perm2.(perm1.(i)))\n\
+\n\
+let perm_invert perm =\n\
+  let length = Array.length perm in\n\
+  let res = Array.make length 0 in\n\
+  for i=0 to length-1 do\n\
+    res.(perm.(i)) <- i;\n\
+  done;\n\
+  res\n\
 ")

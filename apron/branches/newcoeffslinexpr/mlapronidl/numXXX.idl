@@ -20,10 +20,10 @@ import "common.idl";
 #define _numint_MARK_
 typedef [abstract,c2ml(camlidl_mpz_ptr_c2ml),ml2c(camlidl_mpz_ptr_ml2c),mltype("'a Mpz.tt")] struct __mpz_struct* numXXX_ptrg;
 typedef [abstract,c2ml(camlidl_mpz_ptr_c2ml),ml2c(camlidl_mpz_ptr_ml2c)] struct __mpz_struct* numXXX_ptrm;
-quote(MLMLI,"
-type m = Mpz.m (** Mutable tag *)
-type f = Mpz.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable numbers *)
+quote(MLMLI,"\n\
+type m = Mpz.m (** Mutable tag *)\n\
+type f = Mpz.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable numbers *)\n\
 ")
 
 #elif defined(_numMPQ_MARK_)
@@ -32,10 +32,10 @@ typedef [abstract,c2ml(camlidl_mpq_ptr_c2ml),ml2c(camlidl_mpq_ptr_ml2c),mltype("
 typedef [abstract,c2ml(camlidl_mpq_ptr_c2ml),ml2c(camlidl_mpq_ptr_ml2c)] struct __mpq_struct* numXXX_ptrm;
 #define numYYY_ptrg numMPZ_ptrg
 #define numYYY_ptrm numMPZ_ptrm
-quote(MLMLI,"
-type m = Mpq.m (** Mutable tag *)
-type f = Mpq.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable numbers *)
+quote(MLMLI,"\n\
+type m = Mpq.m (** Mutable tag *)\n\
+type f = Mpq.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable numbers *)\n\
 ")
 import "numMPZ.idl";
 
@@ -43,19 +43,19 @@ import "numMPZ.idl";
 #define _numflt_MARK_
 typedef [abstract,c2ml(camlidl_mpfr_ptr_c2ml),ml2c(camlidl_mpfr_ptr_ml2c),mltype("'a Mpfr.tt")] struct __mpfr_struct* numXXX_ptrg;
 typedef [abstract,c2ml(camlidl_mpfr_ptr_c2ml),ml2c(camlidl_mpfr_ptr_ml2c)] struct __mpfr_struct* numXXX_ptrm;
-quote(MLMLI,"
-type m = Mpfr.m (** Mutable tag *)
-type f = Mpfr.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable numbers *)
+quote(MLMLI,"\n\
+type m = Mpfr.m (** Mutable tag *)\n\
+type f = Mpfr.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable numbers *)\n\
 ")
 #elif defined(_numD_MARK_)
 #define _numflt_MARK_
 typedef [abstract,c2ml(camlidl_numD_ptr_c2ml),ml2c(camlidl_numD_ptr_ml2c)] struct numD_struct* numXXX_ptrg;
 typedef [abstract,c2ml(camlidl_numXXX_ptr_c2ml),ml2c(camlidl_numXXX_ptr_ml2c)] struct numD_struct* numXXX_ptrm;
-quote(MLMLI,"
-type m (** Mutable tag *)
-type f (** Functional (immutable) tag *)
-type t = m tt (** Mutable numbers *)
+quote(MLMLI,"\n\
+type m (** Mutable tag *)\n\
+type f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable numbers *)\n\
 ")
 #endif
 
@@ -68,23 +68,23 @@ quote(MLMLI,"(** The following operations are mapped as much as possible to thei
 quote(MLI,"\n(** {2 Pretty printing} *)\n")
 
 [string] char* _to_string(int length, numXXX_ptrg a)
-  quote(call,"
-if (length<=8) length=8;
-_res = malloc(length+1);
-int l = numXXX_snprint(_res,length+1,a);
-if (l>=length+1){
-  strcpy(_res,numXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");
-}
+  quote(call,"\n\
+if (length<=8) length=8;\n\
+_res = malloc(length+1);\n\
+int l = numXXX_snprint(_res,length+1,a);\n\
+if (l>=length+1){\n\
+  strcpy(_res,numXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");\n\
+}\n\
 ")
   quote(dealloc,"free(_res);");
 
-quote(MLI,"
-val to_string : ?length:int -> 'a tt -> string
-val print : Format.formatter -> 'a tt -> unit
+quote(MLI,"\n\
+val to_string : ?length:int -> 'a tt -> string\n\
+val print : Format.formatter -> 'a tt -> unit\n\
 ")
-quote(ML,"
-let to_string ?(length=80) a = _to_string length a
-let print fmt a = Format.pp_print_string fmt (to_string a)
+quote(ML,"\n\
+let to_string ?(length=80) a = _to_string length a\n\
+let print fmt a = Format.pp_print_string fmt (to_string a)\n\
 ")
 
 quote(MLMLI,"(** {2 Initialization Functions} *)\n")

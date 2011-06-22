@@ -25,17 +25,17 @@ quote(MLI,"(** Conversion to string *)")
 quote(MLI,"(** Hash function *)")
 int ap_var_hash(ap_var_t var);
 
-quote(MLI,"
-(** Printing function *)
-val print : Format.formatter -> t -> unit
+quote(MLI,"\n\
+(** Printing function *)\n\
+val print : Format.formatter -> t -> unit\n\
 ")
-quote(ML,"
-let print fmt v = Format.pp_print_string fmt (to_string v)
+quote(ML,"\n\
+let print fmt v = Format.pp_print_string fmt (to_string v)\n\
 ")
 
-quote(MLMLI,"
-(** Initialisation of abstract type operations in C library *)
+quote(MLMLI,"\n\
+(** Initialisation of abstract type operations in C library *)\n\
 external ap_var__set_operations : unit -> unit = \"camlidl_apron_var_set_operations\"");
-quote(ML,"
-let _ = _set_operations ()
+quote(ML,"\n\
+let _ = _set_operations ()\n\
 ")

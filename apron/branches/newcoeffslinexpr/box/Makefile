@@ -45,6 +45,11 @@ $(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES)))
 C_GENERATED_FILES = \
 $(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES)))
 
+H_GENERATED_FILES_ALL = \
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES)))
+C_GENERATED_FILES_ALL = \
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES)))
+
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
@@ -64,7 +69,7 @@ clean:
 	/bin/rm -f *.[ao] *.so
 
 mostlyclean distclean: clean
-	/bin/rm -f $(H_GENERATED_FILES) $(C_GENERATED_FILES)
+	/bin/rm -f $(H_GENERATED_FILES_ALL) $(C_GENERATED_FILES_ALL)
 	/bin/rm -f Makefile.depend
 
 install: $(CCINC_TO_INSTALL) 

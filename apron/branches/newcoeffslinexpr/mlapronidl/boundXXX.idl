@@ -17,10 +17,10 @@ import "numXXX.idl";
 
 typedef [abstract,c2ml(camlidl_boundXXX_ptr_c2ml),ml2c(camlidl_boundXXX_ptr_ml2c)] struct boundXXX_struct* boundXXX_ptrg;
 typedef [abstract,c2ml(camlidl_boundXXX_ptr_c2ml),ml2c(camlidl_boundXXX_ptr_ml2c)] struct boundXXX_struct* boundXXX_ptrm;
-quote(MLMLI,"
-type m = Mpz.m (** Mutable tag *)
-type f = Mpz.f (** Functional (immutable) tag *)
-type t = m tt (** Mutable boundbers *)
+quote(MLMLI,"\n\
+type m = Mpz.m (** Mutable tag *)\n\
+type f = Mpz.f (** Functional (immutable) tag *)\n\
+type t = m tt (** Mutable boundbers *)\n\
 ")
 
 quote(MLMLI,"(** Bounds *)\n")
@@ -31,27 +31,27 @@ quote(MLMLI,"(** The following operations are mapped as much as possible to thei
 
 quote(MLI,"\n(** {2 Pretty printing} *)\n")
 [string] char* _to_string(int length, boundXXX_ptrg a)
-  quote(call,"
-if (boundXXX_infty(a)){
-  _res = malloc(4);
-  strcpy(_res, boundXXX_sgn(a)>=0 ? \"+oo\" : \"-oo\");
-} else {
-  if (length<=8) length=8;
-  _res = malloc(length+1);
-  int l = numXXX_snprint(_res,length+1,boundXXX_numref(a));
-  if (l>=length+1){
-    strcpy(_res,boundXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");
-  }
-}
+  quote(call,"\n\
+if (boundXXX_infty(a)){\n\
+  _res = malloc(4);\n\
+  strcpy(_res, boundXXX_sgn(a)>=0 ? \"+oo\" : \"-oo\");\n\
+} else {\n\
+  if (length<=8) length=8;\n\
+  _res = malloc(length+1);\n\
+  int l = numXXX_snprint(_res,length+1,boundXXX_numref(a));\n\
+  if (l>=length+1){\n\
+    strcpy(_res,boundXXX_sgn(a)>=0 ? \"+BIG\" : \"-BIG\");\n\
+  }\n\
+}\n\
 ")
   quote(dealloc,"free(_res);");
-quote(MLI,"
-val to_string : ?length:int -> 'a tt -> string
-val print : Format.formatter -> 'a tt -> unit
+quote(MLI,"\n\
+val to_string : ?length:int -> 'a tt -> string\n\
+val print : Format.formatter -> 'a tt -> unit\n\
 ")
-quote(ML,"
-let to_string ?(length=80) a = _to_string length a
-let print fmt a = Format.pp_print_string fmt (to_string a)
+quote(ML,"\n\
+let to_string ?(length=80) a = _to_string length a\n\
+let print fmt a = Format.pp_print_string fmt (to_string a)\n\
 ")
 
 quote(MLMLI,"(** {2 Initialization Functions} *)\n")
