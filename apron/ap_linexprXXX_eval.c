@@ -33,9 +33,9 @@ bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t co
   size_t i;
   ap_dim_t dim;
   bool* peq;
-  eitvXXX_ptr pitv;
+  eitvXXX_ptr peitv;
 
-  eitvXXX_is_point(coeff);
+  coeff->eq = eitvXXX_is_point(coeff);
   if (eitvXXX_is_zero(coeff)){
     eitvXXX_set_int(res->cst,0);
     ap_linexprXXX_resize(res,0);
@@ -47,11 +47,10 @@ bool ap_linexprXXX_scale(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t co
   eitvXXX_mul(res->cst,res->cst,coeff, intern);
   if (eitvXXX_is_top(res->cst)){
     ap_linexprXXX_resize(res,0);
-    return exact;
   }
   else {
-    ap_linexprXXX_ForeachLinterm0(res,i,dim,pitv){
-      eitvXXX_mul(pitv,pitv,coeff, intern);
+    ap_linexprXXX_ForeachLinterm0(res,i,dim,peitv){
+      eitvXXX_mul(peitv,peitv,coeff, intern);
     }
   }
   return exact;
@@ -61,14 +60,19 @@ bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coef
   bool exact = NUMXXX_DIVEXACT;
   size_t i;
   ap_dim_t dim;
-  eitvXXX_ptr pitv;
+  eitvXXX_ptr peitv;
 
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  eitvXXX_div(res->cst,res->cst,coeff, intern);
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv){
-    eitvXXX_div(pitv,pitv,coeff, intern);
+  eitvXXX_div(res->cst,res->cst,coeff, intern); 
+  if (eitvXXX_is_top(res->cst)){
+    ap_linexprXXX_resize(res,0);
+  }
+  else {
+    ap_linexprXXX_ForeachLinterm0(res,i,dim,peitv){
+      eitvXXX_div(peitv,peitv,coeff,intern);
+    }
   }
   return exact;
 }
@@ -479,7 +483,7 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
       exact = eitvXXX_eval_ap_texpr0(i1,n->exprA,NULL,intern) && exact;
     }
     else {
-      *perror = true; exact = false; 
+      *perror = true; exact = false;
       goto ap_linexprXXX_set_texpr0_node_endB;
     }
     if (n->op==AP_TEXPR_DIV){
