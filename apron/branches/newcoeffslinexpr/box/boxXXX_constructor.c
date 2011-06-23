@@ -542,9 +542,22 @@ void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t res, boxXXX_t* a)
 
   man->result.flag_best = true;
   man->result.flag_exact = true;
-  a->e->effsize--;
-  man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,man->num);
-  a->e->effsize++;
+  if (a->e->linterm==NULL){
+    size_t size = ap_dimension_size(a->dim);
+    MACRO_SWITCH(res->discr) ZZZ {
+      ap_linexprZZZ_resize(res->linexpr.ZZZ,size);
+      res->linexpr.ZZZ->effsize = size;
+      for (i=0;i<size;i++){
+	res->linexpr.ZZZ->linterm[i]->dim = i;
+	eitvZZZ_set_bottom(res->linexpr.ZZZ->linterm[i]->eitv);
+      }
+    }
+    ENDMACRO
+  } else {
+    a->e->effsize--;
+    man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,man->num);
+    a->e->effsize++;
+  }
 }
 
 #undef _BOXXX_MARK_BOXXX_

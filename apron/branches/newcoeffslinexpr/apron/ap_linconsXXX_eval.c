@@ -560,6 +560,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
     change = false;
     if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
       resdim = ap_linexprXXX_eitvref0(res,dim,false);
+      assert(resdim!=NULL);
       if (equality && !intervalonly){
 	int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
 	if (sgn!=0){
