@@ -430,7 +430,7 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
 				   ap_texpr0_node_t* n,
 				   num_internal_t intern)
 {
-  bool exact = true;
+  bool exact;
   eitvXXX_t i1;
   ap_linexprXXX_t l1;
 
@@ -440,14 +440,13 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
   case AP_TEXPR_NEG:
     exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprA,intern);
     ap_linexprXXX_neg(lres,lres);
-    break;
+    return exact;
   case AP_TEXPR_CAST:
-    break;
+    return ap_linexprXXX_set_texpr0(lres,perror,n->exprA,intern);
   case AP_TEXPR_MOD:
   case AP_TEXPR_SQRT:
     *perror = true;
-    break;
-
+    return false;
   case AP_TEXPR_ADD:
   case AP_TEXPR_SUB:
     exact = NUMXXX_EXACT;
@@ -455,32 +454,33 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
 
     /* intlinearize arguments */
     exact = ap_linexprXXX_set_texpr0(l1,perror,n->exprA,intern);
-    if (*perror) break;
+    if (*perror){ exact=false; goto ap_linexprXXX_set_texpr0_node_endA; }
     exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern) && exact;
-    if (*perror) break;
+    if (*perror){exact=false;  goto ap_linexprXXX_set_texpr0_node_endA; }
     /* add/sub linear form & interval */
     if (n->op==AP_TEXPR_ADD)
       exact = ap_linexprXXX_add(lres,l1,lres,intern) && exact;
     else
       exact = ap_linexprXXX_sub(lres,l1,lres,intern) && exact;
+  ap_linexprXXX_set_texpr0_node_endA:
     ap_linexprXXX_clear(l1);
-    break;
+    return exact;
   case AP_TEXPR_MUL:
   case AP_TEXPR_DIV:
     eitvXXX_init(i1);
     if (ap_texpr0_is_interval_cst(n->exprB)){
       exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprA,intern);
-      if (*perror) break;
+      if (*perror){ exact=false; goto ap_linexprXXX_set_texpr0_node_endB; }
       exact = eitvXXX_eval_ap_texpr0(i1,n->exprB,NULL,intern) && exact;
     }
     else if (n->op == AP_TEXPR_MUL && ap_texpr0_is_interval_cst(n->exprA)){
       exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern);
-      if (*perror) break;
+      if (*perror){ exact=false; goto ap_linexprXXX_set_texpr0_node_endB; }
       exact = eitvXXX_eval_ap_texpr0(i1,n->exprA,NULL,intern) && exact;
     }
     else {
-      *perror = true;
-      break;
+      *perror = true; exact = false; 
+      goto ap_linexprXXX_set_texpr0_node_endB;
     }
     if (n->op==AP_TEXPR_DIV){
       eitvXXX_t i2;
@@ -490,13 +490,13 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
       eitvXXX_clear(i2);
     }
     exact = ap_linexprXXX_scale(lres,lres,i1,intern) && exact;
+  ap_linexprXXX_set_texpr0_node_endB:
     eitvXXX_clear(i1);
-    break;
-
+    return exact;
   default:
     assert(0);
+    return false;
   }
-  return exact;
 }
 
 struct ap_texpr0_t;
@@ -606,17 +606,18 @@ eitvXXX_eval_ap_texpr0_node(eitvXXX_t res,
 			    eitvXXX_t arg1, eitvXXX_t arg2,
 			    num_internal_t intern)
 {
-  bool exact = true;
+  bool exact;
   switch (n->op) {
   case AP_TEXPR_NEG:
     eitvXXX_neg(res, arg1);
-    return exact; /* no rounding */
+    return true; /* no rounding */
   case AP_TEXPR_CAST:
     eitvXXX_set(res, arg1);
+    exact = true;
     break;
   case AP_TEXPR_SQRT:
-    eitvXXX_sqrt(res, arg1, intern);
-    exact = false;
+    exact = eitvXXX_sqrt(res, arg1, intern);
+    if (eitvXXX_is_bottom(res)) return false;
     break;
   case AP_TEXPR_ADD:
     eitvXXX_add(res, arg1, arg2);
@@ -636,8 +637,7 @@ eitvXXX_eval_ap_texpr0_node(eitvXXX_t res,
     break;
   case AP_TEXPR_MOD:
     eitvXXX_mod(res, arg1, arg2, n->type==AP_RTYPE_INT, intern);
-    exact = false;
-    return exact; /* no rounding */
+    return false; /* no rounding */
   default:
     assert(0);
   }
