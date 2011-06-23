@@ -40,27 +40,27 @@ void ap_linexprXXX_init_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 }
 void ap_linexprXXX_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 {
-  size_t i,esize,size;
+  size_t i,size;
 
   if (res==expr) return;
 
   eitvXXX_set(res->cst,expr->cst);
-
   if (res->maxsize < expr->effsize){
-    size = res->maxsize;
     res->linterm = realloc(res->linterm,expr->effsize*sizeof(ap_lintermXXX_t));
-    res->maxsize = expr->effsize;
-    for (i=size; i<expr->effsize;i++){
+    for (i=0;i<res->maxsize;i++){
+      ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
+    }
+    for (i=res->maxsize; i<expr->effsize;i++){
       ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
     }
+    res->effsize = res->maxsize = expr->effsize;
   }
   else {
-    size = expr->effsize;
+    for (i=0;i<expr->effsize;i++){
+      ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
+    }
+    res->effsize = expr->effsize;
   }
-  for (i=0;i<size;i++){
-    ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
-  }
-  res->effsize = expr->effsize;
 }
 
 void ap_linexprXXX_resize_strict(ap_linexprXXX_t expr, size_t size)
@@ -68,51 +68,38 @@ void ap_linexprXXX_resize_strict(ap_linexprXXX_t expr, size_t size)
   size_t i;
 
   if (size!=expr->maxsize){
-    if (size<expr->effsize){
-      for (i=size; i<expr->effsize; i++){
+    if (size<expr->maxsize){
+      for (i=size; i<expr->maxsize; i++){
 	ap_lintermXXX_clear(expr->linterm[i]);
       }
       expr->effsize = size;
+      expr->maxsize = size;
     }
-    expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
-    for (i=expr->effsize; i<size; i++){
-      ap_lintermXXX_init(expr->linterm[i]);
+    else {
+      expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
+      for (i=expr->maxsize; i<size; i++){
+	ap_lintermXXX_init(expr->linterm[i]);
+      }
+      expr->maxsize = size;
     }
-    expr->maxsize = size;
   }
   return;
 }
 void ap_linexprXXX_minimize(ap_linexprXXX_t e)
 {
-  size_t i,j,nsize;
-  nsize = 0;
-  for (i=0; i<e->effsize; i++){
-    ap_lintermXXX_ptr lin = e->linterm[i];
-    if (!eitvXXX_is_zero(lin->eitv))
-      nsize++;
-    else
-      lin->dim = AP_DIM_MAX;
-  }
-  if (nsize!=e->effsize){
-    ap_lintermXXX_t* linterm = malloc(nsize*sizeof(ap_lintermXXX_t));
-    j = 0;
-    for (i=0; i<e->effsize; i++){
-      ap_lintermXXX_ptr lin = e->linterm[i];
-      if (lin->dim != AP_DIM_MAX){
-	*(linterm[j]) = *lin;
-	j++;
+  size_t ir,iw;
+  ir = iw = 0;
+  while (ir<e->effsize){
+    ap_lintermXXX_ptr lin = e->linterm[ir];
+    if (!eitvXXX_is_zero(lin->eitv)){
+      if (iw<ir){
+	ap_lintermXXX_set(e->linterm[iw],e->linterm[ir]);
       }
-      else
-	ap_lintermXXX_clear(lin);
+      iw++;
     }
-    for (i=e->effsize; i<e->maxsize; i++){
-      ap_lintermXXX_clear(e->linterm[i]);
-    }
-    free(e->linterm);
-    e->linterm = linterm;
-    e->effsize = nsize;
-    e->maxsize = nsize;
+    ir++;
   }
+  ap_linexprXXX_resize_strict(e,iw);
 }
 void ap_linexprXXX_clear(ap_linexprXXX_t expr)
 {

@@ -83,14 +83,13 @@ static bool fpu_init(void)
 /* Testing normal ops */
 /* ********************************************************************** */
 
-#define error(fmt,msg)					\
-  do {							\
-    fprintf(output,"error: ");                           \
-    fprintf(output,fmt,msg);                            \
-    fprintf(output,"\n");                               \
-    abort();                                            \
-  } while (0)
-
+void error(char* fmt, char* msg)
+{
+  fprintf(output,"error :");
+  fprintf(output,fmt,msg);
+  fprintf(output,"\n");
+  abort();
+}
 
 MACRO_FOREACH ttt ("num","bound","itv","eitv")
 #define MARK_ttt

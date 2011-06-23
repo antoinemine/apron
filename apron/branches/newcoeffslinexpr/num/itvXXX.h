@@ -31,7 +31,7 @@ static inline void itvXXX_init(itvXXX_t a);
 void itvXXX_init_array(itvXXX_t* a, size_t size);
 static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b);
 static inline void itvXXX_init_set_int(itvXXX_t a, long b);
-  static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c);
+static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c);
 static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b);
 static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c);
 static inline void itvXXX_clear(itvXXX_t a);

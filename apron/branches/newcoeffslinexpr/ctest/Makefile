@@ -20,11 +20,13 @@ all: num
 
 num: num.c ../num/libnum.d.a
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum.d -lmpfr -lgmp -lm
+expr: expr.c ../num/libnum.d.a ../apron/libapron.d.a 
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lapron.d -lnum.d -lmpfr -lgmp -lm
 domain: domain.c ../num/libnum.d.a ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp -lm
 
 clean:
-	rm -f num domain *.o out/*
+	rm -f num expr domain *.o out/*
 
 mostlyclean: clean
 
