@@ -1,0 +1,7 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009 Khalil Ghorbal
+
+*/
+
+

@@ -1,0 +1,188 @@
+/* -*- mode: c -*- */
+
+quote(MLI,"(** APRON Expressions of level 1 *)")
+
+quote(C, "\n\
+#include <limits.h>\n\
+#include \"ap_linexpr1.h\"\n\
+#include \"apron_caml.h\"\n\
+")
+
+import "scalar.idl";
+import "interval.idl";
+import "coeff.idl";
+import "linexpr0.idl";
+import "environment.idl";
+
+struct ap_linexpr1_t {
+  [mlname(mutable_linexpr0)] ap_linexpr0_ptr linexpr0;
+  [mlname(mutable_env)] ap_environment_ptr env;
+};
+
+quote(MLI,"\n\n\
+(** Build a linear expression defined on the given argument, which is sparse by\n\
+  default. *)\n\
+val make: ?sparse:bool -> Environment.ap_environment_ptr -> t\n\
+\n\
+(** In case of sparse representation, remove zero coefficients  *)\n\
+val minimize: t -> unit\n\
+\n\
+(** Copy *)\n\
+val copy: t -> t\n\
+\n\
+(** Print the linear expression *)\n\
+val print: Format.formatter -> t -> unit\n\
+\n\
+val set_list : t -> (Coeff.t * Var.t) list -> Coeff.t option -> unit\n\
+  (** Set simultaneously a number of coefficients.\n\
+\n\
+    [set_list expr [(c1,\"x\"); (c2,\"y\")] (Some cst)] assigns coefficients [c1] \n\
+    to variable [\"x\"], coefficient [c2] to variable [\"y\"], and coefficient [cst]\n\
+    to the constant. If [(Some cst)] is replaced by [None],\n\
+    the constant coefficient is not assigned. *)\n\
+val set_array : t -> (Coeff.t * Var.t) array -> Coeff.t option -> unit\n\
+  (** Set simultaneously a number of coefficients, as [set_list]. *)\n\
+\n\
+(** Iter the function on the pair coefficient/variable of the linear expression *)\n\
+val iter: (Coeff.t -> Var.t -> unit) -> t -> unit\n\
+\n\
+(** Get the constant *)\n\
+val get_cst: t -> Coeff.t\n\
+\n\
+(** Set the constant *)\n\
+val set_cst: t -> Coeff.t -> unit\n\
+")
+
+quote(MLI,"(** Get the coefficient of the variable *)")
+struct ap_coeff_t ap_linexpr1_get_coeff([ref]struct ap_linexpr1_t* a, ap_var_t var)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  ap_coeff_init(&_res,AP_COEFF_SCALAR);\n\
+  b = ap_linexpr1_get_coeff(&_res,a,var);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    ap_coeff_clear(&_res);\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Linexpr1.get_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}\n\
+");
+
+quote(MLI,"(** Set the coefficient of the variable *)")
+void ap_linexpr1_set_coeff([ref]struct ap_linexpr1_t* a, ap_var_t var,
+			[ref]struct ap_coeff_t* coeff)
+     quote(call, "\n\
+{\n\
+  bool b;\n\
+  b = ap_linexpr1_set_coeff(a,var,coeff);\n\
+  if (b){\n\
+    char str[160];\n\
+    char* name;\n\
+    name = ap_var_operations->to_string(var);\n\
+    snprintf(str,159,\"Linexpr1.set_coeff: unknown variable %s in the environment\",name);\n\
+    free(name);\n\
+    caml_failwith(str);\n\
+  }\n\
+}\n\
+");
+
+quote(MLI,"(** Change the environment of the expression for a super-environement. Raise [Failure] if it is not the case *)")
+struct ap_linexpr1_t ap_linexpr1_extend_environment(const struct ap_linexpr1_t linexpr,
+						    ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+  bool b;\n\
+  b = ap_linexpr1_extend_environment(&_res,&linexpr,env);\n\
+  if (b) caml_failwith(\"Linexpr1.extend_environment: new environment is not a superenvironment\");\n\
+}\n\
+")
+;
+quote(MLI,"(** Side-effet version of the previous function *)")
+void ap_linexpr1_extend_environment_with(struct ap_linexpr1_t linexpr,
+					 ap_environment_ptr env)
+     quote(call,"\n\
+{\n\
+   if (linexpr.env!=env){ \n\
+     Begin_roots2(_v_linexpr,_v_env);
+     bool b;\n\
+     ap_environment_copy(linexpr.env); /* it will be decremented by the call */ \n\
+     b = ap_linexpr1_extend_environment_with(&linexpr,env);\n\
+     if (b){ \n\
+       ap_environment_free(linexpr.env); \n\
+       caml_failwith(\"Linexpr1.extend_environment_with: new environment is not a superenvironment\");\n\
+     }\n\
+     ap_environment_free(env);\n\
+     Store_field(_v_linexpr,1,_v_env);\n\
+     End_roots();\n\
+   }\n\
+}\n\
+")
+;
+
+quote(MLI,"(** Does the linear expression depend only on integer variables ? *)")
+boolean ap_linexpr1_is_integer([ref]struct ap_linexpr1_t* e);
+quote(MLI,"(** Does the linear expression depend only on real variables ? *)")
+boolean ap_linexpr1_is_real([ref]struct ap_linexpr1_t* e);
+
+quote(MLI,"\n\
+(** Get the underlying expression of level 0 (which is not a copy). *)\n\
+val get_linexpr0: t -> Linexpr0.t\n\
+\n\
+(** Get the environement of the expression *)\n\
+val get_env: t -> Environment.t\n\
+\n\
+")
+
+quote(ML,"\n\
+let make ?(sparse=true) env = {\n\
+  linexpr0 = Linexpr0.make\n\
+    (if sparse\n\
+     then None\n\
+     else Some (Environment.size env));\n\
+  env = env;\n\
+}\n\
+let minimize e = Linexpr0.minimize e.linexpr0\n\
+let copy e = {\n\
+  linexpr0 = Linexpr0.copy e.linexpr0;\n\
+  env = e.env;\n\
+}\n\
+let get_cst expr =\n\
+  Linexpr0.get_cst expr.linexpr0\n\
+let get_linexpr0 expr = expr.linexpr0\n\
+let get_env expr = expr.env\n\
+let set_cst expr cst =\n\
+  Linexpr0.set_cst expr.linexpr0 cst\n\
+let set_list expr list ocst = \n\
+  List.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    list;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+let set_array expr tab ocst = \n\
+  Array.iter\n\
+    (fun (coeff,var) -> set_coeff expr var coeff )\n\
+    tab;\n\
+  begin match ocst with\n\
+  | Some cst -> set_cst expr cst\n\
+  | None -> ()\n\
+  end;\n\
+  ()\n\
+\n\
+let iter f expr =\n\
+  Linexpr0.iter\n\
+    (begin fun coeff dim ->\n\
+      f coeff (Environment.var_of_dim expr.env dim)\n\
+    end)\n\
+    expr.linexpr0\n\
+let print fmt expr =\n\
+  Linexpr0.print\n\
+   (fun dim -> Var.to_string (Environment.var_of_dim expr.env dim))\n\
+   fmt expr.linexpr0\n \
+")

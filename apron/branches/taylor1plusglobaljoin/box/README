@@ -1,0 +1,63 @@
+
+# This file is part of the APRON Library, released under LGPL
+# license.
+
+# Please read the COPYING file packaged in the distribution
+
+This package is a interval library/abstract domain that conforms to the APRON
+interface. It requires APRON package.
+
+It includes both the C interface and the OCaml interface to APRON.
+
+
+REQUIREMENTS
+============
+For the C interface:
+
+GMP library (tested with version 4.0 and up)
+NUM "library" (a set of header files)
+ITV library 
+APRON library
+
+For the OCaml interface, in addition:
+M4 preprocessor (standard on any UNIX system)
+OCaml 3.0 or up (tested with 3.09)
+Camlidl (tested with 1.05)
+MLGMPIDL package
+MLAPRONIDL package
+
+INSTALLATION
+============
+
+Set the file Makefile.config to your own setting.
+You might also have to modify the Makefile for executables
+
+1. C Library
+----------
+
+type 'make', and then 'make install' 
+
+The library is named libboxMPQ.a, libboxRll.a, libboxD.a (and
+libboxMPQ_debug.a, ...). 
+
+MPQ, Rll, D, stands for mpq_t, rationals on long long int, and double, which
+indicates the underlying representation of numbers.
+
+For use via APRON, the include files to consider is box.h.
+
+When linking, libboxXXX.a requires libapron.a
+
+2. OCaml Library
+----------------
+
+type 'make ml', and then 'make install' 
+
+The C part of the library is named libboxXX_caml.a or
+libboxXX_caml.so/dllboxXX_caml.so (and libboxXX_caml_debug.a or ...).
+
+The OCaml part is named boxXX.cma (boxXX.cmxa)
+
+3. Miscellaneous
+----------------
+
+'make clean' and 'make distclean' have the usual behaviour.
