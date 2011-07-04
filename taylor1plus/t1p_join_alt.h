@@ -16,67 +16,67 @@
 /* ********************************************************************** */
 /* 0. Structures */
 /* ********************************************************************** */
-typedef enum ar_coef_t {
+typedef enum ja_coeff_t {
     VA,		/* Variable of a program */
     NS,		/* Union noise symbol */
-} ar_coef_t;
+} ja_coeff_t;
 
-typedef struct ar_term_t {
-  struct ar_term_t*	n;	/* next element */
-  ar_coef_t             t_coeff; /*  type of coefficient */
+typedef struct ja_term_t {
+  struct ja_term_t*	n;	/* next element */
+  ja_coeff_t            t_coeff; /*  type of coefficient */
   ap_dim_t*      	pdim;	/* index of the program variable, if t_Coeff=VA */
   t1p_nsym_t*          	pnsym;	/* index of the noise symbol, if t_Coeff=NS */
   itv_t 	       	coeff;	/* coeff, encoded as interval */
-} ar_term_t;
+} ja_term_t;
 
-/* equation of the form pdim = c + [value of the list or ar_terms]*/
-typedef struct ar_eq_t {
+/* equation of the form pdim = c + [value of the list or ja_terms]*/
+typedef struct ja_eq_t {
  
   ap_dim_t*     pdim;	/* index of the program variable, xp */
   itv_t		c;	/* center */
-  ar_term_t*	first_te;	/* first term */
-  ar_term_t*	last_te;	/* quick jump to the term : to add a new term for instance */
-} ar_eq_t;
+  ja_term_t*	first_te;	/* first term */
+  ja_term_t*	last_te;	/* quick jump to the term : to add a new term for instance */
+} ja_eq_t;
 
 /* list of equation */
-typedef struct ar_eq_list_elm {
- struct ar_eq_list_elm* n;   /* next element of the list */
-  struct ar_eq_t* content;   /* equation */
-} ar_eq_list_elm;
+typedef struct ja_eq_list_elm {
+ struct ja_eq_list_elm* n;   /* next element of the list */
+  struct ja_eq_t* content;   /* equation */
+} ja_eq_list_elm;
 
 
 /* assumption: the equation's order is the rebuild order: in other word the first equation should not include variables defined by the following equations. The second equation can only include the first vrariable and other variables not defined by equations, etc */
-typedef struct ar_set_eq_t {
+typedef struct ja_eq_set_t {
   int	                nb_eq;	        /* number_of_equations */
-  ar_eq_list_elm*	first_eq;	/* first equation */
-  ar_eq_list_elm*	last_eq;	/* last equation */
-} ar_set_eq_t;
+  ja_eq_list_elm*	first_eq;	/* first equation */
+  ja_eq_list_elm*	last_eq;	/* last equation */
+} ja_eq_set_t;
 
 /* ********************************************************************** */
 /* 0. Constructors */
 /* ********************************************************************** */
-ar_eq_t* new_equation (void);
-void free_equation (ar_eq_t* equation);
-void print_equation (FILE* stream,ar_eq_t* equation);
-void add_equation_term_ns (ar_eq_t* equation, itv_t c, t1p_nsym_t* pnsym);
-void add_equation_term_va (ar_eq_t* equation, itv_t c, ap_dim_t* pdim);
+ja_eq_t* new_equation (void);
+void free_equation (ja_eq_t* equation);
+void print_equation (FILE* stream,ja_eq_t* equation);
+void add_equation_term_ns (ja_eq_t* equation, itv_t c, t1p_nsym_t* pnsym);
+void add_equation_term_va (ja_eq_t* equation, itv_t c, ap_dim_t* pdim);
 
 
-ar_set_eq_t* new_equation_set (void);
-void free_equation_set (ar_set_eq_t* set_eq);
-void print_equation_set (FILE* stream,ar_set_eq_t* eqs);
-void add_equation (ar_set_eq_t* eqs, ar_eq_t* eq);
-itv_t* get_coeff_var (ar_set_eq_t* eq_set, int eq_n, ap_dim_t v);
-itv_t* get_coeff_nsym (ar_set_eq_t* eq_set, int eq_n, t1p_nsym_t v);
+ja_eq_set_t* new_equation_set (void);
+void free_equation_set (ja_eq_set_t* eq_set);
+void print_equation_set (FILE* stream,ja_eq_set_t* eqs);
+void add_equation (ja_eq_set_t* eqs, ja_eq_t* eq);
+itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v);
+itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, t1p_nsym_t v);
 
 
 /* ********************************************************************** */
 /* 1. Rebuild an abstract value */
 /* ********************************************************************** */
 
-ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2);
+ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2);
 
-void rebuild_abstract_value(ap_manager_t* man, bool destructive, t1p_t* a, ar_set_eq_t* eqs);
+void rebuild_abstract_value(ap_manager_t* man, bool destructive, t1p_t* a, ja_eq_set_t* eqs);
 
 
 /* ********************************************************************** */

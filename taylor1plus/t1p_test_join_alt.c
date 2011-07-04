@@ -28,9 +28,9 @@ void test_equation_1 (FILE* stream, ap_manager_t* man)
   t1p_nsym_t* peps2 = t1p_nsym_add(pr, IN);
   t1p_nsym_t* peps3 = t1p_nsym_add(pr, IN);
   
-  ar_eq_t* equation1= new_equation ();
-  ar_eq_t* equation2= new_equation ();
-  ar_set_eq_t* eqs = new_equation_set ();
+  ja_eq_t* equation1= new_equation ();
+  ja_eq_t* equation2= new_equation ();
+  ja_eq_set_t* eqs = new_equation_set ();
 
   /* constants */
   itv_t zero,un,moinsun;
@@ -91,9 +91,9 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   t1p_nsym_t* peps1 = t1p_nsym_add(pr, IN);
   t1p_nsym_t* peta0 = t1p_nsym_add(pr, UN);
   
-  ar_eq_t* equation1= new_equation ();
-  ar_eq_t* equation2= new_equation ();
-  ar_set_eq_t* eqs = new_equation_set ();
+  ja_eq_t* equation1= new_equation ();
+  ja_eq_t* equation2= new_equation ();
+  ja_eq_set_t* eqs = new_equation_set ();
 
   /* constants */
   itv_t zero,un,moinsun,trois;
@@ -106,11 +106,11 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   itv_init(trois);
   itv_set_int(trois,3);
 
-  /* equation1 x0=x1+epsilon0 -epsilon1*/
+  /* equation1 x0=1+x1+epsilon0 -epsilon1*/
   equation1->pdim= &x0;
-  itv_set_int(equation1->c,0);
+  itv_set_int(equation1->c,1);
   add_equation_term_va (equation1, un, &x1);
-  add_equation_term_ns (equation1, un, peps0);
+  add_equation_term_ns (equation1, trois, peps0);
   add_equation_term_ns (equation1, moinsun, peps1);
 
   /* print it */
@@ -180,7 +180,7 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
 void test_generate_1(FILE* stream, ap_manager_t* man)
 {
   t1p_internal_t* pr = man->internal;
-  ar_set_eq_t* eqs=new_equation_set();
+  ja_eq_set_t* eqs=new_equation_set();
 
   /* variables and noise symbols */
   ap_dim_t x0 = (ap_dim_t) 0;

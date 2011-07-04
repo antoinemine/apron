@@ -1,5 +1,5 @@
 /* ********************************************************************** */
-/* t1p_representation.c: general management */
+/* t1p_join_alt.c: general management */
 /* ********************************************************************** */
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,10 +22,10 @@
 /* ********************************************************************** */
 
 /* constructors */
-ar_eq_t* new_equation (void)
+ja_eq_t* new_equation (void)
 {
   CALL();
-  ar_eq_t* res =malloc(sizeof(ar_eq_t));
+  ja_eq_t* res =malloc(sizeof(ja_eq_t));
   res->pdim=NULL;
   itv_init(res->c);
   res->first_te=NULL;
@@ -33,11 +33,11 @@ ar_eq_t* new_equation (void)
   return res;
 }
 
-void free_equation (ar_eq_t* equation)
+void free_equation (ja_eq_t* equation)
 {
   CALL();
-  ar_term_t* cell1= equation->first_te;
-  ar_term_t* cell2;
+  ja_term_t* cell1= equation->first_te;
+  ja_term_t* cell2;
   while (cell1 != NULL)
     {
       cell2=cell1;
@@ -47,12 +47,12 @@ void free_equation (ar_eq_t* equation)
   free(equation);
 }
 
-void print_equation (FILE* stream, ar_eq_t* equation)
+void print_equation (FILE* stream, ja_eq_t* equation)
 {
   CALL();
   fprintf(stream,"x%d=",(int) *equation->pdim);
   itv_fprint(stream, equation->c);
-  ar_term_t* cell= equation->first_te;
+  ja_term_t* cell= equation->first_te;
 
    while (cell != NULL)
      {
@@ -71,10 +71,10 @@ void print_equation (FILE* stream, ar_eq_t* equation)
 }
 
 
-void add_equation_term_ns (ar_eq_t* equation, itv_t c, t1p_nsym_t* pnsym)
+void add_equation_term_ns (ja_eq_t* equation, itv_t c, t1p_nsym_t* pnsym)
 {
   CALL();
-  ar_term_t* cell=malloc(sizeof(ar_term_t));
+  ja_term_t* cell=malloc(sizeof(ja_term_t));
   cell->n=NULL;
   cell->t_coeff=NS;
   cell->pdim=NULL;
@@ -93,17 +93,17 @@ void add_equation_term_ns (ar_eq_t* equation, itv_t c, t1p_nsym_t* pnsym)
     }
 }
 
-ar_eq_t* copy_equation (ar_eq_t* equation)
+ja_eq_t* copy_equation (ja_eq_t* equation)
 {
   CALL ();
   printf("copy equation not implemented");
   return NULL;
 }
 
-void add_equation_term_va (ar_eq_t* equation, itv_t c, ap_dim_t* pdim)
+void add_equation_term_va (ja_eq_t* equation, itv_t c, ap_dim_t* pdim)
 {
   CALL();
-  ar_term_t* cell=malloc(sizeof(ar_term_t));
+  ja_term_t* cell=malloc(sizeof(ja_term_t));
   cell->n=NULL;
   cell->t_coeff=VA;
   cell->pdim=pdim;
@@ -124,34 +124,34 @@ void add_equation_term_va (ar_eq_t* equation, itv_t c, ap_dim_t* pdim)
   
 
 
-ar_set_eq_t* new_equation_set (void)
+ja_eq_set_t* new_equation_set (void)
 {
   CALL();
-  ar_set_eq_t* res=malloc(sizeof(ar_set_eq_t));
+  ja_eq_set_t* res=malloc(sizeof(ja_eq_set_t));
   res->nb_eq= 0;
   res->first_eq=NULL;
   res->last_eq=NULL;
   return res;
 }
 
-void free_equation_set (ar_set_eq_t* set_eq)
+void free_equation_set (ja_eq_set_t* eqs)
 {
   CALL();
-  ar_eq_list_elm* cell1= set_eq->first_eq;
-  ar_eq_list_elm* cell2;
+  ja_eq_list_elm* cell1= eqs->first_eq;
+  ja_eq_list_elm* cell2;
   while (cell1 != NULL)
     {
       cell2=cell1;
       cell1=cell1->n;
       free(cell2);
     }
-  free(set_eq);
+  free(eqs);
 }
 
-void print_equation_set(FILE* stream, ar_set_eq_t* eqs)
+void print_equation_set(FILE* stream, ja_eq_set_t* eqs)
 {
   CALL();
-  ar_eq_list_elm* cell= eqs->first_eq;
+  ja_eq_list_elm* cell= eqs->first_eq;
   while (cell != NULL)
     {
       print_equation(stream,cell->content);
@@ -160,11 +160,11 @@ void print_equation_set(FILE* stream, ar_set_eq_t* eqs)
 }
 
 
-void add_equation (ar_set_eq_t* eqs, ar_eq_t* eq)
+void add_equation (ja_eq_set_t* eqs, ja_eq_t* eq)
 {
   CALL();
   /* creation of the cell of the list */
-  ar_eq_list_elm* cell=malloc(sizeof(ar_eq_list_elm));
+  ja_eq_list_elm* cell=malloc(sizeof(ja_eq_list_elm));
   assert (cell->n==NULL);
   cell->content=eq;
 
@@ -177,26 +177,26 @@ void add_equation (ar_set_eq_t* eqs, ar_eq_t* eq)
   else
     {
       eqs->nb_eq++;
-      ar_eq_list_elm* last = eqs->last_eq;
+      ja_eq_list_elm* last = eqs->last_eq;
       last->n=cell;
       eqs->last_eq=cell;
     }
 }
 
 
-itv_t* get_coeff_var (ar_set_eq_t* eq_set, int eq_n, ap_dim_t v)
+itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v)
 {
   CALL();
-  assert (eq_n < eq_set->nb_eq); 
+  assert (eq_n < eqs->nb_eq); 
   /* find the right equation */
-  ar_eq_list_elm* current_elm = eq_set->first_eq;
+  ja_eq_list_elm* current_elm = eqs->first_eq;
   for (int i=0;i<eq_n;i++)
     {
       current_elm = current_elm->n;
     }
   /* found */
   /* find the right coefficient */
-  ar_term_t* current_term = (current_elm->content)->first_te;
+  ja_term_t* current_term = (current_elm->content)->first_te;
   while (*current_term->pdim != v)
     {
       current_term=current_term->n;
@@ -206,19 +206,19 @@ itv_t* get_coeff_var (ar_set_eq_t* eq_set, int eq_n, ap_dim_t v)
 }
 
 
-itv_t* get_coeff_nsym (ar_set_eq_t* eq_set, int eq_n, t1p_nsym_t v)
+itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, t1p_nsym_t v)
 {
   CALL();
-   assert (eq_n < eq_set->nb_eq); 
+   assert (eq_n < eqs->nb_eq); 
   /* find the right equation */
-  ar_eq_list_elm* current_elm = eq_set->first_eq;
+  ja_eq_list_elm* current_elm = eqs->first_eq;
   for (int i=0;i<eq_n;i++)
     {
       current_elm = current_elm->n;
     }
   /* found */
   /* find the right coefficient */
-  ar_term_t* current_term = (current_elm->content)->first_te;
+  ja_term_t* current_term = (current_elm->content)->first_te;
   while ((current_term->pnsym)->index != v.index)
     {
       current_term=current_term->n;
@@ -233,10 +233,10 @@ itv_t* get_coeff_nsym (ar_set_eq_t* eq_set, int eq_n, t1p_nsym_t v)
 /* 1. From 2 abstract values to equations */
 /* ********************************************************************** */
 
-ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2)
+ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2)
 {
   CALL();
-  ar_set_eq_t* res = new_equation_set();
+  ja_eq_set_t* res = new_equation_set();
   size_t dims = a1->dims;
   assert (dims == a2->dims); // to be sure the abstract values have the same dims
   int i;
@@ -248,12 +248,12 @@ ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2
     {
       if (a1->paf[i]->end != NULL)
 	{
-	  if (a1->paf[i]->end->pnsym->index > nb_nsym)
+	  if ((int) a1->paf[i]->end->pnsym->index > nb_nsym)
 	    nb_nsym= a1->paf[i]->end->pnsym->index;
 	}
       if (a2->paf[i]->end != NULL)
 	{ 
-	  if(a2->paf[i]->end->pnsym->index > nb_nsym)
+	  if((int) a2->paf[i]->end->pnsym->index > nb_nsym)
 	    nb_nsym= a2->paf[i]->end->pnsym->index;
 	}
     }
@@ -273,7 +273,7 @@ ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2
        */
     }
   itv_t itv_buff;
-  ar_eq_t* equation;
+  ja_eq_t* equation;
   
 
   /* special loop for the constant terms */
@@ -281,7 +281,7 @@ ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2
   equation->pdim=tdim; //pointer to the first position of tdim
   itv_init(itv_buff);
 
-  for (j=0; j<dims ; j++)
+  for (j=0; j<(int)dims ; j++)
     {
       /* printf("dim %d: itv1",j); */
       /* itv_print((a1->paf[j])->c); */
@@ -307,7 +307,7 @@ ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2
       equation->pdim=tdim+i+1;//pointer to the i+1th position of tdim
       itv_clear(itv_buff);
 
-      for (j=0; j<dims ; j++)
+      for (j=0; j<(int)dims ; j++)
 	{
 	  /* printf("j=%d\n",j); */
 	  /* printf("a1[%d]",j); */
@@ -386,18 +386,66 @@ ar_set_eq_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2
 /* 2. Solving the equations */
 /* ********************************************************************** */
 
+/* change an equation set into a matrix */
+/* equation [i] is of the form eps_(i-1) = 0 + c_0.dim_0 + ... + c_p.dim_p 
+   when the program has p numerical variables */
+/* matrix m must be allocated before calling this function */
+
+void eq_set_to_matrix (ja_eq_set_t* eqs, int nb_rows, int nb_columns, itv_t** m) {
+  CALL();
+  int i,j;
+  ja_eq_list_elm* current_equation= eqs->first_eq ;
+  ja_term_t* current_term;
+
+  assert (eqs->nb_eq == nb_rows);
+
+  for (i=0;i<nb_rows;i++) {
+    assert(current_equation != NULL);
+    current_term = current_equation->content->first_te;
+
+    /* assume that the coefficients are sorted by increasing dimension */
+    for (j=0; j<nb_columns; j++) {
+      assert(current_term != NULL);
+      assert(current_term->t_coeff == VA);
+      if (j==*current_term->pdim) {
+	itv_set(m[i][j],current_term->coeff);
+	current_term=current_term->n;
+      }
+      else {
+	itv_set_int(m[i][j],0);
+      }
+    }
+    current_equation = current_equation->n;
+  }
+}
+
+
+/* *****************/
+/* Gauss reduction */
+/* *****************/
 
 /* matrix_swap - swap rows i and j of matrix m */
 
 void matrix_swap(itv_t** m, int i, int j) {
-    itv_t* temp;
-    temp=m[i];
-    m[i]=m[j];
-    m[j]=temp;
+  CALL();
+  itv_t* temp;
+  temp=m[i];
+  m[i]=m[j];
+  m[j]=temp;
+}
+
+/* m[i] <- m[i] / lambda, length is the number of columns */ 
+void matrix_row_div (itv_internal_t* intern, int length, itv_t** m, int i, itv_t lambda) {
+  CALL();
+  int k; // loop counter
+  for (k=0; k<length;k++) {
+    itv_div(intern,m[i][k],m[i][k],lambda);
+  }
 }
 
 /* m[i] <- m[i] + lambda * m[j], length is the number of columns */ 
 void matrix_lin_aff(itv_internal_t* intern, int length, itv_t** m, int i, itv_t lambda, int j) {
+  CALL();
   itv_t temp;
   int k; // loop counter
   itv_init(temp);
@@ -411,6 +459,7 @@ void matrix_lin_aff(itv_internal_t* intern, int length, itv_t** m, int i, itv_t 
 
 /* choose the first non zero value of m[i] and returns its index. Return length if all coefficients are zero */
 int matrix_choose_pivot(int length, itv_t** m,  int i) {
+  CALL();
   int k;
   int res = length;
   for (k=0;k<res;k++) {
@@ -425,6 +474,7 @@ int matrix_choose_pivot(int length, itv_t** m,  int i) {
 /* NB: it assumes matrix m has nb_rows rows and nb_columns columns */
 
 int matrix_jordan_reduction (itv_internal_t* intern, int nb_rows, int nb_columns, itv_t**m) {
+  CALL();
   int current_row;
   int i,j,k,l;
   itv_t pivot,lambda;
@@ -454,10 +504,15 @@ int matrix_jordan_reduction (itv_internal_t* intern, int nb_rows, int nb_columns
     }
     else {
       itv_set(pivot,m[current_row][j]); // set the pivot
+      /*  m[i] <- m[i] / pivot */
+      matrix_row_div(intern,nb_columns,m,current_row,pivot);
+      /* check that the pivot m[current_row][j] is now [1,1] */
+      itv_set_int(pivot,1); 
+      assert( itv_is_eq(pivot,m[current_row][j]));
+
       for(i=current_row+1; i<nb_rows;i++) {
-	itv_div(intern,lambda,m[i][j],pivot);
-	itv_neg(lambda,lambda); // lambda = - m[i][j] / pivot
-	/*  m[i] <- m[i] + lambda m[current_row]*/ 
+	itv_neg(lambda,m[i][j]); // lambda = - m[i][j]
+	/*  m[i] <- m[i] + lambda *m[current_row] */ 
 	matrix_lin_aff(intern,nb_columns,m,i,lambda,current_row); 
 	assert (itv_is_zero(m[i][j])); // check that the new coefficient is zero
 	itv_clear(lambda);
@@ -471,22 +526,34 @@ int matrix_jordan_reduction (itv_internal_t* intern, int nb_rows, int nb_columns
 /* ********************************************************************** */
 /* 1. Rebuild an abstract value */
 /* ********************************************************************** */
+ja_eq_set_t* matrix_to_eq_set (int rank,int nb_rows, int nb_columns, itv_t**m, t1p_t* a) {
+  ja_eq_set_t* res = malloc(sizeof(ja_eq_set_t));
 
-void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ar_eq_t* equation)
+  return res;
+}
+
+
+
+
+/* ********************************************************************** */
+/* 1. Rebuild an abstract value */
+/* ********************************************************************** */
+
+void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* equation)
 {
   CALL();
   /* initialization */
   t1p_aff_t* a=malloc(sizeof(t1p_aff_t));
   t1p_aff_t* buff1=malloc(sizeof(t1p_aff_t));
   t1p_aff_t* buff2=malloc(sizeof(t1p_aff_t));
-  ar_term_t* current_term;
+  ja_term_t* current_term;
 
   /* print_equation(stdout,equation); */
   /* printf("*\n"); */
 
   t1p_aff_init(pr,a);
   /* we set the center*/ 
-  itv_join (a->c,a->c,equation->c);
+  itv_set (a->c,equation->c);
   /* printf("[a] before first while loop:\n"); */
   /* t1p_aff_fprint(pr,stdout,a); */
   /* printf("\n"); */
@@ -598,11 +665,11 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ar_eq_t* eq
   //printf("\n");
 }
 
-void rebuild_abstract_value(ap_manager_t* man, bool destructive, t1p_t* a, ar_set_eq_t* eqs)
+void rebuild_abstract_value(ap_manager_t* man, bool destructive, t1p_t* a, ja_eq_set_t* eqs)
 {
   CALL();
   t1p_internal_t* pr = man->internal;
-  ar_eq_list_elm* cell=eqs->first_eq;
+  ja_eq_list_elm* cell=eqs->first_eq;
   while (cell != NULL)
     {
       equation_to_aff_set(pr,a,cell->content);
