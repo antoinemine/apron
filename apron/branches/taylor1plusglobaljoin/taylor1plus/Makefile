@@ -5,8 +5,6 @@ CSDP_CFLAGS = -ansi -Wall -DNOSHORTS -DUSEGETTIME -I$(CSDP_PATH)/include -D_USE_
 CSDP_LIBS = -L/usr/lib/sse2 -L$(CSDP_PATH)/lib -lsdp -llapack -lf77blas -lcblas -latlas -lgfortran -lm
 endif
 
-SDPA = /home/donquijote/dev/sdpa/sdpa.7.3.0
-
 PREFIX = $(APRON_PREFIX)
 
 SRCDIR = $(shell pwd)
@@ -47,7 +45,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 # Files
 #---------------------------------------
 
-CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
+CCMODULES = t1p_internal t1p_representation t1p_join_alt t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
 CCSRC = t1p_config.h t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = t1p.h
@@ -90,7 +88,6 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON
 
 all: allMPQ allD allMPFR 
 # testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug test_joinD_debug test_joinMPQ_debug test_joinMPFR_debug 
-	
 
 
 allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
@@ -109,12 +106,12 @@ endif
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
 
 
-#test_join%: t1p_test_join%.o
-#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
+test_join_alt%: t1p_test_join_alt%.o
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o t1p_join_alt$*.o
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
-	
+
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
 
