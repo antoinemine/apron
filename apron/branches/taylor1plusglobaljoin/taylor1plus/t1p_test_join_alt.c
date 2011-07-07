@@ -42,9 +42,9 @@ void test_equation_1 (FILE* stream, ap_manager_t* man)
   itv_set_int(moinsun,-1);
 
   /* equation1 x0=x1+epsilon1 -epsilon2*/
-  equation1->pdim= &x0;
+  equation1->dim= x0;
   itv_set_int(equation1->c,0);
-  add_equation_term_va (equation1, un, &x1);
+  add_equation_term_va (equation1, un, x1);
   add_equation_term_ns (equation1, un, peps1);
   add_equation_term_ns (equation1, moinsun, peps2);
 
@@ -55,10 +55,10 @@ void test_equation_1 (FILE* stream, ap_manager_t* man)
   add_equation (eqs,equation1);
   
  /* equation2 x2=1-x0+x1+epsilon1 -epsilon2 +epsilon3 */
-  equation2->pdim= &x2;
+  equation2->dim= x2;
   itv_set_int(equation2->c,1);
-  add_equation_term_va (equation2, moinsun, &x0);
-  add_equation_term_va (equation2, un, &x1);
+  add_equation_term_va (equation2, moinsun, x0);
+  add_equation_term_va (equation2, un, x1);
   add_equation_term_ns (equation2, un, peps1);
   add_equation_term_ns (equation2, moinsun, peps2);
   add_equation_term_ns (equation2, un, peps3);
@@ -107,9 +107,9 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   itv_set_int(trois,3);
 
   /* equation1 x0=1+x1+epsilon0 -epsilon1*/
-  equation1->pdim= &x0;
+  equation1->dim= x0;
   itv_set_int(equation1->c,1);
-  add_equation_term_va (equation1, un, &x1);
+  add_equation_term_va (equation1, un, x1);
   add_equation_term_ns (equation1, trois, peps0);
   add_equation_term_ns (equation1, moinsun, peps1);
 
@@ -158,7 +158,7 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
 
   //rebuild
 
-  rebuild_abstract_value(man,false,a,eqs);
+  rebuild_abstract_value(man,a,eqs);
 
   fprintf(stream,"after operation:\n");
   t1p_fdump(stream,man,a);
@@ -248,8 +248,127 @@ void test_generate_1(FILE* stream, ap_manager_t* man)
   t1p_fdump(stream,man,a2);
   fprintf(stream,"**********\n**********\n**********\n");
 
-  fprintf(stream,"a1->size %d\n",a1->size);
-  fprintf(stream,"a2->size %d \n",a2->size);
+  fprintf(stream,"a1->size %zu\n",a1->size);
+  fprintf(stream,"a2->size %zu\n",a2->size);
+
+  int i;
+  for (i=0 ; i<(int)a1->dims ; i++)
+    {
+      fprintf(stream,"a1[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a1->paf[i]->end);
+      fprintf(stream,"\n");
+
+      fprintf(stream,"a2[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a2->paf[i]->end);
+      fprintf(stream,"\n");
+    }
+  /* extract the equations */
+  eqs= abstract_value_to_eq_set (pr,a1,a2);
+  print_equation_set(stream,eqs);
+  ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
+
+ 
+
+  /* free */
+  free(a1);
+  free(afexpr10);
+  free(afexpr11);  
+  free(a2);
+  free(afexpr20);
+  free(afexpr21); 
+  free_equation_set(eqs); 
+  free_equation_set(new_eqs); 
+}
+
+void test_generate_2(FILE* stream, ap_manager_t* man)
+{
+  t1p_internal_t* pr = man->internal;
+  ja_eq_set_t* eqs=new_equation_set();
+
+  /* variables and noise symbols */
+  ap_dim_t x0 = (ap_dim_t) 0;
+  ap_dim_t x1 = (ap_dim_t) 1;
+  ap_dim_t x2 = (ap_dim_t) 2;
+
+  t1p_nsym_t* peps0 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps1 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps2 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peta3 = t1p_nsym_add(pr, UN);
+
+  /* first abstract value */
+  t1p_t* a1 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr10 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr11 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr12 = t1p_aff_alloc_init(pr);
+
+ /* second abstract value */
+  t1p_t* a2 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr20 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr21 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr22 = t1p_aff_alloc_init(pr);
+ 
+  /* constants */
+  itv_t zero,un,moinsun,deux,quatre;
+  itv_init(zero);
+  itv_set_int(zero,0);
+  itv_init(un);
+  itv_set_int(un,1);
+  itv_init(moinsun);
+  itv_set_int(moinsun,-1);
+  itv_init(deux);
+  itv_set_int(deux,2);
+  itv_init(quatre);
+  itv_set_int(quatre,4);
+
+  /* build the first abstract value */
+  itv_set(afexpr10->c, deux);
+  t1p_aff_nsym_add(pr,afexpr10,un,peps0);
+  itv_set_int2(afexpr10->itv,1,3);
+  itv_set(afexpr11->c, deux);
+  t1p_aff_nsym_add(pr,afexpr11,un,peps1);
+  itv_set_int2(afexpr11->itv,1,3);
+  itv_set(afexpr12->c, deux);
+  t1p_aff_nsym_add(pr,afexpr12,un,peps2);
+  itv_set_int2(afexpr12->itv,1,3);
+  a1->paf[0] = afexpr10;
+  a1->paf[0]->pby++;
+  itv_set(a1->box[0],afexpr10->itv);
+  a1->paf[1] =afexpr11;
+  a1->paf[1]->pby++;
+  itv_set(a1->box[1],afexpr11->itv);
+  a1->paf[2] =afexpr12;
+  a1->paf[2]->pby++;
+  itv_set(a1->box[2],afexpr12->itv);
+
+ /* build the second abstract value */
+  itv_set(afexpr20->c,deux);
+  t1p_aff_nsym_add(pr,afexpr20,deux,peps0);
+  t1p_aff_nsym_add(pr,afexpr20,un,peps1);
+  itv_set_int2(afexpr20->itv,-1,5);
+  itv_set(afexpr21->c,deux);
+  t1p_aff_nsym_add(pr,afexpr21,moinsun,peps1);
+  t1p_aff_nsym_add(pr,afexpr21,un,peps2);
+  itv_set_int2(afexpr21->itv,0,4);
+  itv_set(afexpr22->c,deux);
+  t1p_aff_nsym_add(pr,afexpr22,moinsun,peps0);
+  t1p_aff_nsym_add(pr,afexpr22,un,peps2);
+  itv_set_int2(afexpr22->itv,0,4);
+  a2->paf[0] = afexpr20;
+  a2->paf[0]->pby++;
+  itv_set(a2->box[0],afexpr20->itv);
+  a2->paf[1] =afexpr21;
+  a2->paf[1]->pby++;
+  itv_set(a2->box[1],afexpr21->itv);
+  a2->paf[2] =afexpr22;
+  a2->paf[2]->pby++;
+  itv_set(a2->box[2],afexpr22->itv);
+
+
+  fprintf(stream,"\n a1:\n");
+  t1p_fdump(stream,man,a1);
+  fprintf(stream,"\n a2:\n");
+  t1p_fdump(stream,man,a2);
+  fprintf(stream,"**********\n**********\n**********\n");
 
   int i;
   for (i=0 ; i<(int)a1->dims ; i++)
@@ -266,17 +385,22 @@ void test_generate_1(FILE* stream, ap_manager_t* man)
   eqs= abstract_value_to_eq_set (pr,a1,a2);
   print_equation_set(stream,eqs);
 
+  ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
+
+ 
 
   /* free */
   free(a1);
   free(afexpr10);
-  free(afexpr11);  
+  free(afexpr11);
+  free(afexpr12);
   free(a2);
   free(afexpr20);
   free(afexpr21); 
+  free(afexpr22);
   free_equation_set(eqs); 
+  free_equation_set(new_eqs);
 }
-
 
 int main (void)
 {
@@ -284,8 +408,9 @@ int main (void)
   FILE* stream = fopen("toto.log","w");
 
   //test_equation_1(stream,t1p);
-  test_rebuild_1(stream,t1p);
-  //test_generate_1(stream,t1p);
+  //test_rebuild_1(stream,t1p);
+  test_generate_1(stream,t1p);
+  //test_generate_2(stream,t1p);
   fclose(stream);
   ap_manager_free(t1p);
 

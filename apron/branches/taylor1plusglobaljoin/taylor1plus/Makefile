@@ -106,7 +106,7 @@ endif
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
 
 
-test_join_alt%: t1p_test_join_alt%.o
+test_join_alt%: t1p_test_join_alt%.o 
 	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o t1p_join_alt$*.o
 
 #test_join%_debug: t1p_test_join%_debug.o
