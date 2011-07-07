@@ -12,6 +12,8 @@
 
 #include "ap_generic.h"
 #include "t1p_internal.h"
+#include "t1p_meetjoin.h"
+#include "t1p_otherops.h"
 #include "t1p_join_alt.h"
 #include "ap_manager.h"
 #include "ap_lincons0.h"
@@ -198,7 +200,7 @@ itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v)
   /* found */
   /* find the right coefficient */
   ja_term_t* current_term = (current_elm->content)->first_te;
-  while (current_term->dim != v)
+  while (current_term->t_coeff==NS ||current_term->dim != v)
     {
       current_term=current_term->n;
     }
@@ -213,20 +215,15 @@ itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v)
    assert (eq_n < eqs->nb_eq); 
   /* find the right equation */
   ja_eq_list_elm* current_elm = eqs->first_eq;
-  printf("*\n");
   for (int i=0;i<eq_n;i++)
     {
       current_elm = current_elm->n;
     }
-  print_equation(stdout,current_elm->content);
-  printf("*\n");
-  printf("index of nsym %zu \n",v);
   /* found */
   /* find the right coefficient */
   ja_term_t* current_term = current_elm->content->first_te;
-  while (current_term->pnsym->index != v)
+  while (current_term->t_coeff==VA || current_term->pnsym->index != v)
     {
-      printf(".\n");
       current_term=current_term->n;
     }
   /* found */
@@ -485,10 +482,8 @@ void eq_set_Aprime_to_matrix (ja_eq_set_t* eqs, int dims, int nb_nsym, itv_t** m
   ja_eq_list_elm* current_equation=eqs->first_eq;
 
   for(i=0;i<nb_rows;i++){
-    printf("*\n");
     /* dims first columns */
     for (j=0;j<dims;j++){
-      printf(".\n");
       pitv=get_coeff_var (eqs, i, (ap_dim_t) j);
       if (pitv!=NULL){
 	itv_set(m[i][j],*pitv);
@@ -498,14 +493,11 @@ void eq_set_Aprime_to_matrix (ja_eq_set_t* eqs, int dims, int nb_nsym, itv_t** m
       }
     }
     /* column dims */
-    printf(";\n");
     itv_set(m[i][dims],current_equation->content->c);
 
     /* other columns */
     for (j=0;j<nb_nsym;j++){
-      printf(".\n");
       pitv=get_coeff_nsym (eqs, i, (size_t) j);
-      printf(",\n");
       if (pitv!=NULL){
 	itv_set(m[i][j+dims+1],*pitv);
       }
@@ -830,31 +822,31 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs, int di
   for (i=0;i<nb_rows;i++) {
     m[i]=malloc(nb_columns*sizeof(itv_t));
   }
-  printf("m is allocated\n");
+  /* printf("m is allocated\n"); */
 
-  printf("eqs:\n");
-  print_equation_set(stdout,eqs);
-  printf("\n");
+  /* printf("eqs:\n"); */
+  /* print_equation_set(stdout,eqs); */
+  /* printf("\n"); */
 
   /* 1: call the function [eq_set_B_to_matrix] to initialise matrix m */
   eq_set_B_to_matrix(eqs,nb_rows,nb_columns,m);
 
-  printf("result of eq_set_B_to_matrix:\n");
-  matrix_fdump(stdout,nb_rows,nb_columns,m);
-  printf("******************************\n");
+  /* printf("result of eq_set_B_to_matrix:\n"); */
+  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
+  /* printf("******************************\n"); */
 
   /* 2: transform m with the function [matrix_jordan_reduction] ->(rank) */ 
   rank = matrix_jordan_reduction(pr->itv, nb_rows, nb_columns,m);
-  printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank);
-  matrix_fdump(stdout,nb_rows,nb_columns,m);
-  printf("******************************\n");
+  /* printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank); */
+  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
+  /* printf("******************************\n"); */
 
   /* 3: call the function [matrix_to_eq_set_Aprime] on m and the input equation*/
   mid_eqs= matrix_to_eq_set_Aprime(pr,rank,nb_rows,nb_columns, m, eqs);
-  printf("result of matrix_to_eq_set_Aprime :\n");
-  print_equation_set(stdout,mid_eqs);
-  printf("\n");
-  printf("******************************\n");
+  /* printf("result of matrix_to_eq_set_Aprime :\n"); */
+  /* print_equation_set(stdout,mid_eqs); */
+  /* printf("\n"); */
+  /* printf("******************************\n"); */
 
    /* 4: re-create m with (P-rank) rows and N+P+1 columns */
   /* free matrix  m */
@@ -873,30 +865,30 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs, int di
   for (i=0;i<nb_rows;i++) {
     m[i]=malloc(nb_columns*sizeof(itv_t));
   }
-  printf("m is allocated again \n");
+  /* printf("m is allocated again \n"); */
 
    /* 5: call the function [eq_set_Aprime_to_matrix] to re-initialise matrix m */
   eq_set_Aprime_to_matrix(mid_eqs,dimensions,nb_columns-dimensions-1,m);
 
-  printf("result of eq_set_Aprime_to_matrix:\n");
-  matrix_fdump(stdout,nb_rows,nb_columns,m);
-  printf("******************************\n");
+  /* printf("result of eq_set_Aprime_to_matrix:\n"); */
+  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
+  /* printf("******************************\n"); */
 
 
    /* 6: transform m with the function [matrix_jordan_reduction] ->(P-rank) */
   rank_prime = matrix_jordan_reduction(pr->itv, nb_rows, nb_columns,m);
   assert (rank_prime == dimensions-rank);
 
-  printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank_prime);
-  matrix_fdump(stdout,nb_rows,nb_columns,m);
-  printf("******************************\n");
+  /* printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank_prime); */
+  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
+  /* printf("******************************\n"); */
 
    /* 7: call the function [matrix_to_eq_set_A] on m */
   res = matrix_to_eq_set_A (pr, nb_rows, dimensions, nb_columns-dimensions-1, m);
-  printf("result of matrix_to_eq_set_A :\n");
-  print_equation_set(stdout,res);
-  printf("\n");
-  printf("******************************\n");
+  /* printf("result of matrix_to_eq_set_A :\n"); */
+  /* print_equation_set(stdout,res); */
+  /* printf("\n"); */
+  /* printf("******************************\n"); */
 
   /*  8: cleanup and return result */
   /* free mid_eqs */
@@ -1056,19 +1048,48 @@ void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs)
 
 }
 
-/* ********************************************************************** */
-/* 2. Search for linear relations */
-/* ********************************************************************** */
-
-
 
 /* ********************************************************************** */
 /* 3. Alternative to the join operator */
 /* ********************************************************************** */
 t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 {
-  /* TO DO */
   CALL();
-  printf("TO BE DONE \n");
-  return a1;
+  t1p_t *a1bis, *a2bis, *a_join, *res;
+  ja_eq_set_t *eqs_a, *eqs_b;
+  int nb_eq;
+  int i; //iterator
+  ja_eq_list_elm* current_equation; //idem
+
+  t1p_internal_t* pr = man->internal;
+  size_t dimensions = a1->dims;
+
+  assert (a2->dims == dimensions);
+
+  /* creation of the equations */
+  eqs_b = abstract_value_to_eq_set (pr, a1, a2);
+  eqs_a = eq_set_transformation(pr, eqs_b, dimensions);
+  current_equation =  eqs_a->first_eq;
+  nb_eq = eqs_a->nb_eq;
+
+  /* creation of the array of dimensions to forget */
+  ap_dim_t tdim[nb_eq];
+  for(i=0;i<nb_eq;i++) {
+    tdim[i] = (ap_dim_t) current_equation->content->dim;
+    current_equation= current_equation->n;
+  }
+
+ /* forget and do the union */
+  a1bis = t1p_forget_array(man, destructive, a1, tdim, (size_t) nb_eq, false);
+  a2bis = t1p_forget_array(man, destructive, a2, tdim, (size_t) nb_eq, false);
+
+  res = t1p_join(man, destructive, a1bis, a2bis);
+
+  /* rebuild */
+  rebuild_abstract_value(man, res, eqs_a);
+  /* cleanup */
+  free_equation_set(eqs_a);
+  free_equation_set(eqs_b);
+
+  return res;
 }
