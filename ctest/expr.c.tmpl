@@ -138,7 +138,7 @@ void init_set_linearXXX(void)
   boundXXX_set_infty(eitv->itv->neginf,1);
   eitv = ap_linexprXXX_eitvref0(envXXX[1],5,false);
   boundXXX_set_infty(eitv->itv->sup,1);
-  
+
   for (i=0;i<2;i++){
     ap_linexprXXX_minimize(envXXX[i]);
     fprintf(stdout,"env[%d] \t= ",i);
@@ -155,7 +155,7 @@ void init_set_linearXXX(void)
      4: as 2 with first coeff enlarged
      5:
      6: as 4 with neginf/sup constant bound set to infty
-     7: 
+     7:
      8: as 4 with neginf/sup coeff bound set to infty
      9:
   */
@@ -255,29 +255,56 @@ void test_linexprXXX(void)
     eitvXXX_set(eitv[3],eitv[1]);
     boundXXX_set_infty(eitv[3]->itv->neginf,1);
     for (j=0;j<4;j++) eitvXXX_neg(eitv[j+4],eitv[j]);
-    
+
     for (i=0; i<10; i++){
       for (j=0; j<8;j++){
-        ap_linexprXXX_scale(expr,linexprXXX[i],eitv[j],intern);
-        fprintf(stdout,"scale linexpr[%d]\t ",i);
-        eitvXXX_fprint(stdout,eitv[j]);
-        fprintf(stdout,"\t = ");
-        ap_linexprXXX_fprint(stdout,expr,0);
-        fprintf(stdout,"\n");
+	ap_linexprXXX_scale(expr,linexprXXX[i],eitv[j],intern);
+	fprintf(stdout,"scale linexpr[%d]\t ",i);
+	eitvXXX_fprint(stdout,eitv[j]);
+	fprintf(stdout,"\t = ");
+	ap_linexprXXX_fprint(stdout,expr,0);
+	fprintf(stdout,"\n");
       }
     }
     for (i=0; i<10; i++){
       for (j=0; j<8;j++){
-        ap_linexprXXX_div(expr,linexprXXX[i],eitv[j],intern);
-        fprintf(stdout,"div linexpr[%d]\t ",i);
-        eitvXXX_fprint(stdout,eitv[j]);
-        fprintf(stdout,"\t = ");
-        ap_linexprXXX_fprint(stdout,expr,0);
-        fprintf(stdout,"\n");
+	ap_linexprXXX_div(expr,linexprXXX[i],eitv[j],intern);
+	fprintf(stdout,"div linexpr[%d]\t ",i);
+	eitvXXX_fprint(stdout,eitv[j]);
+	fprintf(stdout,"\t = ");
+	ap_linexprXXX_fprint(stdout,expr,0);
+	fprintf(stdout,"\n");
       }
     }
     for (j=0; j<8; j++) eitvXXX_clear(eitv[j]);
   }
+  {
+    eitvXXX_t eitv;
+    eitvXXX_init(eitv);
+
+    for (j=0;j<2;j++){
+      for (i=0; i<10; i++){
+        ap_linexprXXX_set(expr,linexprXXX[i]);
+	ap_linexprXXX_quasilinearize(expr,envXXX[j],false,intern);
+	fprintf(stdout,"quasilinearize linexpr[%d] env[%d]= ",i,j);
+	ap_linexprXXX_fprint(stdout,expr,NULL);
+	fprintf(stdout,"\n");
+
+        ap_linexprXXX_set(expr,linexprXXX[i]);
+	ap_linexprXXX_quasilinearize(expr,envXXX[j],true,intern);
+	fprintf(stdout,"quasilinearize linexpr[%d] env[%d] for meet = ",i,j);
+	ap_linexprXXX_fprint(stdout,expr,NULL);
+	fprintf(stdout,"\n");
+
+	ap_linexprXXX_eval(eitv,linexprXXX[i],envXXX[j],intern);
+	fprintf(stdout,"eval linexpr[%d] env[%d]= ",i,j);
+	eitvXXX_fprint(stdout,eitv);
+	fprintf(stdout,"\n");
+      }
+    }
+    eitvXXX_clear(eitv);
+  }
+
   ap_linexprXXX_clear(expr);
 }
 
