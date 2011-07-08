@@ -341,16 +341,19 @@ eitvXXX_quasilinearize_choose_middle(
 bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
 				  bool for_meet_inequality, num_internal_t intern)
 {
-  ap_dim_t size,i,dim;
+  ap_dim_t size,ir,iw,dim;
   eitvXXX_ptr eitv;
-  bool top,zero;
+  bool top;
 
 #ifdef LOGDEBUG
   printf("ap_linexprXXX_quasilinearize:\n");
   ap_linexprXXX_print(linexpr,0); printf("\n");
 #endif
-  top = false; zero = false;
-  ap_linexprXXX_ForeachLinterm0(linexpr,i,dim,eitv){
+  top = false;
+  ir = iw = 0;
+  while (ir<linexpr->effsize){
+    dim = linexpr->linterm[ir]->dim;
+    eitv = linexpr->linterm[ir]->eitv;
     eitvXXX_ptr envdim = ap_linexprXXX_eitvref0(env,dim,false);
     if (envdim==NULL){
       if (!eitvXXX_is_zero(eitv)){
@@ -358,15 +361,23 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
 	top = true;
 	break;
       }
+      else {
+	ir++;
+      }
     }
     else if (eitvXXX_is_point(envdim)){
       /* If a variable has a constant value, simplification */
       eitvXXX_mul_num(eitv,eitv,boundXXX_numref(envdim->itv->sup));
       eitvXXX_add(linexpr->cst,linexpr->cst,eitv);
-      eitvXXX_set_int(eitv,0);
-      zero = true;
+      ir++;
     }
-    else if (!eitvXXX_is_point(eitv)){
+    else if (eitvXXX_is_point(eitv)){
+      if (iw<ir){
+	eitvXXX_set(linexpr->linterm[iw]->eitv,eitv);
+      }
+      ir++; iw++;
+    }
+    else {
       /* Compute the middle of the interval */
       eitvXXX_quasilinearize_choose_middle(intern->XXX.quasi_num,
 					   eitv,envdim,for_meet_inequality);
@@ -382,12 +393,17 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
 	top = true;
 	break;
       }
+      /* Modification of the linear term */
+      if (numXXX_sgn(intern->XXX.quasi_num)!=0){
+	eitvXXX_set_num((iw==ir) ? eitv : linexpr->linterm[iw]->eitv,intern->XXX.quasi_num);
+	ir++; iw++;
+      }
+      else {
+	ir++;
+      }
     }
   }
-  if (top)
-    ap_linexprXXX_resize(linexpr,0);
-  else if (zero)
-    ap_linexprXXX_minimize(linexpr);
+  linexpr->effsize = top ? 0 : iw;
 
 #ifdef LOGDEBUG
   ap_linexprXXX_print(linexpr,NULL); printf("\n");
