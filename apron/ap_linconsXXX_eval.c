@@ -403,10 +403,10 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
 				   num_internal_t intern)
 {
   size_t index,size,sizeorg;
-
+  /*
   tbool_t res = ap_linconsXXX_array_reduce(array,for_meet_inequality,intern);
   if (res!=tbool_top) return;
-
+  */
   /* One now remove intervals when we can */
   sizeorg = array->size;
   size = sizeorg;
