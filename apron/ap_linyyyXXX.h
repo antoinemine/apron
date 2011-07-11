@@ -497,19 +497,43 @@ static inline
 void ap_linyyyXXX_add_dimensions(ap_linyyyXXX_t res,
 				ap_linyyyXXX_t a,
 				ap_dimchange_t* dimchange)
-{ ap_linexprXXX_add_dimensions(res->linexpr,a->linexpr,dimchange); }
+{
+  ap_linexprXXX_add_dimensions(res->linexpr,a->linexpr,dimchange);
+  if (res!=a){
+    res->yyytyp = a->yyytyp;
+#if defined(_AP_cons_MARK_)
+    mpq_set(res->mpq,a->mpq);
+#endif
+  }
+}
 static inline
 void ap_linyyyXXX_permute_dimensions(ap_linyyyXXX_t res,
 				    ap_linyyyXXX_t a,
 				    ap_dimperm_t* dimperm)
-{ ap_linexprXXX_permute_dimensions(res->linexpr,a->linexpr,dimperm); }
+{ 
+  ap_linexprXXX_permute_dimensions(res->linexpr,a->linexpr,dimperm); 
+  if (res!=a){
+    res->yyytyp = a->yyytyp;
+#if defined(_AP_cons_MARK_)
+    mpq_set(res->mpq,a->mpq);
+#endif
+  }
+}
 static inline
 void ap_linyyyXXX_extend_environment(ap_linyyyXXX_t res,
 				      bool* perror,
 				      ap_environment_t* nenv,
 				      ap_linyyyXXX_t a,
 				      ap_environment_t* env)
-{ ap_linexprXXX_extend_environment(res->linexpr,perror,nenv,a->linexpr,env); }
+{ 
+  ap_linexprXXX_extend_environment(res->linexpr,perror,nenv,a->linexpr,env);  
+  if (res!=a){
+    res->yyytyp = a->yyytyp;
+#if defined(_AP_cons_MARK_)
+    mpq_set(res->mpq,a->mpq);
+#endif
+  }
+}
 #endif
 
 #if !defined(_AP_expr_MARK_)

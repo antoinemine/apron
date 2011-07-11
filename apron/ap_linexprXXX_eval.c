@@ -374,6 +374,7 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
     else if (eitvXXX_is_point(eitv)){
       if (iw<ir){
 	eitvXXX_set(linexpr->linterm[iw]->eitv,eitv);
+	linexpr->linterm[iw]->dim = dim;
       }
       ir++; iw++;
     }
@@ -396,6 +397,7 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
       /* Modification of the linear term */
       if (numXXX_sgn(intern->XXX.quasi_num)!=0){
 	eitvXXX_set_num((iw==ir) ? eitv : linexpr->linterm[iw]->eitv,intern->XXX.quasi_num);
+	linexpr->linterm[iw]->dim = dim;
 	ir++; iw++;
       }
       else {

@@ -160,14 +160,14 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm)
 
    Merge buffers indexed by k0 and k1, and return the new buffer in the index
    *pk (normally, k2) */
-void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk)
+void ap_dimsupport_merge(ap_dim_t** ttdim, size_t* tnb, size_t* pk)
 {
   size_t k0 = *pk;
   size_t k1 = (k0+1)%3;
   size_t k2 = (k0+2)%3;
-  if (k0==0)
+  if (tnb[k0]==0)
     *pk = k1;
-  else if (k1==0)
+  else if (tnb[k1]==0)
     *pk = k0;
   else {
     size_t i0,i1,i2;
