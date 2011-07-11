@@ -65,7 +65,7 @@ bool ap_linexprXXX_div(ap_linexprXXX_t res, ap_linexprXXX_t expr, eitvXXX_t coef
   if (res!=expr){
     ap_linexprXXX_set(res,expr);
   }
-  eitvXXX_div(res->cst,res->cst,coeff, intern); 
+  eitvXXX_div(res->cst,res->cst,coeff, intern);
   if (eitvXXX_is_top(res->cst)){
     ap_linexprXXX_resize(res,0);
   }

@@ -124,7 +124,6 @@ void init_set_linearXXX(void)
 			  AP_COEFF_LINT2,1L,2L,0,
 			  AP_COEFF_LINT2,-2L,-1L,1,
 			  AP_COEFF_LINT,3L,2,
-			  AP_COEFF_LINT,0L,3,
 			  AP_COEFF_LINT2,1L,2L,4,
 			  AP_COEFF_LINT2,-1L,1L,5,
 			  AP_END);
@@ -217,15 +216,103 @@ void init_set_linearXXX(void)
     fprintf(stdout,"\n");
   }
 }
+/* ********************************************************************** */
+/* linexprXXX */
+/* ********************************************************************** */
+
 void test_linexprXXX(void)
 {
   int i,j;
   ap_linexprXXX_t expr;
 
   ap_linexprXXX_init(expr,0);
+
+  {
+    ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
+    size_t k,size;
+
+    for (i=0; i<10; i++){
+      fprintf(stdout,"linexpr[%d] :\n\tsupport\t = ",i);
+      size = ap_linexprXXX_support(linexprXXX[i],tdim);
+      for (k=0;k<size;k++){
+	fprintf(stdout,"%d,",tdim[k]);
+      }
+      fprintf(stdout,"\n\tsupportinterval\t = ");
+      size = ap_linexprXXX_supportinterval(linexprXXX[i],tdim);
+      for (k=0;k<size;k++){
+	fprintf(stdout,"%d,",tdim[k]);
+      }
+      fprintf(stdout,"\n");
+
+      bool bi1 = ap_linexprXXX_is_integer(linexprXXX[i],4);
+      bool br1 = ap_linexprXXX_is_real(linexprXXX[i],4);
+      bool bi2 = ap_linexprXXX_is_integer(linexprXXX[i],5);
+      bool br2 = ap_linexprXXX_is_real(linexprXXX[i],5);
+      bool lin = ap_linexprXXX_is_linear(linexprXXX[i]);
+      bool quasilin = ap_linexprXXX_is_quasilinear(linexprXXX[i]);
+      ap_linexpr_type_t typ = ap_linexprXXX_type(linexprXXX[i]);
+
+      fprintf(stdout,"\tintdim=4: is_integer=%hhd, is_real=%hhd\n",bi1,br1);
+      fprintf(stdout,"\tintdim=5: is_integer=%hhd, is_real=%hhd\n",bi2,br2);
+      fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
+    }
+    free(tdim);
+  }
+  {
+    ap_dimchange_t changeadd, changeremove;
+    ap_dimperm_t perm;
+    ap_dimension_t dim = ap_dimension_make(0,4);
+
+    ap_dimchange_init(&changeadd,dim);
+    changeadd.p[0]=1;
+    changeadd.p[1]=2;
+    changeadd.p[2]=2;
+    changeadd.p[3]=4;
+    ap_dimchange_init(&changeremove,dim);
+    for (i=0;i<4; i++){
+      changeremove.p[i] = changeadd.p[i];
+    }
+    ap_dimchange_add_invert(&changeremove);
+
+    ap_dimperm_init(&perm,6);
+    perm.p[0]=2;
+    perm.p[1]=1;
+    perm.p[2]=0;
+    perm.p[3]=5;
+    perm.p[4]=4;
+    perm.p[5]=3;
+
+    fprintf(stdout,"changeadd\t = ");
+    ap_dimchange_fprint(stdout,&changeadd);
+    fprintf(stdout,"\nchangeremove\t = ");
+    ap_dimchange_fprint(stdout,&changeremove);
+    fprintf(stdout,"\nperm\t = ");
+    ap_dimperm_fprint(stdout,&perm);
+    fprintf(stdout,"\n");
+
+    for (i=0; i<2; i++){
+      ap_linexprXXX_add_dimensions(expr,linexprXXX[i],&changeadd);
+      fprintf(stdout,"add_dimensions linexprXXX[%d]\t = ",i);
+      ap_linexprXXX_fprint(stdout,expr,0);
+      fprintf(stdout,"\n");
+      ap_linexprXXX_permute_dimensions(expr,linexprXXX[i],&perm);
+      fprintf(stdout,"permute linexprXXX[%d]\t = ",i);
+      ap_linexprXXX_fprint(stdout,expr,0);
+      fprintf(stdout,"\n");
+    }
+    ap_dimchange_clear(&changeadd);
+    ap_dimchange_clear(&changeremove);
+    ap_dimperm_clear(&perm);
+  }
+
+  ap_linexprXXX_set(expr,linexprXXX[0]);
+  ap_linexprXXX_set_zero(expr);
+  fprintf(stdout,"set_zero linexpr[0] = ");
+  ap_linexprXXX_fprint(stdout,expr,0);
+  fprintf(stdout,"\n");
+
   for (i=0; i<10; i++){
     ap_linexprXXX_neg(expr,linexprXXX[i]);
-
     fprintf(stdout,"neg linexpr[%d] = ",i);
     ap_linexprXXX_fprint(stdout,expr,0);
     fprintf(stdout,"\n");
@@ -282,15 +369,15 @@ void test_linexprXXX(void)
     eitvXXX_t eitv;
     eitvXXX_init(eitv);
 
-    for (j=0;j<2;j++){
-      for (i=0; i<10; i++){
-        ap_linexprXXX_set(expr,linexprXXX[i]);
+    for (i=0; i<10; i++){
+      for (j=0;j<2;j++){
+	ap_linexprXXX_set(expr,linexprXXX[i]);
 	ap_linexprXXX_quasilinearize(expr,envXXX[j],false,intern);
 	fprintf(stdout,"quasilinearize linexpr[%d] env[%d]= ",i,j);
 	ap_linexprXXX_fprint(stdout,expr,NULL);
 	fprintf(stdout,"\n");
 
-        ap_linexprXXX_set(expr,linexprXXX[i]);
+	ap_linexprXXX_set(expr,linexprXXX[i]);
 	ap_linexprXXX_quasilinearize(expr,envXXX[j],true,intern);
 	fprintf(stdout,"quasilinearize linexpr[%d] env[%d] for meet = ",i,j);
 	ap_linexprXXX_fprint(stdout,expr,NULL);
@@ -304,10 +391,279 @@ void test_linexprXXX(void)
     }
     eitvXXX_clear(eitv);
   }
-
   ap_linexprXXX_clear(expr);
 }
 
+/* ********************************************************************** */
+/* linconsXXX */
+/* ********************************************************************** */
+
+void test_linconsXXX(void)
+{
+  int i,j;
+  ap_linconsXXX_t cons;
+  ap_linconsXXX_array_t array[2];
+  ap_linconsXXX_array_t arrayt;
+
+  ap_linconsXXX_init(cons,0);
+
+  {
+    ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
+    size_t k,size;
+
+    for (i=0; i<20; i++){
+      fprintf(stdout,"lincons[%d] :\n\tsupport\t = ",i);
+      size = ap_linconsXXX_support(linconsXXX[i],tdim);
+      for (k=0;k<size;k++){
+	fprintf(stdout,"%d,",tdim[k]);
+      }
+      fprintf(stdout,"\n\tsupportinterval\t = ");
+      size = ap_linconsXXX_supportinterval(linconsXXX[i],tdim);
+      for (k=0;k<size;k++){
+	fprintf(stdout,"%d,",tdim[k]);
+      }
+      fprintf(stdout,"\n");
+
+      bool bi1 = ap_linconsXXX_is_integer(linconsXXX[i],4);
+      bool br1 = ap_linconsXXX_is_real(linconsXXX[i],4);
+      bool bi2 = ap_linconsXXX_is_integer(linconsXXX[i],5);
+      bool br2 = ap_linconsXXX_is_real(linconsXXX[i],5);
+      bool lin = ap_linconsXXX_is_linear(linconsXXX[i]);
+      bool quasilin = ap_linconsXXX_is_quasilinear(linconsXXX[i]);
+      ap_linexpr_type_t typ = ap_linconsXXX_type(linconsXXX[i]);
+      bool sat = ap_linconsXXX_sat_is_false(linconsXXX[i],intern);
+      fprintf(stdout,"\tintdim=4: is_integer=%hhd, is_real=%hhd\n",bi1,br1);
+      fprintf(stdout,"\tintdim=5: is_integer=%hhd, is_real=%hhd\n",bi2,br2);
+      fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
+      fprintf(stdout,"\tsat_is_false=%hhd\n",sat);
+    }
+    free(tdim);
+  }
+  {
+    ap_dimchange_t changeadd, changeremove;
+    ap_dimperm_t perm;
+    ap_dimension_t dim = ap_dimension_make(0,4);
+
+    ap_dimchange_init(&changeadd,dim);
+    changeadd.p[0]=1;
+    changeadd.p[1]=2;
+    changeadd.p[2]=2;
+    changeadd.p[3]=4;
+    ap_dimchange_init(&changeremove,dim);
+    for (i=0;i<4; i++){
+      changeremove.p[i] = changeadd.p[i];
+    }
+    ap_dimchange_add_invert(&changeremove);
+
+    ap_dimperm_init(&perm,6);
+    perm.p[0]=2;
+    perm.p[1]=1;
+    perm.p[2]=0;
+    perm.p[3]=5;
+    perm.p[4]=4;
+    perm.p[5]=3;
+
+    fprintf(stdout,"changeadd\t = ");
+    ap_dimchange_fprint(stdout,&changeadd);
+    fprintf(stdout,"\nchangeremove\t = ");
+    ap_dimchange_fprint(stdout,&changeremove);
+    fprintf(stdout,"\nperm\t = ");
+    ap_dimperm_fprint(stdout,&perm);
+    fprintf(stdout,"\n");
+
+    for (i=0; i<2; i++){
+      ap_linconsXXX_add_dimensions(cons,linconsXXX[i],&changeadd);
+      fprintf(stdout,"add_dimensions linconsXXX[%d]\t = ",i);
+      ap_linconsXXX_fprint(stdout,cons,0);
+      fprintf(stdout,"\n");
+      ap_linconsXXX_permute_dimensions(cons,linconsXXX[i],&perm);
+      fprintf(stdout,"permute linconsXXX[%d]\t = ",i);
+      ap_linconsXXX_fprint(stdout,cons,0);
+      fprintf(stdout,"\n");
+    }
+    ap_dimchange_clear(&changeadd);
+    ap_dimchange_clear(&changeremove);
+    ap_dimperm_clear(&perm);
+  }
+
+  ap_linconsXXX_set(cons,linconsXXX[0]);
+  ap_linconsXXX_set_zero(cons);
+  fprintf(stdout,"set_zero lincons[0] = ");
+  ap_linconsXXX_fprint(stdout,cons,0);
+  fprintf(stdout,"\n");
+
+  ap_linconsXXX_set(cons,linconsXXX[0]);
+  ap_linconsXXX_set_bool(cons,false);
+  fprintf(stdout,"set_bool lincons[0] false = ");
+  ap_linconsXXX_fprint(stdout,cons,0);
+  {
+    tbool_t tb = ap_linconsXXX_evalcst(cons,intern);
+    fprintf(stdout,"\t eval_cst = %d\n",tb);
+  }
+  ap_linconsXXX_set(cons,linconsXXX[0]);
+  ap_linconsXXX_set_bool(cons,true);
+  fprintf(stdout,"set_bool lincons[0] true = ");
+  ap_linconsXXX_fprint(stdout,cons,0);
+  {
+    tbool_t tb = ap_linconsXXX_evalcst(cons,intern);
+    fprintf(stdout,"\t eval_cst = %d\n",tb);
+  }
+
+  for (i=0;i<4;i++){
+    for (j=0;j<2; j++){
+      ap_linconsXXX_set(cons,linconsXXX[i+10*j]);
+      ap_linconsXXX_reduce_integer(cons,4,intern);
+      fprintf(stdout,"reduce_integer lincons[%d] 4 = ",i+10*j);
+      ap_linconsXXX_fprint(stdout,cons,NULL);
+      fprintf(stdout,"\n");
+    }
+  }
+
+  {
+    eitvXXX_t eitv;
+    eitvXXX_init(eitv);
+    for (i=0; i<10; i++){
+      for (j=0;j<2;j++){
+	ap_linconsXXX_set(cons,linconsXXX[i]);
+	ap_linconsXXX_quasilinearize(cons,envXXX[j],false,intern);
+	fprintf(stdout,"quasilinearize lincons[%d] env[%d] = ",i,j);
+	ap_linconsXXX_fprint(stdout,cons,NULL);
+	fprintf(stdout,"\n");
+
+	ap_linconsXXX_set(cons,linconsXXX[i]);
+	ap_linconsXXX_quasilinearize(cons,envXXX[j],true,intern);
+	fprintf(stdout,"quasilinearize lincons[%d] env[%d] for meet = ",i,j);
+	ap_linconsXXX_fprint(stdout,cons,NULL);
+	fprintf(stdout,"\n");
+      }
+    }
+    eitvXXX_clear(eitv);
+  }
+
+  /* ====================================================================== */
+  /* linconsXXXX_array */
+  /* ====================================================================== */
+
+  ap_linconsXXX_array_init(array[0],22);
+  ap_linconsXXX_set_bool(array[0]->p[0],true);
+  for (i=0;i<20;i++){
+    ap_linconsXXX_set(array[0]->p[i+1],linconsXXX[i]);
+  }
+  ap_linconsXXX_set_bool(array[0]->p[21],true);
+  ap_linconsXXX_array_init_set(array[1],array[0]);
+  ap_linconsXXX_set_bool(array[1]->p[21],false);
+
+  ap_linconsXXX_array_init(arrayt,0);
+
+  {
+    ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
+    size_t k,size;
+
+    size = ap_linconsXXX_array_support(array[0],tdim,6);
+    for (k=0;k<size;k++){
+      fprintf(stdout,"%d,",tdim[k]);
+    }
+    fprintf(stdout,"\n\tsupportinterval\t = ");
+    size = ap_linconsXXX_array_supportinterval(array[0],tdim,6);
+    for (k=0;k<size;k++){
+      fprintf(stdout,"%d,",tdim[k]);
+    }
+    fprintf(stdout,"\n");
+
+    bool lin = ap_linconsXXX_array_is_linear(array[0]);
+    bool quasilin = ap_linconsXXX_array_is_quasilinear(array[0]);
+    ap_linexpr_type_t typ = ap_linconsXXX_array_type(array[0]);
+    fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
+    free(tdim);
+  }
+  {
+    ap_dimchange_t changeadd, changeremove;
+    ap_dimperm_t perm;
+    ap_dimension_t dim = ap_dimension_make(0,4);
+
+    ap_dimchange_init(&changeadd,dim);
+    changeadd.p[0]=1;
+    changeadd.p[1]=2;
+    changeadd.p[2]=2;
+    changeadd.p[3]=4;
+    ap_dimchange_init(&changeremove,dim);
+    for (i=0;i<4; i++){
+      changeremove.p[i] = changeadd.p[i];
+    }
+    ap_dimchange_add_invert(&changeremove);
+
+    ap_dimperm_init(&perm,6);
+    perm.p[0]=2;
+    perm.p[1]=1;
+    perm.p[2]=0;
+    perm.p[3]=5;
+    perm.p[4]=4;
+    perm.p[5]=3;
+
+    fprintf(stdout,"changeadd\t = ");
+    ap_dimchange_fprint(stdout,&changeadd);
+    fprintf(stdout,"\nchangeremove\t = ");
+    ap_dimchange_fprint(stdout,&changeremove);
+    fprintf(stdout,"\nperm\t = ");
+    ap_dimperm_fprint(stdout,&perm);
+    fprintf(stdout,"\n");
+
+    for (i=0; i<2; i++){
+      ap_linconsXXX_array_add_dimensions(arrayt,array[0],&changeadd);
+      fprintf(stdout,"add_dimensions array[0] =\n");
+      ap_linconsXXX_array_fprint(stdout,arrayt,0);
+      ap_linconsXXX_array_permute_dimensions(arrayt,array[0],&perm);
+      fprintf(stdout,"permute array[0] =\n");
+      ap_linconsXXX_array_fprint(stdout,arrayt,0);
+    }
+    ap_dimchange_clear(&changeadd);
+    ap_dimchange_clear(&changeremove);
+    ap_dimperm_clear(&perm);
+  }
+
+  {
+    int meet;
+    for (i=0; i<2; i++){
+      for (meet=0; meet<2; meet++){
+	ap_linconsXXX_array_set(arrayt,array[i]);
+	tbool_t tb = ap_linconsXXX_array_reduce(arrayt,meet,intern);
+	fprintf(stdout,"array_reduce array[%d] meet=%d = %d\n",i,meet,tb);
+	ap_linconsXXX_array_fprint(stdout,arrayt,0);
+      }
+    }
+  }
+  {
+    int meet;
+    for (i=0; i<2; i++){
+      for (j=0;j<2;j++){
+	for (meet=0;meet<2;meet++){
+	  ap_linconsXXX_array_set(arrayt,array[i]);
+	  bool b = ap_linconsXXX_array_quasilinearize(arrayt,envXXX[j],meet,intern);
+	  fprintf(stdout,"quasilinearize array[%d] env[%d] meet=%d = %hhd\n",i,j,meet,b);
+	  ap_linconsXXX_array_fprint(stdout,arrayt,NULL);
+	  if (meet){
+	    ap_linconsXXX_array_reduce_integer(arrayt,5,intern);
+	    fprintf(stdout,"array_reduce_integer = \n");
+	  }
+	  else {
+	    ap_linconsXXX_array_reduce(arrayt,meet,intern);
+	    fprintf(stdout,"array_reduce = \n");
+	  }
+	  ap_linconsXXX_array_fprint(stdout,arrayt,NULL);
+	  ap_linconsXXX_array_fprint(stdout,arrayt,NULL);
+	  ap_linconsXXX_array_linearize(arrayt,meet,intern);
+	  fprintf(stdout,"linearize = \n");
+	  ap_linconsXXX_array_fprint(stdout,arrayt,NULL);
+	}
+      }
+    }
+  }
+
+  ap_linconsXXX_clear(cons);
+  ap_linconsXXX_array_clear(array[0]);
+  ap_linconsXXX_array_clear(array[1]);
+  ap_linconsXXX_array_clear(arrayt);
+}
 ENDMACRO
 
 int main(void)
@@ -320,6 +676,7 @@ int main(void)
   output = stdout;
   init_set_linearMPQ();
   test_linexprMPQ();
+  // test_linconsMPQ();
   clear_linearMPQ();
 
   num_internal_clear(intern);
