@@ -920,12 +920,12 @@ size_t ap_linyyyXXX_array_support_generic(
     }
     k = 0;
     for (i=0; i<array->size; i++){
-      size_t k1 = (k+1)%3 ;
+      size_t k1 = (k+1)%3;
       tnb[k1] = support(array->p[i],ttdim[k1]);
       ap_dimsupport_merge(ttdim,tnb,&k);
     }
     nb = tnb[k];
-    memcpy(tdim,&ttdim[k],nb*sizeof(ap_dim_t));
+    memcpy(tdim,ttdim[k],nb*sizeof(ap_dim_t));
     free(buffer);
     return nb;
   }

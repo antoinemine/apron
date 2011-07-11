@@ -402,7 +402,7 @@ void test_linconsXXX(void)
 {
   int i,j;
   ap_linconsXXX_t cons;
-  ap_linconsXXX_array_t array[2];
+  ap_linconsXXX_array_t array[4];
   ap_linconsXXX_array_t arrayt;
 
   ap_linconsXXX_init(cons,0);
@@ -544,14 +544,38 @@ void test_linconsXXX(void)
   /* linconsXXXX_array */
   /* ====================================================================== */
 
-  ap_linconsXXX_array_init(array[0],22);
-  ap_linconsXXX_set_bool(array[0]->p[0],true);
-  for (i=0;i<20;i++){
-    ap_linconsXXX_set(array[0]->p[i+1],linconsXXX[i]);
+  ap_linconsXXX_array_init(array[0],7);
+  for (i=0;i<6;i++){
+    ap_linconsXXX_set(array[0]->p[i],linconsXXX[i]);
   }
-  ap_linconsXXX_set_bool(array[0]->p[21],true);
-  ap_linconsXXX_array_init_set(array[1],array[0]);
-  ap_linconsXXX_set_bool(array[1]->p[21],false);
+  ap_linconsXXX_set_bool(array[0]->p[6],true);
+  fprintf(stdout,"array[0]=\n"); 
+  ap_linconsXXX_array_fprint(stdout,array[0],0);
+
+  ap_linconsXXX_array_init(array[1],9);
+  for (i=0;i<6;i++){
+    ap_linconsXXX_set(array[1]->p[i],linconsXXX[i]);
+  }
+  for (i=8;i<10;i++){
+    ap_linconsXXX_set(array[1]->p[i-2],linconsXXX[i]);
+  }
+  ap_linconsXXX_set_bool(array[1]->p[8],true);
+  fprintf(stdout,"array[1]=\n"); 
+  ap_linconsXXX_array_fprint(stdout,array[1],0);
+
+  ap_linconsXXX_array_init(array[2],22);
+  ap_linconsXXX_set_bool(array[2]->p[0],true);
+  for (i=0;i<20;i++){
+    ap_linconsXXX_set(array[2]->p[i+1],linconsXXX[i]);
+  }
+  ap_linconsXXX_set_bool(array[2]->p[21],true);
+  fprintf(stdout,"array[2]=\n"); 
+  ap_linconsXXX_array_fprint(stdout,array[2],0);
+
+  ap_linconsXXX_array_init_set(array[3],array[2]);
+  ap_linconsXXX_set_bool(array[3]->p[21],false);
+  fprintf(stdout,"array[3]=\n"); 
+  ap_linconsXXX_array_fprint(stdout,array[3],0);
 
   ap_linconsXXX_array_init(arrayt,0);
 
@@ -559,6 +583,7 @@ void test_linconsXXX(void)
     ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
     size_t k,size;
 
+    fprintf(stdout,"array[0]=\n\tsupport\t = "); 
     size = ap_linconsXXX_array_support(array[0],tdim,6);
     for (k=0;k<size;k++){
       fprintf(stdout,"%d,",tdim[k]);
@@ -608,14 +633,13 @@ void test_linconsXXX(void)
     ap_dimperm_fprint(stdout,&perm);
     fprintf(stdout,"\n");
 
-    for (i=0; i<2; i++){
-      ap_linconsXXX_array_add_dimensions(arrayt,array[0],&changeadd);
-      fprintf(stdout,"add_dimensions array[0] =\n");
-      ap_linconsXXX_array_fprint(stdout,arrayt,0);
-      ap_linconsXXX_array_permute_dimensions(arrayt,array[0],&perm);
-      fprintf(stdout,"permute array[0] =\n");
-      ap_linconsXXX_array_fprint(stdout,arrayt,0);
-    }
+    ap_linconsXXX_array_add_dimensions(arrayt,array[0],&changeadd);
+    fprintf(stdout,"add_dimensions array[0] =\n");
+    ap_linconsXXX_array_fprint(stdout,arrayt,0);
+    ap_linconsXXX_array_permute_dimensions(arrayt,array[0],&perm);
+    fprintf(stdout,"permute array[0] =\n");
+    ap_linconsXXX_array_fprint(stdout,arrayt,0);
+
     ap_dimchange_clear(&changeadd);
     ap_dimchange_clear(&changeremove);
     ap_dimperm_clear(&perm);
@@ -623,7 +647,7 @@ void test_linconsXXX(void)
 
   {
     int meet;
-    for (i=0; i<2; i++){
+    for (i=0; i<4; i++){
       for (meet=0; meet<2; meet++){
 	ap_linconsXXX_array_set(arrayt,array[i]);
 	tbool_t tb = ap_linconsXXX_array_reduce(arrayt,meet,intern);
@@ -634,7 +658,7 @@ void test_linconsXXX(void)
   }
   {
     int meet;
-    for (i=0; i<2; i++){
+    for (i=0; i<4; i++){
       for (j=0;j<2;j++){
 	for (meet=0;meet<2;meet++){
 	  ap_linconsXXX_array_set(arrayt,array[i]);
@@ -660,8 +684,9 @@ void test_linconsXXX(void)
   }
 
   ap_linconsXXX_clear(cons);
-  ap_linconsXXX_array_clear(array[0]);
-  ap_linconsXXX_array_clear(array[1]);
+  for (i=0;i<4;i++){
+    ap_linconsXXX_array_clear(array[i]);
+  }
   ap_linconsXXX_array_clear(arrayt);
 }
 ENDMACRO
@@ -675,8 +700,8 @@ int main(void)
 
   output = stdout;
   init_set_linearMPQ();
-  test_linexprMPQ();
-  // test_linconsMPQ();
+  //test_linexprMPQ();
+  test_linconsMPQ();
   clear_linearMPQ();
 
   num_internal_clear(intern);
