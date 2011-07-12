@@ -536,6 +536,7 @@ bool ap_linexprXXX_set_texpr0(ap_linexprXXX_t lres, bool* perror, struct ap_texp
   case AP_TEXPR_DIM:
     exact = true;
     ap_linexprXXX_resize(lres,1);
+    lres->effsize = 1;
     eitvXXX_set_int(lres->cst,0);
     lres->linterm[0]->dim = expr->val.dim;
     eitvXXX_set_int(lres->linterm[0]->eitv,1);
@@ -1120,6 +1121,7 @@ ap_linexprXXX_intlinearize_texpr0_rec(ap_linexprXXX_t lres /* out */,
   case AP_TEXPR_DIM:
     ap_linexprXXX_get_eitv0(ires,env,expr->val.dim);
     ap_linexprXXX_resize(lres,1);
+    lres->effsize = 1;
     eitvXXX_set_int(lres->cst,0);
     lres->linterm[0]->dim = expr->val.dim;
     eitvXXX_set_int(lres->linterm[0]->eitv,1);

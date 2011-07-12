@@ -470,11 +470,19 @@ bool ap_linconsXXX_set_tcons0(
     ap_linconsXXX_t lincons, bool* perror,
     ap_tcons0_t* cons, num_internal_t intern)
 {
-  bool res =
-    ap_linexprXXX_set_texpr0(lincons->linexpr, perror, cons->texpr0, intern);
-  lincons->constyp = cons->constyp;
-  mpq_set(lincons->mpq,cons->mpq);
-  return res;
+  bool res = ap_linexprXXX_set_texpr0(lincons->linexpr, perror, cons->texpr0, intern);
+  if (eitvXXX_is_bottom(lincons->linexpr->cst)){
+    assert(lincons->linexpr->effsize==0);
+    eitvXXX_set_int(lincons->linexpr->cst,1);
+    lincons->constyp = AP_CONS_EQ;
+    mpq_set_ui(lincons->mpq,0,1);
+    return true;
+  }
+  else {
+    lincons->constyp = cons->constyp;
+    mpq_set(lincons->mpq,cons->mpq);
+    return res;
+  }
 }
 bool ap_linconsXXX_array_set_tcons0_array(
     ap_linconsXXX_array_t lincons, bool* perror,
@@ -499,8 +507,16 @@ void ap_linconsXXX_intlinearize_tcons0(
   ap_linexprXXX_intlinearize_texpr0(
       lincons->linexpr, cons->texpr0, env, intdim, intern
   );
-  lincons->constyp = cons->constyp;
-  mpq_set(lincons->mpq,cons->mpq);
+  if (eitvXXX_is_bottom(lincons->linexpr->cst)){
+    assert(lincons->linexpr->effsize==0);
+    eitvXXX_set_int(lincons->linexpr->cst,1);
+    lincons->constyp = AP_CONS_EQ;
+    mpq_set_ui(lincons->mpq,0,1);
+  }
+  else {
+    lincons->constyp = cons->constyp;
+    mpq_set(lincons->mpq,cons->mpq);
+  }
 }
 void ap_linconsXXX_array_intlinearize_tcons0_array(
     ap_linconsXXX_array_t lincons, struct ap_tcons0_array_t* cons,
