@@ -654,7 +654,7 @@ void test_treeXXX(void)
 	    bc,bl,bp,bf,bs);
     for (dim=0;dim<6;dim++){
       bool b = ap_tcons0_has_dim(tcons0[i],dim);
-      fprintf(stdout,"%d:%hhd,",(int)dim,b);
+      if (b) fprintf(stdout,"%d,",(int)dim);
     }
     fprintf(stdout,"\n");
   }
@@ -689,14 +689,14 @@ void test_treeXXX(void)
       if (error){
 	for (j=0;j<2;j++){
 	  ap_linconsXXX_intlinearize_tcons0(lincons,tcons0[i],envXXX[j],5,intern);
-          fprintf(stdout,"ap_linconsXXX_intlinearize_tcons0 tcons0[%d] envXXX[%d] = ",i,j);
+          fprintf(stdout,"\tap_linconsXXX_intlinearize_tcons0 tcons0[%d] envXXX[%d] = ",i,j);
           ap_linconsXXX_fprint(stdout,lincons,0);
           bool is_quasilinear = ap_linconsXXX_is_quasilinear(lincons);
-          fprintf(stdout,"\nis_quasilinear=%hhd\n",is_quasilinear);
+          fprintf(stdout,"\n\tis_quasilinear=%hhd\n",is_quasilinear);
           if (!is_quasilinear){
             for (int meet=0;meet<2;meet++){
               ap_linconsXXX_quasilinearize(lincons,envXXX[j],meet,intern);
-              fprintf(stdout,"quasilinearize lincons meet=%d = ",meet);
+              fprintf(stdout,"\tquasilinearize lincons meet=%d = ",meet);
               ap_linconsXXX_fprint(stdout,lincons,0);
               fprintf(stdout,"\n");
             }
@@ -704,7 +704,7 @@ void test_treeXXX(void)
         }
       }
     }
-    ap_linconsXXX_free(lincons);
+    ap_linconsXXX_clear(lincons);
   }
 }
 ENDMACRO
@@ -742,14 +742,16 @@ void init_set_tree(void)
 				    ap_texpr0_copy(texpr0[1]),
 				    AP_RTYPE_REAL,AP_RDIR_RND);
   texpr0[LSIZE+5] = ap_texpr0_binop(AP_TEXPR_SUB,
-				    texpr0[0],texpr0[1],
+				    ap_texpr0_copy(texpr0[0]),
+				    ap_texpr0_copy(texpr0[1]),
 				    AP_RTYPE_REAL,AP_RDIR_RND);
   texpr0[LSIZE+6] = ap_texpr0_binop(AP_TEXPR_MUL,
 				    ap_texpr0_copy(texpr0[0]),
 				    ap_texpr0_copy(texpr0[1]),
 				    AP_RTYPE_REAL,AP_RDIR_RND);
   texpr0[LSIZE+7] = ap_texpr0_binop(AP_TEXPR_DIV,
-				    texpr0[0],texpr0[1],
+				    ap_texpr0_copy(texpr0[0]),
+				    ap_texpr0_copy(texpr0[1]),
 				    AP_RTYPE_REAL,AP_RDIR_RND);
   for (i=0;i<6; i++){
     texpr0[LSIZE+8+i] = ap_texpr0_binop(AP_TEXPR_MUL,
@@ -759,6 +761,11 @@ void init_set_tree(void)
   }
   for (i=LSIZE; i<TSIZE; i++){
     tcons0[i] = ap_tcons0_make(texpr0[i],AP_CONS_SUPEQ,NULL);
+  }
+  for (i=0;i<TSIZE;i++){
+    fprintf(stdout,"tcons0[%d] = ",i);
+    ap_tcons0_fprint(stdout,tcons0[i],NULL);
+    fprintf(stdout,"\n");
   }
   ap_coeff_clear(coeff);
 }
@@ -783,8 +790,9 @@ int main(void)
   init_set_dimension();
   init_set_linearMPQ();
   init_set_tree();
-  //test_linexprMPQ();
-  //test_linconsMPQ();
+  //  test_linexprMPQ();
+  //  test_linconsMPQ();
+  test_treeMPQ();
   clear_tree();
   clear_linearMPQ();
   clear_dimension();

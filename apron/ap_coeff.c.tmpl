@@ -47,7 +47,7 @@ ENDMACRO
 void ap_coeff_clear(ap_coeff_t a)
 {
   MACRO_SWITCH(a->discr) XXX
-    eitvXXX_clear(a->eitv.XXX);
+    eitvXXX_free(a->eitv.XXX);
   ENDMACRO;
 }
 void ap_coeff_fprint(FILE* stream, ap_coeff_t a)
