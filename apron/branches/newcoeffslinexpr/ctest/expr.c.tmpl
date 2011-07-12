@@ -11,7 +11,8 @@
 MACRO_FOREACH XXX @AllNum
 #include "ap_linconsXXX.h"
 ENDMACRO
-
+#include "ap_tcons0.h"
+#include "ap_lincons0.h"
 
 num_internal_t intern;
 FILE* output=NULL;
@@ -86,7 +87,57 @@ void error(char* fmt, char* msg)
   abort();
 }
 
+ap_dim_t* tdim;
+ap_dimchange_t changeadd, changeremove;
+ap_dimperm_t perm;
+
+void init_set_dimension(void)
+{
+  int i;
+  ap_dimension_t dim = ap_dimension_make(0,4);
+
+  tdim = malloc(6*sizeof(ap_dim_t));
+  ap_dimchange_init(&changeadd,dim);
+  changeadd.p[0]=1;
+  changeadd.p[1]=2;
+  changeadd.p[2]=2;
+  changeadd.p[3]=4;
+  ap_dimchange_init(&changeremove,dim);
+  for (i=0;i<4; i++){
+    changeremove.p[i] = changeadd.p[i];
+  }
+  ap_dimchange_add_invert(&changeremove);
+
+  ap_dimperm_init(&perm,6);
+  perm.p[0]=2;
+  perm.p[1]=1;
+  perm.p[2]=0;
+  perm.p[3]=5;
+  perm.p[4]=4;
+  perm.p[5]=3;
+
+  fprintf(stdout,"changeadd\t = ");
+  ap_dimchange_fprint(stdout,&changeadd);
+  fprintf(stdout,"\nchangeremove\t = ");
+  ap_dimchange_fprint(stdout,&changeremove);
+  fprintf(stdout,"\nperm\t = ");
+  ap_dimperm_fprint(stdout,&perm);
+  fprintf(stdout,"\n");
+}
+
+void clear_dimension(void)
+{
+  free(tdim);
+  ap_dimchange_clear(&changeadd);
+  ap_dimchange_clear(&changeremove);
+  ap_dimperm_clear(&perm);
+}
+
+
 #define LSIZE 20
+#define TSIZE LSIZE+8+6
+ap_texpr0_t *texpr0[TSIZE];
+ap_tcons0_t *tcons0[TSIZE];
 
 
 MACRO_FOREACH XXX ("MPQ")
@@ -144,7 +195,6 @@ void init_set_linearXXX(void)
     ap_linexprXXX_fprint(stdout,envXXX[i],0);
     fprintf(stdout,"\n");
   }
-
 
   /*
      0: 2x1 + 3x2 - x4 + 3
@@ -228,7 +278,6 @@ void test_linexprXXX(void)
   ap_linexprXXX_init(expr,0);
 
   {
-    ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
     size_t k,size;
 
     for (i=0; i<10; i++){
@@ -256,53 +305,17 @@ void test_linexprXXX(void)
       fprintf(stdout,"\tintdim=5: is_integer=%hhd, is_real=%hhd\n",bi2,br2);
       fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
     }
-    free(tdim);
   }
-  {
-    ap_dimchange_t changeadd, changeremove;
-    ap_dimperm_t perm;
-    ap_dimension_t dim = ap_dimension_make(0,4);
 
-    ap_dimchange_init(&changeadd,dim);
-    changeadd.p[0]=1;
-    changeadd.p[1]=2;
-    changeadd.p[2]=2;
-    changeadd.p[3]=4;
-    ap_dimchange_init(&changeremove,dim);
-    for (i=0;i<4; i++){
-      changeremove.p[i] = changeadd.p[i];
-    }
-    ap_dimchange_add_invert(&changeremove);
-
-    ap_dimperm_init(&perm,6);
-    perm.p[0]=2;
-    perm.p[1]=1;
-    perm.p[2]=0;
-    perm.p[3]=5;
-    perm.p[4]=4;
-    perm.p[5]=3;
-
-    fprintf(stdout,"changeadd\t = ");
-    ap_dimchange_fprint(stdout,&changeadd);
-    fprintf(stdout,"\nchangeremove\t = ");
-    ap_dimchange_fprint(stdout,&changeremove);
-    fprintf(stdout,"\nperm\t = ");
-    ap_dimperm_fprint(stdout,&perm);
+  for (i=0; i<2; i++){
+    ap_linexprXXX_add_dimensions(expr,linexprXXX[i],&changeadd);
+    fprintf(stdout,"add_dimensions linexprXXX[%d]\t = ",i);
+    ap_linexprXXX_fprint(stdout,expr,0);
     fprintf(stdout,"\n");
-
-    for (i=0; i<2; i++){
-      ap_linexprXXX_add_dimensions(expr,linexprXXX[i],&changeadd);
-      fprintf(stdout,"add_dimensions linexprXXX[%d]\t = ",i);
-      ap_linexprXXX_fprint(stdout,expr,0);
-      fprintf(stdout,"\n");
-      ap_linexprXXX_permute_dimensions(expr,linexprXXX[i],&perm);
-      fprintf(stdout,"permute linexprXXX[%d]\t = ",i);
-      ap_linexprXXX_fprint(stdout,expr,0);
-      fprintf(stdout,"\n");
-    }
-    ap_dimchange_clear(&changeadd);
-    ap_dimchange_clear(&changeremove);
-    ap_dimperm_clear(&perm);
+    ap_linexprXXX_permute_dimensions(expr,linexprXXX[i],&perm);
+    fprintf(stdout,"permute linexprXXX[%d]\t = ",i);
+    ap_linexprXXX_fprint(stdout,expr,0);
+    fprintf(stdout,"\n");
   }
 
   ap_linexprXXX_set(expr,linexprXXX[0]);
@@ -439,51 +452,16 @@ void test_linconsXXX(void)
     }
     free(tdim);
   }
-  {
-    ap_dimchange_t changeadd, changeremove;
-    ap_dimperm_t perm;
-    ap_dimension_t dim = ap_dimension_make(0,4);
 
-    ap_dimchange_init(&changeadd,dim);
-    changeadd.p[0]=1;
-    changeadd.p[1]=2;
-    changeadd.p[2]=2;
-    changeadd.p[3]=4;
-    ap_dimchange_init(&changeremove,dim);
-    for (i=0;i<4; i++){
-      changeremove.p[i] = changeadd.p[i];
-    }
-    ap_dimchange_add_invert(&changeremove);
-
-    ap_dimperm_init(&perm,6);
-    perm.p[0]=2;
-    perm.p[1]=1;
-    perm.p[2]=0;
-    perm.p[3]=5;
-    perm.p[4]=4;
-    perm.p[5]=3;
-
-    fprintf(stdout,"changeadd\t = ");
-    ap_dimchange_fprint(stdout,&changeadd);
-    fprintf(stdout,"\nchangeremove\t = ");
-    ap_dimchange_fprint(stdout,&changeremove);
-    fprintf(stdout,"\nperm\t = ");
-    ap_dimperm_fprint(stdout,&perm);
+  for (i=0; i<2; i++){
+    ap_linconsXXX_add_dimensions(cons,linconsXXX[i],&changeadd);
+    fprintf(stdout,"add_dimensions linconsXXX[%d]\t = ",i);
+    ap_linconsXXX_fprint(stdout,cons,0);
     fprintf(stdout,"\n");
-
-    for (i=0; i<2; i++){
-      ap_linconsXXX_add_dimensions(cons,linconsXXX[i],&changeadd);
-      fprintf(stdout,"add_dimensions linconsXXX[%d]\t = ",i);
-      ap_linconsXXX_fprint(stdout,cons,0);
-      fprintf(stdout,"\n");
-      ap_linconsXXX_permute_dimensions(cons,linconsXXX[i],&perm);
-      fprintf(stdout,"permute linconsXXX[%d]\t = ",i);
-      ap_linconsXXX_fprint(stdout,cons,0);
-      fprintf(stdout,"\n");
-    }
-    ap_dimchange_clear(&changeadd);
-    ap_dimchange_clear(&changeremove);
-    ap_dimperm_clear(&perm);
+    ap_linconsXXX_permute_dimensions(cons,linconsXXX[i],&perm);
+    fprintf(stdout,"permute linconsXXX[%d]\t = ",i);
+    ap_linconsXXX_fprint(stdout,cons,0);
+    fprintf(stdout,"\n");
   }
 
   ap_linconsXXX_set(cons,linconsXXX[0]);
@@ -549,7 +527,7 @@ void test_linconsXXX(void)
     ap_linconsXXX_set(array[0]->p[i],linconsXXX[i]);
   }
   ap_linconsXXX_set_bool(array[0]->p[6],true);
-  fprintf(stdout,"array[0]=\n"); 
+  fprintf(stdout,"array[0]=\n");
   ap_linconsXXX_array_fprint(stdout,array[0],0);
 
   ap_linconsXXX_array_init(array[1],9);
@@ -560,7 +538,7 @@ void test_linconsXXX(void)
     ap_linconsXXX_set(array[1]->p[i-2],linconsXXX[i]);
   }
   ap_linconsXXX_set_bool(array[1]->p[8],true);
-  fprintf(stdout,"array[1]=\n"); 
+  fprintf(stdout,"array[1]=\n");
   ap_linconsXXX_array_fprint(stdout,array[1],0);
 
   ap_linconsXXX_array_init(array[2],22);
@@ -569,21 +547,20 @@ void test_linconsXXX(void)
     ap_linconsXXX_set(array[2]->p[i+1],linconsXXX[i]);
   }
   ap_linconsXXX_set_bool(array[2]->p[21],true);
-  fprintf(stdout,"array[2]=\n"); 
+  fprintf(stdout,"array[2]=\n");
   ap_linconsXXX_array_fprint(stdout,array[2],0);
 
   ap_linconsXXX_array_init_set(array[3],array[2]);
   ap_linconsXXX_set_bool(array[3]->p[21],false);
-  fprintf(stdout,"array[3]=\n"); 
+  fprintf(stdout,"array[3]=\n");
   ap_linconsXXX_array_fprint(stdout,array[3],0);
 
   ap_linconsXXX_array_init(arrayt,0);
 
   {
-    ap_dim_t* tdim = malloc(6*sizeof(ap_dim_t));
     size_t k,size;
 
-    fprintf(stdout,"array[0]=\n\tsupport\t = "); 
+    fprintf(stdout,"array[0]=\n\tsupport\t = ");
     size = ap_linconsXXX_array_support(array[0],tdim,6);
     for (k=0;k<size;k++){
       fprintf(stdout,"%d,",tdim[k]);
@@ -599,51 +576,14 @@ void test_linconsXXX(void)
     bool quasilin = ap_linconsXXX_array_is_quasilinear(array[0]);
     ap_linexpr_type_t typ = ap_linconsXXX_array_type(array[0]);
     fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
-    free(tdim);
   }
-  {
-    ap_dimchange_t changeadd, changeremove;
-    ap_dimperm_t perm;
-    ap_dimension_t dim = ap_dimension_make(0,4);
 
-    ap_dimchange_init(&changeadd,dim);
-    changeadd.p[0]=1;
-    changeadd.p[1]=2;
-    changeadd.p[2]=2;
-    changeadd.p[3]=4;
-    ap_dimchange_init(&changeremove,dim);
-    for (i=0;i<4; i++){
-      changeremove.p[i] = changeadd.p[i];
-    }
-    ap_dimchange_add_invert(&changeremove);
-
-    ap_dimperm_init(&perm,6);
-    perm.p[0]=2;
-    perm.p[1]=1;
-    perm.p[2]=0;
-    perm.p[3]=5;
-    perm.p[4]=4;
-    perm.p[5]=3;
-
-    fprintf(stdout,"changeadd\t = ");
-    ap_dimchange_fprint(stdout,&changeadd);
-    fprintf(stdout,"\nchangeremove\t = ");
-    ap_dimchange_fprint(stdout,&changeremove);
-    fprintf(stdout,"\nperm\t = ");
-    ap_dimperm_fprint(stdout,&perm);
-    fprintf(stdout,"\n");
-
-    ap_linconsXXX_array_add_dimensions(arrayt,array[0],&changeadd);
-    fprintf(stdout,"add_dimensions array[0] =\n");
-    ap_linconsXXX_array_fprint(stdout,arrayt,0);
-    ap_linconsXXX_array_permute_dimensions(arrayt,array[0],&perm);
-    fprintf(stdout,"permute array[0] =\n");
-    ap_linconsXXX_array_fprint(stdout,arrayt,0);
-
-    ap_dimchange_clear(&changeadd);
-    ap_dimchange_clear(&changeremove);
-    ap_dimperm_clear(&perm);
-  }
+  ap_linconsXXX_array_add_dimensions(arrayt,array[0],&changeadd);
+  fprintf(stdout,"add_dimensions array[0] =\n");
+  ap_linconsXXX_array_fprint(stdout,arrayt,0);
+  ap_linconsXXX_array_permute_dimensions(arrayt,array[0],&perm);
+  fprintf(stdout,"permute array[0] =\n");
+  ap_linconsXXX_array_fprint(stdout,arrayt,0);
 
   {
     int meet;
@@ -682,14 +622,155 @@ void test_linconsXXX(void)
       }
     }
   }
-
   ap_linconsXXX_clear(cons);
   for (i=0;i<4;i++){
     ap_linconsXXX_array_clear(array[i]);
   }
   ap_linconsXXX_array_clear(arrayt);
 }
+
+/* ********************************************************************** */
+/* treeXXX */
+/* ********************************************************************** */
+
+void test_treeXXX(void)
+{
+  int i,j;
+
+  for (i=0;i<TSIZE;i++){
+    ap_dim_t dim = ap_tcons0_max_dim(tcons0[i]);
+    size_t size = ap_tcons0_support(tcons0[i],tdim);
+    bool bc = ap_tcons0_is_interval_cst(tcons0[i]);
+    bool bl = ap_tcons0_is_interval_linear(tcons0[i]);
+    bool bp = ap_tcons0_is_interval_polynomial(tcons0[i]);
+    bool bf = ap_tcons0_is_interval_polyfrac(tcons0[i]);
+    bool bs = ap_tcons0_is_scalar(tcons0[i]);
+    fprintf(stdout,"tcons0[%d]:\n",i);
+    fprintf(stdout,"\tmaxdim = %d, support = ",(int)dim);
+    for (j=0;j<(int)size;j++){
+      fprintf(stdout,"%d,",(int)tdim[j]);
+    }
+    fprintf(stdout,"\n\tis_itv_cst=%hhd, is_itv_linear=%hhd, is_itv_poly=%hhd, is_itv_polyfrac=%hhd, is_scalar=%hhd\n\thas_dim: ",
+	    bc,bl,bp,bf,bs);
+    for (dim=0;dim<6;dim++){
+      bool b = ap_tcons0_has_dim(tcons0[i],dim);
+      fprintf(stdout,"%d:%hhd,",(int)dim,b);
+    }
+    fprintf(stdout,"\n");
+  }
+
+  {
+    ap_tcons0_t* tcons;
+
+    tcons = ap_tcons0_add_dimensions(tcons0[0],&changeadd);
+    fprintf(stdout,"add_dimensions tcons0[0] = ");
+    ap_tcons0_print(tcons,0);
+    fprintf(stdout,"\n");
+    ap_tcons0_free(tcons);
+    tcons = ap_tcons0_permute_dimensions(tcons0[0],&perm);
+    fprintf(stdout,"permute tcons0[0] = ");
+    ap_tcons0_print(tcons,0);
+    fprintf(stdout,"\n");
+    ap_tcons0_free(tcons);
+  }
+
+  {
+    ap_linconsXXX_t lincons;
+    bool error;
+    ap_linconsXXX_init(lincons,0);
+    for (i=0;i<TSIZE;i++){
+      ap_linconsXXX_set_tcons0(lincons,&error,tcons0[i],intern);
+      fprintf(stdout,"ap_linconsXXX_set_tcons tcons0[%d] = ",i);
+      if (error)
+	fprintf(stdout,"error=true");
+      else
+	ap_linconsXXX_fprint(stdout,lincons,0);
+      fprintf(stdout,"\n");
+      if (error){
+	for (j=0;j<2;j++){
+	  ap_linconsXXX_intlinearize_tcons0(lincons,tcons0[i],envXXX[j],5,intern);
+          fprintf(stdout,"ap_linconsXXX_intlinearize_tcons0 tcons0[%d] envXXX[%d] = ",i,j);
+          ap_linconsXXX_fprint(stdout,lincons,0);
+          bool is_quasilinear = ap_linconsXXX_is_quasilinear(lincons);
+          fprintf(stdout,"\nis_quasilinear=%hhd\n",is_quasilinear);
+          if (!is_quasilinear){
+            for (int meet=0;meet<2;meet++){
+              ap_linconsXXX_quasilinearize(lincons,envXXX[j],meet,intern);
+              fprintf(stdout,"quasilinearize lincons meet=%d = ",meet);
+              ap_linconsXXX_fprint(stdout,lincons,0);
+              fprintf(stdout,"\n");
+            }
+          }
+        }
+      }
+    }
+    ap_linconsXXX_free(lincons);
+  }
+}
 ENDMACRO
+
+void init_set_tree(void)
+{
+  ap_coeff_t coeff;
+  int i;
+
+  ap_coeff_init(coeff,AP_SCALAR_MPQ);
+
+  for (i=0;i<LSIZE;i++){
+    ap_lincons0_t lincons0;
+    ap_lincons0_cons_MPQ(lincons0,linconsMPQ[i]);
+    tcons0[i] = ap_tcons0_from_lincons0(lincons0);
+    texpr0[i] = tcons0[i]->texpr0;
+  }
+  ap_coeff_set_val(intern, coeff, AP_COEFF_LINT2,-7L,-1L);
+  texpr0[LSIZE] = ap_texpr0_unop(AP_TEXPR_SQRT,
+				 ap_texpr0_cst(coeff),
+				 AP_RTYPE_DOUBLE,AP_RDIR_RND);
+  ap_coeff_set_val(intern, coeff, AP_COEFF_LINT2,-7L,8L);
+  texpr0[LSIZE+1] = ap_texpr0_unop(AP_TEXPR_SQRT,
+				   ap_texpr0_cst(coeff),
+				   AP_RTYPE_DOUBLE,AP_RDIR_RND);
+  texpr0[LSIZE+2] = ap_texpr0_unop(AP_TEXPR_SQRT,
+				   ap_texpr0_dim(5),
+				   AP_RTYPE_DOUBLE,AP_RDIR_RND);
+  texpr0[LSIZE+3] = ap_texpr0_binop(AP_TEXPR_SUB,
+				    ap_texpr0_copy(texpr0[LSIZE+1]),
+				    ap_texpr0_copy(texpr0[LSIZE+2]),
+				    AP_RTYPE_REAL,AP_RDIR_RND);
+  texpr0[LSIZE+4] = ap_texpr0_binop(AP_TEXPR_ADD,
+				    ap_texpr0_copy(texpr0[0]),
+				    ap_texpr0_copy(texpr0[1]),
+				    AP_RTYPE_REAL,AP_RDIR_RND);
+  texpr0[LSIZE+5] = ap_texpr0_binop(AP_TEXPR_SUB,
+				    texpr0[0],texpr0[1],
+				    AP_RTYPE_REAL,AP_RDIR_RND);
+  texpr0[LSIZE+6] = ap_texpr0_binop(AP_TEXPR_MUL,
+				    ap_texpr0_copy(texpr0[0]),
+				    ap_texpr0_copy(texpr0[1]),
+				    AP_RTYPE_REAL,AP_RDIR_RND);
+  texpr0[LSIZE+7] = ap_texpr0_binop(AP_TEXPR_DIV,
+				    texpr0[0],texpr0[1],
+				    AP_RTYPE_REAL,AP_RDIR_RND);
+  for (i=0;i<6; i++){
+    texpr0[LSIZE+8+i] = ap_texpr0_binop(AP_TEXPR_MUL,
+					ap_texpr0_dim(i),
+					ap_texpr0_copy(texpr0[0]),
+					AP_RTYPE_REAL,AP_RDIR_RND);
+  }
+  for (i=LSIZE; i<TSIZE; i++){
+    tcons0[i] = ap_tcons0_make(texpr0[i],AP_CONS_SUPEQ,NULL);
+  }
+  ap_coeff_clear(coeff);
+}
+
+void clear_tree(void)
+{
+  int i;
+  for (i=0; i<TSIZE; i++){
+    ap_tcons0_free(tcons0[i]);
+  }
+}
+
 
 int main(void)
 {
@@ -699,10 +780,14 @@ int main(void)
   num_internal_init(intern);
 
   output = stdout;
+  init_set_dimension();
   init_set_linearMPQ();
+  init_set_tree();
   //test_linexprMPQ();
-  test_linconsMPQ();
+  //test_linconsMPQ();
+  clear_tree();
   clear_linearMPQ();
+  clear_dimension();
 
   num_internal_clear(intern);
   return 0;

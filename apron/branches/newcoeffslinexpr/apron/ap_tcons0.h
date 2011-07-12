@@ -115,7 +115,7 @@ bool ap_tcons0_is_interval_polyfrac(ap_tcons0_t* a);
   /* polynomial fraction with possibly interval coefficients, no rounding */
 
 static inline
-bool ap_tcons0_is_linear(ap_tcons0_t* a);
+bool ap_tcons0_is_scalar(ap_tcons0_t* a);
   /* all coefficients are scalar (non-interval) */
 
 /* ====================================================================== */
