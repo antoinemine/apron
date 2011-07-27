@@ -49,7 +49,7 @@ void test_equation_1 (FILE* stream, ap_manager_t* man)
   add_equation_term_ns (equation1, moinsun, peps2);
 
   /* print it */
-  print_equation(stream,equation1);
+  /* print_equation(stream,equation1); */
 
   /* add to eqs, then renintialize */
   add_equation (eqs,equation1);
@@ -64,13 +64,13 @@ void test_equation_1 (FILE* stream, ap_manager_t* man)
   add_equation_term_ns (equation2, un, peps3);
 
   /* print it */
-  print_equation(stream,equation2);
+  /* print_equation(stream,equation2); */
 
   /* add to eqs, then renintialize */
   add_equation (eqs,equation2);
 
-  fprintf(stream,"**********\n**********\n**********\n");
-  print_equation_set(stream,eqs);
+  /* fprintf(stream,"**********\n**********\n**********\n"); */
+   print_equation_set(stream,eqs);
 
   free_equation_set(eqs);
 }
@@ -480,14 +480,25 @@ void test_join_1(FILE* stream, ap_manager_t* man)
   eqs= abstract_value_to_eq_set (pr,a1,a2);
   fprintf(stream,"equations B");
   print_equation_set(stream,eqs);
- fprintf(stream,"**********\n**********\n**********\n");
+  fprintf(stream,"**********\n**********\n**********\n");
 
 
   ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
   fprintf(stream,"equations A");
   print_equation_set(stream,new_eqs);
   fprintf(stream,"**********\n**********\n**********\n");
+
+  printf("TWICE \n");
+  eqs= abstract_value_to_eq_set (pr,a1,a2);
+  new_eqs = eq_set_transformation (pr, eqs, a1->dims);
  
+
+  fprintf(stdout,"\n a1:\n");
+  t1p_fdump(stdout,man,a1);
+  fprintf(stdout,"\n a2:\n");
+  t1p_fdump(stdout,man,a2);
+
+  printf("\n IT IS SEG FAULT TIME ! \n");
   res = t1p_join_alt(man, false, a1, a2);
  
   fprintf(stream,"\n res:\n");
@@ -521,6 +532,8 @@ int main (void)
   FILE* stream = fopen("toto.log","w");
 
   //test_equation_1(stream,t1p);
+  //test_equation_1(stream,t1p);
+
   //test_rebuild_1(stream,t1p);
   //test_generate_1(stream,t1p);
   //test_generate_2(stream,t1p);
