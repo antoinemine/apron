@@ -19,7 +19,7 @@ extern "C" {
 tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern);
   /* Is the assumed constant constraint satisfied ? */
 
-bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, num_internal_t intern);
+bool ap_linconsXXX_is_unsat(ap_linconsXXX_t lincons, num_internal_t intern);
   /* Return true if the constraint is not satisfiable
      *for all* deterministic expressions contained in it
      Cases taken into account:
