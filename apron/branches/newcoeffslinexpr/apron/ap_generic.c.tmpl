@@ -285,6 +285,7 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
     res = destructive ? abs : copy(man,abs);
   }
   else {
+    ap_dimension_t dim = dimension(man,abs);
     MACRO_SWITCH(discr) XXX {
       bool error,exact;
       ap_linconsXXX_array_t arrayX;
@@ -293,7 +294,6 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
       ap_linconsXXX_array_init(arrayX,0);
       exact = ap_linconsXXX_array_set_tcons0_array(arrayX,&error,array,man->num);
       if (error){
-	dim = dimension(man,abs);
 	ap_linexpr0_init(env,discr,0);
 	to_box(man,env,abs);
 	exact = false;
@@ -302,23 +302,46 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
 						      man->num);
       }
       ap_linexpr_type_t typ = ap_linconsXXX_array_type(arrayX);
-      if (typ<linearize){
-	if (!error){
-	  error = true;
-	  dim = dimension(man,abs);
-	  ap_linexpr0_init(env,discr,0);
-	  to_box(man,env,abs);
-	}
-	exact = ap_linconsXXX_array_quasilinearize(arrayX,
-						   env->linexpr.XXX,true,
-						   man->num) && exact;
-	if (linearize==AP_LINEXPR_LINEAR){
+      while (typ<linearize){
+	switch (typ){
+	case AP_LINEXPR_INTLINEAR:
+	  if (!error){
+	    error = true;
+	    ap_linexpr0_init(env,discr,0);
+	    to_box(man,env,abs);
+	  }
+	  exact = ap_linconsXXX_array_quasilinearize(arrayX,
+						     env->linexpr.XXX,true,
+						     man->num) && exact;
+	  typ = AP_LINEXPR_QUASILINEAR;
+	  break;
+	case AP_LINEXPR_QUASILINEAR:
 	  ap_linconsXXX_array_linearize(arrayX,true,man->num);
+	  typ = AP_LINEXPR_LINEAR;
+	  break;
+	default:
+	  assert(false);
 	}
       }
-      ap_lincons0_array_cons_XXX(array0,arrayX);
-      res = meet_lincons_array(man,destructive,abs,array0);
-      ap_lincons0_array_clear(array0);
+      tbool_t tb =
+	ap_linconsXXX_array_reduce_integer(arrayX,dim.intd,man->num);
+      if (tb==tbool_false){
+	if (destructive){
+	  void* (*afree)(ap_manager_t*, void*) = man->funptr[AP_FUNID_FREE];
+	  afree(abs,abs);
+	}
+	void* (*bottom)(ap_manager_t*, ap_dimension_t) = man->funptr[AP_FUNID_BOTTOM];
+	res = bottom(man,dim);
+	exact = true;
+      }
+      else if (tb==tbool_true){
+	res = destructive ? abs : copy(man,abs);
+      }
+      else {
+	ap_lincons0_array_cons_XXX(array0,arrayX);
+	res = meet_lincons_array(man,destructive,abs,array0);
+	ap_lincons0_array_clear(array0);
+      }
       if (error) ap_linexpr0_clear(env);
     }
     ENDMACRO;

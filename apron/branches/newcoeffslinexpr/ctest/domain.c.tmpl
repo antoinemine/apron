@@ -985,7 +985,7 @@ void test_meet_tcons_array(void)
     size_t i, dim = 6, depth = 4, nb = 3;
     ap_abstract0_t* rougha,*roughr, *preca,*precr;
     ap_tcons0_array_t array = random_tcons0_array(dim,depth,nb);
-    if (1){
+    if (false){
       printf("\n");
       ap_tcons0_array_print(&array,NULL);
       printf("\n");
@@ -1167,6 +1167,15 @@ void test_asssub_texpr_array(void)
     for (i=0;i<nb_asssub_array;i++) {
       if (!i) d[i] = rand()%(dim-nb_asssub_array);
       else d[i] = d[i-1] + 1 + (rand()%(dim-nb_asssub_array+i-d[i-1]));
+    }
+    if (false){
+      printf("\ntdim = ");
+      for (i=0;i<nb_asssub_array;i++) {
+	printf("%d,",(int)d[i]);
+      }
+      printf("\n");
+      ap_texpr0_array_print(&array,NULL);
+      printf("\n");
     }
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     roughr = ap_abstract0_asssub_texpr_array(manrough,false,rougha,d,&array,NULL);
@@ -1414,6 +1423,7 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
+    /*
     test_conv();
     test_bound_dimension();
     test_bound_linexpr();
@@ -1426,6 +1436,7 @@ void test(ap_manager_t* man1, /* the most precise */
     test_meet();
     test_meet_array();
     test_meet_lincons_array();
+    */
     test_meet_tcons_array();
     test_join();
     test_join_array();
@@ -1501,6 +1512,7 @@ int main(int argc, char** argv)
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manpkl,manbox);
+    /*
     test(manpks,manbox);
     //test(manppll,manbox);
     //test(manppls,manbox);
@@ -1510,7 +1522,7 @@ int main(int argc, char** argv)
     test(manpkl,manpks);
     //test(manppls,manppll);
     //test(manppll,manppls);
-
+    */
     /*
     // Polka polyhedra/PPL polyhedra
     test(manppll,manpkl);
