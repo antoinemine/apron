@@ -7,6 +7,8 @@
 #include "ap_texpr0.h"
 #include "num_conv.h"
 
+#define LOGDEBUG 1
+
 /* ********************************************************************** */
 /* I. Arithmetic */
 /* ********************************************************************** */
@@ -477,8 +479,19 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
     /* intlinearize arguments */
     exact = ap_linexprXXX_set_texpr0(l1,perror,n->exprA,intern);
     if (*perror){ exact=false; goto ap_linexprXXX_set_texpr0_node_endA; }
+    if (l1->effsize==0 && eitvXXX_is_bottom(l1->cst)){
+      exact = true;
+      ap_linexprXXX_resize(lres,0);
+      eitvXXX_set_bottom(lres->cst);
+      goto ap_linexprXXX_set_texpr0_node_endA;
+    }
+
     exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern) && exact;
     if (*perror){exact=false;  goto ap_linexprXXX_set_texpr0_node_endA; }
+    if (lres->effsize==0 && eitvXXX_is_bottom(lres->cst)){
+      exact = true;
+      goto ap_linexprXXX_set_texpr0_node_endA;
+    }
     /* add/sub linear form & interval */
     if (n->op==AP_TEXPR_ADD)
       exact = ap_linexprXXX_add(lres,l1,lres,intern) && exact;
@@ -499,9 +512,25 @@ bool ap_linexprXXX_set_texpr0_node(ap_linexprXXX_t lres, bool* perror,
       exact = ap_linexprXXX_set_texpr0(lres,perror,n->exprB,intern);
       if (*perror){ exact=false; goto ap_linexprXXX_set_texpr0_node_endB; }
       exact = eitvXXX_eval_ap_texpr0(i1,n->exprA,NULL,intern) && exact;
+      if (eitvXXX_is_bottom(i1)){
+	exact = true;
+	ap_linexprXXX_resize(lres,0);
+	eitvXXX_set_bottom(lres->cst);
+	goto ap_linexprXXX_set_texpr0_node_endB;
+      }
     }
     else {
       *perror = true; exact = false;
+      goto ap_linexprXXX_set_texpr0_node_endB;
+    }
+    if (lres->effsize==0 && eitvXXX_is_bottom(lres->cst)){
+      exact = true;
+      goto ap_linexprXXX_set_texpr0_node_endB;
+    }
+    if (eitvXXX_is_bottom(i1)){
+      exact = true;
+      ap_linexprXXX_resize(lres,0);
+      eitvXXX_set_bottom(lres->cst);
       goto ap_linexprXXX_set_texpr0_node_endB;
     }
     if (n->op==AP_TEXPR_DIV){
@@ -714,7 +743,6 @@ bool eitvXXX_eval_ap_texpr0(eitvXXX_t res, struct ap_texpr0_t* expr, ap_linexprX
 /* III.3 Linearisation of tree expressions */
 /* ====================================================================== */
 
-#define LOGDEBUG 0
 
 /* transform in-place
 	[A0,B0] + sum Xi [Ai,Bi]

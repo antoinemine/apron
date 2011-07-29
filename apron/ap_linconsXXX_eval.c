@@ -113,7 +113,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
   return res;
 }
 
-bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, num_internal_t intern)
+bool ap_linconsXXX_is_unsat(ap_linconsXXX_t lincons, num_internal_t intern)
 {
   bool res = false;
 
@@ -143,7 +143,6 @@ bool ap_linconsXXX_sat_is_false(ap_linconsXXX_t lincons, num_internal_t intern)
   return res;
 }
 
-static
 bool
 ap_linconsXXX_is_useless_for_meet(ap_linconsXXX_t lincons, num_internal_t intern)
 {
@@ -316,7 +315,9 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
   }
 }
 
-tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool for_meet_inequality, num_internal_t intern)
+tbool_t ap_linconsXXX_array_reduce(
+    ap_linconsXXX_array_t array, bool for_meet_inequality,
+    num_internal_t intern)
 {
   tbool_t res;
   size_t i,size;
@@ -342,7 +343,7 @@ tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_t array, bool for_meet_in
     }
     if (for_meet_inequality && ap_linconsXXX_is_useless_for_meet(array->p[i], intern))
       goto ap_linconsXXX_array_reduce_remove;
-    else if (!for_meet_inequality && ap_linconsXXX_sat_is_false(array->p[i], intern))
+    else if (!for_meet_inequality && ap_linconsXXX_is_unsat(array->p[i], intern))
       goto ap_linconsXXX_array_reduce_false;
     else {
       i++;
@@ -403,10 +404,6 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
 				   num_internal_t intern)
 {
   size_t index,size,sizeorg;
-  /*
-  tbool_t res = ap_linconsXXX_array_reduce(array,for_meet_inequality,intern);
-  if (res!=tbool_top) return;
-  */
   /* One now remove intervals when we can */
   sizeorg = array->size;
   size = sizeorg;
@@ -418,10 +415,8 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
       bool sup = !boundXXX_infty(cst->itv->sup);
       switch (cons->constyp){
       case AP_CONS_EQ:
-	assert (for_meet_inequality); /* otherwise, already removed */
-	{
+	if (for_meet_inequality){
 	  bool inf = !boundXXX_infty(cst->itv->neginf);
-	  assert (inf || sup); /* otherwise, already removed */
 	  if (inf && sup){
 	    if (size>=array->size){
 	      ap_linconsXXX_array_resize(array,1+5*array->size/4);
@@ -442,20 +437,29 @@ void ap_linconsXXX_array_linearize(ap_linconsXXX_array_t array,
 	    array->p[index]->constyp = AP_CONS_SUPEQ;
 	    ap_linconsXXX_select_sup(array->p[index]);
 	  }
-	  else
-	    assert(false);
+	  else {
+	    ap_linconsXXX_set_bool(array->p[index],true);
+	  }
+	}
+	else {
+	  ap_linconsXXX_set_bool(array->p[index],false);
 	}
 	break;
       case AP_CONS_SUPEQ:
       case AP_CONS_SUP:
 	if (for_meet_inequality){
-	  assert(sup);
-	  ap_linconsXXX_select_sup(array->p[index]);
+	  if (sup)
+	    ap_linconsXXX_select_sup(array->p[index]);
+	  else
+	    ap_linconsXXX_set_bool(array->p[index],true);
 	}
 	else {
-	  assert(!boundXXX_infty(cst->itv->neginf));
-	  boundXXX_neg(cst->itv->sup,cst->itv->neginf);
-	  cst->eq = true;
+	  if (!boundXXX_infty(cst->itv->neginf)){
+	    boundXXX_neg(cst->itv->sup,cst->itv->neginf);
+	    cst->eq = true;
+	  }
+	  else
+	    ap_linconsXXX_set_bool(array->p[index],false);
 	}
 	break;
       default:
