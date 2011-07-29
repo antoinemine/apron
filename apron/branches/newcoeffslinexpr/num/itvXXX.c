@@ -500,23 +500,52 @@ void itvXXX_divn(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
   }
 }
 
+void itvXXX_div_zero(itvXXX_t a, itvXXX_t b)
+{
+  if (boundXXX_sgn(b->neginf)>0){
+    boundXXX_set_infty(a->neginf,+1);
+  }
+  else {
+    boundXXX_set_int(a->neginf,0);
+  }
+  if (boundXXX_sgn(b->sup)>0){
+    boundXXX_set_infty(a->sup,+1);
+  }
+  else {
+    boundXXX_set_int(a->sup,0);
+  }
+}
+
 void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 {
   assert(!itvXXX_is_bottom(b) && !itvXXX_is_bottom(c));
-  if (boundXXX_sgn(c->neginf)<0){
+  int scneginf = boundXXX_sgn(c->neginf);
+  if (scneginf<0){
     /* c is positive */
     itvXXX_divp(a,b,c, intern);
   }
-  else if (boundXXX_sgn(c->sup)<0){
-    /* c is negative */
-    itvXXX_divn(a,b,c, intern);
-  }
-  else if (boundXXX_sgn(b->neginf)==0 && boundXXX_sgn(b->sup)==0){
-    /* b is [0,0] */
-    itvXXX_set(a,b);
+  else if (scneginf==0){
+    /* c is [0,xxx] */
+    itvXXX_div_zero(a,b);
   }
   else {
-    itvXXX_set_top(a);
+    int scsup = boundXXX_sgn(c->sup);
+    if (scsup<0){
+      /* c is negative */
+      itvXXX_divn(a,b,c, intern);
+    }
+    else if (scsup==0){
+      /* c is [xxx,O] with xxx < 0 */
+      itvXXX_div_zero(a,b);
+      boundXXX_swap(a->neginf,a->sup);
+    }
+    else if (itvXXX_is_zero(b)){
+      /* b is [0,0] */
+      itvXXX_set(a,b);
+    }
+    else {
+      itvXXX_set_top(a);
+    }
   }
 #ifndef NDEBUG
   boundXXX_neg(a->neginf,a->neginf);

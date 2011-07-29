@@ -138,6 +138,9 @@ static inline void itvXXX_magnitude(boundXXX_t a, itvXXX_t b);
 void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c, bool is_int, num_internal_t intern);
   /* x mod y = x - y*trunc(x/y) */
 
+void itvXXX_div_zero(itvXXX_t a, itvXXX_t b);
+  /* internal */
+
 /* ====================================================================== */
 /* Casts */
 /* ====================================================================== */

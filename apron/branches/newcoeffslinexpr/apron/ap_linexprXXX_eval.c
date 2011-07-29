@@ -7,7 +7,7 @@
 #include "ap_texpr0.h"
 #include "num_conv.h"
 
-#define LOGDEBUG 1
+#define LOGDEBUG 0
 
 /* ********************************************************************** */
 /* I. Arithmetic */
@@ -347,7 +347,7 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
   eitvXXX_ptr eitv;
   bool top;
 
-#ifdef LOGDEBUG
+#if LOGDEBUG
   printf("ap_linexprXXX_quasilinearize:\n");
   ap_linexprXXX_print(linexpr,0); printf("\n");
 #endif
@@ -409,7 +409,7 @@ bool ap_linexprXXX_quasilinearize(ap_linexprXXX_t linexpr, ap_linexprXXX_t env,
   }
   linexpr->effsize = top ? 0 : iw;
 
-#ifdef LOGDEBUG
+#if LOGDEBUG
   ap_linexprXXX_print(linexpr,NULL); printf("\n");
 #endif
 #if NUMXXX_EXACT
@@ -902,7 +902,7 @@ ap_linexprXXX_texpr0_reduce(ap_linexprXXX_t l /* in/out */, eitvXXX_t i /* in/ou
   if (eitvXXX_is_bottom(i) || eitvXXX_is_bottom(l->cst)) {
     eitvXXX_set_bottom(i);
     eitvXXX_set_bottom(l->cst);
-    if (l->effsize>0) ap_linexprXXX_resize_strict(l,0);
+    if (l->effsize>0) ap_linexprXXX_resize(l,0);
   }
   else if (l->effsize==0){
     eitvXXX_set(l->cst,i);
