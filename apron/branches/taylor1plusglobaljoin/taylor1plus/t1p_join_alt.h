@@ -54,7 +54,7 @@ typedef struct ja_eq_set_t {
 
 
 /*
- * IMPORTANT NOTE: the type ja_eq_set_t is used in three different contexts: 
+ * IMPORTANT NOTE: the type ja_eq_set_t is used in four different contexts: 
  *
  * - context A: equations of the form 
  *      x_i = gamma+alpha_1.x_1+...+alpha_p+beta_0.eps_O+...+beta_n.eps_n
@@ -65,8 +65,13 @@ typedef struct ja_eq_set_t {
  *   in this contex, alpha_*, beta_* and gamma are constants
  *
  * - context B: equations of the form 
- *      -beta_i = 0+c_{i,1}.alpha_1+...+c_{i,p}.alpha_p
+ *      beta_i = 0+c_{i,1}.alpha_1+...+c_{i,p}.alpha_p
  *   in this context, alpha_* and beta_i are the unknown variables
+ *
+ * - context Bprime: equations of the form 
+ *      0 = 0+c_{i,1}.alpha_1+...+c_{i,p}.alpha_p
+ *   in this context, alpha_* are the unknown variables 
+
 
  * In this .h (and the .c), "eqs is of type X" means that eqs' context is X
  * DO NOT USE an equation set of type X in another context
@@ -113,11 +118,15 @@ void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs);
 /* ********************************************************************** */
 
 /* result is of type B */
-ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a1,  t1p_t* a2);
+ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a);
 
-/* eqs is of type B */
+/* result is of type B prime */
+ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t* a2);
+
+
+/* eqs is of type B, eqs_prime is of type Bprime */
 /* result is of type A */
-ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs, int dimensions);
+ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions);
 
 /* ********************************************************************** */
 /* 3. Alternative to the join operator */
