@@ -132,29 +132,51 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-
-  if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_div_num(a->itv->sup,b->itv->sup,c);
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
-    a->eq = true;
+  
+  if (numXXX_sgn(c)==0){
+    if (eitvXXX_is_zero(b)){
+      eitvXXX_set_int(a,0);
+    }
+    else {
+      itvXXX_div_zero(a->itv,b->itv);
+      a->eq = false;
+    }
   }
   else {
-    itvXXX_div_num(a->itv,b->itv,c);
-    a->eq = false;
+    if (NUMXXX_DIVEXACT && b->eq){
+      boundXXX_div_num(a->itv->sup,b->itv->sup,c);
+      boundXXX_neg(a->itv->neginf,a->itv->sup);
+      a->eq = true;
+    }
+    else {
+      itvXXX_div_num(a->itv,b->itv,c);
+      a->eq = false;
+    }
   }
 }
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-
-  if (NUMXXX_DIVEXACT && b->eq){
-    boundXXX_div(a->itv->sup,b->itv->sup,c);
-    boundXXX_neg(a->itv->neginf,a->itv->sup);
-    a->eq = true;
+  
+  if (boundXXX_sgn(c)==0){
+    if (eitvXXX_is_zero(b)){
+      eitvXXX_set_int(a,0);
+    }
+    else {
+      itvXXX_div_zero(a->itv,b->itv);
+      a->eq = false;
+    }
   }
   else {
-    itvXXX_div_bound(a->itv,b->itv,c);
-    a->eq = boundXXX_infty(c);
+    if (NUMXXX_DIVEXACT && b->eq){
+      boundXXX_div(a->itv->sup,b->itv->sup,c);
+      boundXXX_neg(a->itv->neginf,a->itv->sup);
+      a->eq = true;
+    }
+    else {
+      itvXXX_div_bound(a->itv,b->itv,c);
+      a->eq = boundXXX_infty(c);
+    }
   }
 }
 void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
