@@ -90,7 +90,6 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   t1p_nsym_t* peta0 = t1p_nsym_add(pr, UN);
   
   ja_eq_t* equation1= new_equation ();
-  ja_eq_t* equation2= new_equation ();
   ja_eq_set_t* eqs = new_equation_set ();
 
   /* constants */
@@ -127,17 +126,15 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   
   t1p_t* a = t1p_alloc(man,2,0) ;
   //  printf("%p\n",a->paf[1]);
-  t1p_aff_t* afexpr2 = t1p_aff_alloc_init(pr);
-  afexpr2=t1p_aff_copy(pr,pr->top);
+  //t1p_aff_t* afexpr2 = t1p_aff_alloc_init(pr);
+  //afexpr2=t1p_aff_copy(pr,pr->top);
+  t1p_aff_t* afexpr2 =t1p_aff_copy(pr,pr->top);
   a->paf[0] = afexpr2;
   a->paf[0]->pby++;
   itv_set_top(a->box[0]);
-  a->paf[1] =afexpr;
+  a->paf[1] = afexpr;
   a->paf[1]->pby++;
   itv_set(a->box[1],afexpr->itv);
-
-
-
 
   fprintf(stream,"**********\n**********\n**********\n");
   fprintf(stream,"equations:\n");
@@ -161,14 +158,10 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
   fprintf(stream,"after operation:\n");
   t1p_fdump(stream,man,a);
 
+  t1p_free(man,a);
 
-  //a->paf[0] =NULL;
-  //a->paf[0]->pby--;
-  //a->paf[1] =NULL;
-  //a->paf[1]->pby--;
-  free(a);
-  free(afexpr2);
-  free(afexpr);  
+  t1p_aff_free(pr,afexpr2);
+ 
   free_equation_set(eqs);
 
 }
@@ -177,7 +170,7 @@ void test_rebuild_1 (FILE* stream, ap_manager_t* man)
 void test_generate_1(FILE* stream, ap_manager_t* man)
 {
   t1p_internal_t* pr = man->internal;
-  ja_eq_set_t* eqs=new_equation_set();
+  ja_eq_set_t* eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1, *new_eqs2;
 
   /* variables and noise symbols */
   ap_dim_t x0 = (ap_dim_t) 0;
@@ -244,10 +237,6 @@ void test_generate_1(FILE* stream, ap_manager_t* man)
   fprintf(stream,"\n a2:\n");
   t1p_fdump(stream,man,a2);
   fprintf(stream,"**********\n**********\n**********\n");
-
-  fprintf(stream,"a1->size %zu\n",a1->size);
-  fprintf(stream,"a2->size %zu\n",a2->size);
-
   int i;
   for (i=0 ; i<(int)a1->dims ; i++)
     {
@@ -260,27 +249,44 @@ void test_generate_1(FILE* stream, ap_manager_t* man)
       fprintf(stream,"\n");
     }
   /* extract the equations */
-  eqs= abstract_value_to_eq_set (pr,a1,a2);
-  print_equation_set(stream,eqs);
-  ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
+  eqs_b1= abstract_value_to_eq_set (pr,a1);
+  fprintf(stream,"eqs_b1:\n");
+  print_equation_set(stream,eqs_b1);
+  eqs_b2= abstract_value_to_eq_set (pr,a2);
+  fprintf(stream,"eqs_b2:\n");
+  print_equation_set(stream,eqs_b2);
 
- 
+  eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
+  fprintf(stream,"eqs_bprime:\n");
+  print_equation_set(stream,eqs_bprime);
+  
+
+  new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
+  fprintf(stream,"new eqs1:\n");
+  print_equation_set(stream,new_eqs1);
+  new_eqs2 = eq_set_transformation (pr, eqs_b2, eqs_bprime, a2->dims);
+  fprintf(stream,"new eqs2:\n");
+  print_equation_set(stream,new_eqs2);
+
 
   /* free */
-  free(a1);
-  free(afexpr10);
-  free(afexpr11);  
-  free(a2);
-  free(afexpr20);
-  free(afexpr21); 
-  free_equation_set(eqs); 
-  free_equation_set(new_eqs); 
+  t1p_free(man,a1);
+  //free(afexpr10);
+  //free(afexpr11);  
+  t1p_free(man,a2);
+  //free(afexpr20);
+  //free(afexpr21); 
+  free_equation_set(eqs_b1); 
+  free_equation_set(eqs_b2); 
+  free_equation_set(eqs_bprime); 
+  free_equation_set(new_eqs1); 
+  free_equation_set(new_eqs2); 
 }
 
 void test_generate_2(FILE* stream, ap_manager_t* man)
 {
   t1p_internal_t* pr = man->internal;
-  ja_eq_set_t* eqs=new_equation_set();
+  ja_eq_set_t *eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1, *new_eqs2;
 
   /* variables and noise symbols */
   ap_dim_t x0 = (ap_dim_t) 0;
@@ -379,34 +385,46 @@ void test_generate_2(FILE* stream, ap_manager_t* man)
       fprintf(stream,"\n");
     }
   /* extract the equations */
-  eqs= abstract_value_to_eq_set (pr,a1,a2);
-  print_equation_set(stream,eqs);
+  eqs_b1= abstract_value_to_eq_set (pr,a1);
+  fprintf(stream,"eqs_b1:\n");
+  print_equation_set(stream,eqs_b1);
+  eqs_b2= abstract_value_to_eq_set (pr,a2);
+  fprintf(stream,"eqs_b2:\n");
+  print_equation_set(stream,eqs_b2);
 
-  ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
-  fprintf(stream,"new eqs:\n");
-  print_equation_set(stream,new_eqs);
+  eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
+  fprintf(stream,"eqs_bprime:\n");
+  print_equation_set(stream,eqs_bprime);
+
+  new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
+  fprintf(stream,"new eqs1:\n");
+  print_equation_set(stream,new_eqs1);
+
+  new_eqs2 = eq_set_transformation (pr, eqs_b2, eqs_bprime, a2->dims);
+  fprintf(stream,"new eqs2:\n");
+  print_equation_set(stream,new_eqs2);
 
   /* free */
-  free(a1);
-  free(afexpr10);
-  free(afexpr11);
-  free(afexpr12);
-  free(a2);
-  free(afexpr20);
-  free(afexpr21); 
-  free(afexpr22);
-  free_equation_set(eqs); 
-  free_equation_set(new_eqs);
+  t1p_free(man,a1);
+  //free(afexpr10);
+  //free(afexpr11);
+  //free(afexpr12);
+  t1p_free(man,a2);
+  //free(afexpr20);
+  //free(afexpr21); 
+  //free(afexpr22);
+  free_equation_set(eqs_b1); 
+  free_equation_set(eqs_b2); 
+  free_equation_set(eqs_bprime); 
+  free_equation_set(new_eqs1); 
+  free_equation_set(new_eqs2);
 }
-
-
-
 
 
 void test_join_1(FILE* stream, ap_manager_t* man)
 {
   t1p_internal_t* pr = man->internal;
-  ja_eq_set_t* eqs=new_equation_set();
+  ja_eq_set_t* eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1;
   t1p_t* res;
 
   /* variables and noise symbols */
@@ -477,21 +495,18 @@ void test_join_1(FILE* stream, ap_manager_t* man)
 
  
   /* extract the equations */
-  eqs= abstract_value_to_eq_set (pr,a1,a2);
-  fprintf(stream,"equations B");
-  print_equation_set(stream,eqs);
+  eqs_b1= abstract_value_to_eq_set (pr,a1);
+  fprintf(stream,"equations B1");
+  print_equation_set(stream,eqs_b1);
+  eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
+  fprintf(stream,"equations Bprime");
+  print_equation_set(stream,eqs_bprime);
   fprintf(stream,"**********\n**********\n**********\n");
 
-
-  ja_eq_set_t* new_eqs = eq_set_transformation (pr, eqs, a1->dims);
+  new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
   fprintf(stream,"equations A");
-  print_equation_set(stream,new_eqs);
+  print_equation_set(stream,new_eqs1);
   fprintf(stream,"**********\n**********\n**********\n");
-
-  printf("TWICE \n");
-  eqs= abstract_value_to_eq_set (pr,a1,a2);
-  new_eqs = eq_set_transformation (pr, eqs, a1->dims);
- 
 
   fprintf(stdout,"\n a1:\n");
   t1p_fdump(stdout,man,a1);
@@ -505,14 +520,16 @@ void test_join_1(FILE* stream, ap_manager_t* man)
   t1p_fdump(stream,man,res);
 
   /* free */
-  free(a1);
-  free(afexpr10);
-  free(afexpr11);  
-  free(a2);
-  free(afexpr20);
-  free(afexpr21); 
-  free_equation_set(eqs); 
-  free_equation_set(new_eqs); 
+  t1p_free(man,a1);
+  //t1p_aff_free(afexpr10);
+  //free(afexpr11);  
+  t1p_free(man,a2);
+  //free(afexpr20);
+  //free(afexpr21); 
+  free_equation_set(eqs_bprime); 
+  free_equation_set(eqs_b1); 
+  free_equation_set(eqs_b2); 
+  free_equation_set(new_eqs1); 
 }
 
 
@@ -535,9 +552,9 @@ int main (void)
   //test_equation_1(stream,t1p);
 
   //test_rebuild_1(stream,t1p);
-  //test_generate_1(stream,t1p);
+  test_generate_1(stream,t1p);
   //test_generate_2(stream,t1p);
-  test_join_1(stream,t1p);
+  //test_join_1(stream,t1p);
 
   fclose(stream);
   ap_manager_free(t1p);
