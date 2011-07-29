@@ -1423,7 +1423,7 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
-    /*
+
     test_conv();
     test_bound_dimension();
     test_bound_linexpr();
@@ -1436,7 +1436,6 @@ void test(ap_manager_t* man1, /* the most precise */
     test_meet();
     test_meet_array();
     test_meet_lincons_array();
-    */
     test_meet_tcons_array();
     test_join();
     test_join_array();
@@ -1449,7 +1448,6 @@ void test(ap_manager_t* man1, /* the most precise */
 
     test_assign_texpr();
     test_assign_texpr_array();
-    /*
     test_substitute_texpr();
     test_substitute_texpr_array();
     test_forget_array();
@@ -1459,7 +1457,6 @@ void test(ap_manager_t* man1, /* the most precise */
     test_permute_dimensions();
     test_expand();
     test_fold();
-    */
   }
   if (error_) printf("\n%i error(s)!\n",error_);
   else printf("\nall tests passed\n");
@@ -1508,7 +1505,7 @@ int main(int argc, char** argv)
   global_intdim = false;
   global_linexpr_typ = AP_LINEXPR_LINEAR;
   random_abstract = &random_abstract_std;
-  for (i=0; i<1; i++){
+  for (i=0; i<2; i++){
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manpkl,manbox);
