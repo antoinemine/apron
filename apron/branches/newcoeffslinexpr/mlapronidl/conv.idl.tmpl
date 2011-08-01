@@ -1,5 +1,7 @@
 /* -*- mode: c -*- */
 
+PERLEVAL @AllNumIdl = split(" ",$ENV{MLAPRONIDL_NUMTYPES})
+
 /* This file is part of the APRON library, released under LGPL license.
    Please read the COPYING file packaged in the distribution  */
 
@@ -11,6 +13,7 @@ quote(C, "\n\
 ")
 
 import "common.idl";
+
 MACRO_FOREACH XXX @AllNumIdl
 quote(C,"\n\
 #include \"numXXX.h\"\n\

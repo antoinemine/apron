@@ -1,17 +1,12 @@
 include ../Makefile.config
 
-#---------------------------------------
-# Directories
-#---------------------------------------
-
-SRCDIR = $(shell pwd)
-#
 PREFIX = $(APRON_PREFIX)
-#
+SRCDIR = $(shell pwd)
 
 #---------------------------------------
-# C part
+# Flags
 #---------------------------------------
+
 ICFLAGS = -I. -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
@@ -102,7 +97,7 @@ distclean: clean
 
 install: $(CCINC_TO_INSTALL) 
 	$(INSTALL) -d $(PREFIX)/include/apron
-	$(INSTALL) -t $(PREFIX)/include/apron $^
+	$(INSTALL) $^ $(PREFIX)/include/apron 
 
 uninstall:
 

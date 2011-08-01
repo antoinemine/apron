@@ -73,7 +73,7 @@ distclean: clean
 
 install: $(CCINC_TO_INSTALL)
 	$(INSTALL) -d $(PREFIX)/include/apron
-	$(INSTALL) -t $(PREFIX)/include/apron $^
+	$(INSTALL) $^ $(PREFIX)/include/apron
 
 uninstall:
 
