@@ -1,71 +1,71 @@
 /* ********************************************************************** */
-/* numRyyy.c */
+/* numRsss.c */
 /* ********************************************************************** */
 
-#include "numRyyy.h"
+#include "numRsss.h"
 
 /* ====================================================================== */
 /* Rational operations */
 /* ====================================================================== */
 
-void numRyyy_canonicalize(numRyyy_t r)
+void numRsss_canonicalize(numRsss_t r)
 {
   if (r->d){
-    numIyyy_t pgcd;
-    numIyyy_gcd(pgcd,r->n,r->d);
-    if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMIyyy_MIN || *r->n==NUMIyyy_MIN))) {
-      fprintf(stderr,"overflow in numRyyy_canonicalize\n");
+    numIsss_t pgcd;
+    numIsss_gcd(pgcd,r->n,r->d);
+    if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMIsss_MIN || *r->n==NUMIsss_MIN))) {
+      fprintf(stderr,"overflow in numRsss_canonicalize\n");
       return;
     }
     *r->n /= *pgcd;
     *r->d /= *pgcd;
   }
   else {
-    numIyyy_set_int(r->n,1);
+    numIsss_set_int(r->n,1);
   }
 }
 
-void numRyyy_inv(numRyyy_t a, numRyyy_t b)
+void numRsss_inv(numRsss_t a, numRsss_t b)
 {
   if (a!=b)
     *a = *b;
-  numIyyy_swap(a->n,a->d);
+  numIsss_swap(a->n,a->d);
   if (*a->d<0){
-    numIyyy_neg(a->n,a->n);
-    numIyyy_neg(a->d,a->d);
+    numIsss_neg(a->n,a->n);
+    numIsss_neg(a->d,a->d);
   }
 }
-void numRyyy_add(numRyyy_t a, numRyyy_t b, numRyyy_t c)
+void numRsss_add(numRsss_t a, numRsss_t b, numRsss_t c)
 {
-  numIyyy_t d;
+  numIsss_t d;
 #if 0
   *d = *b->d * *c->d;
   *a->n = *b->n * *c->d + *b->d * *c->n;
   *a->d = *d;
 #else /* more cost but less overflows */
-  numIyyy_lcm(d,b->d,c->d);
+  numIsss_lcm(d,b->d,c->d);
   *a->n = *b->n * (*d / *b->d) + (*d / *c->d) * *c->n;
   *a->d = *d;
 #endif
-  numRyyy_canonicalize(a);
+  numRsss_canonicalize(a);
 }
-void numRyyy_sub(numRyyy_t a, numRyyy_t b, numRyyy_t c)
+void numRsss_sub(numRsss_t a, numRsss_t b, numRsss_t c)
 {
-  numIyyy_t d;
+  numIsss_t d;
 #if 0
   *d = *b->d * *c->d;
   *a->n = *b->n * *c->d - *b->d * *c->n;
   *a->d = *d;
 #else /* more cost but less overflows */
-  numIyyy_lcm(d,b->d,c->d);
+  numIsss_lcm(d,b->d,c->d);
   *a->n = *b->n * (*d / *b->d) - (*d / *c->d) * *c->n;
   *a->d = *d;
 #endif
-  numRyyy_canonicalize(a);
+  numRsss_canonicalize(a);
 }
-void numRyyy_div(numRyyy_t a, numRyyy_t b, numRyyy_t c)
+void numRsss_div(numRsss_t a, numRsss_t b, numRsss_t c)
 {
-  numIyyy_t d;
+  numIsss_t d;
   *d = *b->d * *c->n;
   if (*d<0) {
     *a->n = - *b->n * *c->d;
@@ -75,24 +75,24 @@ void numRyyy_div(numRyyy_t a, numRyyy_t b, numRyyy_t c)
     *a->n = *b->n * *c->d;
     *a->d = *d;
   }
-  numRyyy_canonicalize(a);
+  numRsss_canonicalize(a);
 }
-void numRyyy_sqrt(numRyyy_t up, numRyyy_t down, numRyyy_t b)
+void numRsss_sqrt(numRsss_t up, numRsss_t down, numRsss_t b)
 {
   /* compute sqrt(p/q) as sqrt(p*q)/q */
-  numIyyy_t pq;
+  numIsss_t pq;
   assert(*b->n>=0);
-  numIyyy_mul(pq, numRyyy_numref(b), numRyyy_denref(b));
-  numIyyy_sqrt(numRyyy_numref(up), numRyyy_numref(down), pq);
-  numIyyy_set(numRyyy_denref(up),numRyyy_denref(b));
-  numIyyy_set(numRyyy_denref(down),numRyyy_denref(b));
-  numRyyy_canonicalize(up);
-  numRyyy_canonicalize(down);
+  numIsss_mul(pq, numRsss_numref(b), numRsss_denref(b));
+  numIsss_sqrt(numRsss_numref(up), numRsss_numref(down), pq);
+  numIsss_set(numRsss_denref(up),numRsss_denref(b));
+  numIsss_set(numRsss_denref(down),numRsss_denref(b));
+  numRsss_canonicalize(up);
+  numRsss_canonicalize(down);
 }
-void numRyyy_mul_2exp(numRyyy_t a, numRyyy_t b, int c)
+void numRsss_mul_2exp(numRsss_t a, numRsss_t b, int c)
 {
   if (*b->n==0){
-    numRyyy_set_int(a,0);
+    numRsss_set_int(a,0);
   }
   else {
     if (c>=0) {
@@ -119,48 +119,48 @@ void numRyyy_mul_2exp(numRyyy_t a, numRyyy_t b, int c)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-int numRyyy_cmp(numRyyy_t a, numRyyy_t b)
+int numRsss_cmp(numRsss_t a, numRsss_t b)
 {
-  numIyyy_t aa,bb;
+  numIsss_t aa,bb;
 #if 0
   *aa = *a->n * *b->d;
   *bb = *a->d * *b->n;
 #else /* more cost but less overflows */
-  numIyyy_t d;
-  numIyyy_lcm(d,a->d,b->d);
+  numIsss_t d;
+  numIsss_lcm(d,a->d,b->d);
   *aa = *a->n * (*d / *a->d);
   *bb = (*d / *b->d) * *b->n;
 #endif
-  return numIyyy_cmp(aa,bb);
+  return numIsss_cmp(aa,bb);
 }
 
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
 
-void numRyyy_fprint(FILE* stream, numRyyy_t a)
+void numRsss_fprint(FILE* stream, numRsss_t a)
 {
   if (*a->n==0)
     fprintf(stream,"0");
   else if (*a->d==1)
-    numIyyy_fprint(stream,a->n);
+    numIsss_fprint(stream,a->n);
   else {
-    numIyyy_fprint(stream,a->n);
+    numIsss_fprint(stream,a->n);
     fprintf(stream,"/");
-    numIyyy_fprint(stream,a->d);
+    numIsss_fprint(stream,a->d);
   }
 }
-int numRyyy_snprint(char* s, size_t size, numRyyy_t a)
+int numRsss_snprint(char* s, size_t size, numRsss_t a)
 {
   int res;
   if (*a->n==0)
     res = snprintf(s,size, "0");
   else if (*a->d==1)
-    res = numIyyy_snprint(s,size,a->n);
+    res = numIsss_snprint(s,size,a->n);
   else {
-    res = numIyyy_snprint(s,size,a->n);
+    res = numIsss_snprint(s,size,a->n);
     if ((unsigned int)res<size) res += snprintf(s+res,size-res,"/");
-    if ((unsigned int)res<size) res += numIyyy_snprint(s+res,size-res,a->n);
+    if ((unsigned int)res<size) res += numIsss_snprint(s+res,size-res,a->n);
   }
   return res;
 }
@@ -169,26 +169,26 @@ int numRyyy_snprint(char* s, size_t size, numRyyy_t a)
 /* Serialization */
 /* ====================================================================== */
 
-size_t numRyyy_serialize_array(void* dst, numRyyy_t* src, size_t size)
+size_t numRsss_serialize_array(void* dst, numRsss_t* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numRyyy_serialize((char*)dst+n,src[i]);
+    n += numRsss_serialize((char*)dst+n,src[i]);
   return n;
 }
 
-size_t numRyyy_deserialize_array(numRyyy_t* dst, const void* src, size_t size)
+size_t numRsss_deserialize_array(numRsss_t* dst, const void* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numRyyy_deserialize(dst[i],(const char*)src+n);
+    n += numRsss_deserialize(dst[i],(const char*)src+n);
   return n;
 }
 
-size_t numRyyy_serialized_size_array(numRyyy_t* src, size_t size)
+size_t numRsss_serialized_size_array(numRsss_t* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numRyyy_serialized_size(src[i]);
+    n += numRsss_serialized_size(src[i]);
   return n;
 }

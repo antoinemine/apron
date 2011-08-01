@@ -1,33 +1,33 @@
 /* ********************************************************************** */
-/* numDyyy.c */
+/* numDwww.c */
 /* ********************************************************************** */
 
-#include "numDyyy.h"
+#include "numDwww.h"
 #include "num_internal.h"
 
 /* ====================================================================== */
 /* Arithmetic Operations */
 /* ====================================================================== */
 
-void numDyyy_sqrt(numDyyy_t up, numDyyy_t down, numDyyy_t b)
+void numDwww_sqrt(numDwww_t up, numDwww_t down, numDwww_t b)
 {
   assert(*b>=0);
-  *up = sqrtyyy(*b);
+  *up = sqrtwww(*b);
   assert(*up**up>=*b); /* assumes round towards +oo! */
   if (*up**up==*b) *down = *up;
-  else *down = nextafteryyy(*up,0);
+  else *down = nextafterwww(*up,0);
 }
 
 /* ====================================================================== */
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-int numDyyy_hash(numDyyy_t a)
+int numDwww_hash(numDwww_t a)
 {
- if (*a <= -(numDyyy_native)(INT_MAX))
+ if (*a <= -(numDwww_native)(INT_MAX))
     return -INT_MAX;
-  else if (*a < (numDyyy_native)INT_MAX)
-    return lrintyyy(*a);
+  else if (*a < (numDwww_native)INT_MAX)
+    return lrintwww(*a);
   else
     return INT_MAX;
 }
@@ -36,26 +36,26 @@ int numDyyy_hash(numDyyy_t a)
 /* Serialization */
 /* ====================================================================== */
 
-size_t numDyyy_serialize_array(void* dst, numDyyy_t* src, size_t size)
+size_t numDwww_serialize_array(void* dst, numDwww_t* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numDyyy_serialize((char*)dst+n,src[i]);
+    n += numDwww_serialize((char*)dst+n,src[i]);
   return n;
 }
 
-size_t numDyyy_deserialize_array(numDyyy_t* dst, const void* src, size_t size)
+size_t numDwww_deserialize_array(numDwww_t* dst, const void* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numDyyy_deserialize(dst[i],(const char*)src+n);
+    n += numDwww_deserialize(dst[i],(const char*)src+n);
   return n;
 }
 
-size_t numDyyy_serialized_size_array(numDyyy_t* src, size_t size)
+size_t numDwww_serialized_size_array(numDwww_t* src, size_t size)
 {
   size_t i,n=0;
   for (i=0;i<size;i++)
-    n += numDyyy_serialized_size(src[i]);
+    n += numDwww_serialized_size(src[i]);
   return n;
 }
