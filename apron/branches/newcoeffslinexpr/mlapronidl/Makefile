@@ -25,14 +25,13 @@ OCAMLCCOPT = -ccopt -L$(SITE-LIB-PKG)
 #---------------------------------------
 ICFLAGS = \
 -I$(SITE-LIB-gmp) \
--I../num \
 -I../apron \
 -I../box -I../polka \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
--I$(CAML_PREFIX_LIB) -I$(CAMLIDL_PREFIX)/lib/ocaml
+-I$(CAML_LIB) -I$(CAMLIDL_LIB)
 
-LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX_LIB) -L$(CAMLIDL_PREFIX)/lib/ocaml -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
+LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
 
 
 #---------------------------------------
@@ -253,19 +252,19 @@ polka_caml.c polka.ml polka.mli: polka.idl mpz.idl mpq.idl mpf.idl mpfr.idl seds
 	@mkdir -p tmp
 	@echo "module polka" 
 	@cp polka.idl tmp/polka.idl 
-	$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/polka.idl 
-	$(SED) -f sedscript_c tmp/polka_stubs.c >polka_caml.c 
-	$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.ml | ../cleanupidl.pl - >polka.ml 
-	$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.mli | ../cleanupidl.pl - >polka.mli
+	@$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/polka.idl 
+	@$(SED) -f sedscript_c tmp/polka_stubs.c >polka_caml.c 
+	@$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.ml | ../cleanupidl.pl - >polka.ml 
+	@$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.mli | ../cleanupidl.pl - >polka.mli
 
 %_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 	@mkdir -p tmp
 	@echo "module $*" 
 	@cp $*.idl tmp/$*.idl 
-	$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$*.idl 
-	$(SED) -f sedscript_c tmp/$*_stubs.c >$*_caml.c 
-	$(SED) -f sedscript_caml tmp/$*.ml | ../cleanupidl.pl - >$*.ml 
-	$(SED) -f sedscript_caml tmp/$*.mli | ../cleanupidl.pl - >$*.mli 
+	@$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/$*.idl 
+	@$(SED) -f sedscript_c tmp/$*_stubs.c >$*_caml.c 
+	@$(SED) -f sedscript_caml tmp/$*.ml | ../cleanupidl.pl - >$*.ml 
+	@$(SED) -f sedscript_caml tmp/$*.mli | ../cleanupidl.pl - >$*.mli 
 
 mpz.idl: $(SITE-LIB-gmp)/mpz.idl
 	ln -s $^ $@

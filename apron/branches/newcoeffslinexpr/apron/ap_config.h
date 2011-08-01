@@ -13,18 +13,8 @@
 #include <string.h>
 
 #ifdef __cplusplus
-/* #define HAS_BOOL */
 extern "C" {
 #endif
-
-  /*
-#ifndef HAS_BOOL
-#define HAS_BOOL
-typedef char bool;
-static const bool false = 0;
-static const bool true  = 1;
-#endif
-  */
 
 #ifndef HAS_TBOOL
 /* Boolean with a third value */
@@ -40,13 +30,6 @@ static inline tbool_t tbool_of_or(tbool_t a, tbool_t b);
 static inline tbool_t tbool_of_and(tbool_t a, tbool_t b);
 static inline tbool_t tbool_of_not(tbool_t a);
 #endif
-
-
-
-
-
-
-
 
 #if !(defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __APPLE__ || defined __CYGWIN__)
 
