@@ -12,19 +12,17 @@ HAS_SHARED=1
 HAS_OCAML = 1
 
 # If defined to non-empty value, compiles the C++ interface (beta version)
-
 # HAS_CPP = 1
 
 # If defined to non-empty value, compiles the PPL domain
 # (require included patch to PPL, see ppl/README and ppl/ppl.patch)
-
 # HAS_PPL = 1
 
 # If defined to non-empty value, support for "long double" is enabled
-
 # HAS_LONG_DOUBLE = 1
 
 APRON_NUMTYPES = Il Ill MPZ Rl Rll MPQ D Dl MPFR
+MLAPRONIDL_NUMTYPES = D MPQ MPFR MPZ
 BOX_NUMTYPES = MPQ D
 POLKA_NUMTYPES = MPQ Rll
 
@@ -49,9 +47,11 @@ MPFR_PREFIX = /usr
 #
 PPL_PREFIX = /usr
 
-# Where to find CAML binaries
+# Where to find CAML
 #
-CAMLIDL_PREFIX_BIN = $(shell ocamlc -where)/../../bin
+CAML_PREFIX = $(shell ocamlc -where)/../..
+CAML_PREFIX_BIN = $(CAML_PREFIX)/bin
+CAML_PREFIX_LIB = $(shell $(CAML_PREFIX_BIN)/ocamlc -where)
 
 # Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
 #
@@ -61,10 +61,15 @@ CAMLIDL_PREFIX = /usr
 # Tools and Flags
 ######################################################################
 
+
 # C compiler
 CC = gcc
 
 # C compilation flags
+#
+# IMPORTANT:
+# UNDER MACOS, add "-flat_namespace -undefined suppress" to all CFLAGS_ and CXXFLAGS_ variables
+#
 CFLAGS = \
 -Wcast-qual -Wswitch -Werror-implicit-function-declaration \
 -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
@@ -124,21 +129,12 @@ INSTALLd = install -d
 
 
 OCAMLFIND = ocamlfind
-
-#OCAMLC = $(CAML_PREFIX)/bin/ocamlc.opt
-#OCAMLOPT = $(CAML_PREFIX)/bin/ocamlopt.opt
-
+OCAMLLEX = $(CAML_PREFIX_BIN)/ocamllex.opt
+OCAMLYACC = $(CAML_PREFIX_BIN)/ocamlyacc
 # ocamlc compilation flags
 OCAMLFLAGS = -g
 # ocamlopt compilation flags
 OCAMLOPTFLAGS = -inline 20
-
-#OCAMLDEP = $(CAML_PREFIX)/bin/ocamldep
-OCAMLLEX = $(CAML_PREFIX_BIN)/ocamllex.opt
-OCAMLYACC = $(CAML_PREFIX_BIN)/ocamlyacc
-#OCAMLDOC = $(CAML_PREFIX)/bin/ocamldoc.opt
-#OCAMLMKTOP = $(CAML_PREFIX)/bin/ocamlmktop
-#OCAMLMKLIB = $(CAML_PREFIX)/bin/ocamlmklib
 
 CAMLIDL = $(CAMLIDL_PREFIX)/bin/camlidl
 
