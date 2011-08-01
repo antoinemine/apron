@@ -1,28 +1,24 @@
 /* -*- mode: c -*- */
 
-quote(C,"\n\
-#include \"boxIll.h\"\n\
-#include \"boxMPZ.h\"\n\
-#include \"boxRll.h\"\n\
-#include \"boxMPQ.h\"\n\
-#include \"boxD.h\"\n                         \
-#include \"boxMPFR.h\"\n\
-#include \"apron_caml.h\"\n\
-")
+PERLEVAL @BoxNum = split(" ",$ENV{BOX_NUMTYPES})
+
+/* This file is part of the APRON Library, released under LGPL license.  Please
+   read the COPYING file packaged in the distribution */
+
+MACRO_FOREACH XXX @BoxNum
+quote(C,"#include \"boxXXX.h\"")
+ENDMACRO
+quote(C,"#include \"apron_caml.h\"")
 
 import "manager.idl";
 
-quote(MLMLI,"(** Intervals abstract domain *)")
+quote(MLMLI,"(** Intervals abstract domain *)\n")
+
+MACRO_FOREACH XXX @BoxNum
+quote(MLMLI,"type numXXX = Common.numXXX")
+ENDMACRO
 
 quote(MLMLI,"\n\
-type numIll = Common.numIll\n\
-type numRll = Common.numRll\n\
-  (** The two previous types may silently overflow: be cautious ! *)\n\
-type numMPZ = Common.numMPZ\n\
-type numMPQ = Common.numMPQ\n\
-type numD = Common.numD\n\
-type numMPFR = Common.numMPFR\n\
-\n\
 type 'a t\n\
   (** Type of boxes, where ['a] is one of the [numXXX] types\n\
       above and indicates the underlying number representation.\n\
@@ -37,7 +33,7 @@ type 'a t\n\
 ")
 
 quote(MLI,"(** {2 Create a Box manager} *)")
-MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+MACRO_FOREACH XXX @BoxNum
 quote(C,"\n\
 value camlidl_box_manager_alloc_numXXX(value vunit)\n\
 {\n\
@@ -50,60 +46,55 @@ value camlidl_box_manager_alloc_numXXX(value vunit)\n\
   return v;\n\
 }\n\
 ")
-quote(MLMLI,"\n\
-external manager_alloc_numXXX : unit -> numXXX t Manager.t = \"camlidl_box_manager_alloc_numXXX\"\n\
+quote(MLMLI,"\
+external manager_alloc_numXXX : unit -> numXXX t Manager.t = \"camlidl_box_manager_alloc_numXXX\"\
 ")
 ENDMACRO
 
 quote(MLI,"\n\
 (** {2 Type conversions} *)\n\
 \n\
-val manager_is_box : 'a Manager.t -> bool\n\
-val manager_is_box_numIll  : 'a Manager.t -> bool\n\
-val manager_is_box_numRll  : 'a Manager.t -> bool\n\
-val manager_is_box_numMPZ  : 'a Manager.t -> bool\n\
-val manager_is_box_numMPQ  : 'a Manager.t -> bool\n\
-val manager_is_box_numD    : 'a Manager.t -> bool\n\
-val manager_is_box_numMPFR : 'a Manager.t -> bool\n\
+val manager_is_box : 'a Manager.t -> bool\
+")
+MACRO_FOREACH XXX @BoxNum
+quote(MLI,"val manager_is_box_numXXX : 'a Manager.t -> bool")
+ENDMACRO
+quote(MLI,"\
   (** Return [true] iff the argument manager is a box manager *)\n\
 \n\
 val manager_of_box : 'a t Manager.t -> 'b Manager.t\n\
   (** Makes a box manager generic *)\n\
 \n\
-val manager_to_box : 'a Manager.t -> 'b t  Manager.t\n\
-val manager_box_to_numIll  : 'a t Manager.t -> numIll t  Manager.t\n\
-val manager_box_to_numRll  : 'a t Manager.t -> numRll t  Manager.t\n\
-val manager_box_to_numMPZ  : 'a t Manager.t -> numMPZ t  Manager.t\n\
-val manager_box_to_numMPQ  : 'a t Manager.t -> numMPQ t  Manager.t\n\
-val manager_box_to_numD    : 'a t Manager.t -> numD   t  Manager.t\n\
-val manager_box_to_numMPFR : 'a t Manager.t -> numMPFR t Manager.t\n\
+val manager_to_box : 'a Manager.t -> 'b t  Manager.t\
+")
+MACRO_FOREACH XXX @BoxNum
+quote(MLI,"val manager_box_to_numXXX : 'a t Manager.t -> numXXX t  Manager.t")
+ENDMACRO
+quote(MLI,"\
   (** Instanciate the type of a box manager.\n\
       Raises [Failure] if the argument manager is not a right manager *)\n\
 ")
 
-
 MACRO_FOREACH NNN ("0","1")
 quote(MLI,"\n\
 module AbstractNNN : sig\n\
-  val is_box : 'a AbstractNNN.t -> bool\n\
-  val is_box_numIll  : 'a AbstractNNN.t -> bool\n\
-  val is_box_numRll  : 'a AbstractNNN.t -> bool\n\
-  val is_box_numMPZ  : 'a AbstractNNN.t -> bool\n\
-  val is_box_numMPQ  : 'a AbstractNNN.t -> bool\n\
-  val is_box_numD    : 'a AbstractNNN.t -> bool\n\
-  val is_box_numMPFR : 'a AbstractNNN.t -> bool\n\
+  val is_box : 'a AbstractNNN.t -> bool\
+")
+MACRO_FOREACH XXX @BoxNum
+quote(MLI,"  val is_box_numXXX : 'a AbstractNNN.t -> bool")
+ENDMACRO
+quote(MLI,"\
     (** Return [true] iff the argument manager is a box manager *)\n\
 \n\
   val of_box : 'a t AbstractNNN.t -> 'b AbstractNNN.t\n\
     (** Makes a box manager generic *)\n\
 \n\
-  val to_box : 'a AbstractNNN.t -> 'b t  AbstractNNN.t\n\
-  val box_to_numIll  : 'a t AbstractNNN.t -> numIll t  AbstractNNN.t\n\
-  val box_to_numRll  : 'a t AbstractNNN.t -> numRll t  AbstractNNN.t\n\
-  val box_to_numMPZ  : 'a t AbstractNNN.t -> numMPZ t  AbstractNNN.t\n\
-  val box_to_numMPQ  : 'a t AbstractNNN.t -> numMPQ t  AbstractNNN.t\n\
-  val box_to_numD    : 'a t AbstractNNN.t -> numD   t  AbstractNNN.t\n\
-  val box_to_numMPFR : 'a t AbstractNNN.t -> numMPFR t AbstractNNN.t\n\
+  val to_box : 'a AbstractNNN.t -> 'b t AbstractNNN.t\
+")
+MACRO_FOREACH XXX @BoxNum
+quote(MLI,"  val box_to_numXXX : 'a t AbstractNNN.t -> numXXX t AbstractNNN.t")
+ENDMACRO
+quote(MLI,"\
     (** Instanciate the type of a box manager.\n\
 	Raises [Failure] if the argument manager is not a right manager *)\n\
 end\n\
@@ -125,7 +116,7 @@ let manager_to_box (man:'a Manager.t) : 'b t Manager.t =\n\
 ")
 
 
-MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+MACRO_FOREACH XXX @BoxNum
 quote(ML,"\n\
 let regexp_numXXX = Str.regexp \"box.*numXXX\"\n\
 let manager_is_box_numXXX man =\n\
@@ -151,7 +142,7 @@ module AbstractNNN = struct\n\
     else\n\
       raise (Failure \"Box.Abstract0.to_box: the argument value is not a Box value\")\n\
 ")
-MACRO_FOREACH XXX ("Ill","Rll","MPZ","MPQ","D","MPFR")
+MACRO_FOREACH XXX @BoxNum
 quote(ML,"\n\
   let is_box_numXXX abs =\n\
     manager_is_box_numXXX (AbstractNNN.manager abs)\n\

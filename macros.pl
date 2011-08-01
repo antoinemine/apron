@@ -1,8 +1,7 @@
 #!/usr/bin/perl -W
 
-my @AllNum = ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
 my @MainNum = ("D","MPQ","MPFR");
-my @AllNumIdl = ("MPZ","D","MPQ","MPFR");
+my @AllNum = ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
 
 $file = $ARGV[0];
 $nbline = 0;
@@ -13,6 +12,9 @@ while ($l = <>) {
     if ($l =~ /^\h*MACRO_/){
 	my $r = parse_macro(0);
 	print $tmp $r;
+    }
+    elsif ($l =~ /^PERLEVAL\h+([^\n]*)$/){
+	eval $1;
     }
     else {
 	print $tmp "$l";

@@ -30,16 +30,16 @@ ICFLAGS = \
 -I../box -I../polka \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
--I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
+-I$(CAML_PREFIX_LIB) -I$(CAMLIDL_PREFIX)/lib/ocaml
 
-LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX)/lib/ocaml -L$(CAMLIDL_PREFIX)/lib/ocaml -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
+LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_PREFIX_LIB) -L$(CAMLIDL_PREFIX)/lib/ocaml -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
 
 
 #---------------------------------------
 # Files
 #---------------------------------------
 
-TMPL = MPZ D MPQ MPFR
+TMPL = $(MLAPRONIDL_NUMTYPES)
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
@@ -181,15 +181,18 @@ apron.cmxa: apron.cmx $(C_LIB_ALL)
 apron.d.cmxa: $(MLMODULES:%=%.d.cmx) $(C_LIB_DEBUG)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.d -cclib -lapron.d
+apron.p.cmxa: apron.p.cmx $(C_LIB_PROF)
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.p.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
 apron.callback.cmxa: apron.cmx $(C_LIB_ALL)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.callback -cclib -lapron 
 apron.callback.d.cmxa: $(MLMODULES:%=%.d.cmx) $(C_LIB_DEBUG)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
 	$(OCAMLCCOPT) -cclib -lapron_caml.callback.d -cclib -lapron.d
-apron.p.cmxa: apron.p.cmx $(C_LIB_PROF)
-	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.p.cmx \
-	$(OCAMLCCOPT) -cclib -lapron_caml.p -cclib -lapron.p
+apron.callback.p.cmxa: $(MLMODULES:%=%.p.cmx) $(C_LIB_PROF)
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -a -o $@ apron.cmx \
+	$(OCAMLCCOPT) -cclib -lapron_caml.callback.p -cclib -lapron.p
 
 # C rules
 libapron_caml.a: $(C_MODULES:%=%.o)
@@ -198,13 +201,16 @@ libapron_caml.a: $(C_MODULES:%=%.o)
 libapron_caml.d.a: $(C_MODULES:%=%.d.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
+libapron_caml.p.a: $(C_MODULES:%=%.p.o)
+	$(AR) rc $@ $^
+	$(RANLIB) $@
 libapron_caml.callback.a: $(C_MODULES:%=%.callback.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 libapron_caml.callback.d.a: $(C_MODULES:%=%.callback.d.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
-libapron_caml.p.a: $(C_MODULES:%=%.p.o)
+libapron_caml.callback.p.a: $(C_MODULES:%=%.callback.p.o)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 dllapron_caml.so: $(C_MODULES:%=%.o)
@@ -278,12 +284,14 @@ mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
 %.d.o: %.c apron_caml.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+%.p.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 %.callback.o: %.c apron_caml.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
 %.callback.d.o: %.c apron_caml.h
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
-%.p.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
+%.callback.p.o: %.c apron_caml.h
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
 
 #-----------------------------------
 # CAML
@@ -325,23 +333,23 @@ apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
 %.idl: %.idl.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	../macros.pl $(SRCDIR)/$< >>$@
+	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 %.ml: %.ml.tmpl
 	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
 	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
-	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
+	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
 %.mli: %.mli.tmpl
 	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
 	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
-	../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
+	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	../macros.pl $(SRCDIR)/$< >>$@
+	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	../macros.pl $(SRCDIR)/$< >>$@
+	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-idl-XXX
 $(subst XXX,$(1),$(2)): $(2)
@@ -383,7 +391,7 @@ $(foreach Y,$(YYY),$(foreach F,$(ML_TMPL_MODULES_yyy:%=%.mli) $(ML_TMPL_MODULES_
 #---------------------------------------
 
 depend: $(ML_MODULES:%=%.ml) $(ML_MODULES:%=%.mli)
-	$(OCAMLDEP) $^ >Makefile.depend
+	$(OCAMLFIND) ocamldep $^ >Makefile.depend
 
 -include Makefile.depend
 

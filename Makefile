@@ -68,7 +68,7 @@ src:
 
 install: $(CCLIB_TO_INSTALL)
 	$(INSTALL) -d $(APRON_PREFIX)/lib/apron
-	$(INSTALL) -t $(APRON_PREFIX)/lib/apron $(CCLIB_TO_INSTALL)
+	$(INSTALL) $(CCLIB_TO_INSTALL) $(APRON_PREFIX)/lib/apron
 	for i in $(SUBDIR_C); do make -C $$i install; done
 ifneq ($(HAS_PPL),)
 	make -C ppl install
@@ -136,9 +136,9 @@ $(eval $(call generate-clib,.p))
 
 # make distribution, update to reflect current version
 
-PKGNAME  = apron-0.9.10
+PKGNAME  = apron-1.0
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box polka ppl products mlapronidl examples test apronxx
+PKGDIRS  = apron num itv octagons box polka mlapronidl examples test apronxx #ppl products 
 
 dist:
 	$(MAKE) all

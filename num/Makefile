@@ -9,7 +9,6 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
-CLIBS = -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Files
@@ -78,7 +77,7 @@ distclean: clean
 
 install: $(CCINC_TO_INSTALL) 
 	$(INSTALL) -d $(PREFIX)/include/apron
-	$(INSTALL) -t $(PREFIX)/include/apron $^
+	$(INSTALL) $^ $(PREFIX)/include/apron 
 
 uninstall:
 
