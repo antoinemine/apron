@@ -658,7 +658,7 @@ eitvXXX_eval_ap_texpr0_node(eitvXXX_t res,
 			    eitvXXX_t arg1, eitvXXX_t arg2,
 			    num_internal_t intern)
 {
-  bool exact;
+  bool exact = true;
   switch (n->op) {
   case AP_TEXPR_NEG:
     eitvXXX_neg(res, arg1);
