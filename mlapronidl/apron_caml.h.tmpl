@@ -23,8 +23,10 @@ PERLEVAL @AllNumIdl = split(" ",$ENV{MLAPRONIDL_NUMTYPES})
 #include <caml/intext.h>
 
 #include "ap_global1.h"
-#include "ap_linconsMPZ.h"
-#include "ap_lingenMPZ.h"
+MACRO_FOREACH XXX @AllNumIdl
+#include "ap_linconsXXX.h"
+#include "ap_lingenXXX.h"
+ENDMACRO
 
 #include "gmp_caml.h"
 struct camlidl_ctx_struct;

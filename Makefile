@@ -8,7 +8,7 @@ endif
 LCFLAGS = \
 -L$(PPL_PREFIX)/lib \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)/lib/ocaml
+-L$(CAMLIDL_LIB)
 
 all: c_all
 debug: c_debug
@@ -27,7 +27,7 @@ ifneq ($(HAS_JAVA),)
 all: java_all
 endif
 
-SUBDIR_C = num apron box polka
+SUBDIR_C = apron box polka
 SUBDIR_ALL = $(SUBDIR_C) 
 ifneq ($(HAS_PPL),)
 SUBDIR_ALL += ppl products
@@ -138,7 +138,7 @@ $(eval $(call generate-clib,.p))
 
 PKGNAME  = apron-1.0
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box polka mlapronidl examples test apronxx #ppl products 
+PKGDIRS  = apron box polka mlapronidl octagons examples test apronxx #ppl products 
 
 dist:
 	$(MAKE) all

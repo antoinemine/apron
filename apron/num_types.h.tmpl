@@ -14,18 +14,8 @@
 #include "mpfr.h"
 
 #ifdef __cplusplus
-/* #define HAS_BOOL */
 extern "C" {
 #endif
-
-  /*
-#ifndef HAS_BOOL
-#define HAS_BOOL
-typedef char bool;
-static const bool false = 0;
-static const bool true  = 1;
-#endif
-  */
 
 typedef enum num_discr_t {
   NUM_Il, NUM_Ill, NUM_MPZ,
@@ -41,7 +31,7 @@ typedef enum itv_tag_t {
   ITV_NUM,      /* waiting for 1 numXXX_t of same type */
   ITV_NUM2,     /* waiting for 2 numXXX_t of same type */
   ITV_ITV,	/* waiting for 1 itvXXX_t of same type */
-  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  MACRO_FOREACH XXX @AllNum
   ITV_NUMXXX,   /* waiting for 1 numXXX_t */
   ITV_NUMXXX2,  /* waiting for 2 numXXX_t */
   ITV_ITVXXX,	/* waiting for 1 itvXXX_t */
@@ -71,7 +61,7 @@ typedef enum eitv_tag_t {
   EITV_NUM,             /* waiting for 1 numXXX_t of same type */
   EITV_NUM2,            /* waiting for 2 numXXX_t of same type */
   EITV_EITV,		/* waiting for 1 eitvXXX_t of same type */
-  MACRO_FOREACH XXX ("Il","Ill","MPZ","Rl","Rll","MPQ","D","Dl","MPFR");
+  MACRO_FOREACH XXX @AllNum
   EITV_NUMXXX,          /* waiting for 1 numXXX_t */
   EITV_NUMXXX2,         /* waiting for 2 numXXX_t */
   EITV_EITVXXX,	        /* waiting for 1 eitvXXX_t */

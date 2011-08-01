@@ -7,7 +7,7 @@ SRCDIR = $(shell pwd)
 # Flags
 #---------------------------------------
 
-ICFLAGS = -I. -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICFLAGS = -I. -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
 # Files
