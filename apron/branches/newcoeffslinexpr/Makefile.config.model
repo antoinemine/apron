@@ -53,7 +53,7 @@ PPL_PREFIX = /usr
 CAML_BIN = $(dir $(shell which ocamlc))
 CAML_LIB = $(shell $(CAML_BIN)/ocamlc -where)
 
-# Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
+# Where to find CAMLIDL 
 #
 CAMLIDL_BIN = $(dir $(shell which camlidl))
 CAMLIDL_LIB = $(CAMLIDL_BIN)/../lib/ocaml
@@ -130,14 +130,14 @@ INSTALLd = install -d
 
 
 OCAMLFIND = ocamlfind
-OCAMLLEX = $(CAML_PREFIX_BIN)/ocamllex.opt
-OCAMLYACC = $(CAML_PREFIX_BIN)/ocamlyacc
+OCAMLLEX = $(CAML_BIN)/ocamllex.opt
+OCAMLYACC = $(CAML_BIN)/ocamlyacc
 # ocamlc compilation flags
 OCAMLFLAGS = -g
 # ocamlopt compilation flags
 OCAMLOPTFLAGS = -inline 20
 
-CAMLIDL = $(CAMLIDL_PREFIX)/bin/camlidl
+CAMLIDL = $(CAMLIDL_BIN)/camlidl
 
 LATEX=latex
 DVIPDF=dvipdf
