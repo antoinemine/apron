@@ -40,8 +40,7 @@ CONFIGURATION and COMPILATION
    APRON_PREFIX, MLGMPIDL_PREFIX, CAMLIDL_PREFIX and CAML_PREFIX
    to some of your directory instead of the default /tmp).
 
-2. If you download via subversion repository, and you want the
-   OCaml API: 'make rebuild'
+2. 'make depend'
 
 3. 'make'
    'make install'
@@ -53,7 +52,6 @@ CONFIGURATION and COMPILATION
    make doc (not useful for a normal user)
    make clean (clean things, with the exception of generated files)
    make mostlyclean (clean all it can clean, implies clean)
-   make rebuild (rebuild generated files, mainly for OCaml interface)
    make distclean (clean the distribution directories)
    make install (installs in directories specified in Makefile.config)
 
