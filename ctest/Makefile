@@ -2,11 +2,11 @@ include ../Makefile.config
 SRCDIR = $(shell pwd)
 ICFLAGS = \
 -I$(MPFR_PREFIX)/include -I$(GMP_PREFIX)/include \
--I../num -I../apron -I../box -I../polka
+-I../apron -I../box -I../polka
 
 LCFLAGS = \
 -L$(MPFR_PREFIX)/lib -L$(GMP_PREFIX)/lib \
--L../num -L../apron -L../box -L../polka
+-L../apron -L../box -L../polka
 # -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp
 
 C_TMPL_FILES_tmpl = num.c.tmpl domain.c.tmpl
@@ -18,12 +18,12 @@ all: num
 
 # C examples
 
-num: num.c ../num/libnum.d.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lnum.d -lmpfr -lgmp -lm
-expr: expr.c ../num/libnum.d.a ../apron/libapron.d.a 
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lapron.d -lnum.d -lmpfr -lgmp -lm
-domain: domain.c ../num/libnum.d.a ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $^ -lpolka.d -lbox.d -lapron.d -lnum.d -lmpfr -lgmp -lm
+num: num.c ../apron/libapron.d.a 
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lapron.d -lmpfr -lgmp -lm
+expr: expr.c ../apron/libapron.d.a 
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lapron.d -lmpfr -lgmp -lm
+domain: domain.c ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lpolka.d -lbox.d -lapron.d -lmpfr -lgmp -lm
 
 clean:
 	rm -f num expr domain *.o out/*
