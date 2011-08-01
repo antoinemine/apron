@@ -10,6 +10,8 @@
 #include "t1p_constructor.h"
 #include "t1p_representation.h"
 #include "t1p_join_alt.h"
+#include "t1p_otherops.h"
+#include "t1p_meetjoin.h"
 
 void test_equation_1 (FILE* stream, ap_manager_t* man);
 
@@ -424,7 +426,7 @@ void test_generate_2(FILE* stream, ap_manager_t* man)
 void test_join_1(FILE* stream, ap_manager_t* man)
 {
   t1p_internal_t* pr = man->internal;
-  ja_eq_set_t* eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1;
+  ja_eq_set_t* eqs_bprime, *eqs_b1, *new_eqs1;
   t1p_t* res;
 
   /* variables and noise symbols */
@@ -496,15 +498,15 @@ void test_join_1(FILE* stream, ap_manager_t* man)
  
   /* extract the equations */
   eqs_b1= abstract_value_to_eq_set (pr,a1);
-  fprintf(stream,"equations B1");
+  fprintf(stream,"equations B1\n");
   print_equation_set(stream,eqs_b1);
   eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
-  fprintf(stream,"equations Bprime");
+  fprintf(stream,"equations Bprime\n");
   print_equation_set(stream,eqs_bprime);
   fprintf(stream,"**********\n**********\n**********\n");
 
   new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
-  fprintf(stream,"equations A");
+  fprintf(stream,"equations A\n");
   print_equation_set(stream,new_eqs1);
   fprintf(stream,"**********\n**********\n**********\n");
 
@@ -516,7 +518,7 @@ void test_join_1(FILE* stream, ap_manager_t* man)
   printf("\n IT IS SEG FAULT TIME ! \n");
   res = t1p_join_alt(man, false, a1, a2);
  
-  fprintf(stream,"\n res:\n");
+  fprintf(stream,"res:\n");
   t1p_fdump(stream,man,res);
 
   /* free */
@@ -526,21 +528,12 @@ void test_join_1(FILE* stream, ap_manager_t* man)
   t1p_free(man,a2);
   //free(afexpr20);
   //free(afexpr21); 
+
+
   free_equation_set(eqs_bprime); 
   free_equation_set(eqs_b1); 
-  free_equation_set(eqs_b2); 
   free_equation_set(new_eqs1); 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 int main (void)
@@ -552,9 +545,10 @@ int main (void)
   //test_equation_1(stream,t1p);
 
   //test_rebuild_1(stream,t1p);
-  test_generate_1(stream,t1p);
+  //test_generate_1(stream,t1p);
   //test_generate_2(stream,t1p);
-  //test_join_1(stream,t1p);
+  test_join_1(stream,t1p);
+
 
   fclose(stream);
   ap_manager_free(t1p);

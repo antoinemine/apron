@@ -751,7 +751,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 
   /* main loop */
   for (k=rank;k<nb_columns;k++) {
-    /* each value of k determine a value for the coefficients alpha_i (we take the canonical base for alha_i with i>=rank), thus an independant equation. */
+    /* each value of k determine a value for the coefficients alpha_i (we take the canonical base for alpha_i with i>=rank), thus an independant equation. */
 
 
     /* (re)set tab_alpha  i>=rank */
@@ -761,6 +761,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
       else
 	itv_set_int(tab_alpha[i],0);
     }
+    
 
        /* (re)set tab_alpha  i<rank */
     for (i=rank-1;i>=0;i--) {
@@ -774,9 +775,9 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 	itv_add(buff_sum,buff_sum,buff_coeff);
 	itv_clear(buff_coeff);
       }
-    itv_neg(buff_sum,buff_sum);
-    itv_set(tab_alpha[i],buff_sum);
-    itv_clear(buff_sum);
+      itv_neg(buff_sum,buff_sum);
+      itv_set(tab_alpha[i],buff_sum);
+      itv_clear(buff_sum);
     }
 
     /* set the equation */
@@ -860,7 +861,9 @@ ja_eq_set_t* matrix_to_eq_set_A (t1p_internal_t* pr, int nb_rows, int dims, int 
     }
     itv_set(equation->c,m[i][dims]);
     for (j=0;j<nb_nsym;j++){
-      add_equation_term_ns(equation,m[i][j+dims+1],(pr->epsilon)[j]);
+      itv_clear(buff);
+      itv_neg(buff,m[i][j+dims+1]);
+      add_equation_term_ns(equation,buff,(pr->epsilon)[j]);
     }
     add_equation(res,equation);
   }
@@ -1177,10 +1180,11 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
   /* rebuild */
   rebuild_abstract_value(man, res, eqs_a);
   printf("*\n");
+  printf("tout est fini\n");
   /* cleanup */
   free_equation_set(eqs_a);
   free_equation_set(eqs_b);
   free_equation_set(eqs_b_prime);
-
+  printf("cleanup ok\n");
   return res;
 }

@@ -124,7 +124,7 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a);
 ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t* a2);
 
 
-/* eqs is of type B, eqs_prime is of type Bprime */
+/* eqs is of type B, eqs_prime is of type B prime */
 /* result is of type A */
 ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions);
 

@@ -487,7 +487,7 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    FILE* stream = fopen("log", "a+");
     fprintf(stream,"** %zu **\n", pr->dim);
     t1p_t* res;
     size_t intdim = a1->intdim;
@@ -675,7 +675,7 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     //t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    FILE* stream = fopen("log", "a+");
     fprintf(stream,"** %zu **\n", pr->dim);
     t1p_t* res;
     size_t intdim = a1->intdim;
@@ -827,7 +827,7 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	itv_clear(un);
 	itv_clear(tmp1);
 
-    FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
+    FILE* poly = fopen("draw.poly", "a");
 	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
 	for (i=0;i<pr->dim;i++) {
 	    if (res->g[i+1]) {
@@ -966,7 +966,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     fprintf(stdout, "### ### ###\n");
     //fprintf(stream,"** %d **\n", pr->dim);
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    FILE* stream = fopen("log", "a+");
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -1174,7 +1174,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
     fprintf(stdout, "### ### ###\n");
     //fprintf(stream,"** %d **\n", pr->dim);
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    FILE* stream = fopen("log", "a+");
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -1339,7 +1339,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 	}
 	itv_clear(un);
 
-    FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
+    FILE* poly = fopen("draw.poly", "a");
 	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
 	for (i=0;i<pr->dim;i++) {
 	    if (res->g[i+1]) {
