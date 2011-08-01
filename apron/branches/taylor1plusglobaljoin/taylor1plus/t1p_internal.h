@@ -1607,10 +1607,10 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
 //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_beta.txt", "a+");
-    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_time.txt", "a+");
-    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_distance.txt", "a+");
-    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_survivors.txt", "a+");
+    FILE* streamB = fopen("constrained6_beta.txt", "a+");
+    FILE* streamT = fopen("constrained6_time.txt", "a+");
+    FILE* streamD = fopen("constrained6_distance.txt", "a+");
+    FILE* streamS = fopen("constrained6_survivors.txt", "a+");
     double perturbation = 0;
     double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
     fprintf(streamB,"\t%f",perturbation);
@@ -1890,10 +1890,10 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
     //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_beta.txt", "a+");
-    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_time.txt", "a+");
-    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_distance.txt", "a+");
-    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_survivors.txt", "a+");
+    FILE* streamB = fopen("constrained7_beta.txt", "a+");
+    FILE* streamT = fopen("constrained7_time.txt", "a+");
+    FILE* streamD = fopen("constrained7_distance.txt", "a+");
+    FILE* streamS = fopen("constrained7_survivors.txt", "a+");
     double perturbation = 0;
     double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
     fprintf(streamB,"\t%f",perturbation);
@@ -3165,7 +3165,7 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp
 	itv_sub(tmp,dev,tmp2);
 	t1p_aff_nsym_create(pr, res, tmp, UN);
 
-	FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaUB", "a+");
+	FILE* stream = fopen("betaUB", "a+");
 	fprintf(stream,"********************************************\n");
 	itv_fprint(stream,tmp);fprintf(stream,"\n");
 	fprintf(stream,"********************************************\n");
@@ -3564,7 +3564,7 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 	    itv_mul_2exp(d, d, -1);
 	    itv_set_num(tmp,bound_numref(d->sup));
 	    t1p_aff_nsym_create(pr, res, d, UN);
-	    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaMUB", "a+");
+	    FILE* stream = fopen("betaMUB", "a+");
 	    fprintf(stream,"********************************************\n");
 	    itv_fprint(stream,d);fprintf(stream,"\n");
 	    fprintf(stream,"********************************************\n");
