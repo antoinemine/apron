@@ -51,9 +51,9 @@ typedef [abstract,
   | Funid_canonicalize\n\
   | Funid_hash\n\
   | Funid_approximate\n\
-  | Funid_sprint\n\
-  | Funid_sprintdiff\n\
-  | Funid_sdump\n\
+  | Funid_fprint\n\
+  | Funid_fprintdiff\n\
+  | Funid_fdump\n\
   | Funid_serialize_raw\n\
   | Funid_deserialize_raw\n\
   | Funid_bottom\n\
@@ -228,9 +228,9 @@ let string_of_funid = function\n\
 | Funid_canonicalize -> \"Funid_canonicalize\"\n\
 | Funid_hash -> \"Funid_hash\"\n\
 | Funid_approximate -> \"Funid_approximate\"\n\
-| Funid_sprint -> \"Funid_sprint\"\n\
-| Funid_sprintdiff -> \"Funid_sprintdiff\"\n\
-| Funid_sdump -> \"Funid_sdump\"\n\
+| Funid_fprint -> \"Funid_fprint\"\n\
+| Funid_fprintdiff -> \"Funid_fprintdiff\"\n\
+| Funid_fdump -> \"Funid_fdump\"\n\
 | Funid_serialize_raw -> \"Funid_serialize_raw\"\n\
 | Funid_deserialize_raw -> \"Funid_deserialize_raw\"\n\
 | Funid_bottom -> \"Funid_bottom\"\n\
