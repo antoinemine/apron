@@ -169,7 +169,6 @@ quote(MLMLI,"\n\
 external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron__manager_get_num_internal\"\n\
   (** Get the included num_internal workspace structure *)\n\
 ")
-
 quote(C,"\n\
 value camlidl_apron_manager_get_num_internal(value vman)\n\
 {\n\
@@ -204,7 +203,6 @@ quote(MLI,"(** Get the corresponding result flag *)")
 boolean ap_manager_get_flag_exact(ap_manager_ptr man);
 quote(MLI,"(** Get the corresponding result flag *)")
 boolean ap_manager_get_flag_best(ap_manager_ptr man);
-
 
 quote(MLI,"(** Exception raised by functions of the interface *)")
 quote(MLMLI,"exception Error of ap_exclog_t");
@@ -297,6 +295,24 @@ let print_funopt fmt x =\n\
 quote(MLI,"(** Set / get the global manager used for deserialization *)")
 void ap_manager_set_deserialize(ap_manager_ptr man);
 ap_manager_ptr ap_manager_get_deserialize();
+
+quote(MLMLI,"(** {2 For domains written in OCaml only} *)")
+void ap_manager_set_flag_exact(ap_manager_ptr man, boolean b)
+quote(call,"man->result.flag_exact = b;");
+void ap_manager_set_flag_best(ap_manager_ptr man, boolean b);
+quote(call,"man->result.flag_best = b;");
+quote(MLMLI,"external get_internal : 'a Manager.t -> 'b = \"camlidl_apron_manager_get_internal\"")
+quote(C,"\n\
+value camlidl_apron_manager_get_internal(value vman)\n\
+{\n\
+  CAMLparam1(vman);\n\
+  CAMLlocal1(vres);\n\
+  ap_manager_t* man;\n\
+  camlidl_apron_manager_ptr_ml2c(vman,&man);\n\
+  vres = man->internal;\n\
+  CAMLreturn(vres);\n\
+}\n\
+")
 
 /* Init */
 quote(ML,"external init: unit -> unit = \"camlidl_apron_init\"\n")
