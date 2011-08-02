@@ -51,9 +51,9 @@ typedef [abstract,
   | Funid_canonicalize\n\
   | Funid_hash\n\
   | Funid_approximate\n\
-  | Funid_fprint\n\
-  | Funid_fprintdiff\n\
-  | Funid_fdump\n\
+  | Funid_sprint\n\
+  | Funid_sprintdiff\n\
+  | Funid_sdump\n\
   | Funid_serialize_raw\n\
   | Funid_deserialize_raw\n\
   | Funid_bottom\n\
@@ -166,11 +166,11 @@ quote(MLI,"(** Get the version of the effective library which allocated the mana
 [string]const char* ap_manager_get_version(ap_manager_ptr man);
 
 quote(MLMLI,"\n\
-external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron__manager_get_num_internal\"\n\
+external get_num_internal : 'a t -> Common.num_internal = \"camlidl_apron_manager_get_num_internal\"\n\
   (** Get the included num_internal workspace structure *)\n\
 ")
 quote(C,"\n\
-value camlidl_apron_manager_get_num_internal(value vman)\n\
+extern value camlidl_apron_manager_get_num_internal(value vman)\n\
 {\n\
   CAMLparam1(vman);\n\
   CAMLlocal1(vres);\n\
@@ -228,9 +228,9 @@ let string_of_funid = function\n\
 | Funid_canonicalize -> \"Funid_canonicalize\"\n\
 | Funid_hash -> \"Funid_hash\"\n\
 | Funid_approximate -> \"Funid_approximate\"\n\
-| Funid_fprint -> \"Funid_fprint\"\n\
-| Funid_fprintdiff -> \"Funid_fprintdiff\"\n\
-| Funid_fdump -> \"Funid_fdump\"\n\
+| Funid_sprint -> \"Funid_sprint\"\n\
+| Funid_sprintdiff -> \"Funid_sprintdiff\"\n\
+| Funid_sdump -> \"Funid_sdump\"\n\
 | Funid_serialize_raw -> \"Funid_serialize_raw\"\n\
 | Funid_deserialize_raw -> \"Funid_deserialize_raw\"\n\
 | Funid_bottom -> \"Funid_bottom\"\n\
