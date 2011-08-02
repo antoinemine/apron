@@ -784,6 +784,14 @@ struct custom_operations camlidl_apron_custom_abstract0_ptr = {
 /* ********************************************************************** */
 value camlidl_apron_init(value dummy)
 {
+MACRO_FOREACH XXX @AllNumIdl
+MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
+  register_custom_operations(&camlidl_custom_TTTXXX);
+ENDMACRO
+MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+  register_custom_operations(&camlidl_custom_TTTXXX_array);
+ENDMACRO
+ENDMACRO
   register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
   return Val_unit;
 }
