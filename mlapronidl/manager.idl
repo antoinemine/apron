@@ -299,9 +299,15 @@ ap_manager_ptr ap_manager_get_deserialize();
 quote(MLMLI,"(** {2 For domains written in OCaml only} *)")
 void ap_manager_set_flag_exact(ap_manager_ptr man, boolean b)
 quote(call,"man->result.flag_exact = b;");
-void ap_manager_set_flag_best(ap_manager_ptr man, boolean b);
+void ap_manager_set_flag_best(ap_manager_ptr man, boolean b)
 quote(call,"man->result.flag_best = b;");
-quote(MLMLI,"external get_internal : 'a Manager.t -> 'b = \"camlidl_apron_manager_get_internal\"")
+quote(MLMLI,"\
+external get_internal : 'a t -> 'a = \"camlidl_apron_manager_get_internal\"\n\
+  (** Intended for domains written in OCaml.\n\
+   The assumption is that the type of the internal workspace is exactly\n\
+   the (usually phantom) type used for tagging managers\n\
+   and abstract values *)\n\
+")
 quote(C,"\n\
 value camlidl_apron_manager_get_internal(value vman)\n\
 {\n\
