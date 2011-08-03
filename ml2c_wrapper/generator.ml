@@ -199,6 +199,8 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "    v_%s = caml_alloc(1, 0);@." name;
 	Format.fprintf fmt "    Store_field(v_%s, 0, %s->val);@." name name;
 	Format.fprintf fmt "  }@."
+      | Bool | Int | Size_t ->
+	Format.fprintf fmt "  v_%s = %s(%s),@." name (c2ml_function_of_kind k) name
       | Ap_dim_t | Ap_dimension_t | Ap_dimperm_t ->
 	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name	
       | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
