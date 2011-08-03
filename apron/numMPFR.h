@@ -126,7 +126,7 @@ static inline int numMPFR_hash(numMPFR_t a)
 /* Printing */
 /* ====================================================================== */
 
-int numMPFR_snprint(char* s, size_t size, numMPFR_t a);
+int numMPFR_snprint(char* s, int size, numMPFR_t a);
 void numMPFR_fprint(FILE* stream, numMPFR_t a);
 static inline void numMPFR_print(numMPFR_t a)
 { numMPFR_fprint(stdout,a); }

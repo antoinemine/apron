@@ -182,7 +182,7 @@ bool itvXXX_set_generic(num_internal_t intern,
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
-int itvXXX_snprint(char* s, size_t size, itvXXX_t a);
+int itvXXX_snprint(char* s, int size, itvXXX_t a);
 void itvXXX_fprint(FILE* stream, itvXXX_t a);
 void itvXXX_print(itvXXX_t a);
 

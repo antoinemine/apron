@@ -441,7 +441,7 @@ static inline void boundXXX_widening(boundXXX_t a, boundXXX_t b, boundXXX_t c)
 
 void boundXXX_fprint(FILE* stream, boundXXX_t a);
 void boundXXX_print(boundXXX_t a);
-int boundXXX_snprint(char* s, size_t size, boundXXX_t a);
+int boundXXX_snprint(char* s, int size, boundXXX_t a);
 
 /* ====================================================================== */
 /* Serialization */

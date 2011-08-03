@@ -154,7 +154,7 @@ static inline void numRsss_print(numRsss_t a)
 {
   numRsss_fprint(stdout,a);
 }
-int numRsss_snprint(char* s, size_t size, numRsss_t a);
+int numRsss_snprint(char* s, int size, numRsss_t a);
 
 /* ====================================================================== */
 /* Serialization */

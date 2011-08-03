@@ -562,8 +562,6 @@ void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 
 void itvXXX_fprint(FILE* stream, itvXXX_t a)
 {
-  numXXX_t num;
-
   if (itvXXX_is_point(a)){
     boundXXX_fprint(stream,a->sup);
   }
@@ -580,29 +578,23 @@ void itvXXX_fprint(FILE* stream, itvXXX_t a)
 void itvXXX_print(itvXXX_t itv){
   itvXXX_fprint(stdout,itv);
 }
-int itvXXX_snprint(char* s, size_t size, itvXXX_t a)
+int itvXXX_snprint(char* s, int size, itvXXX_t a)
 {
-  numXXX_t num;
-  int count = 0;
+  int res;
 
   if (itvXXX_is_point(a)){
-    return boundXXX_snprint(s,size,a->sup);
+    res = boundXXX_snprint(s,size,a->sup);
   }
   else {
-    count += snprintf(s+count,size-count,"[");
-    if (boundXXX_infty(a->neginf))
-      count += snprintf(s+count,size-count,"-oo");
-    else {
-      numXXX_init(num);
-      numXXX_neg(num,boundXXX_numref(a->neginf));
-      count += numXXX_snprint(s+count,size-count,num);
-      numXXX_clear(num);
-    }
-    count += snprintf(s+count,size-count,",");
-    boundXXX_snprint(s+count,size-count,a->sup);
-    count += snprintf(s+count,size-count,"]");
-    return count;
+    res = ap_snprintf(s,size,"[");
+    boundXXX_neg(a->neginf,a->neginf);
+    res += boundXXX_snprint(s+res,size-res,a->neginf);
+    boundXXX_neg(a->neginf,a->neginf);
+    res += ap_snprintf(s+res,size,",");
+    res += boundXXX_snprint(s+res,size,a->sup);
+    res += ap_snprintf(s+res,size,"]");
   }
+  return res;
 }
 
 /* ====================================================================== */

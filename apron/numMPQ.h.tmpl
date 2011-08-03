@@ -142,7 +142,7 @@ static inline void numMPQ_print(numMPQ_t a)
 { mpq_out_str(stdout,10,a); }
 static inline void numMPQ_fprint(FILE* stream, numMPQ_t a)
 { mpq_out_str(stream,10,a); }
-int numMPQ_snprint(char* s, size_t size, numMPQ_t a);
+int numMPQ_snprint(char* s, int size, numMPQ_t a);
 
 /* ====================================================================== */
 /* Serialization */

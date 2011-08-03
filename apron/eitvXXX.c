@@ -132,7 +132,7 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  
+
   if (numXXX_sgn(c)==0){
     if (eitvXXX_is_zero(b)){
       eitvXXX_set_int(a,0);
@@ -157,7 +157,7 @@ void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
 void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
-  
+
   if (boundXXX_sgn(c)==0){
     if (eitvXXX_is_zero(b)){
       eitvXXX_set_int(a,0);
@@ -389,7 +389,7 @@ void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
 void eitvXXX_print(eitvXXX_t a)
 { eitvXXX_fprint(stdout, a); }
 
-int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a)
+int eitvXXX_snprint(char* s, int size, eitvXXX_t a)
 {
   return itvXXX_snprint(s,size,a->itv);
 }

@@ -13,8 +13,8 @@ void boundXXX_print(boundXXX_t a)
 {
   boundXXX_fprint(stdout,a);
 }
-int boundXXX_snprint(char* s, size_t size, boundXXX_t a)
+int boundXXX_snprint(char* s, int size, boundXXX_t a)
 {
-  if (boundXXX_infty(a)) return snprintf(s,size,"%coo",boundXXX_sgn(a)>0 ? '+' : '-');
+  if (boundXXX_infty(a)) return ap_snprintf(s,size,"%coo",boundXXX_sgn(a)>0 ? '+' : '-');
   else return numXXX_snprint(s,size,boundXXX_numref(a));
 }

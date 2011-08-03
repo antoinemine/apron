@@ -10,26 +10,26 @@
    - rounding is always towards +oo
 */
 
-int numMPFR_snprint(char* s, size_t size, numMPFR_t a)
+int numMPFR_snprint(char* s, int size, numMPFR_t a)
 {
   double d;
   /* special cases */
-  if (mpfr_nan_p(a)) return snprintf(s,size,"NaN");
-  if (mpfr_inf_p(a)) return snprintf(s,size,"%coo",mpfr_sgn(a)>0?'+':'-');
-  if (mpfr_zero_p(a)) return snprintf(s,size,"0");
+  if (mpfr_nan_p(a)) return ap_snprintf(s,size,"NaN");
+  if (mpfr_inf_p(a)) return ap_snprintf(s,size,"%coo",mpfr_sgn(a)>0?'+':'-');
+  if (mpfr_zero_p(a)) return ap_snprintf(s,size,"0");
   d = mpfr_get_d(a,GMP_RNDU);
-  if (!mpfr_cmp_d(a,d)) return snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,d);
+  if (mpfr_cmp_d(a,d)==0) return ap_snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,d);
   else {
     /* general case */
     char* tmp;
     mp_exp_t e;
     int x,i;
     tmp = mpfr_get_str(NULL,&e,10,NUMFLT_PRINT_PREC,a,GMP_RNDU);
-    if (!tmp) { *s = 0; return 0; }
+    if (!tmp) { return 0; }
     if (tmp[0]=='-' || tmp[0]=='+')
-      x=snprintf(s,size,"%c.%se+%ld",tmp[0],tmp+1,(long int)e);
+      x=ap_snprintf(s,size,"%c.%se+%ld",tmp[0],tmp+1,(long int)e);
     else
-      x=snprintf(s,size,".%se%+ld",tmp,(long int)e);
+      x=ap_snprintf(s,size,".%se%+ld",tmp,(long int)e);
     mpfr_free_str(tmp);
     return x;
   }
@@ -37,8 +37,14 @@ int numMPFR_snprint(char* s, size_t size, numMPFR_t a)
 void numMPFR_fprint(FILE* stream, numMPFR_t a)
 {
   char buf[256];
-  numMPFR_snprint(buf,sizeof(buf)-10,a);
-  fputs(buf,stream);
+  char* str = buf;
+  int n = numMPFR_snprint(str,256,a);
+  if (n>=256){
+    str = malloc(n);
+    numMPFR_snprint(str,n+1,a);
+  }
+  fputs(str,stream);
+  if (n>=256) free(str);
 }
 
 size_t numMPFR_serialize(void* dst, numMPFR_t src)

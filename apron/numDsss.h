@@ -119,15 +119,15 @@ static inline void numD_print(numD_t a)
 { printf("%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
 static inline void numD_fprint(FILE* stream, numD_t a)
 { fprintf(stream,"%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
-static inline int numD_snprint(char* s, size_t size, numD_t a)
-{ return snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
+static inline int numD_snprint(char* s, int size, numD_t a)
+{ return ap_snprintf(s,size,"%.*g",NUMFLT_PRINT_PREC,*a+NUMD_ZERO); }
 #elif defined(MARK_numDl)
 static inline void numDl_print(numDl_t a)
 { printf("%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
 static inline void numDl_fprint(FILE* stream, numDl_t a)
 { fprintf(stream,"%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
-static inline int numDl_snprint(char* s, size_t size, numDl_t a)
-{ return snprintf(s,size,"%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
+static inline int numDl_snprint(char* s, int size, numDl_t a)
+{ return ap_snprintf(s,size,"%.*Lg",NUMFLT_PRINT_PREC,*a+NUMDl_ZERO); }
 #else
 #error "HERE"
 #endif

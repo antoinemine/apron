@@ -68,16 +68,18 @@ int numMPQ_hash(numMPQ_t a)
     return INT_MAX;
 }
 
-int numMPQ_snprint(char* s, size_t size, numMPQ_t a)
+int numMPQ_snprint(char* s, int size, numMPQ_t a)
 {
   int res;
-  if (mpz_sizeinbase(mpq_numref(a),10) +
-      mpz_sizeinbase(mpq_denref(a),10) +
-      3 > size )
-    res = snprintf(s,size, mpq_sgn(a)>0 ? "+BIG" : "-BIG");
+  int sgn = mpq_sgn(a);
+  if (sgn==0)
+    res = ap_snprintf(s,size,"0");
   else {
-    mpq_get_str(s,10,a);
-    res = strlen(s);
+    res = numMPZ_snprint(s,size,mpq_numref(a));
+    if (mpz_cmp_ui(mpq_denref(a),1)!=0){
+      res += ap_snprintf(s+res,size-res,"/");
+      res += numMPZ_snprint(s+res,size-res,mpq_denref(a));
+    }
   }
   return res;
 }

@@ -15,14 +15,17 @@ void numMPZ_sqrt(numMPZ_t up, numMPZ_t down, numMPZ_t b)
   else mpz_add_ui(up,down,1);
 }
 
-int numMPZ_snprint(char* s, size_t size, numMPZ_t a)
+int numMPZ_snprint(char* s, int size, numMPZ_t a)
 {
-  int res;
-  if (mpz_sizeinbase(a,10)+2>size)
-    res = snprintf(s,size, mpz_sgn(a)>0 ? "+BIG" : "-BIG");
+  int res = mpz_sizeinbase(a,10)+(mpz_sgn(a)>=0 ? 0 : 1);
+  if (res>=size){
+    if (size>0){
+      for (int i=0; i<size-1; i++) s[i]='O';
+      s[size-1]=0;
+    }
+  }
   else {
     mpz_get_str(s,10,a);
-    res = strlen(s);
   }
   return res;
 }

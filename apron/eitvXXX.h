@@ -179,7 +179,7 @@ bool eitvXXX_set_generic(num_internal_t intern,
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
-int eitvXXX_snprint(char* s, size_t size, eitvXXX_t a);
+int eitvXXX_snprint(char* s, int size, eitvXXX_t a);
 void eitvXXX_fprint(FILE* stream, eitvXXX_t a);
 void eitvXXX_print(eitvXXX_t a);
 

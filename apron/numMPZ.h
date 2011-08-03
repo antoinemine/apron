@@ -152,7 +152,7 @@ static inline void numMPZ_print(numMPZ_t a)
 { mpz_out_str(stdout,10,a); }
 static inline void numMPZ_fprint(FILE* stream, numMPZ_t a)
 { mpz_out_str(stream,10,a); }
-int numMPZ_snprint(char* s, size_t size, numMPZ_t a);
+int numMPZ_snprint(char* s, int size, numMPZ_t a);
 
 /* ====================================================================== */
 /* Serialization */
