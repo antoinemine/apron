@@ -522,18 +522,309 @@ void test_join_1(FILE* stream, ap_manager_t* man)
   t1p_fdump(stream,man,res);
 
   /* free */
-  t1p_free(man,a1);
-  //t1p_aff_free(afexpr10);
-  //free(afexpr11);  
-  t1p_free(man,a2);
-  //free(afexpr20);
-  //free(afexpr21); 
-
+  t1p_free(man,a1);  
+  t1p_free(man,a2); 
+  t1p_free(man,res);
 
   free_equation_set(eqs_bprime); 
   free_equation_set(eqs_b1); 
   free_equation_set(new_eqs1); 
 }
+
+
+
+void test_join_2(FILE* stream, ap_manager_t* man)
+{
+  t1p_internal_t* pr = man->internal;
+  ja_eq_set_t *eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1, *new_eqs2;
+  t1p_t *a1,*a2,*res;
+
+  /* variables and noise symbols */
+  ap_dim_t x0 = (ap_dim_t) 0;
+  ap_dim_t x1 = (ap_dim_t) 1;
+  ap_dim_t x2 = (ap_dim_t) 2;
+
+  t1p_nsym_t* peps0 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps1 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps2 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peta3 = t1p_nsym_add(pr, UN);
+
+  /* first abstract value */
+  a1 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr10 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr11 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr12 = t1p_aff_alloc_init(pr);
+
+ /* second abstract value */
+  a2 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr20 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr21 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr22 = t1p_aff_alloc_init(pr);
+ 
+  /* constants */
+  itv_t zero,un,moinsun,deux,quatre;
+  itv_init(zero);
+  itv_set_int(zero,0);
+  itv_init(un);
+  itv_set_int(un,1);
+  itv_init(moinsun);
+  itv_set_int(moinsun,-1);
+  itv_init(deux);
+  itv_set_int(deux,2);
+  itv_init(quatre);
+  itv_set_int(quatre,4);
+
+  /* build the first abstract value */
+  itv_set(afexpr10->c, deux);
+  t1p_aff_nsym_add(pr,afexpr10,un,peps0);
+  itv_set_int2(afexpr10->itv,1,3);
+  itv_set(afexpr11->c, deux);
+  t1p_aff_nsym_add(pr,afexpr11,un,peps1);
+  itv_set_int2(afexpr11->itv,1,3);
+  itv_set(afexpr12->c, deux);
+  t1p_aff_nsym_add(pr,afexpr12,un,peps2);
+  itv_set_int2(afexpr12->itv,1,3);
+  a1->paf[0] = afexpr10;
+  a1->paf[0]->pby++;
+  itv_set(a1->box[0],afexpr10->itv);
+  a1->paf[1] =afexpr11;
+  a1->paf[1]->pby++;
+  itv_set(a1->box[1],afexpr11->itv);
+  a1->paf[2] =afexpr12;
+  a1->paf[2]->pby++;
+  itv_set(a1->box[2],afexpr12->itv);
+
+ /* build the second abstract value */
+  itv_set(afexpr20->c,deux);
+  t1p_aff_nsym_add(pr,afexpr20,deux,peps0);
+  t1p_aff_nsym_add(pr,afexpr20,un,peps1);
+  itv_set_int2(afexpr20->itv,-1,5);
+  itv_set(afexpr21->c,deux);
+  t1p_aff_nsym_add(pr,afexpr21,moinsun,peps1);
+  t1p_aff_nsym_add(pr,afexpr21,un,peps2);
+  itv_set_int2(afexpr21->itv,0,4);
+  itv_set(afexpr22->c,deux);
+  t1p_aff_nsym_add(pr,afexpr22,moinsun,peps0);
+  t1p_aff_nsym_add(pr,afexpr22,un,peps2);
+  itv_set_int2(afexpr22->itv,0,4);
+  a2->paf[0] = afexpr20;
+  a2->paf[0]->pby++;
+  itv_set(a2->box[0],afexpr20->itv);
+  a2->paf[1] =afexpr21;
+  a2->paf[1]->pby++;
+  itv_set(a2->box[1],afexpr21->itv);
+  a2->paf[2] =afexpr22;
+  a2->paf[2]->pby++;
+  itv_set(a2->box[2],afexpr22->itv);
+
+
+  fprintf(stream,"\n a1:\n");
+  t1p_fdump(stream,man,a1);
+  fprintf(stream,"\n a2:\n");
+  t1p_fdump(stream,man,a2);
+  fprintf(stream,"**********\n**********\n**********\n");
+
+  int i;
+  for (i=0 ; i<(int)a1->dims ; i++)
+    {
+      fprintf(stream,"a1[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a1->paf[i]->end);
+      fprintf(stream,"\n");
+
+      fprintf(stream,"a2[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a2->paf[i]->end);
+      fprintf(stream,"\n");
+    }
+  /* extract the equations */
+  eqs_b1= abstract_value_to_eq_set (pr,a1);
+  fprintf(stream,"eqs_b1:\n");
+  print_equation_set(stream,eqs_b1);
+  eqs_b2= abstract_value_to_eq_set (pr,a2);
+  fprintf(stream,"eqs_b2:\n");
+  print_equation_set(stream,eqs_b2);
+
+  eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
+  fprintf(stream,"eqs_bprime:\n");
+  print_equation_set(stream,eqs_bprime);
+
+  new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
+  fprintf(stream,"new eqs1:\n");
+  print_equation_set(stream,new_eqs1);
+
+  new_eqs2 = eq_set_transformation (pr, eqs_b2, eqs_bprime, a2->dims);
+  fprintf(stream,"new eqs2:\n");
+  print_equation_set(stream,new_eqs2);
+
+  /* join  */
+  res = t1p_join_alt(man, false, a1, a2);
+ 
+  fprintf(stream,"res:\n");
+  t1p_fdump(stream,man,res);
+
+
+
+  /* free */
+  t1p_free(man,a1);
+  t1p_free(man,a2);
+  t1p_free(man,res);
+
+
+
+  free_equation_set(eqs_b1); 
+  free_equation_set(eqs_b2); 
+  free_equation_set(eqs_bprime); 
+  free_equation_set(new_eqs1); 
+  free_equation_set(new_eqs2);
+}
+
+
+
+
+void test_join_3(FILE* stream, ap_manager_t* man)
+{
+  t1p_internal_t* pr = man->internal;
+  ja_eq_set_t *eqs_bprime, *eqs_b1, *eqs_b2, *new_eqs1, *new_eqs2;
+  t1p_t *a1,*a2,*res;
+
+  /* variables and noise symbols */
+  ap_dim_t x0 = (ap_dim_t) 0;
+  ap_dim_t x1 = (ap_dim_t) 1;
+  ap_dim_t x2 = (ap_dim_t) 2;
+
+  t1p_nsym_t* peps0 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps1 = t1p_nsym_add(pr, IN);
+  t1p_nsym_t* peps2 = t1p_nsym_add(pr, IN);
+ 
+  /* first abstract value */
+  a1 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr10 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr11 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr12 = t1p_aff_alloc_init(pr);
+
+ /* second abstract value */
+  a2 = t1p_alloc(man,3,0) ;
+  t1p_aff_t* afexpr20 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr21 = t1p_aff_alloc_init(pr);
+  t1p_aff_t* afexpr22 = t1p_aff_alloc_init(pr);
+ 
+  /* constants */
+  itv_t zero,un,moinsun,deux,quatre,six,huit;
+  itv_init(zero);
+  itv_set_int(zero,0);
+  itv_init(un);
+  itv_set_int(un,1);
+  itv_init(moinsun);
+  itv_set_int(moinsun,-1);
+  itv_init(deux);
+  itv_set_int(deux,2);
+  itv_init(quatre);
+  itv_set_int(quatre,4);
+  itv_init(six);
+  itv_set_int(six,6);
+  itv_init(huit);
+  itv_set_int(huit,8);
+
+  /* build the first abstract value */
+  itv_set(afexpr10->c, deux);
+  t1p_aff_nsym_add(pr,afexpr10,un,peps0);
+  itv_set_int2(afexpr10->itv,1,3);
+  itv_set(afexpr11->c, deux);
+  t1p_aff_nsym_add(pr,afexpr11,un,peps1);
+  itv_set_int2(afexpr11->itv,1,3);
+  itv_set(afexpr12->c, deux);
+  t1p_aff_nsym_add(pr,afexpr12,un,peps2);
+  itv_set_int2(afexpr12->itv,1,3);
+  a1->paf[0] = afexpr10;
+  a1->paf[0]->pby++;
+  itv_set(a1->box[0],afexpr10->itv);
+  a1->paf[1] =afexpr11;
+  a1->paf[1]->pby++;
+  itv_set(a1->box[1],afexpr11->itv);
+  a1->paf[2] =afexpr12;
+  a1->paf[2]->pby++;
+  itv_set(a1->box[2],afexpr12->itv);
+
+ /* build the second abstract value */
+  itv_set(afexpr20->c,quatre);
+  t1p_aff_nsym_add(pr,afexpr20,un,peps0);
+  itv_set_int2(afexpr20->itv,3,5);
+  itv_set(afexpr21->c,six);
+  t1p_aff_nsym_add(pr,afexpr21,un,peps1);
+  itv_set_int2(afexpr21->itv,5,7);
+  itv_set(afexpr22->c,huit);
+  t1p_aff_nsym_add(pr,afexpr22,un,peps2);
+  itv_set_int2(afexpr22->itv,7,9);
+  a2->paf[0] = afexpr20;
+  a2->paf[0]->pby++;
+  itv_set(a2->box[0],afexpr20->itv);
+  a2->paf[1] =afexpr21;
+  a2->paf[1]->pby++;
+  itv_set(a2->box[1],afexpr21->itv);
+  a2->paf[2] =afexpr22;
+  a2->paf[2]->pby++;
+  itv_set(a2->box[2],afexpr22->itv);
+
+
+  fprintf(stream,"\n a1:\n");
+  t1p_fdump(stream,man,a1);
+  fprintf(stream,"\n a2:\n");
+  t1p_fdump(stream,man,a2);
+  fprintf(stream,"**********\n**********\n**********\n");
+
+  int i;
+  for (i=0 ; i<(int)a1->dims ; i++)
+    {
+      fprintf(stream,"a1[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a1->paf[i]->end);
+      fprintf(stream,"\n");
+
+      fprintf(stream,"a2[%d]->end= ",i);
+      t1p_aaterm_fprint(pr,stream,a2->paf[i]->end);
+      fprintf(stream,"\n");
+    }
+  /* extract the equations */
+  eqs_b1= abstract_value_to_eq_set (pr,a1);
+  fprintf(stream,"eqs_b1:\n");
+  print_equation_set(stream,eqs_b1);
+  eqs_b2= abstract_value_to_eq_set (pr,a2);
+  fprintf(stream,"eqs_b2:\n");
+  print_equation_set(stream,eqs_b2);
+
+  eqs_bprime= two_abstract_values_to_eq_set (pr,a1,a2);
+  fprintf(stream,"eqs_bprime:\n");
+  print_equation_set(stream,eqs_bprime);
+
+  new_eqs1 = eq_set_transformation (pr, eqs_b1, eqs_bprime, a1->dims);
+  fprintf(stream,"new eqs1:\n");
+  print_equation_set(stream,new_eqs1);
+
+  new_eqs2 = eq_set_transformation (pr, eqs_b2, eqs_bprime, a2->dims);
+  fprintf(stream,"new eqs2:\n");
+  print_equation_set(stream,new_eqs2);
+
+  /* join  */
+  res = t1p_join_alt(man, false, a1, a2);
+ 
+  fprintf(stream,"res:\n");
+  t1p_fdump(stream,man,res);
+
+
+
+  /* free */
+  t1p_free(man,a1);
+  t1p_free(man,a2);
+  t1p_free(man,res);
+
+
+
+  free_equation_set(eqs_b1); 
+  free_equation_set(eqs_b2); 
+  free_equation_set(eqs_bprime); 
+  free_equation_set(new_eqs1); 
+  free_equation_set(new_eqs2);
+}
+
+
 
 
 int main (void)
@@ -547,7 +838,9 @@ int main (void)
   //test_rebuild_1(stream,t1p);
   //test_generate_1(stream,t1p);
   //test_generate_2(stream,t1p);
-  test_join_1(stream,t1p);
+  //test_join_1(stream,t1p);
+  //test_join_2(stream,t1p);
+  test_join_3(stream,t1p);
 
 
   fclose(stream);
