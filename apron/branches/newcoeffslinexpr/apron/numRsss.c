@@ -142,25 +142,25 @@ void numRsss_fprint(FILE* stream, numRsss_t a)
 {
   if (*a->n==0)
     fprintf(stream,"0");
-  else if (*a->d==1)
-    numIsss_fprint(stream,a->n);
   else {
     numIsss_fprint(stream,a->n);
-    fprintf(stream,"/");
-    numIsss_fprint(stream,a->d);
+    if (*a->d!=1){
+      fprintf(stream,"/");
+      numIsss_fprint(stream,a->d);
+    }
   }
 }
-int numRsss_snprint(char* s, size_t size, numRsss_t a)
+int numRsss_snprint(char* s, int size, numRsss_t a)
 {
   int res;
   if (*a->n==0)
-    res = snprintf(s,size, "0");
-  else if (*a->d==1)
-    res = numIsss_snprint(s,size,a->n);
+    res = ap_snprintf(s,size,"0");
   else {
     res = numIsss_snprint(s,size,a->n);
-    if ((unsigned int)res<size) res += snprintf(s+res,size-res,"/");
-    if ((unsigned int)res<size) res += numIsss_snprint(s+res,size-res,a->n);
+    if (*a->d!=1){
+      res += ap_snprintf(s+res,size-res,"/");
+      res += numIsss_snprint(s+res,size-res,a->n);
+    }
   }
   return res;
 }

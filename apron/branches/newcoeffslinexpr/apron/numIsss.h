@@ -164,8 +164,8 @@ static inline void numIsss_print(numIsss_t a)
 { printf("%sssi",*a); }
 static inline void numIsss_fprint(FILE* stream, numIsss_t a)
 { fprintf(stream,"%sssi",*a); }
-static inline int numIsss_snprint(char* s, size_t size, numIsss_t a)
-{ return snprintf(s,size,"%sssi",*a); }
+static inline int numIsss_snprint(char* s, int size, numIsss_t a)
+{ return ap_snprintf(s,size,"%sssi",*a); }
 
 /* ====================================================================== */
 /* Serialization */
