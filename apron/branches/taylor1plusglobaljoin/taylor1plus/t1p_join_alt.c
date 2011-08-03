@@ -804,7 +804,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
       current_term = current_term->n;
     }
     /* set the center */
-    //itv_neg(buff_sum,buff_sum);
+    itv_neg(buff_sum,buff_sum);
     itv_set(equation->c,buff_sum);
     itv_clear(buff_sum);
     current_equation = current_equation->n;
@@ -1182,6 +1182,12 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
   printf("*\n");
   printf("tout est fini\n");
   /* cleanup */
+  if (!destructive) 
+    {
+      t1p_free(man,a1bis);
+      t1p_free(man,a2bis);
+    }
+
   free_equation_set(eqs_a);
   free_equation_set(eqs_b);
   free_equation_set(eqs_b_prime);
