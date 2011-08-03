@@ -1,6 +1,8 @@
 type kind =
   | Ap_manager_t
   | Wrapper_t 
+  | Wrapper_array_t of int (* the integer denotes the index of the
+			      argument containing the size of the array *)
   | Optional_wrapper_t
   | Ap_dim_t
   | Ap_dimension_t
@@ -39,6 +41,7 @@ let c_type_of_kind k =
   match k with
     | Ap_manager_t -> "ap_manager_t*"
     | Wrapper_t -> "wrapper_t*"
+    | Wrapper_array_t _ -> "wrapper_t**" 
     | Optional_wrapper_t -> "wrapper_t*"
     | Ap_dim_t -> "ap_dim_t"
     | Ap_dimension_t -> "ap_dimension_t"
@@ -68,6 +71,7 @@ let c2ml_function_of_kind k =
   match k with
     | Ap_manager_t -> "camlidl_apron_manager_ptr_c2ml"
     | Wrapper_t -> assert false
+    | Wrapper_array_t _ -> assert false
     | Optional_wrapper_t -> assert false (*"optional_wrapper_t_c2ml"*)
     | Ap_dim_t -> "camlidl_ap_dim_t_c2ml"
     | Ap_dimension_t -> "camlidl_ap_dimension_t_c2ml"
@@ -91,6 +95,7 @@ let ml2c_function_of_kind k =
   match k with
     | Ap_manager_t -> "camlidl_apron_manager_ptr_ml2c"
     | Wrapper_t -> "wrapper_alloc"
+    | Wrapper_array_t _ -> assert false
     | Optional_wrapper_t -> assert false
     | Ap_dim_t -> "camlidl_ap_dim_t_ml2c"
     | Ap_dimension_t -> "camlidl_ap_dimension_t_ml2c"
@@ -154,11 +159,15 @@ let print_local_declaration fmt f =
   let q = List.length f.args in
   if q > 3 then
     Format.fprintf fmt "  value arg_tab[%d];@." q;
-  match f.ret with
-    | Void | Side_effect _ -> ()
-    | Value _ ->
-      let return_type = c_type_of_return_spec f.ret in
-      Format.fprintf fmt "  %s res;@." return_type
+  begin
+    match f.ret with
+      | Void | Side_effect _ -> ()
+      | Value _ ->
+	let return_type = c_type_of_return_spec f.ret in
+	Format.fprintf fmt "  %s res;@." return_type
+  end;
+  if List.exists (fun (k, _) -> match k with Wrapper_array_t _ -> true | _ -> false) f.args then
+    Format.fprintf fmt "  size_t i;@."
 
 let print_closure_definition fmt f =
   Format.fprintf fmt "  static value *closure_%s = NULL;@." f.name;
@@ -176,11 +185,16 @@ let print_argument_conversion fmt f =
   let caml_local_conversion (k, name) =
     match k with
       | Wrapper_t -> ()
+      | Wrapper_array_t i ->
+	let (_, size) = List.nth f.args i in
+	Format.fprintf fmt "  v_%s = caml_alloc(%s, 0);@." name size;
+	Format.fprintf fmt "  for (i = 0; i < %s; i++)@." size;
+	Format.fprintf fmt "    Store_field(v_%s, i, %s[i]->val);@." name name;
       | Optional_wrapper_t ->
 	Format.fprintf fmt "  if (%s == NULL)@." name;
 	Format.fprintf fmt "    v_%s = Val_int(0);@." name;
 	Format.fprintf fmt "  else {@.";
-	Format.fprintf fmt "    v_%s = caml_alloc(1,0);@." name;
+	Format.fprintf fmt "    v_%s = caml_alloc(1, 0);@." name;
 	Format.fprintf fmt "    Store_field(v_%s, 0, %s->val);@." name name;
 	Format.fprintf fmt "  }@."
       | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
@@ -296,8 +310,8 @@ let _ =
       { ret = Side_effect 1; name = "to_lingen_array"; args = [(Ap_manager_t, "man"); (Ap_lingen0_array_t, "array"); (Wrapper_t, "a")]; destructive_variant = None }; 
       { ret = Value Wrapper_t; name = "meet"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = Some 1 }; 
       { ret = Value Wrapper_t; name = "join"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = Some 1 }; 
-(*{ ret = Value Wrapper_t; name = "meet_array"; args = [(Ap_manager_t, "man"); (Wrapper_t* tab"); (Size_t, "size")]; destructive_variant = None }; 
-  { ret = Value Wrapper_t; name = "join_array"; args = [(Ap_manager_t, "man"); (Wrapper_t* tab"); (Size_t, "size")]; destructive_variant = None }; *)
+      { ret = Value Wrapper_t; name = "meet_array"; args = [(Ap_manager_t, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None };
+      { ret = Value Wrapper_t; name = "join_array"; args = [(Ap_manager_t, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None }; 
       { ret = Value Wrapper_t; name = "meet_lincons_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_lincons0_array_t, "array")]; destructive_variant = Some 1 }; 
       { ret = Value Wrapper_t; name = "meet_tcons_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_tcons0_array_t, "array")]; destructive_variant = Some 1 }; 
       { ret = Value Wrapper_t; name = "add_ray_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_lingen0_array_t, "array")]; destructive_variant = Some 1 }; 
