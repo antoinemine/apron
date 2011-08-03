@@ -73,10 +73,10 @@ let c2ml_function_of_kind k =
     | Wrapper_t -> assert false
     | Wrapper_array_t _ -> assert false
     | Optional_wrapper_t -> assert false (*"optional_wrapper_t_c2ml"*)
-    | Ap_dim_t -> "camlidl_ap_dim_t_c2ml"
-    | Ap_dimension_t -> "camlidl_ap_dimension_t_c2ml"
+    | Ap_dim_t -> "camlidl_c2ml_dim_ap_dim_t"
+    | Ap_dimension_t -> "camlidl_c2ml_dim_struct_ap_dimension_t"
     | Ap_dimchange_t -> "camlidl_apron_dimchange_c2ml"
-    | Ap_dimperm_t -> "camlidl_ap_dimperm_t_c2ml"
+    | Ap_dimperm_t -> "camlidl_c2ml_dim_struct_ap_dimperm_t"
     | Ap_coeff_t -> "camlidl_coeff_ptr_c2ml"
     | Ap_lingen0_t -> "camlidl_lingen0_ptr_c2ml"
     | Ap_lingen0_array_t -> "camlidl_lingen0_array_ptr_c2ml"
@@ -97,10 +97,10 @@ let ml2c_function_of_kind k =
     | Wrapper_t -> "wrapper_alloc"
     | Wrapper_array_t _ -> assert false
     | Optional_wrapper_t -> assert false
-    | Ap_dim_t -> "camlidl_ap_dim_t_ml2c"
-    | Ap_dimension_t -> "camlidl_ap_dimension_t_ml2c"
-    | Ap_dimchange_t -> assert false
-    | Ap_dimperm_t -> "camlidl_ap_dimperm_t_ml2c"
+    | Ap_dim_t -> "camlidl_ml2c_dim_ap_dim_t"
+    | Ap_dimension_t -> "camlidl_ml2c_dim_struct_ap_dimension_t"
+    | Ap_dimchange_t -> "camlidl_apron_dimchange_ml2c"
+    | Ap_dimperm_t -> "camlidl_ml2c_dim_struct_ap_dimperm_t"
     | Ap_coeff_t -> "camlidl_coeff_ptr_ml2c"
     | Ap_lingen0_t -> "camlidl_lingen0_ptr_ml2c"
     | Ap_lingen0_array_t -> "camlidl_lingen0_array_ptr_ml2c"
@@ -111,7 +111,7 @@ let ml2c_function_of_kind k =
     | Ap_texpr0_t -> "camlidl_apron_texpr0_ptr_ml2c"
     | Ap_texpr0_array_t -> "camlidl_apron_texpr0_array_t_ml2c"
     | Ap_tcons0_t -> "camlidl_apron_tcons0_t_ml2c"
-    | Ap_tcons0_array_t -> "camlidl_ap_tcons0_array_t_ml2c"
+    | Ap_tcons0_array_t -> "camlidl_apron_tcons0_array_t_ml2c"
     | Bool -> "Bool_val"
     | Int -> "Int_val"
     | Size_t -> "(size_t) Int_val"
@@ -167,7 +167,9 @@ let print_local_declaration fmt f =
 	Format.fprintf fmt "  %s res;@." return_type
   end;
   if List.exists (fun (k, _) -> match k with Wrapper_array_t _ -> true | _ -> false) f.args then
-    Format.fprintf fmt "  size_t i;@."
+    Format.fprintf fmt "  size_t i;@.";
+  Format.fprintf fmt "  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };@.";
+  Format.fprintf fmt "  camlidl_ctx _ctx = &_ctxs;@."
 
 let print_closure_definition fmt f =
   Format.fprintf fmt "  static value *closure_%s = NULL;@." f.name;
@@ -197,6 +199,8 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "    v_%s = caml_alloc(1, 0);@." name;
 	Format.fprintf fmt "    Store_field(v_%s, 0, %s->val);@." name name;
 	Format.fprintf fmt "  }@."
+      | Ap_dim_t | Ap_dimension_t | Ap_dimperm_t ->
+	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name	
       | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
   in
   List.iter caml_local_conversion f.args
@@ -206,14 +210,20 @@ let print_result_conversion fmt f =
     | Void -> ()
     | Side_effect i ->
       let (k, name) = List.nth f.args i in
-      Format.fprintf fmt "  %s(v_%s, &%s);@." (ml2c_function_of_kind k) name name
+      begin
+	match k with
+	  | Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t -> 
+	    Format.fprintf fmt "  %s(v_%s, &%s, _ctx);@." (ml2c_function_of_kind k) name name
+	  | _ ->
+	    Format.fprintf fmt "  %s(v_%s, &%s);@." (ml2c_function_of_kind k) name name
+      end
     | Value k -> 
       match k with
 	| Wrapper_t | Bool | Int | Size_t ->
 	  Format.fprintf fmt "  res = %s(v_res);@." (ml2c_function_of_kind k)
-	| _ ->
-	  Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k) 
-
+	| Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t ->
+	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k) 
+	| _ -> Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k) 
 
 let print_callback fmt f =
   let print_assignement_return_value fmt () = 
@@ -264,6 +274,7 @@ let print_callback fmt f =
       Format.fprintf fmt "  }@."
 
 let print_return fmt f =
+  Format.fprintf fmt "  camlidl_free(_ctx);@.";
   match f.ret with
     | Void | Side_effect _ -> Format.fprintf fmt "  CAMLreturn0;@."
     | Value _ ->
