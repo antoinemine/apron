@@ -122,8 +122,14 @@ extern "C" {
 /* Dimensions, variables, environments */
 /* ********************************************************************** */
 
+extern void camlidl_ml2c_dim_ap_dim_t(value v, ap_dim_t *dim, struct camlidl_ctx_struct* _ctx);
+extern value camlidl_c2ml_dim_ap_dim_t(ap_dim_t *dim, struct camlidl_ctx_struct* _ctx);
+extern void camlidl_ml2c_dim_struct_ap_dimension_t(value v, ap_dimension_t *dim, struct camlidl_ctx_struct* _ctx);
+extern value camlidl_c2ml_dim_struct_ap_dimension_t(ap_dimension_t *dim, struct camlidl_ctx_struct* _ctx);
 void camlidl_apron_dimchange_ml2c(value v, ap_dimchange_t* dimchange, struct camlidl_ctx_struct* _ctx);
 value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange);
+extern void camlidl_ml2c_dim_struct_ap_dimperm_t(value v, ap_dimperm_t *perm, struct camlidl_ctx_struct* _ctx);
+extern value camlidl_c2ml_dim_struct_ap_dimperm_t(ap_dimperm_t *perm, struct camlidl_ctx_struct* _ctx);
 
 typedef struct apron_var_t {
   char* name;
