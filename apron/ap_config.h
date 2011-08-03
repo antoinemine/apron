@@ -10,6 +10,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -30,6 +32,8 @@ static inline tbool_t tbool_of_or(tbool_t a, tbool_t b);
 static inline tbool_t tbool_of_and(tbool_t a, tbool_t b);
 static inline tbool_t tbool_of_not(tbool_t a);
 #endif
+
+static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...);
 
 #if !(defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __APPLE__ || defined __CYGWIN__)
 
@@ -68,6 +72,46 @@ static inline tbool_t tbool_not(tbool_t a)
     a==tbool_true  ? tbool_false : a;
 }
 #endif
+
+static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...)
+{
+  int count;
+  va_list ap;
+  va_start(ap,format);
+  if (n<=0){
+    count = vsnprintf(s+n-1,1,format,ap);
+  }
+  else {
+    count = vsnprintf(s+n,n,format,ap);
+  }
+  va_end(ap);
+  return count;
+}
+
+static inline ap_generic_asprint_of_fprint(
+    char** str, void* obj, void (*fprint)(FILE*,void*), size_t size
+)
+{
+  int res;
+  char buf[size];
+  FILE* stream = tmpfile();
+  if (stream==NULL){ *str=NULL; return -1; }
+  setbuffer(stream,buf,size);
+  fprint(stream,obj);
+  long pos = ftell(stream);
+  *str = malloc(pos+1);
+  if (pos>0){
+    rewind(stream);
+    fread(str,1,pos,stream);
+    str[pos] = NULL;
+  }
+  else {
+    str[0]=NULL;
+  }
+  fclose(stream);
+  res = pos;
+}
+
 
 #ifdef __cplusplus
 }
