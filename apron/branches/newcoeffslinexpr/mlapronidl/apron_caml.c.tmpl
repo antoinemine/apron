@@ -557,7 +557,7 @@ value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array)
 void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p)
 {
   camlidl_apron_texpr0_ptr_ml2c(Field(v,0),&p->texpr0);
-  p->constyp = camlidl_ml2c_common_enum_constyp_t(Field(v,1));
+  p->constyp = camlidl_ml2c_common_enum_ap_constyp_t(Field(v,1));
   mpq_ptr ptr = p->mpq;
   camlidl_mpq_ptr_ml2c(Field(v,2),&ptr);
 }
@@ -566,7 +566,7 @@ value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p)
   CAMLparam0();
   CAMLlocal4(v0,v1,v2,v);
   v0 = camlidl_apron_texpr0_ptr_c2ml(&p->texpr0);
-  v1 = camlidl_c2ml_common_enum_constyp_t(p->constyp);
+  v1 = camlidl_c2ml_common_enum_ap_constyp_t(p->constyp);
   mpq_ptr ptr = p->mpq;
   v2 = camlidl_mpq_ptr_c2ml(&ptr);
   v = alloc_small(3,0);
