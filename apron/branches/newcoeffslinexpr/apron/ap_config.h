@@ -96,7 +96,7 @@ static inline int ap_generic_asprint_of_fprint(
   char buf[size];
   FILE* stream = tmpfile();
   if (stream==NULL){ *str=NULL; return -1; }
-  setbuffer(stream,buf,size);
+  setvbuf(stream,buf,_IOFBF,size);
   fprint(stream,obj);
   long pos = ftell(stream);
   *str = malloc(pos+1);
