@@ -4,7 +4,7 @@
 #include "ap_global1.h"
 #include "ml2c_wrapper.h"
 
-void test1(void) 
+void test1(void)
 {
   ap_manager_t* man;
   ap_dimension_t dim = { 10, 0 };
@@ -12,7 +12,7 @@ void test1(void)
   bool b;
 
   man = wrapper_manager_alloc();
- 
+
   printf("******************************\n");
   printf("test1\n");
   printf("Library %s, version %s\n",man->library,man->version);
@@ -31,10 +31,10 @@ void test1(void)
 }
 
 void test2(void) {
-  ap_var_t name_of_dim[6] = {    
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
   };
-  ap_environment_t* env = ap_environment_alloc(&name_of_dim,6,NULL,0);
+  ap_environment_t* env = ap_environment_alloc(name_of_dim,6,NULL,0);
   ap_manager_t* man;
 
   man = wrapper_manager_alloc();
@@ -42,7 +42,7 @@ void test2(void) {
   printf("******************************\n");
   printf("test2\n");
   printf("Library %s, version %s\n",man->library,man->version);
-  printf("******************************\n"); 
+  printf("******************************\n");
 
   /* 1.a Creation of an equality constraint 1/2x+2/3y=1 */
   ap_lincons1_t cons1;
