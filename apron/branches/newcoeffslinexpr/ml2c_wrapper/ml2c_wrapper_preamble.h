@@ -8,7 +8,7 @@ typedef struct wrapper_t {
   value val;
 } wrapper_t;
 
-ap_manager_t* manager_alloc(void);
+ap_manager_t* wrapper_manager_alloc(void);
 
 void wrapper_free(ap_manager_t* man, wrapper_t* x);
 

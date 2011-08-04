@@ -42,7 +42,16 @@ static wrapper_t* wrapper_internal_alloc(void)
     closure_internal_alloc = caml_named_value("manager_alloc");
   }
   res = wrapper_alloc(caml_callback(*closure_internal_alloc, Val_unit));
-  return res;
+  CAMLreturnT(wrapper_t*, res);
+}
+
+static void callback_registering(void) 
+{
+  char* arg;
+  arg = malloc(20*sizeof(char));
+  strcpy(arg, "caml_startup");
+  caml_startup(&arg);
+  free(arg);
 }
 
 ap_manager_t* wrapper_manager_alloc(void)
@@ -50,9 +59,9 @@ ap_manager_t* wrapper_manager_alloc(void)
   ap_manager_t* man;
   void** funptr;
   wrapper_t* internal;
-  char* argv[] = {""}; 
 
-  caml_startup(argv);
+  callback_registering();
+
   internal = wrapper_internal_alloc();
   man = ap_manager_alloc("ml2c wrapper manager", 
 			 "1.0", 
@@ -118,3 +127,4 @@ ap_manager_t* wrapper_manager_alloc(void)
   
   return(man);
 }
+

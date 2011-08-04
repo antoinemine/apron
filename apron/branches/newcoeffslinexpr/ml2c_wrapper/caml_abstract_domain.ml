@@ -49,6 +49,7 @@ let closure = Abstract0.closure
 let manager_alloc = Polka.manager_alloc_loose_numMPQ
 
 let _ = 
+  Format.printf "Registering functions@.";
   Callback.register "copy" copy;
   Callback.register "size" size;
   Callback.register "minimize" minimize;
@@ -95,4 +96,6 @@ let _ =
   Callback.register "fold" fold;
   Callback.register "widening" widening;
   Callback.register "closure" closure;
-  Callback.register "manager_alloc"
+  Callback.register "manager_alloc" manager_alloc;
+  Format.printf "...done@."
+  
