@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
 #include <caml/camlidlruntime.h>

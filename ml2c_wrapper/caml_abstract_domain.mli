@@ -1,7 +1,3 @@
-type t =
-    (Apron.Polka.loose, Apron.Polka.numMPQ) Apron.Polka.t Apron.Abstract0.t
-val man :
-  (Apron.Polka.loose, Apron.Polka.numMPQ) Apron.Polka.t Apron.Manager.t
 val copy : 'a Apron.Manager.t -> 'a Apron.Abstract0.t -> 'a Apron.Abstract0.t
 val size : 'a Apron.Manager.t -> 'a Apron.Abstract0.t -> int
 val minimize : 'a Apron.Manager.t -> 'a Apron.Abstract0.t -> unit
@@ -119,3 +115,5 @@ val widening :
   'a Apron.Abstract0.t -> 'a Apron.Abstract0.t -> 'a Apron.Abstract0.t
 val closure :
   'a Apron.Manager.t -> 'a Apron.Abstract0.t -> 'a Apron.Abstract0.t
+val manager_alloc : unit -> 
+  (Apron.Polka.loose, Apron.Polka.numMPQ) Apron.Polka.t Apron.Manager.t
