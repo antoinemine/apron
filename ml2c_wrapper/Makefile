@@ -63,8 +63,7 @@ caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
 caml_abstract_domain_wrapper.c: caml_abstract_domain_wrapper_preamble.c generator
-	cp caml_abstract_domain_wrapper_preamble.c $@
-	./generator >> $@
+	./generator -preamble-c caml_abstract_domain_wrapper_preamble.c -output-c $@
 
 test: caml_abstract_domain_obj.o caml_abstract_domain_wrapper.o
 	$(CC) $(LDFLAGS) -o $@ $^
