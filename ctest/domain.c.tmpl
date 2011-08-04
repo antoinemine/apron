@@ -1024,7 +1024,7 @@ void test_meet_tcons_array(void)
     size_t i, dim = 6, depth = 4, nb = 3;
     ap_abstract0_t* rougha,*roughr, *preca,*precr;
     ap_tcons0_array_t array = random_tcons0_array(dim,depth,nb);
-    if (false){
+    if (1){
       printf("\n");
       ap_tcons0_array_print(&array,NULL);
       printf("\n");
@@ -1038,7 +1038,6 @@ void test_meet_tcons_array(void)
       ap_tcons0_array_fprint(stream,&array,NULL);
       print_abstract("rougha",rougha); print_abstract("preca",preca);
       print_abstract("roughr",roughr); print_abstract("precr",precr);
-      abort();
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_abstract0_free(manrough,roughr); ap_abstract0_free(manprec,precr);
@@ -1182,16 +1181,16 @@ void test_asssub_texpr(void)
     ap_abstract0_t* rougha,*roughr, *preca,*precr;
     ap_texpr0_t* l = random_texpr0(dim, depth);
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
-    if (0){
+    if (1){
       printf("\n");
-      ap_texpr0_print(l,NULL);
+      fprintf(stream,"x%i <- ",(int)p); ap_texpr0_print(l,NULL);
       printf("\n");
     }
     roughr = ap_abstract0_asssub_texpr(manrough,false,rougha,p,l,NULL);
     precr = ap_abstract0_asssub_texpr(manprec,false,preca,p,l,NULL);
     RESULT('*');
     if (!is_leq(precr,roughr)) {
-      ERROR("different results");
+      ERROR("no inclusion (likely to be an error)");
       fprintf(stream,"x%i <- ",(int)p); ap_texpr0_fprint(stream,l,NULL); fprintf(stream,"\n");
       print_abstract("rougha",rougha); print_abstract("roughr",roughr); print_abstract("precr",precr);
     }
@@ -1256,19 +1255,27 @@ void test_forget_array(void)
     ap_dimchange_init(&a,dimension);
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     d = ap_abstract0_dimension(manrough,rougha);
+    
     for (i=0;i<dimension.intd+dimension.reald;i++) {
       a.p[i] = rand()%3 + 1;
       if (i) a.p[i] += a.p[i-1];
       if (a.p[i]<d.intd) { a.dim.intd++; a.dim.reald--; }
       assert(a.p[i]<dim);
     }
+    if (0){
+      printf("\n");
+      ap_dimchange_fprint(stream,&a);
+      print_abstract("rougha",rougha); print_abstract("preca",preca); 
+      printf("\n");
+    }
     roughr = ap_abstract0_forget_array(manrough,false,rougha,a.p, a.dim.intd+a.dim.reald, proj);
     precr = ap_abstract0_forget_array(manprec,false,preca,a.p, a.dim.intd+a.dim.reald,proj);
     RESULT('*');
     if (!is_leq(precr,roughr)) {
-      ERROR("different results");
+      ERROR("no inclusion (error)");
       ap_dimchange_fprint(stream,&a);
-      print_abstract("rougha",rougha); print_abstract("roughr",roughr); print_abstract("precr",precr);
+      print_abstract("rougha",rougha); print_abstract("roughr",roughr); 
+      print_abstract("precaa",preca); print_abstract("precr",precr);
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_abstract0_free(manrough,roughr); ap_abstract0_free(manprec,precr);
@@ -1457,6 +1464,7 @@ void test(ap_manager_t* man1, /* the most precise */
 	  )
 {
   int i;
+  int intdim;
 
   manprec = man1;
   manrough = man2;
@@ -1464,11 +1472,11 @@ void test(ap_manager_t* man1, /* the most precise */
     manprec->option.abort_if_exception[i] = true;
     manrough->option.abort_if_exception[i] = true;
   }
-  for (global_intdim=1;global_intdim<=1;global_intdim++) {
+  for (intdim=0; intdim<=0; intdim++) {
+    global_intdim = (intdim>0);
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
-
     test_conv();
     test_bound_dimension();
     test_bound_linexpr();
@@ -1503,7 +1511,9 @@ void test(ap_manager_t* man1, /* the most precise */
     test_expand();
     test_fold();
   }
-  if (error_) printf("\n%i error(s)!\n",error_);
+  if (error_){
+    printf("\n%i error(s)!\n",error_);
+  }
   else printf("\nall tests passed\n");
 }
 
@@ -1603,3 +1613,4 @@ int main(int argc, char** argv)
   */
   return 0;
 }
+
