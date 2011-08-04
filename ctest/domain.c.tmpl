@@ -43,6 +43,7 @@ ap_texpr0_t* random_texpr0_real(int, int);
 /* ********************************************************************** */
 
 FILE* stream=NULL;
+bool warning = true;
 
 ap_manager_t* manprec;
 ap_manager_t* manrough;
@@ -666,10 +667,17 @@ void test_conv(void)
     ap_abstract0_t* rough1 = convert(manrough,prec0);
     ap_abstract0_t* prec1 = convert(manprec,rough1);
     RESULT('*');
-    if (!is_eq(rough0,rough1) ||
-	!is_eq(prec0,prec1) ||
-	!is_leq(prec0,rough0)) {
-      ERROR("different results");
+    bool t1 = !is_eq(rough0,rough1);
+    bool t2 = !is_eq(prec0,prec1);
+    bool t3 = !is_leq(prec0,rough0);
+
+    if (t1 || t2 || t3){
+      char msg[256];
+      int n = 0;
+      if (t1) n+=snprintf(msg+n,256-n,"rough0!=rough1 (error) ");
+      if (t2) n+=snprintf(msg+n,256-n,"prec0!=prec1 (error) ");
+      if (t3) n+=snprintf(msg+n,256-n,"prec0 not in rough0 (error) ");
+      ERROR(msg);
       print_abstract("rough0",rough0); print_abstract("prec0",prec0);
       print_abstract("rough1",rough1); print_abstract("prec1",prec1);
     }
@@ -737,14 +745,21 @@ void test_bound_linexpr(void)
     ap_abstract0_bound_linexpr(manprec,preci,preca,l);
     cmp = ap_coeff_cmp(preci,roughi);
     RESULT('*');
-    if ((random_abstract2_equal && cmp!=0) ||
-	(cmp!=0 && cmp!=(-1))){
-      ERROR("different results");
-      print_abstract("rougha",rougha); print_abstract("preca",preca);
-      ap_linexpr0_fprint(stream,l,NULL);
-      fprintf(stream,"\nroughi="); ap_coeff_fprint(stream,roughi);
-      fprintf(stream,"\npreci="); ap_coeff_fprint(stream,preci);
-      fprintf(stream,"\n");
+    bool t1 = (random_abstract2_equal && cmp!=0);
+    bool t2 = (cmp!=0 && cmp!=(-1));
+    if (t1 || t2){
+      char msg[256];
+      int n=0;
+      if (t1) n+=snprintf(msg+n,256-n,"rougha==preca but different results (sound) ");
+      if (t2) n+=snprintf(msg+n,256-n,"no inclusion (likely to be an error)");
+      ERROR(msg);
+      if (t2 || (t1 && warning)){
+	print_abstract("rougha",rougha); print_abstract("preca",preca);
+	ap_linexpr0_fprint(stream,l,NULL);
+	fprintf(stream,"\nroughi="); ap_coeff_fprint(stream,roughi);
+	fprintf(stream,"\npreci="); ap_coeff_fprint(stream,preci);
+	fprintf(stream,"\n");
+      }
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_coeff_clear(roughi); ap_coeff_clear(preci);
@@ -763,24 +778,26 @@ void test_bound_texpr(void)
 
     ap_coeff_init(roughi,global_discr); ap_coeff_init(preci,global_discr);
     ap_texpr0_t* e = random_texpr0(dim,depth);
-    if (1){
-      printf("\n");
-      ap_texpr0_print(e,NULL);
-      printf("\n");
-    }
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     ap_abstract0_bound_texpr(manrough,roughi,rougha,e);
     ap_abstract0_bound_texpr(manprec,preci,preca,e);
     cmp = ap_coeff_cmp(preci,roughi);
     RESULT('*');
-    if ((random_abstract2_equal && cmp!=0) ||
-	(cmp!=0 && cmp!=(-1))){
-      ERROR("different results");
-      print_abstract("rougha",rougha); print_abstract("preca",preca);
-      ap_texpr0_fprint(stream,e,NULL);
-      fprintf(stream,"\nroughi="); ap_coeff_fprint(stream,roughi);
-      fprintf(stream,"\npreci="); ap_coeff_fprint(stream,preci);
-      fprintf(stream,"\n");
+    bool t1 = (random_abstract2_equal && cmp!=0);
+    bool t2 = (cmp!=0 && cmp!=(-1));
+    if (t1 || t2){
+      char msg[256];
+      int n=0;
+      if (t1) n+=snprintf(msg+n,256-n,"rougha==preca but different results (sound) ");
+      if (t2) n+=snprintf(msg+n,256-n,"no inclusion (likely to be an error)");
+      ERROR(msg);
+      if (t2 || (t1 && warning)){
+	print_abstract("rougha",rougha); print_abstract("preca",preca);
+	ap_texpr0_fprint(stream,e,NULL);
+	fprintf(stream,"\nroughi="); ap_coeff_fprint(stream,roughi);
+	fprintf(stream,"\npreci="); ap_coeff_fprint(stream,preci);
+	fprintf(stream,"\n");
+      }
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_coeff_clear(roughi); ap_coeff_clear(preci);
@@ -804,15 +821,22 @@ void test_sat_interval(void)
     roughs = ap_abstract0_sat_interval(manrough,rougha,p,i);
     precs = ap_abstract0_sat_interval(manprec,preca,p,i);
     RESULT('*');
-    if ((random_abstract2_equal &&
-	 ((roughs && roughs!=precs) ||
-	  (precs && roughs!=precs))) ||
-	(roughs && !precs)){
-      ERROR("different results");
-      print_abstract("rougha",rougha);
-      print_abstract("preca",preca);
-      ap_coeff_fprint(stream,i);
-      fprintf(stream,"\nvar=%i\nroughs=%i precs=%i\n",(int)p,roughs,precs);
+    bool t1 = (random_abstract2_equal &&
+	       ((roughs && roughs!=precs) ||
+		(precs && roughs!=precs)));
+    bool t2 = roughs && !precs;
+    if (t1 || t2){
+      char msg[256];
+      int n=0;
+      if (t1) n+=snprintf(msg+n,256-n,"rougha==preca but different results (sound) ");
+      if (t2) n+=snprintf(msg+n,256-n,"no implication (likely to be an error)");
+      ERROR(msg);
+      if (t2 || (t1 && warning)){
+	print_abstract("rougha",rougha);
+	print_abstract("preca",preca);
+	ap_coeff_fprint(stream,i);
+	fprintf(stream,"\nvar=%i\nroughs=%i precs=%i\n",(int)p,roughs,precs);
+      }
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_coeff_clear(i);
@@ -834,14 +858,21 @@ void test_sat_lincons(void)
     roughs = ap_abstract0_sat_lincons(manrough,rougha,l);
     precs = ap_abstract0_sat_lincons(manprec,preca,l);
     RESULT('*');
-    if ((random_abstract2_equal &&
-	 ((roughs && roughs!=precs) ||
-	  (precs && roughs!=precs))) ||
-	(roughs && !precs)){
-      ERROR("different results");
-      print_abstract("rougha",rougha);print_abstract("preca",preca);
-      ap_lincons0_fprint(stream,l,NULL);
-      fprintf(stream,"\nroughs=%i precs=%i\n",roughs,precs);
+    bool t1 = (random_abstract2_equal &&
+	       ((roughs && roughs!=precs) ||
+		(precs && roughs!=precs)));
+    bool t2 = roughs && !precs;
+    if (t1 || t2){
+      char msg[256];
+      int n=0;
+      if (t1) n+=snprintf(msg+n,256-n,"rougha==preca but different results (sound) ");
+      if (t2) n+=snprintf(msg+n,256-n,"no implication (likely to be an error)");
+      ERROR(msg);
+      if (t2 || (t1 && warning)){
+	print_abstract("rougha",rougha);print_abstract("preca",preca);
+	ap_lincons0_fprint(stream,l,NULL);
+	fprintf(stream,"\nroughs=%i precs=%i\n",roughs,precs);
+      }
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_lincons0_clear(l);
@@ -855,7 +886,8 @@ void test_sat_tcons(void)
     size_t dim = 6, depth=3;
     ap_abstract0_t* rougha,*preca;
     ap_tcons0_t* l = random_tcons0(dim,depth,100);
-    if (1){
+
+    if (0){
       printf("\n");
       ap_tcons0_print(l,NULL);
       printf("\n");
@@ -865,14 +897,21 @@ void test_sat_tcons(void)
     roughs = ap_abstract0_sat_tcons(manrough,rougha,l);
     precs = ap_abstract0_sat_tcons(manprec,preca,l);
     RESULT('*');
-    if ((random_abstract2_equal &&
-	 ((roughs && roughs!=precs) ||
-	  (precs && roughs!=precs))) ||
-	(roughs && !precs)){
-      ERROR("different results");
-      print_abstract("rougha",rougha);print_abstract("preca",preca);
-      ap_tcons0_fprint(stream,l,NULL);
-      fprintf(stream,"\nroughs=%i precs=%i\n",roughs,precs);
+    bool t1 = (random_abstract2_equal &&
+	       ((roughs && roughs!=precs) ||
+		(precs && roughs!=precs)));
+    bool t2 = roughs && !precs;
+    if (t1 || t2){
+      char msg[256];
+      int n=0;
+      if (t1) n+=snprintf(msg+n,256-n,"rougha==preca but different results (sound) ");
+      if (t2) n+=snprintf(msg+n,256-n,"no implication (likely to be an error)");
+      ERROR(msg);
+      if (t2 || (t1 && warning)){
+	print_abstract("rougha",rougha);print_abstract("preca",preca);
+	ap_tcons0_fprint(stream,l,NULL);
+	fprintf(stream,"\nroughs=%i precs=%i\n",roughs,precs);
+      }
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_tcons0_free(l);
@@ -995,10 +1034,11 @@ void test_meet_tcons_array(void)
     precr = ap_abstract0_meet_tcons_array(manprec,false,preca,&array);
     RESULT('*');
     if (!is_leq(precr,roughr)) {
-      ERROR("different results");
+      ERROR("no inclusion (likely to be an error)");
       ap_tcons0_array_fprint(stream,&array,NULL);
       print_abstract("rougha",rougha); print_abstract("preca",preca);
       print_abstract("roughr",roughr); print_abstract("precr",precr);
+      abort();
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
     ap_abstract0_free(manrough,roughr); ap_abstract0_free(manprec,precr);
@@ -1142,6 +1182,11 @@ void test_asssub_texpr(void)
     ap_abstract0_t* rougha,*roughr, *preca,*precr;
     ap_texpr0_t* l = random_texpr0(dim, depth);
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
+    if (0){
+      printf("\n");
+      ap_texpr0_print(l,NULL);
+      printf("\n");
+    }
     roughr = ap_abstract0_asssub_texpr(manrough,false,rougha,p,l,NULL);
     precr = ap_abstract0_asssub_texpr(manprec,false,preca,p,l,NULL);
     RESULT('*');
@@ -1419,7 +1464,7 @@ void test(ap_manager_t* man1, /* the most precise */
     manprec->option.abort_if_exception[i] = true;
     manrough->option.abort_if_exception[i] = true;
   }
-  for (global_intdim=0;global_intdim<=1;global_intdim++) {
+  for (global_intdim=1;global_intdim<=1;global_intdim++) {
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
@@ -1509,17 +1554,14 @@ int main(int argc, char** argv)
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manpkl,manbox);
-    /*
     test(manpks,manbox);
     //test(manppll,manbox);
     //test(manppls,manbox);
 
     // polyhedra/polyhedra (same library)
     test(manpks,manpkl);
-    test(manpkl,manpks);
     //test(manppls,manppll);
     //test(manppll,manppls);
-    */
     /*
     // Polka polyhedra/PPL polyhedra
     test(manppll,manpkl);

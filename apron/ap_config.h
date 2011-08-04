@@ -88,7 +88,7 @@ static inline int ap_snprintf(char* restrict s, int n, const char* restrict form
   return count;
 }
 
-static inline ap_generic_asprint_of_fprint(
+static inline int ap_generic_asprint_of_fprint(
     char** str, void* obj, void (*fprint)(FILE*,void*), size_t size
 )
 {
@@ -110,6 +110,7 @@ static inline ap_generic_asprint_of_fprint(
   }
   fclose(stream);
   res = pos;
+  return res;
 }
 
 

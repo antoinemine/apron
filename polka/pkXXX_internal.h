@@ -121,6 +121,7 @@ void vectorXXX_product_strict(pkXXX_internal_t* pk,
 
 /* Predicates that can be useful for users */
 bool vectorXXX_is_null(pkXXX_internal_t* pk, numintXXX_t* q, size_t size);
+bool vectorXXX_is_cst(pkXXX_internal_t* pk, numintXXX_t* q, size_t size);
 bool vectorXXX_is_null_strict(pkXXX_internal_t* pk, numintXXX_t* q, size_t size);
 bool vectorXXX_is_positivity_constraint(pkXXX_internal_t* pk,numintXXX_t* q,size_t size);
 bool vectorXXX_is_dummy_constraint(pkXXX_internal_t* pk, numintXXX_t* q, size_t size);

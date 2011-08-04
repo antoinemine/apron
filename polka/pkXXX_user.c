@@ -184,14 +184,15 @@ void vectorXXX_set_ap_linconsXXX(pkXXX_internal_t* pk,
 				 ap_dimension_t dim,
 				 bool integer)
 {
-  size_t i,nb;
+  size_t i,size;
   assert(cons->constyp == AP_CONS_EQ ||
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
   assert(ap_linexprXXX_is_linear(cons->linexpr));
 
+  size = pk->dec+ap_dimension_size(dim);
   vectorXXX_set_ap_linexprXXX(pk, vec, cons->linexpr, dim, 1);
-  vectorXXX_normalize(pk,vec,pk->dec+dim.intd+dim.reald);
+  vectorXXX_normalize(pk,vec,size);
   if (cons->constyp == AP_CONS_EQ){
     numintXXX_set_int(vec[0],0);
   }
@@ -202,7 +203,9 @@ void vectorXXX_set_ap_linconsXXX(pkXXX_internal_t* pk,
     if (pk->strict){
       numintXXX_set_int(vec[polka_eps],-1);
     }
-    else if (integer && vectorXXX_is_integer(pk, vec, dim)){
+    else if (integer &&
+	     vectorXXX_is_integer(pk, vec, dim) &&
+	     !vectorXXX_is_cst(pk,vec,size)){
       numintXXX_sub_uint(vec[polka_cst], vec[polka_cst], 1);
     }
   }
@@ -220,7 +223,7 @@ bool vectorXXX_set_ap_linconsXXX_sat(
     ap_linconsXXX_t cons, ap_dimension_t dim, bool integer)
 {
   bool sat;
-  size_t i;
+  size_t i,size;
 
   if (cons->constyp == AP_CONS_EQ && cons->linexpr->cst->eq != true){
     return false;
@@ -231,8 +234,9 @@ bool vectorXXX_set_ap_linconsXXX_sat(
 	 cons->constyp == AP_CONS_SUP);
 
   if (!boundXXX_infty(cons->linexpr->cst->itv->neginf)){
+    size = pk->dec+ap_dimension_size(dim);
     vectorXXX_set_ap_linexprXXX(pk, vec, cons->linexpr, dim,-1);
-    vectorXXX_normalize(pk,vec,pk->dec+dim.intd+dim.reald);
+    vectorXXX_normalize(pk,vec,size);
     if (cons->constyp == AP_CONS_EQ && cons->linexpr->cst->eq){
       numintXXX_set_int(vec[0],0);
     }
@@ -240,12 +244,14 @@ bool vectorXXX_set_ap_linconsXXX_sat(
       numintXXX_set_int(vec[0],1);
     }
     if (cons->constyp == AP_CONS_SUP){
-      if (pk->strict){
-	numintXXX_set_int(vec[polka_eps],-1);
-      }
-      else if (integer && vectorXXX_is_integer(pk, vec, dim)){
-	numintXXX_sub_uint(vec[polka_cst], vec[polka_cst], 1);
-      }
+	if (pk->strict){
+	  numintXXX_set_int(vec[polka_eps],-1);
+	}
+	else if (integer &&
+		 vectorXXX_is_integer(pk, vec, dim) &&
+		 !vectorXXX_is_cst(pk,vec,size)){
+	  numintXXX_sub_uint(vec[polka_cst], vec[polka_cst], 1);
+	}
     }
     if (integer)
       vectorXXX_normalize_constraint_int(pk,vec,dim);

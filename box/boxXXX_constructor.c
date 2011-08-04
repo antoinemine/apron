@@ -210,11 +210,11 @@ bool boxXXX_sat_interval(ap_manager_t* man,
 bool boxXXX_sat_lincons(ap_manager_t* man,
 			boxXXX_t* a, ap_lincons0_t cons)
 {
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
+  ap_linconsXXX_ptr lincons = intern->sat_lincons_lincons;
   ap_linexpr0_t linexpr0;
-  ap_linconsXXX_t lincons;
   bool exact;
   tbool_t res;
-  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
 
   man->result.flag_best = man->result.flag_exact = true;
 
@@ -224,25 +224,42 @@ bool boxXXX_sat_lincons(ap_manager_t* man,
   ap_lincons0_linexpr0ref(linexpr0,cons);
   exact = eitvXXX_eval_ap_linexpr0(intern->sat_lincons_itv,
 				   linexpr0,a->e,man->num);
-  ap_linconsXXX_init(lincons,0);
+  ap_linconsXXX_set_zero(lincons);
   eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
   lincons->constyp = ap_lincons0_get_constyp(cons);
   ap_lincons0_get_mpq(lincons->mpq,cons);
 
   res = ap_linconsXXX_evalcst(lincons,man->num);
-  ap_linconsXXX_clear(lincons);
   man->result.flag_exact = exact;
   return res==tbool_true;
+}
+
+void boxXXX_eval_texpr(
+    ap_manager_t* man,
+    eitvXXX_t eitv,
+    boxXXX_t* a, ap_texpr0_t* texpr, bool linearize)
+{
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
+  assert(a->e);
+  if (linearize){
+    ap_linexprXXX_intlinearize_texpr0(intern->eval_texpr_linexpr,
+				      texpr,a->e,a->dim.intd,man->num);
+    ap_linexprXXX_eval(eitv,
+		       intern->eval_texpr_linexpr,a->e,man->num);
+  }
+  else {
+    eitvXXX_eval_ap_texpr0(eitv,texpr,a->e,man->num);
+  }
 }
 
 /* does the abstract value satisfy the tree constraint ? */
 bool boxXXX_sat_tcons(ap_manager_t* man,
 		      boxXXX_t* a, ap_tcons0_t* cons)
 {
-  ap_linconsXXX_t lincons;
+  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_TCONS);
+  ap_linconsXXX_ptr lincons = intern->sat_lincons_lincons;
   bool exact;
   tbool_t res;
-  boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_SAT_TCONS);
 
   man->result.flag_best = man->result.flag_exact = true;
 
@@ -250,15 +267,14 @@ bool boxXXX_sat_tcons(ap_manager_t* man,
     return true;
 
   man->result.flag_best = man->result.flag_exact = false;
-
-  eitvXXX_eval_ap_texpr0(intern->sat_lincons_itv,
-			 cons->texpr0,a->e,man->num);
-  ap_linconsXXX_init(lincons,0);
+  boxXXX_eval_texpr(man,
+		    intern->sat_lincons_itv, a, cons->texpr0,
+		    man->option.funopt[AP_FUNID_SAT_TCONS].algorithm>=0);
+  ap_linconsXXX_set_zero(lincons);
   eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
   lincons->constyp = cons->constyp;
   mpq_set(lincons->mpq, cons->mpq);
   res = ap_linconsXXX_evalcst(lincons,man->num);
-  ap_linconsXXX_clear(lincons);
   return res==tbool_true;
 }
 
@@ -316,11 +332,13 @@ void boxXXX_bound_texpr(ap_manager_t* man,
     exact = true;
   }
   else {
-    eitvXXX_eval_ap_texpr0(intern->bound_linexpr_itv,expr,a->e, man->num);
+    boxXXX_eval_texpr(man,
+		      intern->bound_linexpr_itv, a, expr,
+		      man->option.funopt[AP_FUNID_BOUND_TEXPR].algorithm>=0);
     ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv, man->num);
+    man->result.flag_best = true;
+    man->result.flag_exact = false;
   }
-  man->result.flag_best = true;
-  man->result.flag_exact = false;
 }
 
 /* Converts an abstract value to a polyhedra
