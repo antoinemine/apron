@@ -1,9 +1,5 @@
 open Apron
 
-type t = (Polka.loose, Polka.numMPQ) Polka.t Abstract0.t
-
-let man = Polka.manager_alloc_loose_numMPQ ()
-
 let copy = Abstract0.copy
 let size = Abstract0.size
 let minimize = Abstract0.minimize
@@ -50,6 +46,7 @@ let expand = Abstract0.expand
 let fold = Abstract0.fold
 let widening = Abstract0.widening
 let closure = Abstract0.closure
+let manager_alloc = Polka.manager_alloc_loose_numMPQ
 
 let _ = 
   Callback.register "copy" copy;
@@ -97,4 +94,5 @@ let _ =
   Callback.register "expand" expand;
   Callback.register "fold" fold;
   Callback.register "widening" widening;
-  Callback.register "closure" closure
+  Callback.register "closure" closure;
+  Callback.register "manager_alloc"

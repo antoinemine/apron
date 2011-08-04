@@ -253,7 +253,10 @@ let print_callback fmt f =
   let print_callback_function fmt closure_name = 
     let n = List.length f.args in
     if n <= 3 then begin
-      Format.fprintf fmt "caml_callback%d(*closure_%s@?" n closure_name;
+      if n <> 1 then
+	Format.fprintf fmt "caml_callback%d(*closure_%s@?" n closure_name
+      else
+	Format.fprintf fmt "caml_callback(*closure_%s@?" closure_name;
       List.iter (fun arg -> Format.fprintf fmt ", %a@?" build_callback_argument arg) f.args
     end
     else

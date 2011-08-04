@@ -65,14 +65,16 @@ caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
 ml2c_wrapper.h: ml2c_wrapper_preamble.h generator
 	./generator -preamble-h $< -output-h $@
 
-ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper.h generator
-	./generator -preamble-c $< -output-c $@
+ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h generator
+	./generator -preamble-c ml2c_wrapper_preamble.c \
+	-postamble-c ml2c_wrapper_postamble.c \
+	-output-c $@
 
 test: caml_abstract_domain_obj.o ml2c_wrapper.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
-	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot 
+	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot *~
 	/bin/rm -f generator test ml2c_wrapper.h ml2c_wrapper.c
 
 %.cmi: %.mli
