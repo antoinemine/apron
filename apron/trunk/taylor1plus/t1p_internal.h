@@ -5159,6 +5159,7 @@ static inline void t1p_internal_free(t1p_internal_t* pr)
 	pr->mubGlobal.cy = NULL;
 	pr->mubGlobal.p = NULL;
 	pr->it = 0;
+	free(pr->inputns);
 	free(pr);
     }
 }
