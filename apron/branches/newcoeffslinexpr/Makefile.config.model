@@ -10,6 +10,8 @@ HAS_SHARED=1
 
 # If defined to non-empty value, compiles the OCaml interface
 HAS_OCAML = 1
+# If defined, has native compilation
+HAS_OCAMLOPT = 1
 
 # If defined to non-empty value, compiles the C++ interface (beta version)
 # HAS_CPP = 1
