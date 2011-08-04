@@ -65,6 +65,7 @@ void poly_projectforget_array(bool project,
       }
       matrixXXX_normalize_row(pk,mat,(size_t)i);
     }
+    mat->_sorted = false; /* renormalization modifies relative order */
     po->status = 0;
     if (!lazy){
       pkXXX_chernikova(man,po,"of the result");
