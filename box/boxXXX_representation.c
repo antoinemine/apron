@@ -59,9 +59,9 @@ void boxXXX_set(boxXXX_t* a, boxXXX_t* b)
   size_t i;
   size_t nbdims;
 
-  a->dim = b->dim;
+  assert(ap_dimension_size(a->dim) == ap_dimension_size(b->dim));
   if (b->e->linterm==NULL){
-    ap_linexprXXX_clear(a->e);
+    if (a->e->linterm) ap_linexprXXX_clear(a->e);
     return;
   }
   nbdims = b->dim.intd + b->dim.reald;
