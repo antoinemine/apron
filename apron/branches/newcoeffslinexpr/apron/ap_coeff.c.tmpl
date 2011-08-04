@@ -208,7 +208,7 @@ bool ap_coeff_is_eq(ap_coeff_t a, ap_coeff_t b)
 }
 int ap_coeff_cmp(ap_coeff_t a, ap_coeff_t b)
 {
-  bool res;
+  int res;
   if (a==b) return 0;
   if (a->discr==b->discr){
     MACRO_SWITCH(a->discr) XXX

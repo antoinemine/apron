@@ -279,27 +279,33 @@ bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
     exact = ap_linconsXXX_set_lincons0(
 	pk->ap_linconsXXX,lincons0,pk->num);
   }
-  sat = vectorXXX_set_ap_linconsXXX_sat(
-      pk, pk->numintXXXp, pk->ap_linconsXXX, po->dim, true);
-  if (sat){
-    sat = do_generators_sat_vectorXXX(pk,po->F,
-				   pk->numintXXXp,
-				   pk->ap_linconsXXX->constyp==AP_CONS_SUP);
+  if (pk->ap_linconsXXX->linexpr->effsize==0){
+    sat = (ap_linconsXXX_evalcst(pk->ap_linconsXXX,pk->num)==tbool_true);
+    man->result.flag_exact = man->result.flag_best = true;
   }
-  man->result.flag_exact = man->result.flag_best =
-    sat ?
-    true :
-    (
-	( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-	  exact && ap_linconsXXX_is_real(pk->ap_linconsXXX,po->dim.intd) ) ?
-	true :
-	false );
-
+  else {
+    sat = vectorXXX_set_ap_linconsXXX_sat(
+	pk, pk->numintXXXp, pk->ap_linconsXXX, po->dim, true);
+    if (sat){
+      sat = do_generators_sat_vectorXXX(pk,po->F,
+					pk->numintXXXp,
+					pk->ap_linconsXXX->constyp==AP_CONS_SUP);
+    }
+    man->result.flag_exact = man->result.flag_best =
+      sat ?
+      true :
+      (
+	  ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
+	    exact && ap_linconsXXX_is_real(pk->ap_linconsXXX,po->dim.intd) ) ?
+	  true :
+	  false );
+  }
   return sat;
 }
 
 bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
 {
+  bool sat;
   size_t dim;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
 
@@ -331,16 +337,22 @@ bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
   ap_linconsXXX_intlinearize_tcons0(pk->ap_linconsXXX,
 				    cons,pk->envXXX,po->dim.intd,pk->num);
   ap_linconsXXX_quasilinearize(pk->ap_linconsXXX,pk->envXXX,false,pk->num);
-  bool sat = vectorXXX_set_ap_linconsXXX_sat(pk,
-					     pk->numintXXXp,
-					     pk->ap_linconsXXX,
-					     po->dim, true);
-  if (sat){
-    sat = do_generators_sat_vectorXXX(pk,po->F,
-				   pk->numintXXXp,
-				   cons->constyp==AP_CONS_SUP);
+  if (pk->ap_linconsXXX->linexpr->effsize==0){
+    sat = (ap_linconsXXX_evalcst(pk->ap_linconsXXX,pk->num)==tbool_true);
+    man->result.flag_exact = man->result.flag_best = true;
   }
-  man->result.flag_exact = man->result.flag_best = sat;
+  else {
+    sat = vectorXXX_set_ap_linconsXXX_sat(pk,
+					  pk->numintXXXp,
+					  pk->ap_linconsXXX,
+					  po->dim, true);
+    if (sat){
+      sat = do_generators_sat_vectorXXX(pk,po->F,
+					pk->numintXXXp,
+					cons->constyp==AP_CONS_SUP);
+    }
+    man->result.flag_exact = man->result.flag_best = sat;
+  }
   return sat;
 }
 

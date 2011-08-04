@@ -85,9 +85,7 @@ boxXXX_t* boxXXX_copy(ap_manager_t* man, boxXXX_t* a)
   size_t nbdims = a->dim.intd+a->dim.reald;
 
   boxXXX_t* b = boxXXX_alloc(a->dim);
-  if (a->e->linterm){
-    ap_linexprXXX_init_set(b->e,a->e);
-  }
+  boxXXX_set(b,a);
   man->result.flag_best = true;
   man->result.flag_exact = true;
   return b;

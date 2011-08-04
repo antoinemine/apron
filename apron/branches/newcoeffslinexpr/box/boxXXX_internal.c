@@ -17,6 +17,8 @@ void boxXXX_internal_init(boxXXX_internal_t* intern)
   eitvXXX_init(intern->sat_interval_eitv);
   eitvXXX_init(intern->sat_lincons_itv);
   numXXX_init(intern->sat_lincons_num);
+  ap_linconsXXX_init(intern->sat_lincons_lincons,0);
+  ap_linexprXXX_init(intern->eval_texpr_linexpr,0);
   eitvXXX_init(intern->bound_linexpr_itv);
   eitvXXX_init(intern->meet_lincons_internal_itv);
   eitvXXX_init(intern->meet_lincons_internal_itv2);
@@ -31,6 +33,8 @@ void boxXXX_internal_clear(boxXXX_internal_t* intern)
   eitvXXX_clear(intern->sat_interval_eitv);
   eitvXXX_clear(intern->sat_lincons_itv);
   numXXX_clear(intern->sat_lincons_num);
+  ap_linconsXXX_clear(intern->sat_lincons_lincons);
+  ap_linexprXXX_clear(intern->eval_texpr_linexpr);
   eitvXXX_clear(intern->bound_linexpr_itv);
   eitvXXX_clear(intern->meet_lincons_internal_itv);
   eitvXXX_clear(intern->meet_lincons_internal_itv2);

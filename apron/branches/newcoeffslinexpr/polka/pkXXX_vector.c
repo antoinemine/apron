@@ -459,6 +459,24 @@ bool vectorXXX_is_null(pkXXX_internal_t* pk,
   return res;
 }
 
+/* The function tests if the given vector is constant
+   (epslion is not considered) */
+
+bool vectorXXX_is_cst(pkXXX_internal_t* pk,
+		      numintXXX_t* q, size_t size)
+{
+  size_t i;
+  bool res = true;
+
+  for (i=pk->dec; i<size; i++){
+    if (numintXXX_sgn(q[i])!=0){
+      res = false;
+      break;
+    }
+  }
+  return res;
+}
+
 /* The function tests if the given vector projected on the
    non-$\epsilon$ coefficients is null. */
 
@@ -469,18 +487,11 @@ bool vectorXXX_is_null_strict(pkXXX_internal_t* pk,
   bool res = true;
 
   if (size>polka_cst){
-    res = numintXXX_sgn(q[polka_cst])==0;
-    if (res){
-      for (i=pk->dec; i<size; i++){
-	if (numintXXX_sgn(q[i])!=0){
-	  res = false;
-	  break;
-	}
-      }
-    }
+    res = numintXXX_sgn(q[polka_cst])==0 && vectorXXX_is_cst(pk,q,size);
   }
   return res;
 }
+
 
 /* The function tests if the given vector represents a positivity
    constraint. */

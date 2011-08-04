@@ -53,7 +53,7 @@ PPL_PREFIX = /usr
 CAML_BIN = $(dir $(shell which ocamlc))
 CAML_LIB = $(shell $(CAML_BIN)/ocamlc -where)
 
-# Where to find CAMLIDL 
+# Where to find CAMLIDL
 #
 CAMLIDL_BIN = $(dir $(shell which camlidl))
 CAMLIDL_LIB = $(CAMLIDL_BIN)/../lib/ocaml
