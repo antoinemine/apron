@@ -1,15 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
 #include <caml/camlidlruntime.h>
 
 #include "apron_caml.h"
-
-typedef struct wrapper_t {
-  value val;
-} wrapper_t;
+#include "ml2c_wrapper.h"
 
 static wrapper_t* wrapper_alloc(value v) 
 {

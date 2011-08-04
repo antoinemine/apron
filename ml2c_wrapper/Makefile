@@ -62,15 +62,18 @@ caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) \
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
-caml_abstract_domain_wrapper.c: caml_abstract_domain_wrapper_preamble.c generator
-	./generator -preamble-c caml_abstract_domain_wrapper_preamble.c -output-c $@
+ml2c_wrapper.h: ml2c_wrapper_preamble.h generator
+	./generator -preamble-h $< -output-h $@
 
-test: caml_abstract_domain_obj.o caml_abstract_domain_wrapper.o
+ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper.h generator
+	./generator -preamble-c $< -output-c $@
+
+test: caml_abstract_domain_obj.o ml2c_wrapper.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot 
-	/bin/rm -f generator test caml_abstract_domain_wrapper.c
+	/bin/rm -f generator test ml2c_wrapper.h ml2c_wrapper.c
 
 %.cmi: %.mli
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
