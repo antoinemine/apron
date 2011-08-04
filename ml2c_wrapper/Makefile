@@ -34,7 +34,8 @@ ICFLAGS = \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_LIB) -I$(CAMLIDL_LIB)
 
-LDFLAGS = -L.. -L../mlapronidl -L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
+LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
+	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
 	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
 	-lapron -lapron_caml -lunix -lbigarray -lcamlstr
 
@@ -48,7 +49,7 @@ ML_MODULES = caml_abstract_domain
 # Rules
 #---------------------------------------
 
-all: generator test
+all: generator lib test
 debug: 
 prof: 
 
@@ -70,8 +71,11 @@ ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h 
 	-postamble-c ml2c_wrapper_postamble.c \
 	-output-c $@
 
-test: caml_abstract_domain_obj.o ml2c_wrapper.o
-	$(CC) $(LDFLAGS) -o $@ $^
+libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
+	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
+
+test: libml2c_wrapper test.o
+	$(CC) $(LDFLAGS) -L. -lml2c_wrapper -o $@ test.o
 
 clean:
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot *~
