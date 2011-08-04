@@ -128,7 +128,7 @@ let print_signature fmt f =
   let return_type = c_type_of_return_spec f.ret in
   Format.fprintf fmt "%s wrapper_%s(@?" return_type f.name;
   ignore (List.fold_left build_argument 0 f.args);
-  Format.fprintf fmt ")@."
+  Format.fprintf fmt ")@?"
     
 let print_local_declaration fmt f =
   let build_caml_local is_first (k, name) =
@@ -288,8 +288,8 @@ let print_return fmt f =
       let return_type = c_type_of_return_spec f.ret in
       Format.fprintf fmt "  CAMLreturnT(%s, res);@." return_type
 
-let print fmt f =
-  Format.fprintf fmt "%a@?" print_signature f;
+let print_c fmt f =
+  Format.fprintf fmt "%a@." print_signature f;
   Format.fprintf fmt "{@.";
   Format.fprintf fmt "%a@?" print_local_declaration f;
   Format.fprintf fmt "%a@?" print_closure_definition f;
@@ -297,6 +297,8 @@ let print fmt f =
   Format.fprintf fmt "%a@?" print_callback f;
   Format.fprintf fmt "%a@?" print_return f;
   Format.fprintf fmt "}@."
+
+let print_h fmt = Format.fprintf fmt "%a;@." print_signature 
 
 let fun_list = 
   [
@@ -390,8 +392,8 @@ let generate () =
 	  with Sys_error _ -> invalid_arg ("Cannot open file "^output^" for writing.")
 	end;
   in
-  generate_aux print !preamble_c !postamble_c !output_c;
-  generate_aux (fun _ _ -> ()) !preamble_h !postamble_h !output_h
+  generate_aux print_c !preamble_c !postamble_c !output_c;
+  generate_aux print_h !preamble_h !postamble_h !output_h
 	    
 let _ = 
   Arg.parse
