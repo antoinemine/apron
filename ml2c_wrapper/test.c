@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <caml/callback.h>
 #include "ap_global0.h"
 #include "ml2c_wrapper.h"
 
@@ -18,6 +17,7 @@ void test1(void)
   a = ap_abstract0_bottom(man, dim);
   b = ap_abstract0_is_top(man, a);
   printf("is_top: %s\n",(b ? "true" : "false"));
+  free(a);
 }
 
 int main (int argc, char* argv[]) {

@@ -49,7 +49,7 @@ ML_MODULES = caml_abstract_domain
 # Rules
 #---------------------------------------
 
-all: generator lib test
+all: generator libml2c_wrapper test
 debug: 
 prof: 
 
