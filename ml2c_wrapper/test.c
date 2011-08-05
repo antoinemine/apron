@@ -39,7 +39,7 @@ void test2(void) {
   ap_environment_t* env;
   ap_manager_t* man;
   int i;
-  ap_var_operations_t* ap_var_operations = &ap_var_operations_default;
+  ap_var_operations = &ap_var_operations_default;
   /*name_of_dim = (ap_var_t*) malloc(6*sizeof(ap_var_t));
   for(i = 0; i < 6; i++) 
     name_of_dim[i] = (ap_var_t) malloc(3*sizeof(char));
@@ -50,7 +50,7 @@ void test2(void) {
   strcpy(name_of_dim[4],"w");
   strcpy(name_of_dim[5],"v");*/
   
-  /*man = wrapper_manager_alloc();*/
+  man = wrapper_manager_alloc();
   env = ap_environment_alloc(&name_of_dim[0],3,&name_of_dim[3],3);
   printf("******************************\n");
   printf("test2\n");
@@ -76,13 +76,14 @@ void test3(void) {
     "x","y","z","u","w","v"
     };
   ap_environment_t* env;
+  ap_var_operations = &ap_var_operations_default;
   env = ap_environment_alloc(&name_of_dim[0], 3, &name_of_dim[3], 3);
 }
 
 int main (int argc, char* argv[]) {
   /*test1();*/
-  /*test2();*/
-  caml_startup(argv);
+  test2();
+  /*caml_startup(argv);*/
   test3();
   return(0);
 }
