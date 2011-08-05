@@ -33,23 +33,20 @@ void test1(void)
 }
 
 void test2(void) {
-  ap_var_t name_of_dim[6] = {
+  ap_var_t name_of_dim[6];/* = {
     "x","y","z","u","w","v"
-    };
+    };*/
   ap_environment_t* env;
   ap_manager_t* man;
   int i;
-  ap_var_operations = &ap_var_operations_default;
-  /*name_of_dim = (ap_var_t*) malloc(6*sizeof(ap_var_t));
-  for(i = 0; i < 6; i++)
-    name_of_dim[i] = (ap_var_t) malloc(3*sizeof(char));
-  strcpy(name_of_dim[0],"x");
-  strcpy(name_of_dim[1],"y");
-  strcpy(name_of_dim[2],"z");
-  strcpy(name_of_dim[3],"u");
-  strcpy(name_of_dim[4],"w");
-  strcpy(name_of_dim[5],"v");*/
-
+ 
+  name_of_dim[0] = ap_var_operations->of_string("x");
+  name_of_dim[1] = ap_var_operations->of_string("y");
+  name_of_dim[2] = ap_var_operations->of_string("z");
+  name_of_dim[3] = ap_var_operations->of_string("u");
+  name_of_dim[4] = ap_var_operations->of_string("v");
+  name_of_dim[5] = ap_var_operations->of_string("w");
+ 
   man = wrapper_manager_alloc();
   env = ap_environment_alloc(&name_of_dim[0],3,&name_of_dim[3],3);
   printf("******************************\n");
@@ -65,10 +62,13 @@ void test2(void) {
   ap_lincons1_set_list(man->num, cons1, &res,
 		       AP_COEFF_LINT,1L,name_of_dim[0],
 		       AP_COEFF_LINT,2L,name_of_dim[1],
-		       AP_CST_LINT,-1L,
-		       AP_END);
+		       AP_CST_LINT,-1L,AP_END);
   printf("ok\n");
   ap_lincons1_fprint(stdout,cons1);
+  printf("\n");
+  ap_abstract1_t *a = ap_abstract1_top(man,env);
+  /*ap_abstract1_fprint(stdout,a,env);*/
+  printf("\n");
 }
 
 void test3(void) {
@@ -81,7 +81,6 @@ void test3(void) {
 }
 
 int main (int argc, char* argv[]) {
-  caml_startup(argv);
   test1();
   test2();
   test3();

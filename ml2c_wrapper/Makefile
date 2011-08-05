@@ -30,6 +30,7 @@ ICFLAGS = \
 -I$(SITE-LIB-gmp) \
 -I../apron \
 -I../mlapronidl \
+-I../box \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_LIB) -I$(CAMLIDL_LIB)
@@ -52,7 +53,7 @@ ML_MODULES = caml_abstract_domain
 # Rules
 #---------------------------------------
 
-all: generator libml2c_wrapper test
+all: generator libml2c_wrapper test test_domain
 debug: 
 prof: 
 
@@ -86,6 +87,9 @@ libml2c_wrapper.d: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_
 
 test: libml2c_wrapper.d test.d.o
 	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test.d.o
+
+test_domain: libml2c_wrapper.d test_domain.d.o
+	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test_domain.d.o
 
 #test: caml_abstract_domain_obj.d.o ml2c_wrapper.d.o test.d.o
 #	$(CC) $(LDFLAGS) -o $@ $^ 
