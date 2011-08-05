@@ -27,6 +27,9 @@ static void* var_copy_default(void* v){
 static void var_free_default(void* v){
   free(v);
 }
+static void* var_of_string_default(char* v){
+  return (char*)strdup(v);
+}
 static char* var_to_string_default(void* v){
   return strdup((char*)v);
 }
@@ -36,6 +39,7 @@ struct ap_var_operations_t ap_var_operations_default = {
   var_hash_default,
   var_copy_default,
   var_free_default,
+  var_of_string_default,
   var_to_string_default
 };
 
