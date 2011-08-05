@@ -36,15 +36,11 @@ ICFLAGS = \
 
 LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
-	-lunix -lbigarray -lcamlstr \
-	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
-	-lapron -lapron_caml 
+	-lapron_caml -lapron -lgmp_caml -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
 
 LDFLAGS_DEBUG = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
-	-lunix -lbigarray -lcamlstr \
-	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
-	-lapron.d -lapron_caml.d
+	-lapron_caml.d -lapron.d -lgmp_caml -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
 
 #---------------------------------------
 # Files
