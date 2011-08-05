@@ -36,8 +36,9 @@ ICFLAGS = \
 
 LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
+	-lunix -lbigarray -lcamlstr \
 	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
-	-lapron -lapron_caml -lunix -lbigarray -lcamlstr
+	-lapron -lapron_caml 
 
 #---------------------------------------
 # Files
@@ -59,7 +60,11 @@ essai:
 generator: generator.ml
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $^
 
-caml_abstract_domain_obj.d.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
+caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) \
+	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
+
+caml_abstract_domain_obj.d.o: ../mlapronidl/apron.d.cmxa $(ML_MODULES:%=%.d.cmx)
 	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) \
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
@@ -71,11 +76,17 @@ ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h 
 	-postamble-c ml2c_wrapper_postamble.c \
 	-output-c $@
 
-libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
-	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
+libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
+	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
 
-test: libml2c_wrapper test.d.o
-	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS) -L. -lml2c_wrapper -o $@ test.d.o
+libml2c_wrapper_debug: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
+	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS) -o ml2c_wrapper_debug $^ 
+
+test: libml2c_wrapper_debug test.d.o
+	$(CC) $(CFLAGS_DEBUG) -L$(LDFLAGS) -L. -lml2c_wrapper_debug -o $@ test.d.o
+
+#test: caml_abstract_domain_obj.d.o ml2c_wrapper.d.o test.d.o
+#	$(CC) $(LDFLAGS) -o $@ $^ 
 
 clean:
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot *~
@@ -88,7 +99,10 @@ clean:
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
 
 %.cmx: %.ml %.cmi
-	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c $<
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c $<
+
+%.d.cmx: %.ml %.cmi
+	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
 
 %.p.cmx: %.ml %.cmi
 	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
