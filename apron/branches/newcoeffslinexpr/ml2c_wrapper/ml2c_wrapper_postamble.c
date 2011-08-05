@@ -1,9 +1,9 @@
 void wrapper_fprint(FILE* stream,
 			 ap_manager_t* man, wrapper_t* a, char** name_of_dim)
 {
-  ap_tcons0_array_t* cons;
+  ap_tcons0_array_t cons;
   cons = wrapper_to_tcons_array(man, a);
-  ap_tcons0_array_fprint(stream, cons, name_of_dim);
+  ap_tcons0_array_fprint(stream, &cons, name_of_dim);
 }
 
 void wrapper_fprintdiff(FILE* stream,

@@ -26,6 +26,8 @@ void test1(void)
   ap_abstract0_free(man, a);
   a = ap_abstract0_bottom(man, dim);
   b = ap_abstract0_is_top(man, a);
+  ap_dimension_t dim2 = ap_abstract0_dimension(man,a);
+  printf("%d %d\n",dim2.intd,dim2.reald);
   printf("is_top: %s\n",(b ? "true" : "false"));
   ap_abstract0_free(man, a);
   ap_manager_free(man);
@@ -33,22 +35,22 @@ void test1(void)
 }
 
 void test2(void) {
-  ap_var_t name_of_dim[6];/* = {
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
-    };*/
+    };
   ap_environment_t* env;
   ap_manager_t* man;
   int i;
- 
+  /*
   name_of_dim[0] = ap_var_operations->of_string("x");
   name_of_dim[1] = ap_var_operations->of_string("y");
   name_of_dim[2] = ap_var_operations->of_string("z");
   name_of_dim[3] = ap_var_operations->of_string("u");
   name_of_dim[4] = ap_var_operations->of_string("v");
   name_of_dim[5] = ap_var_operations->of_string("w");
- 
+  */
   man = wrapper_manager_alloc();
-  env = ap_environment_alloc(&name_of_dim[0],3,&name_of_dim[3],3);
+  env = ap_environment_alloc(name_of_dim,6,NULL,0);
   printf("******************************\n");
   printf("test2\n");
   printf("Library %s, version %s\n",man->library,man->version);
@@ -66,13 +68,14 @@ void test2(void) {
   printf("ok\n");
   ap_lincons1_fprint(stdout,cons1);
   printf("\n");
-  ap_abstract1_t *a = ap_abstract1_top(man,env);
-  /*ap_abstract1_fprint(stdout,a,env);*/
+  ap_abstract1_t *a = ap_abstract1_bottom(man,env);
+  printf("ok\n");
+  ap_abstract1_fprint(stdout,man,a);
   printf("\n");
 }
 
 void test3(void) {
-  char* name_of_dim[6] = {
+  ap_var_t name_of_dim[6] = {
     "x","y","z","u","w","v"
     };
   ap_environment_t* env;
@@ -83,6 +86,6 @@ void test3(void) {
 int main (int argc, char* argv[]) {
   test1();
   test2();
-  test3();
+  /*test3();*/
   return(0);
 }
