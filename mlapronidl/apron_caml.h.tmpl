@@ -131,23 +131,27 @@ value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange);
 extern void camlidl_ml2c_dim_struct_ap_dimperm_t(value v, ap_dimperm_t *perm, struct camlidl_ctx_struct* _ctx);
 extern value camlidl_c2ml_dim_struct_ap_dimperm_t(ap_dimperm_t *perm, struct camlidl_ctx_struct* _ctx);
 
+  /*
 typedef struct apron_var_t {
   char* name;
   size_t count;
 } apron_var_t;
 typedef struct apron_var_t* apron_var_ptr;
-typedef struct ap_environment_t* ap_environment_ptr;
 
 apron_var_ptr ap_var_of_string(char* name);
 int ap_var_compare(ap_var_t pp1, ap_var_t pp2);
 char* ap_var_to_string(ap_var_t pp);
 int ap_var_hash(ap_var_t pp);
+value camlidl_apron_var_set_operations(value v);
+  */
+
 static inline
 void camlidl_apron_var_ptr_ml2c(value v, ap_var_t* p){
   *p = *((ap_var_t *) Data_custom_val(v));
 }
 value camlidl_apron_var_ptr_c2ml(ap_var_t* p);
-value camlidl_apron_var_set_operations(value v);
+
+typedef struct ap_environment_t* ap_environment_ptr;
 static inline
 void camlidl_apron_environment_ptr_ml2c(value v, ap_environment_ptr* p){
   *p = *((ap_environment_ptr *) Data_custom_val(v));
