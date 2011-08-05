@@ -59,8 +59,8 @@ essai:
 generator: generator.ml
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $^
 
-caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
-	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) \
+caml_abstract_domain_obj.d.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
+	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) \
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
 ml2c_wrapper.h: ml2c_wrapper_preamble.h generator
@@ -71,11 +71,11 @@ ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h 
 	-postamble-c ml2c_wrapper_postamble.c \
 	-output-c $@
 
-libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
-	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
+libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
+	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
 
-test: libml2c_wrapper test.o
-	$(CC) $(LDFLAGS) -L. -lml2c_wrapper -o $@ test.o
+test: libml2c_wrapper test.d.o
+	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS) -L. -lml2c_wrapper -o $@ test.d.o
 
 clean:
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot *~
@@ -88,7 +88,7 @@ clean:
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
 
 %.cmx: %.ml %.cmi
-	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c $<
+	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c $<
 
 %.p.cmx: %.ml %.cmi
 	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
