@@ -40,6 +40,12 @@ LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
 	-lapron -lapron_caml 
 
+LDFLAGS_DEBUG = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
+	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
+	-lunix -lbigarray -lcamlstr \
+	-lasmrun -lcamlidl -lgmp -lmpfr -lgmp_caml \
+	-lapron.d -lapron_caml.d
+
 #---------------------------------------
 # Files
 #---------------------------------------
@@ -79,11 +85,11 @@ ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h 
 libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
 	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
 
-libml2c_wrapper_debug: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
-	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS) -o ml2c_wrapper_debug $^ 
+libml2c_wrapper.d: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
+	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS_DEBUG) -o ml2c_wrapper.d $^ 
 
-test: libml2c_wrapper_debug test.d.o
-	$(CC) $(CFLAGS_DEBUG) -L$(LDFLAGS) -L. -lml2c_wrapper_debug -o $@ test.d.o
+test: libml2c_wrapper.d test.d.o
+	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test.d.o
 
 #test: caml_abstract_domain_obj.d.o ml2c_wrapper.d.o test.d.o
 #	$(CC) $(LDFLAGS) -o $@ $^ 
