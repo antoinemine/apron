@@ -65,6 +65,7 @@ void test2(void) {
   ap_lincons1_set_list(man->num, cons1, &res,
 		       AP_COEFF_LINT,1L,name_of_dim[0],
 		       AP_COEFF_LINT,2L,name_of_dim[1],
+		       AP_CST_LINT,-1L,
 		       AP_END);
   printf("ok\n");
   ap_lincons1_fprint(stdout,cons1);
