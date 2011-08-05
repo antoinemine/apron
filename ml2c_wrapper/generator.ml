@@ -1,9 +1,9 @@
 type kind =
-  | Ap_manager_t
-  | Wrapper_t 
+  | Ap_manager_ptr
+  | Wrapper_ptr 
   | Wrapper_array_t of int (* the integer denotes the index of the
 			      argument containing the size of the array *)
-  | Optional_wrapper_t
+  | Optional_wrapper_ptr
   | Ap_dim_t
   | Ap_dimension_t
   | Ap_dimchange_t
@@ -15,10 +15,12 @@ type kind =
   | Ap_linexpr0_array_t
   | Ap_lincons0_t
   | Ap_lincons0_array_t
-  | Ap_texpr0_t
-  | Ap_texpr0_array_t
+  | Ap_texpr0_ptr
+  | Ap_texpr0_array_ptr
   | Ap_tcons0_t
+  | Ap_tcons0_ptr
   | Ap_tcons0_array_t
+  | Ap_tcons0_array_ptr
   | Bool
   | Int
   | Size_t
@@ -39,10 +41,10 @@ type funspec =
 
 let c_type_of_kind k =
   match k with
-    | Ap_manager_t -> "ap_manager_t*"
-    | Wrapper_t -> "wrapper_t*"
+    | Ap_manager_ptr -> "ap_manager_t*"
+    | Wrapper_ptr -> "wrapper_t*"
     | Wrapper_array_t _ -> "wrapper_t**" 
-    | Optional_wrapper_t -> "wrapper_t*"
+    | Optional_wrapper_ptr -> "wrapper_t*"
     | Ap_dim_t -> "ap_dim_t"
     | Ap_dimension_t -> "ap_dimension_t"
     | Ap_dimchange_t -> "ap_dimchange_t"
@@ -54,10 +56,12 @@ let c_type_of_kind k =
     | Ap_linexpr0_array_t -> "ap_linexpr0_array_t"
     | Ap_lincons0_t -> "ap_lincons0_t"
     | Ap_lincons0_array_t -> "ap_lincons0_array_t"
-    | Ap_texpr0_t -> "ap_texpr0_t*"
-    | Ap_texpr0_array_t -> "ap_texpr0_array_t*"
-    | Ap_tcons0_t -> "ap_tcons0_t*"
-    | Ap_tcons0_array_t -> "ap_tcons0_array_t*"
+    | Ap_texpr0_ptr -> "ap_texpr0_t*"
+    | Ap_texpr0_array_ptr -> "ap_texpr0_array_t*"
+    | Ap_tcons0_t -> "ap_tcons0_t"
+    | Ap_tcons0_ptr -> "ap_tcons0_t*"
+    | Ap_tcons0_array_t -> "ap_tcons0_array_t"
+    | Ap_tcons0_array_ptr -> "ap_tcons0_array_t*"
     | Bool -> "bool"
     | Int -> "int"
     | Size_t -> "size_t"
@@ -69,10 +73,10 @@ let c_type_of_return_spec r =
 
 let c2ml_function_of_kind k = 
   match k with
-    | Ap_manager_t -> "camlidl_apron_manager_ptr_c2ml"
-    | Wrapper_t -> assert false
+    | Ap_manager_ptr -> "camlidl_apron_manager_ptr_c2ml"
+    | Wrapper_ptr -> assert false
     | Wrapper_array_t _ -> assert false
-    | Optional_wrapper_t -> assert false (*"optional_wrapper_t_c2ml"*)
+    | Optional_wrapper_ptr -> assert false (*"optional_wrapper_ptr_c2ml"*)
     | Ap_dim_t -> "camlidl_c2ml_dim_ap_dim_t"
     | Ap_dimension_t -> "camlidl_c2ml_dim_struct_ap_dimension_t"
     | Ap_dimchange_t -> "camlidl_apron_dimchange_c2ml"
@@ -84,19 +88,21 @@ let c2ml_function_of_kind k =
     | Ap_linexpr0_array_t -> "camlidl_linexpr0_array_ptr_c2ml"
     | Ap_lincons0_t -> "camlidl_lincons0_ptr_c2ml"
     | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_c2ml"
-    | Ap_texpr0_t -> "camlidl_apron_texpr0_ptr_c2ml"
-    | Ap_texpr0_array_t -> "camlidl_apron_texpr0_array_t_c2ml"
-    | Ap_tcons0_t -> "camlidl_apron_tcons0_t_c2ml"
-    | Ap_tcons0_array_t -> "camlidl_apron_tcons0_array_t_c2ml"
+    | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_c2ml"
+    | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_c2ml"
+    | Ap_tcons0_t -> assert false 
+    | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_c2ml"
+    | Ap_tcons0_array_t -> assert false 
+    | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_c2ml"
     | Bool -> "Val_bool"
     | Int | Size_t -> "Val_bool"
 
 let ml2c_function_of_kind k = 
   match k with
-    | Ap_manager_t -> "camlidl_apron_manager_ptr_ml2c"
-    | Wrapper_t -> "wrapper_alloc"
+    | Ap_manager_ptr -> "camlidl_apron_manager_ptr_ml2c"
+    | Wrapper_ptr -> "wrapper_alloc"
     | Wrapper_array_t _ -> assert false
-    | Optional_wrapper_t -> assert false
+    | Optional_wrapper_ptr -> assert false
     | Ap_dim_t -> "camlidl_ml2c_dim_ap_dim_t"
     | Ap_dimension_t -> "camlidl_ml2c_dim_struct_ap_dimension_t"
     | Ap_dimchange_t -> "camlidl_apron_dimchange_ml2c"
@@ -108,10 +114,12 @@ let ml2c_function_of_kind k =
     | Ap_linexpr0_array_t -> "camlidl_linexpr0_array_ptr_ml2c"
     | Ap_lincons0_t -> "camlidl_lincons0_ptr_ml2c"
     | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_ml2c"
-    | Ap_texpr0_t -> "camlidl_apron_texpr0_ptr_ml2c"
-    | Ap_texpr0_array_t -> "camlidl_apron_texpr0_array_t_ml2c"
+    | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_ml2c"
+    | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_ml2c"
     | Ap_tcons0_t -> "camlidl_apron_tcons0_t_ml2c"
+    | Ap_tcons0_ptr -> assert false 
     | Ap_tcons0_array_t -> "camlidl_apron_tcons0_array_t_ml2c"
+    | Ap_tcons0_array_ptr -> assert false 
     | Bool -> "Bool_val"
     | Int -> "Int_val"
     | Size_t -> "(size_t) Int_val"
@@ -133,7 +141,7 @@ let print_signature fmt f =
 let print_local_declaration fmt f =
   let build_caml_local is_first (k, name) =
     match k with
-      | Wrapper_t | Ap_manager_t -> is_first
+      | Wrapper_ptr | Ap_manager_ptr -> is_first
       | _ ->
 	if not is_first then
 	  Format.fprintf fmt ", @?";
@@ -143,7 +151,7 @@ let print_local_declaration fmt f =
   let n = List.fold_left 
     (fun res (k, _) -> 
       match k with
-	| Wrapper_t | Ap_manager_t -> res
+	| Wrapper_ptr | Ap_manager_ptr -> res
 	| _ -> res+1) 0 f.args in
   let p = match f.ret with 
     | Value _ -> n+1
@@ -190,13 +198,13 @@ let print_closure_definition fmt f =
 let print_argument_conversion fmt f =
   let caml_local_conversion (k, name) =
     match k with
-      | Wrapper_t | Ap_manager_t -> ()
+      | Wrapper_ptr | Ap_manager_ptr -> ()
       | Wrapper_array_t i ->
 	let (_, size) = List.nth f.args i in
 	Format.fprintf fmt "  v_%s = caml_alloc(%s, 0);@." name size;
 	Format.fprintf fmt "  for (i = 0; i < %s; i++)@." size;
 	Format.fprintf fmt "    Store_field(v_%s, i, %s[i]->val);@." name name;
-      | Optional_wrapper_t ->
+      | Optional_wrapper_ptr ->
 	Format.fprintf fmt "  if (%s == NULL)@." name;
 	Format.fprintf fmt "    v_%s = Val_int(0);@." name;
 	Format.fprintf fmt "  else {@.";
@@ -206,7 +214,9 @@ let print_argument_conversion fmt f =
       | Bool | Int | Size_t ->
 	Format.fprintf fmt "  v_%s = %s(%s),@." name (c2ml_function_of_kind k) name
       | Ap_dim_t | Ap_dimension_t | Ap_dimperm_t ->
-	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name	
+	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name
+      | (*Ap_texpr0_ptr | *) Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr ->
+	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name	
       | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
   in
   List.iter caml_local_conversion f.args
@@ -220,12 +230,14 @@ let print_result_conversion fmt f =
 	match k with
 	  | Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t -> 
 	    Format.fprintf fmt "  %s(v_%s, &%s, _ctx);@." (ml2c_function_of_kind k) name name
+	  | Ap_texpr0_ptr | Ap_texpr0_array_ptr ->
+	    Format.fprintf fmt "  %s(v_%s, %s);@." (ml2c_function_of_kind k) name name
 	  | _ ->
 	    Format.fprintf fmt "  %s(v_%s, &%s);@." (ml2c_function_of_kind k) name name
       end
     | Value k -> 
       match k with
-	| Wrapper_t | Bool | Int | Size_t ->
+	| Wrapper_ptr | Bool | Int | Size_t ->
 	  Format.fprintf fmt "  res = %s(v_res);@." (ml2c_function_of_kind k)
 	| Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t ->
 	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k) 
@@ -239,8 +251,8 @@ let print_callback fmt f =
   in
   let build_callback_argument fmt (k, name) = 
     match k with
-      | Wrapper_t -> Format.fprintf fmt "%s->val@?" name
-      | Ap_manager_t -> Format.fprintf fmt "((wrapper_t*) %s->internal)->val@?" name
+      | Wrapper_ptr -> Format.fprintf fmt "%s->val@?" name
+      | Ap_manager_ptr -> Format.fprintf fmt "((wrapper_t*) %s->internal)->val@?" name
       | _ -> Format.fprintf fmt "v_%s@?" name
   in
   let print_callback_preamble fmt () =
@@ -305,50 +317,50 @@ let print_h fmt = Format.fprintf fmt "%a;@." print_signature
 
 let fun_list = 
   [
-    { ret = Value Wrapper_t; name = "copy"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None };
-    { ret = Value Size_t; name = "size"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Void; name = "minimize"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Void; name = "canonicalize"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Int; name = "hash"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Void; name = "approximate"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Int, "algorithm")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "bottom"; args = [(Ap_manager_t, "man"); (Ap_dimension_t, "dim")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "top"; args = [(Ap_manager_t, "man"); (Ap_dimension_t, "dim")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "of_box"; args = [(Ap_manager_t, "man"); (Ap_dimension_t, "dim"); (Ap_linexpr0_t, "box")]; destructive_variant = None }; 
-    { ret = Value Ap_dimension_t; name = "dimension"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "is_bottom"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "is_top"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "is_leq"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "is_eq"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "sat_interval"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dim_t, "dim"); (Ap_coeff_t, "interval")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "sat_lincons"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_lincons0_t, "lincons")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "sat_tcons"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_tcons0_t, "tcons")]; destructive_variant = None }; 
-    { ret = Value Bool; name = "is_dimension_unconstrained"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dim_t, "dim")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "bound_dimension"; args = [(Ap_manager_t, "man"); (Ap_coeff_t, "interval"); (Wrapper_t, "a"); (Ap_dim_t, "dim")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "bound_linexpr"; args = [(Ap_manager_t, "man"); (Ap_coeff_t, "interval"); (Wrapper_t, "a"); (Ap_linexpr0_t, "expr")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "bound_texpr"; args = [(Ap_manager_t, "man"); (Ap_coeff_t, "interval"); (Wrapper_t, "a"); (Ap_texpr0_t, "expr")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "to_lincons_array"; args = [(Ap_manager_t, "man"); (Ap_lincons0_array_t, "array"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Ap_tcons0_array_t; name = "to_tcons_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "to_box"; args = [(Ap_manager_t, "man"); (Ap_linexpr0_t, "box"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Side_effect 1; name = "to_lingen_array"; args = [(Ap_manager_t, "man"); (Ap_lingen0_array_t, "array"); (Wrapper_t, "a")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "meet"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "join"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "meet_array"; args = [(Ap_manager_t, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None };
-    { ret = Value Wrapper_t; name = "join_array"; args = [(Ap_manager_t, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "meet_lincons_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_lincons0_array_t, "array")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "meet_tcons_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_tcons0_array_t, "array")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "add_ray_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_lingen0_array_t, "array")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "assign_linexpr_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "org"); (Ap_dim_t, "tdim"); (Ap_linexpr0_array_t, "texpr"); (Optional_wrapper_t, "dest")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "assign_texpr_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "org"); (Ap_dim_t, "tdim"); (Ap_texpr0_array_t, "array"); (Optional_wrapper_t, "dest")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "substitute_linexpr_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "org"); (Ap_dim_t, "tdim"); (Ap_linexpr0_array_t, "array"); (Optional_wrapper_t, "dest")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "substitute_texpr_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "org"); (Ap_dim_t, "tdim"); (Ap_texpr0_array_t, "array"); (Optional_wrapper_t, "dest")]; destructive_variant = Some 1}; 
-    { ret = Value Wrapper_t; name = "forget_array"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dim_t, "tdim"); (Size_t, "size"); (Bool, "project")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "add_dimensions"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dimchange_t, "dimchange"); (Bool, "project")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "remove_dimensions"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dimchange_t, "dimchange")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "permute_dimensions"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dimperm_t, "perm")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "expand"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dim_t, "dim"); (Size_t, "n")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "fold"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a"); (Ap_dim_t, "tdim"); (Size_t, "size")]; destructive_variant = Some 1 }; 
-    { ret = Value Wrapper_t; name = "widening"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a1"); (Wrapper_t, "a2")]; destructive_variant = None }; 
-    { ret = Value Wrapper_t; name = "closure"; args = [(Ap_manager_t, "man"); (Wrapper_t, "a")]; destructive_variant = Some 1 };
+    { ret = Value Wrapper_ptr; name = "copy"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None };
+    { ret = Value Size_t; name = "size"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Void; name = "minimize"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Void; name = "canonicalize"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Int; name = "hash"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Void; name = "approximate"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Int, "algorithm")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "bottom"; args = [(Ap_manager_ptr, "man"); (Ap_dimension_t, "dim")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "top"; args = [(Ap_manager_ptr, "man"); (Ap_dimension_t, "dim")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "of_box"; args = [(Ap_manager_ptr, "man"); (Ap_dimension_t, "dim"); (Ap_linexpr0_t, "box")]; destructive_variant = None }; 
+    { ret = Value Ap_dimension_t; name = "dimension"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "is_bottom"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "is_top"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "is_leq"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "is_eq"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "sat_interval"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim"); (Ap_coeff_t, "interval")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "sat_lincons"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_lincons0_t, "lincons")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "sat_tcons"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_tcons0_ptr, "tcons")]; destructive_variant = None }; 
+    { ret = Value Bool; name = "is_dimension_unconstrained"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "bound_dimension"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "bound_linexpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_linexpr0_t, "expr")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "bound_texpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_texpr0_ptr, "expr")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "to_lincons_array"; args = [(Ap_manager_ptr, "man"); (Ap_lincons0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Ap_tcons0_array_t; name = "to_tcons_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "to_box"; args = [(Ap_manager_ptr, "man"); (Ap_linexpr0_t, "box"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Side_effect 1; name = "to_lingen_array"; args = [(Ap_manager_ptr, "man"); (Ap_lingen0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "meet"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "join"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "meet_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None };
+    { ret = Value Wrapper_ptr; name = "join_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "meet_lincons_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_lincons0_array_t, "array")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "meet_tcons_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_tcons0_array_ptr, "array")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "add_ray_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_lingen0_array_t, "array")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "assign_linexpr_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "org"); (Ap_dim_t, "tdim"); (Ap_linexpr0_array_t, "texpr"); (Optional_wrapper_ptr, "dest")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "assign_texpr_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "org"); (Ap_dim_t, "tdim"); (Ap_texpr0_array_ptr, "array"); (Optional_wrapper_ptr, "dest")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "substitute_linexpr_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "org"); (Ap_dim_t, "tdim"); (Ap_linexpr0_array_t, "array"); (Optional_wrapper_ptr, "dest")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "substitute_texpr_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "org"); (Ap_dim_t, "tdim"); (Ap_texpr0_array_ptr, "array"); (Optional_wrapper_ptr, "dest")]; destructive_variant = Some 1}; 
+    { ret = Value Wrapper_ptr; name = "forget_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "tdim"); (Size_t, "size"); (Bool, "project")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "add_dimensions"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dimchange_t, "dimchange"); (Bool, "project")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "remove_dimensions"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dimchange_t, "dimchange")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "permute_dimensions"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dimperm_t, "perm")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "expand"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim"); (Size_t, "n")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "fold"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "tdim"); (Size_t, "size")]; destructive_variant = Some 1 }; 
+    { ret = Value Wrapper_ptr; name = "widening"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = None }; 
+    { ret = Value Wrapper_ptr; name = "closure"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = Some 1 };
   ]
 
 let preamble_h = ref None
