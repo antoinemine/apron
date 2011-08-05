@@ -66,11 +66,11 @@ value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange)
 /* variable */
 /* ********************************************************************** */
 
+/*
 apron_var_ptr ap_var_of_string(char* name)
 {
   apron_var_ptr p = malloc(sizeof(apron_var_t));
-  p->name = malloc((1+strlen(name))*sizeof(char));
-  strcpy(p->name,name);
+  p->name=strdup(name);
   p->count=1;
   return p;
 }
@@ -83,13 +83,7 @@ int ap_var_compare(ap_var_t pp1, ap_var_t pp2)
 char* ap_var_to_string(ap_var_t pp)
 {
   apron_var_ptr p = (apron_var_ptr)pp;
-  size_t l;
-  char* res;
-
-  l = strlen(p->name)+1;
-  res = malloc(l*sizeof(char));
-  strcpy(res,p->name);
-  return res;
+  return strdup(p->name);
 }
 int ap_var_hash(ap_var_t pp)
 {
@@ -101,7 +95,6 @@ int ap_var_hash(ap_var_t pp)
   }
   return res;
 }
-static inline
 ap_var_t ap_var_copy(ap_var_t pp){
   apron_var_ptr p = (apron_var_ptr)pp;
   p->count++;
@@ -125,6 +118,7 @@ camlidl_apron_var_ptr_operations = {
   ap_var_hash,
   ap_var_copy,
   ap_var_free,
+  ap_var_of_string,
   ap_var_to_string
 };
 value camlidl_apron_var_set_operations(value v)
@@ -133,28 +127,28 @@ value camlidl_apron_var_set_operations(value v)
   ap_var_operations = &camlidl_apron_var_ptr_operations;
   CAMLreturn(Val_unit);
 }
-
+*/
 static void camlidl_apron_var_ptr_finalize(value v)
 {
-  apron_var_ptr e = *(apron_var_ptr *) Data_custom_val(v);
-  ap_var_free(e);
+  ap_var_t e = *(ap_var_t *) Data_custom_val(v);
+  ap_var_operations->free(e);
   return;
 }
 
 static long camlidl_apron_var_ptr_hash(value v)
 {
   CAMLparam1(v);
-  apron_var_ptr e = *(apron_var_ptr *) Data_custom_val(v);
-  int res = ap_var_hash(e);
+  ap_var_t e = *(ap_var_t *) Data_custom_val(v);
+  int res = ap_var_operations->hash(e);
   CAMLreturn(res);
 }
 static int camlidl_apron_var_ptr_compare(value v1, value v2)
 {
   CAMLparam2(v1,v2);
   int res;
-  apron_var_ptr e1 = *(apron_var_ptr *) Data_custom_val(v1);
-  apron_var_ptr e2 = *(apron_var_ptr *) Data_custom_val(v2);
-  res = ap_var_compare(e1,e2);
+  ap_var_t e1 = *(ap_var_t *) Data_custom_val(v1);
+  ap_var_t e2 = *(ap_var_t *) Data_custom_val(v2);
+  res = ap_var_operations->compare(e1,e2);
   CAMLreturn(res);
 }
 
@@ -169,8 +163,8 @@ struct custom_operations camlidl_apron_custom_var_ptr = {
 
 value camlidl_apron_var_ptr_c2ml(ap_var_t* p)
 {
-  value v = alloc_custom(&camlidl_apron_custom_var_ptr, sizeof(apron_var_ptr), 0,1);
-  *((apron_var_ptr *) Data_custom_val(v)) = *p;
+  value v = alloc_custom(&camlidl_apron_custom_var_ptr, sizeof(void*), 0,1);
+  *((ap_var_t *) Data_custom_val(v)) = *p;
   return v;
 }
 

@@ -13,17 +13,21 @@ struct apron_var_ptr ap_var_t;
 quote(MLMLI,"(** APRON Variables *)\n")
 
 quote(MLI,"(** Constructor *)")
-ap_var_t ap_var_of_string([string]char* name);
+ap_var_t ap_var_of_string([string]char* name)
+quote(call,"_res = ap_var_operations->of_string(name);");
 
 quote(MLI,"(** Comparison function *)")
-int ap_var_compare(ap_var_t var1, ap_var_t var2);
+int ap_var_compare(ap_var_t var1, ap_var_t var2)
+quote(call,"_res = ap_var_operations->compare(var1,var2);");
 
 quote(MLI,"(** Conversion to string *)")
 [string]char* ap_var_to_string(ap_var_t var)
-  quote(call,"_res = ((apron_var_ptr)var)->name;");
+quote(call,"_res = ap_var_operations->to_string(var);")
+quote(dealloc,"free(_res);");
 
 quote(MLI,"(** Hash function *)")
-int ap_var_hash(ap_var_t var);
+int ap_var_hash(ap_var_t var)
+quote(call,"_res = ap_var_operations->hash(var);");
 
 quote(MLI,"\n\
 (** Printing function *)\n\
@@ -33,9 +37,11 @@ quote(ML,"\n\
 let print fmt v = Format.pp_print_string fmt (to_string v)\n\
 ")
 
+/*
 quote(MLMLI,"\n\
 (** Initialisation of abstract type operations in C library *)\n\
 external ap_var__set_operations : unit -> unit = \"camlidl_apron_var_set_operations\"");
 quote(ML,"\n\
 let _ = _set_operations ()\n\
 ")
+*/
