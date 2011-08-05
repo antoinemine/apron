@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
 #include <caml/camlidlruntime.h>
