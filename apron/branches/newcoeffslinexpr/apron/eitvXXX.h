@@ -165,7 +165,7 @@ bool eitvXXX_set_val(num_internal_t intern,
      Returns true iff all conversions were exact.
 
      Example:
-     eitvXXX_set_val(intern,eitv,EITV_LFRAC,7,9);
+     eitvXXX_set_val(intern,eitv,EITV_LFRAC,7L,9L);
      eitvXXX_set_val(intern,EITV_DOUBLE2,-3.0,4.5);
      eitvXXX_set_val(intern,EITV_LLINT,3LL);
      sets resp. eitv to 7/9, [-3,4.5], 3.
