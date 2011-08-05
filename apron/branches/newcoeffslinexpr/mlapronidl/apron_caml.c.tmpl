@@ -540,7 +540,6 @@ value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array)
     v = camlidl_apron_texpr0_ptr_c2ml(&array->p[i]);
     modify(&Field(v_array,i), v);
   }
-  free(array->p);
   CAMLreturn(v_array);
 }
 
@@ -567,7 +566,6 @@ value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p)
   Field(v,0) = v0;
   Field(v,1) = v1;
   Field(v,2) = v2;
-  free(p);
   CAMLreturn(v);
 }
 
@@ -594,9 +592,7 @@ value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array)
   for (i=0; i<array->size; i++){
     v = camlidl_apron_tcons0_t_c2ml(array->p[i]);
     modify(&Field(v_array,i), v);
-    free(array->p[i]);
   }
-  free(array->p);
   CAMLreturn(v_array);
 }
 

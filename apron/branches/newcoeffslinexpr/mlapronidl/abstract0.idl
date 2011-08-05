@@ -186,7 +186,7 @@ void ap_abstract0_to_lincons_array(ap_manager_ptr man, ap_lincons0_array_t array
 
 quote(MLI,"\n(** Convert the abstract value to a conjunction of tree expression constraints. *)")
 ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(_res);I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a set of generators that defines it. *)")
 void ap_abstract0_to_lingen_array(ap_manager_ptr man, ap_lingen0_array_t array, ap_abstract0_ptr a)

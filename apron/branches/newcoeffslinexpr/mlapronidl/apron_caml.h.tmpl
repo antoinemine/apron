@@ -255,6 +255,9 @@ static inline value camlidl_apron_texpr0_ptr_c2ml(ap_texpr0_ptr* p)
 void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array, struct camlidl_ctx_struct* ctx);
 value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array);
 
+/* array is supposed to be of type ap_texpr0_array_t */
+#define AP_TEXPR0_ARRAY_DEALLOC(array) free(array.p);
+
 /* ********************************************************************** */
 /* tcons0 */
 /* ********************************************************************** */
@@ -266,8 +269,19 @@ typedef ap_tcons0_t* ap_tcons0_ptr;
 void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p);
 value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p);
 
+/* cons is supposed to be of type ap_tcons0_t* */
+#define AP_TCONS0_DEALLOC(cons) free(cons);
+
 void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array, struct camlidl_ctx_struct* ctx);
 value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array);
+
+/* array is suppose to be of type ap_texpr0_array_t */
+#define AP_TCONS0_ARRAY_DEALLOC(array)                     \
+  do {                                                     \
+    size_t i;                                              \
+    for (i=0;i<array.size;i++) free(array.p[i]);           \
+    free(array.p);                                         \
+  } while (0);
 
 /* ********************************************************************** */
 /* manager */
