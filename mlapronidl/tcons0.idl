@@ -44,9 +44,11 @@ val copy : t -> t\n\
 ")
 
 quote(MLI,"(** Create the constraint -1>=0 *)")
-[ref]ap_tcons0_t* ap_tcons0_make_unsat(void);
+[ref]ap_tcons0_t* ap_tcons0_make_unsat(void)
+  quote(dealloc,"AP_TCONS0_DEALLOC(_res)");
 [ref]ap_tcons0_t* ap_tcons0_of_lincons0(ap_lincons0_t cons)
-quote(call,"_res = ap_tcons0_from_lincons0(cons);");
+  quote(call,"_res = ap_tcons0_from_lincons0(cons);")
+  quote(dealloc,"AP_TCONS0_DEALLOC(_res)");
 quote(MLI,"\n\
 (** {3 Operations} *)\n\
 val add_dimensions : t -> Dim.change -> t\n\
@@ -62,7 +64,8 @@ val array_length : t array -> int\n\
 ");
 
 ap_tcons0_array_t ap_tcons0_array_of_lincons0_array(ap_lincons0_array_t e)
-quote(call,"_res = ap_tcons0_array_from_lincons0_array(e);");
+quote(call,"_res = ap_tcons0_array_from_lincons0_array(e);")
+quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(_res)");
 
 quote(MLI,"\n\
 (** {3 Operations} *)\n\
