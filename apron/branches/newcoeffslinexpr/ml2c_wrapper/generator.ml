@@ -215,9 +215,9 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "  v_%s = %s(%s),@." name (c2ml_function_of_kind k) name
       | Ap_dim_t | Ap_dimension_t | Ap_dimperm_t ->
 	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name
-      | Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t ->
-	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name	       
-      | (*Ap_texpr0_ptr | *) Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr ->
+      (*| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t ->
+	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name *)	       
+      | (*Ap_texpr0_ptr |*)  Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr ->
 	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name	
       | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
   in
@@ -226,8 +226,8 @@ let print_argument_conversion fmt f =
 let print_result_conversion fmt f =
   match f.ret with
     | Void -> ()
-    | Side_effect i ->
-      let (k, name) = List.nth f.args i in
+    | Side_effect _ (* i *) -> () 
+      (*let (k, name) = List.nth f.args i in
       begin
 	match k with
 	  | Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t -> 
@@ -236,7 +236,7 @@ let print_result_conversion fmt f =
 	    Format.fprintf fmt "  %s(v_%s, %s);@." (ml2c_function_of_kind k) name name
 	  | _ ->
 	    Format.fprintf fmt "  %s(v_%s, &%s);@." (ml2c_function_of_kind k) name name
-      end
+      end*)
     | Value k -> 
       match k with
 	| Wrapper_ptr | Bool | Int | Size_t ->
@@ -244,12 +244,9 @@ let print_result_conversion fmt f =
 	| Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t ->
 	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k) 
 	| Ap_tcons0_array_t ->
-	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k);
-	  Format.fprintf fmt "  int i;@.";
-	  Format.fprintf fmt "  for (i = 0; i < res.size; ++i)@.";
-	  Format.fprintf fmt "    res.p[i] = ap_tcons0_copy(res.p[i]);@."
-	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t ->
-	  Format.fprintf fmt "  %s(v_res, res);@." (ml2c_function_of_kind k) 
+	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k)
+	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t -> () (* modified by side-effect *)
+	  (*Format.fprintf fmt "  %s(v_res, res);@." (ml2c_function_of_kind k) *)
 	| _ -> Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k) 
 
 let print_callback fmt f =
