@@ -88,9 +88,43 @@ void test3(void) {
   env = ap_environment_alloc(&name_of_dim[0], 3, &name_of_dim[3], 3);
 }
 
+void test4(void) {
+  ap_manager_t* man;
+  ap_dimension_t dim = { 1, 0 };
+  ap_var_t name_of_dim[1] = {
+    "x"
+    };
+  ap_abstract0_t* a;
+  ap_linexpr0_t box;
+  bool b;
+
+  man = wrapper_manager_alloc();
+
+  ap_linexpr0_init(box,AP_SCALAR_MPQ,1);
+  ap_linexpr0_set_list(man->num, box, &b,
+		       AP_COEFF_LINT,1L,0,
+		       AP_CST_LINT, 1L,
+		       AP_END);
+
+  printf("ok\n");
+  a = ap_abstract0_of_box(man, dim, box);
+  ap_abstract0_print(man,a,name_of_dim);
+  printf("\n");
+  ap_coeff_t res ;
+  ap_coeff_init(res, AP_SCALAR_MPQ);
+
+  ap_abstract0_bound_dimension(man,res,a,0);
+  ap_coeff_print(res);
+  printf("\n");
+  ap_abstract0_free(man,a);
+  ap_linexpr0_clear(box);
+  ap_coeff_clear(res);
+}
+
 int main (int argc, char* argv[]) {
   test1();
   test2();
   /*test3();*/
+  test4();
   return(0);
 }
