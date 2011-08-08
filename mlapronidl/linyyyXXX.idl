@@ -144,10 +144,12 @@ val set_array1 : t -> Environment.t -> ?cst:'a EitvXXX.tt -> (Var.t * 'b EitvXXX
 quote(MLI,"\n(** {3 Change of dimension and permutation} *)")
 void ap_linyyyXXX_add_dimensions(ap_linyyyXXX_ptr res,
 				ap_linyyyXXX_ptr a,
-				[ref]ap_dimchange_t* dimchange);
+				[ref]ap_dimchange_t* dimchange)
+quote(dealloc,"ap_dimchange_clear(dimchange);");
 void ap_linyyyXXX_permute_dimensions(ap_linyyyXXX_ptr res,
 				    ap_linyyyXXX_ptr a,
-				    [ref]struct ap_dimperm_t* perm);
+				    [ref]ap_dimperm_t* perm)
+quote(dealloc,"ap_dimperm_clear(perm);");
 void ap_linyyyXXX__extend_environment(ap_linyyyXXX_ptr res,
 				     ap_environment_ptr nenv,
 				     ap_linyyyXXX_ptr a,
@@ -227,10 +229,13 @@ quote(MLI,"\n(** {3 Change of dimension and permutation} *)")
 
 void ap_linyyyXXX_array_add_dimensions(ap_linyyyXXX_array_ptr res,
 				      ap_linyyyXXX_array_ptr array,
-				       [ref]ap_dimchange_t* dimchange);
+				       [ref]ap_dimchange_t* dimchange)
+quote(dealloc,"ap_dimchange_clear(dimchange);");
+
 void ap_linyyyXXX_array_permute_dimensions(ap_linyyyXXX_array_ptr res,
 					  ap_linyyyXXX_array_ptr array,
-					  [ref]struct ap_dimperm_t* dimperm);
+					  [ref]ap_dimperm_t* perm)
+quote(dealloc,"ap_dimperm_clear(perm);");
 void ap_linyyyXXX__array_extend_environment(ap_linyyyXXX_array_ptr res,
 					   ap_environment_ptr nenv,
 					   ap_linyyyXXX_array_ptr a,

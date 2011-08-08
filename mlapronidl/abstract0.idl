@@ -186,7 +186,7 @@ void ap_abstract0_to_lincons_array(ap_manager_ptr man, ap_lincons0_array_t array
 
 quote(MLI,"\n(** Convert the abstract value to a conjunction of tree expression constraints. *)")
 ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a)
-quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(_res);I0_CHECK_EXC(man)");
+quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(&_res);I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a set of generators that defines it. *)")
 void ap_abstract0_to_lingen_array(ap_manager_ptr man, ap_lingen0_array_t array, ap_abstract0_ptr a)
@@ -221,7 +221,7 @@ quote(MLI,"(** Meet of an abstract value with an array of tree expression constr
 ap_abstract0_ptr ap_abstract0_meet_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a,
 					       [ref]ap_tcons0_array_t* array)
      quote(call,"_res = ap_abstract0_meet_tcons_array(man,false,a,array);")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Join of 2 abstract values. *)")
 ap_abstract0_ptr ap_abstract0_join(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
@@ -261,7 +261,7 @@ void ap_abstract0_meet_tcons_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
   ap_abstract0_t* res = ap_abstract0_meet_tcons_array(man,true,a,array);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 void ap_abstract0_join_with(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
 	 quote(call,"{\n\
@@ -320,7 +320,7 @@ ap_abstract0_ptr ap_abstract0_assign_texpr_array(
 if (size!=array->size) caml_failwith(\"Abstract0.assign_texpr_array: arrays of different size\");\n\
 _res = ap_abstract0_assign_texpr_array(man,false,a,tdim,array,dest==NULL ? NULL : *dest);\n\
 ")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Parallel substitution of an array of dimensions by an array of same size of tree expressions *)")
 ap_abstract0_ptr ap_abstract0_substitute_texpr_array(
@@ -333,7 +333,7 @@ ap_abstract0_ptr ap_abstract0_substitute_texpr_array(
 if (size!=array->size) caml_failwith(\"Abstract0.substitute_texpr_array: arrays of different size\");\n\
 _res = ap_abstract0_substitute_texpr_array(man,false,a,tdim,array,dest==NULL ? NULL : *dest);\n\
 ")
-      quote(dealloc,"I0_CHECK_EXC(man)");
+      quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 
 
@@ -377,7 +377,7 @@ if (size!=array->size) caml_failwith(\"Abstract0.assign_texpr_array_with: arrays
   ap_abstract0_t* res = ap_abstract0_assign_texpr_array(man,true,a,tdim,array,dest==NULL ? NULL : *dest);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 void ap_abstract0_substitute_texpr_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 					     [size_is(size)]ap_dim_t* tdim, unsigned int size,
@@ -389,7 +389,7 @@ if (size!=array->size) caml_failwith(\"Abstract0.substitute_texpr_array_with: ar
   ap_abstract0_t* res = ap_abstract0_substitute_texpr_array(man,true,a,tdim,array,dest==NULL ? NULL : *dest);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 quote(MLI,"\n\n")
 quote(MLMLI,"(* ============================================================ *)")
@@ -417,19 +417,19 @@ quote(MLMLI,"\n")
 
 ap_abstract0_ptr ap_abstract0_add_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange, boolean project)
      quote(call,"_res = ap_abstract0_add_dimensions(man,false,a,dimchange, project);")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
 ap_abstract0_ptr ap_abstract0_remove_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange)
      quote(call,"_res = ap_abstract0_remove_dimensions(man,false,a,dimchange);")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
-ap_abstract0_ptr ap_abstract0_apply_dimchange2(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
+ap_abstract0_ptr ap_abstract0_apply_dimchange2(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange2_t* dimchange2, boolean project)
      quote(call,"_res = ap_abstract0_apply_dimchange2(man,false,a,dimchange2,project);")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange2_clear(dimchange2); I0_CHECK_EXC(man)");
 
-ap_abstract0_ptr ap_abstract0_permute_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimperm_t* perm)
+ap_abstract0_ptr ap_abstract0_permute_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimperm_t* perm)
      quote(call,"_res = ap_abstract0_permute_dimensions(man,false,a,perm);")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimperm_clear(perm); I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** {5 Side-effect versions of the previous functions} *)\n\n")
 void ap_abstract0_add_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange, boolean v1)
@@ -437,28 +437,28 @@ void ap_abstract0_add_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, ap
   ap_abstract0_t* res = ap_abstract0_add_dimensions(man,true,a,dimchange,v1);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
 void ap_abstract0_remove_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_remove_dimensions(man,true,a,dimchange);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
-void ap_abstract0_apply_dimchange2_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimchange2_t* dimchange2, boolean project)
+void ap_abstract0_apply_dimchange2_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange2_t* dimchange2, boolean project)
      quote(call,"\n\
 ap_abstract0_t* res  = ap_abstract0_apply_dimchange2(man,true,a,dimchange2,project);\n\
 *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 ")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimchange2_clear(dimchange2); I0_CHECK_EXC(man)");
 
-void ap_abstract0_permute_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]struct ap_dimperm_t* perm)
+void ap_abstract0_permute_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimperm_t* perm)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_permute_dimensions(man,true,a,perm);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(man)");
+     quote(dealloc,"ap_dimperm_clear(perm); I0_CHECK_EXC(man)");
 
 quote(MLI,"\n\n")
 

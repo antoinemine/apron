@@ -17,7 +17,8 @@ value camlidl_apron_texpr0_to_expr_c2ml(ap_texpr0_t* expr)\n\
     {\n\
       value v0 = Val_unit;\n\
       Begin_root(v0);\n\
-      v0 = camlidl_coeff_ptr_c2ml(&expr->val.cst);\n\
+      ap_coeff_ptr cst = expr->val.cst;\n\
+      v0 = camlidl_coeff_ptr_c2ml(&cst);\n\
       _v_res = caml_alloc_small(1,0);\n\
        Field(_v_res,0) = v0;\n\
       End_roots();\n\
@@ -87,10 +88,11 @@ void camlidl_apron_texpr0_of_expr_ml2c(value v, ap_texpr0_t** res)\n\
   case 0: /* Constant */\n\
     {\n\
     ap_coeff_t coeff;\n\
+    ap_coeff_ptr pcoeff=coeff;\n\
     assert(Wosize_val(v)==1);\n\
     v0 = Field(v,0);\n\
     texpr->discr = AP_TEXPR_CST;\n\
-    camlidl_coeff_ptr_ml2c(v0,&coeff);\n\
+    camlidl_coeff_ptr_ml2c(v0,&pcoeff);\n\
     ap_coeff_init_set(texpr->val.cst,coeff);\n\
     }\n\
     break;\n\
@@ -287,14 +289,18 @@ quote(MLMLI,"\n(** {3 Operations} *)\n")
 
 ap_texpr0_ptr ap_texpr0_substitute(ap_texpr0_ptr a, ap_dim_t dim, ap_texpr0_ptr b);
 ap_texpr0_ptr ap_texpr0_add_dimensions(ap_texpr0_ptr expr,
-				       [ref]ap_dimchange_t* dimchange);
+				       [ref]ap_dimchange_t* dimchange)
+quote(dealloc,"ap_dimchange_clear(dimchange);");
 ap_texpr0_ptr ap_texpr0_permute_dimensions(ap_texpr0_ptr expr,
-					   [ref]struct ap_dimperm_t* dimperm);
+					   [ref]ap_dimperm_t* perm)
+quote(dealloc,"ap_dimperm_clear(perm);");
 void ap_texpr0_substitute_with(ap_texpr0_ptr a, ap_dim_t dim, ap_texpr0_ptr b);
 void ap_texpr0_add_dimensions_with(ap_texpr0_ptr expr,
-				   [ref]ap_dimchange_t* dimchange);
+				   [ref]ap_dimchange_t* dimchange)
+quote(dealloc,"ap_dimchange_clear(dimchange);");
 void ap_texpr0_permute_dimensions_with(ap_texpr0_ptr expr,
-				       [ref]struct ap_dimperm_t* dimperm);
+				       [ref]ap_dimperm_t* perm)
+quote(dealloc,"ap_dimperm_clear(perm);");
 
 quote(MLI,"\n\
 (** {2 Arrays} *)\n\
@@ -306,16 +312,22 @@ val array_length : t array -> int\n\
 
 ap_texpr0_array_t ap_texpr0_array_of_linexpr0_array(ap_linexpr0_array_t e)
 quote(call,"_res = ap_texpr0_array_from_linexpr0_array(e);")
-quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(_res)");
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(&_res)");
 
-quote(MLI,"\n\
-(** {3 Operations} *)\n\
-val array_add_dimensions : t array -> Dim.change -> t array\n\
-val array_permute_dimensions : t array -> Dim.perm -> t array\n\
-val array_add_dimensions_with : t array -> Dim.change -> unit\n\
-val array_permute_dimensions_with : t array -> Dim.perm -> unit\n\
-")
+quote(MLMLI,"\n(** {3 Operations} *)\n")
 
+ap_texpr0_array_t ap_texpr0_array_add_dimensions([ref]ap_texpr0_array_t* array,
+				       [ref]ap_dimchange_t* dimchange)
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); ap_dimchange_clear(dimchange); AP_TEXPR0_ARRAY_DEALLOC(&_res);");
+ap_texpr0_array_t ap_texpr0_array_permute_dimensions([ref]ap_texpr0_array_t* array,
+					   [ref]ap_dimperm_t* perm)
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); ap_dimperm_clear(perm); AP_TEXPR0_ARRAY_DEALLOC(&_res);");
+void ap_texpr0_array_add_dimensions_with([ref]ap_texpr0_array_t* array,
+				   [ref]ap_dimchange_t* dimchange)
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); ap_dimchange_clear(dimchange);");
+void ap_texpr0_array_permute_dimensions_with([ref]ap_texpr0_array_t* array,
+				       [ref]ap_dimperm_t* perm)
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(array); ap_dimperm_clear(perm);");
 
 quote(ML,"\n\
 let string_of_unop = function\n\
@@ -434,10 +446,6 @@ let array_print ?first ?sep ?last string_of_dim fmt tab =\n\
   Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab\n\
 let array_make length = Array.make length (cst (Coeff.init_set_int (Common.D()) 0))\n\
 let array_length = Array.length\n\
-let array_add_dimensions x y = Array.map (fun x -> add_dimensions x y) x\n\
-let array_permute_dimensions x y = Array.map (fun x -> permute_dimensions x y) x\n\
-let array_add_dimensions_with x y = Array.iter (fun x -> add_dimensions_with x y) x\n\
-let array_permute_dimensions_with x y = Array.iter (fun x -> permute_dimensions_with x y) x\n\
 let rec map_gexpr f g = function\n\
 | Cst x -> Cst(f x)\n\
 | DimVar x -> DimVar(g x)\n\

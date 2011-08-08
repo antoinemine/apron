@@ -16,19 +16,22 @@ struct ap_dimension_t {
 };
 
 typedef [mltype("{\n  dim : int array;\n  dimension : dimension;\n}"),
+	 abstract,
 	 c2ml(camlidl_apron_dimchange_c2ml),
 	 ml2c(camlidl_apron_dimchange_ml2c)]
 struct ap_dimchange_t ap_dimchange_t;
 
-struct ap_dimchange2_t {
-  ap_dimchange_t* add;
-  ap_dimchange_t* remove;
-};
+typedef [mltype("{\n  add: change option;\n  remove: change option;\n}"),
+	 abstract,
+	 c2ml(camlidl_apron_dimchange2_c2ml),
+	 ml2c(camlidl_apron_dimchange2_ml2c)]
+struct ap_dimchange2_t ap_dimchange2_t;
 
-struct ap_dimperm_t {
-  [mlname(dim),size_is(size)]unsigned int* p;
-  unsigned int size;
-};
+typedef [mltype("int array"),
+	 abstract,
+	 c2ml(camlidl_apron_dimperm_c2ml),
+	 ml2c(camlidl_apron_dimperm_ml2c)]
+struct ap_dimperm_t ap_dimperm_t;
 
 quote(MLMLI,"(** APRON Dimensions and related types *)")
 
