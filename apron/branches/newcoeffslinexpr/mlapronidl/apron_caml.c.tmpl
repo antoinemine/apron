@@ -16,12 +16,9 @@ PERLEVAL @AllNumIdl = split(" ",$ENV{MLAPRONIDL_NUMTYPES})
 /* dimensions */
 /* ********************************************************************** */
 
-extern void camlidl_ml2c_dim_struct_ap_dimension_t(value _v1, struct ap_dimension_t * _c2, struct camlidl_ctx_struct* _ctx);
-extern value camlidl_c2ml_dim_struct_ap_dimension_t(struct ap_dimension_t * _c1, struct camlidl_ctx_struct* _ctx);
-
 void camlidl_apron_dimchange_ml2c(
-    const value v, ap_dimchange_t* dimchange,
-    struct camlidl_ctx_struct* _ctx)
+    const value v, ap_dimchange_t* dimchange
+)
 {
   ap_dimension_t dimension;
   size_t i;
@@ -30,11 +27,10 @@ void camlidl_apron_dimchange_ml2c(
   value vdimension = Field(v,1);
   camlidl_ml2c_dim_struct_ap_dimension_t(vdimension,&dimchange->dim,NULL);
   size_t size1 = ap_dimension_size(dimchange->dim);
-  dimchange->p = camlidl_malloc(size1*sizeof(ap_dim_t),_ctx);
-  ap_dimchange_init(dimchange,dimchange->dim);
   size_t size = Wosize_val(vdim);
   if (size != size1)
     caml_failwith("Invalid object of type Dim.dimchange: size of the array smaller than size of dimension");
+  ap_dimchange_init(dimchange,dimchange->dim);
   for (i=0;i<size;i++){
     value v = Field(vdim,i);
     dimchange->p[i] = Int_val(v);
@@ -58,8 +54,80 @@ value camlidl_apron_dimchange_c2ml(ap_dimchange_t* dimchange)
   v = caml_alloc_small(2,0);
   Field(v,0) = vdim;
   Field(v,1) = vdimension;
-  ap_dimchange_free(dimchange);
   CAMLreturn(v);
+}
+void camlidl_apron_dimchange2_ml2c(
+    const value v, ap_dimchange2_t* dimchange2
+)
+{
+  ap_dimension_t dimension;
+  value vadd = Field(v,0);
+  value vremove = Field(v,1);
+  if (vadd == Val_int(0)){
+    dimchange2->add = NULL;
+  } else {
+    value vchange = Field(vadd,0);
+    dimchange2->add = malloc(sizeof(ap_dimchange_t));
+    camlidl_apron_dimchange_ml2c(vchange,dimchange2->add);
+  }
+  if (vremove == Val_int(0)){
+    dimchange2->add = NULL;
+  } else {
+    value vchange = Field(vremove,0);
+    dimchange2->add = malloc(sizeof(ap_dimchange_t));
+    camlidl_apron_dimchange_ml2c(vchange,dimchange2->remove);
+  }
+}
+
+value camlidl_apron_dimchange2_c2ml(ap_dimchange2_t* dimchange2)
+{
+  CAMLparam0();
+  CAMLlocal4(v,vadd,vremove,vchange);
+
+  if (dimchange2->add){
+    vchange = camlidl_apron_dimchange_c2ml(dimchange2->add);
+    vadd = caml_alloc_small(1,0);
+    Field(vadd,0) = vchange;
+  }
+  else {
+    vadd = Val_int(0);
+  }
+  if (dimchange2->remove){
+    vchange = camlidl_apron_dimchange_c2ml(dimchange2->remove);
+    vremove = caml_alloc_small(1,0);
+    Field(vremove,0) = vchange;
+  }
+  else {
+    vremove = Val_int(0);
+  }
+  v = caml_alloc_small(2,0);
+  Field(v,0) = vadd;
+  Field(v,1) = vremove;
+  CAMLreturn(v);
+}
+void camlidl_apron_dimperm_ml2c(
+    const value v, ap_dimperm_t* dimperm
+)
+{
+  mlsize_t i,size;
+
+  size = Wosize_val(v);
+  dimperm->p = malloc(size*sizeof(ap_dim_t));
+  for (i=0;i<size;i++){
+    value vi = Field(v,i);
+    dimperm->p[i] = Int_val(vi);
+  }
+  dimperm->size = size;
+}
+value camlidl_apron_dimperm_c2ml(ap_dimperm_t* dimperm)
+{
+  unsigned long int i;
+  value v = caml_alloc(dimperm->size,0);
+  for (i=0;i<dimperm->size;i++){
+    value vi = Val_int(dimperm->p[i]);
+    modify(&Field(v,i),vi);
+  }
+  return v;
 }
 
 /* ********************************************************************** */
@@ -160,6 +228,14 @@ struct custom_operations camlidl_apron_custom_var_ptr = {
   custom_serialize_default,
   custom_deserialize_default
 };
+struct custom_operations camlidl_apron_custom_var_ptr_nonfinal = {
+  NULL,
+  custom_finalize_default,
+  camlidl_apron_var_ptr_compare,
+  camlidl_apron_var_ptr_hash,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 value camlidl_apron_var_ptr_c2ml(ap_var_t* p)
 {
@@ -206,6 +282,14 @@ struct custom_operations camlidl_apron_custom_environment_ptr = {
   custom_serialize_default,
   custom_deserialize_default
 };
+struct custom_operations camlidl_apron_custom_environment_ptr_nonfinal = {
+  NULL,
+  custom_finalize_default,
+  camlidl_apron_environment_ptr_compare,
+  camlidl_apron_environment_ptr_hash,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 {
@@ -226,6 +310,11 @@ void camlidl_custom_TTTXXX_finalize(value val)
 {
   TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
   TTTXXX_clear(a);
+  mlapronidl_free(a);
+}
+void camlidl_custom_TTTXXX_finalize_nonfinal(value val)
+{
+  TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
   mlapronidl_free(a);
 }
 int camlidl_custom_TTTXXX_compare(value val1, value val2)
@@ -296,6 +385,14 @@ struct custom_operations camlidl_custom_TTTXXX = {
   &camlidl_custom_TTTXXX_serialize,
   &camlidl_custom_TTTXXX_deserialize
 };
+struct custom_operations camlidl_custom_TTTXXX_nonfinal = {
+  NULL,
+  &camlidl_custom_TTTXXX_finalize_nonfinal,
+  &camlidl_custom_TTTXXX_compare,
+  &camlidl_custom_TTTXXX_hash,
+  &camlidl_custom_TTTXXX_serialize,
+  &camlidl_custom_TTTXXX_deserialize
+};
 
 value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
 {
@@ -321,6 +418,11 @@ void camlidl_custom_TTTXXX_array_finalize(value val)
 {
   TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
   TTTXXX_array_clear(a);
+  mlapronidl_free(a);
+}
+void camlidl_custom_TTTXXX_array_finalize_nonfinal(value val)
+{
+  TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
   mlapronidl_free(a);
 }
 int camlidl_custom_TTTXXX_array_compare(value val1, value val2)
@@ -391,6 +493,14 @@ struct custom_operations camlidl_custom_TTTXXX_array = {
   &camlidl_custom_TTTXXX_array_serialize,
   &camlidl_custom_TTTXXX_array_deserialize
 };
+struct custom_operations camlidl_custom_TTTXXX_array_nonfinal = {
+  NULL,
+  &camlidl_custom_TTTXXX_array_finalize_nonfinal,
+  &camlidl_custom_TTTXXX_array_compare,
+  &camlidl_custom_TTTXXX_array_hash,
+  &camlidl_custom_TTTXXX_array_serialize,
+  &camlidl_custom_TTTXXX_array_deserialize
+};
 
 value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
 {
@@ -414,17 +524,16 @@ ENDMACRO
 /* coefficients */
 /* ********************************************************************** */
 
-void camlidl_coeff_ptr_ml2c(value v, ap_coeff_t* pcoeff)
+void camlidl_coeff_ptr_ml2c(value v, ap_coeff_ptr* pcoeff)
 {
   ap_scalar_discr_t discr = Tag_val(v);
   ap_coeff_ptr coeff = *pcoeff;
-
   coeff->discr = discr;
   MACRO_SWITCH(discr) XXX
     camlidl_eitvXXX_ptr_ml2c(Field(v,0),&coeff->eitv.XXX);
   ENDMACRO;
 }
-value camlidl_coeff_ptr_c2ml(ap_coeff_t* pcoeff)
+value camlidl_coeff_ptr_c2ml(ap_coeff_ptr* pcoeff)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
@@ -438,7 +547,7 @@ value camlidl_coeff_ptr_c2ml(ap_coeff_t* pcoeff)
 }
 
 MACRO_FOREACH TTT ("expr","cons","gen")
-void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0)
+void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_ptr* plinTTT0)
 {
   ap_scalar_discr_t discr = Tag_val(v);
   ap_linTTT0_ptr linTTT0 = *plinTTT0;
@@ -448,7 +557,7 @@ void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_t* plinTTT0)
   }
   ENDMACRO;
 }
-value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_t* plinTTT0)
+value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_ptr* plinTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
@@ -461,7 +570,7 @@ value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_t* plinTTT0)
   Field(v,0) = v2;
   CAMLreturn(v);
 }
-void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_t* plinTTT0)
+void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_ptr* plinTTT0)
 {
   ap_scalar_discr_t discr = Tag_val(v);
   ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
@@ -471,7 +580,7 @@ void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_t* plinTTT0)
   }
   ENDMACRO;
 }
-value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_t* plinTTT0)
+value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_ptr* plinTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
@@ -516,13 +625,21 @@ struct custom_operations camlidl_apron_custom_texpr0_ptr = {
   custom_serialize_default,
   custom_deserialize_default
 };
+struct custom_operations camlidl_apron_custom_texpr0_ptr_nonfinal = {
+  NULL,
+  custom_finalize_default,
+  camlidl_apron_texpr0_ptr_compare,
+  camlidl_apron_texpr0_ptr_hash,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
-void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array, camlidl_ctx ctx)
+void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array)
 {
   value v;
   mlsize_t i;
   mlsize_t size = Wosize_val(v_array);
-  array->p = camlidl_malloc(size * sizeof(ap_texpr0_ptr ), ctx);
+  array->p = malloc(size * sizeof(ap_texpr0_ptr));
   for (i = 0; i < size; i++) {
     v = Field(v_array, i);
     camlidl_apron_texpr0_ptr_ml2c(v,&array->p[i]);
@@ -569,15 +686,15 @@ value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p)
   CAMLreturn(v);
 }
 
-void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array, camlidl_ctx ctx)
+void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array)
 {
   value v;
   mlsize_t i;
   mlsize_t size = Wosize_val(v_array);
-  array->p = camlidl_malloc(size * sizeof(ap_tcons0_t*), ctx);
+  array->p = malloc(size * sizeof(ap_tcons0_t*));
   for (i = 0; i < size; i++) {
     v = Field(v_array, i);
-    array->p[i] = camlidl_malloc(sizeof(ap_tcons0_t), ctx);
+    array->p[i] = malloc(sizeof(ap_tcons0_t));
     camlidl_apron_tcons0_t_ml2c(v,array->p[i]);
   }
   array->size = size;

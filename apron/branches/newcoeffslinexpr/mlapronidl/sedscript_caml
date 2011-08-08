@@ -15,7 +15,7 @@ s/'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}t
 s/'b \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt -> 'a \(\(Mp\(z\|q\|fr\)\|\(Num\|Bound\|Eitv\)\(MPZ\|MPQ\|D\|MPFR\)\)\.\)\{0,1\}tt/'b \1tt -> 'c \6tt/g;
 s/ap_dim_t/t/g;
 s/ap_dimension_t/dimension/g;
-s/ap_dim\(change\|change2\|perm\)\_t/\1/g;
+s/ap_dim\(change\|change2\|perm\)_t/\1/g;
 s/\([^_]\)ap_var_/\1/g;
 s/ap_\(environment\|lin\(expr\|cons\|gen\)\(MPZ\|MPQ\|D\|MPFR\)\|texpr0\)_ptr/t/g;
 s/ap_lin\(expr\|cons\|gen\)\(MPZ\|MPQ\|D\|MPFR\)_array_ptr/earray/g;

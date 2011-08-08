@@ -23,6 +23,10 @@ type f = Mpz.f (** Functional (immutable) tag *)\n\
 type t = m tt (** Mutable interval *)\n\
 ")
 
+quote(C,"int dummy(ap_coeff_tm coeff);")
+
+int dummy(ap_coeff_tm coeff);
+
 quote(MLI,"\n\
 (** {2 Pretty printing} *)\n\
 val print : Format.formatter -> 'a tt -> unit\n\

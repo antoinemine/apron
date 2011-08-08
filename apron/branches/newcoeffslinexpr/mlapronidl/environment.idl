@@ -65,7 +65,7 @@ ap_environment_ptr ap_environment_add_perm(
     ap_environment_ptr e,
     [size_is(intdim)]ap_var_t* name_of_intdim, int intdim,
     [size_is(realdim)]ap_var_t* name_of_realdim, int realdim,
-    [out]struct ap_dimperm_t perm
+    [out]ap_dimperm_t perm
 )
      quote(call,"\n\
 _res = ap_environment_add_perm(e,name_of_intdim,intdim,name_of_realdim,realdim,&perm);\n\
@@ -104,7 +104,7 @@ if (size1!=size2){\n\
   caml_failwith(\"Environment.rename: arrays of different sizes\");\n\
 }\n\
 else {\n\
-  struct ap_dimperm_t perm;\n\
+  ap_dimperm_t perm;\n\
   _res = ap_environment_rename(e,tvar1,tvar2,size1,&perm);\n\
   ap_dimperm_clear(&perm);\n\
   if (_res==NULL){\n\
@@ -123,7 +123,7 @@ ap_environment_rename_perm(ap_environment_ptr e,
 			   [size_is(size1)]ap_var_t* tvar1,
 			   [size_is(size2)]ap_var_t* tvar2,
 			   int size1,int size2,
-			   [out] struct ap_dimperm_t perm)
+			   [out] ap_dimperm_t perm)
      quote(call,"\n\
 if (size1!=size2){\n\
   camlidl_free(_ctx);\n\
@@ -182,7 +182,8 @@ if (_res==NULL){\n\
   camlidl_free(_ctx);\n\
   caml_failwith(\"Environment.lce: variable with two different types\");\n\
 }\n\
-assert(_res->count >= 1);");
+assert(_res->count >= 1);")
+quote(dealloc,"if (c1) ap_dimchange_clear(c1); if (c2) ap_dimchange_clear(c2);");
 
 quote(MLI,"\n\
 (** [dimchange e1 e2] computes the transformation for \n\
@@ -206,7 +207,7 @@ quote(MLI,"\n\
 (some) variables of [e1]. Raises [Failure] if the two environments\n\
 are incompatible.\n\
 *)")
-[ref]struct ap_dimchange2_t *ap_environment_dimchange2(ap_environment_ptr e1,
+[ref]ap_dimchange2_t *ap_environment_dimchange2(ap_environment_ptr e1,
 						ap_environment_ptr e2)
      quote(call,"\n\
 _res = ap_environment_dimchange2(e1,e2);\n\
