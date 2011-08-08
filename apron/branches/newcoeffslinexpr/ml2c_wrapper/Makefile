@@ -96,7 +96,7 @@ test_domain: libml2c_wrapper.d test_domain.d.o
 
 clean:
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot *~
-	/bin/rm -f generator test ml2c_wrapper.h ml2c_wrapper.c
+	/bin/rm -f generator test test_domain ml2c_wrapper.h ml2c_wrapper.c
 
 %.cmi: %.mli
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
