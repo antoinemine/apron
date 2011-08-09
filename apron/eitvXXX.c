@@ -17,7 +17,7 @@ void eitvXXX_init_array(eitvXXX_t* a, size_t size)
 }
 eitvXXX_t* eitvXXX_array_alloc(size_t size)
 {
-  eitvXXX_t* res = (eitvXXX_t*)malloc(size*sizeof(eitvXXX_t));
+  eitvXXX_t* res = (eitvXXX_t*)ap_malloc(size*sizeof(eitvXXX_t));
   eitvXXX_init_array(res,size);
   return res;
 }

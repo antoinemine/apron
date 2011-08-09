@@ -136,7 +136,7 @@ static void ap_texpr0_array_t_nonfinalize(value v)
 {
   mlsize_t i;
   mlsize_t size = Wosize_val(v);
-  for (i = 0; i < size; i++) 
+  for (i = 0; i < size; i++)
     ap_texpr0_ptr_nonfinalize(Field(v,i));
 }
 
@@ -150,11 +150,11 @@ static void ap_tcons0_array_t_nonfinalize(value v)
 {
   mlsize_t i;
   mlsize_t size = Wosize_val(v);
-  for (i = 0; i < size; i++) 
+  for (i = 0; i < size; i++)
     ap_tcons0_t_nonfinalize(Field(v,i));
 }
 
-static wrapper_t* wrapper_alloc(value v) 
+static wrapper_t* wrapper_alloc(value v)
 {
   wrapper_t* x = (wrapper_t*) malloc(sizeof(wrapper_t));
   if (x == NULL) return NULL;
@@ -165,11 +165,11 @@ static wrapper_t* wrapper_alloc(value v)
 
 static void wrapper_modify(wrapper_t* x, value v)
 {
-  if (x != NULL)		   
+  if (x != NULL)
     caml_modify_generational_global_root(&(x->val), v);
 }
 
-void wrapper_free(ap_manager_t* man, wrapper_t* x) 
+void wrapper_free(ap_manager_t* man, wrapper_t* x)
 {
   if (x != NULL) {
     caml_remove_generational_global_root(&(x->val));

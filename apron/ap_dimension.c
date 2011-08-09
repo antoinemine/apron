@@ -18,7 +18,7 @@
 void ap_dimchange_init(ap_dimchange_t* dimchange, ap_dimension_t dim)
 {
   size_t size = ap_dimension_size(dim);
-  dimchange->p = size==0 ? NULL : malloc(size*sizeof(ap_dim_t));
+  dimchange->p = ap_malloc(size*sizeof(ap_dim_t));
   dimchange->dim = dim;
 }
 ap_dimchange_t* ap_dimchange_alloc(ap_dimension_t dim)
@@ -102,7 +102,7 @@ void ap_dimchange2_fprint(FILE* stream, ap_dimchange2_t* dimchange2)
 /* Allocating a permutation */
 void ap_dimperm_init(ap_dimperm_t* dimperm, size_t size)
 {
-  dimperm->p = size==0 ? NULL : malloc(size*sizeof(ap_dim_t));
+  dimperm->p = ap_malloc(size*sizeof(ap_dim_t));
   dimperm->size = size;
 }
 ap_dimperm_t* ap_dimperm_alloc(size_t size)

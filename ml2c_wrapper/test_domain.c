@@ -1,5 +1,5 @@
 /* GENERATED FROM domain.c.tmpl, DO NOT MODIFY */
-#line 1 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
+
 /* -*- mode: c -*- */
 
 /*
@@ -202,7 +202,6 @@ void ap_coeff_pick_value(ap_coeff_t res, ap_coeff_t a)
   assert(res->discr==a->discr);
   switch(a->discr){
   case AP_SCALAR_D:{
-    #line 209 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
     eitvD_ptr ires = res->eitv.D;
     eitvD_ptr ia = a->eitv.D;
     if (eitvD_is_point(ia)){
@@ -232,7 +231,6 @@ void ap_coeff_pick_value(ap_coeff_t res, ap_coeff_t a)
   }
   break;
   case AP_SCALAR_MPQ:{
-    #line 209 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
     eitvMPQ_ptr ires = res->eitv.MPQ;
     eitvMPQ_ptr ia = a->eitv.MPQ;
     if (eitvMPQ_is_point(ia)){
@@ -262,7 +260,6 @@ void ap_coeff_pick_value(ap_coeff_t res, ap_coeff_t a)
   }
   break;
   case AP_SCALAR_MPFR:{
-    #line 209 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
     eitvMPFR_ptr ires = res->eitv.MPFR;
     eitvMPFR_ptr ia = a->eitv.MPFR;
     if (eitvMPFR_is_point(ia)){
@@ -294,7 +291,6 @@ void ap_coeff_pick_value(ap_coeff_t res, ap_coeff_t a)
   default:
     abort();
   }
-  #line 237 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
 }
 
 void ap_linexpr0_pick_linear(ap_linexpr0_t l, ap_linexpr0_t a, int dim)
@@ -426,7 +422,6 @@ void ap_linexpr0_array_set_random(ap_linexpr0_array_t array, int dim, int nb)
   }
 }
 #undef MARK_expr
-#line 352 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
 #define MARK_cons
 void ap_lincons0_array_set_random(ap_lincons0_array_t array, int dim, int nb)
 {
@@ -443,7 +438,6 @@ void ap_lincons0_array_set_random(ap_lincons0_array_t array, int dim, int nb)
   }
 }
 #undef MARK_cons
-#line 352 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
 #define MARK_gen
 void ap_lingen0_array_set_random(ap_lingen0_array_t array, int dim, int nb)
 {
@@ -480,7 +474,6 @@ ap_texpr0_array_t random_texpr0_array(int dim, int depth, int nb)
   return array;
 }
 #undef MARK_expr
-#line 371 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
 #define MARK_cons
 ap_tcons0_array_t random_tcons0_array(int dim, int depth, int nb)
 {
@@ -1352,7 +1345,6 @@ void test_assign_texpr_array(void)
     ap_texpr0_array_clear(&array);
   } ENDLOOP;
 }
-#line 1116 "/Users/john/Travail/apron/apron/branches/newcoeffslinexpr/ctest/domain.c.tmpl"
 void test_substitute_linexpr(void)
 {
   printf("\nsubstitute_linexpr\n");
@@ -1495,7 +1487,7 @@ void test_forget_array(void)
     ap_dimchange_init(&a,dimension);
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     d = ap_abstract0_dimension(manrough,rougha);
-    
+
     for (i=0;i<dimension.intd+dimension.reald;i++) {
       a.p[i] = rand()%3 + 1;
       if (i) a.p[i] += a.p[i-1];
@@ -1505,7 +1497,7 @@ void test_forget_array(void)
     if (0){
       printf("\n");
       ap_dimchange_fprint(stream,&a);
-      print_abstract("rougha",rougha); print_abstract("preca",preca); 
+      print_abstract("rougha",rougha); print_abstract("preca",preca);
       printf("\n");
     }
     roughr = ap_abstract0_forget_array(manrough,false,rougha,a.p, a.dim.intd+a.dim.reald, proj);
@@ -1514,7 +1506,7 @@ void test_forget_array(void)
     if (!is_leq(precr,roughr)) {
       ERROR("no inclusion (error)");
       ap_dimchange_fprint(stream,&a);
-      print_abstract("rougha",rougha); print_abstract("roughr",roughr); 
+      print_abstract("rougha",rougha); print_abstract("roughr",roughr);
       print_abstract("precaa",preca); print_abstract("precr",precr);
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
@@ -1802,7 +1794,7 @@ int main(int argc, char** argv)
     // Oct/Box and Oct/Poly
     random_abstract = &random_abstract_std;
     test(manwrapper,manbox);
- 
+
   }
 
 
@@ -1812,4 +1804,3 @@ int main(int argc, char** argv)
 
   return 0;
 }
-

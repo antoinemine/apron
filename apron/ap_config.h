@@ -33,7 +33,10 @@ static inline tbool_t tbool_of_and(tbool_t a, tbool_t b);
 static inline tbool_t tbool_of_not(tbool_t a);
 #endif
 
+static inline void* ap_malloc(size_t size);
+static inline void* ap_realloc(void* ptr, size_t size);
 static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...);
+
 
 #if !(defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __APPLE__ || defined __CYGWIN__)
 
@@ -73,6 +76,18 @@ static inline tbool_t tbool_not(tbool_t a)
 }
 #endif
 
+static inline void* ap_malloc(size_t size)
+{
+  return size==0 ? NULL : malloc(size);
+}
+static inline void* ap_realloc(void* ptr, size_t size)
+{
+  if (size==0){ 
+    free(ptr); return NULL;
+  } else {
+    return realloc(ptr,size);
+  }
+}
 static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...)
 {
   int count;
