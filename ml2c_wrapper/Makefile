@@ -37,11 +37,11 @@ ICFLAGS = \
 
 LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
-	-lapron_caml -lapron -lgmp_caml -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
+	-lapron_caml.callback -lapron -lgmp_caml.callback -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
 
 LDFLAGS_DEBUG = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
-	-lapron_caml.d -lapron.d -lgmp_caml -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
+	-lapron_caml.callback.d -lapron.d -lgmp_caml.callback -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
 
 #---------------------------------------
 # Files
@@ -63,11 +63,11 @@ essai:
 generator: generator.ml
 	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -o $@ $^
 
-caml_abstract_domain_obj.o: ../mlapronidl/apron.cmxa $(ML_MODULES:%=%.cmx)
+caml_abstract_domain_obj.o: ../mlapronidl/apron.callback.cmxa $(ML_MODULES:%=%.cmx)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) \
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
-caml_abstract_domain_obj.d.o: ../mlapronidl/apron.d.cmxa $(ML_MODULES:%=%.d.cmx)
+caml_abstract_domain_obj.d.o: ../mlapronidl/apron.callback.d.cmxa $(ML_MODULES:%=%.d.cmx)
 	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) \
 	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
@@ -83,7 +83,7 @@ libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrappe
 	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
 
 libml2c_wrapper.d: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
-	ocamlmklib -ccopt "-g" -cclib "-g" -custom -verbose $(LDFLAGS_DEBUG) -o ml2c_wrapper.d $^ 
+	ocamlmklib -ccopt "-g" -cclib "-g" -verbose $(LDFLAGS_DEBUG) -o ml2c_wrapper.d $^ 
 
 test: libml2c_wrapper.d test.d.o
 	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test.d.o
@@ -114,11 +114,11 @@ clean:
 	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
 
 %.o: %.c 
-	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 %.d.o: %.c 
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 %.p.o: %.c 
-	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 
 #---------------------------------------
 # Dependencies
