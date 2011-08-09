@@ -65,11 +65,11 @@ generator: generator.ml
 
 caml_abstract_domain_obj.o: ../mlapronidl/apron.callback.cmxa $(ML_MODULES:%=%.cmx)
 	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) \
-	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
+	-predicates callback -package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
 caml_abstract_domain_obj.d.o: ../mlapronidl/apron.callback.d.cmxa $(ML_MODULES:%=%.d.cmx)
 	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) \
-	-package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
+	-predicates callback,debug -package $(REQ_PKG) -linkpkg -output-obj -o $@ $^
 
 ml2c_wrapper.h: ml2c_wrapper_preamble.h generator
 	./generator -preamble-h $< -output-h $@
@@ -99,19 +99,19 @@ clean:
 	/bin/rm -f generator test test_domain ml2c_wrapper.h ml2c_wrapper.c
 
 %.cmi: %.mli
-	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -predicates callback -package $(REQ_PKG) -c $<
 
 %.cmo: %.ml %.cmi
-	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -package $(REQ_PKG) -c $<
+	$(OCAMLFIND) ocamlc $(OCAMLFLAGS) -predicates callback -package $(REQ_PKG) -c $<
 
 %.cmx: %.ml %.cmi
-	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c $<
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) -predicates callback -package $(REQ_PKG) -c $<
 
 %.d.cmx: %.ml %.cmi
-	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
+	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) -predicates callback,debug -package $(REQ_PKG) -c -o $@ $<
 
 %.p.cmx: %.ml %.cmi
-	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -package $(REQ_PKG) -c -o $@ $<
+	$(OCAMLFIND) ocamlopt -p $(OCAMLOPTFLAGS) -predicates callback,gprof -package $(REQ_PKG) -c -o $@ $<
 
 %.o: %.c 
 	$(CC) $(CFLAGS) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
