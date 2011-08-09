@@ -70,11 +70,11 @@ void test2(void) {
   printf("\n");
   ap_abstract1_t *a = ap_abstract1_bottom(man,env);
   printf("ok\n");
-  {
+  /*{
     ap_coeff_t itv;
     ap_coeff_init(itv,AP_SCALAR_MPQ);
     ap_abstract0_bound_dimension(man,itv,a->abstract0,0);
-  }
+    }*/
   ap_abstract1_fprint(stdout,man,a);
   printf("\n");
 }
