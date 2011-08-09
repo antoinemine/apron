@@ -69,17 +69,23 @@ ifneq ($(HAS_OCAML),)
 	(cd products; make rebuild)
 endif
 
-OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a libxxx_caml_debug.a
+OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a
 ifneq ($(HAS_SHARED),)
 OCAMLFIND_PROTO += dllxxx_caml.so
 endif
+
+OCAMLFIND_PROTO_DEBUG = xxx.cma xxx_debug.cma xxx.cmxa xxx_debug.cmxa xxx.a xxx_debug.a libxxx_caml.a libxxx_caml_debug.a
+ifneq ($(HAS_SHARED),)
+OCAMLFIND_PROTO_DEBUG += dllxxx_caml.so dllxxx_caml_debug.so
+endif
+
 OCAMLFIND_FILES = \
 	$(patsubst %,mlapronidl/%, apron.cmi apron.cmx) \
 	$(patsubst %,mlapronidl/%, $(subst xxx,apron, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,box/%, box.mli box.cmi box.cmx) \
-	$(patsubst %,box/%, $(subst xxx,boxD, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,box/%, $(subst xxx,boxMPQ, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,box/%, $(subst xxx,boxMPFR, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,box/%, $(subst xxx,boxD, $(OCAMLFIND_PROTO_DEBUG))) \
+	$(patsubst %,box/%, $(subst xxx,boxMPQ, $(OCAMLFIND_PROTO_DEBUG))) \
+	$(patsubst %,box/%, $(subst xxx,boxMPFR, $(OCAMLFIND_PROTO_DEBUG))) \
 	$(patsubst %,octagons/%, oct.mli oct.cmi oct.cmx) \
 	$(patsubst %,octagons/%, $(subst xxx,octD, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,octagons/%, $(subst xxx,octMPQ, $(OCAMLFIND_PROTO))) \
@@ -87,9 +93,9 @@ OCAMLFIND_FILES = \
 	$(patsubst %,newpolka/%, $(subst xxx,polkaMPQ, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,newpolka/%, $(subst xxx,polkaRll, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, t1p.mli t1p.cmi t1p.cmx) \
-	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO)))
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO_DEBUG))) \
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO_DEBUG))) \
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO_DEBUG)))
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \

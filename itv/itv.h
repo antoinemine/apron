@@ -115,6 +115,8 @@ static inline bool itv_canonicalize(itv_internal_t* intern, itv_t a, bool intege
 static inline bool itv_is_top(itv_t a);
 static inline bool itv_is_bottom(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
+static inline bool itv_is_bounded(itv_t a);
+  /* Return true iff the interval's bounds are finite */
 static inline bool itv_is_point(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is a single point */
 static inline bool itv_is_zero(itv_t a);
@@ -405,6 +407,11 @@ static inline bool itv_is_bottom(itv_internal_t* intern, itv_t a)
 {
   return itv_canonicalize(intern, a, false);
 }
+static inline bool itv_is_bounded(itv_t a)
+{
+  return !(bound_infty(a->inf) || bound_infty(a->sup));
+}
+
 static inline bool itv_is_point(itv_internal_t* intern, itv_t a)
 {
   if (!bound_infty(a->inf) && !bound_infty(a->sup)){

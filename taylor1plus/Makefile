@@ -45,7 +45,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 # Files
 #---------------------------------------
 
-CCMODULES = t1p_internal t1p_representation t1p_join_alt t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
+CCMODULES = t1p_internal t1p_representation t1p_meetfun t1p_join_std t1p_join_alt t1p_constructor t1p_joinfun t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
 CCSRC = t1p_config.h t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = t1p.h
@@ -60,9 +60,9 @@ libt1pMPQ_debug.so libt1pD_debug.so libt1pMPFR_debug.so
 endif
 CAML_TO_INSTALL = \
 t1p.idl t1p.ml t1p.mli t1p.cmi \
-t1pMPQ.cma \
-t1pD.cma \
-t1pMPFR.cma \
+t1pMPQ.cma t1pMPQ_debug.cma\
+t1pD.cma t1pD_debug.cma\
+t1pMPFR.cma t1pMPFR_debug.cma\
 libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a \
 libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
@@ -72,7 +72,7 @@ t1pD.cmxa t1pD.a \
 t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so
+CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
@@ -118,18 +118,18 @@ test_join_alt%_debug: t1p_test_join_alt%_debug.o
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
 
-mlMPQ: t1pMPQ.cma libt1pMPQ_caml.a libt1pMPQ_caml_debug.a 
-mlD: t1pD.cma libt1pD_caml.a libt1pD_caml_debug.a
-mlMPFR: t1pMPFR.cma libt1pMPFR_caml.a libt1pMPFR_caml_debug.a
+mlMPQ: t1pMPQ.cma t1pMPQ_debug.cma libt1pMPQ_caml.a libt1pMPQ_caml_debug.a 
+mlD: t1pD.cma t1pD_debug.cma libt1pD_caml.a libt1pD_caml_debug.a
+mlMPFR: t1pMPFR.cma  t1pMPFR_debug.cma libt1pMPFR_caml.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: t1pMPQ.cmxa t1pMPQ.a
-mlD: t1pD.cmxa t1pD.a
-mlMPFR: t1pMPFR.cmxa t1pMPFR.a
+mlMPQ: t1pMPQ.cmxa t1pMPQ.a  t1pMPQ_debug.cmxa t1pMPQ_debug.a
+mlD: t1pD.cmxa t1pD.a  t1pD_debug.cmxa t1pD_debug.a
+mlMPFR: t1pMPFR.cmxa t1pMPFR.a t1pMPFR_debug.cmxa t1pMPFR_debug.a
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: dllt1pMPQ_caml.so
-mlD: dllt1pD_caml.so 
-mlMPFR: dllt1pMPFR_caml.so
+mlMPQ: dllt1pMPQ_caml.so  dllt1pMPQ_caml_debug.so
+mlD: dllt1pD_caml.so  dllt1pD_caml_debug.so
+mlMPFR: dllt1pMPFR_caml.so  dllt1pMPFR_caml_debug.so
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
@@ -229,6 +229,9 @@ libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 
 dllt1p%_caml.so: t1p_caml.o libt1p%.so
 	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  $(LIBS) -L. -lt1p$*
+dllt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o  $(LIBS) -L. -lt1p$*_debug
+
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -244,6 +247,15 @@ t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
 
 t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx $(LIBS) -L. -lt1p$* -L$(APRON_PREFIX)/lib
+
+
+t1p%_debug.cma: t1p.cmo libt1p%_caml_debug.a libt1p%_debug.a
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$*_debug -oc t1p$*_caml_debug t1p.cmo $(LIBS) -L. -lt1p$*_debug
+
+t1p%_debug.cmxa t1p%_debug.a: t1p.cmx libt1p%_caml_debug.a libt1p%_debug.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$*_debug -oc t1p$*_caml_debug t1p.cmx $(LIBS) -L. -lt1p$*_debug -L$(APRON_PREFIX)/lib
+
+
 
 #---------------------------------------
 # IDL rules
