@@ -367,7 +367,7 @@ void camlidl_custom_TTTXXX_serialize(
 }
 unsigned long camlidl_custom_TTTXXX_deserialize(void * dst)
 {
-#if defined(MLGMPIDL_CALLBACK)
+#if defined(MLAPRONIDL_CALLBACK)
   TTTXXX_ptr a = *(TTTXXX_ptr*)dst = malloc(sizeof(TTTXXX_t));
   camlidl_TTTXXX_deserialize(a);
   return sizeof(a);
@@ -398,7 +398,7 @@ value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
 {
   value val;
 
-#if defined(MLGMPIDL_CALLBACK)
+#if defined(MLAPRONIDL_CALLBACK)
   val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_ptr), 0, 1);
   TTTXXX_ptr p = malloc(sizeof(TTTXXX_t));
   *(TTTXXX_ptr*)(Data_custom_val(val)) = p;
@@ -475,7 +475,7 @@ void camlidl_custom_TTTXXX_array_serialize(
 }
 unsigned long camlidl_custom_TTTXXX_array_deserialize(void * dst)
 {
-#if defined(MLGMPIDL_CALLBACK)
+#if defined(MLAPRONIDL_CALLBACK)
   TTTXXX_array_ptr a = *(TTTXXX_array_ptr*)dst = malloc(sizeof(TTTXXX_array_t));
   camlidl_TTTXXX_array_deserialize(a);
   return sizeof(a);
@@ -506,7 +506,7 @@ value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
 {
   value val;
 
-#if defined(MLGMPIDL_CALLBACK)
+#if defined(MLAPRONIDL_CALLBACK)
   val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_ptr), 0, 1);
   TTTXXX_array_ptr p = malloc(sizeof(TTTXXX_array_t));
   *(TTTXXX_array_ptr*)(Data_custom_val(val)) = p;

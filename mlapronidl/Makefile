@@ -286,11 +286,11 @@ mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
 %.p.o: %.c apron_caml.h
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 %.callback.o: %.c apron_caml.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 %.callback.d.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 %.callback.p.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
 
 #-----------------------------------
 # CAML
