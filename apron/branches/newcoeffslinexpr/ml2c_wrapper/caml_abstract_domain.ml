@@ -24,7 +24,10 @@ let bound_dimension = Abstract0.bound_dimension
 let bound_linexpr = Abstract0.bound_linexpr
 let bound_texpr = Abstract0.bound_texpr
 let to_box = Abstract0.to_box
-let to_lincons_array = Abstract0.to_lincons_array
+let to_lincons_array man cons a = 
+  Format.printf "before = %a@." (Lincons0.array_print (fun v -> "x_"^(string_of_int v))) cons;
+  Abstract0.to_lincons_array man cons a;
+  Format.printf "after = %a@." (Lincons0.array_print (fun v -> "x_"^(string_of_int v))) cons
 let to_tcons_array = Abstract0.to_tcons_array
 let to_lingen_array = Abstract0.to_lingen_array
 let meet = Abstract0.meet
