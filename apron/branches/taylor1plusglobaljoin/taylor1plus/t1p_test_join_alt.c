@@ -11,7 +11,8 @@
 #include "t1p_representation.h"
 #include "t1p_join_alt.h"
 #include "t1p_otherops.h"
-#include "t1p_meetjoin.h"
+#include "t1p_joinfun.h"
+
 
 void test_equation_1 (FILE* stream, ap_manager_t* man);
 
@@ -840,7 +841,7 @@ int main (void)
   //test_generate_2(stream,t1p);
   //test_join_1(stream,t1p);
   //test_join_2(stream,t1p);
-  test_join_3(stream,t1p);
+  //test_join_3(stream,t1p);
 
 
   fclose(stream);

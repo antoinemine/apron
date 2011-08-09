@@ -13,7 +13,8 @@
 
 #include "t1p_representation.h"
 #include "t1p_constructor.h"
-#include "t1p_meetjoin.h"
+#include "t1p_meetfun.h"
+#include "t1p_joinfun.h"
 #include "t1p_assign.h"
 #include "t1p_resize.h"
 #include "t1p_otherops.h"

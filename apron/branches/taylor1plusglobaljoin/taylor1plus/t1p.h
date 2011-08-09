@@ -39,7 +39,9 @@ typedef struct _t1p_t t1p_t;
 /*****************/
 /* 1.Meet */
 /* 2.Join */
-#include "t1p_meetjoin.h"
+#include "t1p_meetfun.h"
+#include "t1p_joinfun.h"
+
 
 /* Assign and Substitute */
 /*************************/

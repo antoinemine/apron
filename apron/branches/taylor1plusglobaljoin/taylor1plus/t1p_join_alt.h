@@ -1,5 +1,5 @@
-#ifndef _T1P_JOIN_ALT_H_
-#define _T1P_JOIN_ALT_H_ 
+#ifndef _T1P_JOINALT_H_
+#define _T1P_JOINALT_H_ 
 
 
 /*
@@ -110,6 +110,8 @@ itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v);
 /* ********************************************************************** */
 
 /* eqs is of type A */
+/* a should not be top or bottom, and the variables to be rebuild should be "t1p_aff_top" at the beginning */
+
 void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs);
 
 
@@ -117,6 +119,8 @@ void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs);
 /* 2. Search for linear relations */
 /* ********************************************************************** */
 
+
+/* if one of the variable is "t1p_aff_top", the set of equation is empty */ 
 /* result is of type B */
 ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a);
 

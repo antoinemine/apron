@@ -15,8 +15,10 @@ t1p_internal.h
 t1p_itv_utils.c
 t1p_itv_utils.h
 t1p_macro_def.h
-t1p_meetjoin.c
-t1p_meetjoin.h
+t1p_meet.c
+t1p_meet.h
+t1p_join.c
+t1p_join.h
 t1p.ml
 t1p.mli
 t1p_otherops.c

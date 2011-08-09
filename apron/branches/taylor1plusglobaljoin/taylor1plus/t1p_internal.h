@@ -222,6 +222,7 @@ static t1p_aff_t* t1p_aff_alloc_init(t1p_internal_t *pr)
 
 static inline t1p_aff_t * t1p_aff_top(t1p_internal_t* pr);
 static inline t1p_aff_t * t1p_aff_bottom(t1p_internal_t* pr);
+/* return a new affine form with a center, and best concretization, being top/bottom */
 
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a);
 static inline void t1p_aff_clear(t1p_internal_t *pr, t1p_aff_t *exp);
@@ -255,8 +256,11 @@ static inline bool t1p_aff_is_eq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b)
 static inline bool t1p_aff_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, itv_t* gammaa, itv_t* gammab);
 static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, t1p_t* enva, t1p_t* envb);
 static inline bool t1p_aff_gamma_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, itv_t* gammaa, itv_t* gammab);
+
 static inline bool t1p_aff_is_top(t1p_internal_t* pr, t1p_aff_t *a);
 static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a);
+/* test whether the best interval concretization is bounded */
+static inline bool t1p_aff_is_bounded(t1p_internal_t* pr, t1p_aff_t *a);
 
 static inline void t1p_aff_fprint(t1p_internal_t* pr, FILE* stream, t1p_aff_t *expr);
 /* reduce all coefficients from intervals to single point, add a noise symbol if needed (insure a garanteed result) */
@@ -475,6 +479,7 @@ static inline t1p_aff_t * t1p_aff_bottom(t1p_internal_t* pr)
     itv_set_bottom(res->itv);
     return res;
 }
+
 static inline bool t1p_aff_is_zero(t1p_internal_t *pr, t1p_aff_t *a)
 {
     if (!itv_is_zero(a->c)) return false;
@@ -512,11 +517,14 @@ static inline void t1p_aff_free(t1p_internal_t *pr, t1p_aff_t *a)
 }
 static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a)
 {
+  if (a) {
     if (a->pby) a->pby--;
     if (a->pby == 0) {
 	if ((a != pr->top) && (a != pr->bot)) t1p_aff_free(pr, a);
     }
+  }
 }
+
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a)
 {    
   itv_init(a->c);
@@ -1602,25 +1610,25 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     itv_clear(dev);
 
 
-    clock_t end = clock();
-    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
-    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
-//    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
-    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("constrained6_beta.txt", "a+");
-    FILE* streamT = fopen("constrained6_time.txt", "a+");
-    FILE* streamD = fopen("constrained6_distance.txt", "a+");
-    FILE* streamS = fopen("constrained6_survivors.txt", "a+");
-    double perturbation = 0;
-    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
-    fprintf(streamB,"\t%f",perturbation);
-    fprintf(streamT,"\t%f",time);
-    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
-    fprintf(streamS,"\t%lu",res->l-1);
-    fclose(streamB);
-    fclose(streamT);
-    fclose(streamD);
-    fclose(streamS);
+/*     clock_t end = clock(); */
+/*     double d2exp1 = t1p_aff_distance(pr, res, exp1, a); */
+/*     double d2exp2 = t1p_aff_distance(pr, res, exp2, b); */
+/* //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2); */
+/*     double time = ((double) (end - start)) / CLOCKS_PER_SEC; */
+    /* FILE* streamB = fopen("constrained6_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("constrained6_time.txt", "a+"); */
+    /* FILE* streamD = fopen("constrained6_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("constrained6_survivors.txt", "a+"); */
+    /* double perturbation = 0; */
+    /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
+    /* fprintf(streamB,"\t%f",perturbation); */
+    /* fprintf(streamT,"\t%f",time); */
+    /* fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2); */
+    /* fprintf(streamS,"\t%lu",res->l-1); */
+    /* fclose(streamB); */
+    /* fclose(streamT); */
+    /* fclose(streamD); */
+    /* fclose(streamS); */
     return res;
 }
 
@@ -1885,26 +1893,26 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     itv_clear(mid);
     itv_clear(dev);
 
-    clock_t end = clock();
-    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
-    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
-    //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
-    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("constrained7_beta.txt", "a+");
-    FILE* streamT = fopen("constrained7_time.txt", "a+");
-    FILE* streamD = fopen("constrained7_distance.txt", "a+");
-    FILE* streamS = fopen("constrained7_survivors.txt", "a+");
-    double perturbation = 0;
-    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
-    fprintf(streamB,"\t%f",perturbation);
-    fprintf(streamT,"\t%f",time);
-    fprintf(stdout,"total: %f\n",time);
-    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
-    fprintf(streamS,"\t%zu",res->l-1);
-    fclose(streamB);
-    fclose(streamT);
-    fclose(streamD);
-    fclose(streamS);
+    /* clock_t end = clock(); */
+    /* double d2exp1 = t1p_aff_distance(pr, res, exp1, a); */
+    /* double d2exp2 = t1p_aff_distance(pr, res, exp2, b); */
+    /* //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2); */
+    /* double time = ((double) (end - start)) / CLOCKS_PER_SEC; */
+    /* FILE* streamB = fopen("constrained7_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("constrained7_time.txt", "a+"); */
+    /* FILE* streamD = fopen("constrained7_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("constrained7_survivors.txt", "a+"); */
+    /* double perturbation = 0; */
+    /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
+    /* fprintf(streamB,"\t%f",perturbation); */
+    /* fprintf(streamT,"\t%f",time); */
+    /* fprintf(stdout,"total: %f\n",time); */
+    /* fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2); */
+    /* fprintf(streamS,"\t%zu",res->l-1); */
+    /* fclose(streamB); */
+    /* fclose(streamT); */
+    /* fclose(streamD); */
+    /* fclose(streamS); */
 
     return res;
 }
@@ -3165,11 +3173,11 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp
 	itv_sub(tmp,dev,tmp2);
 	t1p_aff_nsym_create(pr, res, tmp, UN);
 
-	FILE* stream = fopen("betaUB", "a+");
-	fprintf(stream,"********************************************\n");
-	itv_fprint(stream,tmp);fprintf(stream,"\n");
-	fprintf(stream,"********************************************\n");
-	fclose(stream);
+	/* FILE* stream = fopen("betaUB", "a+"); */
+	/* fprintf(stream,"********************************************\n"); */
+	/* itv_fprint(stream,tmp);fprintf(stream,"\n"); */
+	/* fprintf(stream,"********************************************\n"); */
+	/* fclose(stream); */
 	//}
     } else {
 	t1p_aff_add_itv(pr, res, res->itv, UN);
@@ -3564,11 +3572,11 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 	    itv_mul_2exp(d, d, -1);
 	    itv_set_num(tmp,bound_numref(d->sup));
 	    t1p_aff_nsym_create(pr, res, d, UN);
-	    FILE* stream = fopen("betaMUB", "a+");
-	    fprintf(stream,"********************************************\n");
-	    itv_fprint(stream,d);fprintf(stream,"\n");
-	    fprintf(stream,"********************************************\n");
-	    fclose(stream);
+	    /* FILE* stream = fopen("betaMUB", "a+"); */
+	    /* fprintf(stream,"********************************************\n"); */
+	    /* itv_fprint(stream,d);fprintf(stream,"\n"); */
+	    /* fprintf(stream,"********************************************\n"); */
+	    /* fclose(stream); */
 	}
 	free(T);
 	for (i=0;i<size;i++) ap_interval_free(tinterval[i]);
@@ -5226,6 +5234,13 @@ static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a)
     else if (a->q != NULL) return false;
     else return true;
 }
+static inline bool t1p_aff_is_bounded(t1p_internal_t* pr, t1p_aff_t *a)
+{
+  
+  return itv_is_bounded(a->itv);
+
+}
+
 
 static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
 {
