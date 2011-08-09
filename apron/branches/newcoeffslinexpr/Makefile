@@ -27,11 +27,13 @@ ifneq ($(HAS_JAVA),)
 all: java_all
 endif
 
-SUBDIR_C = apron box polka
-SUBDIR_ALL = $(SUBDIR_C) 
+SUBDIR_C_DOM = box polka
 ifneq ($(HAS_PPL),)
-SUBDIR_ALL += ppl products
+SUBDIR_C_DOM += ppl products
 endif
+SUBDIR_C = apron $(SUBDIR_C_DOM)
+
+SUBDIR_ALL = $(SUBDIR_C) 
 ifneq ($(HAS_OCAML),)
 SUBDIR_ALL += mlapronidl
 endif
@@ -42,25 +44,31 @@ ifneq ($(HAS_JAVA),)
 SUBDIR_ALL += java
 endif
 
-c_all:
-	for i in $(SUBDIR_C); do make -C $$i all; done
-cxx_all:
-	make -C apronxx all
+c_all: libapron.a
+c_debug: libapron.d.a
+c_prof: libapron.p.a
+ifneq ($(HAS_SHARED),)
+c_all: libapron.so
+c_debug: libapron.d.so
+c_prof: libapron.p.so
+endif
+
+cxx_all: libapronxx.a
+cxx_debug: libapronxx.d.a
+cxx_prof: libapronxx.p.a
+ifneq ($(HAS_SHARED),)
+cxx_all: libapronxx.so
+cxx_debug: libapronxx.d.so
+cxx_prof: libapronxx.p.so
+endif
+
 ml_all:
 	make -C mlapronidl all
-
-c_debug:
-	for i in $(SUBDIR_C); do make -C $$i debug; done
-cxx_debug:
-	make -C apronxx debug
 ml_debug:
 	make -C mlapronidl debug
-c_prof:
-	for i in $(SUBDIR_C); do make -C $$i prof; done
-cxx_prof:
-	make -C apronxx prof
 ml_prof:
 	make -C mlapronidl prof
+
 depend:
 	for i in $(SUBDIR_ALL); do make -C $$i depend; done
 src:
@@ -68,7 +76,9 @@ src:
 
 install: $(CCLIB_TO_INSTALL)
 	$(INSTALL) -d $(APRON_PREFIX)/lib/apron
-	$(INSTALL) $(CCLIB_TO_INSTALL) $(APRON_PREFIX)/lib/apron
+	for i in $(CCLIB_TO_INSTALL); do \
+		$(INSTALL) $$i $(APRON_PREFIX)/lib/apron; \
+	done
 	for i in $(SUBDIR_C); do make -C $$i install; done
 ifneq ($(HAS_PPL),)
 	make -C ppl install
@@ -86,11 +96,14 @@ uninstall:
 
 clean:
 	for i in $(SUBDIR_ALL); do make -C $$i clean; done
-mostlyclean:
+	rm -f *.a *.so
+mostlyclean: 
 	for i in $(SUBDIR_ALL); do make -C $$i mostlyclean; done
+	rm -f *.a *.so
 distclean:
 	for i in $(SUBDIR_ALL); do make -C $$i distclean; done
-
+	rm -f *.a *.so
+	rm -fr tmp
 doc:
 	make -C apron html apron.pdf
 ifneq ($(HAS_OCAML),)
@@ -105,7 +118,7 @@ endif
 # ######################################################################
 
 define generate-sublib
-.PHONY: $(1)/lib$(1)$(2).a
+.PRECIOUS: $(1)/lib$(1)$(2).a
 $(1)/lib$(1)$(2).a:
 	make -C $(1) lib$(1)$(2).a
 endef
@@ -115,17 +128,11 @@ $(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.p)))
 
 define generate-clib
 libapron$(1).a: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
-	mkdir -p tmp
-	rm -f tmp/*
-	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
-	$(AR) rcs $$@ tmp/*.o
+	$(AR) rcs $$@ $$(foreach d,$(SUBDIR_C),$$(patsubst %,$$(d)/%,$$(filter %.o,$$(shell $(AR) -t $$(d)/lib$$(d)$(1).a))))
 	$(RANLIB) $$@
 ifneq ($(HAS_SHARED),)
 libapron$(1).so: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
-	mkdir -p tmp
-	rm -f tmp/*
-	(cd tmp; for i in $$^; do $(AR) x ../$$$$i ; done)
-	$(CC) $(CFLAGS) -shared -o $$@ -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp tmp/*.o 
+	$(CC) $(CFLAGS) -shared -o $$@ -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp $$(foreach d,$(SUBDIR_C),$$(patsubst %,$$(d)/%,$$(filter %.o,$$(shell $(AR) -t $$(d)/lib$$(d)$(1).a))))
 endif
 endef
 $(eval $(call generate-clib,))

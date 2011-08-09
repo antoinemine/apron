@@ -31,7 +31,7 @@ void ap_linexprXXX_init_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 
   eitvXXX_init_set(res->cst,expr->cst);
   size = expr->effsize;
-  res->linterm = malloc(size*sizeof(ap_lintermXXX_t));
+  res->linterm = ap_malloc(size*sizeof(ap_lintermXXX_t));
   for (i=0;i<size;i++){
     ap_lintermXXX_init_set(res->linterm[i],expr->linterm[i]);
   }
@@ -46,7 +46,7 @@ void ap_linexprXXX_set(ap_linexprXXX_t res, ap_linexprXXX_t expr)
 
   eitvXXX_set(res->cst,expr->cst);
   if (res->maxsize < expr->effsize){
-    res->linterm = realloc(res->linterm,expr->effsize*sizeof(ap_lintermXXX_t));
+    res->linterm = ap_realloc(res->linterm,expr->effsize*sizeof(ap_lintermXXX_t));
     for (i=0;i<res->maxsize;i++){
       ap_lintermXXX_set(res->linterm[i],expr->linterm[i]);
     }
@@ -76,7 +76,7 @@ void ap_linexprXXX_resize_strict(ap_linexprXXX_t expr, size_t size)
       expr->maxsize = size;
     }
     else {
-      expr->linterm = realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
+      expr->linterm = ap_realloc(expr->linterm,size*sizeof(ap_lintermXXX_t));
       for (i=expr->maxsize; i<size; i++){
 	ap_lintermXXX_init(expr->linterm[i]);
       }
@@ -709,7 +709,7 @@ size_t ap_linyyyXXX_deserialize(ap_linyyyXXX_t dst, const void* src)
   size_t i,n,effsize;
   effsize = num_undump_word32(src);
   n = 4;
-  dst->linterm = malloc(effsize*sizeof(ap_lintermXXX_t));
+  dst->linterm = ap_malloc(effsize*sizeof(ap_lintermXXX_t));
   dst->effsize = effsize;
   dst->maxsize = effsize;
   for (i=0;i<effsize;i++){
@@ -774,14 +774,14 @@ void ap_linyyyXXX_array_init(ap_linyyyXXX_array_t array, size_t size)
 {
   size_t i;
   array->size = size;
-  array->p = malloc(size*sizeof(ap_linyyyXXX_t));
+  array->p = ap_malloc(size*sizeof(ap_linyyyXXX_t));
   for (i=0; i<size; i++) ap_linyyyXXX_init(array->p[i],0);
 }
 void ap_linyyyXXX_array_init_set(ap_linyyyXXX_array_t res, ap_linyyyXXX_array_t array)
 {
   size_t i;
   res->size = array->size;
-  res->p = malloc(array->size*sizeof(ap_linyyyXXX_t));
+  res->p = ap_malloc(array->size*sizeof(ap_linyyyXXX_t));
   for (i=0; i<res->size; i++) ap_linyyyXXX_init_set(res->p[i],array->p[i]);
 }
 void ap_linyyyXXX_array_set(ap_linyyyXXX_array_t res, ap_linyyyXXX_array_t array)
@@ -798,10 +798,10 @@ void ap_linyyyXXX_array_resize(ap_linyyyXXX_array_t array, size_t size)
     for (i=size; i<array->size; i++){
       ap_linyyyXXX_clear(array->p[i]);
     }
-    array->p = realloc(array->p,size*sizeof(ap_linyyyXXX_t));
+    array->p = ap_realloc(array->p,size*sizeof(ap_linyyyXXX_t));
   }
   else { /* size > array->size */
-    array->p = realloc(array->p,size*sizeof(ap_linyyyXXX_t));
+    array->p = ap_realloc(array->p,size*sizeof(ap_linyyyXXX_t));
     for (i=array->size; i<size; i++){
       ap_linyyyXXX_init(array->p[i],0);
     }
@@ -1059,7 +1059,7 @@ size_t ap_linyyyXXX_array_deserialize(ap_linyyyXXX_array_t dst, const void* src)
 {
   size_t i,n;
   dst->size = num_undump_word32(src);
-  dst->p = malloc(dst->size*sizeof(ap_linyyyXXX_t));
+  dst->p = ap_malloc(dst->size*sizeof(ap_linyyyXXX_t));
   n = 4;
   for (i=0;i<dst->size;i++){
     n += ap_linyyyXXX_deserialize(dst->p[i],(const char*)src+n);

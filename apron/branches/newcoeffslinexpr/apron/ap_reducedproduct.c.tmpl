@@ -756,7 +756,7 @@ ap_reducedproduct_t* ap_reducedproduct_meetjoin_array(ap_funid_t funid,
   void** a;
 
   res = ap_reducedproduct_alloc(intern->size);
-  a = (void**)malloc(size*sizeof(void*));
+  a = (void**)ap_malloc(size*sizeof(void*));
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
     void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];

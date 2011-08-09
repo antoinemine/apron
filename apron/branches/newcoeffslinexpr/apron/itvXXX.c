@@ -18,7 +18,7 @@ void itvXXX_init_array(itvXXX_t* a, size_t size)
 }
 itvXXX_t* itvXXX_array_alloc(size_t size)
 {
-  itvXXX_t* res = (itvXXX_t*)malloc(size*sizeof(itvXXX_t));
+  itvXXX_t* res = (itvXXX_t*)ap_malloc(size*sizeof(itvXXX_t));
   itvXXX_init_array(res,size);
   return res;
 }

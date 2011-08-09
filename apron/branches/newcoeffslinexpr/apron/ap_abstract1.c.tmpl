@@ -604,7 +604,7 @@ ap_abstract1_t* ap_abstract1_meetjoin_array(ap_funid_t funid, ap_manager_t* man,
     size_t i;
     ap_abstract0_t* res0;
     void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
-    void** ntab = malloc(size*sizeof(void*));
+    void** ntab = ap_malloc(size*sizeof(void*));
     for (i=0;i<size;i++)
       ntab[i] = tab[i]->abstract0->value;
     res0 = ap_abstract0_cons(man,ptr(man,ntab,size));
@@ -757,7 +757,7 @@ ap_abstract1_t* ap_abstract1_asssub_linexpr_array(ap_funid_t funid,
     ap_linexpr0_array_ptr parray0;
     ap_dimchange_t* dimchange;
 
-    ap_dim_t* tdim = malloc(size*sizeof(ap_dim_t));
+    ap_dim_t* tdim = ap_malloc(size*sizeof(ap_dim_t));
     size_t i = 0;
     for (i=0; i<size; i++){
       tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
@@ -834,7 +834,7 @@ ap_abstract1_t* ap_abstract1_asssub_texpr_array(ap_funid_t funid,
     ap_texpr0_array_t* parray0;
     ap_dimchange_t* dimchange;
 
-    ap_dim_t* tdim = malloc(size*sizeof(ap_dim_t));
+    ap_dim_t* tdim = ap_malloc(size*sizeof(ap_dim_t));
     size_t i = 0;
     for (i=0; i<size; i++){
       tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
@@ -903,7 +903,7 @@ ap_abstract1_t* ap_abstract1_forget_array(ap_manager_t* man,
   size_t i;
   ap_abstract1_t* res;
 
-  tdim = malloc(size*sizeof(ap_dim_t));
+  tdim = ap_malloc(size*sizeof(ap_dim_t));
   for (i=0; i<size; i++){
     tdim[i] = ap_environment_dim_of_var(a->env,tvar[i]);
     if (tdim[i]==AP_DIM_MAX){
@@ -962,7 +962,7 @@ ap_abstract1_t* ap_abstract1_minimize_environment(ap_manager_t* man,
 
   dim = ap_abstract0_dimension(man,a->abstract0);
   size = ap_dimension_size(dim);
-  tvar = malloc(size*sizeof(ap_var_t));
+  tvar = ap_malloc(size*sizeof(ap_var_t));
   nbdims = 0;
   for (i=0; i<size;i++){
     bool b = ap_abstract0_is_dimension_unconstrained(man,a->abstract0,i);
@@ -1112,7 +1112,7 @@ ap_abstract1_t* ap_abstract1_fold(ap_manager_t* man,
     goto ap_abstract1_fold_exit;
   }
   /* Translate variables to dimensions */
-  tdim = malloc(size*sizeof(ap_dim_t));
+  tdim = ap_malloc(size*sizeof(ap_dim_t));
   tdim[0] = dim;
   for (i=1; i<size; i++){
     tdim[i] = ap_environment_dim_of_var(a->env, tvar[i]);

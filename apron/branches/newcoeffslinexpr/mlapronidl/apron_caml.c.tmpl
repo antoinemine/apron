@@ -112,7 +112,7 @@ void camlidl_apron_dimperm_ml2c(
   mlsize_t i,size;
 
   size = Wosize_val(v);
-  dimperm->p = malloc(size*sizeof(ap_dim_t));
+  dimperm->p = ap_malloc(size*sizeof(ap_dim_t));
   for (i=0;i<size;i++){
     value vi = Field(v,i);
     dimperm->p[i] = Int_val(vi);
@@ -639,7 +639,7 @@ void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* 
   value v;
   mlsize_t i;
   mlsize_t size = Wosize_val(v_array);
-  array->p = malloc(size * sizeof(ap_texpr0_ptr));
+  array->p = ap_malloc(size * sizeof(ap_texpr0_ptr));
   for (i = 0; i < size; i++) {
     v = Field(v_array, i);
     camlidl_apron_texpr0_ptr_ml2c(v,&array->p[i]);
@@ -691,7 +691,7 @@ void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* 
   value v;
   mlsize_t i;
   mlsize_t size = Wosize_val(v_array);
-  array->p = malloc(size * sizeof(ap_tcons0_t*));
+  array->p = ap_malloc(size * sizeof(ap_tcons0_t*));
   for (i = 0; i < size; i++) {
     v = Field(v_array, i);
     array->p[i] = malloc(sizeof(ap_tcons0_t));

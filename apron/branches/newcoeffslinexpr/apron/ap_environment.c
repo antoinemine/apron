@@ -79,7 +79,7 @@ static void env_normalize(env_t* env, ap_dim_t* perm)
   }
   else {
     size_t i;
-    vardim_t* vardim = malloc(env->size*sizeof(vardim_t));
+    vardim_t* vardim = ap_malloc(env->size*sizeof(vardim_t));
     for (i=0; i<env->size; i++){
       vardim[i].var = env->var_of_dim[i];
       vardim[i].dim = i;
@@ -179,7 +179,7 @@ static env_t env_add(env_t* env, ap_var_t* var_of_dim, size_t size, ap_dim_t* pe
   env_t nenv;
   size_t i;
   assert( var_of_dim!=NULL || size==0);
-  nenv.var_of_dim = malloc((env->size+size)*sizeof(ap_var_t));
+  nenv.var_of_dim = ap_malloc((env->size+size)*sizeof(ap_var_t));
   nenv.size = env->size+size;
   for (i=0;i<env->size; i++){
     nenv.var_of_dim[i] = ap_var_operations->copy(env->var_of_dim[i]);
@@ -205,7 +205,7 @@ static env_t env_remove(env_t* env, ap_var_t* var_of_dim, size_t size)
   if (size > env->size){
     return env_cons(NULL,UINT_MAX);
   }
-  nenv.var_of_dim = malloc((env->size-size)*sizeof(ap_var_t));
+  nenv.var_of_dim = ap_malloc((env->size-size)*sizeof(ap_var_t));
   nenv.size = env->size-size;
   if (var_of_dim && size){
     qsort(var_of_dim,size,sizeof(ap_var_t),var_cmp);
@@ -248,7 +248,7 @@ static env_t env_lce(env_t* e1, env_t* e2)
   size_t i,i1,i2;
   int sgn;
 
-  e.var_of_dim = malloc((e1->size+e2->size)*sizeof(ap_var_t));
+  e.var_of_dim = ap_malloc((e1->size+e2->size)*sizeof(ap_var_t));
   i = 0;
   i1 = 0;
   i2 = 0;
@@ -274,7 +274,7 @@ static env_t env_lce(env_t* e1, env_t* e2)
   }
 
   e.size = i;
-  e.var_of_dim = realloc(e.var_of_dim, e.size*sizeof(ap_var_t));
+  e.var_of_dim = ap_realloc(e.var_of_dim, e.size*sizeof(ap_var_t));
   return e;
 }
 
@@ -333,7 +333,7 @@ static env_t env_lce_array(env_t** tenv,
     maxvars += tenv[i]->size;
     tindex[i] = 0;
   }
-  env.var_of_dim = malloc( maxvars*sizeof(ap_var_t) );
+  env.var_of_dim = ap_malloc( maxvars*sizeof(ap_var_t) );
   index = 0;
   while (true){
     /* Find one possible next variable, and exit if none */
@@ -365,7 +365,7 @@ static env_t env_lce_array(env_t** tenv,
     }
   }
   env.size = index;
-  env.var_of_dim = realloc(env.var_of_dim, env.size*sizeof(ap_var_t));
+  env.var_of_dim = ap_realloc(env.var_of_dim, env.size*sizeof(ap_var_t));
   return env;
 }
 
@@ -400,7 +400,7 @@ static ap_environment_t* environment_of_denv(denv_t* denv)
 {
   ap_environment_t* res;
   res = malloc(sizeof(ap_environment_t));
-  res->var_of_dim = malloc((denv->envint.size + denv->envreal.size)*
+  res->var_of_dim = ap_malloc((denv->envint.size + denv->envreal.size)*
 			   sizeof(ap_var_t));
   memcpy(&res->var_of_dim[0],
 	 denv->envint.var_of_dim,denv->envint.size*sizeof(ap_var_t));
@@ -529,7 +529,7 @@ ap_environment_t* ap_environment_remove(ap_environment_t* env,
     return ap_environment_copy(env);
   ;
   /* Copy the input array and split it into integer and real arrays */
-  tvar2 = malloc(size*sizeof(ap_var_t));
+  tvar2 = ap_malloc(size*sizeof(ap_var_t));
   memcpy(tvar2,tvar,size*sizeof(ap_var_t));
   intdim = size;
   i = 0;
@@ -943,13 +943,13 @@ ap_environment_t* ap_environment_lce_array(ap_environment_t** tenv,
   }
 
   /* Compute env */
-  tdenv = malloc(size*sizeof(denv_t));
+  tdenv = ap_malloc(size*sizeof(denv_t));
   for (i=0;i<size;i++){
     tdenv[i] = denv_of_environment(tenv[i]);
   }
 
-  tindex = malloc(size*sizeof(size_t));
-  te = malloc(size*sizeof(env_t*));
+  tindex = ap_malloc(size*sizeof(size_t));
+  te = ap_malloc(size*sizeof(env_t*));
 
   for (i=0;i<size;i++){
     te[i] = &tdenv[i].envint;
@@ -965,7 +965,7 @@ ap_environment_t* ap_environment_lce_array(ap_environment_t** tenv,
   intrealdim = denv.envint.size + denv.envreal.size;
 
   /* Compute transformations */
-  *ptdimchange = malloc(size*sizeof(ap_dimchange_t*));
+  *ptdimchange = ap_malloc(size*sizeof(ap_dimchange_t*));
   change = false;
   j = -1;
   for (i=0;i<size;i++){
@@ -1027,7 +1027,7 @@ ap_environment_t* ap_environment_rename(ap_environment_t* env,
   res->dim.intd = env->dim.intd;
   res->dim.reald = env->dim.reald;
   res->count = 1;
-  res->var_of_dim = malloc(nbdims*sizeof(ap_var_t));
+  res->var_of_dim = ap_malloc(nbdims*sizeof(ap_var_t));
 
   /* Build the new environment */
   for (i=0; i<nbdims; i++){
