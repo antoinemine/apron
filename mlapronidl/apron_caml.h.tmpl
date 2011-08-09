@@ -226,6 +226,9 @@ ENDMACRO
 typedef ap_texpr_op_t ap_texpr_unop_t;
 typedef ap_texpr_op_t ap_texpr_binop_t;
 
+extern struct custom_operations camlidl_apron_custom_texpr0_ptr;
+extern struct custom_operations camlidl_apron_custom_texpr0_ptr_nonfinal;
+
 static inline void camlidl_apron_texpr_unop_t_ml2c(value v, ap_texpr_op_t* op)
 {
   *op = AP_TEXPR_NEG + Int_val(v); assert(*op>=AP_TEXPR_NEG && *op<=AP_TEXPR_SQRT);

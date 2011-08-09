@@ -7,7 +7,8 @@ void wrapper_fprint(FILE* stream,
   ap_lincons0_array_t cons;
   ap_lincons0_array_init(cons,AP_SCALAR_MPQ,0);
   wrapper_to_lincons_array(man,cons,a);
-  ap_lincons0_array_fprint(stream, cons, name_of_dim);
+  ap_lincons0_array_fprint(stream,cons,name_of_dim);
+  ap_lincons0_array_clear(cons);
 }
 
 void wrapper_fprintdiff(FILE* stream,
@@ -20,7 +21,11 @@ void wrapper_fprintdiff(FILE* stream,
 
 void wrapper_fdump(FILE* stream, ap_manager_t* man, wrapper_t* a)
 {
-  assert(false);
+  static value *closure_fdump = NULL;
+  if (closure_fdump == NULL) {
+    closure_fdump = caml_named_value("fdump");
+  }
+  caml_callback2(*closure_fdump, ((wrapper_t*) man->internal)->val, a->val);
 }
  
 ap_membuf_t wrapper_serialize_raw(ap_manager_t* man, wrapper_t* a) 

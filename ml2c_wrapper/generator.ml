@@ -30,7 +30,6 @@ type argument_spec = kind * string
 type return_spec =
   | Void
   | Value of kind
-  | Side_effect of int
 
 type funspec =
     { ret : return_spec;
@@ -68,7 +67,7 @@ let c_type_of_kind k =
 
 let c_type_of_return_spec r =
   match r with
-    | Void | Side_effect _ -> "void"
+    | Void -> "void"
     | Value k -> c_type_of_kind k
 
 let c2ml_function_of_kind k =
@@ -76,7 +75,7 @@ let c2ml_function_of_kind k =
     | Ap_manager_ptr -> "camlidl_apron_manager_ptr_c2ml"
     | Wrapper_ptr -> assert false
     | Wrapper_array_t _ -> assert false
-    | Optional_wrapper_ptr -> assert false (*"optional_wrapper_ptr_c2ml"*)
+    | Optional_wrapper_ptr -> assert false 
     | Ap_dim_t -> "camlidl_c2ml_dim_ap_dim_t"
     | Ap_dimension_t -> "camlidl_c2ml_dim_struct_ap_dimension_t"
     | Ap_dimchange_t -> "camlidl_apron_dimchange_c2ml"
@@ -90,10 +89,8 @@ let c2ml_function_of_kind k =
     | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_c2ml"
     | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_c2ml"
     | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_c2ml"
-    | Ap_tcons0_t -> assert false
-    | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_c2ml"
-    | Ap_tcons0_array_t -> assert false
-    | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_c2ml"
+    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_c2ml"
+    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_c2ml"
     | Bool -> "Val_bool"
     | Int | Size_t -> "Val_bool"
 
@@ -116,13 +113,26 @@ let ml2c_function_of_kind k =
     | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_ml2c"
     | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_ml2c"
     | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_ml2c"
-    | Ap_tcons0_t -> "camlidl_apron_tcons0_t_ml2c"
-    | Ap_tcons0_ptr -> assert false
-    | Ap_tcons0_array_t -> "camlidl_apron_tcons0_array_t_ml2c"
-    | Ap_tcons0_array_ptr -> assert false
+    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_ml2c" 
+    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_ml2c"
     | Bool -> "Bool_val"
     | Int -> "Int_val"
     | Size_t -> "(size_t) Int_val"
+
+let nonfinalize_of_kind k =
+  match k with
+    | Ap_coeff_t -> "ap_coeff_ptr_nonfinalize"
+    | Ap_linexpr0_t -> "ap_linexpr0_ptr_nonfinalize"
+    | Ap_linexpr0_array_t -> "ap_linexpr0_array_ptr_nonfinalize"
+    | Ap_lincons0_t -> "ap_lincons0_ptr_nonfinalize"
+    | Ap_lincons0_array_t -> "ap_lincons0_array_ptr_nonfinalize"
+    | Ap_lingen0_t -> "ap_lingen0_ptr_nonfinalize"
+    | Ap_lingen0_array_t -> "ap_lingen0_array_ptr_nonfinalize"
+    | Ap_texpr0_ptr -> "ap_texpr0_ptr_nonfinalize"
+    | Ap_texpr0_array_ptr -> "ap_texpr0_array_t_nonfinalize"
+    | Ap_tcons0_t | Ap_tcons0_ptr -> "ap_tcons0_t_nonfinalize"
+    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "ap_tcons0_array_t_nonfinalize"
+    | _ -> assert false
 
 let print_signature fmt f =
   let build_argument n (k, name) =
@@ -162,7 +172,7 @@ let print_local_declaration fmt f =
     Format.fprintf fmt "  CAMLlocal%d(@?" p;
     let b = List.fold_left build_caml_local true f.args in
     match f.ret with
-      | Void | Side_effect _ -> Format.fprintf fmt ");@."
+      | Void -> Format.fprintf fmt ");@."
       | Value _ ->
 	if not b then
 	  Format.fprintf fmt ", @?";
@@ -173,16 +183,19 @@ let print_local_declaration fmt f =
     Format.fprintf fmt "  value arg_tab[%d];@." q;
   begin
     match f.ret with
-      | Void | Side_effect _ -> ()
+      | Void -> ()
       | Value _ ->
 	let return_type = c_type_of_return_spec f.ret in
 	Format.fprintf fmt "  %s res;@." return_type
   end;
   if List.exists (fun (k, _) -> match k with Wrapper_array_t _ -> true | _ -> false) f.args then
     Format.fprintf fmt "  size_t i;@.";
-  Format.fprintf fmt "  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };@.";
-  Format.fprintf fmt "  camlidl_ctx _ctx = &_ctxs;@."
-
+  if List.exists (fun (k, _) -> match k with Ap_dim_t | Ap_dimension_t -> true | _ -> false) f.args ||
+    (match f.ret with Value Ap_dim_t | Value Ap_dimension_t -> true | _ -> false) then begin
+    Format.fprintf fmt "  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };@.";
+    Format.fprintf fmt "  camlidl_ctx _ctx = &_ctxs;@."
+  end
+    
 let print_closure_definition fmt f =
   Format.fprintf fmt "  static value *closure_%s = NULL;@." f.name;
   Format.fprintf fmt "  if (closure_%s == NULL) {@." f.name;
@@ -211,46 +224,51 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "    v_%s = caml_alloc(1, 0);@." name;
 	Format.fprintf fmt "    Store_field(v_%s, 0, %s->val);@." name name;
 	Format.fprintf fmt "  }@."
-      | Bool | Int | Size_t ->
-	Format.fprintf fmt "  v_%s = %s(%s),@." name (c2ml_function_of_kind k) name
       | Ap_dim_t | Ap_dimension_t ->
 	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name
-      (*| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t ->
-	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name *)
-      | (*Ap_texpr0_ptr |*)  Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr ->
+      | Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t 
+      | Ap_lincons0_array_t | Ap_lingen0_t | Ap_lingen0_array_t | Ap_texpr0_ptr 
+      | Ap_tcons0_t | Ap_tcons0_array_t -> begin
+	Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name;
+	Format.fprintf fmt "  %s(v_%s);@." (nonfinalize_of_kind k) name
+      end
+      | Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr -> begin
+	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name;
+	Format.fprintf fmt "  %s(v_%s);@." (nonfinalize_of_kind k) name
+      end
+      | Bool | Int | Size_t ->
 	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name
-      | _ -> Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
+      | _ ->
+	Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name
   in
   List.iter caml_local_conversion f.args
 
 let print_result_conversion fmt f =
   match f.ret with
     | Void -> ()
-    | Side_effect _ (* i *) -> ()
-      (*let (k, name) = List.nth f.args i in
-      begin
-	match k with
-	  | Ap_dim_t | Ap_dimension_t | Ap_dimchange_t | Ap_dimperm_t | Ap_tcons0_array_t ->
-	    Format.fprintf fmt "  %s(v_%s, &%s, _ctx);@." (ml2c_function_of_kind k) name name
-	  | Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t | Ap_texpr0_ptr | Ap_texpr0_array_ptr ->
-	    Format.fprintf fmt "  %s(v_%s, %s);@." (ml2c_function_of_kind k) name name
-	  | _ ->
-	    Format.fprintf fmt "  %s(v_%s, &%s);@." (ml2c_function_of_kind k) name name
-      end*)
     | Value k ->
       match k with
 	| Wrapper_ptr | Bool | Int | Size_t ->
 	  Format.fprintf fmt "  res = %s(v_res);@." (ml2c_function_of_kind k)
 	| Ap_dim_t | Ap_dimension_t ->
 	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k)
-	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t | Ap_lincons0_array_t -> () (* modified by side-effect *)
-	  (*Format.fprintf fmt "  %s(v_res, res);@." (ml2c_function_of_kind k) *)
-	| _ -> Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k)
+	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t 
+	| Ap_lincons0_array_t | Ap_lingen0_t | Ap_lingen0_array_t | Ap_texpr0_ptr 
+	| Ap_tcons0_t | Ap_tcons0_array_t -> begin
+	  Format.fprintf fmt "  %s(v_res);@." (nonfinalize_of_kind k);
+	  Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k)
+	end
+	| Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr -> begin
+	  Format.fprintf fmt "  %s(v_res);@." (nonfinalize_of_kind k);
+	  Format.fprintf fmt "  %s(v_res, res);@."(ml2c_function_of_kind k)
+	end
+	| _ -> 
+	  Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k)
 
 let print_callback fmt f =
   let print_assignement_return_value fmt () =
     match f.ret with
-      | Void | Side_effect _ -> ()
+      | Void -> ()
       | Value _ -> Format.fprintf fmt "v_res = @?"
   in
   let build_callback_argument fmt (k, name) =
@@ -300,9 +318,11 @@ let print_callback fmt f =
       Format.fprintf fmt "  }@."
 
 let print_return fmt f =
-  Format.fprintf fmt "  camlidl_free(_ctx);@.";
+  if List.exists (fun (k, _) -> match k with Ap_dim_t | Ap_dimension_t -> true | _ -> false) f.args ||
+    (match f.ret with Value Ap_dim_t | Value Ap_dimension_t -> true | _ -> false) then 
+    Format.fprintf fmt "  camlidl_free(_ctx);@.";
   match f.ret with
-    | Void | Side_effect _ -> Format.fprintf fmt "  CAMLreturn0;@."
+    | Void -> Format.fprintf fmt "  CAMLreturn0;@."
     | Value _ ->
       let return_type = c_type_of_return_spec f.ret in
       Format.fprintf fmt "  CAMLreturnT(%s, res);@." return_type
@@ -339,13 +359,13 @@ let fun_list =
     { ret = Value Bool; name = "sat_lincons"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_lincons0_t, "lincons")]; destructive_variant = None };
     { ret = Value Bool; name = "sat_tcons"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_tcons0_ptr, "tcons")]; destructive_variant = None };
     { ret = Value Bool; name = "is_dimension_unconstrained"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "bound_dimension"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "bound_linexpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_linexpr0_t, "expr")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "bound_texpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_texpr0_ptr, "expr")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "to_lincons_array"; args = [(Ap_manager_ptr, "man"); (Ap_lincons0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None };
+    { ret = Void; name = "bound_dimension"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_dim_t, "dim")]; destructive_variant = None };
+    { ret = Void; name = "bound_linexpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_linexpr0_t, "expr")]; destructive_variant = None };
+    { ret = Void; name = "bound_texpr"; args = [(Ap_manager_ptr, "man"); (Ap_coeff_t, "interval"); (Wrapper_ptr, "a"); (Ap_texpr0_ptr, "expr")]; destructive_variant = None };
+    { ret = Void; name = "to_lincons_array"; args = [(Ap_manager_ptr, "man"); (Ap_lincons0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None };
     { ret = Value Ap_tcons0_array_t; name = "to_tcons_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "to_box"; args = [(Ap_manager_ptr, "man"); (Ap_linexpr0_t, "box"); (Wrapper_ptr, "a")]; destructive_variant = None };
-    { ret = Side_effect 1; name = "to_lingen_array"; args = [(Ap_manager_ptr, "man"); (Ap_lingen0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None };
+    { ret = Void; name = "to_box"; args = [(Ap_manager_ptr, "man"); (Ap_linexpr0_t, "box"); (Wrapper_ptr, "a")]; destructive_variant = None };
+    { ret = Void; name = "to_lingen_array"; args = [(Ap_manager_ptr, "man"); (Ap_lingen0_array_t, "array"); (Wrapper_ptr, "a")]; destructive_variant = None };
     { ret = Value Wrapper_ptr; name = "meet"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = Some 1 };
     { ret = Value Wrapper_ptr; name = "join"; args = [(Ap_manager_ptr, "man"); (Wrapper_ptr, "a1"); (Wrapper_ptr, "a2")]; destructive_variant = Some 1 };
     { ret = Value Wrapper_ptr; name = "meet_array"; args = [(Ap_manager_ptr, "man"); (Wrapper_array_t 2, "tab"); (Size_t, "size")]; destructive_variant = None };

@@ -679,7 +679,7 @@ void print_abstract(const char* msg, ap_abstract0_t* p)
 {
   fprintf(stream,"%s (%s) = ",msg,p->man->library);
   ap_abstract0_fprint(stream,p->man,p,NULL);
-  ap_abstract0_fdump(stream,p->man,p);
+  /*ap_abstract0_fdump(stream,p->man,p);*/
   fprintf(stream,"\n");
 }
 
