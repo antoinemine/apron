@@ -36,10 +36,12 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Copy a value *)")
 ap_abstract0_ptr ap_abstract0_copy(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"I0_FCALL_2(copy,man,a)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Return the abstract size of a value *)")
 int ap_abstract0_size(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"I0_FCALL_2(size,man,a)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLMLI,"(* ============================================================ *)")
@@ -48,17 +50,21 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Minimize the size of the representation of the value. This may result in a later recomputation of internal information.*)")
 void ap_abstract0_minimize(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"I0_PCALL_2(minimize,man,a)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Put the abstract value in canonical form. (not yet clear definition) *)")
 void ap_abstract0_canonicalize(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"I0_PCALL_2(canonicalize,man,a)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 int ap_abstract0_hash(ap_manager_ptr man, ap_abstract0_ptr a)
+  quote(call,"I0_FCALL_2(hash,man,a)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** [approximate man abs alg] perform some transformation on the abstract value, guided by the argument [alg]. The transformation may lose information.  The argument [alg] overrides the field algorithm of the structure of type [Manager.funopt] associated to ap_abstract0_approximate (commodity feature).*)")
 void ap_abstract0_approximate(ap_manager_ptr man, ap_abstract0_ptr a, int v)
+  quote(call,"I0_PCALL_3(approximate,man,a,v)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLMLI,"(* ============================================================ *)")
@@ -67,7 +73,7 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Dump on the [stdout] C stream the internal representation of an abstract value, for debugging purposes *)")
 void ap_abstract0_fdump(ap_manager_ptr man, ap_abstract0_ptr a)
-  quote(call,"ap_abstract0_fdump(stdout,man, a); fflush(stdout);")
+  quote(call,"Begin_roots2(_v_man,_v_a); ap_abstract0_fdump(stdout,man, a); fflush(stdout); End_roots();")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Print as a set of constraints *)")
@@ -98,17 +104,20 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Create a bottom (empty) value with the given number of integer and real variables *)")
 ap_abstract0_ptr ap_abstract0_bottom(ap_manager_ptr man, struct ap_dimension_t dim)
+  quote(call,"I0_FCALL_2(bottom,man,dim)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Create a top (universe) value with the given number of integer and real variables *)")
 ap_abstract0_ptr ap_abstract0_top(ap_manager_ptr man, struct ap_dimension_t dim)
+  quote(call,"I0_FCALL_2(top,man,dim)")
   quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Abstract an hypercube.\n\n[of_box man intdim realdim array] abstracts an hypercube defined by the array of intervals of size [intdim+realdim] *)")
 ap_abstract0_ptr ap_abstract0_of_box(ap_manager_ptr man,
 				     struct ap_dimension_t dim,
 				     ap_linexpr0_t box)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_3(of_box,man,dim,box)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLMLI,"(* ============================================================ *)")
 quote(MLMLI,"(** {3 Accessors} *)")
@@ -117,7 +126,8 @@ quote(MLMLI,"(* ============================================================ *)"
 quote(MLI,"\n")
 
 struct ap_dimension_t ap_abstract0_dimension(ap_manager_ptr man, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_2(dimension,man,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 ap_manager_ptr ap_abstract0_manager(ap_abstract0_ptr a)
   quote(call,"_res = ap_manager_copy(a->man);");
@@ -128,37 +138,46 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Emptiness test *)")
 boolean ap_abstract0_is_bottom(ap_manager_ptr man, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_2(is_bottom,man,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Universality test *)")
 boolean ap_abstract0_is_top(ap_manager_ptr man, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_2(is_top,man,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Inclusion test. The 2 abstract values should be compatible. *)")
 boolean ap_abstract0_is_leq(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_3(is_leq,man,a1,a2)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Equality test. The 2 abstract values should be compatible. *)")
 boolean ap_abstract0_is_eq(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_3(is_eq,man,a1,a2)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Does the abstract value satisfy the linear constraint ? *)")
 boolean ap_abstract0_sat_lincons(ap_manager_ptr man, ap_abstract0_ptr a, ap_lincons0_t v)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_3(sat_lincons,man,a,v)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Does the abstract value satisfy the tree expression constraint ? *)")
 boolean ap_abstract0_sat_tcons(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_tcons0_t* v)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_3(sat_tcons,man,a,v)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Does the abstract value satisfy the constraint [dim in interval] ? *)")
 boolean ap_abstract0_sat_interval(ap_manager_ptr man, ap_abstract0_ptr a,
 				  ap_dim_t dim,
 				  ap_coeff_tg interval)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_4(sat_interval,man,a,dim,interval)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Is the dimension unconstrained in the abstract value ? If yes, this means that the existential quantification of the dimension does not change the value. *)")
 boolean ap_abstract0_is_dimension_unconstrained(ap_manager_ptr man, ap_abstract0_ptr a,
-						ap_dim_t dim);
+						ap_dim_t dim)
+  quote(call,"I0_FCALL_3(is_dimension_unconstrained,man,a,dim)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLMLI,"(* ============================================================ *)")
 quote(MLMLI,"(** {3 Extraction of properties} *)")
@@ -166,31 +185,38 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLI,"\n(** Return the interval of variation of the dimension in the abstract value. *)")
 void ap_abstract0_bound_dimension(ap_manager_ptr man, ap_coeff_tm interval, ap_abstract0_ptr a, ap_dim_t v)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_PCALL_4(bound_dimension,man,interval,a,v)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Return the interval of variation of the linear expression in the abstract value.\n\nImplement a form of linear programming, where the argument linear expression is the one to optimize under the constraints induced by the abstract value. *)")
 void ap_abstract0_bound_linexpr(ap_manager_ptr man, ap_coeff_tm interval, ap_abstract0_ptr a, ap_linexpr0_t v)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_PCALL_4(bound_linexpr,man,interval,a,v)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Return the interval of variation of the tree expression in the abstract value. *)")
 void ap_abstract0_bound_texpr(ap_manager_ptr man, ap_coeff_tm interval, ap_abstract0_ptr a, ap_texpr0_ptr v)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+  quote(call,"I0_PCALL_4(bound_texpr,man,interval,a,v)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to an hypercube *)")
-void ap_abstract0_to_box(ap_manager_ptr man, ap_linexpr0_t box, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+void ap_abstract0_to_box(ap_manager_ptr man, ap_linexpr0_t v, ap_abstract0_ptr a)
+  quote(call,"I0_PCALL_3(to_box,man,v,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a conjunction of linear constraints. *)")
-void ap_abstract0_to_lincons_array(ap_manager_ptr man, ap_lincons0_array_t array, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+void ap_abstract0_to_lincons_array(ap_manager_ptr man, ap_lincons0_array_t v, ap_abstract0_ptr a)
+  quote(call,"I0_PCALL_3(to_lincons_array,man,v,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a conjunction of tree expression constraints. *)")
 ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a)
-quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(&_res);I0_CHECK_EXC(man)");
+  quote(call,"I0_FCALL_2(to_tcons_array,man,a)")
+  quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(&_res);I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** Convert the abstract value to a set of generators that defines it. *)")
-void ap_abstract0_to_lingen_array(ap_manager_ptr man, ap_lingen0_array_t array, ap_abstract0_ptr a)
-     quote(dealloc,"I0_CHECK_EXC(man)");
+void ap_abstract0_to_lingen_array(ap_manager_ptr man, ap_lingen0_array_t v, ap_abstract0_ptr a)
+  quote(call,"I0_PCALL_3(to_lingen_array,man,v,a)")
+  quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLMLI,"(* ********************************************************************** *)")
 quote(MLMLI,"(** {2 Operations} *)")
@@ -204,78 +230,90 @@ quote(MLI,"\n")
 
 quote(MLI,"(** Meet of 2 abstract values. *)")
 ap_abstract0_ptr ap_abstract0_meet(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-     quote(call,"_res = ap_abstract0_meet(man,false,a1,a2);")
+     quote(call,"Begin_roots3(_v_man,_v_a1,_v_a2); _res = ap_abstract0_meet(man,false,a1,a2); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Meet of a non empty array of abstract values. *)")
 ap_abstract0_ptr ap_abstract0_meet_array(ap_manager_ptr man, [size_is(size)] ap_abstract0_ptr* array, unsigned int size)
+     quote(call,"Begin_roots2(_v_man,_v_array); _res = ap_abstract0_meet_array(man,array,size); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Meet of an abstract value with an array of linear constraints. *)")
 ap_abstract0_ptr ap_abstract0_meet_lincons_array(ap_manager_ptr man, ap_abstract0_ptr a,
 						 ap_lincons0_array_t array)
-     quote(call,"_res = ap_abstract0_meet_lincons_array(man,false,a,array);")
+     quote(call,"Begin_roots3(_v_man,_v_a,_v_array); _res = ap_abstract0_meet_lincons_array(man,false,a,array); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Meet of an abstract value with an array of tree expression constraints. *)")
 ap_abstract0_ptr ap_abstract0_meet_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a,
 					       [ref]ap_tcons0_array_t* array)
-     quote(call,"_res = ap_abstract0_meet_tcons_array(man,false,a,array);")
+     quote(call,"Begin_roots3(_v_man,_v_a,_v_array); _res = ap_abstract0_meet_tcons_array(man,false,a,array); End_roots();")
      quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Join of 2 abstract values. *)")
 ap_abstract0_ptr ap_abstract0_join(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-     quote(call,"_res = ap_abstract0_join(man,false,a1,a2);")
+     quote(call,"Begin_roots3(_v_man,_v_a1,_v_a2); _res = ap_abstract0_join(man,false,a1,a2); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Join of a non empty array of abstract values. *)")
 ap_abstract0_ptr ap_abstract0_join_array(ap_manager_ptr man, [size_is(size)]ap_abstract0_ptr array[], unsigned int size)
+     quote(call,"Begin_roots2(_v_man,_v_array); _res = ap_abstract0_join_array(man,array,size); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"(** Add the array of generators to the abstract value (time elapse operator).\n\n The generators should either lines or rays, not vertices. *)")
 ap_abstract0_ptr ap_abstract0_add_ray_array(ap_manager_ptr man, ap_abstract0_ptr a,
 					    ap_lingen0_array_t array)
-     quote(call,"_res = ap_abstract0_add_ray_array(man,false,a,array);")
+     quote(call,"Begin_roots3(_v_man,_v_a,_v_array); _res = ap_abstract0_add_ray_array(man,false,a,array); End_roots();")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** {5 Side-effect versions of the previous functions} *)\n")
 
 void ap_abstract0_meet_with(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-	 quote(call,"{\n\
+	 quote(call,"\
+  Begin_roots3(_v_man,_v_a1,_v_a2);\n\
   ap_abstract0_t* res = ap_abstract0_meet(man,true,a1,a2);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a1)) = res;\n\
-}")
+  End_roots();\n\
+")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 void ap_abstract0_meet_lincons_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 					  ap_lincons0_array_t array)
-     quote(call,"{\n\
+     quote(call,"\
+  Begin_roots3(_v_man,_v_a,_v_array);\n\
   ap_abstract0_t* res = ap_abstract0_meet_lincons_array(man,true,a,array);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
-}")
+  End_roots();\n\
+")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 void ap_abstract0_meet_tcons_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 					[ref]ap_tcons0_array_t* array)
-     quote(call,"{\n\
+     quote(call,"\
+  Begin_roots3(_v_man,_v_a,_v_array);\n\
   ap_abstract0_t* res = ap_abstract0_meet_tcons_array(man,true,a,array);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
-}")
+  End_roots();\n\
+")
      quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(array); I0_CHECK_EXC(man)");
 
 void ap_abstract0_join_with(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-	 quote(call,"{\n\
+	 quote(call,"\
+  Begin_roots3(_v_man,_v_a1,_v_a2);\n\
   ap_abstract0_t* res = ap_abstract0_join(man,true,a1,a2);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a1)) = res;\n\
-}")
+  End_roots();\n\
+")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 void ap_abstract0_add_ray_array_with(ap_manager_ptr man, ap_abstract0_ptr a,
 				     ap_lingen0_array_t array)
-     quote(call,"{\n\
+     quote(call,"\
+  Begin_roots3(_v_man,_v_a,_v_array);\n\
   ap_abstract0_t* res = ap_abstract0_add_ray_array(man,true,a,array);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
-}")
+  End_roots();\n\
+")
      quote(dealloc,"I0_CHECK_EXC(man)");
 
 
