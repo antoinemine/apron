@@ -4,13 +4,6 @@
 #
 1 a\\n/* This file is part of the APRON Library, released under LGPL license.\n  Please read the COPYING file packaged in the distribution  */
 #
-# 2. Subtle trick: when encountering a variable named OUTOUTOUTT,
-# (which represent an out paramater)
-# substitute to the declaration: mpz_ptrm OUTOUTOUT; 
-# the declarations: mpz_t OUTOUTOUT; mpz_ptrm OUTTOUTTOUTT=OUTOUTOUT
-#
-s/\(num\|bound\|eitv\|ap_linexpr\|ap_lincons\|ap_lingen\)\(MPZ\|MPQ\|D\|MPFR\)\(_array\)\{0,1\}_ptrg\{0,1\} OUTOUTOUT/\1\2\3_t OUTOUTOUT\; \1\2\3_ptr OUTTOUTTOUTT = OUTOUTOUT;/g;
-#
 # 2b. other trick for immutable variant types manipulated a la GMP
 #
 s/extern \(void\|value\) camlidl_coeff_ptr_\(ml2c\|c2ml\)(\(value, \)\{0,1\}ap_coeff_t\(g\|m\) [*])/extern \1 camlidl_coeff_ptr_\2(\3ap_coeff_ptr*)/g;
@@ -23,9 +16,6 @@ s/struct ap_texpr_op_t/ap_texpr_op_t/g
 s/struct ap_texpr_rtype_t/ap_texpr_rtype_t/g
 s/struct ap_texpr_rdir_t/ap_texpr_rdir_t/g
 #
-# 3.Substitution when calling camlidl_c2ml_mpz_mpz_ptr
-#
-s/(&OUTOUTOUT/(\&OUTTOUTTOUTT/g;  
 s/struct mpfr_rnd_t/mpfr_rnd_t/g;
 #
 # 4. Special trick for conv module

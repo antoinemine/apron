@@ -33,8 +33,6 @@ quote(MLMLI,"(** (Interval) linear constraints *)\n\n")
 quote(MLMLI,"(** Linear generators *)\n\n")
 #endif
 
-/* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
-
 quote(MLI,"\n\
 (** {2 Linear expressions/constraints/generators} *)\n\
 \n\
@@ -43,10 +41,9 @@ val print : (Dim.t -> string) -> Format.formatter -> t -> unit\n\
 \n\
 (** {3 Initialization and Assignement Functions} *)\n\
 ")
-void ap_linyyyXXX__init([out]ap_linyyyXXX_ptr OUTOUTOUT, unsigned int size)
-    quote(call,"ap_linyyyXXX_init(OUTOUTOUT,size);");
+quote(MLMLI,"external _init : int -> t\t= \"camlidl_ap_linyyyXXX__init\"")
 quote(MLI,"val init : ?size:int -> unit -> t")
-void ap_linyyyXXX_init_set([out]ap_linyyyXXX_ptr OUTOUTOUT, ap_linyyyXXX_ptr a);
+quote(MLMLI,"external init_set : t -> t\t= \"camlidl_ap_linyyyXXX_init_set\"")
 quote(MLI,"\n\
 val of_list0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) list -> t\n\
 val of_array0 : ?size:int -> ?cst:'a EitvXXX.tt -> (Dim.t * 'b EitvXXX.tt) array -> t\n\
@@ -184,8 +181,8 @@ val array_print :\n\
 
 quote(MLI,"\n(** {3 Initialization and Assignement Functions} *)")
 
-void ap_linyyyXXX_array_init([out]ap_linyyyXXX_array_ptr OUTOUTOUT, unsigned int size);
-void ap_linyyyXXX_array_init_set([out]ap_linyyyXXX_array_ptr OUTOUTOUT, ap_linyyyXXX_array_ptr array);
+quote(MLMLI,"external array_init : int -> earray\t= \"camlidl_ap_linyyyXXX_array_init\"")
+quote(MLMLI,"external array_init_set : earray -> earray\t= \"camlidl_ap_linyyyXXX_array_init_set\"")
 void ap_linyyyXXX_array_set(ap_linyyyXXX_array_ptr res, ap_linyyyXXX_array_ptr array);
 void ap_linyyyXXX_array_resize(ap_linyyyXXX_array_ptr array, unsigned int size);
 void ap_linyyyXXX_array_minimize(ap_linyyyXXX_array_ptr array);

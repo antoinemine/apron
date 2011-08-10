@@ -228,15 +228,6 @@ struct custom_operations camlidl_apron_custom_var_ptr = {
   custom_serialize_default,
   custom_deserialize_default
 };
-struct custom_operations camlidl_apron_custom_var_ptr_nonfinal = {
-  NULL,
-  custom_finalize_default,
-  camlidl_apron_var_ptr_compare,
-  camlidl_apron_var_ptr_hash,
-  custom_serialize_default,
-  custom_deserialize_default
-};
-
 value camlidl_apron_var_ptr_c2ml(ap_var_t* p)
 {
   value v = alloc_custom(&camlidl_apron_custom_var_ptr, sizeof(void*), 0,1);
@@ -282,15 +273,6 @@ struct custom_operations camlidl_apron_custom_environment_ptr = {
   custom_serialize_default,
   custom_deserialize_default
 };
-struct custom_operations camlidl_apron_custom_environment_ptr_nonfinal = {
-  NULL,
-  custom_finalize_default,
-  camlidl_apron_environment_ptr_compare,
-  camlidl_apron_environment_ptr_hash,
-  custom_serialize_default,
-  custom_deserialize_default
-};
-
 value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 {
   value v;
@@ -386,15 +368,14 @@ struct custom_operations camlidl_custom_TTTXXX = {
   &camlidl_custom_TTTXXX_deserialize
 };
 struct custom_operations camlidl_custom_TTTXXX_nonfinal = {
-  NULL,
+  "camlidl_apron_custom_TTTXXX",
   &camlidl_custom_TTTXXX_finalize_nonfinal,
   &camlidl_custom_TTTXXX_compare,
   &camlidl_custom_TTTXXX_hash,
   &camlidl_custom_TTTXXX_serialize,
   &camlidl_custom_TTTXXX_deserialize
 };
-
-value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
+value camlidl_TTTXXX_alloc_custom(TTTXXX_ptr* a)
 {
   value val;
 
@@ -402,12 +383,29 @@ value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
   val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_ptr), 0, 1);
   TTTXXX_ptr p = malloc(sizeof(TTTXXX_t));
   *(TTTXXX_ptr*)(Data_custom_val(val)) = p;
-  *p = **a;
+  *a = p;
 #else
   val = alloc_custom(&camlidl_custom_TTTXXX, sizeof(TTTXXX_t), 0, 1);
-  *(TTTXXX_ptr)(Data_custom_val(val)) = **a;
+  *a = (TTTXXX_ptr)(Data_custom_val(val));
 #endif
   return val;
+}
+value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a)
+{
+  TTTXXX_ptr ref;
+  value val = camlidl_TTTXXX_alloc_custom(&ref);
+  *ref = **a;
+  return val;
+}
+value camlidl_TTTXXX_ptr_c2ml_nonfinal(TTTXXX_ptr a)
+{
+#if defined(MLAPRONIDL_CALLBACK)
+  value val = alloc_custom(&camlidl_custom_TTTXXX_nonfinal, sizeof(TTTXXX_ptr), 0, 1);
+  *(TTTXXX_ptr*)(Data_custom_val(val)) = a;
+  return val;
+#else
+  abort();
+#endif
 }
 ENDMACRO
 ENDMACRO
@@ -494,7 +492,7 @@ struct custom_operations camlidl_custom_TTTXXX_array = {
   &camlidl_custom_TTTXXX_array_deserialize
 };
 struct custom_operations camlidl_custom_TTTXXX_array_nonfinal = {
-  NULL,
+  "camlidl_apron_custom_TTTXXX_array",
   &camlidl_custom_TTTXXX_array_finalize_nonfinal,
   &camlidl_custom_TTTXXX_array_compare,
   &camlidl_custom_TTTXXX_array_hash,
@@ -502,7 +500,7 @@ struct custom_operations camlidl_custom_TTTXXX_array_nonfinal = {
   &camlidl_custom_TTTXXX_array_deserialize
 };
 
-value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
+value camlidl_TTTXXX_array_alloc_custom(TTTXXX_array_ptr* a)
 {
   value val;
 
@@ -510,12 +508,29 @@ value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
   val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_ptr), 0, 1);
   TTTXXX_array_ptr p = malloc(sizeof(TTTXXX_array_t));
   *(TTTXXX_array_ptr*)(Data_custom_val(val)) = p;
-  *p = **a;
+  *a = p;
 #else
   val = alloc_custom(&camlidl_custom_TTTXXX_array, sizeof(TTTXXX_array_t), 0, 1);
-  *(TTTXXX_array_ptr)(Data_custom_val(val)) = **a;
+  *a = (TTTXXX_array_ptr)(Data_custom_val(val));
 #endif
   return val;
+}
+value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a)
+{
+  TTTXXX_array_ptr ref;
+  value val = camlidl_TTTXXX_array_alloc_custom(&ref);
+  *ref = **a;
+  return val;
+}
+value camlidl_TTTXXX_array_ptr_c2ml_nonfinal(TTTXXX_array_ptr a)
+{
+#if defined(MLAPRONIDL_CALLBACK)
+  value val = alloc_custom(&camlidl_custom_TTTXXX_array_nonfinal, sizeof(TTTXXX_array_ptr), 0, 1);
+  *(TTTXXX_array_ptr*)(Data_custom_val(val)) = a;
+  return val;
+#else
+  abort();
+#endif
 }
 ENDMACRO
 ENDMACRO
@@ -545,54 +560,56 @@ value camlidl_coeff_ptr_c2ml(ap_coeff_ptr* pcoeff)
   Field(v,0) = v2;
   CAMLreturn(v);
 }
+value camlidl_coeff_ptr_c2ml_nonfinal(ap_coeff_ptr coeff)
+{
+  CAMLparam0();
+  CAMLlocal2(v,v2);
+  MACRO_SWITCH(coeff->discr) XXX
+    v2 = camlidl_eitvXXX_ptr_c2ml_nonfinal(coeff->eitv.XXX);
+  ENDMACRO;
+  v = alloc_small(1,coeff->discr);
+  Field(v,0) = v2;
+  CAMLreturn(v);
+}
 
 MACRO_FOREACH TTT ("expr","cons","gen")
-void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_ptr* plinTTT0)
+MACRO_FOREACH SSS ("","_array")
+void camlidl_linTTT0SSS_ptr_ml2c(value v, ap_linTTT0SSS_ptr* plinTTT0)
 {
   ap_scalar_discr_t discr = Tag_val(v);
-  ap_linTTT0_ptr linTTT0 = *plinTTT0;
+  ap_linTTT0SSS_ptr linTTT0 = *plinTTT0;
   linTTT0->discr = discr;
   MACRO_SWITCH(discr) XXX {
-    camlidl_ap_linTTTXXX_ptr_ml2c(Field(v,0),&linTTT0->linTTT.XXX);
+    camlidl_ap_linTTTXXXSSS_ptr_ml2c(Field(v,0),&linTTT0->linTTTSSS.XXX);
   }
   ENDMACRO;
 }
-value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_ptr* plinTTT0)
+value camlidl_linTTT0SSS_ptr_c2ml(ap_linTTT0SSS_ptr* plinTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
-  ap_linTTT0_ptr linTTT0 = *plinTTT0;
+  ap_linTTT0SSS_ptr linTTT0 = *plinTTT0;
   MACRO_SWITCH(linTTT0->discr) XXX {
-    v2 = camlidl_ap_linTTTXXX_ptr_c2ml(&linTTT0->linTTT.XXX);
+    v2 = camlidl_ap_linTTTXXXSSS_ptr_c2ml(&linTTT0->linTTTSSS.XXX);
   }
   ENDMACRO;
   v = alloc_small(1,linTTT0->discr);
   Field(v,0) = v2;
   CAMLreturn(v);
 }
-void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_ptr* plinTTT0)
-{
-  ap_scalar_discr_t discr = Tag_val(v);
-  ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
-  linTTT0->discr = discr;
-  MACRO_SWITCH(discr) XXX {
-    camlidl_ap_linTTTXXX_array_ptr_ml2c(Field(v,0),&linTTT0->linTTT_array.XXX);
-  }
-  ENDMACRO;
-}
-value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_ptr* plinTTT0)
+value camlidl_linTTT0SSS_ptr_c2ml_nonfinal(ap_linTTT0SSS_ptr linTTT0)
 {
   CAMLparam0();
   CAMLlocal2(v,v2);
-  ap_linTTT0_array_ptr linTTT0 = *plinTTT0;
   MACRO_SWITCH(linTTT0->discr) XXX {
-    v2 = camlidl_ap_linTTTXXX_array_ptr_c2ml(&linTTT0->linTTT_array.XXX);
+    v2 = camlidl_ap_linTTTXXXSSS_ptr_c2ml_nonfinal(linTTT0->linTTTSSS.XXX);
   }
   ENDMACRO;
   v = alloc_small(1,linTTT0->discr);
   Field(v,0) = v2;
   CAMLreturn(v);
 }
+ENDMACRO
 ENDMACRO
 
 /* ********************************************************************** */
@@ -626,7 +643,7 @@ struct custom_operations camlidl_apron_custom_texpr0_ptr = {
   custom_deserialize_default
 };
 struct custom_operations camlidl_apron_custom_texpr0_ptr_nonfinal = {
-  NULL,
+  "camlidl_apron_custom_texpr0",
   custom_finalize_default,
   camlidl_apron_texpr0_ptr_compare,
   camlidl_apron_texpr0_ptr_hash,
@@ -646,7 +663,6 @@ void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* 
   }
   array->size = size;
 }
-
 value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array)
 {
   CAMLparam0();
@@ -655,7 +671,19 @@ value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array)
   v_array = caml_alloc(array->size,0);
   for (i=0; i<array->size; i++){
     v = camlidl_apron_texpr0_ptr_c2ml(&array->p[i]);
-    modify(&Field(v_array,i), v);
+    Store_field(v_array,i,v);
+  }
+  CAMLreturn(v_array);
+}
+value camlidl_apron_texpr0_array_t_c2ml_nonfinal(struct ap_texpr0_array_t* array)
+{
+  CAMLparam0();
+  CAMLlocal2(v_array,v);
+  mlsize_t i;
+  v_array = caml_alloc(array->size,0);
+  for (i=0; i<array->size; i++){
+    v = camlidl_apron_texpr0_ptr_c2ml_nonfinal(array->p[i]);
+    Store_field(v_array,i,v);
   }
   CAMLreturn(v_array);
 }
@@ -685,6 +713,19 @@ value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p)
   Field(v,2) = v2;
   CAMLreturn(v);
 }
+value camlidl_apron_tcons0_t_c2ml_nonfinal(ap_tcons0_t* p)
+{
+  CAMLparam0();
+  CAMLlocal4(v0,v1,v2,v);
+  v0 = camlidl_apron_texpr0_ptr_c2ml_nonfinal(p->texpr0);
+  v1 = camlidl_c2ml_common_enum_ap_constyp_t(p->constyp);
+  v2 = camlidl_mpq_ptr_c2ml_nonfinal(p->mpq);
+  v = alloc_small(3,0);
+  Field(v,0) = v0;
+  Field(v,1) = v1;
+  Field(v,2) = v2;
+  CAMLreturn(v);
+}
 
 void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array)
 {
@@ -699,7 +740,6 @@ void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* 
   }
   array->size = size;
 }
-
 value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array)
 {
   CAMLparam0();
@@ -708,7 +748,33 @@ value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array)
   v_array = caml_alloc(array->size,0);
   for (i=0; i<array->size; i++){
     v = camlidl_apron_tcons0_t_c2ml(array->p[i]);
-    modify(&Field(v_array,i), v);
+    Store_field(v_array,i, v);
+  }
+  CAMLreturn(v_array);
+}
+void camlidl_apron_tcons0_array_t_ml2c_nonfinal(value v_array, struct ap_tcons0_array_t* array)
+{
+  value v;
+  mlsize_t i;
+  mlsize_t size = Wosize_val(v_array);
+  array->p = ap_malloc(size * sizeof(ap_tcons0_t*));
+  for (i = 0; i < size; i++) {
+    v = Field(v_array, i);
+    array->p[i] = malloc(sizeof(ap_tcons0_t));
+    camlidl_apron_tcons0_t_ml2c(v,array->p[i]);
+    Custom_ops_val(Field(v,0)) = &camlidl_apron_custom_texpr0_ptr_nonfinal;
+  }
+  array->size = size;
+}
+value camlidl_apron_tcons0_array_t_c2ml_nonfinal(struct ap_tcons0_array_t* array)
+{
+  CAMLparam0();
+  CAMLlocal2(v_array,v);
+  mlsize_t i;
+  v_array = caml_alloc(array->size,0);
+  for (i=0; i<array->size; i++){
+    v = camlidl_apron_tcons0_t_c2ml_nonfinal(array->p[i]);
+    Store_field(v_array,i,v);
   }
   CAMLreturn(v_array);
 }
@@ -902,3 +968,104 @@ ENDMACRO
   register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
   return Val_unit;
 }
+
+/* ********************************************************************** */
+/* init functions */
+/* ********************************************************************** */
+
+MACRO_FOREACH XXX @AllNumIdl
+MACRO_FOREACH TTT ("num","bound","eitv")
+value camlidl_TTTXXX_init(value dummy)
+{
+  TTTXXX_ptr res; value vres = camlidl_TTTXXX_alloc_custom(&res);
+  TTTXXX_init(res);
+  return vres;
+}
+ENDMACRO
+MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+value camlidl_TTTXXX__init(value v_size)
+{
+  unsigned int size = Int_val(v_size);
+  TTTXXX_ptr res; value vres = camlidl_TTTXXX_alloc_custom(&res);
+  TTTXXX_init(res,size);
+  return vres;
+}
+ENDMACRO
+MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
+value camlidl_TTTXXX_init_set(value v_op)
+{
+  TTTXXX_ptr op;
+  TTTXXX_ptr res; value vres;
+  Begin_roots1(v_op);
+  vres = camlidl_TTTXXX_alloc_custom(&res);
+  camlidl_TTTXXX_ptr_ml2c(v_op,&op);
+  End_roots();
+  TTTXXX_init_set(res,op);
+  return vres;
+}
+ENDMACRO
+MACRO_FOREACH TTT ("num","bound","eitv")
+value camlidl_TTTXXX_init_set_int(value v_N)
+{
+  long N = Long_val(v_N);
+  TTTXXX_ptr res; value vres = camlidl_TTTXXX_alloc_custom(&res);
+  TTTXXX_init_set_int(res,N);
+  return vres;
+}
+ENDMACRO
+MACRO_FOREACH TTT ("bound","eitv")
+value camlidl_TTTXXX_init_set_num(value v_op)
+{
+  numXXX_ptr op;
+  TTTXXX_ptr res; value vres;
+  Begin_roots1(v_op);
+  vres = camlidl_TTTXXX_alloc_custom(&res);
+  camlidl_numXXX_ptr_ml2c(v_op,&op);
+  End_roots();
+  TTTXXX_init_set_num(res,op);
+  return vres;
+}
+ENDMACRO
+value camlidl_eitvXXX_init_set_int2(value v_N1, value v_N2)
+{
+  long N1 = Long_val(v_N1);
+  long N2 = Long_val(v_N2);
+  eitvXXX_ptr res; value vres = camlidl_eitvXXX_alloc_custom(&res);
+  eitvXXX_init_set_int2(res,N1,N2);
+  return vres;
+}
+MACRO_FOREACH SSS ("num")
+value camlidl_eitvXXX_init_set_SSS2(value v_op1, value v_op2)
+{
+  numXXX_ptr op1,op2;
+  eitvXXX_ptr res; value vres;
+  Begin_roots2(v_op1,v_op2);
+  vres = camlidl_eitvXXX_alloc_custom(&res);
+  camlidl_SSSXXX_ptr_ml2c(v_op1,&op1);
+  camlidl_SSSXXX_ptr_ml2c(v_op2,&op2);
+  End_roots();
+  eitvXXX_init_set_SSS2(res,op1,op2);
+  return vres;
+}
+ENDMACRO
+MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
+value camlidl_TTTXXX_array_init(value v_size)
+{
+  unsigned int size = Int_val(v_size);
+  TTTXXX_array_ptr res; value vres = camlidl_TTTXXX_array_alloc_custom(&res);
+  TTTXXX_array_init(res,size);
+  return vres;
+}
+value camlidl_TTTXXX_array_init_set(value v_op)
+{
+  TTTXXX_array_ptr op;
+  TTTXXX_array_ptr res; value vres;
+  Begin_roots1(v_op);
+  vres = camlidl_TTTXXX_array_alloc_custom(&res);
+  camlidl_TTTXXX_array_ptr_ml2c(v_op,&op);
+  End_roots();
+  TTTXXX_array_init_set(res,op);
+  return vres;
+}
+ENDMACRO
+ENDMACRO

@@ -63,8 +63,6 @@ quote(MLMLI,"(** Numbers *)\n")
 
 quote(MLMLI,"(** The following operations are mapped as much as possible to their C counterpart. In case of imperative functions (like [set], [add], ...) the first parameter of type [t] is an out-parameter and holds the result when the function returns. For instance, [add x y z] adds the values of [y] and [z] and stores the result in [x].\n\n These functions are as efficient as their C counterpart: they do not imply additional memory allocation. *)\n\n")
 
-/* OUTOUTOUT is a reserved variable name ! (see Makefile and sedscript_c) */
-
 quote(MLI,"\n(** {2 Pretty printing} *)\n")
 
 [string] char* _to_string(int length, numXXX_ptrg a)
@@ -88,9 +86,12 @@ let print fmt a = Format.pp_print_string fmt (to_string a)\n\
 ")
 
 quote(MLMLI,"(** {2 Initialization Functions} *)\n")
-void numXXX_init([out]numXXX_ptrg OUTOUTOUT);
-void numXXX_init_set([out]numXXX_ptrg OUTOUTOUT, numXXX_ptrg b);
-void numXXX_init_set_int([out]numXXX_ptrg OUTOUTOUT, long b);
+
+quote(MLMLI,"\n\
+external init : unit -> 'a tt\t= \"camlidl_numXXX_init\"\n\
+external init_set : 'a tt -> 'b tt\t= \"camlidl_numXXX_init_set\"\n\
+external init_set_int : int -> 'a tt\t= \"camlidl_numXXX_init_set_int\"\n\
+")
 
 quote(MLMLI,"(** {2 Assignement Functions} *)\n")
 

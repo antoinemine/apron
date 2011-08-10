@@ -154,7 +154,6 @@ void camlidl_apron_var_ptr_ml2c(value v, ap_var_t* p){
 }
 value camlidl_apron_var_ptr_c2ml(ap_var_t* p);
 extern struct custom_operations camlidl_apron_custom_var_ptr;
-extern struct custom_operations camlidl_apron_custom_var_ptr_nonfinal;
 
 typedef struct ap_environment_t* ap_environment_ptr;
 static inline
@@ -163,8 +162,6 @@ void camlidl_apron_environment_ptr_ml2c(value v, ap_environment_ptr* p){
 }
 value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p);
 extern struct custom_operations camlidl_apron_custom_environment_ptr;
-extern struct custom_operations camlidl_apron_custom_environment_ptr_nonfinal;
-
 
 /* ********************************************************************** */
 /* Numbers, bounds, intervales, linear expressions/constraints/generators */
@@ -181,7 +178,9 @@ ENDMACRO
 
 MACRO_FOREACH TTT ("num","bound","eitv","ap_linexpr","ap_lincons","ap_lingen")
 MACRO_FOREACH XXX @AllNumIdl
+value camlidl_TTTXXX_alloc_custom(TTTXXX_ptr* a);
 value camlidl_TTTXXX_ptr_c2ml(TTTXXX_ptr* a);
+value camlidl_TTTXXX_ptr_c2ml_nonfinal(TTTXXX_ptr a);
 static inline void camlidl_TTTXXX_ptr_ml2c(value val, TTTXXX_ptr* a)
 {
   *a = mlapronidl_ptr_of_value(TTTXXX,val);
@@ -193,7 +192,9 @@ ENDMACRO
 
 MACRO_FOREACH TTT ("ap_linexpr","ap_lincons","ap_lingen")
 MACRO_FOREACH XXX @AllNumIdl
+value camlidl_TTTXXX_array_alloc_custom(TTTXXX_array_ptr* a);
 value camlidl_TTTXXX_array_ptr_c2ml(TTTXXX_array_ptr* a);
+value camlidl_TTTXXX_array_ptr_c2ml_nonfinal(TTTXXX_array_ptr a);
 static inline void camlidl_TTTXXX_array_ptr_ml2c(value val, TTTXXX_array_ptr* a)
 {
   *a = mlapronidl_ptr_of_value(TTTXXX_array,val);
@@ -211,12 +212,14 @@ typedef ap_coeff_t ap_coeff_tg;
 typedef ap_coeff_t ap_coeff_tm;
 void camlidl_coeff_ptr_ml2c(value v, ap_coeff_ptr* pcoeff);
 value camlidl_coeff_ptr_c2ml(ap_coeff_ptr* pcoeff);
+value camlidl_coeff_ptr_c2ml_nonfinal(ap_coeff_ptr pcoeff);
 
 MACRO_FOREACH TTT ("expr","cons","gen")
-void camlidl_linTTT0_ptr_ml2c(value v, ap_linTTT0_ptr* plinTTT0);
-value camlidl_linTTT0_ptr_c2ml(ap_linTTT0_ptr* plinTTT0);
-void camlidl_linTTT0_array_ptr_ml2c(value v, ap_linTTT0_array_ptr* plinTTT0);
-value camlidl_linTTT0_array_ptr_c2ml(ap_linTTT0_array_ptr* plinTTT0);
+MACRO_FOREACH SSS ("","_array")
+void camlidl_linTTT0SSS_ptr_ml2c(value v, ap_linTTT0SSS_ptr* plinTTT0);
+value camlidl_linTTT0SSS_ptr_c2ml(ap_linTTT0SSS_ptr* plinTTT0);
+value camlidl_linTTT0SSS_ptr_c2ml_nonfinal(ap_linTTT0SSS_ptr plinTTT0);
+ENDMACRO
 ENDMACRO
 
 /* ********************************************************************** */
@@ -267,8 +270,16 @@ static inline value camlidl_apron_texpr0_ptr_c2ml(ap_texpr0_ptr* p)
   *((ap_texpr0_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
+static inline value camlidl_apron_texpr0_ptr_c2ml_nonfinal(ap_texpr0_ptr p)
+{
+  value v;
+  v = alloc_custom(&camlidl_apron_custom_texpr0_ptr_nonfinal, sizeof(ap_texpr0_ptr), 0,1);
+  *((ap_texpr0_ptr *) Data_custom_val(v)) = p;
+  return v;
+}
 void camlidl_apron_texpr0_array_t_ml2c(value v_array, struct ap_texpr0_array_t* array);
 value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array);
+value camlidl_apron_texpr0_array_t_c2ml_nonfinal(struct ap_texpr0_array_t* array);
 
 /* array is supposed to be of type ap_texpr0_array_t* */
 #define AP_TEXPR0_ARRAY_DEALLOC(array) free((array)->p);
@@ -283,12 +294,15 @@ typedef ap_tcons0_t* ap_tcons0_ptr;
 
 void camlidl_apron_tcons0_t_ml2c(value v, ap_tcons0_t* p);
 value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p);
+value camlidl_apron_tcons0_t_c2ml_nonfinal(ap_tcons0_t* p);
 
 /* cons is supposed to be of type ap_tcons0_t* */
 #define AP_TCONS0_DEALLOC(cons) free(cons);
 
 void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array);
 value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array);
+void camlidl_apron_tcons0_array_t_ml2c_nonfinal(value v_array, struct ap_tcons0_array_t* array);
+value camlidl_apron_tcons0_array_t_c2ml_nonfinal(struct ap_tcons0_array_t* array);
 
 /* array is suppose to be of type ap_tcons0_array_t* */
 #define AP_TCONS0_ARRAY_DEALLOC(array)                      \
@@ -296,7 +310,7 @@ value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array);
     size_t i;                                               \
     for (i=0;i<(array)->size;i++) free((array)->p[i]);      \
     free((array)->p);                                       \
-  } while (0);
+  } while (0)
 
 /* ********************************************************************** */
 /* manager */
