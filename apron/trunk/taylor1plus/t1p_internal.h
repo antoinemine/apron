@@ -54,8 +54,8 @@ struct _t1p_aff_t {
     itv_t		c;	/* center */
     t1p_aaterm_t*	q;	/* first center term (epsilons) aaterm */
     t1p_aaterm_t*	end;	/* quick jump to the last center term : to add a new term for instance */
-    t1p_aaterm_t*	lastu;	/* quick jump to the last center term : to add a new term for instance */
-    size_t		l;	/* size of q */
+    t1p_aaterm_t*	lastu;	/* obsolete */
+    size_t		l;	/* number of noise symbols */
     size_t		pby;	/* # pointers to this affine form */
     itv_t		itv;	/* best known interval concretisation */
 };
@@ -152,13 +152,13 @@ typedef struct _t1p_t {
     itv_t*		box;		/* reduced product with boxes */
     size_t		intdim;         /* nb of integer variables */
     size_t		dims;           /* intdim + realdim */
-    ap_abstract0_t*	abs;	/* nsym abstract object */
+    ap_abstract0_t* 	abs;        	/* nsym abstract object (=contraints over noise symbols)*/
     ap_dim_t*		nsymcons;       /* array of index of constrained noise symbols */
     ap_interval_t**	gamma;		/* pointer to an array which contains the concretisations of constrained noise symbols if any */
     size_t		size;		/* size of nsymcons and gamma */
     bool		hypercube;	/* true if no constrained nsym */
-    itv_t**		g;	/* array of the generators of the zonotope */
-    size_t		gn;		/* size of generators */
+    itv_t**		g;	/* array of the generators of the zonotope - a oublier */
+    size_t		gn;		/* size of generators - a oublier */
 } t1p_t;
 
 /* special object to store and compute meet with lincons */
@@ -230,14 +230,25 @@ static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a);
 static inline bool t1p_aff_is_zero(t1p_internal_t *pr, t1p_aff_t *a);
 static inline bool t1p_aff_is_known_to_be_zero(t1p_internal_t *pr, t1p_aff_t *a);
 
-static inline void t1p_aff_copy(t1p_internal_t *pr, t1p_aff_t *dst, t1p_aff_t *src);
+static inline t1p_aff_t* t1p_aff_copy(t1p_internal_t *pr, t1p_aff_t *src);
 /* create a new noise symbol with coefficient "coeff" */
 static inline void t1p_aff_nsym_create(t1p_internal_t *pr, t1p_aff_t *expr, itv_t coeff, nsym_t type);
 
 /* add an existing noise symbol pointed by "nsym" with coefficient "coeff" */
 static inline void t1p_aff_add_itv(t1p_internal_t* pr, t1p_aff_t *expr, itv_t itv, nsym_t type);
+/* change the coefficient of the aaterm (or add it if it was not there) */
 static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, size_t index);
 static inline void t1p_aff_nsym_add(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, t1p_nsym_t* pnsym);
+
+/* returns a pointer to the coefficient of nymb [index]. Returns [NULL] if [index] is not present in [expr] */
+static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, size_t index);
+
+/* multiplication of an affine form by a scalar (= an interval) */
+/* assignment: expr <- lambda * expr */
+static inline void t1p_aff_mul_scalar(t1p_internal_t* pr, t1p_aff_t *expr, itv_t lambda);
+/* addition term by term of two affine forms */
+/* assignment: a <- b+c */
+static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t *b, t1p_aff_t *c);
 
 static inline bool t1p_aff_is_eq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b);
 /* test */
@@ -507,14 +518,14 @@ static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a)
     }
 }
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a)
-{
-    itv_init(a->c);
-    a->q = NULL;
-    a->end = NULL;
-    a->l = 0;
-    a->lastu = NULL;
-    a->pby = 0;
-    itv_init(a->itv);
+{    
+  itv_init(a->c);
+  a->q = NULL;
+  a->end = NULL;
+  a->l = 0;
+  a->lastu = NULL;
+  a->pby = 0;
+  itv_init(a->itv); 
 }
 
 static inline void t1p_aff_clear(t1p_internal_t *pr, t1p_aff_t *a)
@@ -535,32 +546,33 @@ static inline void t1p_aff_clear(t1p_internal_t *pr, t1p_aff_t *a)
 }
 
 /* allocate memory and copy the src affine form */
-static inline void t1p_aff_copy(t1p_internal_t *pr, t1p_aff_t *dst, t1p_aff_t *src)
+static inline t1p_aff_t* t1p_aff_copy(t1p_internal_t *pr, t1p_aff_t *src)
 {
-    dst = t1p_aff_alloc_init(pr);
-    t1p_aaterm_t *p,*q;
-    itv_set(dst->c, src->c);
-    if (src->q) {
-	dst->q = q = t1p_aaterm_alloc_init();
-	for (p=src->q; p->n; p=p->n) {
-	    itv_set(q->coeff, p->coeff);
-	    q->pnsym = p->pnsym;
-	    if (p->n) {
-		/* continue */
-		q->n = t1p_aaterm_alloc_init();
-		q = q->n;
-	    } else {
-		/* last iteration */
-		dst->end = q;
-	    }
-	}
-    }
-    dst->l = src->l;
-    //dst->pby = src->pby;
-    itv_set(dst->itv, src->itv);
+   t1p_aff_t* dst = t1p_aff_alloc_init(pr);
+   t1p_aaterm_t *p,*q;
+   itv_set(dst->c, src->c);
+   if (src->q) {
+       dst->q = q = t1p_aaterm_alloc_init();
+       for (p=src->q; p; p=p->n) {
+           itv_set(q->coeff, p->coeff);
+           q->pnsym = p->pnsym;
+           if (p->n) {
+               /* continue */
+               q->n = t1p_aaterm_alloc_init();
+               q = q->n;
+           } else {
+               /* last iteration */
+               dst->end = q;
+           }
+       }
+   }
+   dst->l = src->l;
+   itv_set(dst->itv, src->itv);
+   return dst;
 }
-/*
- *  Insert a new element in the array of constrained noise symbols,
+
+/* 
+ *  Insert a new element in the array of constrained noise symbols, 
  *  shall be different from all constrained nsym indices.
  *  Assume that a->nsymcons[0] <= nsymIndex <= a->nsymcons[size-1]
  */
@@ -642,6 +654,29 @@ static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coef
     */
 }
 
+
+/* returns a pointer to the coefficient of nymb [index]. Returns [NULL] if [index] is not present in [expr] */
+static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, size_t index)
+{
+  t1p_aaterm_t* cell = expr->q;
+  itv_t* res=NULL;
+
+  while (cell != NULL)
+    {
+      if (cell->pnsym->index == index)
+	{
+	  res = &cell->coeff;
+	  cell=NULL; // stops the loop
+	}
+      else
+	{
+	  cell = cell->n;
+	}
+    }
+  return res;
+}
+
+
 static inline void t1p_aff_nsym_add(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, t1p_nsym_t* pnsym)
 {
     if (!itv_is_zero(coeff)) {
@@ -668,6 +703,123 @@ static inline void t1p_aff_add_itv(t1p_internal_t* pr, t1p_aff_t *expr, itv_t it
     } else itv_add(expr->c, expr->c, itv);
     itv_clear(mid); itv_clear(dev);
 }
+
+
+/* multiplication of an affine form by a scalar (= an interval) */
+static inline void t1p_aff_mul_scalar(t1p_internal_t* pr, t1p_aff_t *expr, itv_t lambda)
+{
+  /* multiplication of the center and of the best interval concretisation */
+  itv_mul(pr->itv,expr->c,expr->c,lambda);
+  itv_mul(pr->itv,expr->itv,expr->itv,lambda);
+
+  /* "for" loop to do the same for each aaterm */
+  t1p_aaterm_t* current_aaterm = expr->q;
+  for(int i=0;i<(int)expr->l;i++)
+    {
+      itv_mul(pr->itv,current_aaterm->coeff,current_aaterm->coeff,lambda);
+      current_aaterm = current_aaterm->n;
+    }
+
+}
+
+/* addition term by term of two affine forms */
+/* assignment: a <- b+c */
+static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t *b, t1p_aff_t *c)
+{
+  /* addition of the center and of the best interval concretisation */
+  itv_add(a->c,b->c,c->c);
+  itv_add(a->itv,b->itv,c->itv);
+
+  /* double loop to add terms respecting the order */
+  int i=0;
+  int j=0;
+  t1p_aaterm_t* term_b= b->q;
+  t1p_aaterm_t* term_c= c->q;
+  itv_t temp;
+  /* printf("l1=%d\n",(int)b->l); */
+  /* printf("l2=%d\n",(int)c->l); */
+
+  while (i<(int)b->l && j<(int)c->l)
+    {
+      if (term_b->pnsym->index == term_c->pnsym->index)
+	{
+	  /* the symbol is present in both terms */
+	  //printf("symbol %d present in both\n", (int)term_b->pnsym->index );
+	  /*compute the new coeff and add it to a */
+	  itv_init(temp);
+	  //printf("itv1:");
+	  //itv_fprint(stdout,term_b->coeff);
+	  //printf("\n");
+	  //printf("itv2:");
+	  //itv_fprint(stdout,term_c->coeff);
+	  //printf("\n");
+	  itv_add(temp,term_b->coeff,term_c->coeff);
+	  //printf("itv res:");
+	  //itv_fprint(stdout,temp);
+	  //printf("\n");
+	  t1p_aff_nsym_add(pr,a,temp,term_b->pnsym);
+	  //t1p_aff_fprint(pr,stdout,a);
+	  //printf("\n");
+	  /* updates the terms and counters */
+	  i++;
+	  j++;
+	  term_b=term_b->n;
+	  term_c=term_c->n;
+	}
+      else if (term_b->pnsym->index < term_c->pnsym->index)
+	{
+	  /* the symbol is present in b but not in c */
+	  //printf("symbol %d present in the first one\n", (int)term_b->pnsym->index);
+	  /*compute the new coeff and add it to a */
+	  itv_init(temp);
+	  itv_set(temp,term_b->coeff);
+	  t1p_aff_nsym_add(pr,a,temp,term_b->pnsym);
+	  //t1p_aff_fprint(pr,stdout,a);
+	  //printf("\n");
+	  /* updates the terms and counters */
+	  i++;
+	  term_b=term_b->n;
+	}
+      else
+	{
+	  /* the symbol is present in c but not in b */
+	  //printf("symbol %d present in the second one\n", (int)term_c->pnsym->index);
+	  /*compute the new coeff and add it to a */
+	  itv_init(temp);
+	  itv_join(temp,temp,term_c->coeff);
+	  t1p_aff_nsym_add(pr,a,temp,term_c->pnsym);
+	  //t1p_aff_fprint(pr,stdout,a);
+	  //printf("\n");	  
+	  /* updates the terms and counters */
+	  j++;
+	  term_c=term_c->n;
+	}
+    }
+  /* add the remaining symbols */
+ while (i<(int)b->l)
+   {
+     //printf("symbol present in the first one\n");
+     t1p_aff_nsym_add(pr,a,term_c->coeff,term_c->pnsym);
+     //t1p_aff_fprint(pr,stdout,a);
+     //printf("\n");
+     /* updates the terms and counters */
+     i++;
+     term_c=term_c->n;
+   }
+ while (j<(int)c->l)
+   {
+     //printf("symbol present in the second one\n");
+     t1p_aff_nsym_add(pr,a,term_c->coeff,term_c->pnsym);
+     /* updates the terms and counters */
+     //t1p_aff_fprint(pr,stdout,a);
+     //printf("\n");
+     j++;
+     term_c=term_c->n;
+   }
+
+}
+
+
 
 /* a->itv and b->itv may be different */
 static inline bool t1p_aff_is_eq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b)
@@ -1455,20 +1607,20 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
 //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_beta.txt", "a+");
-    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_time.txt", "a+");
-    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_distance.txt", "a+");
-    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_survivors.txt", "a+");
-    double perturbation = 0;
-    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
-    fprintf(streamB,"\t%f",perturbation);
-    fprintf(streamT,"\t%f",time);
-    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
-    fprintf(streamS,"\t%lu",res->l-1);
-    fclose(streamB);
-    fclose(streamT);
-    fclose(streamD);
-    fclose(streamS);
+    /* FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_time.txt", "a+"); */
+    /* FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_survivors.txt", "a+"); */
+    /* double perturbation = 0; */
+    /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
+    /* fprintf(streamB,"\t%f",perturbation); */
+    /* fprintf(streamT,"\t%f",time); */
+    /* fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2); */
+    /* fprintf(streamS,"\t%lu",res->l-1); */
+    /* fclose(streamB); */
+    /* fclose(streamT); */
+    /* fclose(streamD); */
+    /* fclose(streamS); */
     return res;
 }
 
@@ -1738,21 +1890,21 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
     //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_beta.txt", "a+");
-    FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_time.txt", "a+");
-    FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_distance.txt", "a+");
-    FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_survivors.txt", "a+");
-    double perturbation = 0;
-    double_set_num(&perturbation,bound_numref(res->end->coeff->sup));
-    fprintf(streamB,"\t%f",perturbation);
-    fprintf(streamT,"\t%f",time);
-    fprintf(stdout,"total: %f\n",time);
-    fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2);
-    fprintf(streamS,"\t%zu",res->l-1);
-    fclose(streamB);
-    fclose(streamT);
-    fclose(streamD);
-    fclose(streamS);
+    /* FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_time.txt", "a+"); */
+    /* FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_survivors.txt", "a+"); */
+    /* double perturbation = 0; */
+    /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
+    /* fprintf(streamB,"\t%f",perturbation); */
+    /* fprintf(streamT,"\t%f",time); */
+    /* fprintf(stdout,"total: %f\n",time); */
+    /* fprintf(streamD,"\t%f",(d2exp1+d2exp2)/2); */
+    /* fprintf(streamS,"\t%zu",res->l-1); */
+    /* fclose(streamB); */
+    /* fclose(streamT); */
+    /* fclose(streamD); */
+    /* fclose(streamS); */
 
     return res;
 }
@@ -3013,11 +3165,11 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp
 	itv_sub(tmp,dev,tmp2);
 	t1p_aff_nsym_create(pr, res, tmp, UN);
 
-	FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaUB", "a+");
-	fprintf(stream,"********************************************\n");
-	itv_fprint(stream,tmp);fprintf(stream,"\n");
-	fprintf(stream,"********************************************\n");
-	fclose(stream);
+	/* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaUB", "a+"); */
+	/* fprintf(stream,"********************************************\n"); */
+	/* itv_fprint(stream,tmp);fprintf(stream,"\n"); */
+	/* fprintf(stream,"********************************************\n"); */
+	/* fclose(stream); */
 	//}
     } else {
 	t1p_aff_add_itv(pr, res, res->itv, UN);
@@ -3412,11 +3564,11 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 	    itv_mul_2exp(d, d, -1);
 	    itv_set_num(tmp,bound_numref(d->sup));
 	    t1p_aff_nsym_create(pr, res, d, UN);
-	    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaMUB", "a+");
-	    fprintf(stream,"********************************************\n");
-	    itv_fprint(stream,d);fprintf(stream,"\n");
-	    fprintf(stream,"********************************************\n");
-	    fclose(stream);
+	    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaMUB", "a+"); */
+	    /* fprintf(stream,"********************************************\n"); */
+	    /* itv_fprint(stream,d);fprintf(stream,"\n"); */
+	    /* fprintf(stream,"********************************************\n"); */
+	    /* fclose(stream); */
 	}
 	free(T);
 	for (i=0;i<size;i++) ap_interval_free(tinterval[i]);
