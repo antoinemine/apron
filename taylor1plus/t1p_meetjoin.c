@@ -487,8 +487,8 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
-    fprintf(stream,"** %zu **\n", pr->dim);
+    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+"); */
+    /* fprintf(stream,"** %zu **\n", pr->dim); */
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -652,11 +652,11 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 #ifdef _T1P_DEBUG
     fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     t1p_fprint(stdout, man, res, NULL);
-    for (i=0; i<intdim+realdim;i++)
-      {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
-    fprintf(stream,"** %zu **\n", pr->dim);
-    fprintf(stream, "### ### ###\n");
-    fclose(stream);
+    /* for (i=0; i<intdim+realdim;i++) */
+    /*   {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");} */
+    /* fprintf(stream,"** %zu **\n", pr->dim); */
+    /* fprintf(stream, "### ### ###\n"); */
+    /* fclose(stream); */
 #endif
 
     return res;
@@ -675,8 +675,8 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     //t1p_fprint(stdout, man, a2, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
-    fprintf(stream,"** %zu **\n", pr->dim);
+    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+"); */
+    /* fprintf(stream,"** %zu **\n", pr->dim); */
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -827,33 +827,33 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	itv_clear(un);
 	itv_clear(tmp1);
 
-    FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
-	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
-	for (i=0;i<pr->dim;i++) {
-	    if (res->g[i+1]) {
-	    fprintf(poly,"[0,");
-		for (k=0;k<3;k++) {
-		    if (res->g[i+1][k] == NULL) {fprintf(poly,"0");}
-		    else if (itv_is_zero(res->g[i+1][k])) {fprintf(poly,"0");}
-		    else {bound_fprint(poly,res->g[i+1][k]->sup);}
-		    if (k<2) fprintf(poly,",");
-		}
-	    fprintf(poly,"],");
-	    }
-	}
-	fprintf(poly,"]));\n");
-	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it);
-	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it);
-	    for (k=0;k<3;k++) {
-		if (res->g[0][k] == NULL) {fprintf(poly,"0");}
-		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");}
-		else {bound_fprint(poly,res->g[0][k]->sup);}
-		if (k<2) fprintf(poly,",");
-	    }
-	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n");
-	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it);
+    /* FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a"); */
+    /* 	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it); */
+	/* for (i=0;i<pr->dim;i++) { */
+	/*     if (res->g[i+1]) { */
+	/*     fprintf(poly,"[0,"); */
+	/* 	for (k=0;k<3;k++) { */
+	/* 	    if (res->g[i+1][k] == NULL) {fprintf(poly,"0");} */
+	/* 	    else if (itv_is_zero(res->g[i+1][k])) {fprintf(poly,"0");} */
+	/* 	    else {bound_fprint(poly,res->g[i+1][k]->sup);} */
+	/* 	    if (k<2) fprintf(poly,","); */
+	/* 	} */
+	/*     fprintf(poly,"],"); */
+	/*     } */
+	/* } */
+	/* fprintf(poly,"]));\n"); */
+    /* 	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it); */
+    /* 	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it); */
+    /* 	    for (k=0;k<3;k++) { */
+    /* 		if (res->g[0][k] == NULL) {fprintf(poly,"0");} */
+    /* 		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");} */
+    /* 		else {bound_fprint(poly,res->g[0][k]->sup);} */
+    /* 		if (k<2) fprintf(poly,","); */
+    /* 	    } */
+    /* 	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n"); */
+    /* 	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it); */
 
-    fclose(poly);
+    /* fclose(poly); */
     pr->it++;
 
 	} else {
@@ -941,11 +941,11 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 #ifdef _T1P_DEBUG
     fprintf(stdout, "### RESULT of JOIN (des %d) [%tx] ###\n",destructive, (intptr_t)res);
     //t1p_fprint(stdout, man, res, NULL);
-    for (i=0; i<intdim+realdim;i++)
-      {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");}
-    fprintf(stream,"** %zu **\n", pr->dim);
-    fprintf(stream, "### ### ###\n");
-    fclose(stream);
+    /* for (i=0; i<intdim+realdim;i++) */
+    /*   {fprintf(stream,"%zu :",i);itv_fprint(stream,res->box[i]); fprintf(stream,"\n");} */
+    /* fprintf(stream,"** %zu **\n", pr->dim); */
+    /* fprintf(stream, "### ### ###\n"); */
+    /* fclose(stream); */
 #endif
 
     return res;
@@ -966,7 +966,7 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     fprintf(stdout, "### ### ###\n");
     //fprintf(stream,"** %d **\n", pr->dim);
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+"); */
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -1150,9 +1150,9 @@ t1p_t* t1p_join_bub(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     fprintf(stream,"** %d **\n", pr->dim);
     fprintf(stream, "### ### ###\n");
     */
-    fprintf(stream,"-");num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%zu\n",pr->dim);
+    //fprintf(stream,"-");num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%zu\n",pr->dim);
     //t1p_fprint(stream,man,res,0);
-    fclose(stream);
+    //fclose(stream);
 #endif
 
     return res;
@@ -1174,7 +1174,7 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
     fprintf(stdout, "### ### ###\n");
     //fprintf(stream,"** %d **\n", pr->dim);
 #endif
-    FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+");
+    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/log", "a+"); */
     t1p_t* res;
     size_t intdim = a1->intdim;
     size_t realdim = a1->dims - a1->intdim;
@@ -1339,33 +1339,33 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 	}
 	itv_clear(un);
 
-    FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a");
-	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it);
-	for (i=0;i<pr->dim;i++) {
-	    if (res->g[i+1]) {
-	    fprintf(poly,"[0,");
-		for (k=0;k<3;k++) {
-		    if (res->g[i+1][k] == NULL) {fprintf(poly,"0");}
-		    else if (itv_is_zero(res->g[i+1][k])) {fprintf(poly,"0");}
-		    else {bound_fprint(poly,res->g[i+1][k]->sup);}
-		    if (k<2) fprintf(poly,",");
-		}
-	    fprintf(poly,"],");
-	    }
-	}
-	fprintf(poly,"]));\n");
-	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it);
-	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it);
-	    for (k=0;k<3;k++) {
-		if (res->g[0][k] == NULL) {fprintf(poly,"0");}
-		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");}
-		else {bound_fprint(poly,res->g[0][k]->sup);}
-		if (k<2) fprintf(poly,",");
-	    }
-	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n");
-	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it);
+    /* FILE* poly = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/draw.poly", "a"); */
+    /* 	fprintf(poly,"$z%zu=zonotope(new Matrix<Rational>([",pr->it); */
+    /* 	for (i=0;i<pr->dim;i++) { */
+    /* 	    if (res->g[i+1]) { */
+    /* 	    fprintf(poly,"[0,"); */
+    /* 		for (k=0;k<3;k++) { */
+    /* 		    if (res->g[i+1][k] == NULL) {fprintf(poly,"0");} */
+    /* 		    else if (itv_is_zero(res->g[i+1][k])) {fprintf(poly,"0");} */
+    /* 		    else {bound_fprint(poly,res->g[i+1][k]->sup);} */
+    /* 		    if (k<2) fprintf(poly,","); */
+    /* 		} */
+    /* 	    fprintf(poly,"],"); */
+    /* 	    } */
+    /* 	} */
+    /* 	fprintf(poly,"]));\n"); */
+    /* 	fprintf(poly,"$p%zu=new Polytope<Rational>(POINTS=>$z%zu);\n",pr->it,pr->it); */
+    /* 	fprintf(poly,"$pp%zu=transform($p%zu,new Matrix<Rational>([[1,",pr->it,pr->it); */
+    /* 	    for (k=0;k<3;k++) { */
+    /* 		if (res->g[0][k] == NULL) {fprintf(poly,"0");} */
+    /* 		else if (itv_is_zero(res->g[0][k])) {fprintf(poly,"0");} */
+    /* 		else {bound_fprint(poly,res->g[0][k]->sup);} */
+    /* 		if (k<2) fprintf(poly,","); */
+    /* 	    } */
+    /* 	fprintf(poly,"],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));\n"); */
+    /* 	fprintf(poly,"javaview($pp%zu->VISUAL,File=>\"pp%zu\");\n",pr->it,pr->it); */
 
-    fclose(poly);
+    /* fclose(poly); */
 
 	} else {
 	    size_t k = 0;
@@ -1460,10 +1460,10 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
     double inf, sup;
     double_set_num(&inf, bound_numref(res->box[0]->inf));
     double_set_num(&sup, bound_numref(res->box[0]->sup));
-    fprintf(stream,"-%f \t %f \t %zu\n",inf, sup, pr->dim);
+    //fprintf(stream,"-%f \t %f \t %zu\n",inf, sup, pr->dim);
     //num_fprint(stream,bound_numref(res->box[0]->inf));fprintf(stream,"\t");num_fprint(stream,bound_numref(res->box[0]->sup));fprintf(stream,"\t%d\n",pr->dim);
     //t1p_fprint(stream,man,res,0);
-    fclose(stream);
+    //fclose(stream);
 
 #endif
 
