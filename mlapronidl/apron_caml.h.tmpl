@@ -345,6 +345,14 @@ extern void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void
 /* abstract0 and num_internal */
 /* ********************************************************************** */
 
+#define I0_PCALL_2(fname,p1,p2) Begin_roots2(_v_##p1 , _v_##p2 ); ap_abstract0_##fname(p1,p2); End_roots();
+#define I0_PCALL_3(fname,p1,p2,p3) Begin_roots3(_v_##p1 , _v_##p2 , _v_##p3 ); ap_abstract0_##fname(p1,p2,p3); End_roots();
+#define I0_PCALL_4(fname,p1,p2,p3,p4) Begin_roots4(_v_##p1 , _v_##p2 , _v_##p3 , _v_##p4 ); ap_abstract0_##fname(p1,p2,p3,p4); End_roots();
+
+#define I0_FCALL_2(fname,p1,p2) Begin_roots2(_v_##p1 , _v_##p2 ); _res = ap_abstract0_##fname(p1,p2); End_roots();
+#define I0_FCALL_3(fname,p1,p2,p3) Begin_roots3(_v_##p1 , _v_##p2 , _v_##p3 ); _res = ap_abstract0_##fname(p1,p2,p3); End_roots();
+#define I0_FCALL_4(fname,p1,p2,p3,p4) Begin_roots4(_v_##p1 , _v_##p2 , _v_##p3 , _v_##p4 ); _res = ap_abstract0_##fname(p1,p2,p3,p4); End_roots();
+
 #define I0_CHECK_EXC(man) if (man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(man,_ctx);
 
 extern struct custom_operations camlidl_apron_custom_abstract0_ptr;
