@@ -75,24 +75,24 @@ let c2ml_function_of_kind k =
     | Ap_manager_ptr -> "camlidl_apron_manager_ptr_c2ml"
     | Wrapper_ptr -> assert false
     | Wrapper_array_t _ -> assert false
-    | Optional_wrapper_ptr -> assert false 
+    | Optional_wrapper_ptr -> assert false
     | Ap_dim_t -> "camlidl_c2ml_dim_ap_dim_t"
     | Ap_dimension_t -> "camlidl_c2ml_dim_struct_ap_dimension_t"
     | Ap_dimchange_t -> "camlidl_apron_dimchange_c2ml"
     | Ap_dimperm_t -> "camlidl_apron_dimperm_c2ml"
-    | Ap_coeff_t -> "camlidl_coeff_ptr_c2ml"
-    | Ap_lingen0_t -> "camlidl_lingen0_ptr_c2ml"
-    | Ap_lingen0_array_t -> "camlidl_lingen0_array_ptr_c2ml"
-    | Ap_linexpr0_t -> "camlidl_linexpr0_ptr_c2ml"
-    | Ap_linexpr0_array_t -> "camlidl_linexpr0_array_ptr_c2ml"
-    | Ap_lincons0_t -> "camlidl_lincons0_ptr_c2ml"
-    | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_c2ml"
-    | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_c2ml"
-    | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_c2ml"
-    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_c2ml"
-    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_c2ml"
+    | Ap_coeff_t -> "camlidl_coeff_ptr_c2ml_nonfinal"
+    | Ap_lingen0_t -> "camlidl_lingen0_ptr_c2ml_nonfinal"
+    | Ap_lingen0_array_t -> "camlidl_lingen0_array_ptr_c2ml_nonfinal"
+    | Ap_linexpr0_t -> "camlidl_linexpr0_ptr_c2ml_nonfinal"
+    | Ap_linexpr0_array_t -> "camlidl_linexpr0_array_ptr_c2ml_nonfinal"
+    | Ap_lincons0_t -> "camlidl_lincons0_ptr_c2ml_nonfinal"
+    | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_c2ml_nonfinal"
+    | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_c2ml_nonfinal"
+    | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_c2ml_nonfinal"
+    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_c2ml_nonfinal"
+    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_c2ml_nonfinal"
     | Bool -> "Val_bool"
-    | Int | Size_t -> "Val_bool"
+    | Int | Size_t -> "Val_int"
 
 let ml2c_function_of_kind k =
   match k with
@@ -102,6 +102,12 @@ let ml2c_function_of_kind k =
     | Optional_wrapper_ptr -> assert false
     | Ap_dim_t -> "camlidl_ml2c_dim_ap_dim_t"
     | Ap_dimension_t -> "camlidl_ml2c_dim_struct_ap_dimension_t"
+    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_ml2c"
+    | Bool -> "Bool_val"
+    | Int -> "Int_val"
+    | Size_t -> "(size_t) Int_val"
+    | _ -> failwith ""
+(*
     | Ap_dimchange_t -> "camlidl_apron_dimchange_ml2c"
     | Ap_dimperm_t -> "camlidl_apron_dimperm_ml2c"
     | Ap_coeff_t -> "camlidl_coeff_ptr_ml2c"
@@ -113,12 +119,9 @@ let ml2c_function_of_kind k =
     | Ap_lincons0_array_t -> "camlidl_lincons0_array_ptr_ml2c"
     | Ap_texpr0_ptr -> "camlidl_apron_texpr0_ptr_ml2c"
     | Ap_texpr0_array_ptr -> "camlidl_apron_texpr0_array_t_ml2c"
-    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_ml2c" 
-    | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "camlidl_apron_tcons0_array_t_ml2c"
-    | Bool -> "Bool_val"
-    | Int -> "Int_val"
-    | Size_t -> "(size_t) Int_val"
-
+    | Ap_tcons0_t | Ap_tcons0_ptr -> "camlidl_apron_tcons0_t_ml2c"
+*)
+(*
 let nonfinalize_of_kind k =
   match k with
     | Ap_coeff_t -> "ap_coeff_ptr_nonfinalize"
@@ -133,6 +136,7 @@ let nonfinalize_of_kind k =
     | Ap_tcons0_t | Ap_tcons0_ptr -> "ap_tcons0_t_nonfinalize"
     | Ap_tcons0_array_t | Ap_tcons0_array_ptr -> "ap_tcons0_array_t_nonfinalize"
     | _ -> assert false
+*)
 
 let print_signature fmt f =
   let build_argument n (k, name) =
@@ -195,7 +199,7 @@ let print_local_declaration fmt f =
     Format.fprintf fmt "  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };@.";
     Format.fprintf fmt "  camlidl_ctx _ctx = &_ctxs;@."
   end
-    
+
 let print_closure_definition fmt f =
   Format.fprintf fmt "  static value *closure_%s = NULL;@." f.name;
   Format.fprintf fmt "  if (closure_%s == NULL) {@." f.name;
@@ -226,15 +230,24 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "  }@."
       | Ap_dim_t | Ap_dimension_t ->
 	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name
-      | Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t 
-      | Ap_lincons0_array_t | Ap_lingen0_t | Ap_lingen0_array_t | Ap_texpr0_ptr 
+      | Ap_coeff_t
+      | Ap_linexpr0_t | Ap_linexpr0_array_t
+      | Ap_lincons0_t | Ap_lincons0_array_t
+      | Ap_lingen0_t | Ap_lingen0_array_t
+      | Ap_texpr0_ptr-> begin
+	  Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name;
+	end
       | Ap_tcons0_t | Ap_tcons0_array_t -> begin
-	Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name;
-	Format.fprintf fmt "  %s(v_%s);@." (nonfinalize_of_kind k) name
+	  Format.fprintf fmt "  v_%s = %s(&%s);@." name (c2ml_function_of_kind k) name;
+(*
+  Format.fprintf fmt "  %s(v_%s);@." (nonfinalize_of_kind k) name
+*)
       end
       | Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr -> begin
 	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name;
+(*
 	Format.fprintf fmt "  %s(v_%s);@." (nonfinalize_of_kind k) name
+*)
       end
       | Bool | Int | Size_t ->
 	Format.fprintf fmt "  v_%s = %s(%s);@." name (c2ml_function_of_kind k) name
@@ -252,17 +265,24 @@ let print_result_conversion fmt f =
 	  Format.fprintf fmt "  res = %s(v_res);@." (ml2c_function_of_kind k)
 	| Ap_dim_t | Ap_dimension_t ->
 	  Format.fprintf fmt "  %s(v_res, &res, _ctx);@." (ml2c_function_of_kind k)
-	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t 
-	| Ap_lincons0_array_t | Ap_lingen0_t | Ap_lingen0_array_t | Ap_texpr0_ptr 
-	| Ap_tcons0_t | Ap_tcons0_array_t -> begin
+	| Ap_coeff_t | Ap_linexpr0_t | Ap_linexpr0_array_t | Ap_lincons0_t
+	| Ap_lincons0_array_t | Ap_lingen0_t | Ap_lingen0_array_t | Ap_texpr0_ptr
+	| Ap_tcons0_t -> failwith ""
+	| Ap_tcons0_array_t -> begin
+(*
 	  Format.fprintf fmt "  %s(v_res);@." (nonfinalize_of_kind k);
+*)
 	  Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k)
 	end
-	| Ap_texpr0_array_ptr | Ap_tcons0_ptr | Ap_tcons0_array_ptr -> begin
+	| Ap_texpr0_array_ptr | Ap_tcons0_ptr ->
+	    failwith ""
+	| Ap_tcons0_array_ptr -> begin
+(*
 	  Format.fprintf fmt "  %s(v_res);@." (nonfinalize_of_kind k);
+*)
 	  Format.fprintf fmt "  %s(v_res, res);@."(ml2c_function_of_kind k)
 	end
-	| _ -> 
+	| _ ->
 	  Format.fprintf fmt "  %s(v_res, &res);@." (ml2c_function_of_kind k)
 
 let print_callback fmt f =
@@ -319,7 +339,7 @@ let print_callback fmt f =
 
 let print_return fmt f =
   if List.exists (fun (k, _) -> match k with Ap_dim_t | Ap_dimension_t -> true | _ -> false) f.args ||
-    (match f.ret with Value Ap_dim_t | Value Ap_dimension_t -> true | _ -> false) then 
+    (match f.ret with Value Ap_dim_t | Value Ap_dimension_t -> true | _ -> false) then
     Format.fprintf fmt "  camlidl_free(_ctx);@.";
   match f.ret with
     | Void -> Format.fprintf fmt "  CAMLreturn0;@."
