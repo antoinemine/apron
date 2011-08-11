@@ -248,7 +248,7 @@ let print_argument_conversion fmt f =
 	Format.fprintf fmt "  }@."
       | Ap_dim_t | Ap_dimension_t ->
 	Format.fprintf fmt "  v_%s = %s(&%s, _ctx);@." name (c2ml_function_of_kind k) name
-      | Ap_dimchange_t | Ap_dimperm_t 
+      | Ap_dimchange_t | Ap_dimperm_t
       | Ap_coeff_t
       | Ap_linexpr0_t | Ap_linexpr0_array_t
       | Ap_lincons0_t | Ap_lincons0_array_t
@@ -340,7 +340,8 @@ let print_callback fmt f =
       Format.fprintf fmt "caml_callbackN(*closure_%s, %d, arg_tab@?" closure_name n;
     Format.fprintf fmt ")@?"
   in
-  match f.destructive_variant with
+  if true then Format.fprintf fmt "  caml_gc_full_major(Val_unit);@.";
+  begin match f.destructive_variant with
     | None ->
       Format.fprintf fmt "%a@?" print_callback_preamble ();
       Format.fprintf fmt "  %a%a;@." print_assignement_return_value () print_callback_function f.name;
@@ -359,9 +360,12 @@ let print_callback fmt f =
       Format.fprintf fmt "    %a%a;@." print_assignement_return_value () print_callback_function f.name;
       Format.fprintf fmt "  %a@?" print_result_conversion f;
       Format.fprintf fmt "  }@."
+  end;
+  if true then Format.fprintf fmt "  caml_gc_full_major(Val_unit);@.";
+  ()
 
 let print_return fmt f =
-  if List.exists (fun (k, _) -> match k with Ap_dim_t | Ap_dimension_t -> true | _ -> false) f.args ||
+  if List.exists (fun (k, _) -> match k with Ap_dim_t | Ap_dim_array_t _ | Ap_dimension_t -> true | _ -> false) f.args ||
     (match f.ret with Value Ap_dim_t | Value Ap_dimension_t -> true | _ -> false) then
     Format.fprintf fmt "  camlidl_free(_ctx);@.";
   match f.ret with

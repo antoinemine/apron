@@ -61,7 +61,7 @@ int nb_meetjoin_array = 4;
 unsigned int nb_assign_array = 4;
 unsigned int nb_substitute_array = 4;
 
-#define N 10
+#define N 3
 
 char b1_[N+4]= " [";
 char b2_[N+4];
@@ -1709,8 +1709,9 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
-    test_conv();
+    //    test_conv();
     test_bound_dimension();
+    /*
     test_bound_linexpr();
     test_bound_texpr();
     test_sat_interval();
@@ -1741,6 +1742,7 @@ void test(ap_manager_t* man1, /* the most precise */
     test_permute_dimensions();
     test_expand();
     test_fold();
+    */
   }
   if (error_){
     printf("\n%i error(s)!\n",error_);
@@ -1785,7 +1787,7 @@ int main(int argc, char** argv)
   global_intdim = false;
   global_linexpr_typ = AP_LINEXPR_LINEAR;
   random_abstract = &random_abstract_std;
-  for (i=1; i<2; i++){
+  for (i=0; i<2; i++){
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manwrapper,manbox);

@@ -296,11 +296,13 @@ void camlidl_custom_TTTXXX_finalize(value val)
   TTTXXX_clear(a);
   mlapronidl_free(a);
 }
+/*
 void camlidl_custom_TTTXXX_finalize_nonfinal(value val)
 {
   TTTXXX_ptr a = mlapronidl_ptr_of_value(TTTXXX,val);
   mlapronidl_free(a);
 }
+*/
 int camlidl_custom_TTTXXX_compare(value val1, value val2)
 {
   int res;
@@ -372,7 +374,7 @@ struct custom_operations camlidl_custom_TTTXXX = {
 };
 struct custom_operations camlidl_custom_TTTXXX_nonfinal = {
   "ap_TTTXXX",
-  &camlidl_custom_TTTXXX_finalize_nonfinal,
+  custom_finalize_default,
   &camlidl_custom_TTTXXX_compare,
   &camlidl_custom_TTTXXX_hash,
   &camlidl_custom_TTTXXX_serialize,
@@ -422,11 +424,13 @@ void camlidl_custom_TTTXXX_array_finalize(value val)
   TTTXXX_array_clear(a);
   mlapronidl_free(a);
 }
+/*
 void camlidl_custom_TTTXXX_array_finalize_nonfinal(value val)
 {
   TTTXXX_array_ptr a = mlapronidl_ptr_of_value(TTTXXX_array,val);
   mlapronidl_free(a);
 }
+*/
 int camlidl_custom_TTTXXX_array_compare(value val1, value val2)
 {
   int res;
@@ -498,7 +502,7 @@ struct custom_operations camlidl_custom_TTTXXX_array = {
 };
 struct custom_operations camlidl_custom_TTTXXX_array_nonfinal = {
   "ap_TTTXXX_array",
-  &camlidl_custom_TTTXXX_array_finalize_nonfinal,
+  custom_finalize_default,
   &camlidl_custom_TTTXXX_array_compare,
   &camlidl_custom_TTTXXX_array_hash,
   &camlidl_custom_TTTXXX_array_serialize,

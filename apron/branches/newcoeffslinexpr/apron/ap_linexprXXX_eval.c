@@ -88,14 +88,16 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
 
   bool exact = true;
   size_t i,j,k;
-  ap_linexprXXX_t expr;
+  ap_linexprXXX_struct expr_struct;
+  ap_linexprXXX_ptr expr;
   bool endA,endB;
 
   if (res==exprA || res==exprB){
+    expr = &expr_struct;
     ap_linexprXXX_init(expr,exprA->effsize+exprB->effsize);
   }
   else {
-    *expr = *res;
+    expr = res;
     ap_linexprXXX_resize(expr,exprA->effsize+exprB->effsize);
   }
   i = j = k = 0;
@@ -131,10 +133,11 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
   expr->effsize = k;
   if (k<expr->maxsize+4)
     ap_linexprXXX_resize_strict(expr,k);
+
   if (res==exprA || res==exprB){
     ap_linexprXXX_clear(res);
+    *res = expr_struct;
   }
-  *res = *expr;
   return exact;
 }
 bool ap_linexprXXX_sub(ap_linexprXXX_t res,

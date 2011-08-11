@@ -8,6 +8,8 @@
 #include "apron_caml.h"
 #include "ml2c_wrapper.h"
 
+value caml_gc_full_major(value);
+
 /*
 static void ap_coeff_ptr_nonfinalize(value v)
 {
