@@ -94,10 +94,10 @@ val substitute_texpr_array :
 val add_dimensions :
   'a Apron.Manager.t ->
   'a Apron.Abstract0.t ->
-  Apron.Dim.change option -> bool -> 'a Apron.Abstract0.t
+  Apron.Dim.change -> bool -> 'a Apron.Abstract0.t
 val remove_dimensions :
   'a Apron.Manager.t ->
-  'a Apron.Abstract0.t -> Apron.Dim.change option -> 'a Apron.Abstract0.t
+  'a Apron.Abstract0.t -> Apron.Dim.change -> 'a Apron.Abstract0.t
 val permute_dimensions :
   'a Apron.Manager.t ->
   'a Apron.Abstract0.t -> Apron.Dim.perm -> 'a Apron.Abstract0.t
@@ -115,5 +115,5 @@ val widening :
   'a Apron.Abstract0.t -> 'a Apron.Abstract0.t -> 'a Apron.Abstract0.t
 val closure :
   'a Apron.Manager.t -> 'a Apron.Abstract0.t -> 'a Apron.Abstract0.t
-val manager_alloc : unit -> 
+val manager_alloc : unit ->
   (Apron.Polka.loose, Apron.Polka.numMPQ) Apron.Polka.t Apron.Manager.t

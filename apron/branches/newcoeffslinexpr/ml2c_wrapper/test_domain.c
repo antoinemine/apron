@@ -57,7 +57,7 @@ bool random_abstract2_equal = 1;
 /* Indicates whether the last call to random_abstract2 guarantees that the two
    abstract values are semantically equal */
 
-int nb_meetjoin_array = 1;
+int nb_meetjoin_array = 4;
 unsigned int nb_assign_array = 4;
 unsigned int nb_substitute_array = 4;
 
@@ -1709,7 +1709,6 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
-    /*
     test_conv();
     test_bound_dimension();
     test_bound_linexpr();
@@ -1719,20 +1718,18 @@ void test(ap_manager_t* man1, /* the most precise */
     test_sat_tcons();
     test_to_box();
     test_meet();
-    */
     test_meet_array();
     test_meet_lincons_array();
     test_meet_tcons_array();
     test_join();
-    //    test_join_array();
+    test_join_array();
     test_add_ray();
 
-    /*
     test_assign_linexpr();
     test_assign_linexpr_array();
     test_substitute_linexpr();
     test_substitute_linexpr_array();
-    */
+
     test_assign_texpr();
     test_assign_texpr_array();
     test_substitute_texpr();
@@ -1788,15 +1785,15 @@ int main(int argc, char** argv)
   global_intdim = false;
   global_linexpr_typ = AP_LINEXPR_LINEAR;
   random_abstract = &random_abstract_std;
-  for (i=0; i<2; i++){
+  for (i=1; i<2; i++){
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manwrapper,manbox);
-
     // Oct/Box and Oct/Poly
+    /*
     random_abstract = &random_abstract_std;
     test(manwrapper,manbox);
-
+    */
   }
 
 

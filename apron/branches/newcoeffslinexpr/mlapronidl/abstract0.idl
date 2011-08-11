@@ -453,11 +453,11 @@ quote(MLMLI,"(* ============================================================ *)"
 
 quote(MLMLI,"\n")
 
-ap_abstract0_ptr ap_abstract0_add_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange, boolean project)
+ap_abstract0_ptr ap_abstract0_add_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange_t* dimchange, boolean project)
      quote(call,"_res = ap_abstract0_add_dimensions(man,false,a,dimchange, project);")
      quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
-ap_abstract0_ptr ap_abstract0_remove_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange)
+ap_abstract0_ptr ap_abstract0_remove_dimensions(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange_t* dimchange)
      quote(call,"_res = ap_abstract0_remove_dimensions(man,false,a,dimchange);")
      quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
@@ -470,14 +470,14 @@ ap_abstract0_ptr ap_abstract0_permute_dimensions(ap_manager_ptr man, ap_abstract
      quote(dealloc,"ap_dimperm_clear(perm); I0_CHECK_EXC(man)");
 
 quote(MLI,"\n(** {5 Side-effect versions of the previous functions} *)\n\n")
-void ap_abstract0_add_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange, boolean v1)
+void ap_abstract0_add_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange_t* dimchange, boolean v1)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_add_dimensions(man,true,a,dimchange,v1);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
      quote(dealloc,"ap_dimchange_clear(dimchange); I0_CHECK_EXC(man)");
 
-void ap_abstract0_remove_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, ap_dimchange_t* dimchange)
+void ap_abstract0_remove_dimensions_with(ap_manager_ptr man, ap_abstract0_ptr a, [ref]ap_dimchange_t* dimchange)
      quote(call,"{\n\
   ap_abstract0_t* res = ap_abstract0_remove_dimensions(man,true,a,dimchange);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
