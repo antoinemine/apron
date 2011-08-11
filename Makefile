@@ -1,8 +1,15 @@
 include Makefile.config
 
-CCLIB_TO_INSTALL = libapron.a libapron.d.a libapron.p.a 
+CCLIB_TO_INSTALL_s = libapron.a
+ifneq ($(APRON_DEBUG),)
+CCLIB_TO_INSTALL_s += libapron.d.a
+endif
+ifneq ($(APRON_PROF),)
+CCLIB_TO_INSTALL_s += libapron.p.a
+endif
+CCLIB_TO_INSTALL = $(CCLIB_TO_INSTALL_s)
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += libapron.so libapron.d.so libapron.p.so
+CCLIB_TO_INSTALL += $(CCLIB_TO_INSTALL_s:%.a=%.so)
 endif
 
 LCFLAGS = \

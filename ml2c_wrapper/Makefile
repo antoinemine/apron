@@ -41,7 +41,7 @@ LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 
 LDFLAGS_DEBUG = -L$(APRON_PREFIX)/lib/apron -L.. -L../mlapronidl \
 	-L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L$(SITE-LIB-gmp) \
-	-lapron_caml.callback.d -lapron.d -lgmp_caml.callback -lcamlidl -lunix -lbigarray -lcamlstr -lasmrun -lgmp -lmpfr
+	-lapron_caml.callback.d -lapron.d -lgmp_caml.callback -lcamlidl -lunix -lbigarray -lcamlstr -lasmrund -lgmp -lmpfr
 
 #---------------------------------------
 # Files
@@ -79,16 +79,23 @@ ml2c_wrapper.c: ml2c_wrapper_preamble.c ml2c_wrapper_postamble.c ml2c_wrapper.h 
 	-postamble-c ml2c_wrapper_postamble.c \
 	-output-c $@
 
-libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
-	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^ 
+libml2c_wrapper.a: caml_abstract_domain_obj.o ml2c_wrapper.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+libml2c_wrapper.d.a: caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
 
-libml2c_wrapper.d: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
+#libml2c_wrapper: caml_abstract_domain.cmx caml_abstract_domain_obj.o ml2c_wrapper.o
+	ocamlmklib -verbose $(LDFLAGS) -o ml2c_wrapper $^
+ 
+#libml2c_wrapper.d: caml_abstract_domain.d.cmx caml_abstract_domain_obj.d.o ml2c_wrapper.d.o
 	ocamlmklib -ccopt "-g" -cclib "-g" -verbose $(LDFLAGS_DEBUG) -o ml2c_wrapper.d $^ 
 
 test: libml2c_wrapper.d test.d.o
 	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test.d.o
 
-test_domain: libml2c_wrapper.d test_domain.d.o
+test_domain: libml2c_wrapper.d.a test_domain.d.o
 	$(CC) $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG) -L. -lml2c_wrapper.d -o $@ test_domain.d.o
 
 #test: caml_abstract_domain_obj.d.o ml2c_wrapper.d.o test.d.o

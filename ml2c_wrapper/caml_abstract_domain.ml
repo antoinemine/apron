@@ -7,7 +7,7 @@ let canonicalize = Abstract0.canonicalize
 let hash = Abstract0.hash
 let approximate = Abstract0.approximate
 let fdump = Abstract0.fdump
-let print = Abstract0.print 
+let print = Abstract0.print
 let bottom = Abstract0.bottom
 let top = Abstract0.top
 let of_box = Abstract0.of_box
@@ -24,7 +24,7 @@ let bound_dimension = Abstract0.bound_dimension
 let bound_linexpr = Abstract0.bound_linexpr
 let bound_texpr = Abstract0.bound_texpr
 let to_box = Abstract0.to_box
-let to_lincons_array man cons a = 
+let to_lincons_array man cons a =
   Format.printf "before = %a@." (Lincons0.array_print (fun v -> "x_"^(string_of_int v))) cons;
   Abstract0.to_lincons_array man cons a;
   Format.printf "after = %a@." (Lincons0.array_print (fun v -> "x_"^(string_of_int v))) cons
@@ -51,7 +51,7 @@ let widening = Abstract0.widening
 let closure = Abstract0.closure
 let manager_alloc = Polka.manager_alloc_loose_numMPQ
 
-let _ = 
+let _ =
   Format.printf "Registering functions@.";
   Callback.register "copy" copy;
   Callback.register "size" size;
@@ -100,5 +100,6 @@ let _ =
   Callback.register "widening" widening;
   Callback.register "closure" closure;
   Callback.register "manager_alloc" manager_alloc;
-  Format.printf "...done@."
-  
+  Format.printf "...done@.";
+  Gc.set { (Gc.get()) with Gc.verbose=0x2ff };
+  ()

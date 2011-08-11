@@ -8,6 +8,7 @@
 #include "apron_caml.h"
 #include "ml2c_wrapper.h"
 
+/*
 static void ap_coeff_ptr_nonfinalize(value v)
 {
   switch(Tag_val(v)){
@@ -153,7 +154,7 @@ static void ap_tcons0_array_t_nonfinalize(value v)
   for (i = 0; i < size; i++)
     ap_tcons0_t_nonfinalize(Field(v,i));
 }
-
+*/
 static wrapper_t* wrapper_alloc(value v)
 {
   wrapper_t* x = (wrapper_t*) malloc(sizeof(wrapper_t));

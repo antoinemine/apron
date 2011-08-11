@@ -82,12 +82,13 @@ static inline void* ap_malloc(size_t size)
 }
 static inline void* ap_realloc(void* ptr, size_t size)
 {
-  if (size==0){ 
+  if (size==0){
     free(ptr); return NULL;
   } else {
     return realloc(ptr,size);
   }
 }
+
 static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...)
 {
   int count;
@@ -103,6 +104,7 @@ static inline int ap_snprintf(char* restrict s, int n, const char* restrict form
   return count;
 }
 
+/*
 static inline int ap_generic_asprint_of_fprint(
     char** str, void* obj, void (*fprint)(FILE*,void*), size_t size
 )
@@ -127,7 +129,7 @@ static inline int ap_generic_asprint_of_fprint(
   res = pos;
   return res;
 }
-
+*/
 
 #ifdef __cplusplus
 }

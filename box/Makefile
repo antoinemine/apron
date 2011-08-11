@@ -53,7 +53,7 @@ $(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES)))
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
-CCINC_TO_INSTALL = box.h $(TMPL:%=box%.h)
+CCINC_TO_INSTALL = $(TMPL:%=box%.h)
 
 #---------------------------------------
 # Rules

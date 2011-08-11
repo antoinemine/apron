@@ -27,21 +27,21 @@ void wrapper_fdump(FILE* stream, ap_manager_t* man, wrapper_t* a)
   }
   caml_callback2(*closure_fdump, ((wrapper_t*) man->internal)->val, a->val);
 }
- 
-ap_membuf_t wrapper_serialize_raw(ap_manager_t* man, wrapper_t* a) 
+
+ap_membuf_t wrapper_serialize_raw(ap_manager_t* man, wrapper_t* a)
 {
   ap_membuf_t res = { NULL, 0 };
   assert(false);
   return(res);
 }
 
-wrapper_t* wrapper_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size) 
+wrapper_t* wrapper_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 {
   assert(false);
   return(NULL);
 }
 
-static wrapper_t* wrapper_internal_alloc(void) 
+static wrapper_t* wrapper_internal_alloc(void)
 {
   CAMLparam0();
   CAMLlocal1(v_man);
@@ -54,7 +54,7 @@ static wrapper_t* wrapper_internal_alloc(void)
   CAMLreturnT(wrapper_t*, res);
 }
 
-static void wrapper_internal_free(wrapper_t* x) 
+static void wrapper_internal_free(wrapper_t* x)
 {
   if (x != NULL) {
     caml_remove_generational_global_root(&(x->val));
@@ -62,7 +62,7 @@ static void wrapper_internal_free(wrapper_t* x)
   }
 }
 
-static void callback_registering(void) 
+static void callback_registering(void)
 {
   char* arg = '\0';
   caml_startup(&arg);
@@ -77,9 +77,9 @@ ap_manager_t* wrapper_manager_alloc(void)
   callback_registering();
 
   internal = wrapper_internal_alloc();
-  man = ap_manager_alloc("ml2c wrapper manager", 
-			 "1.0", 
-			 internal, 
+  man = ap_manager_alloc("ml2c wrapper manager",
+			 "1.0",
+			 internal,
 			 (void (*)(void*))wrapper_internal_free);
 
   funptr = man->funptr;
@@ -138,7 +138,6 @@ ap_manager_t* wrapper_manager_alloc(void)
   ap_manager_set_abort_if_exception(man, AP_EXC_TIMEOUT, false);
   ap_manager_set_abort_if_exception(man, AP_EXC_OUT_OF_SPACE, false);
   ap_manager_set_abort_if_exception(man, AP_EXC_OVERFLOW, false);
-  
+
   return(man);
 }
-

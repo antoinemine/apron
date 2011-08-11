@@ -312,7 +312,7 @@ val array_length : t array -> int\n\
 
 ap_texpr0_array_t ap_texpr0_array_of_linexpr0_array(ap_linexpr0_array_t e)
 quote(call,"_res = ap_texpr0_array_from_linexpr0_array(e);")
-quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(&_res)");
+quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(&_res);");
 
 quote(MLMLI,"\n(** {3 Operations} *)\n")
 

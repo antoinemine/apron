@@ -31,7 +31,7 @@ ICFLAGS = \
 -I$(MPFR_PREFIX)/include \
 -I$(CAML_LIB) -I$(CAMLIDL_LIB)
 
-LDFLAGS = -L$(APRON_PREFIX)/lib/apron -L.. -L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
+LDFLAGS = -L.. -L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
 
 
 #---------------------------------------
@@ -140,10 +140,14 @@ FILES_TOINSTALL = \
 	META \
 	apron_caml.h \
 	$(IDL_MODULES:%=%.idl) \
-	apron.cmi \
-	$(ML_LIB_ALL) $(C_LIB_ALL) \
-	$(ML_LIB_DEBUG) $(C_LIB_DEBUG) \
-	$(ML_LIB_PROF) $(C_LIB_PROF)
+	apron.cmi $(ML_LIB_ALL) $(C_LIB_ALL)
+ifneq ($(MLAPRONIDL_DEBUG),)
+FILES_TOINSTALL += $(ML_LIB_DEBUG) $(C_LIB_DEBUG)
+endif
+ifneq ($(MLAPRONIDL_PROF),)
+FILES_TOINSTALL += $(ML_LIB_PROF) $(C_LIB_PROF)
+endif
+
 
 #---------------------------------------
 # Rules
