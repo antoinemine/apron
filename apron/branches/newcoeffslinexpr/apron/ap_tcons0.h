@@ -50,7 +50,7 @@ typedef struct ap_tcons0_array_t {
 static inline
 ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr,
 			    ap_constyp_t constyp,
-			    mpq_t mpq);
+			    mpq_ptr mpq);
   /* Create a constraint of given type with the given expression.
      The expression is not duplicated, just pointed to */
 
@@ -193,13 +193,16 @@ ap_tcons0_array_t ap_tcons0_array_permute_dimensions(ap_tcons0_array_t* array,
 /* III. Inline functions definitions */
 /* ********************************************************************** */
 
-static inline ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr, ap_constyp_t constyp, mpq_t mpq)
+static inline ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr, ap_constyp_t constyp, mpq_ptr mpq)
 {
   ap_tcons0_t* cons = (ap_tcons0_t*)malloc(sizeof(ap_tcons0_t));
   cons->texpr0 = texpr;
   cons->constyp = constyp;
   mpq_init(cons->mpq);
-  if (mpq) mpq_set(cons->mpq,mpq);
+  if (mpq)
+    mpq_set(cons->mpq,mpq);
+  else 
+    mpq_set_si(cons->mpq,0,1);
   return cons;
 }
 

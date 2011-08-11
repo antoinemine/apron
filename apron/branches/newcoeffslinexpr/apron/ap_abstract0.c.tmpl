@@ -896,20 +896,20 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr(ap_funid_t funid,
 					    ap_abstract0_t* dest)
 {
   ap_abstract0_t* res;
-  ap_linexpr0_array_struct array;
+  ap_linexpr0_array_struct array0;
   ap_linexprD_array_struct arrayD;
   ap_linexprMPQ_array_struct arrayMPQ;
   ap_linexprMPFR_array_struct arrayMPFR;
 
-  array.discr = expr->discr;
-  MACRO_SWITCH(array.discr) ZZZ {
-    array.linexpr_array.ZZZ = &arrayZZZ;
+  array0.discr = expr->discr;
+  MACRO_SWITCH(array0.discr) ZZZ {
+    array0.linexpr_array.ZZZ = &arrayZZZ;
     arrayZZZ.p = (ap_linexprZZZ_t*)expr->linexpr.ZZZ;
     arrayZZZ.size = 1;
   }
   ENDMACRO;
   return ap_abstract0_asssub_linexpr_array(funid,
-					   man,destructive,a,&dim,&array,dest);
+					   man,destructive,a,&dim,&array0,dest);
 }
 ap_abstract0_t* ap_abstract0_assign_linexpr(ap_manager_t* man,
 					    bool destructive,

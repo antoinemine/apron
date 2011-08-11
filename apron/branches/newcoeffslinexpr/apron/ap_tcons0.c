@@ -23,6 +23,7 @@ void ap_tcons0_fprint(FILE* stream, ap_tcons0_t* cons, char** name_of_dim)
 	     " > 0" :
 	     "\"ERROR in ap_tcons0_fprint\"")));
   if (cons->constyp == AP_CONS_EQMOD){
+    assert(cons->mpq);
     fprintf(stream," mod ");
     mpq_out_str(stream,10,cons->mpq);
   }

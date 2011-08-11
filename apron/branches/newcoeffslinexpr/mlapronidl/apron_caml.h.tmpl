@@ -282,7 +282,8 @@ value camlidl_apron_texpr0_array_t_c2ml(struct ap_texpr0_array_t* array);
 value camlidl_apron_texpr0_array_t_c2ml_nonfinal(struct ap_texpr0_array_t* array);
 
 /* array is supposed to be of type ap_texpr0_array_t* */
-#define AP_TEXPR0_ARRAY_DEALLOC(array) free((array)->p);
+static inline void AP_TEXPR0_ARRAY_DEALLOC(ap_texpr0_array_t* array)
+{ free(array->p); }
 
 /* ********************************************************************** */
 /* tcons0 */
@@ -297,7 +298,8 @@ value camlidl_apron_tcons0_t_c2ml(ap_tcons0_t* p);
 value camlidl_apron_tcons0_t_c2ml_nonfinal(ap_tcons0_t* p);
 
 /* cons is supposed to be of type ap_tcons0_t* */
-#define AP_TCONS0_DEALLOC(cons) free(cons);
+static inline void AP_TCONS0_DEALLOC(ap_tcons0_t* cons)
+{ free(cons); }
 
 void camlidl_apron_tcons0_array_t_ml2c(value v_array, struct ap_tcons0_array_t* array);
 value camlidl_apron_tcons0_array_t_c2ml(struct ap_tcons0_array_t* array);
@@ -305,13 +307,15 @@ void camlidl_apron_tcons0_array_t_ml2c_nonfinal(value v_array, struct ap_tcons0_
 value camlidl_apron_tcons0_array_t_c2ml_nonfinal(struct ap_tcons0_array_t* array);
 
 /* array is suppose to be of type ap_tcons0_array_t* */
-#define AP_TCONS0_ARRAY_DEALLOC(array)                      \
-  do {                                                      \
-    size_t i;                                               \
-    for (i=0;i<(array)->size;i++) free((array)->p[i]);      \
-    free((array)->p);                                       \
-  } while (0)
-
+static inline void AP_TCONS0_ARRAY_DEALLOC(ap_tcons0_array_t* array)
+{
+  size_t i;
+  for (i=0;i<array->size;i++) {
+    AP_TCONS0_DEALLOC(array->p[i]);
+    array->p[i] = NULL;
+  }
+  free(array->p);
+}
 /* ********************************************************************** */
 /* manager */
 /* ********************************************************************** */

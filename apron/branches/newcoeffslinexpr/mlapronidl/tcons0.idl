@@ -11,7 +11,7 @@ import "common.idl";
 import "texpr0.idl";
 import "lincons0.idl";
 
-typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Common.constyp;\n  mpq : Mpq.t\n}"),
+typedef [mltype("{\n  mutable texpr0 : Texpr0.t;\n  mutable typ : Common.constyp;\n  mutable mpq : Mpq.t \n}"),
 	 abstract,
 	 ml2c(camlidl_apron_tcons0_t_ml2c),
 	 c2ml(camlidl_apron_tcons0_t_c2ml)]
@@ -88,14 +88,16 @@ let print assoc fmt cons = \n\
   Texpr0.print assoc fmt cons.texpr0;\n\
   Format.fprintf fmt \" %s 0\" (Common.string_of_constyp cons.typ);\n\
   begin match cons.typ with\n\
-  | Common.EQMOD -> Format.fprintf fmt \" mod %a\" Mpq.print cons.mpq;\n\
+  | Common.EQMOD ->\n\
+      Format.fprintf fmt \" mod %a\" Mpq.print cons.mpq;\n\
   | _ -> ()\n\
   end;\n\
   ()\n\
 let array_print ?first ?sep ?last string_of_dim fmt tab = \n\
   Common.array_print ?first ?sep ?last (print string_of_dim) fmt tab\n\
 let make expr typ ompq = {\n\
-texpr0 = expr; typ = typ; mpq = match ompq with None -> Mpq.init() | Some mpq -> Mpq.init_set mpq \n\
+  texpr0 = expr; typ = typ; \n\
+  mpq = match ompq with None -> Mpq.init_set_si 0 1 | Some mpq -> Mpq.init_set mpq; \n\
 }\n\
 let copy cons = {\n\
 texpr0 = Texpr0.copy cons.texpr0; typ = cons.typ; mpq = Mpq.init_set cons.mpq;\n\

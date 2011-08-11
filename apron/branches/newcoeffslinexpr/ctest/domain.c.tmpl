@@ -1255,7 +1255,7 @@ void test_forget_array(void)
     ap_dimchange_init(&a,dimension);
     random_abstract2(manprec,manrough,dim,&preca,&rougha);
     d = ap_abstract0_dimension(manrough,rougha);
-    
+
     for (i=0;i<dimension.intd+dimension.reald;i++) {
       a.p[i] = rand()%3 + 1;
       if (i) a.p[i] += a.p[i-1];
@@ -1265,7 +1265,7 @@ void test_forget_array(void)
     if (0){
       printf("\n");
       ap_dimchange_fprint(stream,&a);
-      print_abstract("rougha",rougha); print_abstract("preca",preca); 
+      print_abstract("rougha",rougha); print_abstract("preca",preca);
       printf("\n");
     }
     roughr = ap_abstract0_forget_array(manrough,false,rougha,a.p, a.dim.intd+a.dim.reald, proj);
@@ -1274,7 +1274,7 @@ void test_forget_array(void)
     if (!is_leq(precr,roughr)) {
       ERROR("no inclusion (error)");
       ap_dimchange_fprint(stream,&a);
-      print_abstract("rougha",rougha); print_abstract("roughr",roughr); 
+      print_abstract("rougha",rougha); print_abstract("roughr",roughr);
       print_abstract("precaa",preca); print_abstract("precr",precr);
     }
     ap_abstract0_free(manrough,rougha); ap_abstract0_free(manprec,preca);
@@ -1613,4 +1613,3 @@ int main(int argc, char** argv)
   */
   return 0;
 }
-

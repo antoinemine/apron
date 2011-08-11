@@ -487,7 +487,7 @@ void test_linconsXXX(void)
       bool lin = ap_linconsXXX_is_linear(linconsXXX[i]);
       bool quasilin = ap_linconsXXX_is_quasilinear(linconsXXX[i]);
       ap_linexpr_type_t typ = ap_linconsXXX_type(linconsXXX[i]);
-      bool sat = ap_linconsXXX_sat_is_false(linconsXXX[i],intern);
+      bool sat = ap_linconsXXX_is_unsat(linconsXXX[i],intern);
       fprintf(stdout,"\tintdim=4: is_integer=%hhd, is_real=%hhd\n",bi1,br1);
       fprintf(stdout,"\tintdim=5: is_integer=%hhd, is_real=%hhd\n",bi2,br2);
       fprintf(stdout,"\tis_linear=%hhd, is_quasilinear=%hhd, typ=%d\n",lin,quasilin,typ);
@@ -782,18 +782,16 @@ void init_set_tree(void)
     fprintf(stdout,"\n");
   }
 
-  array[0] = ap_tcons0_array_make(1);
-  array[0].p[0] = ap_tcons0_copy(tcons0[LSIZE]);
-  array[1] = ap_tcons0_array_make(3);
+  tconsarray[0] = ap_tcons0_array_make(1);
+  tconsarray[0].p[0] = ap_tcons0_copy(tcons0[LSIZE]);
+  tconsarray[1] = ap_tcons0_array_make(3);
   for (i=0; i<3; i++){
-    array[1].p[i] = ap_tcons0_copy(tcons0[LSIZE+1+i]);
+    tconsarray[1].p[i] = ap_tcons0_copy(tcons0[LSIZE+1+i]);
   }
-  array[2] = ap_tcons0_array_make(TSIZE-LSIZE-1);
+  tconsarray[2] = ap_tcons0_array_make(TSIZE-LSIZE-1);
   for (i=0; i<TSIZE-LSIZE-1; i++){
-    array[2].p[i] = ap_tcons0_copy(tcons0[LSIZE+1+i]);
+    tconsarray[2].p[i] = ap_tcons0_copy(tcons0[LSIZE+1+i]);
   }
-
-
   ap_coeff_clear(coeff);
 }
 
