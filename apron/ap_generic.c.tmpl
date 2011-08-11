@@ -73,7 +73,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
     }
     ap_lincons0_cons_XXX(lincons0,lincons);
     res = sat_lincons(man,abs,lincons0);
-    ap_lincons0_clear(lincons0);
+    ap_linconsXXX_clear(lincons);
     if (error){
       ap_linexpr0_clear(env);
     }
@@ -133,7 +133,7 @@ ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
     }
     ap_linexpr0_cons_XXX(linexpr0,linexpr);
     bound_linexpr(man,interval,abs,linexpr0);
-    ap_linexpr0_clear(linexpr0);
+    ap_linexprXXX_clear(linexpr);
     if (error) ap_linexpr0_clear(env);
   }
   ENDMACRO;
@@ -247,7 +247,7 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
 						   man->num) && exact;
 	ap_lincons0_array_cons_XXX(array0,arrayX);
 	res = meet_lincons_array(man,destructive,abs,array0);
-	ap_lincons0_array_clear(array0);
+	ap_linconsXXX_array_clear(arrayX);
 	ap_linexpr0_clear(env);
       }
       ENDMACRO;
@@ -340,8 +340,8 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
       else {
 	ap_lincons0_array_cons_XXX(array0,arrayX);
 	res = meet_lincons_array(man,destructive,abs,array0);
-	ap_lincons0_array_clear(array0);
       }
+      ap_linconsXXX_array_clear(arrayX);
       if (error) ap_linexpr0_clear(env);
     }
     ENDMACRO;
@@ -520,8 +520,10 @@ ap_generic_asssub_linexpr_array(bool assign,
   /* 11. Free allocated objects */
   ap_dimperm_clear(&permutation);
   ap_dimchange_clear(&dimchange);
-  ap_lincons0_array_clear(array);
-
+  MACRO_SWITCH(discr) XXX {
+    ap_linconsXXX_array_clear(array->lincons_array.XXX);
+  }
+  ENDMACRO;
   man->result.flag_exact = exact;
   man->result.flag_best = best;
   return abs2;

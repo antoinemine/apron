@@ -64,7 +64,7 @@ void ap_linyyy0_resize(ap_linyyy0_t e, size_t size)
 void ap_linyyy0_clear(ap_linyyy0_t e)
 {
   MACRO_SWITCH(e->discr) XXX
-    ap_linyyyXXX_clear(e->linyyy.XXX);
+    ap_linyyyXXX_free(e->linyyy.XXX);
   ENDMACRO;
 }
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim)
@@ -474,7 +474,7 @@ void ap_linyyy0_array_minimize(ap_linyyy0_array_t a)
 void ap_linyyy0_array_clear(ap_linyyy0_array_t a)
 {
   MACRO_SWITCH(a->discr) XXX
-    ap_linyyyXXX_array_clear(a->linyyy_array.XXX);
+    ap_linyyyXXX_array_free(a->linyyy_array.XXX);
   ENDMACRO;
 }
 

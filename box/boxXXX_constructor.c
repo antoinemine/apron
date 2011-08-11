@@ -376,8 +376,8 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	ap_linconsZZZ_ptr lincons;
 	ap_linconsZZZ_array_ptr tab = array->lincons_array.ZZZ;
 
-	ap_linconsZZZ_array_resize(tab,size);
 	eitvZZZ_init(eitv);
+	ap_linconsZZZ_array_resize(tab,size);
 	exact = true;
 	j = 0;
 	for (i=0;i<nbdims;i++){
@@ -419,6 +419,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	  }
 	}
 	if (j<size) ap_linconsZZZ_array_resize(tab,j);
+        eitvZZZ_clear(eitv);
       }
     ENDMACRO;
   }
