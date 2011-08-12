@@ -1,4 +1,6 @@
 1 a\\n(* This file is part of the APRON Library, released under LGPL license.\n   Please read the COPYING file packaged in the distribution  *)
+s/tbool_t/tbool/g;
+s/Tbool_\(false\|true\|top\)/\u\1/g;
 s/\(Mp\(z\|q\|f\|fr\)\.\)\{0,1\}mp\(z\|q\|f\|fr\)_ptrm/\1t/g;
 s/\(Mp\(z\|q\|f\|fr\)\.\)\{0,1\}mp\(z\|q\|f\|fr\)_ptrg/'a \1tt/g;
 s/and \(num\|bound\|eitv\)\(MPZ\|MPQ\|D\|MPFR\)_ptrm//g;
