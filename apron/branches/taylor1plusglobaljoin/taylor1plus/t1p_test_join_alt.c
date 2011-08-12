@@ -11,7 +11,7 @@
 #include "t1p_representation.h"
 #include "t1p_join_alt.h"
 #include "t1p_otherops.h"
-#include "t1p_joinfun.h"
+#include "t1p_join.h"
 
 
 void test_equation_1 (FILE* stream, ap_manager_t* man);

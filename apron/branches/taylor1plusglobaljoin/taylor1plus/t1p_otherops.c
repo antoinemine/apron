@@ -1,7 +1,7 @@
 #include "t1p_internal.h"
 #include "t1p_representation.h"
-#include "t1p_meetfun.h"
-#include "t1p_joinfun.h"
+#include "t1p_meet.h"
+#include "t1p_join.h"
 #include "t1p_constructor.h"
 
 #include "ap_manager.h"
