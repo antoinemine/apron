@@ -69,7 +69,7 @@ caml_abstract_domain_obj.o: ../mlapronidl/apron.callback.cmxa $(ML_MODULES:%=%.c
 
 caml_abstract_domain_obj.d.o: $(ML_MODULES:%=%.d.cmx)
 	$(OCAMLFIND) ocamlopt -g $(OCAMLOPTFLAGS) \
-	-predicates callback,debug -package $(REQ_PKG),apron -linkpkg -output-obj -o $@ $^
+	-predicates callback,debug -package $(REQ_PKG) -linkpkg -output-obj -o $@ ../mlapronidl/apron.d.cmxa $^
 
 ml2c_wrapper.h: ml2c_wrapper_preamble.h generator
 	./generator -preamble-h $< -output-h $@
