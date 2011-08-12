@@ -419,7 +419,7 @@ void boxXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, boxXX
 	  }
 	}
 	if (j<size) ap_linconsZZZ_array_resize(tab,j);
-        eitvZZZ_clear(eitv);
+	eitvZZZ_clear(eitv);
       }
     ENDMACRO;
   }
