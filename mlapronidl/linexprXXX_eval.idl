@@ -1,0 +1,80 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "#include \"apron_caml.h\"")
+
+import "linexprXXX.idl";
+import "linexpr0.idl";
+import "texpr0.idl";
+
+quote(MLMLI,"(** Additional functions on linear expressions *)\n\n")
+
+quote(MLMLI,"\n\
+(** {2 Arithmetic} *)\n\n\
+")
+
+void ap_linexprXXX_neg(ap_linexprXXX_ptr res, ap_linexprXXX_ptr expr);
+boolean ap_linexprXXX_scale(ap_linexprXXX_ptr res, ap_linexprXXX_ptr expr, eitvXXX_ptrg coeff, num_internal_ptr intern);
+boolean ap_linexprXXX_div(ap_linexprXXX_ptr res, ap_linexprXXX_ptr expr, eitvXXX_ptrg coeff, num_internal_ptr intern);
+
+boolean ap_linexprXXX_add(ap_linexprXXX_ptr expr,
+			  ap_linexprXXX_ptr exprA,
+			  ap_linexprXXX_ptr exprB, num_internal_ptr intern);
+boolean ap_linexprXXX_sub(ap_linexprXXX_ptr expr,
+			  ap_linexprXXX_ptr exprA,
+			  ap_linexprXXX_ptr exprB, num_internal_ptr intern);
+
+quote(MLMLI,"\n\
+(** {2 Evaluation and Quasilinearisation of interval linear expressions} *)\n\n\
+")
+
+boolean eitvXXX_eval_ap_linexpr0(eitvXXX_ptrm res, ap_linexpr0_t expr, ap_linexprXXX_ptr env, num_internal_ptr intern);
+
+boolean ap_linexprXXX_eval(eitvXXX_ptrm res, ap_linexprXXX_ptr expr, ap_linexprXXX_ptr env, num_internal_ptr intern);
+
+boolean ap_linexprXXX_quasilinearize(ap_linexprXXX_ptr linexpr,
+				  ap_linexprXXX_ptr env,
+				  boolean for_meet_inequality, num_internal_ptr intern);
+
+boolean ap_linexprXXX_array_quasilinearize(ap_linexprXXX_array_ptr array,
+					   ap_linexprXXX_ptr env, num_internal_ptr intern);
+
+quote(MLMLI,"\n\
+(** {2 Evaluation and interval linearisation of tree expressions} *)\n\n\
+")
+
+boolean ap_linexprXXX_set_texpr0(
+    ap_linexprXXX_ptr linexpr, [ref,out]boolean* pboolerror,
+    ap_texpr0_ptr expr, num_internal_ptr intern)
+  quote(call,"\
+{\n\
+  bool error; pboolerror = &error;\n\
+  _res = ap_linexprXXX_set_texpr0(linexpr,pboolerror,expr,intern);\n\
+}");
+quote(MLMLI,"  (** Second returned boolean is true if the input tree expression is not interval linear *)")
+
+boolean ap_linexprXXX_array_set_texpr0_array(
+    ap_linexprXXX_array_ptr linexpr, [ref,out]boolean* pboolerror,
+    [ref]ap_texpr0_array_t* expr, num_internal_ptr intern)
+  quote(call,"\
+{\n\
+  bool error; pboolerror = &error;\n\
+  _res = ap_linexprXXX_array_set_texpr0_array(linexpr,pboolerror,expr,intern);\n\
+}")
+  quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(expr);");
+  quote(MLMLI,"  (** Second returned boolean is true if the input tree expression is not interval linear *)")
+
+boolean eitvXXX_eval_ap_texpr0(
+    eitvXXX_ptrm res, ap_texpr0_ptr texpr, ap_linexprXXX_ptr env,
+    num_internal_ptr intern);
+void ap_linexprXXX_intlinearize_texpr0(
+    ap_linexprXXX_ptr linexpr,
+    ap_texpr0_ptr expr, ap_linexprXXX_ptr env, unsigned int intdim,
+    num_internal_ptr intern);
+void ap_linexprXXX_array_intlinearize_texpr0_array(
+    ap_linexprXXX_array_ptr linexpr,
+    [ref]ap_texpr0_array_t* texpr, ap_linexprXXX_ptr env, unsigned int intdim,
+    num_internal_ptr intern)
+  quote(dealloc,"AP_TEXPR0_ARRAY_DEALLOC(texpr);");

@@ -4,13 +4,17 @@
 #
 1 a\\n/* This file is part of the APRON Library, released under LGPL license.\n  Please read the COPYING file packaged in the distribution  */
 #
-# 2b. other trick for immutable variant types manipulated a la GMP
+# 1. Trick for immutable variant types manipulated a la GMP
 #
 s/extern \(void\|value\) camlidl_coeff_ptr_\(ml2c\|c2ml\)(\(value, \)\{0,1\}ap_coeff_t\(g\|m\) [*])/extern \1 camlidl_coeff_ptr_\2(\3ap_coeff_ptr*)/g;
 s/ap_coeff_t\(g\|m\) \([a-zA-Z_]*\);/struct ap_coeff_struct \2_struct; ap_coeff_ptr \2=\&\2_struct;/g;
 s/extern \(void\|value\) camlidl_lin\(expr\|cons\|gen\)0\(_array\)\{0,1\}_ptr_\(ml2c\|c2ml\)(\(value, \)\{0,1\}ap_lin\(expr\|cons\|gen\)0\(_array\)\{0,1\}_t [*])/extern \1 camlidl_lin\20\3_ptr_\4(\5ap_lin\60\7_ptr*)/g;
 s/ap_lin\(expr\|cons\|gen\)0\(_array\)\{0,1\}_t \([a-zA-Z_]*\);/struct ap_lin\10\2_struct \3_struct; ap_lin\10\2_ptr \3=\&\3_struct;/g;
 #
+# 2. problem with booleans translated to in by camlidl
+#
+s/^  pboolerror = [&][^$]*$//g;
+s/int [*]pboolerror;/bool* pboolerror;/g;
 #
 s/struct ap_texpr_op_t/ap_texpr_op_t/g
 s/struct ap_texpr_rtype_t/ap_texpr_rtype_t/g

@@ -37,6 +37,12 @@ enum ap_gentyp_t {
   AP_GEN_RAYMOD  /* Integer ray (positive integer coefficient) */
 };
 
+enum tbool_t {
+  tbool_false,
+  tbool_true,
+  tbool_top
+};
+ 
 quote(MLMLI,"\n\
 type ('a,'b,'c) t =\n\
 | D of 'a\n\

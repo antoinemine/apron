@@ -1,0 +1,224 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON library, released under LGPL license.
+   Please read the COPYING file packaged in the distribution  */
+
+quote(C, "#include \"apron_caml.h\"")
+
+import "linexprXXX.idl";
+import "linconsXXX.idl";
+import "lincons0.idl";
+import "tcons0.idl";
+
+quote(MLMLI,"(** Additional functions on linear expressions *)\n\n")
+
+quote(MLMLI,"\n(** {2 Evaluation and simplification} *)\n\n")
+
+enum tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_ptr lincons, num_internal_ptr intern);
+quote(MLMLI,"  (** Is the assumed constant constraint satisfied ? *)")
+
+boolean ap_linconsXXX_is_unsat(ap_linconsXXX_ptr lincons, num_internal_ptr intern);
+quote(MLMLI,"\
+  (** Return true if the constraint is not satisfiable\n\
+      for all deterministic expressions contained in it.\n\
+      Cases taken into account:\n\
+     - [expr + [a,A] = 0 (mod k) with a!=A]\n\
+     - [expr + [-oo,+oo] != 0]\n\
+     - [expr + (-oo,x] >|>= 0]\n\
+     - [cst >|>=|= 0] which is obviously not satisfiable\n\
+  *)\n\
+")
+void ap_linconsXXX_reduce_integer(ap_linconsXXX_ptr cons, unsigned int intdim, num_internal_ptr intern);
+quote(MLMLI,"\
+  (** [reduce_integer cons intdim intern]\n\
+\n\
+      Transform a constraint involving only integer variables and only scalar\n \
+      coefficients (with the exception of the constant) as follows:\n\
+\n\
+     - divide expr by the pgcd of non-constant coefficients\n\
+       details differ according to type of num (integer, rational,\n\
+       floating-point)\n\
+     - [expr + [min,sup] >= 0] ==> expr + floor(sup) >= 0]\n\
+     - [expr + [min,sup] > 0]  ==> expr + sup - 1 >= 0] if sup is integer,\n\
+				     [expr + floor(sup) >= 0] otherwise\n\
+     - [expr + [min,sup] = 0   ==> expr + [ceil(min),floor(sup)] = 0]\n\
+  *)\n\
+")
+
+enum tbool_t ap_linconsXXX_array_reduce(ap_linconsXXX_array_ptr array, boolean for_meet, num_internal_ptr intern);
+quote(MLMLI,"\
+  (** [array_reduce array for_meet intern]\n\
+\n\
+     Simplify the array as follows:\n\
+     - remove trivially true constraints (like [1>=0])\n\
+     - if a constraint is trivially false, reduce the array to the constraint\n\
+       [1=0]\n\
+\n\
+     Return\n\
+     - [True] if empty array (always satisfiable)\n\
+     - [False] if trivially unsatisfiable\n\
+     - [Top] otherwise\n\
+  *)\n\
+")
+enum tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_ptr array,
+						unsigned int intdim,
+						num_internal_ptr intern);
+quote(MLMLI,"\
+  (** [array_reduce_integer array intdim intern]\n\
+\n\
+     Apply first [reduce_integer], and then\n\
+     [array_reduce ... true ...],\n\
+     not valid for testing satisfiablity\n\
+  *)\n\
+")
+
+quote(MLMLI,"\n(** {2 Linearization} *)\n\n")
+
+quote(MLMLI,"\
+(** These functions quasilinearize in-place expressions and constraints.\n\
+   They optimize (sets of) constraints when the parameter meet is true, by\n\
+   deducing things. If constraints are quasilinearized for testing\n\
+   satisfaction, meet should be set to false. *)\n\
+")
+boolean ap_linconsXXX_quasilinearize(ap_linconsXXX_ptr lincons,
+				     ap_linexprXXX_ptr env,
+				     boolean for_meet_inequality, num_internal_ptr intern);
+quote(MLMLI,"\
+  (** [quasilinearize lincons env for_meet intern]\n\
+\n\
+     Quasilinearize in-place lincons using the bounding box itv. Return true\n\
+     if no approximations. *)\n\
+")
+
+boolean ap_linconsXXX_array_quasilinearize(ap_linconsXXX_array_ptr array,
+					   ap_linexprXXX_ptr env,
+					   boolean meet,
+					   num_internal_ptr intern);
+quote(MLMLI,"  (** Same for an array *)")
+
+void ap_linconsXXX_array_linearize(ap_linconsXXX_array_ptr array,
+				   boolean meet,
+				   num_internal_ptr intern);
+quote(MLMLI,"\
+  (** [array_linearize array for_meet intern]\n\
+\n\
+     tranforms\n\
+     - [e+[a,b]>=0] in [e+b>=0]\n\
+     - [e+[a,b]==0] in [e+b>=0] and [e+a<=0]\n\
+  *)")
+
+boolean ap_linconsXXX_set_tcons0(
+    ap_linconsXXX_ptr lincons, [out,ref]boolean* pboolerror,
+    [ref]ap_tcons0_t* cons, num_internal_ptr intern)
+  quote(call,"\
+{\n\
+  bool error; pboolerror = &error;\n\
+  _res = ap_linconsXXX_set_tcons0(lincons,pboolerror,cons,intern);\n\
+}");
+boolean ap_linconsXXX_array_set_tcons0_array(
+    ap_linconsXXX_array_ptr lincons, [out,ref]boolean* pboolerror,
+    [ref]ap_tcons0_array_t* cons, num_internal_ptr intern)
+  quote(call,"\
+{\n\
+  bool error; pboolerror = &error;\n\
+  _res = ap_linconsXXX_array_set_tcons0_array(lincons,pboolerror,cons,intern);\n\
+}")
+    quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(cons);");
+quote(MLMLI,"\
+    (** [(exact,error) = set_tcons0 lincons tcons intern]\n\
+	[(exact,error) = array_set_tcons0_array linarray tarray intern]\n\
+\n\
+    Linearize a tree constraint that is (syntaxically) interval linear.\n\
+    If the precondition is violated, the second returned Boolean is false.\n\
+*)\n\
+")
+
+void ap_linconsXXX_intlinearize_tcons0(
+    ap_linconsXXX_ptr lincons, [ref]ap_tcons0_t* cons,
+    ap_linexprXXX_ptr env, unsigned int intdim, num_internal_ptr intern);
+void ap_linconsXXX_array_intlinearize_tcons0_array(
+    ap_linconsXXX_array_ptr lincons, [ref]ap_tcons0_array_t* cons,
+    ap_linexprXXX_ptr env, unsigned int intdim, num_internal_ptr intern)
+  quote(dealloc,"AP_TCONS0_ARRAY_DEALLOC(cons);");
+quote(MLMLI,"\
+  (** [intlinearize_tcons0 lincons tcons env intdim intern]\n\
+      [array_intlinearize_tcons0_array linarray tarray env intdim intern]\n\
+\n\
+      Return true if no approximations. *)")
+
+quote(MLMLI,"\n(** {2 Boxization of interval linear expressions} *)\n\n")
+
+quote(MLMLI,"external array_boxsize : LinexprXXX.t -> LinconsXXX.earray -> LinexprXXX.t -> int -> int -> bool -> Common.num_internal -> bool * bool array\t= \"camlidl_linconsXXX_array_boxize_bytecode\" \"camlidl_linconsXXX_array_boxize\"")
+quote(MLMLI,"\
+  (** [(exact,tchange) = array_boxize nenv linarray env intdim kmax intervalonly intern] \n\
+\n\
+     Deduce interval constraints from a set of interval linear constraints.\n\
+\n\
+     Return true if some bounds have been inferred.\n\
+\n\
+     - The inferred bounds are stored in res (which may be equal to env)\n\
+     - If tchange!=NULL, tchange[2dim] (resp. 2dim+1) set to true indicates\n\
+       that the inf (resp. sup) bound of dimension dim has been improved.\n\
+     - env is the current bounds for variables\n\
+     - kmax specifies the maximum number of iterations\n\
+     - if intervalonly is true, deduces bounds from a constraint only when the\n\
+       coefficient associated to the current dimension is an interval.\n\
+*)")
+
+quote(C,"\n\
+value camlidl_linconsXXX_array_boxize(\n\
+    value _v_res,\n\
+    value _v_array,\n\
+    value _v_env,\n\
+    value _v_intdim,\n\
+    value _v_kmax,\n\
+    value _v_intervalonly,\n\
+    value _v_intern)\n\
+{\n\
+  ap_linexprXXX_ptr res; /*in*/\n\
+  bool* tchange; /*out*/\n\
+  ap_linconsXXX_array_ptr array; /*in*/\n\
+  ap_linexprXXX_ptr env; /*in*/\n\
+  unsigned int intdim; /*in*/\n\
+  unsigned int kmax; /*in*/\n\
+  int intervalonly; /*in*/\n\
+  num_internal_ptr intern; /*in*/\n\
+  int _res;\n\
+  struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };\n\
+  camlidl_ctx _ctx = &_ctxs;\n\
+  mlsize_t _c1;\n\
+  value _v2;\n\
+  value _vresult;\n\
+  value _vres[2] = { 0, 0, };\n\
+\n\
+  camlidl_ap_linexprXXX_ptr_ml2c(_v_res,&res);\n\
+  camlidl_ap_linconsXXX_array_ptr_ml2c(_v_array,&array);\n\
+  camlidl_ap_linexprXXX_ptr_ml2c(_v_env,&env);\n\
+  intdim = Int_val(_v_intdim);\n\
+  kmax = Int_val(_v_kmax);\n\
+  intervalonly = Int_val(_v_intervalonly);\n\
+  camlidl_apron_num_internal_ptr_ml2c(_v_intern, &intern);\n\
+  size_t size = env->effsize==0 ? 0 : (1+env->linterm[env->effsize-1]->dim);\n\
+  tchange = camlidl_malloc(2*size * sizeof(bool), _ctx);\n\
+  for (size_t i=0;i<2*size;i++) tchange[i] = false;\n\
+  _res = ap_linconsXXX_array_boxize(res, tchange, array, env, intdim, kmax, intervalonly, intern);\n\
+  Begin_roots_block(_vres, 2)\n\
+    _vres[0] = Val_int(_res);\n\
+    _vres[1] = camlidl_alloc(2*size, 0);\n\
+    for (_c1 = 0; _c1 < 2*size; _c1++) {\n\
+      _v2 = Val_int(tchange[_c1]);\n\
+      modify(&Field(_vres[1], _c1), _v2);\n\
+    }\n\
+    _vresult = camlidl_alloc_small(2, 0);\n\
+    Field(_vresult, 0) = _vres[0];\n\
+    Field(_vresult, 1) = _vres[1];\n\
+  End_roots()\n\
+  camlidl_free(_ctx);\n\
+  return _vresult;\n\
+}\n\
+\n\
+value camlidl_linconsXXX_eval_ap_linconsXXX_array_boxize_bytecode(value * argv, int argn)\n\
+{\n\
+  return camlidl_linconsXXX_array_boxize(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);\n\
+}\n\
+")

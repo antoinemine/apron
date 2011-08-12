@@ -44,24 +44,31 @@ YYY = expr cons gen
 IDL_ORIG_MODULES_1 = dim var environment common
 IDL_ORIG_MODULES_2 = coeff texpr0 tcons0 manager abstract0 
 IDL_ORIG_MODULES = $(IDL_ORIG_MODULES_1) $(IDL_ORIG_MODULES_2)
-IDL_TMPL_MODULES_XXX = numXXX boundXXX eitvXXX
+IDL_TMPL_MODULES_XXX_1 = numXXX boundXXX eitvXXX
+IDL_TMPL_MODULES_XXX_2 = linexprXXX_eval linconsXXX_eval
+IDL_TMPL_MODULES_XXX = $(IDL_TMPL_MODULES_XXX_1) $(IDL_TMPL_MODULES_XXX_2)
 IDL_TMPL_MODULES_yyyXXX = linyyyXXX
 IDL_TMPL_MODULES_tmpl_1 = conv
 IDL_TMPL_MODULES_tmpl_2 = box polka
 IDL_TMPL_MODULES_tmpl = $(IDL_TMPL_MODULES_tmpl_1) $(IDL_TMPL_MODULES_tmpl_2)
 IDL_TMPL_MODULES_yyy = linyyy0
 IDL_TMPL_MODULES = \
-$(IDL_TMPL_MODULES_XXX) \
+$(IDL_TMPL_MODULES_XXX_1) \
 $(IDL_TMPL_MODULES_yyyXXX) \
 $(IDL_TMPL_MODULES_tmpl) \
-$(IDL_TMPL_MODULES_yyy )
+$(IDL_TMPL_MODULES_yyy) \
+$(IDL_TMPL_MODULES_XXX_2) \
 
 IDL_GENERATED_MODULES_1 = \
-$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX))) \
+$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX_1))) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_yyyXXX))))) \
 $(IDL_TMPL_MODULES_tmpl_1:%.tmpl=%) \
 $(foreach Y,$(YYY),$(subst yyy,$(Y),$(IDL_TMPL_MODULES_yyy))) 
-IDL_GENERATED_MODULES_2 = $(IDL_TMPL_MODULES_tmpl_2:%.tmpl=%)
+
+IDL_GENERATED_MODULES_2 = \
+$(foreach T,$(TMPL),$(subst XXX,$(T),$(IDL_TMPL_MODULES_XXX_2))) \
+$(IDL_TMPL_MODULES_tmpl_2:%.tmpl=%)
+
 IDL_GENERATED_MODULES = $(IDL_GENERATED_MODULES_1) $(IDL_GENERATED_MODULES_2)
 
 IDL_MODULES_1 = $(IDL_ORIG_MODULES_1) $(IDL_GENERATED_MODULES_1) $(IDL_ORIG_MODULES_2) 
