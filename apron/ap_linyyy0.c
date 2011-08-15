@@ -61,6 +61,12 @@ void ap_linyyy0_resize(ap_linyyy0_t e, size_t size)
     ap_linyyyXXX_resize(e->linyyy.XXX,size);
   ENDMACRO;
 }
+void ap_linyyy0_set_zero(ap_linyyy0_t e)
+{
+  MACRO_SWITCH(e->discr) XXX
+    ap_linyyyXXX_set_zero(e->linyyy.XXX);
+  ENDMACRO;
+}
 void ap_linyyy0_clear(ap_linyyy0_t e)
 {
   MACRO_SWITCH(e->discr) XXX

@@ -315,27 +315,23 @@ size_t ap_texpr0_size(ap_texpr0_t* a)
   }
 }
 
-/* maximum between all dimensions and max */
-static ap_dim_t ap_texpr0_max_dim_internal(ap_texpr0_t* a, ap_dim_t max)
-{
-  if (!a) return max;
-  switch(a->discr) {
-  case AP_TEXPR_CST:
-    return max;
-  case AP_TEXPR_DIM:
-    return (a->val.dim+1) > max ? (a->val.dim+1) : max;
-  case AP_TEXPR_NODE:
-    return ap_texpr0_max_dim_internal(a->val.node->exprB,
-				      ap_texpr0_max_dim_internal(a->val.node->exprA,max));
-  default:
-    assert(0);
-    return max;
-  }
-}
-
 ap_dim_t ap_texpr0_max_dim(ap_texpr0_t* a)
 {
-  return ap_texpr0_max_dim_internal(a, 0);
+  if (!a) return 0;
+  switch(a->discr) {
+  case AP_TEXPR_CST:
+    return 0;
+  case AP_TEXPR_DIM:
+    return 1+a->val.dim;
+  case AP_TEXPR_NODE:
+    {
+      ap_dim_t resA = ap_texpr0_max_dim(a->val.node->exprA);
+      ap_dim_t resB = ap_texpr0_max_dim(a->val.node->exprB);
+      return resA>=resB ? resA : resB;
+    }
+  default:
+    abort();
+  }
 }
 
 bool ap_texpr0_has_dim(ap_texpr0_t* a, ap_dim_t d)
@@ -356,7 +352,7 @@ bool ap_texpr0_has_dim(ap_texpr0_t* a, ap_dim_t d)
   }
 }
 
-void ap_texpr0_support_internal(ap_texpr0_t* a, ap_dim_t* tdim)
+void ap_texpr0_support_mask(ap_texpr0_t* a, ap_dim_t* tdim)
 {
   if (!a) return;
   switch(a->discr) {
@@ -366,38 +362,21 @@ void ap_texpr0_support_internal(ap_texpr0_t* a, ap_dim_t* tdim)
     tdim[a->val.dim] = a->val.dim;
     break;
   case AP_TEXPR_NODE:
-    ap_texpr0_support_internal(a->val.node->exprA, tdim);
-    ap_texpr0_support_internal(a->val.node->exprB, tdim);
+    ap_texpr0_support_mask(a->val.node->exprA, tdim);
+    ap_texpr0_support_mask(a->val.node->exprB, tdim);
     break;
   default:
     assert(0);
   }
 }
 
-size_t ap_texpr0_support(ap_texpr0_t* a, ap_dim_t* tdim)
+size_t ap_texpr0_support(ap_texpr0_t* a, ap_dim_t* tdim, size_t size)
 {
-  ap_dim_t max,r,w;
-  size_t size;
+  ap_dim_t r,w;
 
-  /* compute occurence vector */
-  max = ap_texpr0_max_dim(a);
-  if (max==0){
-    return 0;
-  }
-  else {
-    for (w=0;w<max;w++){
-      tdim[w] = AP_DIM_MAX;
-    }
-    ap_texpr0_support_internal(a, tdim);
-    w = 0;
-    for (r=0; r<max; r++){
-      if (tdim[r]!=AP_DIM_MAX){
-	tdim[w] = tdim[r];
-	w++;
-      }
-    }
-    return (size_t)w;
-  }
+  ap_dimsupport_mask_clear(tdim,size);
+  ap_texpr0_support_mask(a,tdim);
+  return ap_dimsupport_std_of_mask(tdim,size);
 }
 
 bool ap_texpr0_is_interval_cst(ap_texpr0_t* a)

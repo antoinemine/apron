@@ -84,8 +84,17 @@ cinline bool ap_linyyyXXX_is_quasilinear(ap_linyyyXXX_t a);
 cinline ap_linexpr_type_t ap_linyyyXXX_type(ap_linyyyXXX_t a);
   /* Classify an expression */
 
-cinline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim);
-cinline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim);
+static inline ap_dim_t ap_linyyyXXX_max_dim(ap_linyyyXXX_t a);
+  /* Returns the maximum ap_dim_t PLUS ONE of all dimensions in
+     expression/constraint/generator, and 0 if no dimension at all.
+
+     For instance, it returns 3 on the expression x2. */
+
+cinline void ap_linyyyXXX_support_mask(ap_linyyyXXX_t a, ap_dim_t* tdim);
+cinline void ap_linyyyXXX_supportinterval_mask(ap_linyyyXXX_t a, ap_dim_t* tdim);
+
+  cinline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t size);
+  cinline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t size);
 /* Fills the array tdim with the dimensions associated with intervals in the
    linear expression, in increasing order, and return the number of such
    dimensions.
@@ -129,7 +138,6 @@ bool ap_linyyyXXX_set_list0(num_internal_t intern, ap_linyyyXXX_t a, bool* perro
      arguments as specified in the definition of the type ap_coefftag_t, and
      ended by the tag AP_END;
 
-     - The dimension AP_DIM_MAX is used to refer to the constat coefficient.
      - If the same dimension appears several times, only the last tag
        referring to it is taken into account.
 
@@ -276,13 +284,19 @@ bool ap_linyyyXXX_array_is_linear(ap_linyyyXXX_array_t array);
 bool ap_linyyyXXX_array_is_quasilinear(ap_linyyyXXX_array_t array);
 ap_linexpr_type_t ap_linyyyXXX_array_type(ap_linyyyXXX_array_t array);
 
+ap_dim_t ap_linyyyXXX_array_max_dim(ap_linyyyXXX_array_t a);
+  /* Returns the maximum ap_dim_t PLUS ONE of all dimensions in
+     expression/constraint/generator, and 0 if no dimension at all.
+
+     For instance, it returns 3 on the expression x2. */
+
 size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array, ap_dim_t* tdim, size_t nbdim);
 size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array, ap_dim_t* tdim, size_t nbdim);
 /* Fills the array tdim with the dimensions associated with intervals in the
    linear expression, in increasing order, and return the number of such
    dimensions.
 
-   tdim is supposed to be of size at least the maximum number of different dimensions in the array.
+   tdim is supposed to be of size at least the maximum number of different dimensions in the array (as return by max_dim function)
 */
 
 /* ====================================================================== */
@@ -418,7 +432,12 @@ static inline void ap_linyyyXXX_swap(ap_linyyyXXX_t a, ap_linyyyXXX_t b)
 /* I.2 Test */
 /* ====================================================================== */
 
-#if !defined(_AP_expr_MARK_)
+#if defined(_AP_expr_MARK_)
+static inline ap_dim_t ap_linexprXXX_max_dim(ap_linexprXXX_t expr)
+{
+  return (expr->effsize==0) ? 0 : 1+expr->linterm[expr->effsize-1]->dim;
+}
+#else
 static inline bool ap_linyyyXXX_is_integer(ap_linyyyXXX_t a, size_t intdim)
 {
   return ap_linexprXXX_is_integer(a->linexpr,intdim);
@@ -439,13 +458,26 @@ static inline ap_linexpr_type_t ap_linyyyXXX_type(ap_linyyyXXX_t a)
 {
   return ap_linexprXXX_type(a->linexpr);
 }
-static inline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim)
+static inline ap_dim_t ap_linyyyXXX_max_dim(ap_linyyyXXX_t a)
 {
-  return ap_linexprXXX_support(a->linexpr,tdim);
+  return ap_linexprXXX_max_dim(a->linexpr);
 }
-static inline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim)
+static inline void ap_linyyyXXX_support_mask(ap_linyyyXXX_t a, ap_dim_t* tdim)
 {
-  return ap_linexprXXX_supportinterval(a->linexpr,tdim);
+  ap_linexprXXX_support_mask(a->linexpr,tdim);
+}
+static inline void
+ ap_linyyyXXX_supportinterval_mask(ap_linyyyXXX_t a, ap_dim_t* tdim)
+{
+  ap_linexprXXX_supportinterval_mask(a->linexpr,tdim);
+}
+static inline size_t ap_linyyyXXX_support(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t size)
+{
+  return ap_linexprXXX_support(a->linexpr,tdim,size);
+}
+  static inline size_t ap_linyyyXXX_supportinterval(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t size)
+{
+  return ap_linexprXXX_supportinterval(a->linexpr,tdim,size);
 }
 #endif
 

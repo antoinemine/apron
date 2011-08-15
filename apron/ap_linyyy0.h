@@ -70,6 +70,7 @@ ENDMACRO
 void ap_lincons0_set_bool(ap_lincons0_t res, bool b);
 #endif
 void ap_linyyy0_resize(ap_linyyy0_t e, size_t size);
+void ap_linyyy0_set_zero(ap_linyyy0_t e);
 void ap_linyyy0_clear(ap_linyyy0_t e);
 void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim);
 void ap_linyyy0_print(ap_linyyy0_t e, char** name_of_dim);

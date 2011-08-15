@@ -93,36 +93,26 @@ void ap_tzzz0_array_print(ap_tzzz0_array_t* array,
 			   char** name_of_dim)
 { ap_tzzz0_array_fprint(stdout,array,name_of_dim); }
 
-size_t ap_tzzz0_array_support(ap_tzzz0_array_t* array, ap_dim_t* tdim)
+ap_dim_t ap_tzzz0_array_max_dim(ap_tzzz0_array_t* a)
 {
-  ap_dim_t max,i,r,w;
-  size_t size;
+  ap_dim_t res;
+  size_t i;
+  res = 0;
+  for (i=0; i<a->size; a++){
+    ap_dim_t nres = ap_tzzz0_max_dim(a->p[i]);
+    if (nres>res) res = nres;
+  }
+  return res;
+}
+size_t ap_tzzz0_array_support(ap_tzzz0_array_t* array, ap_dim_t* tdim, size_t size)
+{
+  ap_dim_t i,r,w;
 
-  /* compute occurence vector */
-  max = 0;
+  ap_dimsupport_mask_clear(tdim,size);
   for (i=0; i<array->size; i++){
-    size_t max1 = ap_tzzz0_max_dim(array->p[i]);
-    if (max1>max) max = max1;
+    ap_tzzz0_support_mask(array->p[i], tdim);
   }
-  if (max==0){
-    return 0;
-  }
-  else {
-    for (w=0;w<max;i++){
-      tdim[w] = AP_DIM_MAX;
-    }
-    for (i=0; i<array->size; i++){
-      ap_tzzz0_support_internal(array->p[i], tdim);
-    }
-    w = 0;
-    for (r=0; r<max; r++){
-      if (tdim[r]!=AP_DIM_MAX){
-	tdim[w] = tdim[r];
-	w++;
-      }
-    }
-    return (size_t)w;
-  }
+  return ap_dimsupport_std_of_mask(tdim,size);
 }
 
 static bool ap_tzzz0_array_is_template(ap_tzzz0_array_t* array, bool (*is_template)(ap_tzzz0_t* tzzz))

@@ -156,10 +156,25 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm)
 /* Supports */
 /* ====================================================================== */
 
+size_t ap_dimsupport_std_of_mask(ap_dim_t* tdim, size_t size)
+{
+  size_t r,w;
+
+  r = w = 0;
+  for (r=0; r<size; r++){
+    if (tdim[r]){
+      tdim[w] = r;
+      w++;
+    }
+  }
+  return w;
+}
+
 /* ttdim[i] should be of size nbdims+1, if nbdims is the number of dimensions to be encountered.
 
    Merge buffers indexed by k0 and k1, and return the new buffer in the index
    *pk (normally, k2) */
+/*
 void ap_dimsupport_merge(ap_dim_t** ttdim, size_t* tnb, size_t* pk)
 {
   size_t k0 = *pk;
@@ -197,3 +212,4 @@ void ap_dimsupport_merge(ap_dim_t** ttdim, size_t* tnb, size_t* pk)
     *pk = k2;
   }
 }
+*/
