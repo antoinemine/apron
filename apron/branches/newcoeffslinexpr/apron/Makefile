@@ -23,7 +23,7 @@ H_TMPL_FILES_other = numDsss.h
 H_TMPL_FILES_XXX = boundXXX.h itvXXX.h eitvXXX.h ap_linexprXXX_eval.h ap_linconsXXX_eval.h
 H_TMPL_FILES_yyy = ap_linyyy0.h ap_linyyy1.h
 H_TMPL_FILES_zzz = ap_tzzz1.h
-H_TMPL_FILES_tmpl = num_types.h.tmpl numMPQ.h.tmpl num_conv.h.tmpl ap_lin_types.h.tmpl ap_coeff.h.tmpl ap_check0.h.tmpl 
+H_TMPL_FILES_tmpl = num_types.h.tmpl numMPQ.h.tmpl num_conv.h.tmpl ap_lin_types.h.tmpl ap_coeff.h.tmpl ap_check0.h.tmpl ap_generic.h.tmpl 
 H_TMPL_FILES_yyyXXX = ap_linyyyXXX.h
 H_TMPL_FILES = $(H_TMPL_FILES_sss) $(H_TMPL_FILES_other) $(H_TMPL_FILES_XXX) $(H_TMPL_FILES_yyy) $(H_TMPL_FILES_zzz) $(H_TMPL_FILES_tmpl) $(H_TMPL_FILES_yyyXXX)
 
@@ -50,7 +50,7 @@ num_all.h bound_all.h itv_all.h eitv_all.h \
 ap_config.h ap_dimension.h ap_texpr0.h ap_tcons0.h \
 ap_manager.h ap_var.h ap_environment.h \
 ap_check0.h ap_abstract0.h \
-ap_generic.h ap_abstract1.h ap_reducedproduct.h \
+ap_abstract1.h ap_reducedproduct.h \
 ap_global0.h ap_global1.h
 
 C_ORIG_FILES = \

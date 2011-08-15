@@ -186,7 +186,13 @@ void ap_dimperm_invert(ap_dimperm_t* nperm, ap_dimperm_t* perm);
 /* Supports */
 /* ====================================================================== */
 
+static inline void ap_dimsupport_mask_clear(ap_dim_t* tdim, size_t size);
+size_t ap_dimsupport_std_of_mask(ap_dim_t* tdim, size_t size);
+
+/*
 void ap_dimsupport_merge(ap_dim_t* ttdim[3], size_t tnb[3], size_t* pk);
+*/
+
 
 /* ====================================================================== */
 /* Inline Functions Definitions */
@@ -232,6 +238,12 @@ ap_dimchange2_t* ap_dimchange2_alloc(ap_dimchange_t* add,
   ap_dimchange2_t* res = (ap_dimchange2_t*)malloc(sizeof(ap_dimchange2_t));
   ap_dimchange2_init(res,add,remove);
   return res;
+}
+static inline
+void ap_dimsupport_mask_clear(ap_dim_t* tdim, size_t size)
+{
+  size_t i;
+  for (i=0;i<size;i++) tdim[i]=0;
 }
 
 #ifdef __cplusplus

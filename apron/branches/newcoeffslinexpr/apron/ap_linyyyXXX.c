@@ -279,7 +279,7 @@ ap_linexpr_type_t ap_linexprXXX_type(ap_linexprXXX_t a)
   else
     return AP_LINEXPR_INTLINEAR;
 }
-size_t ap_linexprXXX_support(ap_linexprXXX_t expr, ap_dim_t* tdim)
+size_t ap_linexprXXX_support(ap_linexprXXX_t expr, ap_dim_t* tdim, size_t size)
 {
   size_t i,dim;
   eitvXXX_ptr eitv;
@@ -294,7 +294,7 @@ size_t ap_linexprXXX_support(ap_linexprXXX_t expr, ap_dim_t* tdim)
   }
   return nb;
 }
-size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
+size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim, size_t size)
 {
   size_t i,dim;
   eitvXXX_ptr eitv;
@@ -308,6 +308,26 @@ size_t ap_linexprXXX_supportinterval(ap_linexprXXX_t expr, ap_dim_t* tdim)
     }
   }
   return nb;
+}
+void ap_linexprXXX_support_mask(ap_linexprXXX_t expr, ap_dim_t* tdim)
+{
+  size_t i,dim;
+  eitvXXX_ptr eitv;
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
+    if (!eitvXXX_is_zero(eitv)){
+      tdim[dim] = 1;
+    }
+  }
+}
+void ap_linexprXXX_supportinterval_mask(ap_linexprXXX_t expr, ap_dim_t* tdim)
+{
+  size_t i,dim;
+  eitvXXX_ptr eitv;
+  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
+    if (!eitvXXX_is_point(eitv)){
+      tdim[dim] = 1;
+    }
+  }
 }
 #endif
 
@@ -894,51 +914,40 @@ ap_linexpr_type_t ap_linyyyXXX_array_type(ap_linyyyXXX_array_t array)
   return type;
 }
 
+ap_dim_t ap_linyyyXXX_array_max_dim(ap_linyyyXXX_array_t array)
+{
+  size_t i;
+  ap_dim_t res;
+  res = 0;
+  for (i=0;i<array->size;i++){
+    ap_dim_t nres = ap_linyyyXXX_max_dim(array->p[i]);
+    if (nres>res) res = nres;
+  }
+  return res;
+}
 
 size_t ap_linyyyXXX_array_support_generic(
-    size_t (*support)(ap_linyyyXXX_t a, ap_dim_t* tdim),
+    size_t (*support)(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t),
     ap_linyyyXXX_array_t array,
-    ap_dim_t* tdim, size_t nbdim
+    ap_dim_t* tdim, size_t size
 )
 {
-  if (array->size==0){
-    return 0;
+  size_t i;
+  ap_dimsupport_mask_clear(tdim,size);
+  for (i=0;i<array->size;i++){
+    support(array->p[i],tdim,size);
   }
-  else if (array->size==1){
-    return support(array->p[0],tdim);
-  }
-  else {
-    size_t i,k,nb;
-    ap_dim_t* buffer;
-    ap_dim_t* ttdim[3];
-    size_t tnb[3];
-
-    buffer = (ap_dim_t*)malloc(3*nbdim*sizeof(ap_dim_t));
-    for (i=0; i<3; i++){
-      ttdim[i] = &buffer[i*nbdim];
-      tnb[i] = 0;
-    }
-    k = 0;
-    for (i=0; i<array->size; i++){
-      size_t k1 = (k+1)%3;
-      tnb[k1] = support(array->p[i],ttdim[k1]);
-      ap_dimsupport_merge(ttdim,tnb,&k);
-    }
-    nb = tnb[k];
-    memcpy(tdim,ttdim[k],nb*sizeof(ap_dim_t));
-    free(buffer);
-    return nb;
-  }
+  return ap_dimsupport_std_of_mask(tdim,size);
 }
 size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array,
-				  ap_dim_t* tdim, size_t nbdim)
+				  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support,array,tdim,nbdim);
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support,array,tdim,size);
 }
 size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
-					  ap_dim_t* tdim, size_t nbdim)
+					  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval,array,tdim,nbdim);
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval,array,tdim,size);
 }
 
 

@@ -88,9 +88,9 @@ bool ap_tcons0_has_dim(ap_tcons0_t* a, ap_dim_t d);
    /* Returns true if dimension d appears in the expression */
 
 static inline
-void ap_tcons0_support_internal(ap_tcons0_t* a, ap_dim_t* tdim);
+void ap_tcons0_support_mask(ap_tcons0_t* a, ap_dim_t* tdim);
 static inline
-size_t ap_tcons0_support(ap_tcons0_t* a, ap_dim_t* tdim);
+size_t ap_tcons0_support(ap_tcons0_t* a, ap_dim_t* tdim, size_t size);
   /* Fills the array tdim with the dimensions occuring in the expression,
      in increasing order, and return the number of such dimensions.
 
@@ -173,7 +173,12 @@ void ap_tcons0_array_print(ap_tcons0_array_t* ap_tcons0_array,
 			   char** name_of_dim);
   /* Printing */
 
-size_t ap_tcons0_array_support(ap_tcons0_array_t* array, ap_dim_t* tdim);
+ap_dim_t ap_tcons0_array_max_dim(ap_tcons0_array_t* a);
+  /* Returns the maximum ap_dim_t PLUS ONE of all dimensions in constraint, and
+     0 if no dimension at all.
+
+     For instance, it returns 3 on the expression x2. */
+size_t ap_tcons0_array_support(ap_tcons0_array_t* array, ap_dim_t* tdim, size_t size);
 bool ap_tcons0_array_is_interval_linear(ap_tcons0_array_t* array);
 bool ap_tcons0_array_is_interval_polynomial(ap_tcons0_array_t* array);
 bool ap_tcons0_array_is_interval_polyfrac(ap_tcons0_array_t* array);
@@ -201,7 +206,7 @@ static inline ap_tcons0_t* ap_tcons0_make(ap_texpr0_t* texpr, ap_constyp_t const
   mpq_init(cons->mpq);
   if (mpq)
     mpq_set(cons->mpq,mpq);
-  else 
+  else
     mpq_set_si(cons->mpq,0,1);
   return cons;
 }
@@ -231,11 +236,11 @@ static inline
 bool ap_tcons0_has_dim(ap_tcons0_t* a, ap_dim_t d)
 { return ap_texpr0_has_dim(a->texpr0,d); }
 static inline
-void ap_tcons0_support_internal(ap_tcons0_t* a, ap_dim_t* tdim)
-{ ap_texpr0_support_internal(a->texpr0,tdim); }
+void ap_tcons0_support_mask(ap_tcons0_t* a, ap_dim_t* tdim)
+{ ap_texpr0_support_mask(a->texpr0,tdim); }
 static inline
-size_t ap_tcons0_support(ap_tcons0_t* a, ap_dim_t* tdim)
-{ return ap_texpr0_support(a->texpr0,tdim); }
+size_t ap_tcons0_support(ap_tcons0_t* a, ap_dim_t* tdim, size_t size)
+{ return ap_texpr0_support(a->texpr0,tdim,size); }
 static inline
 bool ap_tcons0_is_interval_cst(ap_tcons0_t* a)
 { return ap_texpr0_is_interval_cst(a->texpr0); }

@@ -24,6 +24,60 @@
 /* I. Constructors */
 /* ********************************************************************** */
 
+void ap_generic_bound_support(
+    ap_manager_t* man,
+    ap_linexpr0_t env, /* out*/
+    ap_abstract0_t* a,
+    ap_dim_t* support,
+    size_t size
+)
+{
+  void (*bound_dimension)(ap_manager_t*,ap_coeff_t,ap_abstract0_t*,ap_dim_t) = man->funptr[AP_FUNID_BOUND_DIMENSION];
+  size_t i;
+  ap_coeff_t coeff;
+
+  ap_linexpr0_set_zero(env);
+  for (i=0;i<size;i++){
+    ap_linexpr0_coeffref(coeff,env,support[i]);
+    bound_dimension(man,coeff,a,support[i]);
+  }
+}
+
+MACRO_FOREACH SSS ("","_array")
+MACRO_FOREACH TTT ("expr","cons")
+MACRO_FOREACH ZZZ @MainNum
+void ap_generic_bound_supportinterval_linTTTZZZSSS(
+    ap_manager_t* man, ap_linexpr0_t env, /*out */
+    ap_abstract0_t* a, ap_linTTTZZZSSS_t expr
+)
+{
+  size_t i,size,size_support;
+  ap_dim_t* support;
+
+  size = ap_linTTTZZZSSS_max_dim(expr);
+  support = malloc(size*sizeof(ap_dim_t));
+  size_support = ap_linTTTZZZSSS_supportinterval(expr,support,size);
+  ap_generic_bound_support(man,env,a,support,size_support);
+  free(support);
+}
+ENDMACRO
+void ap_generic_bound_support_tTTT0SSS(
+    ap_manager_t* man, ap_linexpr0_t env, /* out */
+    ap_abstract0_t* a, ap_tTTT0SSS_t* expr
+)
+{
+  size_t i,size,size_support;
+  ap_dim_t* support;
+
+  size = ap_tTTT0SSS_max_dim(expr);
+  support = malloc(size*sizeof(ap_dim_t));
+  size_support = ap_tTTT0SSS_support(expr,support,size);
+  ap_generic_bound_support(man,env,a,support,size_support);
+  free(support);
+}
+ENDMACRO
+ENDMACRO
+
 bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
 			  ap_scalar_discr_t discr,
 			  bool quasilinearize)
