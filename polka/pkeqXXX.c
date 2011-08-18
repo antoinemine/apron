@@ -333,8 +333,8 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr(bool assign,
     else
 #endif
       {
-	bool exact = ap_linexprXXX_set_linexpr0(pk->ap_linexprXXX,linexpr0,pk->num);
-	po = pkXXX_asssub_linexprXXX_det(assign,man,destructive,pa,dim,pk->ap_linexprXXX);
+	bool exact = ap_linexprMPQ_set_linexpr0(pk->ap_linexprMPQ,linexpr0,pk->num);
+	po = pkXXX_asssub_linexprMPQ_det(assign,man,destructive,pa,dim,pk->ap_linexprMPQ);
       }
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn) goto _pkeqXXX_asssub_linexpr_error;
@@ -374,7 +374,7 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
   size_t i;
   pkeqXXX_t* po;
   ap_dim_t* tdimp;
-  ap_linexprXXX_array_t arrayXXX;
+  ap_linexprMPQ_array_t arrayMPQ;
   size_t sizep;
   ap_dim_t* tdimforget;
   size_t sizeforget;
@@ -389,7 +389,7 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
   /* Choose the right technique */
   size_t size = ap_linexpr0_array_size(array);
   tdimp = malloc(size*sizeof(ap_dim_t));
-  ap_linexprXXX_array_init(arrayXXX,size);
+  ap_linexprMPQ_array_init(arrayMPQ,size);
   sizep = 0;
   tdimforget = malloc(size*sizeof(ap_dim_t));
   sizeforget = 0;
@@ -398,7 +398,7 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
     ap_linexpr0_array_ref_index(linexpr0ref,array,i);
     if (ap_linexpr0_is_linear(linexpr0ref)){
       tdimp[sizep] = tdim[i];
-      ap_linexprXXX_set_linexpr0(arrayXXX->p[sizep],linexpr0ref,pk->num);
+      ap_linexprMPQ_set_linexpr0(arrayMPQ->p[sizep],linexpr0ref,pk->num);
       sizep++;
     } else {
       tdimforget[sizeforget] = tdim[i];
@@ -406,8 +406,8 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
     }
   }
   if (sizep>0){
-    ap_linexprXXX_array_resize(arrayXXX,sizep);
-    po = pkXXX_asssub_linexprXXX_array_det(assign,man,destructive,pa,tdimp,arrayXXX);
+    ap_linexprMPQ_array_resize(arrayMPQ,sizep);
+    po = pkXXX_asssub_linexprMPQ_array_det(assign,man,destructive,pa,tdimp,arrayMPQ);
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn) goto _pkeqXXX_asssub_linexpr_array_error;
     pkeqXXX_reduce(man,po);
@@ -420,7 +420,7 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
     po = pkeqXXX_forget_array(man,destructive,pa,tdimforget,sizeforget,false);
   }
   free(tdimp);
-  ap_linexprXXX_array_clear(arrayXXX);
+  ap_linexprMPQ_array_clear(arrayMPQ);
   free(tdimforget);
   /* Is the result exact or best ? */
   man->result.flag_best = true;
@@ -428,7 +428,7 @@ pkeqXXX_t* pkeqXXX_asssub_linexpr_array(bool assign,
   return po;
  _pkeqXXX_asssub_linexpr_array_error:
   free(tdimp);
-  ap_linexprXXX_array_clear(arrayXXX);
+  ap_linexprMPQ_array_clear(arrayMPQ);
   free(tdimforget);
   pk->exn = AP_EXC_NONE;
   pkXXX_set_top(pk,po);

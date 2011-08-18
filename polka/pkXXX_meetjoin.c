@@ -503,19 +503,19 @@ pkXXX_t* pkXXX_meet_array(ap_manager_t* man,
 
 /* ---------------------------------------------------------------------- */
 /* Factorized version */
-void pkXXX_meet_ap_linconsXXX_array(bool lazy,
-				   ap_manager_t* man,
-				   pkXXX_t* po, pkXXX_t* pa,
-				   ap_linconsXXX_array_t array)
+pkXXX_t* pkXXX_meet_lincons_array_linear(ap_manager_t* man,
+					 bool destructive,
+					 pkXXX_t* pa,
+					 ap_lincons0_array_t array)
 {
   matrixXXX_t* mat;
   bool quasilinear;
-  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
 
-  quasilinear = ap_linconsXXX_array_is_quasilinear(array);
-
+  pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
+  bool lazy = pk->funopt->algorithm < 0;
   /* Get the constraint systems */
-  if (lazy && quasilinear){
+  if (lazy){
     pkXXX_obtain_C(man,pa,"of the argument");
   } else {
     pkXXX_chernikova(man,pa,"of the argument");
@@ -525,24 +525,18 @@ void pkXXX_meet_ap_linconsXXX_array(bool lazy,
     if (!pa->C){
       man->result.flag_best = man->result.flag_exact = false;
       pkXXX_set_top(pk,po);
-      return;
+      return po;
     }
   }
   /* if pa is bottom, return bottom */
   if ( !pa->C && !pa->F){
     man->result.flag_best = man->result.flag_exact = true;
     pkXXX_set(po,pa);
-    return;
+    return po;
   }
 
-  /* quasilinearize if needed */
-  if (!quasilinear){
-    matrixXXX_to_box(pk,pk->envXXX,pa->F);
-    ap_linconsXXX_array_quasilinearize(array,pk->envXXX,true,man->num);
-  }
-  ap_linconsXXX_array_linearize(array,true,man->num);
-  ap_linconsXXX_array_reduce_integer(array,po->dim.intd,man->num);
-  bool exact = matrixXXX_set_ap_linconsXXX_array(pk,&mat,array,po->dim,true);
+  if (array->discr!=AP_SCALAR_MPQ) abort();
+  bool exact = matrixXXX_set_linconsMPQ_array(pk,&mat,array->lincons_array.MPQ,po->dim,true);
   matrixXXX_sort_rows(pk,mat);
   if (!lazy) pkXXX_obtain_satC(pa);
   pkXXX_meet_matrix(true,lazy,man,po,pa,mat);
@@ -554,30 +548,30 @@ void pkXXX_meet_ap_linconsXXX_array(bool lazy,
   else {
     man->result.flag_best = man->result.flag_exact = exact ? true : false;
   }
+  assert(pkXXX_check(pk,po));
+  return po;
 }
 
 pkXXX_t* pkXXX_meet_lincons_array(ap_manager_t* man, bool destructive, pkXXX_t* pa, ap_lincons0_array_t array)
 {
-  ap_linconsXXX_array_t tcons;
-  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
-  pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
-  /*  const size_t size = ap_lincons0_array_size(array);*/
-
-  ap_linconsXXX_array_init(tcons,0);
-  bool exact = ap_linconsXXX_array_set_lincons0_array(tcons,array,man->num);
-  pkXXX_meet_ap_linconsXXX_array(pk->funopt->algorithm<0,man,po,pa,tcons);
-  ap_linconsXXX_array_clear(tcons);
-  assert(pkXXX_check(pk,po));
-  man->result.flag_exact = exact && man->result.flag_exact;
-  return po;
+  return
+    ap_generic_meet_quasilinearize_lincons_array(
+	man,destructive,pa,array,
+	AP_SCALAR_MPQ, AP_LINEXPR_LINEAR,
+	AP_LINEXPR_INTLINEAR,1,false,
+	(void*(*)(ap_manager_t*,bool,void*,ap_lincons0_array_t))pkXXX_meet_lincons_array_linear
+    );
 }
 
 pkXXX_t* pkXXX_meet_tcons_array(ap_manager_t* man, bool destructive, pkXXX_t* pa, ap_tcons0_array_t* array)
 {
-  return ap_generic_meet_intlinearize_tcons_array(
-      man,destructive,pa,array,
-      AP_SCALAR_MPQ, AP_LINEXPR_LINEAR, &pkXXX_meet_lincons_array
-  );
+  return
+    ap_generic_meet_intlinearize_tcons_array(
+	man,destructive,pa,array,
+	AP_SCALAR_MPQ, AP_LINEXPR_LINEAR,
+	AP_LINEXPR_INTLINEAR,1,false,
+	(void*(*)(ap_manager_t*,bool,void*,ap_lincons0_array_t))&pkXXX_meet_lincons_array_linear
+    );
 }
 
 /* ********************************************************************** */
@@ -603,10 +597,11 @@ pkXXX_t* pkXXX_join(ap_manager_t* man, bool destructive, pkXXX_t* pa, pkXXX_t* p
   return po;
 }
 
-static int pkXXX_cmp(void* a, void* b)
+static int pkXXX_cmp(const void* a, const
+void* b)
 {
-  pkXXX_t* pa = *((pkXXX_t**)a);
-  pkXXX_t* pb = *((pkXXX_t**)b);
+  pkXXX_t* pa = *((pkXXX_t*const*)a);
+  pkXXX_t* pb = *((pkXXX_t*const*)b);
   return (pa>pb ? 1 : (pa==pb ? 0 : -1));
 }
 

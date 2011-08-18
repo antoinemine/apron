@@ -66,7 +66,7 @@ int nb_meetjoin_array = 3;
 unsigned int nb_assign_array = 4;
 unsigned int nb_substitute_array = 4;
 
-#define N 4
+#define N 1
 
 char b1_[N+4]= " [";
 char b2_[N+4];
@@ -1140,12 +1140,12 @@ void test_asssub_linexpr(void)
     precr = ap_abstract0_asssub_linexpr(manprec,false,preca,p,l,NULL);
     RESULT('*');
     bool t1 = !is_leq(precr,roughr);
-    bool t2 = random_abstract2_equal && !is_eq(precr,roughr);
+    bool t2 = false && random_abstract2_equal && !is_eq(precr,roughr);
     if (t1 || t2) {
       char msg[256];
       int n = 0;
       if (t1) n+=snprintf(msg+n,256-n,"no inclusion (still sound...) ");
-      if (t2) n+=snprintf(msg+n,256-n,"no equality (sound)");
+      if (t2) n+=snprintf(msg+n,256-n,"no equality (expected)");
       ERROR(false,msg);
       if (warning){
 	fprintf(stream,"x%i <- ",(int)p); ap_linexpr0_fprint(stream,l,NULL); fprintf(stream,"\n");
@@ -1176,12 +1176,12 @@ void test_asssub_linexpr_array(void)
     precr = ap_abstract0_asssub_linexpr_array(manprec,false,preca,d,array,NULL);
     RESULT('*');
     bool t1 = !is_leq(precr,roughr);
-    bool t2 = random_abstract2_equal && !is_eq(precr,roughr);
+    bool t2 = false && random_abstract2_equal && !is_eq(precr,roughr);
     if (t1 || t2) {
       char msg[256];
       int n = 0;
       if (t1) n+=snprintf(msg+n,256-n,"no inclusion (still sound...) ");
-      if (t2) n+=snprintf(msg+n,256-n,"no equality (sound)");
+      if (t2) n+=snprintf(msg+n,256-n,"no equality (expected)");
       ERROR(false,msg);
       if (warning){
 	for (i=0;i<nb_asssub_array;i++) {
@@ -1218,12 +1218,12 @@ void test_asssub_texpr(void)
     precr = ap_abstract0_asssub_texpr(manprec,false,preca,p,l,NULL);
     RESULT('*');
     bool t1 = !is_leq(precr,roughr);
-    bool t2 = random_abstract2_equal && !is_eq(precr,roughr);
+    bool t2 =false && random_abstract2_equal && !is_eq(precr,roughr);
     if (t1 || t2) {
       char msg[256];
       int n = 0;
       if (t1) n+=snprintf(msg+n,256-n,"no inclusion (still sound...) ");
-      if (t2) n+=snprintf(msg+n,256-n,"no equality (sound)");
+      if (t2) n+=snprintf(msg+n,256-n,"no equality (expected)");
       ERROR(false,msg);
       if (warning){
 	fprintf(stream,"x%i <- ",(int)p); ap_texpr0_fprint(stream,l,NULL); fprintf(stream,"\n");
@@ -1262,12 +1262,12 @@ void test_asssub_texpr_array(void)
     precr = ap_abstract0_asssub_texpr_array(manprec,false,preca,d,&array,NULL);
     RESULT('*');
     bool t1 = !is_leq(precr,roughr);
-    bool t2 = random_abstract2_equal && !is_eq(precr,roughr);
+    bool t2 = false && random_abstract2_equal && !is_eq(precr,roughr);
     if (t1 || t2) {
       char msg[256];
       int n = 0;
       if (t1) n+=snprintf(msg+n,256-n,"no inclusion (still sound...) ");
-      if (t2) n+=snprintf(msg+n,256-n,"no equality (sound)");
+      if (t2) n+=snprintf(msg+n,256-n,"no equality (expected)");
       ERROR(false,msg);
       if (warning){
 	for (i=0;i<nb_asssub_array;i++) {
@@ -1564,9 +1564,12 @@ void test(ap_manager_t* man1, /* the most precise */
     printf("\n\ncomparing libraries:\n- %s (%s)\n- %s (%s)\nwith int=%i\n\n",
 	   manprec->library,manprec->version,manrough->library,manrough->version,global_intdim);
     /* run tests */
+    /*
     test_conv();
     test_bound_dimension();
+    */
     test_bound_linexpr();
+    /*
     test_bound_texpr();
     test_sat_interval();
     test_sat_lincons();
@@ -1597,6 +1600,7 @@ void test(ap_manager_t* man1, /* the most precise */
     test_permute_dimensions();
     test_expand();
     test_fold();
+    */
   }
   if (warning_ || error_){
     printf("\n");
@@ -1648,18 +1652,18 @@ int main(int argc, char** argv)
   */
   /* First serie */
   global_intdim = false;
-  global_linexpr_typ = AP_LINEXPR_LINEAR;
+  global_linexpr_typ = AP_LINEXPR_QUASILINEAR;
   random_abstract = &random_abstract_std;
-  for (i=0; i<2; i++){
+  for (i=0; i<1; i++){
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manpkl,manbox);
-    test(manpks,manbox);
+    //test(manpks,manbox);
     //test(manppll,manbox);
     //test(manppls,manbox);
 
     // polyhedra/polyhedra (same library)
-    test(manpks,manpkl);
+    //test(manpks,manpkl);
     //test(manppls,manppll);
     //test(manppll,manppls);
     /*

@@ -367,6 +367,46 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
   return ap_linconsXXX_array_reduce(array,true, intern);
 }
 
+void ap_linconsXXX_array_append_set_env(ap_linconsXXX_array_t array, ap_linexprXXX_t env, bool* tchange)
+{
+  size_t i;
+  ap_dim_t dim;
+  eitvXXX_ptr eitv;
+  size_t nbrows;
+  nbrows = 0;
+  ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv) {
+    if (eitv->eq){
+      if (tchange[2*dim] || tchange[2*dim+1]) nbrows++;
+    }
+    else {
+      if (!boundXXX_infty(eitv->itv->neginf) && tchange[2*dim]) nbrows++;
+      if (!boundXXX_infty(eitv->itv->sup) && tchange[2*dim+1]) nbrows++;
+    }
+  }
+  size_t oldsize = array->size;
+  ap_linconsXXX_array_resize(array,array->size+nbrows);
+  nbrows = 0;
+  ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv) {
+    if (eitv->eq){
+      if (tchange[2*dim] || tchange[2*dim+1]){
+	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,0,boundXXX_numref(eitv->itv->sup));
+	nbrows++;
+      }
+    }
+    else {
+      if (!boundXXX_infty(eitv->itv->neginf) && tchange[2*dim]){
+	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,-1,boundXXX_numref(eitv->itv->neginf));
+	nbrows++;
+      }
+      if (!boundXXX_infty(eitv->itv->sup) && tchange[2*dim+1]){
+	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,+1,boundXXX_numref(eitv->itv->sup));
+	nbrows++;
+      }
+    }
+  }
+}
+
+
 /* ********************************************************************** */
 /* II. Linearization */
 /* ********************************************************************** */
@@ -837,7 +877,7 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
 				ap_linexprXXX_t env, size_t intdim,
-				size_t kmax,
+				unsigned int kmax,
 				bool intervalonly, num_internal_t intern)
 {
   size_t i,k;

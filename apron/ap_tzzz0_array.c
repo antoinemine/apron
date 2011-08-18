@@ -98,7 +98,7 @@ ap_dim_t ap_tzzz0_array_max_dim(ap_tzzz0_array_t* a)
   ap_dim_t res;
   size_t i;
   res = 0;
-  for (i=0; i<a->size; a++){
+  for (i=0; i<a->size; i++){
     ap_dim_t nres = ap_tzzz0_max_dim(a->p[i]);
     if (nres>res) res = nres;
   }

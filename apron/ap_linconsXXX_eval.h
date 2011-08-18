@@ -58,6 +58,15 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
   /* Apply first ap_linconsXXX_reduce_integer, and then
      ap_linconsXXX_array_reduce(.,.,true), not valid for testing satisfiablity */
 
+void ap_linconsXXX_array_append_set_env(ap_linconsXXX_array_t array, ap_linexprXXX_t env, bool* tchange);
+/* Append at the end of array the constraints equivalent to env considered as
+   a (sparse) bounding box.
+
+   Such a constraint is added only if tchange[2*dim] (inf bound) or
+   tchange[2*dim+1] (sup bound) is true.
+ */
+
+
 /* ********************************************************************** */
 /* II. Linearization */
 /* ********************************************************************** */
@@ -116,7 +125,7 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
 				ap_linexprXXX_t env, size_t intdim,
-				size_t kmax,
+				unsigned int kmax,
 				bool intervalonly, num_internal_t intern);
   /* Deduce interval constraints from a set of interval linear constraints.
 

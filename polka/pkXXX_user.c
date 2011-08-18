@@ -7,6 +7,8 @@
 
 #include "pkXXX_internal.h"
 #include "ap_linexprXXX.h"
+#include "num_conv.h"
+
 
 /* Fills the vector with the constraint:
    dim <= numrat if sgn>0,
@@ -115,52 +117,62 @@ bool vectorXXX_set_linexpr_bound(
 /* ********************************************************************** */
 
 /* Fills the vector with the quasi-linear expression (ap_linexprMPQ) */
-void vectorXXX_set_ap_linexprXXX(
+#define _numXXX_
+#if defined(_numMPQ_)
+#define numintXXX_set_numintMPQ_special(a,b,c) (a)=(b)
+#else
+#define numintXXX_set_numintMPQ_special(a,b,c) numintXXX_set_numMPZ(a,b,c)
+#endif
+
+void vectorXXX_set_linexprMPQ(
     pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linexprXXX_t expr, ap_dimension_t dim, int mode)
+    ap_linexprMPQ_t expr, ap_dimension_t dim, int mode)
 {
   size_t i;
   ap_dim_t d;
-  eitvXXX_ptr eitv;
+  eitvMPQ_ptr eitv;
+  numintXXX_ptr numintXXX = pk->vector_tmp[0];
 
   /* compute lcm of denominators, in vec[0] */
   if (mode>=0){
-    assert(!boundXXX_infty(expr->cst->itv->sup));
-    if (boundXXX_sgn(expr->cst->itv->sup))
-      numintXXX_set(vec[0],
-		    numXXX_denref(boundXXX_numref(expr->cst->itv->sup)));
+    assert(!boundMPQ_infty(expr->cst->itv->sup));
+    if (boundMPQ_sgn(expr->cst->itv->sup))
+      numintXXX_set_numMPZ(vec[0],
+			   numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),
+			   pk->num);
     else
       numintXXX_set_int(vec[0],1);
   } else {
-    assert(!boundXXX_infty(expr->cst->itv->neginf));
-    if (boundXXX_sgn(expr->cst->itv->neginf))
-      numintXXX_set(vec[0],
-		    numXXX_denref(boundXXX_numref(expr->cst->itv->neginf)));
+    assert(!boundMPQ_infty(expr->cst->itv->neginf));
+    if (boundMPQ_sgn(expr->cst->itv->neginf))
+      numintXXX_set_numMPZ(vec[0],
+			   numMPQ_denref(boundMPQ_numref(expr->cst->itv->neginf)),
+			   pk->num);
     else
       numintXXX_set_int(vec[0],1);
   }
   ap_linexprXXX_ForeachLinterm0(expr,i,d,eitv){
     assert(eitv->eq);
-    numintXXX_lcm(vec[0],vec[0],numXXX_denref(boundXXX_numref(eitv->itv->sup)));
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),pk->num);
+    numintXXX_lcm(vec[0],vec[0],numintXXX);
   }
 
   /* Fill the vector */
   if (pk->strict) numintXXX_set_int(vec[polka_eps],0);
   /* constant coefficient */
   if (mode>=0){
-    numintXXX_divexact(vec[polka_cst],
-		       vec[0],
-		       numXXX_denref(boundXXX_numref(expr->cst->itv->sup)));
-    numintXXX_mul(vec[polka_cst],
-		  vec[polka_cst],
-		  numXXX_numref(boundXXX_numref(expr->cst->itv->sup)));
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_divexact(vec[polka_cst], vec[0], numintXXX);
+
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_mul(vec[polka_cst], vec[polka_cst], numintXXX);
   } else {
-    numintXXX_divexact(vec[polka_cst],
-		       vec[0],
-		       numXXX_denref(boundXXX_numref(expr->cst->itv->neginf)));
-    numintXXX_mul(vec[polka_cst],
-		  vec[polka_cst],
-		  numXXX_numref(boundXXX_numref(expr->cst->itv->neginf)));
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
+    numintXXX_divexact(vec[polka_cst], vec[0], numintXXX);
+
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
+    numintXXX_mul(vec[polka_cst], vec[polka_cst], numintXXX);
+
     numintXXX_neg(vec[polka_cst],vec[polka_cst]);
   }
   /* Other coefficients */
@@ -169,18 +181,19 @@ void vectorXXX_set_ap_linexprXXX(
   }
   ap_linexprXXX_ForeachLinterm0(expr,i,d,eitv){
     size_t index = pk->dec + d;
-    numintXXX_divexact(vec[index],
-		       vec[0],numXXX_denref(boundXXX_numref(eitv->itv->sup)));
-    numintXXX_mul(vec[index],
-		  vec[index],numXXX_numref(boundXXX_numref(eitv->itv->sup)));
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_divexact(vec[index],vec[0],numintXXX);
+
+    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_mul(vec[index],vec[index],numintXXX);
   }
   return;
 }
 
 /* Fills the vector(s) with the fully linear constraint cons */
-void vectorXXX_set_ap_linconsXXX(pkXXX_internal_t* pk,
+void vectorXXX_set_linconsMPQ(pkXXX_internal_t* pk,
 				 numintXXX_t* vec,
-				 ap_linconsXXX_t cons,
+				 ap_linconsMPQ_t cons,
 				 ap_dimension_t dim,
 				 bool integer)
 {
@@ -188,10 +201,10 @@ void vectorXXX_set_ap_linconsXXX(pkXXX_internal_t* pk,
   assert(cons->constyp == AP_CONS_EQ ||
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
-  assert(ap_linexprXXX_is_linear(cons->linexpr));
+  assert(ap_linexprMPQ_is_linear(cons->linexpr));
 
   size = pk->dec+ap_dimension_size(dim);
-  vectorXXX_set_ap_linexprXXX(pk, vec, cons->linexpr, dim, 1);
+  vectorXXX_set_linexprMPQ(pk, vec, cons->linexpr, dim, 1);
   vectorXXX_normalize(pk,vec,size);
   if (cons->constyp == AP_CONS_EQ){
     numintXXX_set_int(vec[0],0);
@@ -218,9 +231,9 @@ void vectorXXX_set_ap_linconsXXX(pkXXX_internal_t* pk,
 
    Returns false if unsatisfiable
 */
-bool vectorXXX_set_ap_linconsXXX_sat(
+bool vectorXXX_set_linconsMPQ_sat(
     pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linconsXXX_t cons, ap_dimension_t dim, bool integer)
+    ap_linconsMPQ_t cons, ap_dimension_t dim, bool integer)
 {
   bool sat;
   size_t i,size;
@@ -233,9 +246,9 @@ bool vectorXXX_set_ap_linconsXXX_sat(
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
 
-  if (!boundXXX_infty(cons->linexpr->cst->itv->neginf)){
+  if (!boundMPQ_infty(cons->linexpr->cst->itv->neginf)){
     size = pk->dec+ap_dimension_size(dim);
-    vectorXXX_set_ap_linexprXXX(pk, vec, cons->linexpr, dim,-1);
+    vectorXXX_set_linexprMPQ(pk, vec, cons->linexpr, dim,-1);
     vectorXXX_normalize(pk,vec,size);
     if (cons->constyp == AP_CONS_EQ && cons->linexpr->cst->eq){
       numintXXX_set_int(vec[0],0);
@@ -282,8 +295,8 @@ bool vectorXXX_set_ap_lingen0(
 	 gentyp == AP_GEN_RAYMOD);
 
   ap_lingen0_linexpr0ref(linexpr0,lingen0);
-  res = ap_linexprXXX_set_linexpr0(pk->ap_linexprXXX, linexpr0, pk->num);
-  vectorXXX_set_ap_linexprXXX(pk, vec, pk->ap_linexprXXX, dim, +1);
+  res = ap_linexprMPQ_set_linexpr0(pk->ap_linexprMPQ, linexpr0, pk->num);
+  vectorXXX_set_linexprMPQ(pk, vec, pk->ap_linexprMPQ, dim, +1);
 
   numintXXX_set_int(vec[polka_cst],0);
   if (pk->strict)
@@ -333,9 +346,9 @@ bool matrixXXX_set_ap_lingen0_array(pkXXX_internal_t* pk,
 }
 
 static
-bool matrixXXX_append_ap_linconsXXX_array(pkXXX_internal_t* pk,
+bool matrixXXX_append_linconsMPQ_array(pkXXX_internal_t* pk,
 					  matrixXXX_t* mat,
-					  ap_linconsXXX_array_t array,
+					  ap_linconsMPQ_array_t array,
 					  ap_dimension_t dim,
 					  bool integer)
 {
@@ -349,12 +362,12 @@ bool matrixXXX_append_ap_linconsXXX_array(pkXXX_internal_t* pk,
   res = true;
   j = nbrows;
   for (i=0; i<array->size; i++){
-    assert(ap_linexprXXX_is_linear(array->p[i]->linexpr));
+    assert(ap_linexprMPQ_is_linear(array->p[i]->linexpr));
     switch (array->p[i]->constyp){
     case AP_CONS_EQ:
     case AP_CONS_SUPEQ:
     case AP_CONS_SUP:
-      vectorXXX_set_ap_linconsXXX(pk,mat->p[j], array->p[i],
+      vectorXXX_set_linconsMPQ(pk,mat->p[j], array->p[i],
 				  dim,integer);
       j++;
       break;
@@ -366,32 +379,32 @@ bool matrixXXX_append_ap_linconsXXX_array(pkXXX_internal_t* pk,
   mat->nbrows = j;
   return res;
 }
-bool matrixXXX_set_ap_linconsXXX_array(pkXXX_internal_t* pk,
+bool matrixXXX_set_linconsMPQ_array(pkXXX_internal_t* pk,
 				       matrixXXX_t** mat,
-				       ap_linconsXXX_array_t array,
+				       ap_linconsMPQ_array_t array,
 				       ap_dimension_t dim,
 				       bool integer)
 {
   *mat = matrixXXX_alloc(array->size,pk->dec+dim.intd+dim.reald,false);
   (*mat)->nbrows = 0;
-  return matrixXXX_append_ap_linconsXXX_array(pk,*mat,array,dim,integer);
+  return matrixXXX_append_linconsMPQ_array(pk,*mat,array,dim,integer);
 }
 
 /* ********************************************************************** */
 /* From PK to APRON */
 /* ********************************************************************** */
 
-void linconsXXX_set_vector(pkXXX_internal_t* pk,
-			   ap_linconsXXX_t lincons, numintXXX_t* q,size_t size)
+void linconsMPQ_set_vectorXXX(pkXXX_internal_t* pk,
+			      ap_linconsMPQ_t lincons, numintXXX_t* q,size_t size)
 {
   bool error;
   size_t i;
-  ap_linexprXXX_resize(lincons->linexpr,0);
-  eitvXXX_set_val(pk->num,lincons->linexpr->cst,EITV_NUMINTXXX,q[polka_cst]);
+  ap_linexprMPQ_resize(lincons->linexpr,0);
+  eitvMPQ_set_val(pk->num,lincons->linexpr->cst,EITV_NUMINTXXX,q[polka_cst]);
   for (i=pk->dec; i<size; i++){
     if (numintXXX_sgn(q[i])!=0){
       ap_dim_t dim = i - pk->dec;
-      ap_linexprXXX_set_list0(pk->num,lincons->linexpr,&error,
+      ap_linexprMPQ_set_list0(pk->num,lincons->linexpr,&error,
 			      AP_COEFF_NUMINTXXX,q[i],dim,AP_END);
       assert(!error);
     }
@@ -408,10 +421,16 @@ void linconsXXX_set_vector(pkXXX_internal_t* pk,
   mpq_set_si(lincons->mpq,0,1);
 }
 bool lincons0_set_vectorXXX(pkXXX_internal_t* pk,
-			 ap_lincons0_t lincons0, numintXXX_t* q,size_t size)
+			    ap_lincons0_t lincons0, numintXXX_t* q,size_t size)
 {
-  linconsXXX_set_vector(pk,pk->ap_linconsXXX,q,size);
-  return ap_lincons0_set_linconsXXX(lincons0,pk->ap_linconsXXX,pk->num);
+  if (lincons0->discr==AP_SCALAR_MPQ){
+    linconsMPQ_set_vectorXXX(pk,lincons0->lincons.MPQ,q,size);
+    return true;
+  }
+  else {
+    linconsMPQ_set_vectorXXX(pk,pk->ap_linconsMPQ,q,size);
+    return ap_lincons0_set_linconsMPQ(lincons0,pk->ap_linconsMPQ,pk->num);
+  }
 }
 
 void lingenXXX_set_vector(pkXXX_internal_t* pk,

@@ -230,9 +230,9 @@ pkXXX_t* pkXXX_widening_threshold(ap_manager_t* man,
     case AP_CONS_SUPEQ:
     case AP_CONS_SUP:
       if (ap_lincons0_is_linear(lincons0)){
-	ap_linconsXXX_set_lincons0(pk->ap_linconsXXX,lincons0,pk->num);
-	vectorXXX_set_ap_linconsXXX(
-	    pk, pk->numintXXXp, pk->ap_linconsXXX,pa->dim,true);
+	ap_linconsMPQ_set_lincons0(pk->ap_linconsMPQ,lincons0,pk->num);
+	vectorXXX_set_linconsMPQ(
+	    pk, pk->numintXXXp, pk->ap_linconsMPQ,pa->dim,true);
 	if (do_generators_sat_vectorXXX(pk,pb->F,
 					pk->numintXXXp,
 					pk->strict &&

@@ -59,12 +59,14 @@ struct pkXXX_internal_t {
   numintXXX_t cherni_prod;
 
   eitvXXX_t eitvXXX;
-  ap_linexprXXX_t ap_linexprXXX;
-  ap_linconsXXX_t ap_linconsXXX;
+  ap_linexprMPQ_t ap_linexprMPQ;
+  ap_linconsMPQ_t ap_linconsMPQ;
   ap_lingenXXX_t ap_lingenXXX;
   ap_linexprMPQ_array_t linexprMPQ_array;
   ap_linexprXXX_t envXXX;                  /* of size maxdims */
   numXXX_t numratXXX;
+  numXXX_t numrat2XXX;
+  numXXX_t numrat3XXX;
   numintXXX_t* numintXXXp;            /* of size maxcols */
   numintXXX_t* numintXXXp2;           /* of size maxcols */
   /* bitstring_t* poly_bitstringp; */    /* of size maxrows */
@@ -445,8 +447,8 @@ void matrixXXX_bound_vector(
 bool pkXXX_meet_matrix(
     bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, matrixXXX_t* mat
 );
-void pkXXX_meet_ap_linconsXXX_array(
-    bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsXXX_array_t array
+void pkXXX_meet_linconsMPQ_array(
+    bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsMPQ_array_t array
 );
 void pkXXX_meetjoin(
     bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb
@@ -484,21 +486,21 @@ bool vectorXXX_set_linexpr_bound(
     ap_dimension_t dim, bool integer);
 
 /* Fills the vector with the quasi-linear expression (ap_linexprXXX) */
-void vectorXXX_set_ap_linexprXXX(
+void vectorXXX_set_linexprMPQ(
     pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linexprXXX_t expr, ap_dimension_t dim, int mode);
+    ap_linexprMPQ_t expr, ap_dimension_t dim, int mode);
 
 /* Fills the vector(s) with the linear constraint cons */
-void vectorXXX_set_ap_linconsXXX(
+void vectorXXX_set_linconsMPQ(
     pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linconsXXX_t cons, ap_dimension_t dim, bool integer);
+    ap_linconsMPQ_t cons, ap_dimension_t dim, bool integer);
 
 /* Fills the vector(s) with the linear constraint cons for testing
    satisfiability. Returns false if unsatisfiable
  */
-bool vectorXXX_set_ap_linconsXXX_sat(
+bool vectorXXX_set_linconsMPQ_sat(
     pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linconsXXX_t cons, ap_dimension_t dim, bool integer);
+    ap_linconsMPQ_t cons, ap_dimension_t dim, bool integer);
 
 /* From APRON to PK */
 /* Fills the vector with the generator gen. */
@@ -511,8 +513,8 @@ bool matrixXXX_set_ap_lingen0_array(
     ap_dimension_t dim
 );
 /* From ITV to PK */
-bool matrixXXX_set_ap_linconsXXX_array(
-    pkXXX_internal_t* pk, matrixXXX_t** mat, ap_linconsXXX_array_t array,
+bool matrixXXX_set_linconsMPQ_array(
+    pkXXX_internal_t* pk, matrixXXX_t** mat, ap_linconsMPQ_array_t array,
     ap_dimension_t dim, bool integer
 );
 /* From PK to APRON */
@@ -587,13 +589,13 @@ static inline void pkXXX_obtain_F_dual(ap_manager_t* man, pkXXX_t* po, char* msg
   if (!po->F) pkXXX_chernikova_dual(man,po,msg,usual);
 }
 
-pkXXX_t* pkXXX_asssub_linexprXXX_det(
+pkXXX_t* pkXXX_asssub_linexprMPQ_det(
     bool assign, ap_manager_t* man, bool destructive,
-    pkXXX_t* pa, ap_dim_t dim, ap_linexprXXX_t linexpr
+    pkXXX_t* pa, ap_dim_t dim, ap_linexprMPQ_t linexpr
 );
-pkXXX_t* pkXXX_asssub_linexprXXX_array_det(
+pkXXX_t* pkXXX_asssub_linexprMPQ_array_det(
     bool assign, ap_manager_t* man, bool destructive,
-    pkXXX_t* pa, ap_dim_t* tdim, ap_linexprXXX_array_t texpr
+    pkXXX_t* pa, ap_dim_t* tdim, ap_linexprMPQ_array_t texpr
 );
 
 #ifdef __cplusplus
