@@ -12,8 +12,9 @@
    API, when there is no more specific and efficient implementation for the
    domain being implemented.
 
-   To use them, the function allocating manager, which is specific to the domain,
-   should put the corresponding pointers in the virtual table to them.
+   To use them, the function allocating manager, which is specific to the
+   domain, should put the corresponding pointers in the virtual table to
+   them.
 
    They manipulated "unboxed" abstract values, which are native to the
    underlying library: they are not yet boxed with the manager in the type
@@ -251,6 +252,7 @@ bool ap_generic_sat_lincons(ap_manager_t* man, void* abs, ap_lincons0_t cons,
     res = ap_generic_sat_linconsXXX_array_internal(
 	man,abs,arrayX,linearize,NULL,boxize,&exact
     );
+    ap_linconsXXX_array_clear(arrayX);
   }
   ENDMACRO;
   man->result.flag_exact =  man->result.flag_exact && exact;
@@ -293,7 +295,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
     }
     res = ap_generic_sat_linconsXXX_array_internal(man,abs,arrayX,
 						   linearize,penv,boxize,&exact);
-    if (penv) ap_linexpr0_clear(env);
+    ap_linconsXXX_array_clear(arrayX);
   }
   ENDMACRO;
   if (penv) ap_linexpr0_clear(env);
@@ -333,6 +335,7 @@ ap_generic_bound_linexpr(ap_manager_t* man, ap_coeff_t interval,
       eitvXXX_init(eitv);
       peitv = eitv;
     }
+    exact = true;
     ap_generic_bound_linexprXXX_internal(
 	man,peitv,abs,linexprX,
 	quasilinearize,NULL,boxize,&exact
@@ -513,12 +516,13 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
     }
     unsigned int size = ap_dimension_size(dim);
     bool* tchange = malloc(2*size);
+    for (unsigned int i=0;i<2*size;i++) tchange[i] = false;
     *exact =
       ap_linconsXXX_array_boxize(
-	  env->linexpr.XXX,tchange,arrayX,env->linexpr.XXX,
+	  penv->linexpr.XXX,tchange,arrayX,penv->linexpr.XXX,
 	  dim.intd,kmax,intervalonly,man->num
       ) && *exact;
-    ap_linconsXXX_array_append_set_env(arrayX,env->linexpr.XXX,tchange);
+    ap_linconsXXX_array_append_set_env(arrayX,penv->linexpr.XXX,tchange);
     free(tchange);
   }
   while (typ<linearize){

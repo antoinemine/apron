@@ -1070,8 +1070,8 @@ ap_abstract1_t* ap_abstract1_expand(ap_manager_t* man,
 
 static int compar_dim(const void* a, const void* b)
 {
-  int va = *((ap_dim_t*)a);
-  int vb = *((ap_dim_t*)b);
+  int va = *((const ap_dim_t*)a);
+  int vb = *((const ap_dim_t*)b);
   return (va-vb);
 }
 ap_abstract1_t* ap_abstract1_fold(ap_manager_t* man,

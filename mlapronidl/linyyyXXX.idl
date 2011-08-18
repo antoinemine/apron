@@ -69,7 +69,7 @@ enum ap_exprtyp_t ap_linyyyXXX_typ(ap_linyyyXXX_ptr a)
   quote(call,"\n\
 unsigned int effsize = ap_linyyyXXX_size(a);\n\
 _res = ap_malloc(effsize*sizeof(ap_dim_t));\n\
-size = ap_linyyyXXX_supportinterval(a,_res);\n\
+size = ap_linyyyXXX_supportinterval(a,_res,effsize);\n\
 ")
   quote(dealloc,"free(_res);");
 quote(MLI,"val supportinterval : t -> Dim.t array")
@@ -197,11 +197,7 @@ enum ap_exprtyp_t ap_linyyyXXX_array_typ(ap_linyyyXXX_array_ptr array)
 [size_is(size)]ap_dim_t* ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_ptr array, [out]unsigned int size)
   quote(call,"\n\
 unsigned int i,maxdim;\n\
-maxdim = 0;\n\
-for (i=0; i<array->size; i++){\n\
-  unsigned int effsize = ap_linyyyXXX_size(array->p[i]);\n\
-  if (effsize>maxdim) maxdim = effsize;\n\
-}\n\
+maxdim = ap_linyyyXXX_array_max_dim(array);
 _res = ap_malloc(maxdim*sizeof(ap_dim_t));\n\
 size = ap_linyyyXXX_array_supportinterval(array,_res,maxdim);\n\
 ")

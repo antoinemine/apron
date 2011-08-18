@@ -387,7 +387,7 @@ void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
  }
 
 void eitvXXX_print(eitvXXX_t a)
-{ eitvXXX_fprint(stdout, a); }
+{ eitvXXX_fprint(stdout, a); fflush(stdout); }
 
 int eitvXXX_snprint(char* s, int size, eitvXXX_t a)
 {

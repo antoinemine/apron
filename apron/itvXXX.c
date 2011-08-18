@@ -576,7 +576,7 @@ void itvXXX_fprint(FILE* stream, itvXXX_t a)
   }
 }
 void itvXXX_print(itvXXX_t itv){
-  itvXXX_fprint(stdout,itv);
+  itvXXX_fprint(stdout,itv); fflush(stdout);
 }
 int itvXXX_snprint(char* s, int size, itvXXX_t a)
 {

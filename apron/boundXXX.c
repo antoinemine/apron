@@ -11,7 +11,7 @@ void boundXXX_fprint(FILE* stream, boundXXX_t a)
 }
 void boundXXX_print(boundXXX_t a)
 {
-  boundXXX_fprint(stdout,a);
+  boundXXX_fprint(stdout,a); fflush(stdout);
 }
 int boundXXX_snprint(char* s, int size, boundXXX_t a)
 {

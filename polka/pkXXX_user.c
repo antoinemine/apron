@@ -125,14 +125,14 @@ bool vectorXXX_set_linexpr_bound(
 #endif
 
 void vectorXXX_set_linexprMPQ(
-    pkXXX_internal_t* pk, numintXXX_t* vec,
-    ap_linexprMPQ_t expr, ap_dimension_t dim, int mode)
+			      pkXXX_internal_t* pk, numintXXX_t* vec,
+			      ap_linexprMPQ_t expr, ap_dimension_t dim, int mode)
 {
   size_t i;
   ap_dim_t d;
   eitvMPQ_ptr eitv;
-  numintXXX_ptr numintXXX = pk->vector_tmp[0];
-
+  numintXXX_ptr tmp = pk->vector_tmp[0];
+  
   /* compute lcm of denominators, in vec[0] */
   if (mode>=0){
     assert(!boundMPQ_infty(expr->cst->itv->sup));
@@ -153,39 +153,40 @@ void vectorXXX_set_linexprMPQ(
   }
   ap_linexprXXX_ForeachLinterm0(expr,i,d,eitv){
     assert(eitv->eq);
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),pk->num);
-    numintXXX_lcm(vec[0],vec[0],numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),pk->num);
+    numintXXX_lcm(vec[0],vec[0],tmp);
   }
-
-  /* Fill the vector */
+  /* Initialize the vector */
   if (pk->strict) numintXXX_set_int(vec[polka_eps],0);
+  for (i=pk->dec;i<pk->dec+dim.intd+dim.reald; i++){
+    numintXXX_set_int(vec[i],0);
+  }
+  /* Fill the vector */
   /* constant coefficient */
+  /* if we have p/q, put compute (lcm/q)*p = p*lcm/q */ 
   if (mode>=0){
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
-    numintXXX_divexact(vec[polka_cst], vec[0], numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_divexact(vec[polka_cst], vec[0], tmp);
 
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
-    numintXXX_mul(vec[polka_cst], vec[polka_cst], numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_numref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
+    numintXXX_mul(vec[polka_cst], vec[polka_cst], tmp);
   } else {
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
-    numintXXX_divexact(vec[polka_cst], vec[0], numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_denref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
+    numintXXX_divexact(vec[polka_cst], vec[0], tmp);
 
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
-    numintXXX_mul(vec[polka_cst], vec[polka_cst], numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_numref(boundMPQ_numref(expr->cst->itv->neginf)),pk->num);
+    numintXXX_mul(vec[polka_cst], vec[polka_cst], tmp);
 
     numintXXX_neg(vec[polka_cst],vec[polka_cst]);
   }
   /* Other coefficients */
-  for (i=pk->dec;i<pk->dec+dim.intd+dim.reald; i++){
-    numintXXX_set_int(vec[i],0);
-  }
   ap_linexprXXX_ForeachLinterm0(expr,i,d,eitv){
     size_t index = pk->dec + d;
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
-    numintXXX_divexact(vec[index],vec[0],numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_denref(boundMPQ_numref(eitv->itv->sup)),pk->num);
+    numintXXX_divexact(vec[index],vec[0],tmp);
 
-    numintXXX_set_numintMPQ_special(numintXXX,numMPQ_numref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
-    numintXXX_mul(vec[index],vec[index],numintXXX);
+    numintXXX_set_numintMPQ_special(tmp,numMPQ_numref(boundMPQ_numref(eitv->itv->sup)),pk->num);
+    numintXXX_mul(vec[index],vec[index],tmp);
   }
   return;
 }
