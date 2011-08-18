@@ -61,7 +61,7 @@ int nb_meetjoin_array = 4;
 unsigned int nb_assign_array = 4;
 unsigned int nb_substitute_array = 4;
 
-#define N 3
+#define N 2
 
 char b1_[N+4]= " [";
 char b2_[N+4];
@@ -1711,7 +1711,6 @@ void test(ap_manager_t* man1, /* the most precise */
     /* run tests */
     //    test_conv();
     test_bound_dimension();
-    /*
     test_bound_linexpr();
     test_bound_texpr();
     test_sat_interval();
@@ -1742,7 +1741,6 @@ void test(ap_manager_t* man1, /* the most precise */
     test_permute_dimensions();
     test_expand();
     test_fold();
-    */
   }
   if (error_){
     printf("\n%i error(s)!\n",error_);

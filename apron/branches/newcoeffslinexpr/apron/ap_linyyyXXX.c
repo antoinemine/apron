@@ -125,6 +125,20 @@ void ap_linconsXXX_set_bool(ap_linconsXXX_t lincons, bool value)
   eitvXXX_set_int(lincons->linexpr->cst,value ? 0 : 1);
   lincons->constyp = AP_CONS_EQ;
 }
+void ap_linconsXXX_set_dim_num(ap_linconsXXX_t lincons, ap_dim_t dim, bool sgn, numXXX_t num)
+{
+  ap_linconsXXX_set_zero(lincons);
+  eitvXXX_ptr eitv = ap_linconsXXX_cstref(lincons);
+  eitvXXX_set_num(eitv,num);
+  eitv = ap_linconsXXX_eitvref0(lincons,dim,true);
+  if (sgn>=0){
+    eitvXXX_set_int(eitv,-1);
+    lincons->constyp = (sgn>0) ? AP_CONS_SUPEQ : AP_CONS_EQ;
+  } else {
+    eitvXXX_set_int(eitv,1);
+    lincons->constyp = AP_CONS_SUPEQ;
+  }
+}
 #endif
 
 ap_linyyyXXX_ptr ap_linyyyXXX_alloc(size_t size)
@@ -872,6 +886,7 @@ void ap_linyyyXXX_array_fprint(FILE* stream, ap_linyyyXXX_array_t array, char** 
 }
 void ap_linyyyXXX_array_print(ap_linyyyXXX_array_t array, char** name)
 { ap_linyyyXXX_array_fprint(stdout,array,name); }
+
 
 /* ====================================================================== */
 /* II. Tests */

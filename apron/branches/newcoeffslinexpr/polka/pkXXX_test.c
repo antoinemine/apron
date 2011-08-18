@@ -8,6 +8,7 @@
 #include "pkXXX_internal.h"
 #include "ap_linconsXXX.h"
 #include "ap_lingenXXX.h"
+#include "ap_generic.h"
 
 /* ====================================================================== */
 /* Emptiness test */
@@ -234,9 +235,8 @@ bool pkXXX_is_eq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
 /* Satisfiability of a linear constraint */
 /* ====================================================================== */
 
-bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
+bool pkXXX_sat_lincons_linear(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
 {
-  bool exact;
   bool sat;
   size_t dim;
   ap_constyp_t constyp;
@@ -266,94 +266,41 @@ bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
     return false;
   }
   dim = po->dim.intd + po->dim.reald;
-  ap_linconsXXX_set_lincons0(pk->ap_linconsXXX,lincons0,pk->num);
-  if (!ap_linconsXXX_is_quasilinear(pk->ap_linconsXXX)){
-    matrixXXX_to_box(pk,pk->envXXX,po->F);
-    exact = ap_linconsXXX_set_lincons0(
-	pk->ap_linconsXXX, lincons0, pk->num);
-    exact = ap_linconsXXX_quasilinearize(
-	pk->ap_linconsXXX, pk->envXXX, false, pk->num
-    ) && exact;
-  }
-  else {
-    exact = ap_linconsXXX_set_lincons0(
-	pk->ap_linconsXXX,lincons0,pk->num);
-  }
-  if (pk->ap_linconsXXX->linexpr->effsize==0){
-    sat = (ap_linconsXXX_evalcst(pk->ap_linconsXXX,pk->num)==tbool_true);
+  ap_linconsMPQ_set_lincons0(pk->ap_linconsMPQ,lincons0,pk->num);
+  if (pk->ap_linconsMPQ->linexpr->effsize==0){
+    sat = (ap_linconsMPQ_evalcst(pk->ap_linconsMPQ,pk->num)==tbool_true);
     man->result.flag_exact = man->result.flag_best = true;
   }
   else {
-    sat = vectorXXX_set_ap_linconsXXX_sat(
-	pk, pk->numintXXXp, pk->ap_linconsXXX, po->dim, true);
+    sat = vectorXXX_set_linconsMPQ_sat(
+	pk, pk->numintXXXp, pk->ap_linconsMPQ, po->dim, true);
     if (sat){
       sat = do_generators_sat_vectorXXX(pk,po->F,
 					pk->numintXXXp,
-					pk->ap_linconsXXX->constyp==AP_CONS_SUP);
+					pk->ap_linconsMPQ->constyp==AP_CONS_SUP);
     }
     man->result.flag_exact = man->result.flag_best =
       sat ?
       true :
       (
 	  ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-	    exact && ap_linconsXXX_is_real(pk->ap_linconsXXX,po->dim.intd) ) ?
+	    ap_linconsMPQ_is_real(pk->ap_linconsMPQ,po->dim.intd) ) ?
 	  true :
 	  false );
   }
   return sat;
 }
 
+bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
+{
+  if (ap_lincons0_is_linear(lincons0))
+    return pkXXX_sat_lincons_linear(man,po,lincons0);
+  else
+    return ap_generic_sat_lincons(man,po,lincons0,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR);
+}
 bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
 {
-  bool sat;
-  size_t dim;
-  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
-
-  if (pk->funopt->algorithm>0)
-    pkXXX_chernikova(man,po,NULL);
-  else
-    pkXXX_obtain_F(man,po,NULL);
-
-  if (pk->exn){
-    pk->exn = AP_EXC_NONE;
-    return false;
-  }
-  if (!po->F){ /* po is empty */
-    man->result.flag_exact = man->result.flag_best = true;
-    return true;
-  }
-  switch (cons->constyp){
-  case AP_CONS_EQ:
-  case AP_CONS_SUPEQ:
-  case AP_CONS_SUP:
-    break;
-  default:
-    man->result.flag_exact = man->result.flag_best = false;
-    return false;
-  }
-  dim = po->dim.intd + po->dim.reald;
-
-  matrixXXX_to_box(pk,pk->envXXX,po->F);
-  ap_linconsXXX_intlinearize_tcons0(pk->ap_linconsXXX,
-				    cons,pk->envXXX,po->dim.intd,pk->num);
-  ap_linconsXXX_quasilinearize(pk->ap_linconsXXX,pk->envXXX,false,pk->num);
-  if (pk->ap_linconsXXX->linexpr->effsize==0){
-    sat = (ap_linconsXXX_evalcst(pk->ap_linconsXXX,pk->num)==tbool_true);
-    man->result.flag_exact = man->result.flag_best = true;
-  }
-  else {
-    sat = vectorXXX_set_ap_linconsXXX_sat(pk,
-					  pk->numintXXXp,
-					  pk->ap_linconsXXX,
-					  po->dim, true);
-    if (sat){
-      sat = do_generators_sat_vectorXXX(pk,po->F,
-					pk->numintXXXp,
-					cons->constyp==AP_CONS_SUP);
-    }
-    man->result.flag_exact = man->result.flag_best = sat;
-  }
-  return sat;
+  return ap_generic_sat_tcons(man,po,cons,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR);
 }
 
 /* ====================================================================== */

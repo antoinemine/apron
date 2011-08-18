@@ -8,6 +8,7 @@
 #include "pkXXX_internal.h"
 #include "ap_linexprXXX.h"
 #include "ap_generic.h"
+#include "num_conv.h"
 
 /* Bounding the value of a dimension in a matrix of generators. */
 
@@ -153,34 +154,49 @@ void matrixXXX_bound_vector(pkXXX_internal_t* pk,
 /* Bounding the value of an (interval) linear expression (ap_linexprXXX) in a
    generator vector
 */
+#define _numXXX_
+#if defined(_numMPQ_)
+#define numXXX_set_numMPQ_special(a,b,c) (a)=(b)
+#define eitvXXX_set_eitvMPQ_special(a,b,c) (a)=(b)
+#else
+#define numXXX_set_numMPQ_special(a,b,c) numXXX_set_numMPQ(a,b,c)
+#define eitvXXX_set_eitvMPQ_special(a,b,c) eitvXXX_set_eitvMPQ(a,b,c)
+#endif
+
 static
-void vectorXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
-				   eitvXXX_t eitv,
-				   ap_linexprXXX_t linexpr,
-				   numintXXX_t* vec, size_t size)
+void vectorXXX_bound_linexprMPQ(pkXXX_internal_t* pk,
+				eitvXXX_t eitv,
+				ap_linexprMPQ_t linexpr,
+				numintXXX_t* vec, size_t size)
 {
   size_t i,dim;
-  eitvXXX_ptr peitv;
-  eitvXXX_ptr prod;
-  numXXX_ptr rat;
+  eitvMPQ_ptr peitv;
 
-  prod = pk->eitvXXX;
-  rat = pk->numratXXX;
+
+  numXXX_ptr prod = pk->numratXXX;
+  numXXX_ptr rat = pk->numrat2XXX;
+  numXXX_ptr rat2 = pk->numrat3XXX;
+  eitvXXX_ptr eitvXXX = pk->eitvXXX;
 
   numXXX_set_int(rat,1);
-  eitvXXX_set_int(eitv,0);
+  numXXX_set_int(eitv->itv->sup,0);
   ap_linexprXXX_ForeachLinterm0(linexpr,i,dim,peitv){
+    assert(eitv->eq);
     size_t index = pk->dec + dim;
     if (numintXXX_sgn(vec[index])){
       numintXXX_set(numXXX_numref(rat),vec[index]);
-      eitvXXX_mul_num(prod,peitv,rat);
-      eitvXXX_add(eitv,eitv,prod);
+      numXXX_set_numMPQ_special(rat2,peitv->itv->sup,pk->num);
+      numXXX_mul(prod,rat,rat2);
+      numXXX_add(eitv->itv->sup,eitv->itv->sup,prod);
     }
   }
+  boundXXX_neg(eitv->itv->neginf,eitv->itv->sup);
+  eitv->eq = true;
   if (numintXXX_sgn(vec[polka_cst])){
     numintXXX_set(numXXX_numref(rat),vec[polka_cst]);
     eitvXXX_div_num(eitv,eitv,rat);
-    eitvXXX_add(eitv,eitv,linexpr->cst);
+    eitvXXX_set_eitvMPQ_special(eitvXXX,linexpr->cst,pk->num);
+    eitvXXX_add(eitv,eitv,eitvXXX);
   }
   return;
 }
@@ -189,9 +205,9 @@ void vectorXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
    matrix of generators.
 */
 static
-void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
+void matrixXXX_bound_linexprMPQ(pkXXX_internal_t* pk,
 				   eitvXXX_t eitv,
-				   ap_linexprXXX_t linexpr,
+				   ap_linexprMPQ_t linexpr,
 				   matrixXXX_t* F)
 {
   size_t i;
@@ -205,12 +221,12 @@ void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
   eitvXXX_init(prod);
   for (i=0; i<F->nbrows; i++){
     if (!pk->strict || numintXXX_sgn(F->p[i][polka_eps])==0 ){
-      vectorXXX_bound_ap_linexprXXX(pk, prod, linexpr, F->p[i], F->nbcolumns);
+      vectorXXX_bound_linexprMPQ(pk, prod, linexpr, F->p[i], F->nbcolumns);
       if (numintXXX_sgn(F->p[i][0])==0){
 	/* line: result should be zero */
 	if (!eitvXXX_is_zero(prod)){
 	  eitvXXX_set_top(eitv);
-	  goto _matrixXXX_bound_ap_linexprXXX_exit;
+	  goto _matrixXXX_bound_linexprMPQ_exit;
 	}
       }
       else if (numintXXX_sgn(F->p[i][polka_cst])==0){
@@ -220,17 +236,17 @@ void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
 	    /* [inf,sup]>0 */
 	    boundXXX_set_infty(eitv->itv->sup,+1);
 	    if (boundXXX_infty(eitv->itv->neginf) && boundXXX_sgn(eitv->itv->neginf)>0)
-	      goto _matrixXXX_bound_ap_linexprXXX_exit;
+	      goto _matrixXXX_bound_linexprMPQ_exit;
 	  }
 	  else if (boundXXX_sgn(prod->itv->sup)<0){
 	    /* [inf,sup]<0 */
 	    boundXXX_set_infty(eitv->itv->neginf,+1);
 	    if (boundXXX_infty(eitv->itv->sup) && boundXXX_sgn(eitv->itv->sup)>0)
-	      goto _matrixXXX_bound_ap_linexprXXX_exit;
+	      goto _matrixXXX_bound_linexprMPQ_exit;
 	  }
 	  else {
 	    eitvXXX_set_top(eitv);
-	    goto _matrixXXX_bound_ap_linexprXXX_exit;
+	    goto _matrixXXX_bound_linexprMPQ_exit;
 	  }
 	}
       }
@@ -239,7 +255,7 @@ void matrixXXX_bound_ap_linexprXXX(pkXXX_internal_t* pk,
       }
     }
   }
- _matrixXXX_bound_ap_linexprXXX_exit:
+ _matrixXXX_bound_linexprMPQ_exit:
   eitvXXX_clear(prod);
   eitv->eq = itvXXX_is_point(eitv->itv);
   return;
@@ -286,10 +302,10 @@ void pkXXX_bound_dimension(ap_manager_t* man,
 /* Bounding the value of a linear expression in a polyhedra */
 /* ====================================================================== */
 
-void pkXXX_bound_linexpr(ap_manager_t* man,
-			 ap_coeff_t interval,
-			 pkXXX_t* po,
-			 ap_linexpr0_t expr)
+void pkXXX_bound_linexpr_quasilinear(ap_manager_t* man,
+				     ap_coeff_t interval,
+				     pkXXX_t* po,
+				     ap_linexpr0_t expr)
 {
   bool exact;
   eitvXXX_t eitv;
@@ -312,68 +328,34 @@ void pkXXX_bound_linexpr(ap_manager_t* man,
     return;
   }
 
-  /* we fill the vector with the expression, taking lower bound of the interval
-     constant */
-  exact = ap_linexprXXX_set_linexpr0(pk->ap_linexprXXX, expr, pk->num);
+  exact = ap_linexprMPQ_set_linexpr0(pk->ap_linexprMPQ, expr, pk->num);
   eitvXXX_init(eitv);
-  matrixXXX_bound_ap_linexprXXX(pk,eitv,pk->ap_linexprXXX,po->F);
+  matrixXXX_bound_linexprMPQ(pk,eitv,pk->ap_linexprMPQ,po->F);
   exact = ap_coeff_set_eitvXXX(interval,eitv,pk->num) && exact;
   eitvXXX_clear(eitv);
 
   man->result.flag_exact = man->result.flag_best =
     ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-      ap_linexprXXX_is_real(pk->ap_linexprXXX,po->dim.intd) ) ?
+      ap_linexprMPQ_is_real(pk->ap_linexprMPQ,po->dim.intd) ) ?
     exact :
     false;
 
   return;
 }
 
+void pkXXX_bound_linexpr(ap_manager_t* man,
+			 ap_coeff_t interval, pkXXX_t* po, ap_linexpr0_t linexpr)
+{
+  if (ap_linexpr0_is_quasilinear(linexpr))
+    return pkXXX_bound_linexpr_quasilinear(man,interval,po,linexpr);
+  else
+    return ap_generic_bound_linexpr(man,interval,po,linexpr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR);
+}
 void pkXXX_bound_texpr(ap_manager_t* man,
 		       ap_coeff_t interval, pkXXX_t* po, ap_texpr0_t* expr)
 {
-  eitvXXX_t eitv1,eitv2;
-  bool exact;
-  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
-
-  if (pk->funopt->algorithm>0)
-    pkXXX_chernikova(man,po,NULL);
-  else
-    pkXXX_obtain_F(man,po,NULL);
-
-  if (pk->exn){
-    pk->exn = AP_EXC_NONE;
-    ap_coeff_set_top(interval);
-    return;
-  }
-  if (!po->F){ /* po is empty */
-    ap_coeff_set_bottom(interval);
-    man->result.flag_exact = man->result.flag_best = true;
-    return;
-  }
-  matrixXXX_to_box(pk,pk->envXXX,po->F);
-  ap_linexprXXX_intlinearize_texpr0(
-      pk->ap_linexprXXX, expr, pk->envXXX, po->dim.intd, pk->num);
-  if (eitvXXX_is_bottom(pk->ap_linexprXXX->cst)){
-    ap_coeff_set_bottom(interval);
-    man->result.flag_exact = true;
-    man->result.flag_best = true;
-  }
-  else {
-    eitvXXX_init(eitv1);
-    eitvXXX_init(eitv2);
-    matrixXXX_bound_ap_linexprXXX(pk,eitv1,pk->ap_linexprXXX,po->F);
-    eitvXXX_eval_ap_texpr0(eitv2,expr,pk->envXXX,pk->num);
-    eitvXXX_meet(eitv1,eitv1,eitv2);
-    exact = ap_coeff_set_eitvXXX(interval,eitv1,pk->num);
-    eitvXXX_clear(eitv1);
-    eitvXXX_clear(eitv2);
-    man->result.flag_exact = exact && ap_linexprXXX_is_quasilinear(pk->ap_linexprXXX) && ap_linexprXXX_is_real(pk->ap_linexprXXX,po->dim.intd);
-
-    man->result.flag_best = exact;
-  }
+  return ap_generic_bound_texpr(man,interval,po,expr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR);
 }
-
 
 /* ====================================================================== */
 /* Converting to a set of constraints */
