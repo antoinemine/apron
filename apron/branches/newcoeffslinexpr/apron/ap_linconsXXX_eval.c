@@ -592,269 +592,278 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
   bool change,globalchange;
   bool exc;
 
+  if (0){
+    printf("\ncons:"); ap_linconsXXX_print(cons,0);
+    printf("\nenv:"); ap_linexprXXX_print(env,0);
+    printf("\nres:"); ap_linexprXXX_print(res,0);
+    printf("\n");
+  }
   assert(cons->constyp == AP_CONS_EQ ||
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
 
   expr = cons->linexpr;
   globalchange = false;
-
-  /* */
-  if (res!=env){
-    ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv){
-      resdim = ap_linexprXXX_eitvref0(res,dim,false);
-      if (resdim==NULL){
-	ap_linexprXXX_set_eitv0(res,dim,eitv);
-      }
-    }
-  }
-  /* Iterates on coefficients */
-  eitvXXX_set_int(intern->XXX.boxize_lincons_eitv,0);
-  ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
-    bool equality = eitv->eq;
-    /* 1. We decompose the expression e = ax+e' */
-    eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
-    /* 2. evaluate e' */
-    ap_linexprXXX_eval(intern->XXX.boxize_lincons_eval,expr, env, intern);
-    /* 3. Perform deductions */
-    change = false;
-    if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
-      resdim = ap_linexprXXX_eitvref0(res,dim,false);
-      assert(resdim!=NULL);
-      if (equality && !intervalonly){
-	int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
-	if (sgn!=0){
-	  /*
-	    If we have ax+e' >= 0 with a>0
-	    we can deduce that x>=-e'/a, or x>= inf(-e'/a)
-	    If we have ax+e' >= 0 with a<0
-	    we can deduce that -ax<=e', or x<= sup(e'/-a)
-	    If we have ax+e'=0
-	    we can deduce x=-e'/a, or inf(-e'/a)<= x <= sup(-e'/a)
-	  */
-	  if (sgn>0 || cons->constyp == AP_CONS_EQ){
-	    /*
-	      If we have a>0, we compute sup(e')/a=sup(e'/a)=-inf(-e'/a)
-	      If we have a<0, we compute -inf(e')/(-a)=-inf(-e'/a)
-	    */
-	    if (sgn>0){
-	      boundXXX_div(intern->XXX.boxize_lincons_bound,
-			   intern->XXX.boxize_lincons_eval->itv->sup,
-			   intern->XXX.boxize_lincons_eitv->itv->sup);
-	    }
-	    else {
-	      boundXXX_div(intern->XXX.boxize_lincons_bound,
-			   intern->XXX.boxize_lincons_eval->itv->neginf,
-			   intern->XXX.boxize_lincons_eitv->itv->neginf);
-	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
-	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				1);
-	      }
-	      else {
-		boundXXX_floor(intern->XXX.boxize_lincons_bound,
-			       intern->XXX.boxize_lincons_bound);
-	      }
-	    }
-	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
-	      change = true;
-	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
-	    }
-	  }
-	  if (sgn<0 || cons->constyp == AP_CONS_EQ){
-	    /*
-	      If we have a<0, we compute sup(e')/(-a)=sup(e'/-a)
-	      If we have a>0, we compute -inf(e')/a=-inf(e'/a)=sup(e'/-a)
-	    */
-	    if (sgn<0){
-	      boundXXX_div(intern->XXX.boxize_lincons_bound,
-			   intern->XXX.boxize_lincons_eval->itv->sup,
-			   intern->XXX.boxize_lincons_eitv->itv->neginf);
-	    }
-	    else {
-	      boundXXX_div(intern->XXX.boxize_lincons_bound,
-			   intern->XXX.boxize_lincons_eval->itv->neginf,
-			   intern->XXX.boxize_lincons_eitv->itv->sup);
-	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
-	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				1);
-	      }
-	      else {
-		boundXXX_floor(intern->XXX.boxize_lincons_bound,
-			       intern->XXX.boxize_lincons_bound);
-	      }
-	    }
-	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
-	      change = true;
-	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
-	    }
-	  }
-	}
-      }
-      else if (!equality){
-	/* We have an interval */
-	/*
-	  - If we have [m;M]x+e' >= 0 with m>0,
-	  then [m,M]x>=inf(-e'), or [m,M]x>=-sup(e')
-	  so we need at least
-	  * if -sup(e')>=0: x>=-sup(e')/M
-	  * if -sup(e')<=0: x>=-sup(e')/m
-	  - If we have [m,M]x+e'<=0 with M<0, then [-M,-m]x>=inf(e')
-	  * inf(e')>=0: x>=inf(e')/-m
-	  * inf(e')<=0: x>=inf(e')/-M
-
-	  - If we have [m;M]x+e' >= 0 with M<0,
-	  then [-M,-m]x<=sup(e'), so we need at least
-	  * if sup(e')>=0: x<=sup(e')/-M
-	  * if sup(e')<=0: x<=sup(e')/-m
-	  - If we have [m,M]x+e'<=0 with m>0, then [m,M]x<=sup(-e')
-	  or [m,M]x<=-inf(e')
-	  * -inf(e')>=0: x<=inf(e')/-M
-	  * -inf(e')<=0: x<=inf(e')/-m
-	  */
-	int sgnitv =
-	  boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->neginf)<0 ?
-	  1 :
-	  ( boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup)<0 ?
-	    -1 :
-	    0 );
-	if (sgnitv != 0){
-	  int sgnevalinf = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->neginf);
-	  int sgnevalsup = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->sup);
-	  if (sgnitv>0 || (cons->constyp==AP_CONS_EQ && sgnitv<0)){
-	    if (sgnitv>0){
-	      if (sgnevalsup<=0){
-		/* We compute sup(e')/M */
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->sup,
-			     intern->XXX.boxize_lincons_eitv->itv->sup);
-	      } else {
-		/* We compute sup(e')/m = (-sup(e'))/(-m) */
-		boundXXX_neg(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->sup);
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eitv->itv->neginf);
-	      }
-	    }
-	    else {
-	      if (sgnevalinf<=0){
-		/* We compute inf(e')/m = (-inf(e'))/(-m) */
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->neginf,
-			     intern->XXX.boxize_lincons_eitv->itv->neginf);
-	      } else {
-		/* We compute inf(e')/M) = (-inf(e'))/(-M) */
-		boundXXX_neg(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eitv->itv->sup);
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->neginf,
-			     intern->XXX.boxize_lincons_bound);
-	      }
-	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
-	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				1);
-	      }
-	      else {
-		boundXXX_floor(intern->XXX.boxize_lincons_bound,
-			       intern->XXX.boxize_lincons_bound);
-	      }
-	    }
-	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
-	      change = true;
-	      if (tchange) tchange[2*dim] = true;
-	      boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
-	    }
-	  }
-	  if (sgnitv<0 || (cons->constyp==AP_CONS_EQ && sgnitv>0)){
-	    if (sgnitv<0){
-	      if (sgnevalsup>=0){
-		/* We compute sup(e')/-M */
-		boundXXX_neg(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eitv->itv->sup);
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->sup,
-			     intern->XXX.boxize_lincons_bound);
-	      } else {
-		/* We compute sup(e')/-m */
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->sup,
-			     intern->XXX.boxize_lincons_eitv->itv->neginf);
-	      }
-	    }
-	    else {
-	      if (sgnevalinf>=0){
-		/* We compute -inf(e')/M */
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->neginf,
-			     intern->XXX.boxize_lincons_eitv->itv->sup);
-	      }
-	      else {
-		/* We compute -inf(e')/m = inf(e')/(-m) */
-		boundXXX_neg(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eval->itv->neginf);
-		boundXXX_div(intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_bound,
-			     intern->XXX.boxize_lincons_eitv->itv->neginf);
-	      }
-	    }
-	    if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
-	      if (cons->constyp==AP_CONS_SUP &&
-		  numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
-		numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				boundXXX_numref(intern->XXX.boxize_lincons_bound),
-				1);
-	      }
-	      else {
-		boundXXX_floor(intern->XXX.boxize_lincons_bound,
-			       intern->XXX.boxize_lincons_bound);
-	      }
-	    }
-	    /* We update the interval */
-	    if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
-	      change = true;
-	      if (tchange) tchange[2*dim+1] = true;
-	      boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
-	    }
-	  }
-	}
-      }
-    }
-    eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
-    if (change){
-      globalchange = true;
-      exc = itvXXX_canonicalize(resdim->itv,dim<intdim);
-      if (exc){
-	eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
-	eitvXXX_set_bottom(res0);
-	return true;
-      }
-      else {
-	resdim->eq = itvXXX_is_point(resdim->itv);
-      }
-    }
-  }
   if (expr->effsize==0 &&
       ap_linconsXXX_evalcst(cons, intern)==tbool_false){
     eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
     eitvXXX_set_bottom(res0);
     globalchange = true;
+  } 
+  else {
+    /* */
+    if (res!=env){
+      ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv){
+	resdim = ap_linexprXXX_eitvref0(res,dim,false);
+	if (resdim==NULL){
+	  ap_linexprXXX_set_eitv0(res,dim,eitv);
+	}
+      }
+    }
+    /* Iterates on coefficients */
+    eitvXXX_set_int(intern->XXX.boxize_lincons_eitv,0);
+    ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
+      bool equality = eitv->eq;
+      if (!(equality && boundXXX_sgn(eitv->itv->sup)==0)){
+	/* 1. We decompose the expression e = ax+e' */
+	eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
+	/* 2. evaluate e' */
+	ap_linexprXXX_eval(intern->XXX.boxize_lincons_eval,expr, env, intern);
+	/* 3. Perform deductions */
+	change = false;
+	if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
+	  resdim = ap_linexprXXX_eitvref0(res,dim,false);
+	  assert (resdim!=NULL);
+	  if (equality && !intervalonly){
+	    int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
+	    if (sgn!=0){
+	      /*
+		If we have ax+e' >= 0 with a>0
+		we can deduce that x>=-e'/a, or x>= inf(-e'/a)
+		If we have ax+e' >= 0 with a<0
+		we can deduce that -ax<=e', or x<= sup(e'/-a)
+		If we have ax+e'=0
+		we can deduce x=-e'/a, or inf(-e'/a)<= x <= sup(-e'/a)
+	      */
+	      if (sgn>0 || cons->constyp == AP_CONS_EQ){
+		/*
+		  If we have a>0, we compute sup(e')/a=sup(e'/a)=-inf(-e'/a)
+		  If we have a<0, we compute -inf(e')/(-a)=-inf(-e'/a)
+		*/
+		if (sgn>0){
+		  boundXXX_div(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_eval->itv->sup,
+			       intern->XXX.boxize_lincons_eitv->itv->sup);
+		}
+		else {
+		  boundXXX_div(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_eval->itv->neginf,
+			       intern->XXX.boxize_lincons_eitv->itv->neginf);
+		}
+		if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
+		  if (cons->constyp==AP_CONS_SUP &&
+		      numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		    numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    1);
+		  }
+		  else {
+		    boundXXX_floor(intern->XXX.boxize_lincons_bound,
+				   intern->XXX.boxize_lincons_bound);
+		  }
+		}
+		/* We update the interval */
+		if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
+		  change = true;
+		  if (tchange) tchange[2*dim] = true;
+		  boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
+		}
+	      }
+	      if (sgn<0 || cons->constyp == AP_CONS_EQ){
+		/*
+		  If we have a<0, we compute sup(e')/(-a)=sup(e'/-a)
+		  If we have a>0, we compute -inf(e')/a=-inf(e'/a)=sup(e'/-a)
+		*/
+		if (sgn<0){
+		  boundXXX_div(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_eval->itv->sup,
+			       intern->XXX.boxize_lincons_eitv->itv->neginf);
+		}
+		else {
+		  boundXXX_div(intern->XXX.boxize_lincons_bound,
+			       intern->XXX.boxize_lincons_eval->itv->neginf,
+			       intern->XXX.boxize_lincons_eitv->itv->sup);
+		}
+		if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
+		  if (cons->constyp==AP_CONS_SUP &&
+		      numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		    numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    1);
+		  }
+		  else {
+		    boundXXX_floor(intern->XXX.boxize_lincons_bound,
+				   intern->XXX.boxize_lincons_bound);
+		  }
+		}
+		/* We update the interval */
+		if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
+		  change = true;
+		  if (tchange) tchange[2*dim+1] = true;
+		  boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
+		}
+	      }
+	    }
+	  }
+	  else if (!equality){
+	    /* We have an interval */
+	    /*
+	      - If we have [m;M]x+e' >= 0 with m>0,
+	      then [m,M]x>=inf(-e'), or [m,M]x>=-sup(e')
+	      so we need at least
+	      * if -sup(e')>=0: x>=-sup(e')/M
+	      * if -sup(e')<=0: x>=-sup(e')/m
+	      - If we have [m,M]x+e'<=0 with M<0, then [-M,-m]x>=inf(e')
+	      * inf(e')>=0: x>=inf(e')/-m
+	      * inf(e')<=0: x>=inf(e')/-M
+
+	      - If we have [m;M]x+e' >= 0 with M<0,
+	      then [-M,-m]x<=sup(e'), so we need at least
+	      * if sup(e')>=0: x<=sup(e')/-M
+	      * if sup(e')<=0: x<=sup(e')/-m
+	      - If we have [m,M]x+e'<=0 with m>0, then [m,M]x<=sup(-e')
+	      or [m,M]x<=-inf(e')
+	      * -inf(e')>=0: x<=inf(e')/-M
+	      * -inf(e')<=0: x<=inf(e')/-m
+	      */
+	    int sgnitv =
+	      boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->neginf)<0 ?
+	      1 :
+	      ( boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup)<0 ?
+		-1 :
+		0 );
+	    if (sgnitv != 0){
+	      int sgnevalinf = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->neginf);
+	      int sgnevalsup = boundXXX_sgn(intern->XXX.boxize_lincons_eval->itv->sup);
+	      if (sgnitv>0 || (cons->constyp==AP_CONS_EQ && sgnitv<0)){
+		if (sgnitv>0){
+		  if (sgnevalsup<=0){
+		    /* We compute sup(e')/M */
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->sup,
+				 intern->XXX.boxize_lincons_eitv->itv->sup);
+		  } else {
+		    /* We compute sup(e')/m = (-sup(e'))/(-m) */
+		    boundXXX_neg(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->sup);
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eitv->itv->neginf);
+		  }
+		}
+		else {
+		  if (sgnevalinf<=0){
+		    /* We compute inf(e')/m = (-inf(e'))/(-m) */
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->neginf,
+				 intern->XXX.boxize_lincons_eitv->itv->neginf);
+		  } else {
+		    /* We compute inf(e')/M) = (-inf(e'))/(-M) */
+		    boundXXX_neg(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eitv->itv->sup);
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->neginf,
+				 intern->XXX.boxize_lincons_bound);
+		  }
+		}
+		if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
+		  if (cons->constyp==AP_CONS_SUP &&
+		      numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		    numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    1);
+		  }
+		  else {
+		    boundXXX_floor(intern->XXX.boxize_lincons_bound,
+				   intern->XXX.boxize_lincons_bound);
+		  }
+		}
+		/* We update the interval */
+		if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->neginf)<0){
+		  change = true;
+		  if (tchange) tchange[2*dim] = true;
+		  boundXXX_set(resdim->itv->neginf, intern->XXX.boxize_lincons_bound);
+		}
+	      }
+	      if (sgnitv<0 || (cons->constyp==AP_CONS_EQ && sgnitv>0)){
+		if (sgnitv<0){
+		  if (sgnevalsup>=0){
+		    /* We compute sup(e')/-M */
+		    boundXXX_neg(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eitv->itv->sup);
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->sup,
+				 intern->XXX.boxize_lincons_bound);
+		  } else {
+		    /* We compute sup(e')/-m */
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->sup,
+				 intern->XXX.boxize_lincons_eitv->itv->neginf);
+		  }
+		}
+		else {
+		  if (sgnevalinf>=0){
+		    /* We compute -inf(e')/M */
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->neginf,
+				 intern->XXX.boxize_lincons_eitv->itv->sup);
+		  }
+		  else {
+		    /* We compute -inf(e')/m = inf(e')/(-m) */
+		    boundXXX_neg(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eval->itv->neginf);
+		    boundXXX_div(intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_bound,
+				 intern->XXX.boxize_lincons_eitv->itv->neginf);
+		  }
+		}
+		if (dim<intdim && !boundXXX_infty(intern->XXX.boxize_lincons_bound)){
+		  if (cons->constyp==AP_CONS_SUP &&
+		      numXXX_integer(boundXXX_numref(intern->XXX.boxize_lincons_bound))){
+		    numXXX_sub_uint(boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    boundXXX_numref(intern->XXX.boxize_lincons_bound),
+				    1);
+		  }
+		  else {
+		    boundXXX_floor(intern->XXX.boxize_lincons_bound,
+				   intern->XXX.boxize_lincons_bound);
+		  }
+		}
+		/* We update the interval */
+		if (boundXXX_cmp(intern->XXX.boxize_lincons_bound, resdim->itv->sup)<0){
+		  change = true;
+		  if (tchange) tchange[2*dim+1] = true;
+		  boundXXX_set(resdim->itv->sup, intern->XXX.boxize_lincons_bound);
+		}
+	      }
+	    }
+	  }
+	  if (change){
+	    globalchange = true;
+	    exc = itvXXX_canonicalize(resdim->itv,dim<intdim);
+	    if (exc){
+	      eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
+	      eitvXXX_set_bottom(res0);
+	      return true;
+	    }
+	    else {
+	      resdim->eq = itvXXX_is_point(resdim->itv);
+	    }
+	  }
+	}
+	eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
+      }
+    }  
   }
   return globalchange;
 }
@@ -863,7 +872,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
    constraints.
 
    Return true if some (better if res==env) bounds have been inferred.
-
+   
    - The inferred bounds are stored in res (which may be equal to env)
    - If tchange!=NULL *and initialized to false*,
    tchange[2dim] (resp. 2dim+1) set to true indicates

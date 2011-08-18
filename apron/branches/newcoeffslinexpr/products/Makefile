@@ -12,7 +12,6 @@ SRCDIR = $(shell pwd)
 ICFLAGS = \
 -I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
--I../num -I../itv \
 -I../polka \
 -I../ppl \
 -I../mlapronidl \

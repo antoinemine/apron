@@ -80,7 +80,7 @@ void ap_linyyy0_fprint(FILE* stream, ap_linyyy0_t e, char** name_of_dim)
   ENDMACRO;
 }
 void ap_linyyy0_print(ap_linyyy0_t a, char** name_of_dim)
-{ ap_linyyy0_fprint(stdout,a,name_of_dim); }
+{ ap_linyyy0_fprint(stdout,a,name_of_dim); fflush(stdout); }
 void ap_linyyy0_minimize(ap_linyyy0_t e)
 {
   MACRO_SWITCH(e->discr) XXX

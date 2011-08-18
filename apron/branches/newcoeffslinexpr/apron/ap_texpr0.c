@@ -359,7 +359,7 @@ void ap_texpr0_support_mask(ap_texpr0_t* a, ap_dim_t* tdim)
   case AP_TEXPR_CST:
     break;
   case AP_TEXPR_DIM:
-    tdim[a->val.dim] = a->val.dim;
+    tdim[a->val.dim] = 1;
     break;
   case AP_TEXPR_NODE:
     ap_texpr0_support_mask(a->val.node->exprA, tdim);

@@ -14,7 +14,7 @@ SRCDIR = $(shell pwd)
 
 # Use ICFLAGS to specify machine-independent compilation flags.
 ICFLAGS = \
--I../num -I../apron -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+-I../apron -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
 # Files

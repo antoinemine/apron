@@ -33,8 +33,6 @@ ICFLAGS = \
 -I../polka \
 -I../apron \
 -I../mlapronidl \
--I../num \
--I../itv \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
@@ -44,8 +42,6 @@ ICXXFLAGS = \
 -I$(MLGMPIDL_PREFIX)/include \
 -I../apron \
 -I../mlapronidl \
--I../num \
--I../itv \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
 -I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml

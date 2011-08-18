@@ -38,8 +38,6 @@ SHARED = gcc -shared
 # Machine-independent compilation flags.
 ICXXFLAGS = \
 -I../apron \
--I../num \
--I../itv \
 -I../polka \
 -I../octagons \
 -I../box \

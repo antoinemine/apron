@@ -224,7 +224,7 @@ void ap_lingenXXX_fprint(FILE* stream, ap_lingenXXX_t gen, char** name)
 #endif
 
 void ap_linyyyXXX_print(ap_linyyyXXX_t a, char** name)
-{ ap_linyyyXXX_fprint(stdout,a,name); }
+{ ap_linyyyXXX_fprint(stdout,a,name); fflush(stdout); }
 
 /* ====================================================================== */
 /* I.2 Tests */
@@ -942,7 +942,7 @@ ap_dim_t ap_linyyyXXX_array_max_dim(ap_linyyyXXX_array_t array)
 }
 
 size_t ap_linyyyXXX_array_support_generic(
-    size_t (*support)(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t),
+    void (*support_mask)(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t),
     ap_linyyyXXX_array_t array,
     ap_dim_t* tdim, size_t size
 )
@@ -950,19 +950,19 @@ size_t ap_linyyyXXX_array_support_generic(
   size_t i;
   ap_dimsupport_mask_clear(tdim,size);
   for (i=0;i<array->size;i++){
-    support(array->p[i],tdim,size);
+    support_mask(array->p[i],tdim,size);
   }
   return ap_dimsupport_std_of_mask(tdim,size);
 }
 size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array,
 				  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support,array,tdim,size);
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support_mask,array,tdim,size);
 }
 size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
 					  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval,array,tdim,size);
+  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval_mask,array,tdim,size);
 }
 
 
