@@ -38,7 +38,7 @@ ap_lincons0_t ap_lincons0_make_unsat()
 {
   ap_linexpr0_t* expr;
 
-  expr = ap_linexpr0_alloc(AP_LINEXPR_DENSE,0);
+  expr = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,0);
   ap_coeff_set_scalar_double(&expr->cst,-1.0);
   return ap_lincons0_make(AP_CONS_SUPEQ,expr,NULL);
 }
@@ -168,7 +168,7 @@ ap_linexpr_type_t ap_lincons0_array_type(ap_lincons0_array_t* array)
   ap_linexpr_type_t res = AP_LINEXPR_LINEAR;
   for (i=0; i<array->size; i++){
     ap_linexpr_type_t type = ap_linexpr0_type(array->p[i].linexpr0);
-    if (type < res) 
+    if (type < res)
       type = res;
     if (res==AP_LINEXPR_INTLINEAR)
       break;
