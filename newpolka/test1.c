@@ -55,7 +55,7 @@ void test_environment()
 			name_of_realdim5,4);
   printf("env 5\n");
   ap_environment_fdump(stdout,e5);
-  
+
   e3 = ap_environment_add(e1,name_of_intdim2,4,
 			name_of_realdim2,4);
   printf("env 3\n");
@@ -116,7 +116,7 @@ void test_environment()
 
 void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
 {
-  /* Creation du polyèdre 
+  /* Creation du polyèdre
      1/2x+2/3y=1, [1,2]<=z+2w<=4, -2<=1/3z-w<=3,
      u non contraint */
   ap_var_t name_of_realdim1[6] = {
@@ -149,7 +149,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   envXY = ap_environment_alloc(NULL,0,name_of_realdimXY,2);
   envZW = ap_environment_alloc(NULL,0,name_of_realdimZW,2);
   envXYZW = ap_environment_add(envXY,NULL,0,name_of_realdimZW,2);
-  
+
   array = ap_lincons1_array_make(envXYZW,5);
 
   /* 1. Constraint system */
@@ -212,17 +212,17 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   ap_lincons1_extend_environment_with(&cons,envXYZW);
   ap_lincons1_fprint(stdout,&cons);fprintf(stdout,"\n");
   assert(! ap_lincons1_array_set(&array,4,&cons) );
-  
+
   /* Creation */
   ap_lincons1_array_fprint(stdout,&array);
   poly = ap_abstract1_of_lincons_array(man,env,&array);
   ap_abstract1_fprint(stdout,man,&poly);
   ap_abstract1_canonicalize(man,&poly);
-  ap_abstract1_fprint(stdout,man,&poly);  
+  ap_abstract1_fprint(stdout,man,&poly);
   garray = ap_abstract1_to_generator_array(man,&poly);
   ap_generator1_array_fprint(stdout,&garray);
   ap_generator1_array_clear(&garray);
-  ap_abstract1_fdump(stdout,man,&poly);  
+  ap_abstract1_fdump(stdout,man,&poly);
   /* 2. Constraint system */
   /* Conversion (to_lincons_array already tested with print) */
   /* Should be
@@ -277,7 +277,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
     poly2 = ap_abstract1_of_box(man,env,name,itv,2);
     ap_abstract1_fprint(stdout,man,&poly2);
     ap_abstract1_canonicalize(man,&poly2);
-    ap_abstract1_fprint(stdout,man,&poly2);  
+    ap_abstract1_fprint(stdout,man,&poly2);
     ap_abstract1_fdump(stdout,man,&poly2);
     ap_interval_free(itv[0]);
     ap_interval_free(itv[1]);
@@ -299,7 +299,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   ap_abstract1_clear(man,&poly3);
 
   ap_abstract1_minimize(man,&poly2);
-  ap_abstract1_fprint(stdout,man,&poly2);  
+  ap_abstract1_fprint(stdout,man,&poly2);
   tb = ap_abstract1_is_bottom(man,&poly2);
   fprintf(stdout,"ap_abstract1_is_bottom(poly2)=%d\n",tb);
    tb = ap_abstract1_is_top(man,&poly2);
@@ -310,7 +310,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   fprintf(stdout,"ap_abstract1_is_leq(poly,&poly2)=%d\n",tb);
   tb = ap_abstract1_is_leq(man,&poly2,&poly);
   fprintf(stdout,"ap_abstract1_is_leq(poly,&poly2)=%d\n",tb);
-  
+
   /* 6. Tests sat_interval */
   itv = ap_interval_alloc();
   ap_interval_set_double(itv,-6.0,6.0);
@@ -390,7 +390,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   ap_interval_fprint(stdout,itv);
   fprintf(stdout,"\n");
   ap_interval_free(itv);
-  
+
   for (i=0; i<6; i++){
     ap_linexpr1_set_cst_scalar_frac(&expr,-26 + (int)i*10, 5);
     *(ap_lincons1_constypref(&cons)) = AP_CONS_SUPEQ;
@@ -404,7 +404,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
     ap_lincons1_fprint(stdout,&cons);
     fprintf(stdout,": %d\n",tb);
   }
-  
+
   ap_linexpr1_set_cst_scalar_int(&expr,0);
   ap_linexpr1_set_coeff_scalar_frac(&expr,"z",-2,3);
   ap_linexpr1_set_coeff_scalar_double(&expr,"w",2.0);
@@ -416,7 +416,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
   ap_interval_fprint(stdout,itv);
   fprintf(stdout,"\n");
   ap_interval_free(itv);
-  
+
   for (i=0; i<6; i++){
     ap_linexpr1_set_cst_scalar_int(&expr,-1+(int)i);
     *(ap_lincons1_constypref(&cons)) = AP_CONS_SUPEQ;
@@ -431,7 +431,7 @@ void absval1(ap_manager_t* man, ap_abstract1_t* ppo1, ap_abstract1_t* ppo2)
     fprintf(stdout,": %d\n",tb);
   }
   ap_linexpr1_clear(&expr);
-  
+
   ap_lincons1_array_clear(&array);
   ap_environment_free(env);
   ap_environment_free(envXY);
