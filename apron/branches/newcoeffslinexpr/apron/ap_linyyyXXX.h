@@ -52,7 +52,7 @@ static inline void ap_linyyyXXX_resize(ap_linyyyXXX_t a, size_t size);
 static inline void ap_linyyyXXX_set_zero(ap_linyyyXXX_t a);
 #if defined(_AP_cons_MARK_)
 void ap_linconsXXX_set_bool(ap_linconsXXX_t lincons, bool value);
-void ap_linconsXXX_set_dim_num(ap_linconsXXX_t lincons, ap_dim_t dim, bool sgn, numXXX_t num);
+void ap_linconsXXX_set_dim_num(ap_linconsXXX_t lincons, ap_dim_t dim, int sgn, numXXX_t num);
   /* Sets lincons to the constraint
      - dim <= num if sgn>0
      - dim == num if sgn==0

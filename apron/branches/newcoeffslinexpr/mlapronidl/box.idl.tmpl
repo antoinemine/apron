@@ -12,6 +12,10 @@ quote(C,"#include \"apron_caml.h\"")
 
 import "manager.idl";
 
+struct box_option_t {
+  unsigned int kmax;
+};
+
 quote(MLMLI,"(** Intervals abstract domain *)\n")
 
 MACRO_FOREACH XXX @BoxNum
@@ -50,6 +54,11 @@ quote(MLMLI,"\
 external manager_alloc_numXXX : unit -> numXXX t Manager.t = \"camlidl_box_manager_alloc_numXXX\"\
 ")
 ENDMACRO
+
+[ref]struct box_option_t* box_manager_get_option(ap_manager_ptr man)
+quote(call,"_res = box_manager_option_ref(man);");
+void box_manager_set_option(ap_manager_ptr man, struct box_option_t opt)
+quote(call,"{ box_option_t* ref = box_manager_option_ref(man); *ref = opt; }");
 
 quote(MLI,"\n\
 (** {2 Type conversions} *)\n\

@@ -68,8 +68,14 @@ pkXXX_internal_t* pkXXX_internal_alloc(bool strict)
 
   pk->strict = strict;
   pk->dec = strict ? 3 : 2;
-  pk->max_coeff_size = 0;
-  pk->approximate_max_coeff_size = 2;
+  pk->option.max_coeff_size = 0;
+  pk->option.approximate_max_coeff_size = 1;
+  pk->option.expand_lazy = true;
+  pk->option.forget_lazy = true;
+  pk->option.remove_dimensions_lazy = false;
+  pk->option.op_lazy = false;
+  pk->option.strong_normalization = true;
+  pk->option.widening_affine = true;
 
   pkXXX_internal_init(pk,10);
 
@@ -170,23 +176,6 @@ void pkXXX_internal_realloc_lazy(pkXXX_internal_t* pk, size_t maxdims)
 /* II. Options */
 /* ********************************************************************** */
 
-pkXXX_internal_t* pkXXX_manager_get_internal(ap_manager_t* man){
-  return man->internal;
-}
-
-void pkXXX_set_max_coeff_size(pkXXX_internal_t* pk, size_t size){
-  pk->max_coeff_size = size;
-}
-void pkXXX_set_approximate_max_coeff_size(pkXXX_internal_t* pk, size_t size){
-  pk->approximate_max_coeff_size = size;
-}
-size_t pkXXX_get_max_coeff_size(pkXXX_internal_t* pk){
-  return pk->max_coeff_size;
-}
-size_t pkXXX_get_approximate_max_coeff_size(pkXXX_internal_t* pk){
-  return pk->approximate_max_coeff_size;
-}
-
 /* ********************************************************************** */
 /* III. Initialization from manager */
 /* ********************************************************************** */
@@ -199,7 +188,6 @@ ap_manager_t* pkXXX_manager_alloc(bool strict)
   void** funptr;
 
   pk = pkXXX_internal_alloc(strict);
-  pkXXX_set_approximate_max_coeff_size(pk, 1);
   man = ap_manager_alloc(strict ? "polka, strict mode" : "polka, loose mode, numXXX",
 			 "3.0",
 			 pk, (void (*)(void*))pkXXX_internal_free);

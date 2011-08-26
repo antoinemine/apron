@@ -275,7 +275,7 @@ void ap_texpr0_fprint(FILE* stream, ap_texpr0_t* a, char** name_of_dim)
 }
 
 void ap_texpr0_print(ap_texpr0_t* a, char** name_of_dim)
-{ ap_texpr0_fprint(stdout, a, name_of_dim); }
+{ ap_texpr0_fprint(stdout, a, name_of_dim); fflush(stdout); }
 
 
 /* ====================================================================== */

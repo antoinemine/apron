@@ -27,21 +27,15 @@ bool pkXXX_is_bottom(ap_manager_t* man, pkXXX_t* po)
     return false;
   }
   else {
-    if (pk->funopt->algorithm<0){
+    pkXXX_chernikova(man,po,NULL);
+    if (pk->exn){
       man->result.flag_exact = man->result.flag_best = false;
-      return (po->C ? false : true);
+      pk->exn = AP_EXC_NONE;
+      return false;
     }
-    else {
-      pkXXX_chernikova(man,po,NULL);
-      if (pk->exn){
-	man->result.flag_exact = man->result.flag_best = false;
-	pk->exn = AP_EXC_NONE;
-	return false;
-      }
-      man->result.flag_exact = man->result.flag_best =
-	po->dim.intd>0 && po->F ? false : true;
-      return (po->F == NULL);
-    }
+    man->result.flag_exact = man->result.flag_best =
+      po->dim.intd>0 && po->F ? false : true;
+    return (po->F == NULL);
   }
 }
 
@@ -54,8 +48,7 @@ bool pkXXX_is_top(ap_manager_t* man, pkXXX_t* po)
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_IS_TOP);
   man->result.flag_exact = man->result.flag_best = true;
 
-  if (pk->funopt->algorithm>=0)
-    pkXXX_chernikova(man,po,NULL);
+  pkXXX_chernikova(man,po,NULL);
   if (!po->C && !po->F)
     return false;
   else if (po->C && po->F)
@@ -139,7 +132,7 @@ bool pkXXX_is_leq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
   assert(pkXXX_check(pk,pa));
   assert(pkXXX_check(pk,pb));
   man->result.flag_exact = man->result.flag_best = false;
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,pa,"of the first argument");
   else
     pkXXX_obtain_F(man,pa,"of the first argument");
@@ -152,7 +145,7 @@ bool pkXXX_is_leq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
     man->result.flag_exact = man->result.flag_best = true;
     return true;
   }
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,pb,"of the second argument");
   else
     pkXXX_obtain_C(man,pb,"of the second argument");
@@ -203,7 +196,7 @@ bool pkXXX_is_eq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
       (pa->nbeq != pb->nbeq || pa->nbline != pb->nbline) ){
     return false;
   }
-  if (pk->funopt->algorithm>0){
+  if (pk->option.strong_normalization){
     pkXXX_chernikova3(man,pa,"of the first argument");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
@@ -237,12 +230,13 @@ bool pkXXX_is_eq(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
 
 bool pkXXX_sat_lincons_linear(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
 {
-  bool sat;
+  bool exact,sat;
   size_t dim;
   ap_constyp_t constyp;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS);
+  ap_linconsMPQ_ptr linconsMPQptr;
 
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,po,NULL);
   else
     pkXXX_obtain_F(man,po,NULL);
@@ -266,25 +260,30 @@ bool pkXXX_sat_lincons_linear(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t linc
     return false;
   }
   dim = po->dim.intd + po->dim.reald;
-  ap_linconsMPQ_set_lincons0(pk->ap_linconsMPQ,lincons0,pk->num);
-  if (pk->ap_linconsMPQ->linexpr->effsize==0){
-    sat = (ap_linconsMPQ_evalcst(pk->ap_linconsMPQ,pk->num)==tbool_true);
+  if (lincons0->discr==AP_SCALAR_MPQ){
+    linconsMPQptr = lincons0->lincons.MPQ;
+  } else {
+    ap_linconsMPQ_set_lincons0(pk->ap_linconsMPQ,lincons0,pk->num);
+    linconsMPQptr = pk->ap_linconsMPQ;
+  }
+  if (linconsMPQptr->linexpr->effsize==0){
+    sat = (ap_linconsMPQ_evalcst(linconsMPQptr,pk->num)==tbool_true);
     man->result.flag_exact = man->result.flag_best = true;
   }
   else {
     sat = vectorXXX_set_linconsMPQ_sat(
-	pk, pk->numintXXXp, pk->ap_linconsMPQ, po->dim, true);
+	pk, pk->numintXXXp, linconsMPQptr, po->dim, true);
     if (sat){
       sat = do_generators_sat_vectorXXX(pk,po->F,
 					pk->numintXXXp,
-					pk->ap_linconsMPQ->constyp==AP_CONS_SUP);
+					linconsMPQptr->constyp==AP_CONS_SUP);
     }
     man->result.flag_exact = man->result.flag_best =
       sat ?
       true :
       (
 	  ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-	    ap_linconsMPQ_is_real(pk->ap_linconsMPQ,po->dim.intd) ) ?
+	    ap_linconsMPQ_is_real(linconsMPQptr,po->dim.intd) ) ?
 	  true :
 	  false );
   }
@@ -293,14 +292,15 @@ bool pkXXX_sat_lincons_linear(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t linc
 
 bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* po, ap_lincons0_t lincons0)
 {
-  if (ap_lincons0_is_linear(lincons0))
-    return pkXXX_sat_lincons_linear(man,po,lincons0);
-  else
-    return ap_generic_sat_lincons(man,po,lincons0,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR);
+  return ap_generic_sat_lincons(
+      man,po,lincons0,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR,
+      (bool(*)(ap_manager_t*,void*,ap_lincons0_t))pkXXX_sat_lincons_linear);
 }
 bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* po, ap_tcons0_t* cons)
 {
-  return ap_generic_sat_tcons(man,po,cons,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR);
+  return ap_generic_sat_tcons(
+      man,po,cons,AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR,
+      (bool(*)(ap_manager_t*,void*,ap_lincons0_t))pkXXX_sat_lincons_linear);
 }
 
 /* ====================================================================== */
@@ -369,7 +369,7 @@ bool pkXXX_sat_interval(ap_manager_t* man, pkXXX_t* po,
   bool sat;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
 
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,po,NULL);
   else
     pkXXX_obtain_F(man,po,NULL);

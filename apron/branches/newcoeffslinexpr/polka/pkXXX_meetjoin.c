@@ -39,7 +39,6 @@
    Return true if exception
 */
 bool pkXXX_meet_matrix(bool meet,
-		      bool lazy,
 		      ap_manager_t* man,
 		      pkXXX_t* po,
 		      pkXXX_t* pa, matrixXXX_t* mat)
@@ -52,7 +51,7 @@ bool pkXXX_meet_matrix(bool meet,
   man->result.flag_exact = meet;
 
   /* lazy behaviour */
-  if (lazy){
+  if (pk->option.op_lazy){
     pkXXX_obtain_sorted_C(pk,pa);
     if (po != pa){
       po->C = matrixXXX_merge_sort(pk,pa->C,mat);
@@ -114,9 +113,9 @@ bool pkXXX_meet_matrix(bool meet,
 /* Factorized form */
 /* ---------------------------------------------------------------------- */
 static
-bool pkXXX_meet_particularcases(bool meet, bool lazy,
-			       ap_manager_t* man,
-			       pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb)
+bool pkXXX_meet_particularcases(bool meet,
+				ap_manager_t* man,
+				pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb)
 {
   assert(pa!=pb);
 
@@ -134,7 +133,7 @@ bool pkXXX_meet_particularcases(bool meet, bool lazy,
     /* Join */
     /* if one is bottom, return a copy of the other */
     if (!pa->C && !pa->F){
-      if (!lazy){
+      if (!pk->option.op_lazy){
 	pkXXX_chernikova_dual(man,pb,"of the second argument",false);
 	pk->exn = AP_EXC_NONE;
       }
@@ -142,7 +141,7 @@ bool pkXXX_meet_particularcases(bool meet, bool lazy,
       return true;
     }
     if (!pb->C && !pb->F){
-      if (!lazy){
+      if (!pk->option.op_lazy){
 	pkXXX_chernikova_dual(man,pa,"of the first argument",false);
 	pk->exn = AP_EXC_NONE;
       }
@@ -172,7 +171,6 @@ bool pkXXX_meet_particularcases(bool meet, bool lazy,
 }
 
 void pkXXX_meetjoin(bool meet,
-		    bool lazy,
 		    ap_manager_t* man,
 		    pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb)
 {
@@ -182,7 +180,7 @@ void pkXXX_meetjoin(bool meet,
   man->result.flag_best = true;
 
   if (pa==pb){
-    if (!lazy) pkXXX_chernikova_dual(man,pa,"of the first argument", meet);
+    if (!pk->option.op_lazy) pkXXX_chernikova_dual(man,pa,"of the first argument", meet);
     pk->exn = AP_EXC_NONE;
     pkXXX_set(po,pa);
     man->result.flag_exact = true;
@@ -197,7 +195,7 @@ void pkXXX_meetjoin(bool meet,
     assert(!po->C && !po->F && !po->satC && !po->satF);
   }
   /* Particular cases */
-  if (pkXXX_meet_particularcases(meet,lazy,man,po,pa,pb))
+  if (pkXXX_meet_particularcases(meet,man,po,pa,pb))
     return;
 
   /* Get the constraint system of pa */
@@ -221,15 +219,15 @@ void pkXXX_meetjoin(bool meet,
     return;
   }
   /* Particular cases again */
-  if (pkXXX_meet_particularcases(meet,lazy,man,po,pa,pb))
+  if (pkXXX_meet_particularcases(meet,man,po,pa,pb))
     return;
 
   /* lazy behaviour */
-  if (lazy){
+  if (pk->option.op_lazy){
   _pkXXX_meet_entry0:
     pkXXX_obtain_sorted_C(pk,pa);
     pkXXX_obtain_sorted_C(pk,pb);
-    pkXXX_meet_matrix(meet,lazy,man,po,pa,pb->C);
+    pkXXX_meet_matrix(meet,man,po,pa,pb->C);
   }
   /* strict behaviour */
   else {
@@ -262,7 +260,7 @@ void pkXXX_meetjoin(bool meet,
 	    }
 	  }
 	  /* Particular cases */
-	  if (pkXXX_meet_particularcases(meet,lazy,man,po,pa,pb))
+	  if (pkXXX_meet_particularcases(meet,man,po,pa,pb))
 	    return;
 	}
 	/* Perform the choice */
@@ -291,7 +289,7 @@ void pkXXX_meetjoin(bool meet,
     /* Now, pa is the start polyhedron */
     pkXXX_obtain_satC(pa);
     pkXXX_obtain_sorted_C(pk,pb);
-    pkXXX_meet_matrix(meet,lazy,man,po,pa,pb->C);
+    pkXXX_meet_matrix(meet,man,po,pa,pb->C);
   }
   assert(pkXXX_check_dual(pk,po,meet));
 }
@@ -302,7 +300,6 @@ void pkXXX_meetjoin(bool meet,
 
 static
 pkXXX_t* pkXXX_meetjoin_array(bool meet,
-			      bool lazy,
 			      ap_manager_t* man,
 			      pkXXX_t** po, size_t size)
 {
@@ -325,7 +322,7 @@ pkXXX_t* pkXXX_meetjoin_array(bool meet,
   dim = po[0]->dim;
   poly = pkXXX_alloc(dim);
   if (size==1){
-    if (!lazy){
+    if (!pk->option.op_lazy){
       pkXXX_chernikova_dual(man,po[0],"of the single argument",meet);
       pk->exn = AP_EXC_NONE;
     }
@@ -333,7 +330,7 @@ pkXXX_t* pkXXX_meetjoin_array(bool meet,
     return poly;
   }
   else if (size==2){
-    pkXXX_meetjoin(meet,lazy,man,poly,po[0],po[1]);
+    pkXXX_meetjoin(meet,man,poly,po[0],po[1]);
     return poly;
   }
   /* 2. General case */
@@ -351,7 +348,7 @@ pkXXX_t* pkXXX_meetjoin_array(bool meet,
     while (i<size){
       char str[80];
       sprintf(str,"of the %lu argument",(unsigned long)i);
-      if (lazy)
+      if (pk->option.op_lazy)
 	pkXXX_obtain_C_dual(man,po[i],str,meet);
       else
 	pkXXX_chernikova_dual(man,po[i],str,meet);
@@ -397,12 +394,12 @@ pkXXX_t* pkXXX_meetjoin_array(bool meet,
 	pkXXX_set(poly,po[0]);
       }
       else if (size==2){
-	pkXXX_meetjoin(meet,lazy,man,poly,po[0],po[1]);
+	pkXXX_meetjoin(meet,man,poly,po[0],po[1]);
       }
       return poly;
     }
     /* 2.1. lazy behaviour */
-    if (lazy){
+    if (pk->option.op_lazy){
       C = matrixXXX_alloc(nbrows,pk->dec+dim.intd+dim.reald,true);
       C->nbrows = 0;
       C->_sorted = true;
@@ -481,8 +478,7 @@ pkXXX_t* pkXXX_meet(ap_manager_t* man,
 {
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET);
   pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
-  pkXXX_meetjoin(true, pk->funopt->algorithm < 0,
-	    man,po,pa,pb);
+  pkXXX_meetjoin(true, man,po,pa,pb);
   assert(pkXXX_check(pk,po));
   return po;
 }
@@ -491,8 +487,7 @@ pkXXX_t* pkXXX_meet_array(ap_manager_t* man,
 			  pkXXX_t** po, size_t size)
 {
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_ARRAY);
-  pkXXX_t* res = pkXXX_meetjoin_array(true, pk->funopt->algorithm < 0,
-				      man,po,size);
+ pkXXX_t* res = pkXXX_meetjoin_array(true,man,po,size);
   assert(pkXXX_check(pk,res));
   return res;
 }
@@ -513,9 +508,8 @@ pkXXX_t* pkXXX_meet_lincons_array_linear(ap_manager_t* man,
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
 
   pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
-  bool lazy = pk->funopt->algorithm < 0;
   /* Get the constraint systems */
-  if (lazy){
+  if (pk->option.op_lazy){
     pkXXX_obtain_C(man,pa,"of the argument");
   } else {
     pkXXX_chernikova(man,pa,"of the argument");
@@ -538,8 +532,8 @@ pkXXX_t* pkXXX_meet_lincons_array_linear(ap_manager_t* man,
   if (array->discr!=AP_SCALAR_MPQ) abort();
   bool exact = matrixXXX_set_linconsMPQ_array(pk,&mat,array->lincons_array.MPQ,po->dim,true);
   matrixXXX_sort_rows(pk,mat);
-  if (!lazy) pkXXX_obtain_satC(pa);
-  pkXXX_meet_matrix(true,lazy,man,po,pa,mat);
+  if (!pk->option.op_lazy) pkXXX_obtain_satC(pa);
+  pkXXX_meet_matrix(true,man,po,pa,mat);
   matrixXXX_free(mat);
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -589,8 +583,7 @@ pkXXX_t* pkXXX_join(ap_manager_t* man, bool destructive, pkXXX_t* pa, pkXXX_t* p
 
   pkXXX_dual(pa);
   if (pb!=pa) pkXXX_dual(pb); /* We take care of possible alias */
-  pkXXX_meetjoin(false,pk->funopt->algorithm<0,
-	    man,po,pa,pb);
+  pkXXX_meetjoin(false,man,po,pa,pb);
   pkXXX_dual(pa);
   if (pb!=pa) pkXXX_dual(pb); /* We take care of possible alias */
   if (po!=pa) pkXXX_dual(po);
@@ -643,8 +636,7 @@ pkXXX_t* pkXXX_join_array(ap_manager_t* man, pkXXX_t** po, size_t size)
   for (i=0;i<size;i++)
     pkXXX_dual(tpoly[i]);
 
-  poly = pkXXX_meetjoin_array(false,pk->funopt->algorithm<0,
-			      man,(pkXXX_t**)tpoly,size);
+  poly = pkXXX_meetjoin_array(false,man,(pkXXX_t**)tpoly,size);
   for(i=0;i<size;i++){
     pkXXX_dual(tpoly[i]);
   }
@@ -661,8 +653,7 @@ pkXXX_t* pkXXX_join_array(ap_manager_t* man, pkXXX_t** po, size_t size)
 /* ---------------------------------------------------------------------- */
 /* Factorized version */
 static
-void poly_add_ray_array(bool lazy,
-			ap_manager_t* man,
+void poly_add_ray_array(ap_manager_t* man,
 			pkXXX_t* po, pkXXX_t* pa, ap_lingen0_array_t array)
 {
   bool exact;
@@ -673,7 +664,7 @@ void poly_add_ray_array(bool lazy,
   man->result.flag_best = man->result.flag_exact = true;
 
   /* Get the generator systems */
-  if (lazy){
+  if (pk->option.op_lazy){
     pkXXX_obtain_F(man,pa,"of the argument");
   } else {
     pkXXX_chernikova(man,pa,"of the argument");
@@ -694,10 +685,10 @@ void poly_add_ray_array(bool lazy,
   exact = matrixXXX_set_ap_lingen0_array(pk,&mat,array,pa->dim);
   matrixXXX_sort_rows(pk,mat);
 
-  if (!lazy) pkXXX_obtain_satF(pa);
+  if (!pk->option.op_lazy) pkXXX_obtain_satF(pa);
   pkXXX_dual(po);
   if (po!=pa) pkXXX_dual(pa);
-  pkXXX_meet_matrix(false,lazy,man,po,pa,mat);
+  pkXXX_meet_matrix(false,man,po,pa,mat);
   pkXXX_dual(po);
   if (po!=pa) pkXXX_dual(pa);
   matrixXXX_free(mat);
@@ -708,7 +699,7 @@ pkXXX_t* pkXXX_add_ray_array(ap_manager_t* man, bool destructive, pkXXX_t* pa, a
 {
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY);
   pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
-  poly_add_ray_array(pk->funopt->algorithm<0,man,po,pa,array);
+  poly_add_ray_array(man,po,pa,array);
   assert(pkXXX_check(pk,po));
   return po;
 }

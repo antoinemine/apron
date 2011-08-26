@@ -15,6 +15,32 @@ extern "C" {
 
 #include "ap_global0.h"
 
+#ifndef _pk_option_t_
+#define _pk_option_t_
+typedef struct pk_option_t {
+  unsigned int max_coeff_size;
+    /* Used for overflow exception (in vector_combine) */
+  unsigned int approximate_max_coeff_size;
+    /* Used in approximation */
+  bool expand_lazy;
+    /* Lazy or strict policy ? (lazy useful for several successive calls from
+       a minimal form) */
+  bool forget_lazy;
+    /* Lazy useful in case of (successive) projection */
+  bool remove_dimensions_lazy;
+  bool op_lazy;
+    /* Lazy or strict policy for minimization/conversion in other operations
+       ? */
+  bool strong_normalization;
+  /* if true, normalize equalities, lines, and strict constraints, and uses
+     it for testing equality */
+  bool widening_affine;
+  /* if true, affine (rather than linear) widening: the constant coefficient
+     is not treatd as the other one */
+} pk_option_t;
+#endif
+
+
 /* The invariant of the representation of a polyhedron is the following: if the
    polyhedron is empty, then C==F==satC==satF==0. Otherwise, we have
    (C || F) && (satC || satF || !(C && F)).
@@ -51,7 +77,6 @@ struct pkXXX_t {
   size_t nbline;
   pk_status_t status;
 };
-
 typedef struct pkXXX_t pkXXX_t;
 typedef struct pkXXX_internal_t pkXXX_internal_t;
 
@@ -82,15 +107,9 @@ ap_manager_t* pkXXX_manager_alloc(bool strict);
 /* B. Options */
 /* ============================================================ */
 
-pkXXX_internal_t* pkXXX_manager_get_internal(ap_manager_t* man);
-
-/* For setting options when one has a ap_manager_t object, one can use the
-   APRON function ap_manager_get_internal with a cast. */
-
-void pk_set_max_coeff_size(ap_manager_t* man, unsigned int size);
-void pk_set_approximate_max_coeff_size(ap_manager_t* man, unsigned int size);
-unsigned int pk_get_max_coeff_size(ap_manager_t* man);
-unsigned int pk_get_approximate_max_coeff_size(ap_manager_t* man);
+pk_option_t* pk_manager_option_ref(ap_manager_t* man);
+  /* Get a reference to the structure storing options.
+     Flags can then be modified in-place */
 
 /* ============================================================ */
 /* D. Conversions */

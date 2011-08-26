@@ -34,7 +34,7 @@ C_TMPL_FILES = \
 boxXXX_internal.c boxXXX_representation.c boxXXX_constructor.c boxXXX_meetjoin.c boxXXX_assign.c boxXXX_resize.c boxXXX_otherops.c
 
 H_ORIG_FILES = 
-C_ORIG_FILES = 
+C_ORIG_FILES = box_misc.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)

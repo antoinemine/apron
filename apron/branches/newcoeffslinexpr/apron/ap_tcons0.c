@@ -29,7 +29,7 @@ void ap_tcons0_fprint(FILE* stream, ap_tcons0_t* cons, char** name_of_dim)
   }
 }
 void ap_tcons0_print(ap_tcons0_t* a, char** name_of_dim)
-{ ap_tcons0_fprint(stdout,a,name_of_dim); }
+{ ap_tcons0_fprint(stdout,a,name_of_dim); fflush(stdout); }
 
 ap_tcons0_t* ap_tcons0_make_unsat()
 {

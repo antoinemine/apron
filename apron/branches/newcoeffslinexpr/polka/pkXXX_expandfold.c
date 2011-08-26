@@ -100,7 +100,7 @@ pkXXX_t* pkXXX_expand(ap_manager_t* man,
   }
 
   /* Get the constraints system, and possibly minimize */
-  if (pk->funopt->algorithm<0)
+  if (pk->option.expand_lazy)
     pkXXX_obtain_C(man,pa,"of the argument");
   else
     pkXXX_chernikova(man,pa,"of the argument");
@@ -145,7 +145,7 @@ pkXXX_t* pkXXX_expand(ap_manager_t* man,
 			    po->dim.intd+po->dim.reald-nbdimsup),
 			   nbdimsup);
   /* Minimize the result */
-  if (pk->funopt->algorithm>0){
+  if (!pk->option.expand_lazy){
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
@@ -241,7 +241,7 @@ pkXXX_t* pkXXX_fold(ap_manager_t* man,
     ap_dimension_make(size-1,0) :
     ap_dimension_make(0,size-1);
 
-  if (pk->funopt->algorithm<0)
+  if (pk->option.op_lazy)
     pkXXX_obtain_F(man,pa,"of the argument");
   else
     pkXXX_chernikova(man,pa,"of the argument");
@@ -280,7 +280,7 @@ pkXXX_t* pkXXX_fold(ap_manager_t* man,
   po->F = matrixXXX_fold(pk, destructive, pa->F,
 			 tdim, size);
   /* Minimize the result */
-  if (pk->funopt->algorithm>0){
+  if (!pk->option.op_lazy){
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;

@@ -13,7 +13,6 @@
 
 static
 void poly_projectforget_array(bool project,
-			      bool lazy,
 			      ap_manager_t* man,
 			      pkXXX_t* po, pkXXX_t* pa,
 			      ap_dim_t* tdim, size_t size)
@@ -27,7 +26,7 @@ void poly_projectforget_array(bool project,
   res = false;
 
   /* Get the generator systems, and possibly minimize */
-  if (lazy)
+  if (pk->option.forget_lazy)
     pkXXX_obtain_F(man,pa,"of the argument");
   else
     pkXXX_chernikova(man,pa,"of the argument");
@@ -67,7 +66,7 @@ void poly_projectforget_array(bool project,
     }
     mat->_sorted = false; /* renormalization modifies relative order */
     po->status = 0;
-    if (!lazy){
+    if (!pk->option.forget_lazy){
       pkXXX_chernikova(man,po,"of the result");
     }
   }
@@ -80,8 +79,8 @@ void poly_projectforget_array(bool project,
     matrixXXX_sort_rows(pk,mat);
     pkXXX_dual(pa);
     if (po!=pa) pkXXX_dual(po);
-    if (!lazy) pkXXX_obtain_satC(pa);
-    res = pkXXX_meet_matrix(false,lazy,man,po,pa,mat);
+    if (!pk->option.forget_lazy) pkXXX_obtain_satC(pa);
+    res = pkXXX_meet_matrix(false,man,po,pa,mat);
     pkXXX_dual(pa);
     if (po!=pa) pkXXX_dual(po);
     matrixXXX_free(mat);
@@ -124,9 +123,7 @@ pkXXX_t* pkXXX_forget_array(ap_manager_t* man,
 {
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
   pkXXX_t* po = destructive ? pa : pkXXX_alloc(pa->dim);
-  poly_projectforget_array(project,
-			   man->option.funopt[AP_FUNID_FORGET_ARRAY].algorithm<=0,
-			   man,po,pa,tdim,size);
+  poly_projectforget_array(project, man,po,pa,tdim,size);
   assert(pkXXX_check(pk,po));
   return po;
 }

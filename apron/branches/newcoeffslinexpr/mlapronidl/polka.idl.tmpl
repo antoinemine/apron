@@ -17,6 +17,18 @@ quote(C,"#include \"apron_caml.h\"")
 import "manager.idl";
 import "common.idl";
 
+struct pk_option_t {
+  unsigned int max_coeff_size;
+  unsigned int approximate_max_coeff_size;
+  boolean expand_lazy;
+  boolean forget_lazy;
+  boolean remove_dimensions_lazy;
+  boolean op_lazy;
+  boolean strong_normalization;
+  boolean widening_affine;
+};
+
+
 quote(MLMLI,"(** Convex Polyhedra and Linear Equalities abstract domains *)")
 
 quote(MLMLI,"\n\
@@ -103,12 +115,12 @@ external manager_alloc_equalities_numXXX : unit -> (equalities,numXXX) t Manager
 ENDMACRO
 
 quote(MLMLI,"\n\
-(** {2 Various options. See the C documentation} *)\n\
+(** {2 Options. See the C documentation} *)\n\
 ")
-void pk_set_max_coeff_size(ap_manager_ptr man, unsigned int size);
-void pk_set_approximate_max_coeff_size(ap_manager_ptr man, unsigned int size);
-unsigned int pk_get_max_coeff_size(ap_manager_ptr man);
-unsigned int pk_get_approximate_max_coeff_size(ap_manager_ptr man);
+[ref]struct pk_option_t* pk_manager_get_option(ap_manager_ptr man)
+quote(call,"_res = pk_manager_option_ref(man);");
+void pk_manager_set_option(ap_manager_ptr man, struct pk_option_t opt)
+quote(call,"{ pk_option_t* ref = pk_manager_option_ref(man); *ref = opt; }");
 
 quote(MLI,"\n\
 (** {2 Type conversions} *)\n\

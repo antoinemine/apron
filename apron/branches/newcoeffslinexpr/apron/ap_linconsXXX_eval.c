@@ -361,8 +361,10 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
 					   size_t intdim, num_internal_t intern)
 {
   size_t i;
-  for (i=0; i<array->size; i++){
-    ap_linconsXXX_reduce_integer(array->p[i],intdim, intern);
+  if (intdim>0){
+    for (i=0; i<array->size; i++){
+      ap_linconsXXX_reduce_integer(array->p[i],intdim, intern);
+    }
   }
   return ap_linconsXXX_array_reduce(array,true, intern);
 }
@@ -606,10 +608,9 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
   globalchange = false;
   if (expr->effsize==0 &&
       ap_linconsXXX_evalcst(cons, intern)==tbool_false){
-    eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
-    eitvXXX_set_bottom(res0);
+    eitvXXX_set_bottom(res->cst);
     globalchange = true;
-  } 
+  }
   else {
     /* */
     if (res!=env){
@@ -852,8 +853,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
 	    globalchange = true;
 	    exc = itvXXX_canonicalize(resdim->itv,dim<intdim);
 	    if (exc){
-	      eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,true);
-	      eitvXXX_set_bottom(res0);
+	      eitvXXX_set_bottom(res->cst);
 	      return true;
 	    }
 	    else {
@@ -863,7 +863,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
 	}
 	eitvXXX_swap(intern->XXX.boxize_lincons_eitv,eitv);
       }
-    }  
+    }
   }
   return globalchange;
 }
@@ -872,7 +872,7 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
    constraints.
 
    Return true if some (better if res==env) bounds have been inferred.
-   
+
    - The inferred bounds are stored in res (which may be equal to env)
    - If tchange!=NULL *and initialized to false*,
    tchange[2dim] (resp. 2dim+1) set to true indicates
@@ -909,11 +909,8 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 	  change
 	  ;
 	globalchange = globalchange || change;
-	{
-	  eitvXXX_ptr res0 = ap_linexprXXX_eitvref0(res,0,false);
-	  if (res0 && eitvXXX_is_bottom(res0)){
-	    return true;
-	  }
+	if (eitvXXX_is_bottom(res->cst)){
+	  return true;
 	}
       }
     }

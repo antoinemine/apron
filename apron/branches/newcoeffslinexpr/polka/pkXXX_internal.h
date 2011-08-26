@@ -29,8 +29,7 @@ static const size_t polka_eps = 2;
 
 struct pkXXX_internal_t {
   num_internal_ptr num;
-  size_t max_coeff_size; /* Used for overflow exception in vector_combine */
-  size_t approximate_max_coeff_size;
+  pk_option_t option;
   enum ap_exc_t exn;
 
   bool strict;
@@ -445,13 +444,13 @@ void matrixXXX_bound_vector(
    Return true if exception
  */
 bool pkXXX_meet_matrix(
-    bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, matrixXXX_t* mat
+    bool meet, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, matrixXXX_t* mat
 );
 void pkXXX_meet_linconsMPQ_array(
-    bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsMPQ_array_t array
+    ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, ap_linconsMPQ_array_t array
 );
 void pkXXX_meetjoin(
-    bool meet, bool lazy, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb
+    bool meet, ap_manager_t* man, pkXXX_t* po, pkXXX_t* pa, pkXXX_t* pb
 );
 
 void vectorXXX_remove_dimensions(

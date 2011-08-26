@@ -33,7 +33,8 @@ typedef pkXXX_t pkeqXXX_t;
 /* ============================================================ */
 
 ap_manager_t* pkeqXXX_manager_alloc(void);
-struct pkXXX_internal_t* pkeqXXX_manager_get_internal(ap_manager_t*);
+
+pk_option_t* pkeqXXX_manager_option_ref(ap_manager_t* man);
 
 /* ============================================================ */
 /* D. Conversions */

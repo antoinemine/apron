@@ -297,7 +297,7 @@ pkXXX_t* pkXXX_add_dimensions(ap_manager_t* man,
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_ADD_DIMENSIONS);
   pkXXX_internal_realloc_lazy(pk,pa->dim.intd+pa->dim.reald+dimchange->dim.intd+dimchange->dim.reald);
 
-  if (pk->funopt->algorithm>0){
+  if (!pk->option.op_lazy){
     /* Minimize the argument */
     pkXXX_chernikova(man,pa,"of the argument");
     if (pk->exn){
@@ -340,7 +340,7 @@ pkXXX_t* pkXXX_remove_dimensions(ap_manager_t* man,
   size_t dimsup;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_REMOVE_DIMENSIONS);
 
-  if (pk->funopt->algorithm<=0){
+  if (pk->option.remove_dimensions_lazy){
     pkXXX_obtain_F(man,pa,"of the argument");
   } else {
     pkXXX_chernikova(man,pa,"of the argument");
@@ -377,7 +377,7 @@ pkXXX_t* pkXXX_remove_dimensions(ap_manager_t* man,
   if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
   dimsup = dimchange->dim.intd+dimchange->dim.reald;
   po->F = matrixXXX_remove_dimensions(pk,destructive,pa->F,dimchange);
-  if (pk->funopt->algorithm>0){
+  if (!pk->option.remove_dimensions_lazy){
     pkXXX_chernikova(man,po,"of the result");
     if (pk->exn){
       pk->exn = AP_EXC_NONE;
@@ -397,7 +397,7 @@ pkXXX_t* pkXXX_permute_dimensions(ap_manager_t* man,
   pkXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_PERMUTE_DIMENSIONS);
 
-  if (pk->funopt->algorithm>0){
+  if (!pk->option.op_lazy){
     /* Minimize the argument */
     pkXXX_chernikova(man,pa,"of the argument");
     if (pk->exn){

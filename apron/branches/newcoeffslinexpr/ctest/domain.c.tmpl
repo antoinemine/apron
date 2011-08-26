@@ -53,8 +53,6 @@ ap_linexpr_type_t global_linexpr_typ = AP_LINEXPR_LINEAR;
 bool global_texpr_real = true;
 bool global_intdim;
 
-
-
 ap_abstract0_t* (*random_abstract)(ap_manager_t*, int) = &random_abstract_std;
 void (*random_abstract2)(ap_manager_t*, ap_manager_t*, int,
 			 ap_abstract0_t**, ap_abstract0_t**) = &random_abstract2_std;
@@ -66,7 +64,7 @@ int nb_meetjoin_array = 3;
 unsigned int nb_assign_array = 4;
 unsigned int nb_substitute_array = 4;
 
-#define N 4
+#define N 15
 
 char b1_[N+4]= " [";
 char b2_[N+4];
@@ -1654,12 +1652,12 @@ int main(int argc, char** argv)
     random_abstract2 = i==0 ? &random_abstract2_std : &random_abstract2_inv;
     // box/polyhedra
     test(manpkl,manbox);
-    //test(manpks,manbox);
+    test(manpks,manbox);
     //test(manppll,manbox);
     //test(manppls,manbox);
 
     // polyhedra/polyhedra (same library)
-    //test(manpks,manpkl);
+    test(manpks,manpkl);
     //test(manppls,manppll);
     //test(manppll,manppls);
     /*

@@ -1,3 +1,5 @@
+/* -*- mode: c -*- */
+
 /* ************************************************************************* */
 /* ap_reducedproduct.c: generic reduced product of N domains */
 /* ************************************************************************* */
@@ -33,7 +35,7 @@ static inline ap_reducedproduct_internal_t* get_internal_init1(ap_manager_t* man
 							       ap_funid_t funid, ap_reducedproduct_t* a)
 {
   ap_reducedproduct_internal_t* intern = get_internal_init0(manager);
-  if (a->reduced==false && manager->option.funopt[funid].algorithm & 0x1){
+  if (a->reduced==false && intern->funopt[funid] & 0x1){
     intern->reduce(manager,a);
   }
   return intern;
@@ -43,7 +45,7 @@ static inline ap_reducedproduct_internal_t* get_internal_init2(ap_manager_t* man
 							       ap_reducedproduct_t* a, ap_reducedproduct_t* b)
 {
   ap_reducedproduct_internal_t* intern = get_internal_init0(manager);
-  if (manager->option.funopt[funid].algorithm & 0x1){
+  if (intern->funopt[funid] & 0x1){
     if (a->reduced==false) intern->reduce(manager,a);
     if (b && b->reduced==false) intern->reduce(manager,b);
   }
@@ -56,7 +58,7 @@ ap_reducedproduct_internal_t* get_internal_init_tab(ap_manager_t* manager,
 {
   size_t i;
   ap_reducedproduct_internal_t* intern = get_internal_init0(manager);
-  if (manager->option.funopt[funid].algorithm & 0x1){
+  if (intern->funopt[funid] & 0x1){
     for (i=0; i<size; i++){
       if (tab[i]->reduced==false) intern->reduce(manager,tab[i]);
     }
@@ -102,7 +104,7 @@ void collect_results1(ap_manager_t* manager, ap_funid_t funid, ap_reducedproduct
 {
   collect_results0(manager);
   ap_reducedproduct_internal_t* intern = get_internal_init0(manager);
-  if (a->reduced==false && manager->option.funopt[funid].algorithm & 0x2){
+  if (a->reduced==false && intern->funopt[funid] & 0x2){
     intern->reduce(manager,a);
     a->reduced = true;
   }
@@ -1211,37 +1213,41 @@ ap_manager_t* ap_reducedproduct_manager_alloc
 			 &ap_reducedproduct_internal_free);
   /* default options */
   for (funid=0; funid<AP_FUNID_SIZE; funid++){
-    man->option.funopt[funid].algorithm = 0x2;
+    internal->funopt[funid] = 0x2;
   }
-  man->option.funopt[AP_FUNID_COPY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_FREE].algorithm = 0x0;
-  man->option.funopt[AP_FUNID_ASIZE].algorithm = 0x0;
-  man->option.funopt[AP_FUNID_COPY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_MINIMIZE].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_IS_BOTTOM].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_IS_TOP].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_IS_LEQ].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_IS_EQ].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_SAT_LINCONS].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_SAT_TCONS].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_SAT_INTERVAL].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_IS_DIMENSION_UNCONSTRAINED].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_BOUND_LINEXPR].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_BOUND_TEXPR].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_BOUND_DIMENSION].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_TO_LINCONS_ARRAY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_TO_TCONS_ARRAY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_TO_BOX].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_TO_LINGEN_ARRAY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_JOIN].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_JOIN_ARRAY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_ADD_RAY_ARRAY].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_FORGET_ARRAY].algorithm = 0x3;
-  man->option.funopt[AP_FUNID_ADD_DIMENSIONS].algorithm = 0x0;
-  man->option.funopt[AP_FUNID_PERMUTE_DIMENSIONS].algorithm = 0x0;
-  man->option.funopt[AP_FUNID_EXPAND].algorithm = 0x1;
-  man->option.funopt[AP_FUNID_WIDENING].algorithm = 0x0;
-  man->option.funopt[AP_FUNID_CLOSURE].algorithm = 0x1;
+  internal->funopt[AP_FUNID_COPY] = 0x1;
+  internal->funopt[AP_FUNID_FREE] = 0x0;
+  internal->funopt[AP_FUNID_ASIZE] = 0x0;
+  internal->funopt[AP_FUNID_COPY] = 0x1;
+  internal->funopt[AP_FUNID_MINIMIZE] = 0x1;
+  internal->funopt[AP_FUNID_IS_BOTTOM] = 0x1;
+  internal->funopt[AP_FUNID_IS_TOP] = 0x0;
+  internal->funopt[AP_FUNID_IS_LEQ] = 0x1;
+  internal->funopt[AP_FUNID_IS_EQ] = 0x1;
+  internal->funopt[AP_FUNID_SAT_LINCONS] = 0x0;
+  internal->funopt[AP_FUNID_SAT_TCONS] = 0x0;
+  internal->funopt[AP_FUNID_SAT_INTERVAL] = 0x0;
+  internal->funopt[AP_FUNID_IS_DIMENSION_UNCONSTRAINED] = 0x0;
+  internal->funopt[AP_FUNID_BOUND_LINEXPR] = 0x1;
+  internal->funopt[AP_FUNID_BOUND_TEXPR] = 0x1;
+  internal->funopt[AP_FUNID_BOUND_DIMENSION] = 0x1;
+  internal->funopt[AP_FUNID_TO_LINCONS_ARRAY] = 0x1;
+  internal->funopt[AP_FUNID_TO_TCONS_ARRAY] = 0x1;
+  internal->funopt[AP_FUNID_TO_BOX] = 0x1;
+  internal->funopt[AP_FUNID_TO_LINGEN_ARRAY] = 0x1;
+  internal->funopt[AP_FUNID_JOIN] = 0x1;
+  internal->funopt[AP_FUNID_JOIN_ARRAY] = 0x1;
+  internal->funopt[AP_FUNID_ADD_RAY_ARRAY] = 0x1;
+  internal->funopt[AP_FUNID_ASSIGN_LINEXPR_ARRAY] = 0x0;
+  internal->funopt[AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY] = 0x0;
+  internal->funopt[AP_FUNID_ASSIGN_TEXPR_ARRAY] = 0x0;
+  internal->funopt[AP_FUNID_SUBSTITUTE_TEXPR_ARRAY] = 0x0;
+  internal->funopt[AP_FUNID_FORGET_ARRAY] = 0x3;
+  internal->funopt[AP_FUNID_ADD_DIMENSIONS] = 0x0;
+  internal->funopt[AP_FUNID_PERMUTE_DIMENSIONS] = 0x0;
+  internal->funopt[AP_FUNID_EXPAND] = 0x1;
+  internal->funopt[AP_FUNID_WIDENING] = 0x0;
+  internal->funopt[AP_FUNID_CLOSURE] = 0x1;
 
   /* Virtual table */
   funptr = man->funptr;

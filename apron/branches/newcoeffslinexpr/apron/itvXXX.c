@@ -502,6 +502,8 @@ void itvXXX_divn(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
 
 void itvXXX_div_zero(itvXXX_t a, itvXXX_t b)
 {
+  itvXXX_set_top(a);
+  /*
   if (boundXXX_sgn(b->neginf)>0){
     boundXXX_set_infty(a->neginf,+1);
   }
@@ -514,6 +516,7 @@ void itvXXX_div_zero(itvXXX_t a, itvXXX_t b)
   else {
     boundXXX_set_int(a->sup,0);
   }
+  */
 }
 
 void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern)
