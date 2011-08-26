@@ -11,6 +11,7 @@
 
 void boxXXX_internal_init(boxXXX_internal_t* intern)
 {
+  intern->num = NULL;
   num_internal_init(intern->num);
   eitvXXX_init(intern->bound_linexpr_internal_itv);
   eitvXXX_init(intern->bound_linexpr_internal_itv2);
@@ -18,22 +19,24 @@ void boxXXX_internal_init(boxXXX_internal_t* intern)
   eitvXXX_init(intern->sat_lincons_itv);
   numXXX_init(intern->sat_lincons_num);
   ap_linconsXXX_init(intern->sat_lincons_lincons,0);
+  eitvXXX_init(intern->eval_texpr_itv);
   ap_linexprXXX_init(intern->eval_texpr_linexpr,0);
   eitvXXX_init(intern->bound_linexpr_itv);
   eitvXXX_init(intern->meet_lincons_internal_itv);
   eitvXXX_init(intern->meet_lincons_internal_itv2);
   eitvXXX_init(intern->meet_lincons_internal_itv3);
   boundXXX_init(intern->meet_lincons_internal_bound);
+  intern->option.kmax = 1;
 }
 void boxXXX_internal_clear(boxXXX_internal_t* intern)
 {
-  num_internal_clear(intern->num);
   eitvXXX_clear(intern->bound_linexpr_internal_itv);
   eitvXXX_clear(intern->bound_linexpr_internal_itv2);
   eitvXXX_clear(intern->sat_interval_eitv);
   eitvXXX_clear(intern->sat_lincons_itv);
   numXXX_clear(intern->sat_lincons_num);
   ap_linconsXXX_clear(intern->sat_lincons_lincons);
+  eitvXXX_clear(intern->eval_texpr_itv);
   ap_linexprXXX_clear(intern->eval_texpr_linexpr);
   eitvXXX_clear(intern->bound_linexpr_itv);
   eitvXXX_clear(intern->meet_lincons_internal_itv);
@@ -68,6 +71,7 @@ ap_manager_t* boxXXX_manager_alloc(void)
   itv = boxXXX_internal_alloc();
   man = ap_manager_alloc("box" "XXX", "1.0",
 			 itv, (void (*)(void*))boxXXX_internal_free);
+  itv->num = man->num;
   funptr = man->funptr;
 
   funptr[AP_FUNID_COPY] = &boxXXX_copy;

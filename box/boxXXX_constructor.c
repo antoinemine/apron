@@ -237,19 +237,19 @@ bool boxXXX_sat_lincons(ap_manager_t* man,
 void boxXXX_eval_texpr(
     ap_manager_t* man,
     eitvXXX_t eitv,
-    boxXXX_t* a, ap_texpr0_t* texpr, bool linearize)
+    boxXXX_t* a, ap_texpr0_t* texpr)
 {
   boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
   assert(a->e);
-  if (linearize){
-    ap_linexprXXX_intlinearize_texpr0(intern->eval_texpr_linexpr,
-				      texpr,a->e,a->dim.intd,man->num);
-    ap_linexprXXX_eval(eitv,
-		       intern->eval_texpr_linexpr,a->e,man->num);
-  }
-  else {
-    eitvXXX_eval_ap_texpr0(eitv,texpr,a->e,man->num);
-  }
+  eitvXXX_eval_ap_texpr0(eitv,texpr,a->e,man->num);
+  /* Intersect with linearisation: can give better results because
+     evaluating x=[a,b] is more precise than evaluating
+     2x-x=[2a,2b]-[a,b]=[2a-b,2b-a] */
+  ap_linexprXXX_intlinearize_texpr0(intern->eval_texpr_linexpr,
+				    texpr,a->e,a->dim.intd,man->num);
+  ap_linexprXXX_eval(intern->eval_texpr_itv,
+		     intern->eval_texpr_linexpr,a->e,man->num);
+  eitvXXX_meet(eitv,eitv,intern->eval_texpr_itv);
 }
 
 /* does the abstract value satisfy the tree constraint ? */
@@ -268,8 +268,7 @@ bool boxXXX_sat_tcons(ap_manager_t* man,
 
   man->result.flag_best = man->result.flag_exact = false;
   boxXXX_eval_texpr(man,
-		    intern->sat_lincons_itv, a, cons->texpr0,
-		    man->option.funopt[AP_FUNID_SAT_TCONS].algorithm>=0);
+		    intern->sat_lincons_itv, a, cons->texpr0);
   ap_linconsXXX_set_zero(lincons);
   eitvXXX_set(lincons->linexpr->cst,intern->sat_lincons_itv);
   lincons->constyp = cons->constyp;
@@ -333,8 +332,7 @@ void boxXXX_bound_texpr(ap_manager_t* man,
   }
   else {
     boxXXX_eval_texpr(man,
-		      intern->bound_linexpr_itv, a, expr,
-		      man->option.funopt[AP_FUNID_BOUND_TEXPR].algorithm>=0);
+		      intern->bound_linexpr_itv, a, expr);
     ap_coeff_set_eitvXXX(interval,intern->bound_linexpr_itv, man->num);
     man->result.flag_best = true;
     man->result.flag_exact = false;

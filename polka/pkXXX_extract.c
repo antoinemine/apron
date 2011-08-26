@@ -10,6 +10,8 @@
 #include "ap_generic.h"
 #include "num_conv.h"
 
+#define _MARK_numXXX_
+
 /* Bounding the value of a dimension in a matrix of generators. */
 
 void matrixXXX_bound_dimension(pkXXX_internal_t* pk,
@@ -180,8 +182,8 @@ void vectorXXX_bound_linexprMPQ(pkXXX_internal_t* pk,
 
   numXXX_set_int(rat,1);
   numXXX_set_int(eitv->itv->sup,0);
-  ap_linexprXXX_ForeachLinterm0(linexpr,i,dim,peitv){
-    assert(eitv->eq);
+  ap_linexprMPQ_ForeachLinterm0(linexpr,i,dim,peitv){
+    assert(peitv->eq);
     size_t index = pk->dec + dim;
     if (numintXXX_sgn(vec[index])){
       numintXXX_set(numXXX_numref(rat),vec[index]);
@@ -206,9 +208,9 @@ void vectorXXX_bound_linexprMPQ(pkXXX_internal_t* pk,
 */
 static
 void matrixXXX_bound_linexprMPQ(pkXXX_internal_t* pk,
-				   eitvXXX_t eitv,
-				   ap_linexprMPQ_t linexpr,
-				   matrixXXX_t* F)
+				eitvXXX_t eitv,
+				ap_linexprMPQ_t linexpr,
+				matrixXXX_t* F)
 {
   size_t i;
   int sgn;
@@ -273,7 +275,7 @@ void pkXXX_bound_dimension(ap_manager_t* man,
   eitvXXX_t eitv;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_BOUND_DIMENSION);
 
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,po,NULL);
   else
     pkXXX_obtain_F(man,po,NULL);
@@ -309,9 +311,11 @@ void pkXXX_bound_linexpr_quasilinear(ap_manager_t* man,
 {
   bool exact;
   eitvXXX_t eitv;
+  eitvXXX_ptr peitv;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_BOUND_LINEXPR);
+  ap_linexprMPQ_ptr linexprMPQptr;
 
-  if (pk->funopt->algorithm>0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,po,NULL);
   else
     pkXXX_obtain_F(man,po,NULL);
@@ -328,12 +332,28 @@ void pkXXX_bound_linexpr_quasilinear(ap_manager_t* man,
     return;
   }
 
-  exact = ap_linexprMPQ_set_linexpr0(pk->ap_linexprMPQ, expr, pk->num);
-  eitvXXX_init(eitv);
-  matrixXXX_bound_linexprMPQ(pk,eitv,pk->ap_linexprMPQ,po->F);
-  exact = ap_coeff_set_eitvXXX(interval,eitv,pk->num) && exact;
-  eitvXXX_clear(eitv);
-
+  if (expr->discr==AP_SCALAR_MPQ){
+    linexprMPQptr = expr->linexpr.MPQ;
+    exact = true;
+  } else {
+    exact = ap_linexprMPQ_set_linexpr0(pk->ap_linexprMPQ, expr, pk->num);
+    linexprMPQptr = pk->ap_linexprMPQ;
+  }
+#if defined(_MARK_numMPQ_)
+  if (interval->discr==AP_SCALAR_MPQ){
+    peitv = interval->eitv.MPQ;
+  }
+  else
+#endif
+    {
+      eitvXXX_init(eitv);
+      peitv = eitv;
+    }
+  matrixXXX_bound_linexprMPQ(pk,peitv,pk->ap_linexprMPQ,po->F);
+  if (peitv==eitv){
+    exact = ap_coeff_set_eitvXXX(interval,eitv,pk->num) && exact;
+    eitvXXX_clear(eitv);
+  }
   man->result.flag_exact = man->result.flag_best =
     ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
       ap_linexprMPQ_is_real(pk->ap_linexprMPQ,po->dim.intd) ) ?
@@ -346,15 +366,20 @@ void pkXXX_bound_linexpr_quasilinear(ap_manager_t* man,
 void pkXXX_bound_linexpr(ap_manager_t* man,
 			 ap_coeff_t interval, pkXXX_t* po, ap_linexpr0_t linexpr)
 {
-  if (ap_linexpr0_is_quasilinear(linexpr))
-    return pkXXX_bound_linexpr_quasilinear(man,interval,po,linexpr);
-  else
-    return ap_generic_bound_linexpr(man,interval,po,linexpr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR);
+  return
+    ap_generic_bound_linexpr(
+	man,interval,po,linexpr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR,
+	(void (*)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t))pkXXX_bound_linexpr_quasilinear
+    );
 }
 void pkXXX_bound_texpr(ap_manager_t* man,
 		       ap_coeff_t interval, pkXXX_t* po, ap_texpr0_t* expr)
 {
-  return ap_generic_bound_texpr(man,interval,po,expr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR);
+  return
+    ap_generic_bound_texpr(
+	man,interval,po,expr,AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR,
+	(void (*)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t))pkXXX_bound_linexpr_quasilinear
+);
 }
 
 /* ====================================================================== */
@@ -418,7 +443,7 @@ void pkXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkXXX_t* po)
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_TO_BOX);
 
   size = ap_dimension_size(po->dim);
-  if (pk->funopt->algorithm>=0)
+  if (!pk->option.op_lazy)
     pkXXX_chernikova(man,po,NULL);
   else
     pkXXX_obtain_F(man,po,NULL);

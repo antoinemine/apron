@@ -125,7 +125,7 @@ void ap_linconsXXX_set_bool(ap_linconsXXX_t lincons, bool value)
   eitvXXX_set_int(lincons->linexpr->cst,value ? 0 : 1);
   lincons->constyp = AP_CONS_EQ;
 }
-void ap_linconsXXX_set_dim_num(ap_linconsXXX_t lincons, ap_dim_t dim, bool sgn, numXXX_t num)
+void ap_linconsXXX_set_dim_num(ap_linconsXXX_t lincons, ap_dim_t dim, int sgn, numXXX_t num)
 {
   ap_linconsXXX_set_zero(lincons);
   eitvXXX_ptr eitv = ap_linconsXXX_cstref(lincons);
@@ -942,7 +942,7 @@ ap_dim_t ap_linyyyXXX_array_max_dim(ap_linyyyXXX_array_t array)
 }
 
 size_t ap_linyyyXXX_array_support_generic(
-    void (*support_mask)(ap_linyyyXXX_t a, ap_dim_t* tdim, size_t),
+    void (*support_mask)(ap_linyyyXXX_t a, ap_dim_t* tdim),
     ap_linyyyXXX_array_t array,
     ap_dim_t* tdim, size_t size
 )
@@ -950,19 +950,19 @@ size_t ap_linyyyXXX_array_support_generic(
   size_t i;
   ap_dimsupport_mask_clear(tdim,size);
   for (i=0;i<array->size;i++){
-    support_mask(array->p[i],tdim,size);
+    support_mask(array->p[i],tdim);
   }
   return ap_dimsupport_std_of_mask(tdim,size);
 }
 size_t ap_linyyyXXX_array_support(ap_linyyyXXX_array_t array,
 				  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_support_mask,array,tdim,size);
+  return ap_linyyyXXX_array_support_generic(ap_linyyyXXX_support_mask,array,tdim,size);
 }
 size_t ap_linyyyXXX_array_supportinterval(ap_linyyyXXX_array_t array,
 					  ap_dim_t* tdim, size_t size)
 {
-  return ap_linyyyXXX_array_support_generic(&ap_linyyyXXX_supportinterval_mask,array,tdim,size);
+  return ap_linyyyXXX_array_support_generic(ap_linyyyXXX_supportinterval_mask,array,tdim,size);
 }
 
 

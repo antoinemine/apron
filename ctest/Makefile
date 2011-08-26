@@ -22,8 +22,8 @@ num: num.c ../apron/libapron.d.a
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lapron.d -lmpfr -lgmp -lm
 expr: expr.c ../apron/libapron.d.a 
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lapron.d -lmpfr -lgmp -lm
-domain: domain.c ../apron/libapron.d.a ../box/libbox.d.a ../polka/libpolka.d.a
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -o $@ $< -lpolka.d -lbox.d -lapron.d -lmpfr -lgmp -lm
+domain: domain.c ../apron/libapron.p.a ../box/libbox.p.a ../polka/libpolka.p.a
+	$(CC) $(CFLAGS_PROF) -g3 -pg $(ICFLAGS) $(LCFLAGS) -o $@ $< -lpolka.p -lbox.p -lapron.p -lmpfr -lgmp -lm
 
 clean:
 	rm -f num expr domain *.o out/*

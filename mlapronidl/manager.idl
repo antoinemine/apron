@@ -100,13 +100,6 @@ typedef [abstract,
 enum ap_funid_t ap_funid_t;
 
 struct ap_funopt_t {
-  int algorithm;
-  /* Algorithm selection:
-     - 0 is default algorithm;
-     - MAX_INT is most accurate available;
-     - MIN_INT is most efficient available;
-     - otherwise, no accuracy or speed meaning
-  */
   unsigned int timeout; /* unit !? */
   /* Above the given computation time, the function may abort with the
      exception flag flag_time_out on.
@@ -288,8 +281,8 @@ let print_exclog fmt x =\n\
   Format.fprintf fmt \"{ @[ exn = %a;@ funid = %a;@ msg = %s;@] }\"\n\
     print_exc x.exn print_funid x.funid x.msg\n\
 let print_funopt fmt x =\n\
-  Format.fprintf fmt \"{ @[ algorithm = %i;@ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"\n\
-    x.algorithm x.timeout x.max_object_size x.flag_exact_wanted x.flag_best_wanted\n\
+  Format.fprintf fmt \"{ @[ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"\n\
+    x.timeout x.max_object_size x.flag_exact_wanted x.flag_best_wanted\n\
 ")
 
 quote(MLI,"(** Set / get the global manager used for deserialization *)")

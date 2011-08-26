@@ -327,7 +327,7 @@ void pkXXX_canonicalize(ap_manager_t* man, pkXXX_t* po)
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_CANONICALIZE);
 
   assert(pkXXX_check(pk,po));
-  if (pk->funopt->algorithm >= 0)
+  if (pk->option.strong_normalization >= 0)
     pkXXX_chernikova3(man,po,NULL);
   else
     pkXXX_chernikova(man,po,NULL);

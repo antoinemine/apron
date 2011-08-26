@@ -137,13 +137,6 @@ typedef struct ap_result_t {
 
 /* Option associated to each function (public type) */
 typedef struct ap_funopt_t {
-  int algorithm;
-  /* Algorithm selection:
-     - 0 is default algorithm;
-     - MAX_INT is most accurate available;
-     - MIN_INT is most efficient available;
-     - otherwise, no accuracy or speed meaning
-  */
   size_t timeout; /* unit !? */
   /* Above the given computation time, the function may abort with the
      exception flag flag_time_out on.

@@ -132,7 +132,7 @@ void vectorXXX_set_linexprMPQ(
   ap_dim_t d;
   eitvMPQ_ptr eitv;
   numintXXX_ptr tmp = pk->vector_tmp[0];
-  
+
   /* compute lcm of denominators, in vec[0] */
   if (mode>=0){
     assert(!boundMPQ_infty(expr->cst->itv->sup));
@@ -163,7 +163,7 @@ void vectorXXX_set_linexprMPQ(
   }
   /* Fill the vector */
   /* constant coefficient */
-  /* if we have p/q, put compute (lcm/q)*p = p*lcm/q */ 
+  /* if we have p/q, put compute (lcm/q)*p = p*lcm/q */
   if (mode>=0){
     numintXXX_set_numintMPQ_special(tmp,numMPQ_denref(boundMPQ_numref(expr->cst->itv->sup)),pk->num);
     numintXXX_divexact(vec[polka_cst], vec[0], tmp);

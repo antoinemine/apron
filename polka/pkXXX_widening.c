@@ -132,7 +132,6 @@ int esatmat_index_in_sorted_rows(bitstring_t* satline,
 pkXXX_t* pkXXX_widening(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
 {
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_WIDENING);
-  bool widening_affine = pk->funopt->algorithm<=0;
   pkXXX_chernikova2(man,pa,"of the first argument");
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
@@ -176,7 +175,7 @@ pkXXX_t* pkXXX_widening(ap_manager_t* man, pkXXX_t* pa, pkXXX_t* pb)
       index = esatmat_index_in_sorted_rows(bitstringp,tab,pa->satF);
       if (index>=0){
 	index = tab[index].index;
-	if (!widening_affine ||
+	if (!pk->option.widening_affine ||
 	    !vectorXXX_is_positivity_constraint(pk,
 						pa->C->p[index],
 						pa->C->nbcolumns)){

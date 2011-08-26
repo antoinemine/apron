@@ -79,7 +79,7 @@ bool matrixXXX_approximate_constraint_1(pkXXX_internal_t* pk, matrixXXX_t* C)
   for (i=0;i<C->nbrows; i++){
     if (numintXXX_sgn(C->p[i][0])){
       for (j=pk->dec; j<C->nbcolumns; j++){
-	if (numintXXX_size2(C->p[i][j]) > pk->approximate_max_coeff_size){
+	if (numintXXX_size2(C->p[i][j]) > pk->option.approximate_max_coeff_size){
 	  change = true;
 	  C->nbrows--;
 	  matrixXXX_exch_rows(C,i,C->nbrows);
@@ -256,12 +256,12 @@ bool matrixXXX_approximate_constraint_10(pkXXX_internal_t* pk, matrixXXX_t* C, m
       size=0; /* for next test */
       for (j=pk->dec; j<C->nbcolumns; j++){
 	size = numintXXX_size2(C->p[i][j]);
-	if (size > pk->approximate_max_coeff_size){
+	if (size > pk->option.approximate_max_coeff_size){
 	  /* Too big coefficient detected in the row */
 	  break;
 	}
       }
-      if (size > pk->approximate_max_coeff_size){
+      if (size > pk->option.approximate_max_coeff_size){
 	/* Too big coefficient detected in the row */
 	/* A. Compute maximum magnitude */
 	size_t maxsize = size;
@@ -274,7 +274,7 @@ bool matrixXXX_approximate_constraint_10(pkXXX_internal_t* pk, matrixXXX_t* C, m
 	  numintXXX_set_int(C->p[i][polka_eps],0);
 	}
 	/* C. Perform rounding of non constant coefficients */
-	size = maxsize - pk->approximate_max_coeff_size;
+	size = maxsize - pk->option.approximate_max_coeff_size;
 	for (j=pk->dec; j<C->nbcolumns; j++){
 	  numintXXX_fdiv_q_2exp(C->p[i][j],C->p[i][j], size);
 	}
@@ -377,11 +377,11 @@ void pkXXX_approximate(ap_manager_t* man, pkXXX_t* po, int algorithm)
   case 1:
   case 2:
   case 3:
-    if (pk->approximate_max_coeff_size>0)
+    if (pk->option.approximate_max_coeff_size>0)
       poly_approximate_123(man,po,algorithm);
     break;
   case 10:
-    if (pk->approximate_max_coeff_size>0)
+    if (pk->option.approximate_max_coeff_size>0)
       poly_approximate_10(man,po);
     break;
   }

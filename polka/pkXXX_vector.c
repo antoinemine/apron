@@ -385,9 +385,9 @@ void vectorXXX_combine(pkXXX_internal_t* pk,
   numintXXX_set_int(q3[k],0);
   vectorXXX_normalize(pk,q3,size);
 
-  if (pk->max_coeff_size){
+  if (pk->option.max_coeff_size){
     for (j=0; j<size; j++){
-      if (numintXXX_size(q3[j]) > pk->max_coeff_size){
+      if (numintXXX_size(q3[j]) > pk->option.max_coeff_size){
 	pk->exn = AP_EXC_OVERFLOW;
       }
     }

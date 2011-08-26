@@ -415,7 +415,7 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
   else {
     man->result.flag_best = (ap_lincons0_array_size(array)==1);
     man->result.flag_exact = false;
-    kmax = man->option.funopt[AP_FUNID_MEET_LINCONS_ARRAY].algorithm;
+    kmax = intern->option.kmax;
     if (kmax<1) kmax=2;
 
     ap_linconsXXX_array_init(tlincons,0);
@@ -454,7 +454,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
   else {
     man->result.flag_best = array->size==1;
     man->result.flag_exact = false;
-    kmax = man->option.funopt[AP_FUNID_MEET_TCONS_ARRAY].algorithm;
+    kmax = intern->option.kmax;
     if (kmax<1) kmax=2;
 
     ap_linconsXXX_array_init(tlincons,0);
@@ -468,7 +468,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
     ap_linconsXXX_array_boxize(res->e,NULL,
 			       tlincons,res->e,a->dim.intd,kmax,false,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv)){
+    if (eitvXXX_is_bottom(res->e->cst)){
     _boxXXX_meet_tcons_array_bottom:
       boxXXX_set_bottom(res);
     }

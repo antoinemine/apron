@@ -17,13 +17,15 @@ extern "C" {
 ap_manager_t* boxXXX_manager_alloc(void);
 
 typedef struct boxXXX_internal_t {
-  num_internal_t num;
+  num_internal_ptr num;
+  box_option_t option;
   eitvXXX_t bound_linexpr_internal_itv;
   eitvXXX_t bound_linexpr_internal_itv2;
   eitvXXX_t sat_interval_eitv;
   eitvXXX_t sat_lincons_itv;
   numXXX_t sat_lincons_num;
   ap_linconsXXX_t sat_lincons_lincons;
+  eitvXXX_t eval_texpr_itv;
   ap_linexprXXX_t eval_texpr_linexpr;
   eitvXXX_t bound_linexpr_itv;
   eitvXXX_t meet_lincons_internal_itv;

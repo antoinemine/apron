@@ -34,3 +34,4 @@ s/and ap_tcons0_ptr = t//g;
 s/\(\(Texpr0\Tcons0\)\.\)\{0,1\}ap_t\(expr\|cons\)0_array_t/\1t array/g;
 s/\(\(Manager\|Abstract0\)\.\)\{0,1\}ap_\(manager\|abstract0\)_ptr/'a \1t/g;
 #s/\t= "camlidl_\([^"]*\)"/\t\t = "camlidl_\1"/g;
+s/\(box\|pk\)_option_t/option/g;

@@ -28,23 +28,31 @@ extern "C" {
 /* I. Constructors, accessors, tests and property extraction */
 /* ********************************************************************** */
 
-bool ap_generic_sat_lincons(ap_manager_t* man, void* abs, ap_lincons0_t cons,
-			    ap_scalar_discr_t discr,
-			    ap_linexpr_type_t linearize, ap_linexpr_type_t boxize);
-bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
-			  ap_scalar_discr_t discr,
-			  ap_linexpr_type_t linearize, ap_linexpr_type_t boxize);
+bool ap_generic_sat_lincons(
+    ap_manager_t* man, void* abs, ap_lincons0_t cons,
+    ap_scalar_discr_t discr,
+    ap_linexpr_type_t linearize, ap_linexpr_type_t boxize,
+    bool (*sat_lincons)(ap_manager_t*,void*,ap_lincons0_t));
+bool ap_generic_sat_tcons(
+    ap_manager_t* man, void* abs, ap_tcons0_t* cons,
+    ap_scalar_discr_t discr,
+    ap_linexpr_type_t linearize, ap_linexpr_type_t boxize,
+    bool (*sat_lincons)(ap_manager_t*,void*,ap_lincons0_t));
   /* This function implements a generic sat_tcons operation using
      ap_linearize_texpr0 and sat_lincons operations. */
 
 void
-ap_generic_bound_linexpr(ap_manager_t* man, ap_coeff_t interval,
-			 void* abs, ap_linexpr0_t linexpr,
-			 ap_scalar_discr_t discr, bool quasilinearize, ap_linexpr_type_t boxize);
+ap_generic_bound_linexpr(
+    ap_manager_t* man, ap_coeff_t interval,
+    void* abs, ap_linexpr0_t linexpr,
+    ap_scalar_discr_t discr, bool quasilinearize, ap_linexpr_type_t boxize,
+    void (*bound_linexpr)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t));
 void
-ap_generic_bound_texpr(ap_manager_t* man, ap_coeff_t interval,
-		       void* abs, ap_texpr0_t* expr,
-		       ap_scalar_discr_t discr, bool quasilinearize, ap_linexpr_type_t boxize);
+ap_generic_bound_texpr(
+    ap_manager_t* man, ap_coeff_t interval,
+    void* abs, ap_texpr0_t* expr,
+    ap_scalar_discr_t discr, bool quasilinearize, ap_linexpr_type_t boxize,
+    void (*bound_linexpr)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t));
   /* This function implements a generic bound_texpr operation using to_box and
      ap_eval_texpr0 operations. */
 

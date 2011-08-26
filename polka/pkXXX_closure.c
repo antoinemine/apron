@@ -21,7 +21,7 @@ pkXXX_t* pkXXX_closure(ap_manager_t* man, bool destructive, pkXXX_t* pa)
   if (!pk->strict){
     return destructive ? pa : pkXXX_copy(man,pa);
   }
-  if (pk->funopt->algorithm<0)
+  if (pk->option.op_lazy)
     pkXXX_obtain_C(man,pa,"of the argument");
   else
     pkXXX_chernikova(man,pa,"of the argument");

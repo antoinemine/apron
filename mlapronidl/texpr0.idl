@@ -267,7 +267,7 @@ value camlidl_apron_texpr0_support(value _v_a)\n\
   camlidl_apron_texpr0_ptr_ml2c(_v_a, &a);\n\
   size = ap_texpr0_max_dim(a);\n\
   tdim = camlidl_malloc(size * sizeof(ap_dim_t), _ctx);\n\
-  size = ap_texpr0_support(a,tdim);\n\
+ size = ap_texpr0_support(a,tdim,size);\n                    \
   _vres = camlidl_alloc(size, 0);\n\
   Begin_root(_vres)\n\
     for (_c1 = 0; _c1 < size; _c1++) {\n\

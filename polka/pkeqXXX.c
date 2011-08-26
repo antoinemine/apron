@@ -95,8 +95,6 @@ void pkeqXXX_reduce(ap_manager_t* man, pkeqXXX_t* po)
 }
 void pkeqXXX_canonicalize(ap_manager_t* man, pkeqXXX_t* po)
 {
-  pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_CANONICALIZE);
-  pk->funopt->algorithm = 1;
   return pkXXX_canonicalize(man,po);
 }
 
@@ -238,7 +236,6 @@ pkeqXXX_t* pkeqXXX_meet(ap_manager_t* man, bool destructive, pkeqXXX_t* polya, p
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET);
-  pk->funopt->algorithm = 1;
   po = pkXXX_meet(man,destructive,polya,polyb);
   return po;
 }
@@ -247,7 +244,6 @@ pkeqXXX_t* pkeqXXX_meet_array(ap_manager_t* man, pkeqXXX_t** po, size_t size)
 {
   pkeqXXX_t* poly;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET);
-  pk->funopt->algorithm = 1;
   poly = pkXXX_meet_array(man,po,size);
   return poly;
 }
@@ -256,7 +252,6 @@ pkeqXXX_t* pkeqXXX_meet_lincons_array(ap_manager_t* man, bool destructive, pkeqX
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
-  pk->funopt->algorithm = 1;
   po = pkXXX_meet_lincons_array(man,destructive,pa,array);
   pkeqXXX_reduce(man,po);
   assert(pkeqXXX_check(pk,po));
@@ -267,7 +262,6 @@ pkeqXXX_t* pkeqXXX_meet_tcons_array(ap_manager_t* man, bool destructive, pkeqXXX
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_MEET_TCONS_ARRAY);
-  pk->funopt->algorithm = 1;
   po = pkXXX_meet_tcons_array(man,destructive,pa,array);
   pkeqXXX_reduce(man,po);
   assert(pkeqXXX_check(pk,po));
@@ -278,7 +272,6 @@ pkeqXXX_t* pkeqXXX_join(ap_manager_t* man, bool destructive, pkeqXXX_t* polya, p
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_JOIN);
-  pk->funopt->algorithm = 1;
   po = pkXXX_join(man,destructive,polya,polyb);
   pkeqXXX_reduce(man,po);
   return po;
@@ -288,7 +281,6 @@ pkeqXXX_t* pkeqXXX_join_array(ap_manager_t* man, pkeqXXX_t** po, size_t size)
 {
   pkeqXXX_t* poly;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_JOIN);
-  pk->funopt->algorithm = 1;
   poly = pkXXX_join_array(man,po,size);
   pkeqXXX_reduce(man,poly);
   return poly;
@@ -298,7 +290,6 @@ pkeqXXX_t* pkeqXXX_add_ray_array(ap_manager_t* man, bool destructive, pkeqXXX_t*
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY);
-  pk->funopt->algorithm = 1;
   po = pkXXX_add_ray_array(man,destructive,pa,array);
   pkeqXXX_reduce(man,po);
   return po;
@@ -511,7 +502,6 @@ pkeqXXX_t* pkeqXXX_forget_array(ap_manager_t* man,
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_FORGET_ARRAY);
-  pk->funopt->algorithm = 1;
   po = pkXXX_forget_array(man,destructive,a,tdim,size,project);
   pkeqXXX_reduce(man,po);
   return po;
@@ -528,7 +518,6 @@ pkeqXXX_t* pkeqXXX_remove_dimensions(ap_manager_t* man,
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_REMOVE_DIMENSIONS);
-  pk->funopt->algorithm = 1;
   po = pkXXX_remove_dimensions(man,destructive,a,dimchange);
   pkeqXXX_reduce(man,po);
   return po;
@@ -544,7 +533,6 @@ pkeqXXX_t* pkeqXXX_expand(ap_manager_t* man,
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_EXPAND);
-  pk->funopt->algorithm = 1;
   po = pkXXX_expand(man,destructive,a,dim,n);
   pkeqXXX_reduce(man,po);
   return po;
@@ -555,7 +543,6 @@ pkeqXXX_t* pkeqXXX_fold(ap_manager_t* man,
 {
   pkeqXXX_t* po;
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_FOLD);
-  pk->funopt->algorithm = 1;
   po = pkXXX_fold(man,destructive,a,tdim,size);
   pkeqXXX_reduce(man,po);
   return po;
@@ -579,12 +566,6 @@ pkeqXXX_t* pkeqXXX_closure(ap_manager_t* man, bool destructive, pkeqXXX_t* a)
 {
   return destructive ? a : pkXXX_copy(man,a);
 }
-
-pkXXX_internal_t* pkeqXXX_manager_get_internal(ap_manager_t* man)
-{
-  return pkXXX_manager_get_internal(man);
-}
-
 
 ap_manager_t* pkeqXXX_manager_alloc(void)
 {
@@ -645,5 +626,7 @@ ap_manager_t* pkeqXXX_manager_alloc(void)
   funptr[AP_FUNID_WIDENING] = &pkeqXXX_widening;
   funptr[AP_FUNID_CLOSURE] = &pkeqXXX_closure;
 
+  pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pk->option.forget_lazy = false;
   return man;
 }
