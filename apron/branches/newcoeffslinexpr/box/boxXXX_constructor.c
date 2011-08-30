@@ -47,7 +47,7 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 			ap_linexpr0_t box)
 {
   size_t i,size;
-  ap_dim_t dim;
+  ap_dim_t dim,dim2,lastdim;
   bool exc;
   boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_OF_BOX);
 
@@ -57,41 +57,24 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
   boxXXX_t* a = boxXXX_top(man,dimension);
 
   size = ap_dimension_size(dimension);
-  switch (box->discr){
-  case AP_SCALAR_D:
-    {
-      eitvD_ptr eitv;
-      ap_linexprD_ForeachLinterm0(box->linexpr.D,i,dim,eitv){
-	man->result.flag_exact &=
-	  eitvXXX_set_eitvD(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
-	if (exc) { boxXXX_set_bottom(a); break; }
+  MACRO_SWITCH(box->discr) ZZZ {
+    eitvZZZ_ptr eitv;
+    lastdim = 0;
+    ap_linexprZZZ_ForeachLinterm0(box->linexpr.ZZZ,i,dim,eitv){
+      for (dim2=lastdim;dim2<dim;dim++){
+	eitvXXX_set_int(a->e->linterm[dim2]->eitv,0);
       }
+      lastdim = dim+1;
+      man->result.flag_exact &=
+	eitvXXX_set_eitvZZZ(a->e->linterm[dim]->eitv,eitv,man->num);
+      exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
+      if (exc) { boxXXX_set_bottom(a); break; }
     }
-    break;
-  case AP_SCALAR_MPQ:
-    {
-      eitvMPQ_ptr eitv;
-      ap_linexprMPQ_ForeachLinterm0(box->linexpr.MPQ,i,dim,eitv){
-	  man->result.flag_exact &=
-	  eitvXXX_set_eitvMPQ(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
-	if (exc) { boxXXX_set_bottom(a); break; }
-      }
+    for (dim2=lastdim;dim2<size;dim++){
+      eitvXXX_set_int(a->e->linterm[dim2]->eitv,0);
     }
-    break;
-  case AP_SCALAR_MPFR:
-    {
-      eitvMPFR_ptr eitv;
-      ap_linexprMPFR_ForeachLinterm0(box->linexpr.MPFR,i,dim,eitv){
-	man->result.flag_exact &=
-	  eitvXXX_set_eitvMPFR(a->e->linterm[dim]->eitv,eitv,man->num);
-	exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
-	if (exc) { boxXXX_set_bottom(a); break; }
-      }
-    }
-    break;
   }
+  ENDMACRO;
   return a;
 }
 
@@ -571,9 +554,7 @@ void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t res, boxXXX_t* a)
     }
     ENDMACRO
   } else {
-    a->e->effsize--;
     man->result.flag_exact = ap_linexpr0_set_linexprXXX(res,a->e,man->num);
-    a->e->effsize++;
   }
 }
 

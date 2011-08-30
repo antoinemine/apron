@@ -34,7 +34,7 @@ ifneq ($(HAS_JAVA),)
 all: java_all
 endif
 
-SUBDIR_C_DOM = box polka
+SUBDIR_C_DOM = box octagon polka
 ifneq ($(HAS_PPL),)
 SUBDIR_C_DOM += ppl products
 endif

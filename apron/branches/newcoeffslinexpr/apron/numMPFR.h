@@ -144,6 +144,8 @@ static inline void numMPFR_set_infty(numMPFR_t a, int sgn)
 /* Serialization */
 /* ====================================================================== */
 
+static inline unsigned char numMPFR_serialize_id(void)
+{ return 0x2f; }
 size_t numMPFR_serialize(void* dst, numMPFR_t src);
 size_t numMPFR_deserialize(numMPFR_t dst, const void* src);
 /* not the exact size of serialized data, but a sound overapproximation */

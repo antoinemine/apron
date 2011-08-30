@@ -661,7 +661,6 @@ pkXXX_t* pkXXX_asssub_linexpr_array_linear(
   return po;
 }
 
-inline
 pkXXX_t* pkXXX_asssub_linexpr_array(
     bool assign,
     ap_manager_t* man,

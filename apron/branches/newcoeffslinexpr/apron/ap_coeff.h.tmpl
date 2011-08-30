@@ -105,7 +105,7 @@ void ap_coeff_init_set_eitvZZZ(ap_coeff_t coeff, eitvZZZ_t eitv);
 ENDMACRO
 void ap_coeff_clear(ap_coeff_t coeff);
 void ap_coeff_fprint(FILE* stream, ap_coeff_t a);
-static inline void ap_coeff_print(ap_coeff_t a);
+void ap_coeff_print(ap_coeff_t a);
 
 bool ap_coeff_set(ap_coeff_t a, ap_coeff_t b, num_internal_t intern);
 void ap_coeff_set_int(ap_coeff_t a, int b);
@@ -149,8 +149,10 @@ bool ap_coeff_is_bottom(ap_coeff_t a);
   /* Return true iff the interval is empty */
 bool ap_coeff_is_eq(ap_coeff_t a, ap_coeff_t b);
   /* True if same discriminant and equality */
+bool ap_coeff_is_leq(ap_coeff_t a, ap_coeff_t b);
+  /* True if same discriminant inclusion */
 int ap_coeff_cmp(ap_coeff_t a, ap_coeff_t b);
-  /* Assume same discriminant */
+  /* Returns 3/-3 if different discriminants, otherwise returns eitvZZZ_cmp */
 
 /* ====================================================================== */
 /* Other operations */
@@ -162,10 +164,6 @@ long ap_coeff_hash(ap_coeff_t coeff);
 /* ====================================================================== */
 /* FOR INTERNAL USE ONLY */
 /* ====================================================================== */
-
-static inline void ap_coeff_print(ap_coeff_t a)
-{ ap_coeff_fprint(stdout,a); }
-  /* Printing */
 
 MACRO_FOREACH ZZZ @MainNum
 static inline void ap_coeff_cons_eitvZZZ(ap_coeff_t res, eitvZZZ_t e)

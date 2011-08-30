@@ -145,6 +145,9 @@ static inline void numDwww_set_infty(numDwww_t a, int sgn)
 /* Serialization */
 /* ====================================================================== */
 
+static inline unsigned char numDwww_serialize_id(void)
+{ return 0x20 + sizeof(numDwww_t)/4; }
+
 static inline size_t numDwww_serialize(void* dst, numDwww_t src)
 {
   num_store_words8(dst,src,sizeof(numDwww_t));
