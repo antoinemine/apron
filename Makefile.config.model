@@ -27,6 +27,7 @@ APRON_NUMTYPES = Il Ill MPZ Rl Rll MPQ D Dl MPFR
 MLAPRONIDL_NUMTYPES = MPZ D MPQ MPFR
 # Always put above Il, Ill, MPZ before Rl, Rll, MPQ
 BOX_NUMTYPES = MPQ D
+OCT_NUMTYPES = MPQ D
 POLKA_NUMTYPES = MPQ Rll
 
 ######################################################################

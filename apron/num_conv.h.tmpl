@@ -3,7 +3,14 @@
 /* num_conv.h.tmpl */
 /* ********************************************************************** */
 
+#ifndef _num_conv_h_
+#define _num_conv_h_
+
 #include "num_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 MACRO_FOREACH XXX @AllNum
 MACRO_FOREACH YYY @AllNum
@@ -115,3 +122,9 @@ static inline bool tttXXX_set_mpfr2(tttXXX_t a, mpfr_t b, mpfr_t c, num_internal
 ENDMACRO
 
 ENDMACRO
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

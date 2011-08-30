@@ -133,8 +133,7 @@ boxXXX_t* boxXXX_top(ap_manager_t* man, ap_dimension_t dim);
 boxXXX_t* boxXXX_of_box(ap_manager_t* man,
 			ap_dimension_t dim,
 			ap_linexpr0_t box);
-  /* Abstract an hypercube defined by the array of intervals
-     of size intdim+realdim */
+  /* Abstract an hypercube */
 
 /* ============================================================ */
 /* II.2 Accessors */

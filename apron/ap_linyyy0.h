@@ -159,7 +159,7 @@ bool ap_linyyy0_set_list(num_internal_t intern, ap_linyyy0_t expr, bool* perror,
    - e is the inspected expression (of type ap_linexprXXX_t)
    - i is the internal iterator (of type size_t or int)
    - dim is the dimension of one linear term (of type ap_dim_t)
-   - peitv is a pointer to the corresponding interval (of type eitvXXX_ptr)
+   - coeff is a of type ap_coeff_t (and NOT of type ap_coeff_ptr).
 
 */
 

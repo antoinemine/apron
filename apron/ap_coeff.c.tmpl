@@ -56,6 +56,9 @@ void ap_coeff_fprint(FILE* stream, ap_coeff_t a)
     eitvXXX_fprint(stream,a->eitv.XXX);
   ENDMACRO;
 }
+void ap_coeff_print(ap_coeff_t a)
+{ ap_coeff_fprint(stdout,a); fflush(stdout); }
+
 void ap_coeff_set_int(ap_coeff_t a, int b)
 {
   MACRO_SWITCH(a->discr) XXX
@@ -192,6 +195,20 @@ bool ap_coeff_is_bottom(ap_coeff_t a)
   ENDMACRO;
   return res;
 }
+bool ap_coeff_is_leq(ap_coeff_t a, ap_coeff_t b)
+{
+  bool res;
+  if (a==b) return true;
+  if (a->discr==b->discr){
+    MACRO_SWITCH(a->discr) XXX
+      res = eitvXXX_is_leq(a->eitv.XXX,b->eitv.XXX);
+    ENDMACRO;
+    return res;
+  }
+  else {
+    return false;
+  }
+}
 bool ap_coeff_is_eq(ap_coeff_t a, ap_coeff_t b)
 {
   bool res;
@@ -217,7 +234,7 @@ int ap_coeff_cmp(ap_coeff_t a, ap_coeff_t b)
     return res;
   }
   else {
-    return a>b ? 3 : -3;
+    return a->discr>b->discr ? 3 : -3;
   }
 }
 

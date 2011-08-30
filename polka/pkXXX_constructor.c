@@ -147,19 +147,34 @@ int matrixXXX_fill_constraint_box(
     pkXXX_internal_t* pk,
     matrixXXX_t* C, size_t start, ap_linexpr0_t box, ap_dimension_t dimension, bool integer)
 {
-  size_t i,k;
-  ap_dim_t dim;
+  size_t i,k,size;
+  ap_dim_t lastdim,dim,dim2;
   bool ok;
   eitvXXX_t eitv;
   ap_coeff_t coeff;
 
   k = start;
   eitvXXX_init(eitv);
+  lastdim = 0;
   ap_linexpr0_ForeachLinterm(box,i,dim,coeff){
+    for (dim2=lastdim;dim2<dim;dim++){
+      numXXX_ptr num = boundXXX_numref(eitv->itv->sup);
+      numXXX_set_int(num,0);
+      ok = vectorXXX_set_dim_bound(pk,C->p[k],
+				   dim2, num, 0,
+				   dimension,
+				   integer);
+      if (!ok){
+	eitvXXX_clear(eitv);
+	return -1;
+      }
+      k++;
+    }
+    lastdim = dim+1;
     eitvXXX_set_ap_coeff(eitv,coeff,pk->num);
     if (eitvXXX_is_point(eitv)){
       ok = vectorXXX_set_dim_bound(pk,C->p[k],
-				   (ap_dim_t)dim, boundXXX_numref(eitv->itv->sup), 0,
+				   dim, boundXXX_numref(eitv->itv->sup), 0,
 				   dimension,
 				   integer);
       if (!ok){
@@ -172,7 +187,7 @@ int matrixXXX_fill_constraint_box(
       /* inferior bound */
       if (!boundXXX_infty(eitv->itv->neginf)){
 	vectorXXX_set_dim_bound(pk,C->p[k],
-				(ap_dim_t)dim, boundXXX_numref(eitv->itv->neginf), -1,
+				dim, boundXXX_numref(eitv->itv->neginf), -1,
 				dimension,
 				integer);
 	k++;
@@ -180,13 +195,27 @@ int matrixXXX_fill_constraint_box(
       /* superior bound */
       if (!boundXXX_infty(eitv->itv->sup)){
 	vectorXXX_set_dim_bound(pk,C->p[k],
-				(ap_dim_t)dim, boundXXX_numref(eitv->itv->sup), 1,
+				dim, boundXXX_numref(eitv->itv->sup), 1,
 				dimension,
 				integer);
 	k++;
       }
     }
   }
+  size = ap_dimension_size(dimension);
+  for (dim2=lastdim;dim<size;dim++){
+    numXXX_ptr num = boundXXX_numref(eitv->itv->sup);
+    numXXX_set_int(num,0);
+      ok = vectorXXX_set_dim_bound(pk,C->p[k],
+				   dim2, num, 0,
+				   dimension,
+				   integer);
+      if (!ok){
+	eitvXXX_clear(eitv);
+	return -1;
+      }
+      k++;
+    }
   eitvXXX_clear(eitv);
   return (int)k;
 }
