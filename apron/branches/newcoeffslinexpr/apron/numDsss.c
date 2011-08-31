@@ -9,7 +9,7 @@
 /* Arithmetic Operations */
 /* ====================================================================== */
 
-void numDwww_sqrt(numDwww_t up, numDwww_t down, numDwww_t b)
+void numDwww_sqrt(numDwww_t up, numDwww_t down, const numDwww_t b)
 {
   assert(*b>=0);
   *up = sqrtwww(*b);
@@ -22,7 +22,7 @@ void numDwww_sqrt(numDwww_t up, numDwww_t down, numDwww_t b)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-int numDwww_hash(numDwww_t a)
+int numDwww_hash(const numDwww_t a)
 {
  if (*a <= -(numDwww_native)(INT_MAX))
     return -INT_MAX;

@@ -29,11 +29,11 @@ extern "C" {
 /* ====================================================================== */
 static inline void itvXXX_init(itvXXX_t a);
 void itvXXX_init_array(itvXXX_t* a, size_t size);
-static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b);
+static inline void itvXXX_init_set(itvXXX_t a, const itvXXX_t b);
 static inline void itvXXX_init_set_int(itvXXX_t a, long b);
 static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c);
-static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b);
-static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c);
+static inline void itvXXX_init_set_num(itvXXX_t a, const numXXX_t b);
+static inline void itvXXX_init_set_num2(itvXXX_t a, const numXXX_t b, const numXXX_t c);
 static inline void itvXXX_clear(itvXXX_t a);
 static inline void itvXXX_clear_array(itvXXX_t* a, size_t size);
 itvXXX_t* itvXXX_array_alloc(size_t size);
@@ -42,9 +42,9 @@ void itvXXX_array_free(itvXXX_t* a, size_t size);
 /* ====================================================================== */
 /* Assignement */
 /* ====================================================================== */
-static inline void itvXXX_set(itvXXX_t a, itvXXX_t b);
-static inline void itvXXX_set_num(itvXXX_t a, numXXX_t b);
-static inline void itvXXX_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c);
+static inline void itvXXX_set(itvXXX_t a, const itvXXX_t b);
+static inline void itvXXX_set_num(itvXXX_t a, const numXXX_t b);
+static inline void itvXXX_set_num2(itvXXX_t a, const numXXX_t b, const numXXX_t c);
 static inline void itvXXX_set_int(itvXXX_t a, long int b);
 static inline void itvXXX_set_int2(itvXXX_t a, long int b, long int c);
 static inline void itvXXX_set_bottom(itvXXX_t a);
@@ -52,11 +52,11 @@ static inline void itvXXX_set_top(itvXXX_t a);
 static inline void itvXXX_swap(itvXXX_t a, itvXXX_t b);
 
 /* a = [-b,b] */
-static inline void itvXXX_set_unit_num(itvXXX_t a, numXXX_t b);
-static inline void itvXXX_set_unit_bound(itvXXX_t a, boundXXX_t b);
+static inline void itvXXX_set_unit_num(itvXXX_t a, const numXXX_t b);
+static inline void itvXXX_set_unit_bound(itvXXX_t a, const boundXXX_t b);
 
 /* a = b + [-c,c] */
-static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
+static inline void itvXXX_enlarge_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c);
 
 /* ====================================================================== */
 /* Normalization and tests */
@@ -67,27 +67,27 @@ bool itvXXX_canonicalize(itvXXX_t a, bool integer);
      - return true if the interval is bottom
      - return false otherwise
   */
-bool itvXXX_is_int(itvXXX_t a, num_internal_t intern);
+bool itvXXX_is_int(const itvXXX_t a, num_internal_t intern);
   /* has integer bounds */
-bool itvXXX_is_point(itvXXX_t a);
+bool itvXXX_is_point(const itvXXX_t a);
   /* Return true iff the interval is a single point */
-static inline bool itvXXX_is_zero(itvXXX_t a);
+static inline bool itvXXX_is_zero(const itvXXX_t a);
   /* Return true iff the interval is a single zero point */
-static inline bool itvXXX_is_pos(itvXXX_t a);
-static inline bool itvXXX_is_neg(itvXXX_t a);
+static inline bool itvXXX_is_pos(const itvXXX_t a);
+static inline bool itvXXX_is_neg(const itvXXX_t a);
   /* Included in [0;+oo], [-oo;0], or any of those */
-static inline bool itvXXX_is_top(itvXXX_t a);
-static inline bool itvXXX_is_bottom(itvXXX_t a);
+static inline bool itvXXX_is_top(const itvXXX_t a);
+static inline bool itvXXX_is_bottom(const itvXXX_t a);
   /* Return true iff the interval is empty */
-static inline bool itvXXX_is_leq(itvXXX_t a, itvXXX_t b);
+static inline bool itvXXX_is_leq(const itvXXX_t a, const itvXXX_t b);
   /* Inclusion test */
-static inline bool itvXXX_is_eq(itvXXX_t a, itvXXX_t b);
+static inline bool itvXXX_is_eq(const itvXXX_t a, const itvXXX_t b);
   /* Equality test */
 
-static inline int itvXXX_hash(itvXXX_t a);
+static inline int itvXXX_hash(const itvXXX_t a);
   /* Hash code */
-int itvXXX_cmp(itvXXX_t a, itvXXX_t b);
-int itvXXX_cmp_zero(itvXXX_t a);
+int itvXXX_cmp(const itvXXX_t a, const itvXXX_t b);
+int itvXXX_cmp_zero(const itvXXX_t a);
   /* Comparison:
      0: equality
      -1: i1 included in i2
@@ -95,64 +95,64 @@ int itvXXX_cmp_zero(itvXXX_t a);
      -2: i1->sup less than i2->sup
      +2: i1->sup greater than i2->sup
   */
-static inline void itvXXX_range_abs(boundXXX_t a, itvXXX_t b);
+static inline void itvXXX_range_abs(boundXXX_t a, const itvXXX_t b);
   /* a=(max b - min b) */
-void itvXXX_range_rel(boundXXX_t a, itvXXX_t b, num_internal_t intern);
+void itvXXX_range_rel(boundXXX_t a, const itvXXX_t b, num_internal_t intern);
   /* a=(max b - min b) / (|a+b|/2) */
 
 /* ====================================================================== */
 /* Lattice operations */
 /* ====================================================================== */
-bool itvXXX_meet(itvXXX_t a, itvXXX_t b, itvXXX_t c);
+bool itvXXX_meet(itvXXX_t a, const itvXXX_t b, const itvXXX_t c);
   /* Assign a with the intersection of b and c */
-void itvXXX_join(itvXXX_t a, itvXXX_t b, itvXXX_t c);
+void itvXXX_join(itvXXX_t a, const itvXXX_t b, const itvXXX_t c);
   /* Assign a with the union of b and c */
-void itvXXX_widening(itvXXX_t a, itvXXX_t b, itvXXX_t c);
+void itvXXX_widening(itvXXX_t a, const itvXXX_t b, const itvXXX_t c);
   /* Assign a with the standard interval widening of b by c */
 
 /* ====================================================================== */
 /* Arithmetic operations */
 /* ====================================================================== */
-static inline void itvXXX_add(itvXXX_t a, itvXXX_t b, itvXXX_t c);
-void itvXXX_sub(itvXXX_t a, itvXXX_t b, itvXXX_t c);
-void itvXXX_neg(itvXXX_t a, itvXXX_t b);
-void itvXXX_mul(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern);
-void itvXXX_div(itvXXX_t a, itvXXX_t b, itvXXX_t c, num_internal_t intern);
-static inline void itvXXX_add_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
-static inline void itvXXX_sub_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
-void itvXXX_mul_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
-void itvXXX_div_num(itvXXX_t a, itvXXX_t b, numXXX_t c);
+static inline void itvXXX_add(itvXXX_t a, const itvXXX_t b, const itvXXX_t c);
+void itvXXX_sub(itvXXX_t a, const itvXXX_t b, const itvXXX_t c);
+void itvXXX_neg(itvXXX_t a, const itvXXX_t b);
+void itvXXX_mul(itvXXX_t a, const itvXXX_t b, const itvXXX_t c, num_internal_t intern);
+void itvXXX_div(itvXXX_t a, const itvXXX_t b, const itvXXX_t c, num_internal_t intern);
+static inline void itvXXX_add_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c);
+static inline void itvXXX_sub_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c);
+void itvXXX_mul_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c);
+void itvXXX_div_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c);
   /*
-static inline void itvXXX_add_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
-static inline void itvXXX_sub_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
+static inline void itvXXX_add_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c);
+static inline void itvXXX_sub_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c);
   */
-void itvXXX_mul_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
-void itvXXX_div_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c);
-bool itvXXX_sqrt(itvXXX_t a, itvXXX_t b, num_internal_t intern);
-void itvXXX_abs(itvXXX_t a, itvXXX_t b);
-static inline void itvXXX_mul_2exp(itvXXX_t a, itvXXX_t b, int c);
+void itvXXX_mul_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c);
+void itvXXX_div_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c);
+bool itvXXX_sqrt(itvXXX_t a, const itvXXX_t b, num_internal_t intern);
+void itvXXX_abs(itvXXX_t a, const itvXXX_t b);
+static inline void itvXXX_mul_2exp(itvXXX_t a, const itvXXX_t b, int c);
 
-static inline void itvXXX_magnitude(boundXXX_t a, itvXXX_t b);
+static inline void itvXXX_magnitude(boundXXX_t a, const itvXXX_t b);
   /* get the absolute value of maximal bound */
 
-void itvXXX_mod(itvXXX_t a, itvXXX_t b, itvXXX_t c, bool is_int, num_internal_t intern);
+void itvXXX_mod(itvXXX_t a, const itvXXX_t b, const itvXXX_t c, bool is_int, num_internal_t intern);
   /* x mod y = x - y*trunc(x/y) */
 
-void itvXXX_div_zero(itvXXX_t a, itvXXX_t b);
+void itvXXX_div_zero(itvXXX_t a, const itvXXX_t b);
   /* internal */
 
 /* ====================================================================== */
 /* Casts */
 /* ====================================================================== */
 /* Integer casts (rounding towards +oo, -oo, 0, or worst-case) */
-static inline void itvXXX_ceil(itvXXX_t a, itvXXX_t b);
-static inline void itvXXX_floor(itvXXX_t a, itvXXX_t b);
-static inline void itvXXX_trunc(itvXXX_t a, itvXXX_t b);
-static inline void itvXXX_to_int(itvXXX_t a, itvXXX_t b);
+static inline void itvXXX_ceil(itvXXX_t a, const itvXXX_t b);
+static inline void itvXXX_floor(itvXXX_t a, const itvXXX_t b);
+static inline void itvXXX_trunc(itvXXX_t a, const itvXXX_t b);
+static inline void itvXXX_to_int(itvXXX_t a, const itvXXX_t b);
 
 /* Floating-point casts (worst cases) */
-void itvXXX_to_float(itvXXX_t a, itvXXX_t b, num_internal_t intern);
-void itvXXX_to_double(itvXXX_t a, itvXXX_t b, num_internal_t intern);
+void itvXXX_to_float(itvXXX_t a, const itvXXX_t b, num_internal_t intern);
+void itvXXX_to_double(itvXXX_t a, const itvXXX_t b, num_internal_t intern);
 
 /* ====================================================================== */
 /* Conversions */
@@ -182,17 +182,17 @@ bool itvXXX_set_generic(num_internal_t intern,
 /* ====================================================================== */
 /* Printing */
 /* ====================================================================== */
-int itvXXX_snprint(char* s, int size, itvXXX_t a);
-void itvXXX_fprint(FILE* stream, itvXXX_t a);
-void itvXXX_print(itvXXX_t a);
+int itvXXX_snprint(char* s, int size, const itvXXX_t a);
+void itvXXX_fprint(FILE* stream, const itvXXX_t a);
+void itvXXX_print(const itvXXX_t a);
 
 /* ====================================================================== */
 /* Serialization */
 /* ====================================================================== */
 
-size_t itvXXX_serialize(void* dst, itvXXX_t src);
+size_t itvXXX_serialize(void* dst, const itvXXX_t src);
 size_t itvXXX_deserialize(itvXXX_t dst, const void* src);
-size_t itvXXX_serialized_size(itvXXX_t a);
+size_t itvXXX_serialized_size(const itvXXX_t a);
 size_t itvXXX_serialize_array(void* dst, itvXXX_t* src, size_t size);
 size_t itvXXX_deserialize_array(itvXXX_t* dst, const void* src, size_t size);
 size_t itvXXX_serialized_size_array(itvXXX_t* src, size_t size);
@@ -210,7 +210,7 @@ static inline void itvXXX_init(itvXXX_t a)
   boundXXX_init(a->neginf);
   boundXXX_init(a->sup);
 }
-static inline void itvXXX_init_set(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_init_set(itvXXX_t a, const itvXXX_t b)
 {
   boundXXX_init_set(a->neginf,b->neginf);
   boundXXX_init_set(a->sup,b->sup);
@@ -225,14 +225,14 @@ static inline void itvXXX_init_set_int2(itvXXX_t a, long b, long c)
   boundXXX_init_set_int(a->neginf,-b);
   boundXXX_init_set_int(a->sup,c);
 }
-static inline void itvXXX_init_set_num(itvXXX_t a, numXXX_t b)
+static inline void itvXXX_init_set_num(itvXXX_t a, const numXXX_t b)
 {
   boundXXX_init_set_num(a->neginf,b);
   numXXX_ptr p = boundXXX_numref(a->neginf);
   numXXX_neg(p,p);
   boundXXX_init_set_num(a->sup,b);
 }
-static inline void itvXXX_init_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c)
+static inline void itvXXX_init_set_num2(itvXXX_t a, const numXXX_t b, const numXXX_t c)
 {
   boundXXX_init_set_num(a->neginf,b);
   numXXX_ptr p = boundXXX_numref(a->neginf);
@@ -256,21 +256,22 @@ static inline void itvXXX_clear_array(itvXXX_t* a, size_t size)
 /* Assignement */
 /* ====================================================================== */
 
-static inline void itvXXX_set(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_set(itvXXX_t a, const itvXXX_t b)
 {
   boundXXX_set(a->neginf,b->neginf);
   boundXXX_set(a->sup,b->sup);
 }
-static inline void itvXXX_set_num(itvXXX_t a, numXXX_t b)
+static inline void itvXXX_set_num(itvXXX_t a, const numXXX_t b)
 {
   boundXXX_set_num(a->sup,b);
   boundXXX_neg(a->neginf,a->sup);
 }
-static inline void itvXXX_set_num2(itvXXX_t a, numXXX_t b, numXXX_t c)
+static inline void itvXXX_set_num2(itvXXX_t a, const numXXX_t b, const numXXX_t c)
 {
-  numXXX_neg(b,b);
-  boundXXX_set_num(a->neginf,b);
-  numXXX_neg(b,b);
+  numXXX_ptr bb = (numXXX_ptr)b;
+  numXXX_neg(bb,bb);
+  boundXXX_set_num(a->neginf,bb);
+  numXXX_neg(bb,bb);
   boundXXX_set_num(a->sup,c);
 }
 static inline void itvXXX_set_int(itvXXX_t a, long int b)
@@ -296,17 +297,17 @@ static inline void itvXXX_set_top(itvXXX_t a)
 static inline void itvXXX_swap(itvXXX_t a, itvXXX_t b)
 { itvXXX_t t; *t=*a;*a=*b;*b=*t; }
 
-static inline void itvXXX_set_unit_num(itvXXX_t a, numXXX_t b)
+static inline void itvXXX_set_unit_num(itvXXX_t a, const numXXX_t b)
 {
   boundXXX_set_num(a->neginf,b);
   boundXXX_set_num(a->sup,b);
 }
-static inline void itvXXX_set_unit_bound(itvXXX_t a, boundXXX_t b)
+static inline void itvXXX_set_unit_bound(itvXXX_t a, const boundXXX_t b)
 {
   boundXXX_set(a->neginf,b);
   boundXXX_set(a->sup,b);
 }
-static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
+static inline void itvXXX_enlarge_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c)
 {
   boundXXX_add(a->neginf,b->neginf,c);
   boundXXX_add(a->sup,b->sup,c);
@@ -316,37 +317,37 @@ static inline void itvXXX_enlarge_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
 /* Normalization and tests */
 /* ====================================================================== */
 
-static inline bool itvXXX_is_zero(itvXXX_t a)
+static inline bool itvXXX_is_zero(const itvXXX_t a)
 {
   return boundXXX_sgn(a->neginf)==0 && boundXXX_sgn(a->sup)==0;
 }
-static inline bool itvXXX_is_pos(itvXXX_t a)
+static inline bool itvXXX_is_pos(const itvXXX_t a)
 { return (boundXXX_sgn(a->neginf)<=0); }
 
-static inline bool itvXXX_is_neg(itvXXX_t a)
+static inline bool itvXXX_is_neg(const itvXXX_t a)
 { return (boundXXX_sgn(a->sup)<=0); }
-static inline bool itvXXX_is_top(itvXXX_t a)
+static inline bool itvXXX_is_top(const itvXXX_t a)
 {
   return boundXXX_infty(a->neginf) && boundXXX_infty(a->sup);
 }
-static inline bool itvXXX_is_bottom(itvXXX_t a)
+static inline bool itvXXX_is_bottom(const itvXXX_t a)
 {
-  return itvXXX_canonicalize(a, false);
+  return itvXXX_canonicalize((itvXXX_ptr)a, false);
 }
-static inline bool itvXXX_is_leq(itvXXX_t a, itvXXX_t b)
+static inline bool itvXXX_is_leq(const itvXXX_t a, const itvXXX_t b)
 {
   return boundXXX_cmp(a->sup,b->sup)<=0 && boundXXX_cmp(a->neginf,b->neginf)<=0;
 }
-static inline bool itvXXX_is_eq(itvXXX_t a, itvXXX_t b)
+static inline bool itvXXX_is_eq(const itvXXX_t a, const itvXXX_t b)
 {
   return boundXXX_equal(a->sup,b->sup) && boundXXX_equal(a->neginf,b->neginf);
 }
 
-static inline int itvXXX_hash(itvXXX_t a)
+static inline int itvXXX_hash(const itvXXX_t a)
 {
   return (5*boundXXX_hash(a->neginf) + 7*boundXXX_hash(a->sup));
 }
-static inline void itvXXX_range_abs(boundXXX_t a, itvXXX_t b)
+static inline void itvXXX_range_abs(boundXXX_t a, const itvXXX_t b)
 { boundXXX_add(a,b->sup,b->neginf); }
 
 /* ====================================================================== */
@@ -357,37 +358,37 @@ static inline void itvXXX_range_abs(boundXXX_t a, itvXXX_t b)
 /* Arithmetic operations */
 /* ====================================================================== */
 
-static inline void itvXXX_add(itvXXX_t a, itvXXX_t b, itvXXX_t c)
+static inline void itvXXX_add(itvXXX_t a, const itvXXX_t b, const itvXXX_t c)
 {
   boundXXX_add(a->sup,b->sup,c->sup);
   boundXXX_add(a->neginf,b->neginf,c->neginf);
 }
-static inline void itvXXX_add_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
+static inline void itvXXX_add_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c)
 {
   boundXXX_add_num(a->sup,b->sup,c);
   boundXXX_sub_num(a->neginf,b->neginf,c);
 }
-static inline void itvXXX_sub_num(itvXXX_t a, itvXXX_t b, numXXX_t c)
+static inline void itvXXX_sub_num(itvXXX_t a, const itvXXX_t b, const numXXX_t c)
 {
   boundXXX_sub_num(a->sup,b->sup,c);
   boundXXX_add_num(a->neginf,b->neginf,c);
 }
   /*
-static inline void itvXXX_add_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
+static inline void itvXXX_add_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c)
 {
   boundXXX_add(a->sup,b->sup,c);
   boundXXX_sub(a->neginf,b->neginf,c);
 }
-static inline void itvXXX_sub_bound(itvXXX_t a, itvXXX_t b, boundXXX_t c)
+static inline void itvXXX_sub_bound(itvXXX_t a, const itvXXX_t b, const boundXXX_t c)
 {
   boundXXX_sub(a->sup,b->sup,c);
   boundXXX_add(a->neginf,b->neginf,c);
 }
   */
-static inline void itvXXX_mul_2exp(itvXXX_t a, itvXXX_t b, int c)
+static inline void itvXXX_mul_2exp(itvXXX_t a, const itvXXX_t b, int c)
 { boundXXX_mul_2exp(a->sup,b->sup,c); boundXXX_mul_2exp(a->neginf,b->neginf,c); }
 
-static inline void itvXXX_magnitude(boundXXX_t a, itvXXX_t b)
+static inline void itvXXX_magnitude(boundXXX_t a, const itvXXX_t b)
 {
   if (boundXXX_sgn(b->neginf)<=0) boundXXX_set(a,b->sup);
   else if (boundXXX_sgn(b->sup)<=0) boundXXX_set(a,b->neginf);
@@ -398,16 +399,16 @@ static inline void itvXXX_magnitude(boundXXX_t a, itvXXX_t b)
 /* Casts */
 /* ====================================================================== */
 
-static inline void itvXXX_ceil(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_ceil(itvXXX_t a, const itvXXX_t b)
 { boundXXX_ceil(a->sup,b->sup); boundXXX_floor(a->neginf,b->neginf); }
 
-static inline void itvXXX_floor(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_floor(itvXXX_t a, const itvXXX_t b)
 { boundXXX_floor(a->sup,b->sup);  boundXXX_ceil(a->neginf,b->neginf); }
 
-static inline void itvXXX_trunc(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_trunc(itvXXX_t a, const itvXXX_t b)
 { boundXXX_trunc(a->sup,b->sup); boundXXX_trunc(a->neginf,b->neginf); }
 
-static inline void itvXXX_to_int(itvXXX_t a, itvXXX_t b)
+static inline void itvXXX_to_int(itvXXX_t a, const itvXXX_t b)
 { boundXXX_ceil(a->sup,b->sup); boundXXX_ceil(a->neginf,b->neginf); }
 
 

@@ -388,9 +388,11 @@ static inline void ap_linexprXXX_set_zero(ap_linexprXXX_t expr)
 static inline void ap_linyyyXXX_init(ap_linyyyXXX_t a, size_t size)
 {
   ap_linexprXXX_init(a->linexpr,size);
-  a->yyytyp = 0;
 #if defined(_AP_cons_MARK_)
+  a->yyytyp = AP_CONS_EQ;
   mpq_init(a->mpq);
+#else
+  a->yyytyp = AP_GEN_VERTEX;
 #endif
 }
 static inline void ap_linyyyXXX_set(ap_linyyyXXX_t a, ap_linyyyXXX_t b)

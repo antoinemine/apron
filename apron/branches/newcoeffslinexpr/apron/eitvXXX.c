@@ -63,7 +63,7 @@ bool eitvXXX_canonicalize(eitvXXX_t a, bool integer)
   return exc;
 }
 
-bool eitvXXX_is_int(eitvXXX_t a, num_internal_t intern)
+bool eitvXXX_is_int(const eitvXXX_t a, num_internal_t intern)
 {
   boundXXX_trunc(intern->XXX.muldiv_bound,a->itv->sup);
   if (boundXXX_cmp(intern->XXX.muldiv_bound,a->itv->sup)) return false;
@@ -79,7 +79,7 @@ bool eitvXXX_is_int(eitvXXX_t a, num_internal_t intern)
 /* Lattice operations */
 /* ********************************************************************** */
 
-bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
+bool eitvXXX_meet(eitvXXX_t a, const eitvXXX_t b, const eitvXXX_t c)
 {
   if (b==c) {
     eitvXXX_set(a,b);
@@ -102,7 +102,7 @@ bool eitvXXX_meet(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
    - an itv and a num or a bound,
 */
 
-void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
+void eitvXXX_mul_num(eitvXXX_t a, const eitvXXX_t b, const numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
   if (NUMXXX_EXACT && b->eq){
@@ -115,7 +115,7 @@ void eitvXXX_mul_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
     a->eq = (numXXX_sgn(c)==0);
   }
 }
-void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
+void eitvXXX_mul_bound(eitvXXX_t a, const eitvXXX_t b, const boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
   if (NUMXXX_EXACT && b->eq){
@@ -129,7 +129,7 @@ void eitvXXX_mul_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
   }
 }
 
-void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
+void eitvXXX_div_num(eitvXXX_t a, const eitvXXX_t b, const numXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
 
@@ -154,7 +154,7 @@ void eitvXXX_div_num(eitvXXX_t a, eitvXXX_t b, numXXX_t c)
     }
   }
 }
-void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
+void eitvXXX_div_bound(eitvXXX_t a, const eitvXXX_t b, const boundXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b));
 
@@ -179,7 +179,7 @@ void eitvXXX_div_bound(eitvXXX_t a, eitvXXX_t b, boundXXX_t c)
     }
   }
 }
-void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
+void eitvXXX_sub(eitvXXX_t a, const eitvXXX_t b, const eitvXXX_t c)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (NUMXXX_EXACT && b->eq && c->eq){
@@ -198,7 +198,7 @@ void eitvXXX_sub(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c)
     a->eq = false;
   }
 }
-void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
+void eitvXXX_abs(eitvXXX_t a, const eitvXXX_t b)
 {
   assert(!eitvXXX_is_bottom(b));
   if (boundXXX_sgn(b->itv->neginf)<=0)
@@ -213,7 +213,7 @@ void eitvXXX_abs(eitvXXX_t a, eitvXXX_t b)
     a->eq = (boundXXX_sgn(a->itv->sup)==0);
   }
 }
-void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
+void eitvXXX_mul_2exp(eitvXXX_t a, const eitvXXX_t b, int c)
 {
   assert(!eitvXXX_is_bottom(b));
   boundXXX_mul_2exp(a->itv->sup,b->itv->sup,c);
@@ -233,7 +233,7 @@ void eitvXXX_mul_2exp(eitvXXX_t a, eitvXXX_t b, int c)
 /* Multiplication */
 /* ====================================================================== */
 
-void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
+void eitvXXX_mul(eitvXXX_t a, const eitvXXX_t b, const eitvXXX_t c, num_internal_t intern)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (NUMXXX_EXACT && b->eq && c->eq){
@@ -262,7 +262,7 @@ void eitvXXX_mul(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 /* Division */
 /* ====================================================================== */
 
-void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
+void eitvXXX_div(eitvXXX_t a, const eitvXXX_t b, const eitvXXX_t c, num_internal_t intern)
 {
   assert(!eitvXXX_is_bottom(b) && !eitvXXX_is_bottom(c));
   if (NUMXXX_DIVEXACT && b->eq && c->eq &&
@@ -288,7 +288,7 @@ void eitvXXX_div(eitvXXX_t a, eitvXXX_t b, eitvXXX_t c, num_internal_t intern)
 /* Casts */
 /* ********************************************************************** */
 
-void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
+void eitvXXX_ceil(eitvXXX_t a, const eitvXXX_t b)
 {
   assert(!eitvXXX_is_bottom(b));
   boundXXX_ceil(a->itv->sup,b->itv->sup);
@@ -302,7 +302,7 @@ void eitvXXX_ceil(eitvXXX_t a, eitvXXX_t b)
   }
 }
 
-void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
+void eitvXXX_floor(eitvXXX_t a, const eitvXXX_t b)
 {
   assert(!eitvXXX_is_bottom(b));
   boundXXX_floor(a->itv->sup,b->itv->sup);
@@ -316,7 +316,7 @@ void eitvXXX_floor(eitvXXX_t a, eitvXXX_t b)
   }
 }
 
-void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
+void eitvXXX_trunc(eitvXXX_t a, const eitvXXX_t b)
 {
   assert(!eitvXXX_is_bottom(b));
   boundXXX_trunc(a->itv->sup,b->itv->sup);
@@ -330,7 +330,7 @@ void eitvXXX_trunc(eitvXXX_t a, eitvXXX_t b)
   }
 }
 
-void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
+void eitvXXX_to_int(eitvXXX_t a, const eitvXXX_t b)
 {
   assert(!eitvXXX_is_bottom(b));
   itvXXX_to_int(a->itv,b->itv);
@@ -341,7 +341,7 @@ void eitvXXX_to_int(eitvXXX_t a, eitvXXX_t b)
 /* Serialization */
 /* ====================================================================== */
 
-size_t eitvXXX_serialize(void* dst, eitvXXX_t src)
+size_t eitvXXX_serialize(void* dst, const eitvXXX_t src)
 {
   *((char*)dst) = src->eq ? 1 : 0;
   return 1 + itvXXX_serialize((char*)dst+1,src->itv);
@@ -352,7 +352,7 @@ size_t eitvXXX_deserialize(eitvXXX_t dst, const void* src)
   dst->eq = (*((const char*)src) == 1);
   return 1 + itvXXX_deserialize(dst->itv,(const char*)src+1);
 }
-size_t eitvXXX_serialized_size(eitvXXX_t a)
+size_t eitvXXX_serialized_size(const eitvXXX_t a)
 {
   return 1 + itvXXX_serialized_size(a->itv);
 }
@@ -381,15 +381,15 @@ size_t eitvXXX_serialized_size_array(eitvXXX_t* src, size_t size)
   return n;
 }
 
-void eitvXXX_fprint(FILE* stream, eitvXXX_t a)
+void eitvXXX_fprint(FILE* stream, const eitvXXX_t a)
 {
   itvXXX_fprint(stream,a->itv);
  }
 
-void eitvXXX_print(eitvXXX_t a)
+void eitvXXX_print(const eitvXXX_t a)
 { eitvXXX_fprint(stdout, a); fflush(stdout); }
 
-int eitvXXX_snprint(char* s, int size, eitvXXX_t a)
+int eitvXXX_snprint(char* s, int size, const eitvXXX_t a)
 {
   return itvXXX_snprint(s,size,a->itv);
 }

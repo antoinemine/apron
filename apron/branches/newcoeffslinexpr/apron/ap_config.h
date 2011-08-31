@@ -35,7 +35,7 @@ static inline tbool_t tbool_of_not(tbool_t a);
 
 static inline void* ap_malloc(size_t size);
 static inline void* ap_realloc(void* ptr, size_t size);
-static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...);
+static inline int ap_snprintf(char* s, int n, const char* format, ...);
 
 
 #if !(defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED || defined __APPLE__ || defined __CYGWIN__)
@@ -89,7 +89,7 @@ static inline void* ap_realloc(void* ptr, size_t size)
   }
 }
 
-static inline int ap_snprintf(char* restrict s, int n, const char* restrict format, ...)
+static inline int ap_snprintf(char* s, int n, const char* format, ...)
 {
   int count;
   va_list ap;

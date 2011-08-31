@@ -6,7 +6,7 @@
 
 #define _NUMIsss_MARK_
 
-void numIsss_cdiv_qr(numIsss_t q, numIsss_t r, numIsss_t a, numIsss_t b)
+void numIsss_cdiv_qr(numIsss_t q, numIsss_t r, const numIsss_t a, const numIsss_t b)
 {
   numIsss_t qq,rr;
   *qq = *a / *b;
@@ -20,7 +20,7 @@ void numIsss_cdiv_qr(numIsss_t q, numIsss_t r, numIsss_t a, numIsss_t b)
     *r = *rr;
   }
 }
-void numIsss_sqrt(numIsss_t up, numIsss_t down, numIsss_t b)
+void numIsss_sqrt(numIsss_t up, numIsss_t down, const numIsss_t b)
 {
   double f = sqrt(*b);
   assert(*b>=0);

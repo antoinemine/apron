@@ -5,7 +5,7 @@
 #include "numMPZ.h"
 #include "num_internal.h"
 
-void numMPZ_sqrt(numMPZ_t up, numMPZ_t down, numMPZ_t b)
+void numMPZ_sqrt(numMPZ_t up, numMPZ_t down, const numMPZ_t b)
 {
   int perfect;
   assert(mpz_sgn(b)>=0);
@@ -15,7 +15,7 @@ void numMPZ_sqrt(numMPZ_t up, numMPZ_t down, numMPZ_t b)
   else mpz_add_ui(up,down,1);
 }
 
-int numMPZ_snprint(char* s, int size, numMPZ_t a)
+int numMPZ_snprint(char* s, int size, const numMPZ_t a)
 {
   int res = mpz_sizeinbase(a,10)+(mpz_sgn(a)>=0 ? 0 : 1);
   if (res>=size){
@@ -30,7 +30,7 @@ int numMPZ_snprint(char* s, int size, numMPZ_t a)
   return res;
 }
 
-size_t numMPZ_serialize(void* dst, numMPZ_t src)
+size_t numMPZ_serialize(void* dst, const numMPZ_t src)
 {
   size_t count = 0;
   *((char*)dst) = mpz_sgn(src);
