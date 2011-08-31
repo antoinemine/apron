@@ -10,7 +10,7 @@
    - rounding is always towards +oo
 */
 
-int numMPFR_snprint(char* s, int size, numMPFR_t a)
+int numMPFR_snprint(char* s, int size, const numMPFR_t a)
 {
   double d;
   /* special cases */
@@ -34,7 +34,7 @@ int numMPFR_snprint(char* s, int size, numMPFR_t a)
     return x;
   }
 }
-void numMPFR_fprint(FILE* stream, numMPFR_t a)
+void numMPFR_fprint(FILE* stream, const numMPFR_t a)
 {
   char buf[256];
   char* str = buf;
@@ -47,7 +47,7 @@ void numMPFR_fprint(FILE* stream, numMPFR_t a)
   if (n>=256) free(str);
 }
 
-size_t numMPFR_serialize(void* dst, numMPFR_t src)
+size_t numMPFR_serialize(void* dst, const numMPFR_t src)
 {
   size_t count = 0;
   mp_exp_t e;

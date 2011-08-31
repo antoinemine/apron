@@ -25,7 +25,7 @@ void numRsss_canonicalize(numRsss_t r)
   }
 }
 
-void numRsss_inv(numRsss_t a, numRsss_t b)
+void numRsss_inv(numRsss_t a, const numRsss_t b)
 {
   if (a!=b)
     *a = *b;
@@ -35,7 +35,7 @@ void numRsss_inv(numRsss_t a, numRsss_t b)
     numIsss_neg(a->d,a->d);
   }
 }
-void numRsss_add(numRsss_t a, numRsss_t b, numRsss_t c)
+void numRsss_add(numRsss_t a, const numRsss_t b, const numRsss_t c)
 {
   numIsss_t d;
 #if 0
@@ -49,7 +49,7 @@ void numRsss_add(numRsss_t a, numRsss_t b, numRsss_t c)
 #endif
   numRsss_canonicalize(a);
 }
-void numRsss_sub(numRsss_t a, numRsss_t b, numRsss_t c)
+void numRsss_sub(numRsss_t a, const numRsss_t b, const numRsss_t c)
 {
   numIsss_t d;
 #if 0
@@ -63,7 +63,7 @@ void numRsss_sub(numRsss_t a, numRsss_t b, numRsss_t c)
 #endif
   numRsss_canonicalize(a);
 }
-void numRsss_div(numRsss_t a, numRsss_t b, numRsss_t c)
+void numRsss_div(numRsss_t a, const numRsss_t b, const numRsss_t c)
 {
   numIsss_t d;
   *d = *b->d * *c->n;
@@ -77,7 +77,7 @@ void numRsss_div(numRsss_t a, numRsss_t b, numRsss_t c)
   }
   numRsss_canonicalize(a);
 }
-void numRsss_sqrt(numRsss_t up, numRsss_t down, numRsss_t b)
+void numRsss_sqrt(numRsss_t up, numRsss_t down, const numRsss_t b)
 {
   /* compute sqrt(p/q) as sqrt(p*q)/q */
   numIsss_t pq;
@@ -89,7 +89,7 @@ void numRsss_sqrt(numRsss_t up, numRsss_t down, numRsss_t b)
   numRsss_canonicalize(up);
   numRsss_canonicalize(down);
 }
-void numRsss_mul_2exp(numRsss_t a, numRsss_t b, int c)
+void numRsss_mul_2exp(numRsss_t a, const numRsss_t b, int c)
 {
   if (*b->n==0){
     numRsss_set_int(a,0);
@@ -119,7 +119,7 @@ void numRsss_mul_2exp(numRsss_t a, numRsss_t b, int c)
 /* Arithmetic Tests */
 /* ====================================================================== */
 
-int numRsss_cmp(numRsss_t a, numRsss_t b)
+int numRsss_cmp(const numRsss_t a, const numRsss_t b)
 {
   numIsss_t aa,bb;
 #if 0
@@ -138,7 +138,7 @@ int numRsss_cmp(numRsss_t a, numRsss_t b)
 /* Printing */
 /* ====================================================================== */
 
-void numRsss_fprint(FILE* stream, numRsss_t a)
+void numRsss_fprint(FILE* stream, const numRsss_t a)
 {
   if (*a->n==0)
     fprintf(stream,"0");
@@ -150,7 +150,7 @@ void numRsss_fprint(FILE* stream, numRsss_t a)
     }
   }
 }
-int numRsss_snprint(char* s, int size, numRsss_t a)
+int numRsss_snprint(char* s, int size, const numRsss_t a)
 {
   int res;
   if (*a->n==0)

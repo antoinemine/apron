@@ -5,7 +5,7 @@
 #include "numMPQ.h"
 #include "num_internal.h"
 
-void numMPQ_add_uint(numMPQ_t a, numMPQ_t b, unsigned long int c)
+void numMPQ_add_uint(numMPQ_t a, const numMPQ_t b, unsigned long int c)
 {
   if (a==b) {
     mpq_t tmp;
@@ -20,7 +20,7 @@ void numMPQ_add_uint(numMPQ_t a, numMPQ_t b, unsigned long int c)
   }
 }
 
-void numMPQ_sub_uint(numMPQ_t a, numMPQ_t b, unsigned long int c)
+void numMPQ_sub_uint(numMPQ_t a, const numMPQ_t b, unsigned long int c)
 {
   if (a==b) {
     mpq_t tmp;
@@ -34,7 +34,7 @@ void numMPQ_sub_uint(numMPQ_t a, numMPQ_t b, unsigned long int c)
     mpq_sub(a,b,a);
   }
 }
-void numMPQ_sqrt(numMPQ_t up, numMPQ_t down, numMPQ_t b)
+void numMPQ_sqrt(numMPQ_t up, numMPQ_t down, const numMPQ_t b)
 {
   if (mpz_cmp_ui(mpq_denref(b),1)==0){
     numMPZ_sqrt(mpq_numref(up),mpq_numref(down),mpq_numref(b));
@@ -57,7 +57,7 @@ void numMPQ_sqrt(numMPQ_t up, numMPQ_t down, numMPQ_t b)
   }
 }
 
-int numMPQ_hash(numMPQ_t a)
+int numMPQ_hash(const numMPQ_t a)
 {
   double d = mpq_get_d(a);
   if (d <= -(double)(INT_MAX))
@@ -68,7 +68,7 @@ int numMPQ_hash(numMPQ_t a)
     return INT_MAX;
 }
 
-int numMPQ_snprint(char* s, int size, numMPQ_t a)
+int numMPQ_snprint(char* s, int size, const numMPQ_t a)
 {
   int res;
   int sgn = mpq_sgn(a);
@@ -84,7 +84,7 @@ int numMPQ_snprint(char* s, int size, numMPQ_t a)
   return res;
 }
 
-size_t numMPQ_serialize(void* dst, numMPQ_t src)
+size_t numMPQ_serialize(void* dst, const numMPQ_t src)
 {
   size_t count1 = 0;
   size_t count2 = 0;

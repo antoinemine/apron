@@ -15,24 +15,24 @@ extern "C" {
 MACRO_FOREACH XXX @AllNum
 MACRO_FOREACH YYY @AllNum
 
-bool numYYY_fits_numXXX(numYYY_t a, num_internal_t intern);
-bool numXXX_set_numYYY(numXXX_t a, numYYY_t b, num_internal_t intern);
+bool numYYY_fits_numXXX(const numYYY_t a, num_internal_t intern);
+bool numXXX_set_numYYY(numXXX_t a, const numYYY_t b, num_internal_t intern);
 
-bool boundXXX_set_boundYYY(boundXXX_t a, boundYYY_t b, num_internal_t intern);
-bool itvXXX_set_itvYYY(itvXXX_t a, itvYYY_t b, num_internal_t intern);
-bool eitvXXX_set_eitvYYY(eitvXXX_t a, eitvYYY_t b, num_internal_t intern);
+bool boundXXX_set_boundYYY(boundXXX_t a, const boundYYY_t b, num_internal_t intern);
+bool itvXXX_set_itvYYY(itvXXX_t a, const itvYYY_t b, num_internal_t intern);
+bool eitvXXX_set_eitvYYY(eitvXXX_t a, const eitvYYY_t b, num_internal_t intern);
 
-bool boundXXX_set_numYYY(boundXXX_t a, numYYY_t b, num_internal_t intern);
-bool itvXXX_set_numYYY(itvXXX_t a, numYYY_t b, num_internal_t intern);
-bool eitvXXX_set_numYYY(eitvXXX_t a, numYYY_t b, num_internal_t intern);
+bool boundXXX_set_numYYY(boundXXX_t a, const numYYY_t b, num_internal_t intern);
+bool itvXXX_set_numYYY(itvXXX_t a, const numYYY_t b, num_internal_t intern);
+bool eitvXXX_set_numYYY(eitvXXX_t a, const numYYY_t b, num_internal_t intern);
 
-bool itvXXX_set_boundYYY(itvXXX_t a, boundYYY_t b, num_internal_t intern);
-bool eitvXXX_set_boundYYY(eitvXXX_t a, boundYYY_t b, num_internal_t intern);
+bool itvXXX_set_boundYYY(itvXXX_t a, const boundYYY_t b, num_internal_t intern);
+bool eitvXXX_set_boundYYY(eitvXXX_t a, const boundYYY_t b, num_internal_t intern);
 
-bool itvXXX_set_numYYY2(itvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t intern);
-bool eitvXXX_set_numYYY2(eitvXXX_t a, numYYY_t b, numYYY_t c, num_internal_t intern);
-bool itvXXX_set_boundYYY2(itvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t intern);
-bool eitvXXX_set_boundYYY2(eitvXXX_t a, boundYYY_t b, boundYYY_t c, num_internal_t intern);
+bool itvXXX_set_numYYY2(itvXXX_t a, const numYYY_t b, const numYYY_t c, num_internal_t intern);
+bool eitvXXX_set_numYYY2(eitvXXX_t a, const numYYY_t b, const numYYY_t c, num_internal_t intern);
+bool itvXXX_set_boundYYY2(itvXXX_t a, const boundYYY_t b, const boundYYY_t c, num_internal_t intern);
+bool eitvXXX_set_boundYYY2(eitvXXX_t a, const boundYYY_t b, const boundYYY_t c, num_internal_t intern);
 ENDMACRO
 
 static inline bool lint_fits_numXXX(long int a, num_internal_t intern);
