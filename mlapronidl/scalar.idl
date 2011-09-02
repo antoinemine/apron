@@ -225,7 +225,7 @@ let neg scalar =\n\
   | Mpfrf x ->\n\
      let y = Mpfr.init2 (Mpfr.get_prec x) in\n\
      ignore (Mpfr.neg y x Mpfr.Up);\n\
-     Mpfrf(Mpfrf.mpfrf y)\n	     \
+     Mpfrf(Mpfrf._mpfrf y)\n	     \
   | Float x -> Float(-. x)\n\
 let to_string scalar =\n\
   match scalar with\n\
