@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 /* ********************************************************************** */
 /* t1p_representation.c: general management */
 /* ********************************************************************** */
@@ -86,8 +93,10 @@ void t1p_free(ap_manager_t* man, t1p_t* a)
     arg_assert(a,abort(););
     size_t i = 0;
     for (i=0; i<a->dims; i++) {
-	t1p_aff_check_free(pr, a->paf[i]);
-	a->paf[i] = NULL;
+	if (a->paf[i]) {
+	    t1p_aff_check_free(pr, a->paf[i]);
+	    a->paf[i] = NULL;
+        }
 	itv_clear(a->box[i]);
     }
     free(a->paf);
@@ -208,7 +217,7 @@ void t1p_fprint(FILE* stream,
 	for (i=0; i<a->dims; i++) {
 	    if (a->paf[i]) {
 #ifdef _T1P_DEBUG
-    fprintf(stdout, "[[pby %zu]]   ",a->paf[i]->pby);
+    fprintf(stdout, "[[pby %u]]   ",a->paf[i]->pby);
 #endif
 	    if (name_of_dim) {
 		fprintf(stream, "%s", name_of_dim[i]);
@@ -260,7 +269,7 @@ void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a)
 #endif
 	for (i=0; i<a->dims; i++) {
 		fprintf(stream, "%zu: ", i);
-		fprintf(stream,"*** pby %zu ***",a->paf[i]->pby);
+		fprintf(stream,"*** pby %u ***",a->paf[i]->pby);
 		t1p_aff_fprint(pr, stream, a->paf[i]);
 		fprintf(stream," ; \n");
 	}
