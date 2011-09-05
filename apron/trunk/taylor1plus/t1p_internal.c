@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -156,17 +163,17 @@ int get_clk_tck (void)
 
 /* TODO: Actually, these are called when allocating the internal structure of Taylor1+ domain .
  * If we have a multithreaded library, we should share these logging info between all threads ! */
-void log_init(void* addr, size_t length, int fd)
+void log_init(void* addr, uint_t length, int fd)
 {
 
-	size_t page_size = (size_t) sysconf(_SC_PAGESIZE);
-	char * path = getcwd(NULL, (size_t)0);
+	uint_t page_size = (uint_t) sysconf(_SC_PAGESIZE);
+	char * path = getcwd(NULL, (uint_t)0);
 	if (!(path)) {
 		fprintf(stderr,"getcwd: %s\n",strerror(errno));
 		abort();
 	}
 	char * logfile = "/taylor1plus.log";
-	size_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
+	uint_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
 	char * logpath = (char*)malloc(l*sizeof(char));
 	strcpy(logpath,path);
 	strcat(logpath,logfile);
@@ -175,7 +182,7 @@ void log_init(void* addr, size_t length, int fd)
 		fprintf(stderr,"open: %s\n",strerror(errno));
 		abort();
 	}
-	length = (size_t)(1*page_size);
+	length = (uint_t)(1*page_size);
 	addr = mmap (NULL, length, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, (off_t)(0*page_size));
 	if (addr == MAP_FAILED) {
 		fprintf(stderr,"mmap: %s\n",strerror(errno));
@@ -185,7 +192,7 @@ void log_init(void* addr, size_t length, int fd)
 	free(logpath);
 }
 
-void log_sync(void* addr, size_t length, int fd)
+void log_sync(void* addr, uint_t length, int fd)
 {
 	if (munmap(addr, length) == -1) {
 		fprintf(stderr,"munmap: %s\n",strerror(errno));
@@ -195,7 +202,7 @@ void log_sync(void* addr, size_t length, int fd)
 }
 
 /*
-static inline ap_interval_t* t1p_nsymcons_get_gamma(t1p_internal_t * pr, size_t nsymIndex, t1p_t* a)
+static inline ap_interval_t* t1p_nsymcons_get_gamma(t1p_internal_t * pr, uint_t nsymIndex, t1p_t* a)
 {
     ap_dim_t dim;
     t1p_nsymcons_get_dimpos(pr, &dim, nsymIndex, a);
@@ -237,7 +244,7 @@ void optpr_clear(t1p_internal_t* pr)
     itv_clear(opt->alpha0);
     itv_clear(opt->beta);
     itv_clear(opt->gamma);
-    size_t i = 0;
+    uint_t i = 0;
     for (i=0; i<opt->sizeJ; i++) {
 	itv_clear(opt->litab[i].abc[0]);
 	itv_clear(opt->litab[i].abc[1]);
@@ -488,13 +495,13 @@ bool optpr_isfeasible(t1p_internal_t* pr, itv_t lambda, itv_t u0)
 void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, itv_t midgy, itv_t taux, itv_t tauy, t1p_aff_t* res)
 {
     optpr_problem_t* opt = pr->optpr;
-    size_t nb = ((opt->sizeJ + 4)*(opt->sizeJ +3))/2; /* nb of intersections in the worst case */
+    uint_t nb = ((opt->sizeJ + 4)*(opt->sizeJ +3))/2; /* nb of intersections in the worst case */
     optpr_point_t* P = (optpr_point_t*)calloc(nb,sizeof(optpr_point_t));
 
-    size_t i = 0;
-    size_t j = 0;
-    size_t k = 0;
-    size_t nbP = 0;
+    uint_t i = 0;
+    uint_t j = 0;
+    uint_t k = 0;
+    uint_t nbP = 0;
     /* add borders to opt->litab */
     /* u0 = gamma*lambda : appele B4 stored in sizeJ-4 */
     itv_init(opt->litab[opt->sizeJ].abc[0]);
@@ -712,9 +719,9 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     /* nb of constraints in the worst case */
     ap_lincons0_array_t array = ap_lincons0_array_make(1 + 2*(opt->size));
 
-    array.p[0].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (size_t)(1+opt->size));
-    array.p[1].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (size_t)(1+opt->size));
-    array.p[2].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (size_t)(1+opt->size));
+    array.p[0].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (uint_t)(1+opt->size));
+    array.p[1].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (uint_t)(1+opt->size));
+    array.p[2].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_DENSE, (uint_t)(1+opt->size));
 
     ap_interval_t* itv = ap_interval_alloc();
     /* MIDDEV */
@@ -822,7 +829,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
     } else {
 	/* considerer que ce n'est ni un ni mun , machin = 0 */
     }
-    size_t Nbcons = 3;
+    uint_t Nbcons = 3;
     for (i=0; i<opt->size; i++) {
 	if (opt->T[i].sign == 0) {
 	    /* alphaiz = alphaix = alphaiy */
@@ -870,14 +877,14 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
 			if (opt->T[i].sign == 1) {
 			    if (opt->optsol.ui[i] == 0) {
 				/* alphaix >= alphaiz >= alphaiy */
-				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (uint_t)1);
 				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), -1);
 				ap_interval_set_itv(pr->itv, itv, opt->T[i].alphaix);
 				ap_linexpr0_set_cst_interval(array.p[Nbcons].linexpr0, itv);
 				array.p[Nbcons].constyp = AP_CONS_SUPEQ;
 				array.p[Nbcons].scalar = NULL;
 				Nbcons++;
-				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+				array.p[Nbcons].linexpr0 = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (uint_t)1);
 				ap_linexpr0_set_coeff_scalar_int(array.p[Nbcons].linexpr0, (ap_dim_t)(i+1), 1);
 				itv_neg(tmp1, opt->T[i].alphaiy);
 				ap_interval_set_itv(pr->itv, itv, tmp1);
@@ -943,7 +950,7 @@ void optpr_solve(t1p_internal_t* pr, itv_t alpha0x, itv_t alpha0, itv_t midgx, i
         ap_interval_t* gamma = ap_abstract0_bound_dimension(pk, obj, i);
 	ap_double_set_scalar(&inf, gamma->inf, GMP_RNDU);
 	ap_double_set_scalar(&sup, gamma->sup, GMP_RNDU);
-	printf("x%zd : [%f,%f]\n", i, inf, sup);
+	printf("x%d : [%f,%f]\n", i, inf, sup);
     }
 
     /* on doit construire la forme finale puis calculer tau^z */

@@ -1,7 +1,0 @@
-var x:real, y:real, z:real, h:real ; 
-begin 
-assume x >= -2.000000 and x <= 2.000000; 
-h = 4.000000; 
-	  y = sqrt(x*x - x + 0.5) / sqrt(x*x + 0.5) ; 
-  z = sqrt(y*y - y + 0.5) / sqrt(y*y + 0.5) ; 
-	    end

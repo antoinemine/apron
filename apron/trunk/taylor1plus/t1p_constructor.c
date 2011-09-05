@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #include "t1p_internal.h"
 #include "t1p_representation.h"
 //#include "t1p_constructor.h"

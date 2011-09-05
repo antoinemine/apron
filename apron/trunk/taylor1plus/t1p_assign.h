@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #ifndef _T1P_ASSIGN_H_
 #define _T1P_ASSIGN_H_
 
