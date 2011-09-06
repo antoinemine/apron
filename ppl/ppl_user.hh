@@ -10,111 +10,109 @@
  *
  */
 
-/* 
+/*
  * This file is part of the APRON Library, released under GPL license.
  * Please read the COPYING file packaged in the distribution.
  */
 
-/* APRON includes */
-#include "ap_ppl.h"
-#include "ppl_poly.hh"
-
-#define NUM_MPQ
-#include "num.h"
-#include "numint.h"
-#include "numrat.h"
-#include "bound.h"
-#include "itv.h"
-#include "itv_linexpr.h"
-#include "itv_linearize.h"
-
 /* PPL includes */
 #include "ppl.hh"
-/*
 using namespace std;
 using namespace Parma_Polyhedra_Library;
-*/
 
-#ifndef PPL_VERSION_MAJOR 
+/* APRON includes */
+#include "eitvMPQ.h"
+#include "ap_global0.h"
+#include "ap_ppl.h"
+#include "ppl_poly.hh"
+#include "ppl_grid.hh"
+
+#ifndef PPL_VERSION_MAJOR
 #error "no version information"
 #endif
-
 #if (PPL_VERSION_MAJOR==0) && (PPL_VERSION_MINOR <= 9)
-#define PPL_0_9
+#error "version <=0.9 not supported any more"
 #endif
-
 
 /* ********************************************************************** */
 /* Types and exceptions */
 /* ********************************************************************** */
 
 /* Internal structure in managers */
-typedef struct ppl_internal_t {
+typedef struct ap_ppl_internal_t {
+  union {
+    ap_ppl_poly_option_t poly;
+  } option;
+  ap_linexprMPQ_t linexprMPQ;
+  ap_coeff_t coeffMPQ;
+  eitvMPQ_t eitvMPQ;
+  mpz_class num;
+  mpz_class den;
+  mpq_class mpqclass;
   bool strict; /* strict or loose mode for polyhedra */
-  struct itv_internal_t* itv; /* Used for linearisation */ 
-} ppl_internal_t;
-
-extern "C" ppl_internal_t* ap_ppl_internal_alloc(bool strict);
-extern "C" void ap_ppl_internal_free(void*);
+} ap_ppl_internal_t;
 
 /* Indicates that a an object cannot be exactly converted into another one
    should be caught in transfer functions
 */
 class cannot_convert: public exception {
-public: 
+public:
   cannot_convert() {};
 };
 
+/* partial functions used in map_space_dimensions */
+class ap_ppl_map {
+ protected:
+  ap_dim_t dom,codom;
+  ap_dim_t* tab;
+  char* def;
+ public:
+  ap_ppl_map(size_t dom,size_t codom) : dom(dom), codom(codom)
+  {
+    tab = new ap_dim_t [dom];
+    def = new char [dom];
+    memset(def,0,dom);
+  }
+  ~ap_ppl_map() { delete[] tab; delete[] def; }
+  void set(dimension_type i,dimension_type j) { tab[i] = j; def[i] = 1; }
+  bool has_empty_codomain() const { return codom==0; }
+  dimension_type max_in_codomain() const { return codom-1; }
+  bool maps(dimension_type i,dimension_type& j) const { j = tab[i]; return def[i]; }
+};
+
+static inline ap_ppl_internal_t* ap_ppl_get_internal(ap_manager_t* man)
+{
+  return (ap_ppl_internal_t*)man->internal;
+}
+
+extern "C" ap_ppl_internal_t* ap_ppl_internal_alloc(bool strict);
+extern "C" void ap_ppl_internal_free(void*);
+
+void ap_ppl_box_set_universe(ap_linexpr0_t box0, ap_dimension_t dim);
+void ap_ppl_generator_array_set_universe(ap_lingen0_array_t array,ap_dimension_t dim);
 
 /* ********************************************************************** */
 /* Number conversions */
 /* ********************************************************************** */
 
-/* GMP => scalar (exact) */
-static inline void ap_ppl_mpz_to_scalar(ap_scalar_t* s, const mpz_class& i)
-{
-  ap_scalar_reinit(s,AP_SCALAR_MPQ);
-  mpz_set(mpq_numref(s->val.mpq), i.get_mpz_t());
-  mpz_set_ui(mpq_denref(s->val.mpq), 1);
-}
 
-/* GMP / GMP => scalar (exact) */
-static inline void ap_ppl_mpz2_to_scalar(ap_scalar_t* s, 
-					 const mpz_class& n, const mpz_class& d)
-{
-  ap_scalar_reinit(s,AP_SCALAR_MPQ);
-  mpz_set(mpq_numref(s->val.mpq), n.get_mpz_t());
-  mpz_set(mpq_denref(s->val.mpq), d.get_mpz_t());
-  mpq_canonicalize(s->val.mpq);
-}
+// /* GMP => scalar (exact) */
+// static inline void ap_ppl_mpz_to_scalar(ap_scalar_t* s, const mpz_class& i)
+// {
+//   ap_scalar_reinit(s,AP_SCALAR_MPQ);
+//   mpz_set(mpq_numref(s->val.mpq), i.get_mpz_t());
+//   mpz_set_ui(mpq_denref(s->val.mpq), 1);
+// }
 
-/* coeff => GMP */
-/* fail if the coeff cannot be exactely represented as a finite mpq */
-static inline void ap_ppl_mpq_of_coef(mpq_class& res, const ap_coeff_t coef)
-{
-
-  switch (coef.discr) {
-  case AP_COEFF_SCALAR:
-    if (ap_scalar_infty(coef.val.scalar) ||
-	ap_mpq_set_scalar(res.get_mpq_t(),coef.val.scalar,GMP_RNDU))
-      throw cannot_convert();
-    break;
-  case AP_COEFF_INTERVAL:
-    {
-      mpq_class tmp;
-      if (ap_scalar_infty(coef.val.interval->sup) ||
-	  ap_scalar_infty(coef.val.interval->inf) ||
-	  ap_mpq_set_scalar(res.get_mpq_t(),coef.val.interval->sup,GMP_RNDU) ||
-	  ap_mpq_set_scalar(tmp.get_mpq_t(),coef.val.interval->inf,GMP_RNDD) ||
-	  tmp!=res) 
-	throw cannot_convert();
-    }
-    break;
-  default: 
-    throw invalid_argument("Coefficient type ap_ppl_mpq_of_coef");
-  }
-}
-
+// /* GMP / GMP => scalar (exact) */
+// static inline void ap_ppl_mpz2_to_scalar(ap_scalar_t* s,
+//					 const mpz_class& n, const mpz_class& d)
+// {
+//   ap_scalar_reinit(s,AP_SCALAR_MPQ);
+//   mpz_set(mpq_numref(s->val.mpq), n.get_mpz_t());
+//   mpz_set(mpq_denref(s->val.mpq), d.get_mpz_t());
+//   mpq_canonicalize(s->val.mpq);
+// }
 
 /* ********************************************************************** */
 /* Conversions from PPL to APRON */
@@ -124,90 +122,78 @@ static inline void ap_ppl_mpq_of_coef(mpq_class& res, const ap_coeff_t coef)
 /* returned booleans are true when inexact */
 /* reference booleans are set to true when inexact, left unchanged otherwise */
 
-extern ap_lincons0_t ap_ppl_to_lincons(const Constraint& c);
-extern ap_lincons0_t ap_ppl_to_lincons(const Congruence& c);
-extern ap_lincons0_array_t ap_ppl_to_lincons_array(const Constraint_System& c);
-extern ap_lincons0_array_t ap_ppl_to_lincons_array(const Congruence_System& c);
-extern ap_generator0_t ap_ppl_to_generator(const Generator& c, bool& exact);
-extern ap_generator0_t ap_ppl_to_generator(const Grid_Generator& c);
-extern ap_generator0_array_t ap_ppl_to_generator_array(const Generator_System& c, bool& exact);
-extern ap_generator0_array_t ap_ppl_to_generator_array(const Grid_Generator_System& c);
-extern ap_generator0_array_t ap_ppl_generator_universe(size_t dim);
-extern void ap_ppl_box_universe(ap_interval_t** i,size_t nb);
+bool ap_lincons0_set_ppl_Constraint(ap_lincons0_t cons, const Constraint& c, num_internal_t num);
+bool ap_lincons0_set_ppl_Congruence(ap_lincons0_t cons, const Congruence& c, num_internal_t num);
+bool ap_lingen0_set_ppl_Generator(ap_lingen0_t cons, const Generator& c, num_internal_t num);
+bool ap_lingen0_set_ppl_Grid_Generator(ap_lingen0_t cons, const Grid_Generator& c, num_internal_t num);
 
-/* ********************************************************************** */
-/* Conversions from ITV to PPL */
-/* ********************************************************************** */
+bool ap_lincons0_array_set_ppl_Constraint_System(ap_lincons0_array_t cons, const Constraint_System& c, num_internal_t num);
+bool ap_lincons0_array_set_ppl_Congruence_System(ap_lincons0_array_t cons, const Congruence_System& c, num_internal_t num);
+bool ap_lingen0_array_set_ppl_Generator_System(ap_lingen0_array_t cons, const Generator_System& c, num_internal_t num);
+bool ap_lingen0_array_set_ppl_Grid_Generator_System(ap_lingen0_array_t cons, const Grid_Generator_System& c, num_internal_t num);
 
-/* some of these may raise cannot_convert */
-/* returned booleans are true when exact */
-/* reference booleans are set to true when exact, false otherwise */
-
-/* Linear expressions */
-extern bool ap_ppl_of_itv_linexpr(Linear_Expression& r, 
-				  mpz_class& den,
-				  itv_linexpr_t* c,
-				  int mode);
-
-/* Linear constraints */
-extern bool ap_ppl_of_itv_lincons(Constraint& r, mpz_class& den, itv_lincons_t* c, bool allow_strict);
-extern bool ap_ppl_of_itv_lincons(Congruence& r, mpz_class& den, itv_lincons_t* c);
-extern bool ap_ppl_of_itv_lincons_array(Constraint_System& r, mpz_class& den,itv_lincons_array_t* a,bool allow_strict);
-extern bool ap_ppl_of_itv_lincons_array(Congruence_System& r, mpz_class& den,itv_lincons_array_t* a);
+void ap_ppl_lingen0_array_set_universe(ap_lingen0_array_t array, size_t dim);
 
 /* ********************************************************************** */
 /* Conversions from APRON to PPL */
 /* ********************************************************************** */
 
+/* coeff => MPQ */
+/* fail if the coeff cannot be exactely represented as a finite mpq */
+void ap_ppl_mpq_set_coeff(mpq_class& res, const ap_coeff_t coeff, num_internal_t num);
+
 /* some of these may raise cannot_convert */
 /* returned booleans are true when exact */
 /* reference booleans are set to true when exact, false otherwise */
 
-/* Generators */
-extern bool ap_ppl_of_generator(itv_internal_t* intern, Generator& r,ap_generator0_t* c);
-extern bool ap_ppl_of_generator(itv_internal_t* intern, Grid_Generator& r,ap_generator0_t* c);
-extern bool ap_ppl_of_generator_array(itv_internal_t* intern, Generator_System& r,ap_generator0_array_t* a);
-extern bool ap_ppl_of_generator_array(itv_internal_t* intern, Grid_Generator_System& r,ap_generator0_array_t* a);
+bool ap_ppl_Constraint_System_set_box(
+    Constraint_System& r, ap_linexpr0_t box0, ap_dimension_t dim, ap_manager_t* man
+);
+bool ap_ppl_Congruence_System_set_box(
+    Congruence_System& r, ap_linexpr0_t box0, ap_dimension_t dim, ap_manager_t* man
+);
 
-/* Boxes */ 
-extern bool ap_ppl_of_box(Constraint_System& r, ap_interval_t** a, size_t intdim, size_t realdim);
-extern bool ap_ppl_of_box(Congruence_System& r, ap_interval_t** a, size_t intdim, size_t realdim);
 
 /* Linear expressions */
-extern void ap_ppl_of_linexpr(itv_internal_t* intern,
-			      Linear_Expression& r, mpz_class& den,
-			      ap_linexpr0_t* c,
-			      int mode);
-
-/* Linear constraints */
-extern bool ap_ppl_of_lincons(itv_internal_t* intern, Constraint& r, PPL_Poly& abs, ap_lincons0_t* c,bool allow_strict);
-extern bool ap_ppl_of_lincons(itv_internal_t* intern, Congruence& r,ap_lincons0_t* c);
-extern bool ap_ppl_of_lincons_array(itv_internal_t* intern, Constraint_System& r,ap_lincons0_array_t* a,bool allow_strict);
-extern bool ap_ppl_of_lincons_array(itv_internal_t* intern, Congruence_System& r,ap_lincons0_array_t* a);
+bool ap_ppl_Linear_Expression_set_linexprMPQ(
+    Linear_Expression& r, ap_linexprMPQ_t linexpr, int mode, ap_manager_t* man
+);
+bool ap_ppl_Linear_Expression_set_linexpr0(
+    Linear_Expression& r, ap_linexpr0_t c, int mode, ap_manager_t* man
+);
+bool ap_ppl_Constraint_set_lincons0(
+    Constraint& r, ap_lincons0_t lincons0, ap_manager_t* man
+);
+bool ap_ppl_Congruence_set_lincons0(
+    Congruence& r, ap_lincons0_t lincons0, ap_manager_t* man
+);
+bool ap_ppl_Generator_set_lingen0(
+    Generator& r, ap_lingen0_t lingen0, ap_manager_t* man
+);
+bool ap_ppl_Grid_Generator_set_lingen0(
+    Grid_Generator& r, ap_lingen0_t lingen0, ap_manager_t* man
+);
+bool ap_ppl_Constraint_System_set_lincons0_array(
+    Constraint_System& r, ap_lincons0_array_t array, ap_manager_t* man
+);
+bool ap_ppl_Congruence_System_set_lincons0_array(
+    Congruence_System& r, ap_lincons0_array_t array, ap_manager_t* man
+);
+bool ap_ppl_Generator_System_set_lingen0_array(
+    Generator_System& r, ap_lingen0_array_t array, ap_manager_t* man
+);
+bool ap_ppl_Grid_Generator_System_set_lingen0_array(
+    Grid_Generator_System& r, ap_lingen0_array_t array, ap_manager_t* man
+);
 
 /* ********************************************************************** */
 /* Others */
 /* ********************************************************************** */
 
-static ap_abstract0_t* ap_ppl_make_abstract0(ap_manager_t* man, void* v)
-{
-  ap_abstract0_t* r = (ap_abstract0_t*)malloc(sizeof(ap_abstract0_t));
-  assert(r);
-  r->value = v;
-  r->man = ap_manager_copy(man);
-  return r;
-}
+ap_abstract0_t* ap_ppl_make_abstract0(ap_manager_t* man, void* v);
 
 /* returns an element with the correct manager and, if possible, size */
-static ap_abstract0_t* ap_ppl_invalid_abstract0(ap_manager_t* man, ap_abstract0_t* org = NULL)
-{
-  if (org) {
-    ap_dimension_t d = ap_abstract0_dimension(org->man,org);
-    return ap_abstract0_top(man,d.intdim,d.realdim);
-  }
-  else 
-    return ap_abstract0_top(man,0,1);
-}
+ap_abstract0_t* ap_ppl_invalid_abstract0(ap_manager_t* man, ap_abstract0_t* org);
 
 #define arg_assert(cond,action,funid)					\
   do { if (!(cond)) {							\

@@ -9,7 +9,7 @@
  *
  */
 
-/* 
+/*
  * This file is part of the APRON Library, released under GPL license.
  * Please read the COPYING file packaged in the distribution.
  */
@@ -25,16 +25,17 @@ using namespace Parma_Polyhedra_Library;
 class PPL_Grid {
 public:
   Grid* p;
-  size_t intdim;
+  ap_dimension_t dim;
 
-  PPL_Grid(const PPL_Grid& x);
-  PPL_Grid(size_t intdim, size_t realdim, Degenerate_Element kind);
+  PPL_Grid(ap_manager_t* man, const PPL_Grid& x);
+  PPL_Grid(ap_manager_t* man, ap_dimension_t dim, Degenerate_Element kind);
   ~PPL_Grid();
 
   /* enforce integer constraints */
   void reduce();
-  void forget_dim(size_t dim);
+  void forget_dim(ap_dim_t d);
 };
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,7 +45,7 @@ extern "C" {
 /* ============================================================ */
 
 ap_manager_t* ap_ppl_grid_manager_alloc();
-  /* Allocate a PPL manager for grids. */
+  /* Allocate a PPL manager for linear congruences. */
 
 /* ********************************************************************** */
 /* I. General management */
@@ -62,7 +63,7 @@ void ap_ppl_grid_free(ap_manager_t* man, PPL_Grid* a);
   /* Free all the memory used by the abstract value */
 
 size_t ap_ppl_grid_size(ap_manager_t* man, PPL_Grid* a);
-  /* Return the abstract size of an abstract value, which is the number of
+  /* Return the abstract size of a polyhedron, which is the number of
      coefficients of its current representation, possibly redundant. */
 
 
@@ -100,7 +101,7 @@ void ap_ppl_grid_fprintdiff(FILE* stream,
 			    char** name_of_dim);
   /* Print the difference between a1 (old value) and a2 (new value),
      using function name_of_dim to name dimensions.
-     The meaning of difference is library dependent. 
+     The meaning of difference is library dependent.
 
      Not implemented */
 
@@ -117,13 +118,13 @@ ap_membuf_t ap_ppl_grid_serialize_raw(ap_manager_t* man, PPL_Grid* a);
 /* Allocate a memory buffer (with malloc), output the abstract value in raw
    binary format to it and return a pointer on the memory buffer and the size
    of bytes written.  It is the user responsability to free the memory
-   afterwards (with free).  
+   afterwards (with free).
 
    Not implemented */
 
 PPL_Grid* ap_ppl_grid_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size);
 /* Return the abstract value read in raw binary format from the input stream
-   and store in size the number of bytes read.  
+   and store in size the number of bytes read.
 
    Not implemented */
 
@@ -135,33 +136,21 @@ PPL_Grid* ap_ppl_grid_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size
 /* II.1 Basic constructors */
 /* ============================================================ */
 
-/* We assume that dimensions [0..intdim-1] correspond to integer variables, and
-   dimensions [intdim..intdim+realdim-1] to real variables */
+/* We assume that dimensions [0..intd-1] correspond to integer variables, and
+   dimensions [intdim..intd+realdim-1] to real variables */
 
-PPL_Grid* ap_ppl_grid_bottom(ap_manager_t* man, size_t intdim, size_t realdim);
+PPL_Grid* ap_ppl_grid_bottom(ap_manager_t* man, ap_dimension_t dim);
   /* Create a bottom (empty) value */
 
-PPL_Grid* ap_ppl_grid_top(ap_manager_t* man, size_t intdim, size_t realdim);
+PPL_Grid* ap_ppl_grid_top(ap_manager_t* man, ap_dimension_t dim);
   /* Create a top (universe) value */
 
 
 PPL_Grid* ap_ppl_grid_of_box(ap_manager_t* man,
-			     size_t intdim, size_t realdim,
-			     ap_interval_t** tinterval);
+		ap_dimension_t dim,
+		ap_linexpr0_t box);
   /* Abstract an hypercube defined by the array of intervals
      of size intdim+realdim */
-
-PPL_Grid* ap_ppl_grid_of_lincons_array(ap_manager_t* man,
-				       size_t intdim, size_t realdim,
-				       ap_lincons0_array_t* array);
-  /* Abstract a convex polyhedra defined by the array of linear constraints
-     of size size */
-
-PPL_Grid* ap_ppl_grid_of_tcons_array(ap_manager_t* man,
-			size_t intdim, size_t realdim,
-			ap_tcons0_array_t* array);
-  /* Abstract a conjunction of tree expressions constraints
-     of size size */
 
 /* ============================================================ */
 /* II.2 Accessors */
@@ -180,59 +169,66 @@ bool ap_ppl_grid_is_top(ap_manager_t* man, PPL_Grid* a);
   /* Universe test */
 
 bool ap_ppl_grid_is_leq(ap_manager_t* man, PPL_Grid* a1, PPL_Grid* a2);
-  /* Inclusion test */
-  
+  /* Inclusion test. Is always strict */
+
 bool ap_ppl_grid_is_eq(ap_manager_t* man, PPL_Grid* a1, PPL_Grid* a2);
-  /* Equality test */
- 
-bool ap_ppl_grid_sat_lincons(ap_manager_t* man, PPL_Grid* a, ap_lincons0_t* lincons);
-  /* Satisfiability of a linear constraint */
+  /* Equality test. Is always strict */
+
+bool ap_ppl_grid_sat_lincons(ap_manager_t* man, PPL_Grid* a, ap_lincons0_t lincons);
+  /* Satisfiability of a linear constraint. Is always strict */
 
 bool ap_ppl_grid_sat_tcons(ap_manager_t* man, PPL_Grid* a, ap_tcons0_t* cons);
   /* Satisfiability of a tree expression constraint. */
 
 bool ap_ppl_grid_sat_interval(ap_manager_t* man, PPL_Grid* a,
-			      ap_dim_t dim, ap_interval_t* interval);
-  /* Inclusion of a dimension in an interval */
+			ap_dim_t dim, ap_coeff_t interval);
+  /* Inclusion of a dimension in an interval. Is always strict
+  */
 
 bool ap_ppl_grid_is_dimension_unconstrained(ap_manager_t* man, PPL_Grid* po,
-					    ap_dim_t dim);
-  /* Is a dimension unconstrained ? */
+				      ap_dim_t dim);
+  /* Is a dimension unconstrained ? Is always strict */
 
 /* ============================================================ */
 /* II.4 Extraction of properties */
 /* ============================================================ */
 
-ap_interval_t* ap_ppl_grid_bound_linexpr(ap_manager_t* man,
-					 PPL_Grid* a, ap_linexpr0_t* expr);
-  /* Returns the interval taken by a linear expression
-     over the abstract value. */
+void ap_ppl_grid_bound_dimension(ap_manager_t* man,
+			   ap_coeff_t interval, PPL_Grid* a, ap_dim_t dim);
+  /* Returns the interval taken by the dimension
+     over the abstract value
+  */
 
-ap_interval_t* ap_ppl_grid_bound_texpr(ap_manager_t* man,
-			      PPL_Grid* a, ap_texpr0_t* expr);
+void ap_ppl_grid_bound_linexpr(ap_manager_t* man,
+			 ap_coeff_t interval, PPL_Grid* a, ap_linexpr0_t expr);
+  /* Returns the interval taken by a linear expression
+     over the abstract value.
+  */
+
+void ap_ppl_grid_bound_texpr(ap_manager_t* man,
+		       ap_coeff_t interval, PPL_Grid* a, ap_texpr0_t* expr);
   /* Returns the interval taken by a tree expression
      over the abstract value. */
 
-ap_interval_t* ap_ppl_grid_bound_dimension(ap_manager_t* man,
-					   PPL_Grid* a, ap_dim_t dim);
-  /* Returns the interval taken by the dimension
-     over the abstract value. */
+void ap_ppl_grid_to_box(ap_manager_t* man, ap_linexpr0_t box, PPL_Grid* a);
+  /* Converts an abstract value to an interval/hypercube.
+     The size of the resulting array is ap_ppl_grid_dimension(man,a).  This
+     function can be reimplemented by using ap_ppl_grid_bound_linexpr
+  */
 
-ap_lincons0_array_t ap_ppl_grid_to_lincons_array(ap_manager_t* man, PPL_Grid* a);
-  /* Converts an abstract value to a gridhedra
-     (conjunction of linear constraints). */
+void ap_ppl_grid_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, PPL_Grid* a);
+  /* Converts an abstract value to a polyhedra
+     (conjunction of linear constraints).
+
+     Always consider canonical form */
 
 ap_tcons0_array_t ap_ppl_grid_to_tcons_array(ap_manager_t* man, PPL_Grid* a);
-  /* Converts an abstract value to a 
+  /* Converts an abstract value to a
      conjunction of tree expressions constraints. */
 
-ap_interval_t** ap_ppl_grid_to_box(ap_manager_t* man, PPL_Grid* a);
-  /* Converts an abstract value to an interval/hypercube.
-     The size of the resulting array is ap_ppl_grid_dimension(man,a). */
-
-ap_generator0_array_t ap_ppl_grid_to_generator_array(ap_manager_t* man, PPL_Grid* a);
-  /* Converts an abstract value to a system of generators. */
-
+void ap_ppl_grid_to_lingen_array(ap_manager_t* man, ap_lingen0_array_t array, PPL_Grid* a);
+  /* Converts an abstract value to a system of generators.
+     Always consider canonical form. */
 
 /* ********************************************************************** */
 /* III. Operations */
@@ -248,115 +244,82 @@ PPL_Grid* ap_ppl_grid_join(ap_manager_t* man, bool destructive, PPL_Grid* a1, PP
 
 PPL_Grid* ap_ppl_grid_meet_array(ap_manager_t* man, PPL_Grid** tab, size_t size);
 PPL_Grid* ap_ppl_grid_join_array(ap_manager_t* man, PPL_Grid** tab, size_t size);
-  /* Meet and Join of a non-empty array of abstract values.
-     (no way to define the dimensionality of the result in such a case */
+  /* Meet and Join of a non empty array of abstract values. */
 
 PPL_Grid* ap_ppl_grid_meet_lincons_array(ap_manager_t* man,
-			    bool destructive, PPL_Grid* a,
-			    ap_lincons0_array_t* array);
-  /* Meet of an abstract value with a set of constraints
-     (generalize ap_ppl_grid_of_lincons_array) */
-
+				  bool destructive, PPL_Grid* a,
+				  ap_lincons0_array_t array);
 PPL_Grid* ap_ppl_grid_meet_tcons_array(ap_manager_t* man,
-			  bool destructive, PPL_Grid* a,
-			  ap_tcons0_array_t* array);
-  /* Meet of an abstract value with a set of tree expressionsconstraints. */
+				bool destructive, PPL_Grid* a,
+				ap_tcons0_array_t* array);
+  /* Meet of an abstract value with a set of constraints. */
 
 PPL_Grid* ap_ppl_grid_add_ray_array(ap_manager_t* man,
-		       bool destructive, PPL_Grid* a,
-		       ap_generator0_array_t* array);
+			     bool destructive, PPL_Grid* a,
+			     ap_lingen0_array_t array);
   /* Generalized time elapse operator */
 
 /* ============================================================ */
 /* III.2 Assignement and Substitutions */
 /* ============================================================ */
 
-PPL_Grid* ap_ppl_grid_assign_linexpr(ap_manager_t* man,
-			bool destructive, PPL_Grid* a,
-			ap_dim_t dim, ap_linexpr0_t* expr,
-			PPL_Grid* dest);
-PPL_Grid* ap_ppl_grid_substitute_linexpr(ap_manager_t* man,
-			    bool destructive, PPL_Grid* a,
-			    ap_dim_t dim, ap_linexpr0_t* expr,
-			    PPL_Grid* dest);
-  /* Assignement and Substitution of a single dimension by resp.
-     a linear expression and a interval linear expression */
-
 PPL_Grid* ap_ppl_grid_assign_linexpr_array(ap_manager_t* man,
-			      bool destructive, PPL_Grid* a,
-			      ap_dim_t* tdim,
-			      ap_linexpr0_t** texpr,
-			      size_t size,
-			      PPL_Grid* dest);
+				    bool destructive, PPL_Grid* a,
+				    ap_dim_t* tdim,
+				    ap_linexpr0_array_t array,
+				    PPL_Grid* dest);
 PPL_Grid* ap_ppl_grid_substitute_linexpr_array(ap_manager_t* man,
+					bool destructive, PPL_Grid* a,
+					ap_dim_t* tdim,
+					ap_linexpr0_array_t array,
+					PPL_Grid* dest);
+PPL_Grid* ap_ppl_grid_assign_texpr_array(ap_manager_t* man,
 				  bool destructive, PPL_Grid* a,
 				  ap_dim_t* tdim,
-				  ap_linexpr0_t** texpr,
-				  size_t size,
+				  ap_texpr0_array_t* array,
 				  PPL_Grid* dest);
-  /* Parallel Assignement and Substitution of several dimensions by
-     linear expressons. */
-
-PPL_Grid* ap_ppl_grid_assign_texpr(ap_manager_t* man,
-		      bool destructive, PPL_Grid* a,
-		      ap_dim_t dim, ap_texpr0_t* expr,
-		      PPL_Grid* dest);
-PPL_Grid* ap_ppl_grid_substitute_texpr(ap_manager_t* man,
-			  bool destructive, PPL_Grid* a,
-			  ap_dim_t dim, ap_texpr0_t* expr,
-			  PPL_Grid* dest);
-  /* Assignement and Substitution of a single dimension by
-     a tree expression */
-
-PPL_Grid* ap_ppl_grid_assign_texpr_array(ap_manager_t* man,
-			    bool destructive, PPL_Grid* a,
-			    ap_dim_t* tdim,
-			    ap_texpr0_t** texpr,
-			    size_t size,
-			    PPL_Grid* dest);
 PPL_Grid* ap_ppl_grid_substitute_texpr_array(ap_manager_t* man,
-				bool destructive, PPL_Grid* a,
-				ap_dim_t* tdim,
-				ap_texpr0_t** texpr,
-				size_t size,
-				PPL_Grid* dest);
-  /* Parallel Assignement and Substitution of several dimensions by
-     tree expressions. */
+				      bool destructive, PPL_Grid* a,
+				      ap_dim_t* tdim,
+				      ap_texpr0_array_t* array,
+				      PPL_Grid* dest);
+  /* Parallel Assignement and Substitution of several dimensions by interval
+     expressons. */
 
 /* ============================================================ */
 /* III.3 Projections */
 /* ============================================================ */
 
 PPL_Grid* ap_ppl_grid_forget_array(ap_manager_t* man,
-		      bool destructive, PPL_Grid* a,
-		      ap_dim_t* tdim, size_t size,
-		      bool project);
+			    bool destructive, PPL_Grid* a,
+			    ap_dim_t* tdim, size_t size,
+			    bool project);
 
 /* ============================================================ */
 /* III.4 Change and permutation of dimensions */
 /* ============================================================ */
 
 PPL_Grid* ap_ppl_grid_add_dimensions(ap_manager_t* man,
-			bool destructive, PPL_Grid* a,
-			ap_dimchange_t* dimchange,
-			bool project);
+			      bool destructive, PPL_Grid* a,
+			      ap_dimchange_t* dimchange,
+			      bool project);
 
 PPL_Grid* ap_ppl_grid_remove_dimensions(ap_manager_t* man,
-			   bool destructive, PPL_Grid* a,
-			   ap_dimchange_t* dimchange);
+				 bool destructive, PPL_Grid* a,
+				 ap_dimchange_t* dimchange);
 PPL_Grid* ap_ppl_grid_permute_dimensions(ap_manager_t* man,
-			    bool destructive,
-			    PPL_Grid* a,
-			    ap_dimperm_t* permutation);
+				  bool destructive,
+				  PPL_Grid* a,
+				  ap_dimperm_t* permutation);
 
 /* ============================================================ */
 /* III.5 Expansion and folding of dimensions */
 /* ============================================================ */
 
 PPL_Grid* ap_ppl_grid_expand(ap_manager_t* man,
-		bool destructive, PPL_Grid* a,
-		ap_dim_t dim,
-		size_t n);
+		      bool destructive, PPL_Grid* a,
+		      ap_dim_t dim,
+		      size_t n);
   /* Expand the dimension dim into itself + n additional dimensions.
      It results in (n+1) unrelated dimensions having same
      relations with other dimensions. The (n+1) dimensions are put as follows:
@@ -369,9 +332,9 @@ PPL_Grid* ap_ppl_grid_expand(ap_manager_t* man,
   */
 
 PPL_Grid* ap_ppl_grid_fold(ap_manager_t* man,
-	      bool destructive, PPL_Grid* a,
-	      ap_dim_t* tdim,
-	      size_t size);
+		    bool destructive, PPL_Grid* a,
+		    ap_dim_t* tdim,
+		    size_t size);
   /* Fold the dimensions in the array tdim of size n>=1 and put the result
      in the first dimension in the array. The other dimensions of the array
      are then removed (using ap_ppl_grid_permute_remove_dimensions). */
@@ -391,7 +354,6 @@ PPL_Grid* ap_ppl_grid_widening(ap_manager_t* man, PPL_Grid* a1, PPL_Grid* a2);
 /* Returns the topological closure of a possibly opened abstract value */
 
 PPL_Grid* ap_ppl_grid_closure(ap_manager_t* man, bool destructive, PPL_Grid* a);
-
 
 #ifdef __cplusplus
 }
