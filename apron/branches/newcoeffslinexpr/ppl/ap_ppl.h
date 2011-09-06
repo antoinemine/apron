@@ -9,7 +9,7 @@
  *
  */
 
-/* 
+/*
  * This file is part of the APRON Library, released under GPL license.
  * Please read the COPYING file packaged in the distribution.
  */
@@ -50,13 +50,13 @@ ap_abstract0_t*
 ap_abstract0_ppl_poly_widening_thresholds(ap_manager_t* man,
 					  ap_abstract0_t* a1,
 					  ap_abstract0_t* a2,
-					  ap_lincons0_array_t* array);
+					  ap_lincons0_array_t array);
 
 ap_abstract0_t*
 ap_abstract0_ppl_grid_widening_thresholds(ap_manager_t* man,
 					  ap_abstract0_t* a1,
 					  ap_abstract0_t* a2,
-					  ap_lincons0_array_t* array);
+					  ap_lincons0_array_t array);
 
 
 

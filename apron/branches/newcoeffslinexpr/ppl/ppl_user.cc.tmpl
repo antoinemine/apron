@@ -1,0 +1,693 @@
+/* -*- mode: c++ -*- */
+/*
+ * ppl_user.cc
+ *
+ * APRON Library / PPL library wrapper
+ *
+ * Conversion between APRON user types and PPL classes.
+ * These are shared by all PPL wrappers.
+ *
+ * Copyright (C) Antoine Mine' 2006
+ *
+ */
+
+/*
+ * This file is part of the APRON Library, released under GPL license.
+ * Please read the COPYING file packaged in the distribution.
+ */
+
+#include <assert.h>
+#include <stdexcept>
+#include "ppl_user.hh"
+#include "num_conv.h"
+
+extern "C" ap_ppl_internal_t* ap_ppl_internal_alloc(bool strict)
+{
+  ap_ppl_internal_t* intern = new ap_ppl_internal_t;
+  intern->strict = strict;
+  ap_coeff_init(intern->coeffMPQ,AP_SCALAR_MPQ);
+  eitvMPQ_init(intern->eitvMPQ);
+  return intern;
+}
+extern "C" void ap_ppl_internal_free(void* internal)
+{
+  ap_ppl_internal_t* intern = (ap_ppl_internal_t*)internal;
+  ap_coeff_clear(intern->coeffMPQ);
+  eitvMPQ_clear(intern->eitvMPQ);
+  delete intern;
+}
+
+/* /\* whole universe as a box *\/ */
+/* void ap_ppl_box_universe(ap_interval_t** i,size_t nb) */
+/* { */
+/*   for (size_t j=0;j<nb;j++) */
+/*     ap_interval_set_top(i[j]); */
+/* } */
+
+void ap_ppl_box_set_universe(ap_linexpr0_t box0, ap_dimension_t dim)
+{
+  ap_dim_t d;
+  size_t size = ap_dimension_size(dim);
+  ap_linexpr0_set_zero(box0);
+  ap_coeff_t coeff;
+  for (d=0;d<size;d++){
+    ap_linexpr0_coeffref(coeff,box0,d);
+    ap_coeff_set_top(coeff);
+  }
+}
+void ap_ppl_generator_array_set_universe(ap_lingen0_array_t array,ap_dimension_t dim)
+{
+  ap_dim_t d;
+  size_t size = ap_dimension_size(dim);
+  ap_lingen0_array_resize(array,size+1);
+  ap_lingen0_t gen;
+  ap_coeff_t coeff;
+  ap_lingen0_array_ref_index(gen,array,0);
+  ap_lingen0_set_gentyp(gen,AP_GEN_VERTEX);
+  ap_lingen0_set_zero(gen);
+  for (d=0;d<size;d++){
+    ap_lingen0_array_ref_index(gen,array,d+1);
+    ap_lingen0_set_gentyp(gen,AP_GEN_LINE);
+    ap_lingen0_set_zero(gen);
+    ap_lingen0_coeffref(coeff,gen,d);
+    ap_coeff_set_int(coeff,1);
+  }
+}
+
+/* ********************************************************************** */
+/* Conversions from PPL to APRON */
+/* ********************************************************************** */
+
+extern "C" void essai2(const numMPZ_t a);
+void essai(const Constraint& c)
+{
+  int i=1;
+  mpz_srcptr mpz1 = c.coefficient(Variable(i)).get_mpz_t();
+  essai2(mpz1);
+}
+
+MACRO_FOREACH TTT ("Constraint","Congruence")
+#define _MARK_TTT_
+MACRO_FOREACH ZZZ @MainNum
+/* Constraint/Congruence => ap_linconsZZZ_t, return true if exact */
+bool ap_linconsZZZ_set_ppl_TTT(ap_linconsZZZ_t cons, const TTT& c, num_internal_t num)
+{
+  bool exact = true;
+  int i, n = c.space_dimension();
+  /* special, inconsistent case */
+  if (c.is_inconsistent()){
+    ap_linconsZZZ_set_bool(cons,false);
+  } else {
+    /* other cases */
+    ap_linconsZZZ_set_zero(cons);
+    ap_linconsZZZ_resize(cons,n);
+    /* variable coefficients */
+    for (i=0;i<n;i++){
+      mpz_srcptr mpz = c.coefficient(Variable(i)).get_mpz_t();
+      if (mpz_sgn(mpz)){
+	eitvZZZ_ptr eitv = ap_linconsZZZ_eitvref0(cons,i,true);
+	exact = eitvZZZ_set_numMPZ(eitv,mpz,num) && exact;
+      }
+    }
+    /* constant coefficient */
+    exact = eitvZZZ_set_numMPZ(cons->linexpr->cst,c.inhomogeneous_term().get_mpz_t(),num) && exact;
+    /* constraint type */
+#if defined(_MARK_Constraint_)
+    if (c.is_nonstrict_inequality()) cons->constyp = AP_CONS_SUPEQ;
+    else if (c.is_equality()) cons->constyp = AP_CONS_EQ;
+    else if (c.is_strict_inequality()) cons->constyp = AP_CONS_SUP;
+    else throw invalid_argument("Constraint type in ap_ppl_to_lincons");
+#elif defined(_MARK_Congruence_)
+   if (c.is_equality()){
+      cons->constyp = AP_CONS_SUPEQ;
+    } else {
+      cons->constyp = AP_CONS_EQMOD;
+      mpq_set_z(cons->mpq,c.modulus().get_mpz_t());
+    }
+#else
+   #error "Here"
+#endif
+  }
+  return exact;
+}
+ENDMACRO
+bool ap_lincons0_set_ppl_TTT(ap_lincons0_t cons, const TTT& c, num_internal_t num)
+{
+  MACRO_SWITCH(cons->discr) ZZZ
+    return ap_linconsZZZ_set_ppl_TTT(cons->lincons.ZZZ,c,num);
+  ENDMACRO;
+}
+#undef _MARK_TTT_
+ENDMACRO
+
+/* Generator/Grid_Generator => lingen0_t, return true if exact */
+MACRO_FOREACH TTT ("Generator","Grid_Generator")
+#define _MARK_TTT_
+MACRO_FOREACH ZZZ @MainNum
+bool ap_lingenZZZ_set_ppl_TTT(ap_lingenZZZ_t gen, const TTT& c, num_internal_t num)
+{
+  bool exact = true;
+  int i, n = c.space_dimension();
+  ap_lingenZZZ_set_zero(gen);
+  ap_lingenZZZ_resize(gen,n);
+  /* variable coefficients */
+#if defined(_MARK_Generator_)
+  if (c.is_ray() || c.is_line()){
+    /* ray or line: no divisor */
+    gen->gentyp = c.is_ray() ? AP_GEN_RAY : AP_GEN_LINE;
+#elif defined(_MARK_Grid_Generator_)
+  if (c.is_line()){
+    /* line: no divisor */
+    gen->gentyp = AP_GEN_LINE;
+#else
+#error ""
+#endif
+    for (i=0;i<n;i++){
+      mpz_srcptr mpz = c.coefficient(Variable(i)).get_mpz_t();
+      if (mpz_sgn(mpz)){
+	eitvZZZ_ptr eitv = ap_lingenZZZ_eitvref0(gen,i,true);
+	exact = eitvZZZ_set_numMPZ(eitv,mpz,num) && exact;
+      }
+    }
+  } else {
+    /* point or closure point or parameter: has divisor */
+#if defined(_MARK_Generator_)
+    if (c.is_closure_point()) exact = false;
+    gen->gentyp = AP_GEN_VERTEX;
+#elif defined(_MARK_Grid_Generator_)
+    gen->gentyp = c.is_point() ? AP_GEN_VERTEX : AP_GEN_LINEMOD;
+#endif
+    const mpz_class& div = c.divisor();
+    for (i=0;i<n;i++){
+      mpz_srcptr mpz = c.coefficient(Variable(i)).get_mpz_t();
+      if (mpz_sgn(mpz)){
+	mpz_set(mpq_numref(num->mpq),mpz);
+	mpz_set(mpq_denref(num->mpq),div.get_mpz_t());
+	mpq_canonicalize(num->mpq);
+	eitvZZZ_ptr eitv = ap_lingenZZZ_eitvref0(gen,i,true);
+	exact = eitvZZZ_set_numMPQ(eitv,num->mpq,num) && exact;
+      }
+    }
+  }
+  return exact;
+}
+ENDMACRO
+bool ap_lingen0_set_ppl_TTT(ap_lingen0_t gen, const TTT& c, num_internal_t num)
+{
+  MACRO_SWITCH(gen->discr) ZZZ
+    return ap_lingenZZZ_set_ppl_TTT(gen->lingen.ZZZ,c,num);
+  ENDMACRO;
+}
+#undef _MARK_TTT_
+ENDMACRO
+
+/* Constraint/Congruence/Generator/Grid_Generator_System => ap_linconsZZZ_array_t, return true if exact */
+MACRO_FOREACH TTT ("Constraint","Congruence")
+MACRO_FOREACH ZZZ @MainNum
+  bool ap_linconsZZZ_array_set_ppl_TTT_System(ap_linconsZZZ_array_t array, const TTT_System& c, num_internal_t num)
+{
+  bool exact = true;
+  TTT_System::const_iterator i, end = c.end();
+  int k;
+  /* first, compute system size */
+  for (i=c.begin(),k=0;i!=end;i++,k++);
+  ap_linconsZZZ_array_resize(array,k);
+  /* then, convert constraints */
+  for (i=c.begin(),k=0;i!=end;i++,k++){
+    exact = ap_linconsZZZ_set_ppl_TTT(array->p[k],*i,num) && exact;
+  }
+  return exact;
+}
+ENDMACRO
+bool ap_lincons0_array_set_ppl_TTT_System(ap_lincons0_array_t array, const TTT_System& c, num_internal_t num)
+{
+  MACRO_SWITCH(array->discr) ZZZ
+    return ap_linconsZZZ_array_set_ppl_TTT_System(array->lincons_array.ZZZ,c,num);
+  ENDMACRO;
+}
+ENDMACRO
+
+MACRO_FOREACH TTT ("Generator","Grid_Generator")
+MACRO_FOREACH ZZZ @MainNum
+bool ap_lingenZZZ_array_set_ppl_TTT_System(ap_lingenZZZ_array_t array, const TTT_System& c, num_internal_t num)
+{
+  bool exact = true;
+  TTT_System::const_iterator i, end = c.end();
+  int k;
+  /* first, compute system size */
+  for (i=c.begin(),k=0;i!=end;i++,k++);
+  ap_lingenZZZ_array_resize(array,k);
+  /* then, convert generators */
+  for (i=c.begin(),k=0;i!=end;i++,k++){
+    exact = ap_lingenZZZ_set_ppl_TTT(array->p[k],*i,num) && exact;
+  }
+  return exact;
+}
+ENDMACRO
+bool ap_lingen0_array_set_ppl_TTT_System(ap_lingen0_array_t array, const TTT_System& c, num_internal_t num)
+{
+  MACRO_SWITCH(array->discr) ZZZ
+    return ap_lingenZZZ_array_set_ppl_TTT_System(array->lingen_array.ZZZ,c,num);
+  ENDMACRO;
+}
+ENDMACRO
+
+/* whole universe as a generator system */
+void ap_ppl_lingen0_array_set_universe(ap_lingen0_array_t array, size_t dim)
+{
+  MACRO_SWITCH(array->discr) ZZZ {
+    ap_lingenZZZ_array_ptr arrayZ = array->lingen_array.ZZZ;
+    ap_lingenZZZ_array_resize(arrayZ,dim+1);
+    /* origin vertex */
+    ap_lingenZZZ_set_zero(arrayZ->p[0]);
+    arrayZ->p[0]->gentyp = AP_GEN_VERTEX;
+    /* one line for each dimension */
+    for (size_t i=0;i<dim;i++) {
+      ap_lingenZZZ_set_zero(arrayZ->p[i+1]);
+      eitvZZZ_ptr eitv = ap_lingenZZZ_eitvref0(arrayZ->p[i+1],i,true);
+      eitvZZZ_set_int(eitv,1);
+      arrayZ->p[i+1]->gentyp = AP_GEN_LINE;
+    }
+  }
+  ENDMACRO;
+}
+
+/* ********************************************************************** */
+/* Conversions from APRON to PPL */
+/* ********************************************************************** */
+
+/* coeff => MPQ */
+/* fail if the coeff cannot be exactely represented as a finite mpq */
+void ap_ppl_mpq_set_coeff(mpq_class& res, const ap_coeff_t coeff, num_internal_t num)
+{
+  MACRO_SWITCH(coeff->discr) ZZZ {
+    eitvZZZ_ptr eitv = coeff->eitv.ZZZ;
+    if (eitv->eq==false || boundZZZ_infty(eitv->itv->sup)){
+      throw cannot_convert();
+    } else {
+      numMPQ_set_numZZZ(res.get_mpq_t(),boundZZZ_numref(eitv->itv->sup),num);
+    }
+  }
+  ENDMACRO;
+}
+
+/* ====================================================================== */
+/* Boxes */
+/* ====================================================================== */
+
+
+/* box => Constraint/Congruence_System (return exactness) */
+MACRO_FOREACH TTT ("Constraint","Congruence")
+#define _MARK_TTT_
+bool ap_ppl_TTT_System_set_box(
+    TTT_System& r, ap_linexpr0_t box0, ap_dimension_t dim,
+    ap_manager_t* man
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  bool exact = true;
+  size_t i;
+  ap_dim_t d;
+  size_t size = ap_dimension_size(dim);
+
+  r.clear();
+  MACRO_SWITCH(box0->discr) ZZZ {
+    ap_linexprZZZ_ptr box = box0->linexpr.ZZZ;
+    eitvZZZ_ptr eitv;
+
+    if (eitvZZZ_is_bottom(box->cst)){
+      r = TTT_System::zero_dim_empty();
+      return true;
+    }
+    ap_linexprZZZ_ForeachLinterm0(box,i,d,eitv){
+      if (eitv->eq){
+	numMPQ_set_numZZZ(intern->mpqclass.get_mpq_t(),eitv->itv->sup,man->num);
+	r.insert( TTT( Variable(d) == intern->mpqclass ));
+      }
+      else {
+#if defined(_MARK_Constraint_)
+	if (!boundZZZ_infty(eitv->itv->sup)){
+	  numMPQ_set_numZZZ(intern->mpqclass.get_mpq_t(),boundZZZ_numref(eitv->itv->sup),man->num);
+	  r.insert( TTT( Variable(d) <= intern->mpqclass ));
+	}
+	if (!boundZZZ_infty(eitv->itv->neginf)){
+	  numMPQ_set_numZZZ(intern->mpqclass.get_mpq_t(),boundZZZ_numref(eitv->itv->neginf),man->num);
+	  r.insert( TTT( Variable(d) >= -intern->mpqclass ));
+	}
+#elif defined(_MARK_Congruence_)
+	exact = false;
+#else
+#error ""
+#endif
+      }
+    }
+  }
+  ENDMACRO;
+  return exact;
+}
+#undef _MARK_TTT_
+ENDMACRO
+
+/* ====================================================================== */
+/* Linear expressions */
+/* ====================================================================== */
+
+/* Assume a quasilinear expressions,
+   with the selected bound of constant coefficient different from +oo
+   Stores the denominator in man->internal->den
+*/
+bool ap_ppl_Linear_Expression_set_linexprMPQ(
+    Linear_Expression& r,
+    ap_linexprMPQ_t linexpr,
+    int mode,
+    ap_manager_t* man
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  size_t i;
+  ap_dim_t dim;
+  eitvMPQ_ptr eitv;
+  bool* peq;
+
+  mpz_set_ui(intern->den.get_mpz_t(),1);
+  if (mode>0){
+    if (boundMPQ_infty(linexpr->cst->itv->sup)){
+      throw cannot_convert();
+      abort();
+    }
+    if (boundMPQ_sgn(linexpr->cst->itv->sup)){
+      mpz_set(intern->den.get_mpz_t(),
+	      numMPQ_denref(boundMPQ_numref(linexpr->cst->itv->sup)));
+    }
+  }
+  else if (mode < 0){
+    if (boundMPQ_infty(linexpr->cst->itv->neginf)){
+      throw cannot_convert();
+      abort();
+    }
+    if (boundMPQ_sgn(linexpr->cst->itv->neginf)){
+      mpz_set(intern->den.get_mpz_t(),
+	      numMPQ_denref(boundMPQ_numref(linexpr->cst->itv->neginf)));
+    }
+  }
+  else {
+    assert(0);
+  }
+  r = Linear_Expression::zero();
+  /* compute lcm of denominators in den */
+  ap_linexprMPQ_ForeachLinterm0(linexpr,i,dim,eitv){
+    assert(eitv->eq);
+    mpz_lcm(intern->den.get_mpz_t(),intern->den.get_mpz_t(),numMPQ_denref(boundMPQ_numref(eitv->itv->sup)));
+  }
+  /* add variable coefficients * den */
+  ap_linexprMPQ_ForeachLinterm0(linexpr,i,dim,eitv){
+    mpq_set(intern->mpqclass.get_mpq_t(),boundMPQ_numref(eitv->itv->sup));
+    intern->mpqclass *= intern->den;
+    r += Variable(dim) * intern->mpqclass.get_num();
+  }
+  /* add constant coefficient * den */
+  if (mode>0){
+    mpq_set(intern->mpqclass.get_mpq_t(),boundMPQ_numref(linexpr->cst->itv->sup));
+  } else {
+    mpq_neg(intern->mpqclass.get_mpq_t(),boundMPQ_numref(linexpr->cst->itv->neginf));
+  }
+  intern->mpqclass *= intern->den;
+  r += intern->mpqclass.get_num();
+  return true;
+}
+
+/* ap_linexpr0_t => ppl */
+bool ap_ppl_Linear_Expression_set_linexpr0(
+    Linear_Expression& r,
+    ap_linexpr0_t linexpr0,
+    int mode,
+    ap_manager_t* man
+)
+{
+  ap_linexprMPQ_ptr p;
+  if (linexpr0->discr==AP_SCALAR_MPQ){
+    p = linexpr0->linexpr.MPQ;
+  } else {
+    ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+    p = intern->linexprMPQ;
+    ap_linexprMPQ_set_linexpr0(p,linexpr0,man->num);
+  }
+  ap_ppl_Linear_Expression_set_linexprMPQ(r,p,mode,man);
+  return true;
+}
+
+/* ====================================================================== */
+/* Constraints */
+/* ====================================================================== */
+
+/* ap_lincons0_t => Constraint (may raise cannot_convert, return exact) */
+/* congruences are overapproximated as linear equalities */
+bool ap_ppl_Constraint_set_lincons0(
+    Constraint& r, ap_lincons0_t lincons0, ap_manager_t* man
+)
+{
+  if (!ap_lincons0_is_quasilinear(lincons0)){
+    throw cannot_convert();
+  }
+  Linear_Expression l;
+  ap_linexpr0_t linexpr0;
+  ap_lincons0_linexpr0ref(linexpr0,lincons0);
+  ap_constyp_t constyp = ap_lincons0_get_constyp(lincons0);
+
+  bool exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+  assert(exact);
+  switch (constyp) {
+  case AP_CONS_SUPEQ: r = ( l >= 0 ); return true;
+  case AP_CONS_EQ:    r = ( l == 0 ); return true;
+  case AP_CONS_SUP:
+    {
+      ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+      if (intern->strict) { r = ( l > 0 ); return true; }
+      else { r = (l >= 0); return false; }
+    }
+  case AP_CONS_EQMOD:
+    {
+      mpq_ptr mpq = ap_lincons0_mpqref(lincons0);
+      if (mpq_sgn(mpq)==0){
+	r = ( l == 0 ); return true;
+      }
+      else {
+	throw cannot_convert();
+      }
+    }
+  case AP_CONS_DISEQ:
+    throw cannot_convert();
+  default:
+    throw invalid_argument("Constraint type in ap_ppl_Constraint_set_lincons0");
+  }
+}
+
+bool ap_ppl_Congruence_set_lincons0(
+    Congruence& r, ap_lincons0_t lincons0, ap_manager_t* man
+)
+{
+  if (!ap_lincons0_is_linear(lincons0)){
+    throw cannot_convert();
+  }
+  Linear_Expression l;
+  ap_linexpr0_t linexpr0;
+  ap_lincons0_linexpr0ref(linexpr0,lincons0);
+  ap_constyp_t constyp = ap_lincons0_get_constyp(lincons0);
+  ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+  switch (constyp) {
+  case AP_CONS_SUPEQ:
+  case AP_CONS_SUP:
+  case AP_CONS_DISEQ:
+    throw cannot_convert();
+  case AP_CONS_EQ:
+    r = ( l %= 0 ) / 0;
+    break;
+  case AP_CONS_EQMOD:
+    {
+      mpq_ptr mpq = ap_lincons0_mpqref(lincons0);
+      if (mpq_sgn(mpq)==0){
+	r = ( l %= 0 ) / 0;
+      }
+      else {
+	ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+	mpq_set(intern->mpqclass.get_mpq_t(),mpq);
+	r = ( l * intern->mpqclass.get_den() %= 0) / intern->mpqclass.get_num();
+      }
+    }
+  default:
+    throw invalid_argument("Constraint type in ap_ppl_of_lincons");
+  }
+  return true;
+}
+
+/* ====================================================================== */
+/* Generators */
+/* ====================================================================== */
+
+/* ap_generator0_t => Generator (may raise cannot_convert, or return true) */
+bool ap_ppl_Generator_set_lingen0(
+    Generator& r, ap_lingen0_t lingen0, ap_manager_t* man
+)
+{
+  Linear_Expression l;
+  ap_linexpr0_t linexpr0;
+  ap_lingen0_linexpr0ref(linexpr0,lingen0);
+  ap_gentyp_t gentyp = ap_lingen0_get_gentyp(lingen0);
+  if (!ap_linexpr0_is_linear(linexpr0)){
+    throw cannot_convert();
+  }
+  ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+  switch (gentyp) {
+  case AP_GEN_VERTEX:
+    {
+      ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+      r = Generator::point(l,intern->den); return true;
+    }
+  case AP_GEN_RAY:     r = ray(l);       return true;
+  case AP_GEN_LINE:    r = line(l);      return true;
+  case AP_GEN_RAYMOD:  r = ray(l);       return false;
+  case AP_GEN_LINEMOD: r = line(l);      return false;
+  default:
+    throw invalid_argument("Generator type in ap_ppl_of_generator");
+  }
+}
+/* ap_generator0_t => Grid_Generator (may raise cannot_convert, or return true) */
+bool ap_ppl_Grid_Generator_set_lingen0(
+    Grid_Generator& r, ap_lingen0_t lingen0, ap_manager_t* man
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  Linear_Expression l;
+  ap_linexpr0_t linexpr0;
+  ap_lingen0_linexpr0ref(linexpr0,lingen0);
+  ap_gentyp_t gentyp = ap_lingen0_get_gentyp(lingen0);
+  if (!ap_linexpr0_is_linear(linexpr0)){
+    throw cannot_convert();
+  }
+  ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+  switch (gentyp) {
+  case AP_GEN_VERTEX:
+    r = grid_point(l,intern->den);     return true;
+  case AP_GEN_RAY:
+    r = grid_line(l);          return false;
+  case AP_GEN_LINE:
+    r = grid_line(l);          return true;
+  case AP_GEN_RAYMOD:
+    r = parameter(l,intern->den); return false;
+  case AP_GEN_LINEMOD:
+    r = parameter(l,intern->den); return true;
+  default:
+    throw invalid_argument("Generator type in ap_ppl_of_generator");
+  }
+}
+
+// /* Test if the linear part of the generator is 0
+//    Needed because PPL refuses non-vertex generators with such expressions */
+// bool ap_ppl_ap_generator0_select(ap_generator0_t* g)
+// {
+//   if (g->gentyp==AP_GEN_VERTEX) {
+//     return true;
+//   }
+//   else {
+//     size_t i;
+//     ap_dim_t dim;
+//     ap_coeff_t* coeff;
+//     ap_linexpr0_t* e = g->linexpr0;
+
+//     bool res = false;
+//     ap_linexpr0_ForeachLinterm(e,i,dim,coeff){
+//       if (ap_coeff_zero(coeff)==false){
+//	res = true;
+//	break;
+//       }
+//     }
+//     return res;
+//   }
+// }
+
+
+
+
+/* ap_lincons0_array_t => Constraint_System
+   returns true if exact (some constraint was dropped or approximated) */
+MACRO_FOREACH TTT ("Constraint","Congruence")
+#define _MARK_TTT_
+bool ap_ppl_TTT_System_set_lincons0_array(TTT_System& r, ap_lincons0_array_t array, ap_manager_t* man)
+{
+  bool exact = true;
+  size_t i;
+  size_t size = ap_lincons0_array_size(array);
+
+#if defined(_MARK_CONSTRAINT_)
+  TTT c = TTT::zero_dim_positivity();
+#else
+  TTT c = TTT::zero_dim_false();
+#endif
+  r.clear();
+  for (i=0;i<size;i++) {
+    ap_lincons0_t lincons0;
+    ap_lincons0_array_ref_index(lincons0,array,i);
+    try {
+      exact = ap_ppl_TTT_set_lincons0(c,lincons0,man) && exact;
+      r.insert(c);
+    }
+    catch (cannot_convert w) { exact = false; }
+  }
+  return exact;
+}
+#undef _MARK_TTT_
+ENDMACRO
+
+
+/* ap_generator0_array_t => Generator_System
+   (may raise cannot_convert, or return false)
+*/
+MACRO_FOREACH TTT ("Generator","Grid_Generator")
+#define _MARK_TTT_
+bool ap_ppl_TTT_System_set_lingen0_array(TTT_System& r, ap_lingen0_array_t array, ap_manager_t* man)
+{
+  bool exact = true;
+  size_t i;
+  size_t size = ap_lingen0_array_size(array);
+  TTT c = TTT::zero_dim_point();
+  r.clear();
+  for (i=0;i<size;i++) {
+    ap_lingen0_t lingen0;
+    ap_lingen0_array_ref_index(lingen0,array,i);
+    try {
+      exact = ap_ppl_TTT_set_lingen0(c,lingen0,man) && exact;
+      r.insert(c);
+    }
+    catch (cannot_convert w) { exact = false; }
+  }
+  return exact;
+}
+#undef _MARK_TTT_
+ENDMACRO
+
+
+/* ********************************************************************** */
+/* Others */
+/* ********************************************************************** */
+
+ap_abstract0_t* ap_ppl_make_abstract0(ap_manager_t* man, void* v)
+{
+  ap_abstract0_t* r = (ap_abstract0_t*)malloc(sizeof(ap_abstract0_t));
+  assert(r);
+  r->value = v;
+  r->man = ap_manager_copy(man);
+  return r;
+}
+
+/* returns an element with the correct manager and, if possible, size */
+ap_abstract0_t* ap_ppl_invalid_abstract0(ap_manager_t* man, ap_abstract0_t* org = NULL)
+{
+  if (org) {
+    ap_dimension_t d = ap_abstract0_dimension(org->man,org);
+    return ap_abstract0_top(man,d);
+  }
+  else {
+    ap_dimension_t d = { 0,1 };
+    return ap_abstract0_top(man,d);
+  }
+}
