@@ -690,7 +690,7 @@ int matrix_choose_pivot(int length, itv_t** m,  int i) {
     }
     // now, for al i>current_row, pivot(i) >= pivot(current_row)
 
-    /* if j = nb_columns, it means that all rows are with zero coefficient */
+    /* if j == nb_columns, it means that all rows are with zero coefficient */
     if (j== nb_columns) {
       return current_row;
       // stop the loop and return the "rank"
@@ -860,7 +860,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 /* result is is of type A */
 ja_eq_set_t* matrix_to_eq_set_A (t1p_internal_t* pr, int nb_rows, int dims, int nb_nsym, itv_t** m) {
   ja_eq_set_t* res = new_equation_set();
-  int i,j;
+  int i,j,k;
   itv_t buff; //to negate the coeeficient
   ja_eq_t* equation = NULL;  // what will be added to the result
 
@@ -869,12 +869,15 @@ ja_eq_set_t* matrix_to_eq_set_A (t1p_internal_t* pr, int nb_rows, int dims, int 
   /* the equations are returned in the order of dependancy */
   for(i=nb_rows-1;i>=0;i--){
     equation=new_equation();
-    equation->dim=i;
+    k=matrix_choose_pivot(dims+nb_nsym+1,m,i); // k = first non null coefficient
+    assert(k<dims);
+    equation->dim=k;
 
-    for (j=i+1;j<dims;j++){
-      //itv_clear(buff);
-      itv_neg(buff,m[i][j]);
-      add_equation_term_va(equation,buff,(ap_dim_t)j);
+    for (j=k+1;j<dims;j++){
+      if (! itv_is_zero(m[i][j])) {
+	  itv_neg(buff,m[i][j]);
+	  add_equation_term_va(equation,buff,(ap_dim_t)j);
+	}
     }
     itv_set(equation->c,m[i][dims]);
     for (j=0;j<nb_nsym;j++){
@@ -1220,6 +1223,8 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
       ap_dim_t tdim[nb_eq];
       for(i=0;i<nb_eq;i++) {
 	tdim[i] = (ap_dim_t) current_equation->content->dim;
+	print_equation(stdout,current_equation->content);
+	printf("\n erase variable %d \n", tdim[i]);
 	current_equation= current_equation->n;
       }
       

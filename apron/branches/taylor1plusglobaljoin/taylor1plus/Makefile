@@ -1,3 +1,4 @@
+
 include ../Makefile.config
 
 ifneq ($(CSDP_PATH),)
@@ -45,7 +46,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 # Files
 #---------------------------------------
 
-CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meet t1p_join_std t1p_join_alt t1p_join  t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
+CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meet t1p_join_std t1p_join_alt t1p_join t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
 CCSRC = t1p_config.h t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = t1p.h
@@ -98,6 +99,9 @@ allMPQ: libt1pMPQ.so libt1pMPQ_debug.so
 allD: libt1pD.so libt1pD_debug.so
 allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
+
+exemple1%_debug: exemple1%_debug.o
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -loct$*_debug -lapron_debug $(LIBS_DEBUG)
 
 #test%: t1p_test_eval_texp%.o
 #	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron t1p_internal$*.o t1p_representation$*.o
