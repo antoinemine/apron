@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #ifndef _T1P_INTERNAL_H_
 #define _T1P_INTERNAL_H_
 
@@ -17,6 +24,8 @@ extern ap_manager_t* box_manager_alloc(void);
 extern ap_manager_t* pk_manager_alloc(bool strict);
 extern ap_manager_t* oct_manager_alloc(void);
 
+typedef unsigned int uint_t;
+
 /**************************************************************************************************/
 /* INTERNAL DATA TYPE */
 /**************************************************************************************************/
@@ -32,7 +41,7 @@ typedef enum nsym_t {
 /* Noise symbol type */
 typedef struct t1p_nsym_t {
     nsym_t	type;		/* type of noise symbol */	/* obsolete */
-    size_t	index;		/* global index, noise symbols of the same index are shared */
+    uint_t	index;		/* global index, noise symbols of the same index are shared */
 //    bool	constrained;	/* true if the noise symbol is constrained */
     //ap_dim_t	absdim;		/* the abstract dimension of the epsilon */
 } t1p_nsym_t;
@@ -55,8 +64,8 @@ struct _t1p_aff_t {
     t1p_aaterm_t*	q;	/* first center term (epsilons) aaterm */
     t1p_aaterm_t*	end;	/* quick jump to the last center term : to add a new term for instance */
     t1p_aaterm_t*	lastu;	/* obsolete */
-    size_t		l;	/* number of noise symbols */
-    size_t		pby;	/* # pointers to this affine form */
+    uint_t		l;	/* number of noise symbols */
+    uint_t		pby;	/* # pointers to this affine form */
     itv_t		itv;	/* best known interval concretisation */
 };
 typedef struct _t1p_aff_t t1p_aff_t;
@@ -100,8 +109,8 @@ typedef struct optpr_problem_t {
     itv_t gamma; /* |u0| < gamma*lambda */
     Li* litab; /* table of Li lines and their associated eps */
     optpr_indexinfo_t* T; /* tableau de taille n */
-    size_t sizeJ; /* size of litab % détermine la complexité du problème */
-    size_t size; /* nb de symboles en tout: le "n" */
+    uint_t sizeJ; /* size of litab % détermine la complexité du problème */
+    uint_t size; /* nb de symboles en tout: le "n" */
     itv_t optval; /* optimal value */
     optpr_point_t optsol; /* optimal point, TODO: pour le moment on prend le dernier qui optimise, mais il peut y en avoir plusieurs */
 } optpr_problem_t;
@@ -122,7 +131,7 @@ typedef struct _Tobj2 {
 
 typedef struct _t1p_internal_t {
     itv_internal_t*	itv;		/* interval internal representation */
-    size_t		dim;		/* nb of noise symbol used */
+    uint_t		dim;		/* nb of noise symbol used */
     t1p_nsym_t**	epsilon;	/* array of size index of epsilons */
     ap_funid_t		funid;		/* current function */
     ap_manager_t *	man;		/* back-pointer */
@@ -139,9 +148,9 @@ typedef struct _t1p_internal_t {
     clock_t	start;
     optpr_problem_t* optpr;
     Tobj2 mubGlobal;
-    size_t* inputns;
-    size_t epssize;
-    size_t it;	/* compteur d'iterations à la Kleene */
+    uint_t* inputns;
+    uint_t epssize;
+    uint_t it;	/* compteur d'iterations à la Kleene */
 } t1p_internal_t;
 
 /***********/
@@ -150,20 +159,20 @@ typedef struct _t1p_internal_t {
 typedef struct _t1p_t {
     t1p_aff_t**		paf;            /* array of pointers to Taylor1+ expressions of size dims */
     itv_t*		box;		/* reduced product with boxes */
-    size_t		intdim;         /* nb of integer variables */
-    size_t		dims;           /* intdim + realdim */
+    uint_t		intdim;         /* nb of integer variables */
+    uint_t		dims;           /* intdim + realdim */
     ap_abstract0_t* 	abs;        	/* nsym abstract object (=contraints over noise symbols)*/
     ap_dim_t*		nsymcons;       /* array of index of constrained noise symbols */
     ap_interval_t**	gamma;		/* pointer to an array which contains the concretisations of constrained noise symbols if any */
-    size_t		size;		/* size of nsymcons and gamma */
+    uint_t		size;		/* size of nsymcons and gamma */
     bool		hypercube;	/* true if no constrained nsym */
     itv_t**		g;	/* array of the generators of the zonotope - a oublier */
-    size_t		gn;		/* size of generators - a oublier */
+    uint_t		gn;		/* size of generators - a oublier */
 } t1p_t;
 
 /* special object to store and compute meet with lincons */
 typedef struct _obj {
-  //  size_t index;
+  //  uint_t index;
     itv_t itv;
     itv_t coeff;
 } obj;
@@ -222,7 +231,6 @@ static t1p_aff_t* t1p_aff_alloc_init(t1p_internal_t *pr)
 
 static inline t1p_aff_t * t1p_aff_top(t1p_internal_t* pr);
 static inline t1p_aff_t * t1p_aff_bottom(t1p_internal_t* pr);
-/* return a new affine form with a center, and best concretization, being top/bottom */
 
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a);
 static inline void t1p_aff_clear(t1p_internal_t *pr, t1p_aff_t *exp);
@@ -238,11 +246,11 @@ static inline void t1p_aff_nsym_create(t1p_internal_t *pr, t1p_aff_t *expr, itv_
 /* add an existing noise symbol pointed by "nsym" with coefficient "coeff" */
 static inline void t1p_aff_add_itv(t1p_internal_t* pr, t1p_aff_t *expr, itv_t itv, nsym_t type);
 /* change the coefficient of the aaterm (or add it if it was not there) */
-static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, size_t index);
+static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, uint_t index);
 static inline void t1p_aff_nsym_add(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, t1p_nsym_t* pnsym);
 
 /* returns a pointer to the coefficient of nymb [index]. Returns [NULL] if [index] is not present in [expr] */
-static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, size_t index);
+static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, uint_t index);
 
 /* multiplication of an affine form by a scalar (= an interval) */
 /* assignment: expr <- lambda * expr */
@@ -256,7 +264,6 @@ static inline bool t1p_aff_is_eq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b)
 static inline bool t1p_aff_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, itv_t* gammaa, itv_t* gammab);
 static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, t1p_t* enva, t1p_t* envb);
 static inline bool t1p_aff_gamma_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, itv_t* gammaa, itv_t* gammab);
-
 static inline bool t1p_aff_is_top(t1p_internal_t* pr, t1p_aff_t *a);
 static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a);
 /* test whether the best interval concretization is bounded */
@@ -320,22 +327,22 @@ ap_manager_t* t1p_manager_alloc(void);
 /* get the high index of noise symbols in use */
 int ap_manager_t1p_get_nsym(ap_manager_t* man);
 /* actually not used */
-void log_init(void* addr, size_t length, int fd);
-void log_sync(void* addr, size_t length, int fd);
+void log_init(void* addr, uint_t length, int fd);
+void log_sync(void* addr, uint_t length, int fd);
 
 /* get the dimension of the constrained noise symbol given its index and the T1+ abstract object */
-static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res, size_t nsymIndex, t1p_t *a);
+static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res, uint_t nsymIndex, t1p_t *a);
 /* noy yet defined */
-static inline void t1p_delete_constrained_nsym(t1p_internal_t *pr, size_t nsymIndex, t1p_t *a);
+static inline void t1p_delete_constrained_nsym(t1p_internal_t *pr, uint_t nsymIndex, t1p_t *a);
 
 /* get the dimension of this noise symbol */
 /* if true, then the symbol exist and *dim contains its dimension,
    else, *dim contains where to insert it */
-static inline bool t1p_nsymcons_get_dimpos(t1p_internal_t * pr, ap_dim_t* dim, size_t nsymIndex, t1p_t* a);
+static inline bool t1p_nsymcons_get_dimpos(t1p_internal_t * pr, ap_dim_t* dim, uint_t nsymIndex, t1p_t* a);
 /* get the dimensions of the abstract object of noise symbols */
-static inline size_t t1p_nsymcons_get_dimension(t1p_internal_t * pr, t1p_t* a);
+static inline uint_t t1p_nsymcons_get_dimension(t1p_internal_t * pr, t1p_t* a);
 /* get the concretisation of a noise symbol given its index and the abstract object */
-static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, size_t nsymIndex, t1p_t* a);
+static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, uint_t nsymIndex, t1p_t* a);
 
 static inline int argmin(t1p_internal_t* pr, itv_t res, itv_t a, itv_t b);
 
@@ -410,9 +417,9 @@ inline static t1p_nsym_t* t1p_nsym_tmp_obs_alloc(t1p_internal_t *pr)
 inline static void t1p_nsym_fprint(FILE* stream, t1p_nsym_t *eps)
 {
     switch (eps->type) {
-	case IN: fprintf(stream,"(eps%zu)",eps->index); break;
+	case IN: fprintf(stream,"(eps%u)",eps->index); break;
 	//case NSYM_ERR: fprintf(stream,"[r%u]",eps->index); break;
-	case UN: fprintf(stream,"(eta%zu)",eps->index); break;
+	case UN: fprintf(stream,"(eta%u)",eps->index); break;
 	//case NSYM_TMP: fprintf(stream,"[TMP%u]",eps->index); break;
 	default: fprintf(stderr,"error: unknown type of noise symbol, aborting...\n"); abort(); break;
     }
@@ -479,7 +486,6 @@ static inline t1p_aff_t * t1p_aff_bottom(t1p_internal_t* pr)
     itv_set_bottom(res->itv);
     return res;
 }
-
 static inline bool t1p_aff_is_zero(t1p_internal_t *pr, t1p_aff_t *a)
 {
     if (!itv_is_zero(a->c)) return false;
@@ -509,7 +515,7 @@ static inline void t1p_aff_free(t1p_internal_t *pr, t1p_aff_t *a)
 	a->q = NULL;
 	a->end = NULL;
 	a->lastu = NULL;
-	a->l = (size_t)0;
+	a->l = (uint_t)0;
 	itv_clear(a->itv);
 	free(a);
 	a = NULL;
@@ -517,14 +523,13 @@ static inline void t1p_aff_free(t1p_internal_t *pr, t1p_aff_t *a)
 }
 static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a)
 {
-  if (a) {
+    assert(a);
     if (a->pby) a->pby--;
     if (a->pby == 0) {
-	if ((a != pr->top) && (a != pr->bot)) t1p_aff_free(pr, a);
+      if ((a != pr->top) && (a != pr->bot)) t1p_aff_free(pr, a);
     }
-  }
+  // if a is NULL, do nothing
 }
-
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a)
 {    
   itv_init(a->c);
@@ -587,7 +592,7 @@ static inline t1p_aff_t* t1p_aff_copy(t1p_internal_t *pr, t1p_aff_t *src)
 static inline t1p_nsym_t* t1p_nsym_add(t1p_internal_t *pr, nsym_t type)
     /* increment the global index of used noise symbols and add the noise symbol in pr->eps */
 {
-    size_t dim = pr->dim;
+    uint_t dim = pr->dim;
     t1p_nsym_t* res;
     /* resize epsilon array */
     if ((dim+1) % 1024 == 0) pr->epsilon = (t1p_nsym_t**)realloc(pr->epsilon, (dim+1024)*sizeof(t1p_nsym_t*));
@@ -616,7 +621,7 @@ static inline void t1p_aff_nsym_create(t1p_internal_t *pr, t1p_aff_t *expr, itv_
 }
 
 /* add a new aaterm to the affine form with an already existing noise symbol (used to build by hand an affine form) */
-static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, size_t index)
+static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coeff, uint_t index)
 {
     nsym_t type;
     t1p_aaterm_t* ptr = t1p_aaterm_alloc_init();
@@ -664,7 +669,7 @@ static inline void t1p_aff_build(t1p_internal_t *pr, t1p_aff_t* expr, itv_t coef
 
 
 /* returns a pointer to the coefficient of nymb [index]. Returns [NULL] if [index] is not present in [expr] */
-static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, size_t index)
+static inline itv_t* t1p_aff_get_coeff(t1p_internal_t *pr, t1p_aff_t* expr, uint_t index)
 {
   t1p_aaterm_t* cell = expr->q;
   itv_t* res=NULL;
@@ -928,7 +933,7 @@ static inline bool t1p_aff_gamma_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_af
 static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, t1p_t* enva, t1p_t* envb)
 {
     bool res = false;
-    size_t i = 0;
+    uint_t i = 0;
 
     /* b = [] either cst or has infinite bounds */
     if (!b->q) res = itv_is_leq(a->itv, b->c);
@@ -1216,7 +1221,7 @@ static inline void t1p_aff_bound(t1p_internal_t* pr, itv_t res, t1p_aff_t *expr,
 	    ap_linexpr0_set_cst_scalar_int(linexpr0, (int)0);
 	    /* au maximum, tous les symbole de bruit sont contraints */
 	    linexpr0->p.linterm = (ap_linterm_t*)malloc(expr->l*sizeof(ap_linterm_t));
-	    size_t k = 0;
+	    uint_t k = 0;
 	    ap_dim_t dim = 0;
 	    for (p=expr->q; p; p=p->n) {
 		if (t1p_nsymcons_get_dimpos(pr, &dim, p->pnsym->index, a)) {
@@ -1610,15 +1615,15 @@ static inline t1p_aff_t * t1p_aff_join_constrained6(t1p_internal_t* pr, t1p_aff_
     itv_clear(dev);
 
 
-/*     clock_t end = clock(); */
-/*     double d2exp1 = t1p_aff_distance(pr, res, exp1, a); */
-/*     double d2exp2 = t1p_aff_distance(pr, res, exp2, b); */
-/* //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2); */
-/*     double time = ((double) (end - start)) / CLOCKS_PER_SEC; */
-    /* FILE* streamB = fopen("constrained6_beta.txt", "a+"); */
-    /* FILE* streamT = fopen("constrained6_time.txt", "a+"); */
-    /* FILE* streamD = fopen("constrained6_distance.txt", "a+"); */
-    /* FILE* streamS = fopen("constrained6_survivors.txt", "a+"); */
+    clock_t end = clock();
+    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
+    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
+//    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    /* FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_time.txt", "a+"); */
+    /* FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained6_survivors.txt", "a+"); */
     /* double perturbation = 0; */
     /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
     /* fprintf(streamB,"\t%f",perturbation); */
@@ -1893,15 +1898,15 @@ static inline t1p_aff_t * t1p_aff_join_constrained7(t1p_internal_t* pr, t1p_aff_
     itv_clear(mid);
     itv_clear(dev);
 
-    /* clock_t end = clock(); */
-    /* double d2exp1 = t1p_aff_distance(pr, res, exp1, a); */
-    /* double d2exp2 = t1p_aff_distance(pr, res, exp2, b); */
-    /* //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2); */
-    /* double time = ((double) (end - start)) / CLOCKS_PER_SEC; */
-    /* FILE* streamB = fopen("constrained7_beta.txt", "a+"); */
-    /* FILE* streamT = fopen("constrained7_time.txt", "a+"); */
-    /* FILE* streamD = fopen("constrained7_distance.txt", "a+"); */
-    /* FILE* streamS = fopen("constrained7_survivors.txt", "a+"); */
+    clock_t end = clock();
+    double d2exp1 = t1p_aff_distance(pr, res, exp1, a);
+    double d2exp2 = t1p_aff_distance(pr, res, exp2, b);
+    //    printf("-----------------------\n%f\n----------------------\n",(d2exp1+d2exp2)/2);
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    /* FILE* streamB = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_beta.txt", "a+"); */
+    /* FILE* streamT = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_time.txt", "a+"); */
+    /* FILE* streamD = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_distance.txt", "a+"); */
+    /* FILE* streamS = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/benchs/join_local/constrained7_survivors.txt", "a+"); */
     /* double perturbation = 0; */
     /* double_set_num(&perturbation,bound_numref(res->end->coeff->sup)); */
     /* fprintf(streamB,"\t%f",perturbation); */
@@ -1956,7 +1961,7 @@ static inline t1p_aff_t * t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_
     itv_init(zero);
 
     itv_join(res->itv, exp1->itv, exp2->itv);
-    size_t i = 0;
+    uint_t i = 0;
 
     t1p_aaterm_t *p, *q, *ptr;
 
@@ -1964,14 +1969,14 @@ static inline t1p_aff_t * t1p_aff_join_constrained8(t1p_internal_t* pr, t1p_aff_
 
     int s = 0;
 
-    size_t old = pr->dim;
+    uint_t old = pr->dim;
 
     if (exp1->q || exp2->q) {
 	itv_set(c1, exp1->c);
 	itv_set(c2, exp2->c);
-	size_t size = 0;
-	size_t sizeZ = 0;
-	size_t nbcons = 0;
+	uint_t size = 0;
+	uint_t sizeZ = 0;
+	uint_t nbcons = 0;
 	ap_interval_t * itv = ap_interval_alloc();
 	ap_manager_t* pk = box_manager_alloc();
 	ap_lincons0_array_t array1;
@@ -2471,7 +2476,7 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, t1p_a
     itv_init(zero);
 
     itv_join(res->itv, exp1->itv, exp2->itv);
-    size_t i = 0;
+    uint_t i = 0;
 
     t1p_aaterm_t *p, *q, *ptr;
 
@@ -2479,14 +2484,14 @@ static inline t1p_aff_t * t1p_aff_join_constrained8bis(t1p_internal_t* pr, t1p_a
 
     int s = 0;
 
-    size_t old = pr->dim;
+    uint_t old = pr->dim;
 
     if (exp1->q || exp2->q) {
 	itv_set(c1, exp1->c);
 	itv_set(c2, exp2->c);
-	size_t size = 0;
-	size_t sizeZ = 0;
-	size_t nbcons = 0;
+	uint_t size = 0;
+	uint_t sizeZ = 0;
+	uint_t nbcons = 0;
 	ap_interval_t * itv = ap_interval_alloc();
 	ap_manager_t* pk = box_manager_alloc();
 	ap_lincons0_array_t array1;
@@ -3173,7 +3178,7 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2(t1p_internal_t* pr, t1p_aff_t *exp
 	itv_sub(tmp,dev,tmp2);
 	t1p_aff_nsym_create(pr, res, tmp, UN);
 
-	/* FILE* stream = fopen("betaUB", "a+"); */
+	/* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaUB", "a+"); */
 	/* fprintf(stream,"********************************************\n"); */
 	/* itv_fprint(stream,tmp);fprintf(stream,"\n"); */
 	/* fprintf(stream,"********************************************\n"); */
@@ -3222,20 +3227,20 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
     itv_init(zero);
 
     itv_join(res->itv, exp1->itv, exp2->itv);
-    size_t i = 0;
+    uint_t i = 0;
 
     t1p_aaterm_t *p, *q, *ptr;
 
     ptr = NULL;
     int s = 0;
-    size_t old = pr->dim;
+    uint_t old = pr->dim;
 
     if (exp1->q || exp2->q) {
 	itv_set(c1, exp1->c);
 	itv_set(c2, exp2->c);
-	size_t size = 0;
-	size_t sizeZ = 0;
-	size_t nbcons = 0;
+	uint_t size = 0;
+	uint_t sizeZ = 0;
+	uint_t nbcons = 0;
 	ap_interval_t * itv = ap_interval_alloc();
 	ap_manager_t* pk = box_manager_alloc();
 	ap_lincons0_array_t array1;
@@ -3572,7 +3577,7 @@ static inline t1p_aff_t * t1p_aff_join_arXiv2bis(t1p_internal_t* pr, t1p_aff_t *
 	    itv_mul_2exp(d, d, -1);
 	    itv_set_num(tmp,bound_numref(d->sup));
 	    t1p_aff_nsym_create(pr, res, d, UN);
-	    /* FILE* stream = fopen("betaMUB", "a+"); */
+	    /* FILE* stream = fopen("/home/donquijote/taylor1p/taylor1plus/taylor1plus/demo/betaMUB", "a+"); */
 	    /* fprintf(stream,"********************************************\n"); */
 	    /* itv_fprint(stream,d);fprintf(stream,"\n"); */
 	    /* fprintf(stream,"********************************************\n"); */
@@ -3824,7 +3829,7 @@ static inline t1p_aff_t * t1p_aff_join_bub(t1p_internal_t* pr, t1p_aff_t *exp1, 
     itv_init(zero);
 
     itv_join(res->itv, exp1->itv, exp2->itv);
-    size_t i = 0;
+    uint_t i = 0;
 
     t1p_aaterm_t *p, *q, *ptr;
 
@@ -3832,14 +3837,14 @@ static inline t1p_aff_t * t1p_aff_join_bub(t1p_internal_t* pr, t1p_aff_t *exp1, 
 
     int s = 0;
 
-    size_t old = pr->dim;
+    uint_t old = pr->dim;
 
     if (exp1->q || exp2->q) {
 	itv_set(c1, exp1->c);
 	itv_set(c2, exp2->c);
-	size_t size = 0;
-	size_t sizeZ = 0;
-	size_t nbcons = 0;
+	uint_t size = 0;
+	uint_t sizeZ = 0;
+	uint_t nbcons = 0;
 
 	Tobj* T = (Tobj*)calloc((1+pr->epssize),sizeof(Tobj));
 	Tobj* Z = (Tobj*)calloc((pr->dim - 2*(1+pr->epssize)),sizeof(Tobj));
@@ -4059,20 +4064,20 @@ static inline t1p_aff_t * t1p_aff_join_bub_argmin(t1p_internal_t* pr, t1p_aff_t 
     itv_init(zero);
 
     itv_join(res->itv, exp1->itv, exp2->itv);
-    size_t i = 0;
+    uint_t i = 0;
 
     t1p_aaterm_t *p, *q, *ptr;
 
     ptr = NULL;
     int s = 0;
-    size_t old = pr->dim;
+    uint_t old = pr->dim;
 
     if (exp1->q || exp2->q) {
 	itv_set(c1, exp1->c);
 	itv_set(c2, exp2->c);
-	size_t size = 0;
-	size_t sizeZ = 0;
-	size_t nbcons = 0;
+	uint_t size = 0;
+	uint_t sizeZ = 0;
+	uint_t nbcons = 0;
 	ap_interval_t * itv = ap_interval_alloc();
 	ap_manager_t* pk = box_manager_alloc();
 	ap_lincons0_array_t array1;
@@ -4702,7 +4707,7 @@ static inline t1p_aff_t * t1p_aff_join_constrained1(t1p_internal_t* pr, t1p_aff_
 	    num_set_double(eps,(double)1000*1.11022302462515654042e-16); /* threshold : 1000*last bit in the mantissa in double precision */
 	    itv_set_unit_num(err, eps);
 	    //printf("err: ");itv_fprint(stdout,err); printf("\n");
-	    size_t k = 0;
+	    uint_t k = 0;
 	    if (bound_cmp(suma->inf,eps) <= 0) {
 		//if (itv_is_pos(suma))
 		if (bound_cmp(sumb->inf,eps)) {
@@ -4835,8 +4840,8 @@ static inline void t1p_aff_cons_eq_lambda(t1p_internal_t* pr, itv_t* res, t1p_af
     obj** array = NULL;
     if (cons->l + x->l > pr->dim)  array = (obj**)calloc(pr->dim,sizeof(obj*)); // pr->dim est le max qu'on peut avoir a trier
     else array = (obj**)calloc((cons->l + x->l),sizeof(obj*)); // une vache sur-approximation
-    size_t max = 0;
-    size_t i = 0;
+    uint_t max = 0;
+    uint_t i = 0;
     itv_t tmp, mid, dev, dim_itv;
     itv_init(mid);
     itv_init(dev);
@@ -5234,6 +5239,7 @@ static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a)
     else if (a->q != NULL) return false;
     else return true;
 }
+
 static inline bool t1p_aff_is_bounded(t1p_internal_t* pr, t1p_aff_t *a)
 {
   
@@ -5263,11 +5269,11 @@ static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
     pr->dimtoremove = (ap_dim_t*)calloc(128, sizeof(ap_dim_t));
     pr->dimchange = ap_dimchange_alloc(0,1);
     /* -eps + 1 */
-    ap_linexpr0_t* mnspone = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);	/* mnspone : (m)inus (n)oise (s)ymbol (p)lus (o)ne */
+    ap_linexpr0_t* mnspone = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (uint_t)1);	/* mnspone : (m)inus (n)oise (s)ymbol (p)lus (o)ne */
     ap_linexpr0_set_cst_scalar_double(mnspone, 1.0);
     ap_linexpr0_set_coeff_scalar_double(mnspone, (ap_dim_t)0, (double)-1.0);
     /* eps + 1 */
-    ap_linexpr0_t* nspone = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (size_t)1);
+    ap_linexpr0_t* nspone = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, (uint_t)1);
     ap_linexpr0_set_cst_scalar_double(nspone, 1.0);
     ap_linexpr0_set_coeff_scalar_double(nspone, (ap_dim_t)0, (double)1.0);
 
@@ -5276,7 +5282,7 @@ static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
     /* 0 <= eps + 1 */
     pr->moo.p[1] = ap_lincons0_make(AP_CONS_SUPEQ, nspone, NULL);
 
-    pr->inputns = (size_t*)calloc(1024, sizeof(size_t));	/* starts with a limit of 1024 noise symbols */
+    pr->inputns = (uint_t*)calloc(1024, sizeof(uint_t));	/* starts with a limit of 1024 noise symbols */
     pr->epssize = 0;
     pr->start = clock();
     pr->optpr = NULL;
@@ -5290,7 +5296,7 @@ static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
 static inline void t1p_internal_free(t1p_internal_t* pr)
 {
     CALL();
-    unsigned int i = 0;
+    uint_t i = 0;
     clock_t end = clock();
     double cpu_time_used = ((double) (end - pr->start)) / CLOCKS_PER_SEC;
 #ifdef _GET_CPU_TIME
@@ -5303,7 +5309,7 @@ static inline void t1p_internal_free(t1p_internal_t* pr)
 	pr->start = 0;
 	pr->itv = NULL;
 	for (i=0;i<pr->dim;i++) free(pr->epsilon[i]);
-	pr->dim = (size_t)0;
+	pr->dim = (uint_t)0;
 	free(pr->epsilon);
 	pr->epsilon= NULL;
 	pr->funid = AP_FUNID_UNKNOWN;
@@ -5326,6 +5332,7 @@ static inline void t1p_internal_free(t1p_internal_t* pr)
 	pr->mubGlobal.cy = NULL;
 	pr->mubGlobal.p = NULL;
 	pr->it = 0;
+	free(pr->inputns);
 	free(pr);
     }
 }
@@ -5337,9 +5344,9 @@ static inline void t1p_set_lincons_dim(t1p_internal_t* pr, ap_dim_t dim) {
 
 static inline void t1p_nsymcons_set_hypercube(t1p_internal_t* pr, t1p_t* a)
 {
-    size_t size = t1p_nsymcons_get_dimension(pr, a);
+    uint_t size = t1p_nsymcons_get_dimension(pr, a);
     ap_interval_t** tinterval = (ap_interval_t**)malloc(size*sizeof(ap_interval_t*));
-    size_t i = 0;
+    uint_t i = 0;
     for (i=0; i<size; i++) tinterval[i] = pr->ap_muu;
 
     ap_abstract0_free(pr->manNS, pr->nsymhypercube);
@@ -5348,7 +5355,7 @@ static inline void t1p_nsymcons_set_hypercube(t1p_internal_t* pr, t1p_t* a)
 }
 
 
-static inline bool findKR(size_t *res, size_t x, size_t* tab, size_t size)
+static inline bool findKR(uint_t *res, uint_t x, uint_t* tab, uint_t size)
 {
     assert(size >= 1);
     int low = 0;
@@ -5367,37 +5374,40 @@ static inline bool findKR(size_t *res, size_t x, size_t* tab, size_t size)
     return false;
 }
 
-static inline bool t1p_nsymcons_get_dimpos(t1p_internal_t* pr, ap_dim_t* dim, size_t nsymIndex, t1p_t* a)
+static inline bool t1p_nsymcons_get_dimpos(t1p_internal_t* pr, ap_dim_t* dim, uint_t nsymIndex, t1p_t* a)
 {
-    size_t size = t1p_nsymcons_get_dimension(pr, a);
-    if (size) return (ap_dim_t)findKR((size_t*)dim, (size_t)nsymIndex, (size_t*)a->nsymcons, size);
+    uint_t size = t1p_nsymcons_get_dimension(pr, a);
+    if (size) return (ap_dim_t)findKR((uint_t*)dim, (uint_t)nsymIndex, (uint_t*)a->nsymcons, size);
     else return false;
 }
 
-static inline size_t t1p_nsymcons_get_dimension(t1p_internal_t *pr, t1p_t *a)
+static inline uint_t t1p_nsymcons_get_dimension(t1p_internal_t *pr, t1p_t *a)
 {
     ap_dimension_t dimension = ap_abstract0_dimension(pr->manNS, a->abs);
     return (dimension.intdim + dimension.realdim);
 }
 
 
-static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, size_t nsymIndex, t1p_t* a)
+static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, uint_t nsymIndex, t1p_t* a)
 {
     if (a->hypercube) {
 	itv_set(res, pr->muu);
     } else {
 	ap_dim_t dim;
-	if (t1p_nsymcons_get_dimpos(pr, &dim, nsymIndex, a)) itv_set_ap_interval(pr->itv, res, a->gamma[dim]);
+	if (t1p_nsymcons_get_dimpos(pr, &dim, nsymIndex, a)) {
+		itv_set_ap_interval(pr->itv, res, a->gamma[dim]);
+		printf("hmm\n");
+	}
 	else itv_set(res, pr->muu);
     }
 }
 
-static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res, size_t nsymIndex, t1p_t *a)
+static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res, uint_t nsymIndex, t1p_t *a)
 {
-    size_t j = 0;
+    uint_t j = 0;
     void* dst = NULL;
-    size_t size = t1p_nsymcons_get_dimension(pr, a);
-    size_t dim = 0;
+    uint_t size = t1p_nsymcons_get_dimension(pr, a);
+    uint_t dim = 0;
     bool addconsnsym = false;
 
     /* resize nsymcons array if needed */
@@ -5421,7 +5431,7 @@ static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res
 	ap_abstract0_add_dimensions(pr->manNS, true, a->abs, pr->dimchange, false);
 	addconsnsym= true;
     } else {
-	if (!findKR((size_t *)&dim, nsymIndex, (size_t*)a->nsymcons, size)) {
+	if (!findKR((uint_t *)&dim, nsymIndex, (uint_t*)a->nsymcons, size)) {
 	    dst = (void *)(&a->nsymcons[dim+1]);
 	    memmove(dst,(void*)(&a->nsymcons[dim]),(size-dim)*sizeof(ap_dim_t));
 	    a->nsymcons[dim] = nsymIndex;
@@ -5447,16 +5457,16 @@ static inline bool t1p_insert_constrained_nsym(t1p_internal_t *pr, ap_dim_t* res
 
 /* uses the internal structure pr->dimtoremove */
 /* starts with a memory zone setted to zero  (memset) */
-static inline void t1p_delete_constrained_nsym(t1p_internal_t *pr, size_t nsymIndex, t1p_t *a)
+static inline void t1p_delete_constrained_nsym(t1p_internal_t *pr, uint_t nsymIndex, t1p_t *a)
 {
     CALL();
-    size_t size = t1p_nsymcons_get_dimension(pr, a);
+    uint_t size = t1p_nsymcons_get_dimension(pr, a);
     if (size == 0) {
 	/* the constrained noise symbol abstract object is already empty */
     } else {
-	size_t dim;
+	uint_t dim;
 	/* worst case : all constrained nsym have to be removed */
-	if (findKR(&dim, nsymIndex, (size_t*)a->nsymcons, size)) {
+	if (findKR(&dim, nsymIndex, (uint_t*)a->nsymcons, size)) {
 	    pr->dimtoremove[dim]++;
 	    if (pr->dimtoremove[dim] == a->dims) {
 		void* dst = NULL;
@@ -5493,7 +5503,7 @@ static inline ap_linexpr0_t* t1p_ap_linexpr0_set_aff(t1p_internal_t* pr, t1p_aff
     t1p_aaterm_t *p;
     linexpr0->p.linterm = (ap_linterm_t*)malloc(aff->l*sizeof(ap_linterm_t));
     linexpr0->size = aff->l;
-    size_t k = 0;
+    uint_t k = 0;
     ap_dim_t dim = 0;
     for (p=aff->q; p; p=p->n) {
 	ap_coeff_init(&linexpr0->p.linterm[k].coeff, AP_COEFF_INTERVAL);
@@ -5509,8 +5519,8 @@ static inline ap_linexpr0_t* t1p_ap_linexpr0_set_aff(t1p_internal_t* pr, t1p_aff
 
 static inline void t1p_update_nsymcons_gamma(t1p_internal_t* pr, t1p_t* a)
 {
-    size_t i = 0;
-    size_t nsymcons_size = t1p_nsymcons_get_dimension(pr, a);
+    uint_t i = 0;
+    uint_t nsymcons_size = t1p_nsymcons_get_dimension(pr, a);
     ap_interval_t* bound = NULL;
     t1p_nsymcons_set_hypercube(pr, a);
     if (ap_abstract0_is_leq(pr->manNS, pr->nsymhypercube, a->abs)) {

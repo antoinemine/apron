@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #include <time.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -92,7 +99,7 @@ void test_mul_non_constrained(t1p_internal_t* pr, t1p_t* env)
        exp2 = exp1 x exp1
        (fluctuat) exp2 = 6.875 - 2.5\eps1 -5\eps2 + 1.625\eps_f ; [1,16]
        (t1+) exp2 = 6.25 - 2.5\eps1 -5\eps2 + [0,2.25]	; [1,16]
-       		    = 7.375  - 2.5\eps1 -5\eps2 + 1.125\eps_f	; [1,16]
+       = 7.375  - 2.5\eps1 -5\eps2 + 1.125\eps_f	; [1,16]
      */
     t1p_aff_check_free(pr, env->paf[1]);
     env->paf[1] = t1p_aff_alloc_init(pr);
@@ -108,7 +115,7 @@ void test_mul_non_constrained(t1p_internal_t* pr, t1p_t* env)
     itv_set_int2(env->paf[1]->itv, -4, -1);
     env->paf[2] = t1p_aff_mul(pr, env->paf[1], env->paf[1], env);
     t1p_aff_reduce(pr, env->paf[2]);
-    
+
     t1p_aff_t *aff_exact = t1p_aff_alloc_init(pr);
     num_set_double(num, 7.375);
     itv_set_num(coeff, num);
@@ -183,8 +190,8 @@ void test_mul_non_constrained(t1p_internal_t* pr, t1p_t* env)
     /* exp1 = 2 + eps0 - eps1 + 1.5eps3	; [-1.5,5.5]
        exp2 = -1 + eps0 + 0.5eps2 + 0.75eps3 + eps4 ; [1.25,5.25]
        exp3 = exp1*exp2 
-            = (fluctuat) -0.9375 + eps0 + eps1 + eps2 + 2eps4 + 10.3125epsf; [-16.25,12.375]
-       */
+       = (fluctuat) -0.9375 + eps0 + eps1 + eps2 + 2eps4 + 10.3125epsf; [-16.25,12.375]
+     */
     t1p_aff_check_free(pr, env->paf[0]);
     t1p_aff_check_free(pr, env->paf[1]);
     t1p_aff_check_free(pr, env->paf[2]);
@@ -292,20 +299,20 @@ void test_mul_constrained(t1p_internal_t* pr, t1p_t* env)
     num_set_double(num, 2.5149806032039729864);
     bound_set_num(env->paf[0]->itv->sup,num);
     /*
-    num_set_double(num, 1);
-    itv_set_num(coeff, num);
-    itv_set(env->paf[0]->c, coeff);
-    num_set_double(num, -0.5);
-    itv_set_num(coeff, num);
-    t1p_aff_build(pr, env->paf[0], coeff, 0);
-    num_set_double(num, 1);
-    itv_set_num(coeff, num);
-    t1p_aff_build(pr, env->paf[0], coeff, 1);
-    num_set_double(num, 0.0);
-    bound_set_num(env->paf[0]->itv->inf,num);
-    num_set_double(num, 2.5);
-    bound_set_num(env->paf[0]->itv->sup,num);
-    */
+       num_set_double(num, 1);
+       itv_set_num(coeff, num);
+       itv_set(env->paf[0]->c, coeff);
+       num_set_double(num, -0.5);
+       itv_set_num(coeff, num);
+       t1p_aff_build(pr, env->paf[0], coeff, 0);
+       num_set_double(num, 1);
+       itv_set_num(coeff, num);
+       t1p_aff_build(pr, env->paf[0], coeff, 1);
+       num_set_double(num, 0.0);
+       bound_set_num(env->paf[0]->itv->inf,num);
+       num_set_double(num, 2.5);
+       bound_set_num(env->paf[0]->itv->sup,num);
+     */
 
     t1p_aff_t* aff = t1p_aff_alloc_init(pr);
     itv_set_int(coeff, -1);
@@ -549,10 +556,10 @@ void test_div_non_constrained(t1p_internal_t* pr, t1p_t* env)
 }
 /* sqrt */
 /*
- - sqrt([-1,0]) = bottom
- - sqrt(bot) = bot
- - sqrt(top) = top
- - exp2 = sqrt(exp0) (compared with fluctuat)
+   - sqrt([-1,0]) = bottom
+   - sqrt(bot) = bot
+   - sqrt(top) = top
+   - exp2 = sqrt(exp0) (compared with fluctuat)
  */
 void test_sqrt_non_constrained(t1p_internal_t* pr, t1p_t* env)
 {
@@ -718,7 +725,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
 {
     printf("### eval texp ###\n");
     t1p_aff_check_free(pr, abs->paf[0]);
-//    t1p_aff_check_free(pr, abs->paf[1]);
+    //    t1p_aff_check_free(pr, abs->paf[1]);
     t1p_aff_check_free(pr, abs->paf[2]);
     itv_t coeff, lambda ;
     itv_init(coeff);
@@ -732,9 +739,9 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
     abs->paf[0] = t1p_aff_alloc_init(pr);
     abs->paf[0]->pby++;
     ap_texpr0_t* texp = ap_texpr0_binop(AP_TEXPR_MUL,
-	     ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	     ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	     AP_RTYPE_DOUBLE,AP_RDIR_UP);
+	    ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
+	    ap_texpr0_unop(AP_TEXPR_SQRT,ap_texpr0_dim(0),AP_RTYPE_DOUBLE,AP_RDIR_UP),
+	    AP_RTYPE_DOUBLE,AP_RDIR_UP);
     abs->paf[2] = t1p_aff_eval_ap_texpr0(pr, texp, abs);
     if (t1p_aff_is_zero(pr, abs->paf[2])) printf("o");
     else printf("n");
@@ -756,7 +763,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
        y = 33096
        z = 1335y^6/4 + x*x(11x^2y^2 - y^6 - 121y^4 - 2) + 11y^8/2 + x/2y
        z = a + b + c + d
-       */
+     */
     t1p_aff_check_free(pr, abs->paf[0]);
     t1p_aff_check_free(pr, abs->paf[1]);
     t1p_aff_check_free(pr, abs->paf[2]);
@@ -826,23 +833,23 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
 			AP_RTYPE_DOUBLE,AP_RDIR_UP),
 		    AP_RTYPE_DOUBLE,AP_RDIR_UP),
 		AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	    ap_texpr0_binop(AP_TEXPR_ADD,
-		ap_texpr0_binop(AP_TEXPR_MUL,
-		    ap_texpr0_cst_scalar_int(121),
-		    ap_texpr0_binop(AP_TEXPR_MUL,
-			ap_texpr0_dim(1),
+		ap_texpr0_binop(AP_TEXPR_ADD,
 			ap_texpr0_binop(AP_TEXPR_MUL,
-			    ap_texpr0_dim(1),
+			    ap_texpr0_cst_scalar_int(121),
 			    ap_texpr0_binop(AP_TEXPR_MUL,
 				ap_texpr0_dim(1),
-				ap_texpr0_dim(1),
+				ap_texpr0_binop(AP_TEXPR_MUL,
+				    ap_texpr0_dim(1),
+				    ap_texpr0_binop(AP_TEXPR_MUL,
+					ap_texpr0_dim(1),
+					ap_texpr0_dim(1),
+					AP_RTYPE_DOUBLE,AP_RDIR_UP),
+				    AP_RTYPE_DOUBLE,AP_RDIR_UP),
 				AP_RTYPE_DOUBLE,AP_RDIR_UP),
 			    AP_RTYPE_DOUBLE,AP_RDIR_UP),
+			ap_texpr0_cst_scalar_int(2),
 			AP_RTYPE_DOUBLE,AP_RDIR_UP),
-		    AP_RTYPE_DOUBLE,AP_RDIR_UP),
-		ap_texpr0_cst_scalar_int(2),
-		AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	    AP_RTYPE_DOUBLE,AP_RDIR_UP);
+		AP_RTYPE_DOUBLE,AP_RDIR_UP);
 
     ap_texpr0_t* b = ap_texpr0_binop(AP_TEXPR_MUL,
 	    ap_texpr0_dim(0),
@@ -877,9 +884,9 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
 			AP_RTYPE_DOUBLE,AP_RDIR_UP),
 		    ap_texpr0_dim(1),
 		    AP_RTYPE_DOUBLE,AP_RDIR_UP),
-		AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	    ap_texpr0_cst_scalar_int(2),
-	    AP_RTYPE_DOUBLE,AP_RDIR_UP);
+		    AP_RTYPE_DOUBLE,AP_RDIR_UP),
+		    ap_texpr0_cst_scalar_int(2),
+		    AP_RTYPE_DOUBLE,AP_RDIR_UP);
 
     ap_texpr0_t* d = ap_texpr0_binop(AP_TEXPR_DIV,
 	    ap_texpr0_dim(0),
@@ -901,7 +908,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
     abs->paf[2] = t1p_aff_eval_ap_texpr0(pr, rump, abs);
     /* x = -2.5 + 0.5*eps1 + eps2;
        z = 2x - x - x;
-       */
+     */
     t1p_aff_check_free(pr, abs->paf[1]);
     t1p_aff_check_free(pr, abs->paf[2]);
 
@@ -943,7 +950,7 @@ void test_eval_texpr_non_constrained(t1p_internal_t* pr, t1p_t* abs)
 		    AP_RTYPE_DOUBLE,AP_RDIR_UP),
 		ap_texpr0_dim(1),
 		AP_RTYPE_DOUBLE,AP_RDIR_UP),
-	AP_RTYPE_DOUBLE,AP_RDIR_UP);
+	    AP_RTYPE_DOUBLE,AP_RDIR_UP);
 
     t1p_aff_check_free(pr, abs->paf[0]);
     abs->paf[0] = t1p_aff_alloc_init(pr);

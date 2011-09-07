@@ -1,3 +1,10 @@
+/*
+   APRON Library / Taylor1+ Domain (beta version)
+   Copyright (C) 2009-2011 Khalil Ghorbal
+
+*/
+
+
 #ifndef _T1P_H_
 #define _T1P_H_
 
@@ -38,10 +45,10 @@ typedef struct _t1p_t t1p_t;
 /* Meet and Join */
 /*****************/
 /* 1.Meet */
-/* 2.Join */
 #include "t1p_meet.h"
+/* 2.Join */
 #include "t1p_join.h"
-
+//#include "t1p_meetjoin.h"
 
 /* Assign and Substitute */
 /*************************/
