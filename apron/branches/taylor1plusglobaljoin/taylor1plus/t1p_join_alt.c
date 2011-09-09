@@ -193,7 +193,7 @@ void add_equation (ja_eq_set_t* eqs, ja_eq_t* eq)
     }
 }
 
-
+/* returns a pointer to the interval of variabble j in the affine form i. Returns null if there is not this variable in the affine form */
 itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v)
 {
   CALL();
@@ -207,15 +207,19 @@ itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v)
   /* found */
   /* find the right coefficient */
   ja_term_t* current_term = (current_elm->content)->first_te;
-  while (current_term->t_coeff==NS ||current_term->dim != v)
+  while (current_term && (current_term->t_coeff==NS ||current_term->dim != v))
     {
       current_term=current_term->n;
     }
+  if (current_term)
   /* found */
-  return &(current_term->coeff);
+      return &(current_term->coeff);
+  else
+    /* not found */
+    return NULL;
 }
 
-
+/* returns a pointer to the interval of noise_symbol j in the affine form i. Returns null if there is not this noise symbol in the affine form */
 itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v)
 {
   CALL();
@@ -229,12 +233,16 @@ itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v)
   /* found */
   /* find the right coefficient */
   ja_term_t* current_term = current_elm->content->first_te;
-  while (current_term->t_coeff==VA || current_term->pnsym->index != v)
+  while (current_term &&(current_term->t_coeff==VA || current_term->pnsym->index != v))
     {
       current_term=current_term->n;
     }
-  /* found */
-  return &(current_term->coeff);
+  if (current_term)
+    /* found */
+    return &(current_term->coeff);
+  else
+    /*  not_found */
+    return NULL;
 }
 
 

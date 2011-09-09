@@ -105,6 +105,7 @@ t1p_t* t1p_join_std(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 			/* Do nothing, the join of concretisations is already done and stored in res->box */
 			res->paf[i] = t1p_aff_alloc_init(pr);
 			itv_set(res->paf[i]->c, res->box[i]);
+			itv_set(res->paf[i]->itv, res->box[i]);
 		    } else {
 			/* join two affine form expressions */
 			itv_set(a1->paf[i]->itv, a1->box[i]);
@@ -177,6 +178,8 @@ t1p_t* t1p_join_std(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 			/* Do nothing, the join of concretisations is already done and stored in res->box */
 			res->paf[i] = t1p_aff_alloc_init(pr);
 			itv_set(res->paf[i]->c, res->box[i]);
+			itv_set(res->paf[i]->itv, res->box[i]);
+
 		    } else {
 			/* join two affine form expressions */
 			itv_set(a1->paf[i]->itv, a1->box[i]);
