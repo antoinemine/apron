@@ -541,7 +541,7 @@ quote(MLMLI,"(* ============================================================ *)"
 quote(MLMLI,"(** {3 Widening} *)")
 quote(MLMLI,"(* ============================================================ *)")
 
-quote(MLI,"(** Widening *)")
+quote(MLI,"(** Widening. Assumes that the first abstract value is included in the second one. *)")
 ap_abstract0_ptr ap_abstract0_widening(ap_manager_ptr man, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
   quote(dealloc,"I0_CHECK_EXC(man)");
 ap_abstract0_ptr ap_abstract0_widening_threshold(ap_manager_ptr man,

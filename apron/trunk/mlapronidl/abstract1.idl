@@ -635,7 +635,7 @@ quote(MLMLI,"(* ============================================================ *)"
 quote(MLMLI,"(** {3 Widening} *)\n")
 quote(MLMLI,"(* ============================================================ *)")
 
-quote(MLI,"(** Widening *)")
+quote(MLI,"(** Widening. Assumes that the first abstract value is included in the second one. *)")
 struct ap_abstract1_t ap_abstract1_widening(ap_manager_ptr man,
 				      [ref]struct ap_abstract1_t* a1,
 				      [ref]struct ap_abstract1_t* a2)
