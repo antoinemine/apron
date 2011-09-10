@@ -13,7 +13,7 @@ quote(C,"#include \"apron_caml.h\"")
 
 import "manager.idl";
 
-quote(MLMLI,"(** Taylor1+ abstract domain *)")
+quote(MLMLI,"(** Taylor1+ abstract domain (beta version) *)")
 
 quote(MLMLI,"\n\
 (** Type of Taylor1+ forms.\n\
