@@ -5385,7 +5385,6 @@ static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, uint_t
 	ap_dim_t dim;
 	if (t1p_nsymcons_get_dimpos(pr, &dim, nsymIndex, a)) {
 		itv_set_ap_interval(pr->itv, res, a->gamma[dim]);
-		printf("hmm\n");
 	}
 	else itv_set(res, pr->muu);
     }
