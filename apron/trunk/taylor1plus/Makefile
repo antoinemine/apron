@@ -1,9 +1,11 @@
-/*
-   APRON Library / Taylor1+ Domain (beta version)
-   Copyright (C) 2009-2011 Khalil Ghorbal
+# Makefile
+#
+# APRON Library / Taylor1+ Domain (beta version)
+#
+# Copyright (C) 2009-2011 Khalil Ghorbal
 
-*/
-
+# This file is part of the APRON Library, released under LGPL license.
+# Please read the COPYING file packaged in the distribution.
 
 include ../Makefile.config
 
