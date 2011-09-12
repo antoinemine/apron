@@ -1,11 +1,3 @@
-# Makefile
-#
-# APRON Library / Taylor1+ Domain (beta version)
-#
-# Copyright (C) 2009-2011 Khalil Ghorbal
-
-# This file is part of the APRON Library, released under LGPL license.
-# Please read the COPYING file packaged in the distribution.
 
 include ../Makefile.config
 
@@ -13,8 +5,6 @@ ifneq ($(CSDP_PATH),)
 CSDP_CFLAGS = -ansi -Wall -DNOSHORTS -DUSEGETTIME -I$(CSDP_PATH)/include -D_USE_SDP
 CSDP_LIBS = -L/usr/lib/sse2 -L$(CSDP_PATH)/lib -lsdp -llapack -lf77blas -lcblas -latlas -lgfortran -lm
 endif
-
-SDPA = /home/donquijote/dev/sdpa/sdpa.7.3.0
 
 PREFIX = $(APRON_PREFIX)
 
@@ -83,7 +73,7 @@ t1pD.cmxa t1pD.a \
 t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so
+CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
@@ -99,7 +89,6 @@ LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON
 
 all: allMPQ allD allMPFR 
 # testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug test_joinD_debug test_joinMPQ_debug test_joinMPFR_debug 
-	
 
 
 allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
@@ -110,6 +99,9 @@ allMPQ: libt1pMPQ.so libt1pMPQ_debug.so
 allD: libt1pD.so libt1pD_debug.so
 allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
+
+exemple1%_debug: exemple1%_debug.o
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -loct$*_debug -lapron_debug $(LIBS_DEBUG)
 
 #test%: t1p_test_eval_texp%.o
 #	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron t1p_internal$*.o t1p_representation$*.o
@@ -123,7 +115,6 @@ endif
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
-	
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
 
@@ -136,9 +127,9 @@ mlD: t1pD.cmxa t1pD.a
 mlMPFR: t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: dllt1pMPQ_caml.so
-mlD: dllt1pD_caml.so 
-mlMPFR: dllt1pMPFR_caml.so
+mlMPQ: dllt1pMPQ_caml.so dllt1pMPQ_caml_debug.so
+mlD: dllt1pD_caml.so  dllt1pD_caml_debug.so 
+mlMPFR: dllt1pMPFR_caml.so dllt1pMPFR_caml_debug.so
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
@@ -238,6 +229,8 @@ libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 
 dllt1p%_caml.so: t1p_caml.o libt1p%.so
 	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  $(LIBS) -L. -lt1p$*
+dllt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o  $(LIBS) -L. -lt1p$*_debug
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -248,11 +241,19 @@ t1p_caml_debug.o: t1p_caml.c
 # OCaml rules
 #---------------------------------------
 
-t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmo $(LIBS) -L. -lt1p$*
+# t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
+# 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmo $(LIBS) -L. -lt1p$*
 
-t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx $(LIBS) -L. -lt1p$* -L$(APRON_PREFIX)/lib
+# t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
+# 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx $(LIBS) -L. -lt1p$* -L$(APRON_PREFIX)/lib
+
+# DEBUG version
+
+t1p%.cma: t1p.cmo libt1p%_caml_debug.a libt1p%_debug.a
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmo $(LIBS) -L. -lt1p$*_debug
+
+t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml_debug.a libt1p%_debug.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmx $(LIBS) -L. -lt1p$*_debug -L$(APRON_PREFIX)/lib
 
 #---------------------------------------
 # IDL rules

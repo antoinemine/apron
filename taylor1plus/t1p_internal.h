@@ -524,8 +524,9 @@ static inline void t1p_aff_check_free(t1p_internal_t *pr, t1p_aff_t *a)
     assert(a);
     if (a->pby) a->pby--;
     if (a->pby == 0) {
-	if ((a != pr->top) && (a != pr->bot)) t1p_aff_free(pr, a);
+      if ((a != pr->top) && (a != pr->bot)) t1p_aff_free(pr, a);
     }
+  // if a is NULL, do nothing
 }
 static inline void t1p_aff_init(t1p_internal_t *pr, t1p_aff_t *a)
 {    
