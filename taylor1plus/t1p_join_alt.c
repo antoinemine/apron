@@ -266,6 +266,7 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
 
   itv_init(buff);
 
+  nb_nsym =-1;
   for (i=0 ; i< (int) dims;i++)
     {
       if (a->paf[i]->end != NULL)
@@ -337,11 +338,16 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 	  if ((int) a1->paf[i]->end->pnsym->index > nb_nsym)
 	    nb_nsym= a1->paf[i]->end->pnsym->index;
 	}
-      if (a2->paf[i]->end != NULL)
-	{ 
-	  if((int) a2->paf[i]->end->pnsym->index > nb_nsym)
-	    nb_nsym= a2->paf[i]->end->pnsym->index;
-	}
+      else {
+	if (a2->paf[i]->end != NULL)
+	  { 
+	    if((int) a2->paf[i]->end->pnsym->index > nb_nsym)
+	      nb_nsym= a2->paf[i]->end->pnsym->index;
+	  }
+	else 
+/* no noise symbol is present, set to -1 to have the correct number of noise symbols after increment */
+	  nb_nsym = -1;
+      }
     }
  
   /* nb_nsym is the last index present, we add 1 to have the number of noise symbols*/
@@ -1221,7 +1227,6 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
       /* creation of the equations */
       eqs_b = abstract_value_to_eq_set (pr, a1);
       eqs_b_prime = two_abstract_values_to_eq_set (pr, a1, a2);
-
 
       eqs_a = eq_set_transformation(pr, eqs_b, eqs_b_prime, dimensions);
       current_equation =  eqs_a->first_eq;
