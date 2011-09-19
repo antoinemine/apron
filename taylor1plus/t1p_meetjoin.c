@@ -579,7 +579,7 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	    if (dims1 && dims2) {
 		size_t dim2 = 0;
 		/* au pire il y a toute la liste de l'un a rajouter dans l'autre */
-		ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
+		ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims1);
 		/* par defaut, res->size = 128 lors de sa creation. verifier que la taille est ok avant de faire la copie */
 		if (dims1 > res->size) {
 		    res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
@@ -605,13 +605,21 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 		/* destructive, without projection (new dimension set to top) */
 		ap_abstract0_add_dimensions(pr->manNS, true, a2->abs, dimchange2, false);
+		/* ajouter les contraintes <= 1, >= -1 aux nouvelles dimensions ajoutees a a2 */
+		ap_dimchange_add_invert(dimchange2);
+		for (k=0; k<dim2; k++) {
+		    t1p_set_lincons_dim(pr, dimchange2->dim[k]);
+		    ap_abstract0_meet_lincons_array(pr->manNS, true, a2->abs, &pr->moo);
+		}
 
-		ap_abstract0_join(pr->manNS, true, res->abs, a2->abs);
+       	        ap_abstract0_join(pr->manNS, true, res->abs, a2->abs);
+		/*if (ap_abstract0_is_leq(pr->manNS, res->abs, a2->abs)) {
+		    for (k=0; k<dim2; k++) t1p_delete_constrained_nsym(pr, dimchange2->dim[k], res) ...;
+		}*/
 
 		/* update res->gamma */
 		t1p_update_nsymcons_gamma(pr, res);
 
-		ap_dimchange_add_invert(dimchange2);
 		ap_abstract0_remove_dimensions(pr->manNS, true, a2->abs, dimchange2);
 
 		dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
