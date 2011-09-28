@@ -79,6 +79,7 @@ void print_equation (FILE* stream, ja_eq_t* equation)
 void add_equation_term_ns (ja_eq_t* equation, itv_t c, t1p_nsym_t* pnsym)
 {
   CALL();
+  if (! itv_is_zero(c)) {
   ja_term_t* cell=malloc(sizeof(ja_term_t));
   cell->n=NULL;
   cell->t_coeff=NS;
@@ -97,6 +98,7 @@ void add_equation_term_ns (ja_eq_t* equation, itv_t c, t1p_nsym_t* pnsym)
       equation->last_te->n=cell;
       equation->last_te=cell;
     }
+  }
 }
 
 ja_eq_t* copy_equation (ja_eq_t* equation)
@@ -109,6 +111,10 @@ ja_eq_t* copy_equation (ja_eq_t* equation)
 void add_equation_term_va (ja_eq_t* equation, itv_t c, ap_dim_t dim)
 {
   CALL();
+  if (!itv_is_zero(c)) 
+    /* check that the coefficient is not null */
+    {
+
   ja_term_t* cell=malloc(sizeof(ja_term_t));
   cell->n=NULL;
   cell->t_coeff=VA;
@@ -127,6 +133,7 @@ void add_equation_term_va (ja_eq_t* equation, itv_t c, ap_dim_t dim)
       assert (equation->last_te->n == NULL);
       equation->last_te->n=cell;
       equation->last_te=cell;
+    }
     }
 }
   
@@ -631,6 +638,28 @@ void matrix_swap(itv_t** m, int i, int j) {
 }
 
 
+/* matrix_swap - swap columns i and j of matrix m and register this change in tab_permut */
+
+void matrix_swap_columns(itv_t** m, int* tab_permut, int i, int j, int nb_rows) {
+  CALL();
+  itv_t temp;
+  int temp_v;
+  int k;
+  itv_init(temp);
+
+  temp_v=tab_permut[i];
+  tab_permut[i] = tab_permut[j];
+  tab_permut[j]=temp_v;
+
+  for (k=0;k<nb_rows;k++)
+    {
+      itv_set(temp,m[k][i]);
+      itv_set(m[k][i],m[k][j]);
+      itv_set(m[k][j],temp);
+    }
+}
+
+
 
 /* m[i] <- m[i] / lambda, length is the number of columns */ 
 void matrix_row_div (itv_internal_t* intern, int length, itv_t** m, int i, itv_t lambda) {
@@ -763,6 +792,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
   ja_eq_set_t* res = new_equation_set();
   int i,j,k;
   itv_t tab_alpha [nb_columns];
+  int tab_permut [nb_columns]; // keep trace of column permutation
   itv_t buff_coeff, buff_sum; // buffers for interval
   ja_eq_t* equation = NULL;  // what will be added to the result
   ja_eq_list_elm* current_equation = NULL; // iterator on eqs
@@ -772,6 +802,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
   assert (rank <= nb_columns);
   for (i=0;i<nb_columns;i++) {
     itv_init(tab_alpha[i]);
+    tab_permut[i]=i;
   }
   itv_init(buff_coeff);
   itv_init(buff_sum);
@@ -779,6 +810,25 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
     printf("ERROR: in function matrix_to_eq_set_Aprime, eqs must have at least one equation ");
     assert(false);
   }  
+
+  /* permutation of the columns so that the matrix becomes  LU  with an identity diagonal */
+  for (i=0;i<rank;i++) {
+    j=matrix_choose_pivot(nb_columns,m,i);
+    assert(i<=j);
+    if (i<j) 
+      {
+	/* then do the permutation i<->j */
+	matrix_swap_columns(m,tab_permut,i,j,nb_rows);
+      }
+    /* else do nothing */
+  }
+  printf("LU matrix\n");
+  matrix_fdump(stdout,nb_rows,nb_columns,m);
+  printf("tab_permut: [ ");
+  for(i=0;i<nb_columns;i++)
+    printf("%d ",tab_permut[i]);
+  printf("]\n");
+
 
   /* main loop */
   for (k=rank;k<nb_columns;k++) {
@@ -788,9 +838,9 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
     /* (re)set tab_alpha  i>=rank */
     for (i=rank;i<nb_columns;i++) {
       if (i==k)
-	itv_set_int(tab_alpha[i],1);
+	itv_set_int(tab_alpha[tab_permut[i]],1);
       else
-	itv_set_int(tab_alpha[i],0);
+	itv_set_int(tab_alpha[tab_permut[i]],0);
     }
     
 
@@ -798,16 +848,21 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
     for (i=rank-1;i>=0;i--) {
       /* computes the value of alpha[i] thanks to m */
       /* m[i] is a equation of the form sum(m[i][j] alpha[j]) = 0 */
-      /* remember: m is LU with diag(m) = Id */
+      /* remember: m is LU */
+
+      /* checks that m[i][i]=1 */
+      itv_set_int(buff_sum,1);
+      assert(itv_is_eq(buff_sum,m[i][i]));
+
       itv_set_int(buff_sum,0);
       for (j=i+1;j<nb_columns;j++) {
-	/* */
-	itv_mul(pr->itv,buff_coeff,tab_alpha[j],m[i][j]);
+
+	itv_mul(pr->itv,buff_coeff,tab_alpha[tab_permut[j]],m[i][j]);
 	itv_add(buff_sum,buff_sum,buff_coeff);
 	//itv_clear(buff_coeff);
       }
       itv_neg(buff_sum,buff_sum);
-      itv_set(tab_alpha[i],buff_sum);
+      itv_set(tab_alpha[tab_permut[i]],buff_sum);
       //itv_clear(buff_sum);
     }
 
@@ -817,7 +872,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 
    /* set the coefficient for the program variables */
     for (i=0;i<nb_columns;i++) {
-      add_equation_term_va(equation,tab_alpha[i],i);
+      add_equation_term_va(equation,tab_alpha[tab_permut[i]],i);
     }
 
     /* first equation of eqs determines the center of [equation] */
@@ -829,7 +884,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
       assert(current_term->t_coeff==VA);
       itv_set(buff_coeff,current_term->coeff);
       j=(int) current_term->dim;
-      itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[j]);
+      itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[tab_permut[j]]);
       itv_add(buff_sum,buff_sum,buff_coeff);
       //itv_clear(buff_coeff);
       current_term = current_term->n;
@@ -850,7 +905,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 	assert(current_term->t_coeff==VA);
 	itv_set(buff_coeff,current_term->coeff);
 	j=(int) current_term->dim;
-	itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[j]);
+	itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[tab_permut[j]]);
 	itv_add(buff_sum,buff_sum,buff_coeff);
 	//itv_clear(buff_coeff);
 	current_term = current_term->n;
@@ -866,6 +921,9 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
   }
   return res;
 }
+
+
+
 
 
 
@@ -935,7 +993,6 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   for (i=0;i<nb_rows;i++) {
     m[i]=malloc(nb_columns*sizeof(itv_t));
   }
-  printf("m is allocated\n");
   printf("eqs_prime:\n");
   print_equation_set(stdout,eqs_prime);
   printf("\n");
@@ -977,14 +1034,13 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   for (i=0;i<nb_rows;i++) {
     m[i]=malloc(nb_columns*sizeof(itv_t));
   }
-  /* printf("m is allocated again \n"); */
 
    /* 5: call the function [eq_set_Aprime_to_matrix] to re-initialise matrix m */
   eq_set_Aprime_to_matrix(mid_eqs,dimensions,nb_columns-dimensions-1,m);
 
-  /* printf("result of eq_set_Aprime_to_matrix:\n"); */
-  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
-  /* printf("******************************\n"); */
+  printf("result of eq_set_Aprime_to_matrix:\n");
+  matrix_fdump(stdout,nb_rows,nb_columns,m);
+  printf("******************************\n");
 
 
    /* 6: transform m with the function [matrix_jordan_reduction] ->(P-rank) */
