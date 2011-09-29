@@ -828,7 +828,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
   for(i=0;i<nb_columns;i++)
     printf("%d ",tab_permut[i]);
   printf("]\n");
-
+  printf("rank=%d\n",rank);
 
   /* main loop */
   for (k=rank;k<nb_columns;k++) {
@@ -872,7 +872,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 
    /* set the coefficient for the program variables */
     for (i=0;i<nb_columns;i++) {
-      add_equation_term_va(equation,tab_alpha[tab_permut[i]],i);
+      add_equation_term_va(equation,tab_alpha[i],i);
     }
 
     /* first equation of eqs determines the center of [equation] */
@@ -884,13 +884,13 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
       assert(current_term->t_coeff==VA);
       itv_set(buff_coeff,current_term->coeff);
       j=(int) current_term->dim;
-      itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[tab_permut[j]]);
+      itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[j]);
       itv_add(buff_sum,buff_sum,buff_coeff);
       //itv_clear(buff_coeff);
       current_term = current_term->n;
     }
     /* set the center */
-    itv_neg(buff_sum,buff_sum);
+    //itv_neg(buff_sum,buff_sum);
     itv_set(equation->c,buff_sum);
     //itv_clear(buff_sum);
     current_equation = current_equation->n;
@@ -905,7 +905,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
 	assert(current_term->t_coeff==VA);
 	itv_set(buff_coeff,current_term->coeff);
 	j=(int) current_term->dim;
-	itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[tab_permut[j]]);
+	itv_mul(pr->itv,buff_coeff,buff_coeff,tab_alpha[j]);
 	itv_add(buff_sum,buff_sum,buff_coeff);
 	//itv_clear(buff_coeff);
 	current_term = current_term->n;
@@ -951,7 +951,7 @@ ja_eq_set_t* matrix_to_eq_set_A (t1p_internal_t* pr, int nb_rows, int dims, int 
 	  add_equation_term_va(equation,buff,(ap_dim_t)j);
 	}
     }
-    itv_set(equation->c,m[i][dims]);
+    itv_neg(equation->c,m[i][dims]);
     for (j=0;j<nb_nsym;j++){
       //itv_clear(buff);
       itv_neg(buff,m[i][j+dims+1]);
@@ -987,6 +987,10 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   itv_t** m = NULL;
   ja_eq_set_t* mid_eqs = NULL;
   ja_eq_set_t* res = NULL ;
+
+  printf("eqs:\n");
+  print_equation_set(stdout,eqs);
+  printf("\n");
 
   /* 0 : create the matrix m  with N+1 rows and P columns */
   m=malloc(nb_rows * sizeof(itv_t*));
@@ -1047,16 +1051,16 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   rank_prime = matrix_jordan_reduction(pr->itv, nb_rows, nb_columns,m);
   assert (rank_prime == dimensions-rank);
 
-  /* printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank_prime); */
-  /* matrix_fdump(stdout,nb_rows,nb_columns,m); */
-  /* printf("******************************\n"); */
+  printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank_prime);
+  matrix_fdump(stdout,nb_rows,nb_columns,m);
+  printf("******************************\n");
 
    /* 7: call the function [matrix_to_eq_set_A] on m */
   res = matrix_to_eq_set_A (pr, nb_rows, dimensions, nb_columns-dimensions-1, m);
-  /* printf("result of matrix_to_eq_set_A :\n"); */
-  /* print_equation_set(stdout,res); */
-  /* printf("\n"); */
-  /* printf("******************************\n"); */
+  printf("result of matrix_to_eq_set_A :\n");
+  print_equation_set(stdout,res);
+  printf("\n");
+  printf("******************************\n");
 
   /*  8: cleanup and return result */
   /* free mid_eqs */
