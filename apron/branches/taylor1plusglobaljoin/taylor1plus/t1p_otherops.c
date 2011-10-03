@@ -96,6 +96,70 @@ t1p_t* t1p_widening(ap_manager_t* man, t1p_t* a1, t1p_t* a2)
 	itv_t tmp; itv_init(tmp);
 	res = t1p_alloc(man, intdim, realdim);
 	/* update res->box */
+	for (i=0; i<(intdim+realdim); i++) itv_widening(res->box[i], a1->box[i], a2->box[i]);
+	for (i=0; i<(intdim+realdim); i++) {
+	    if (t1p_aff_is_bottom(pr, a1->paf[i])) res->paf[i] = a2->paf[i];
+	    else if (t1p_aff_is_bottom(pr, a2->paf[i])) res->paf[i] = a1->paf[i];
+	    else if (t1p_aff_is_top(pr, a1->paf[i]) || t1p_aff_is_top(pr, a2->paf[i])) res->paf[i] = pr->top;
+	    else if (t1p_aff_is_eq(pr, a1->paf[i], a2->paf[i])) res->paf[i] = a1->paf[i];
+	    else {
+		if (itv_has_infty_bound(a1->box[i]) || itv_has_infty_bound(a2->box[i])) {
+		    /* Do nothing, the join of concretisations is already done and stored in res->box */
+		    res->paf[i] = t1p_aff_alloc_init(pr);
+		    itv_set(res->paf[i]->c, res->box[i]);
+		} else {
+		    /* join two affine form expressions */
+		    itv_set(a1->paf[i]->itv, a1->box[i]);
+		    itv_set(a2->paf[i]->itv, a2->box[i]);
+		    res->paf[i] = t1p_aff_widening_constrained6(pr, a1->paf[i], a2->paf[i], a1, a2, res);
+		}
+	    }
+	    res->paf[i]->pby++;
+	}
+	man->result.flag_best = tbool_true;
+	man->result.flag_exact = tbool_top;
+	itv_clear(tmp);
+    }
+    man->result.flag_best = tbool_true;
+    man->result.flag_exact = tbool_true;
+
+#ifdef _T1P_DEBUG
+    fprintf(stdout, "### RESULT of WIDENING ###\n");
+    t1p_fprint(stdout, man, res, NULL);
+    fprintf(stdout, "### ### ###\n");
+#endif
+
+    return res;
+}
+
+t1p_t* t1p_widening_old(ap_manager_t* man, t1p_t* a1, t1p_t* a2)
+{
+    CALL();
+    size_t i = 0;
+    t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_JOIN);
+    arg_assert(a1->dims==a2->dims && a1->intdim==a2->intdim,abort(););
+#ifdef _T1P_DEBUG
+    fprintf(stdout, "### WIDENING OPERANDS ###\n");
+    t1p_fprint(stdout, man, a1, NULL);
+    t1p_fprint(stdout, man, a2, NULL);
+    fprintf(stdout, "### ### ###\n");
+#endif
+    t1p_t* res;
+    size_t intdim = a1->intdim;
+    size_t realdim = a1->dims - a1->intdim;
+    if (t1p_is_eq(man, a1, a2)) {
+	res = t1p_copy(man, a1);
+    }
+    else if (tbool_or(t1p_is_top(man, a1), t1p_is_top(man, a2)) == tbool_true) {
+	res = t1p_top(man,intdim,realdim);
+    } else if (t1p_is_bottom(man, a1)) {
+	res = t1p_copy(man,a2);
+    } else if (t1p_is_bottom(man, a2)) {
+	res = t1p_copy(man,a1);
+    } else {
+	itv_t tmp; itv_init(tmp);
+	res = t1p_alloc(man, intdim, realdim);
+	/* update res->box */
 	for (i=0; i<(intdim+realdim); i++) itv_join(res->box[i], a1->box[i], a2->box[i]);
 	if (a1->hypercube && a2->hypercube) {
 	    for (i=0; i<(intdim+realdim); i++) {
