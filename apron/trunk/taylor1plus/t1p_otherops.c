@@ -103,7 +103,7 @@ t1p_t* t1p_widening(ap_manager_t* man, t1p_t* a1, t1p_t* a2)
 	    else if (t1p_aff_is_top(pr, a1->paf[i]) || t1p_aff_is_top(pr, a2->paf[i])) res->paf[i] = pr->top;
 	    else if (t1p_aff_is_eq(pr, a1->paf[i], a2->paf[i])) res->paf[i] = a1->paf[i];
 	    else {
-		if (itv_has_infty_bound(a1->box[i]) || itv_has_infty_bound(a2->box[i])) {
+		if (itv_has_infty_bound(res->box[i])) {
 		    /* Do nothing, the join of concretisations is already done and stored in res->box */
 		    res->paf[i] = t1p_aff_alloc_init(pr);
 		    itv_set(res->paf[i]->c, res->box[i]);
