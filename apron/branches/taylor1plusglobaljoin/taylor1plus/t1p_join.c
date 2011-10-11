@@ -37,7 +37,7 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     // standart join
     // res=t1p_join_std(man,destructive,a1,a2);
     // global join
-    printf("DEBUG\n");
+    //printf("DEBUG\n");
 
 
     res=t1p_join_alt(man,destructive,a1,a2);

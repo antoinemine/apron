@@ -695,6 +695,7 @@ void matrix_lin_aff(itv_internal_t* intern, int length, itv_t** m, int i, itv_t 
   CALL();
   itv_t temp;
   int k; // loop counter
+  assert (i != j);
   itv_init(temp);
   //loop
   for (k=0; k<length;k++) {
@@ -1144,9 +1145,9 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   /* we set the center*/ 
   itv_set (a->c,equation->c);
 #ifdef _T1P_DEBUG
-  /* printf("[a] before first while loop:\n"); */
-  /* t1p_aff_fprint(pr,stdout,a); */
-  /* printf("\n"); */
+  printf("[a] before first while loop:\n");
+  t1p_aff_fprint(pr,stdout,a);
+  printf("\n");
 #endif
   /* loop on the equation to create an affine form from terms in beta (noise symbols) */
   current_term= equation->first_te;
@@ -1162,9 +1163,9 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
       current_term = current_term->n;
     }
 #ifdef _T1P_DEBUG
-  /* printf("[a] after first while loop:\n"); */
-  /* t1p_aff_fprint(pr,stdout,a); */
-  /* printf("\n"); */
+  printf("[a] after first while loop:\n");
+  t1p_aff_fprint(pr,stdout,a);
+  printf("\n");
 #endif
   /* loop on the equation to create an affine form from terms in beta (noise symbols) */
   current_term= equation->first_te;
@@ -1172,16 +1173,16 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   t1p_aff_init(pr,buff1);
   t1p_aff_init(pr,buff2);
 #ifdef _T1P_DEBUG
-  /* printf("[a] after buffer init:\n"); */
-  /* t1p_aff_fprint(pr,stdout,a); */
-  /* printf("\n"); */
+  printf("[a] after buffer init:\n");
+  t1p_aff_fprint(pr,stdout,a);
+  printf("\n");
 #endif
   while (current_term != NULL)
     {
 #ifdef _T1P_DEBUG
-      /* printf(".\n"); */
-      /* t1p_aff_fprint(pr,stdout,a); */
-      /* printf("\n"); */
+      printf(".\n");
+      t1p_aff_fprint(pr,stdout,a);
+      printf("\n");
 #endif
 
       if (current_term->t_coeff == VA)
@@ -1189,7 +1190,7 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
 	  /* if it is a program variable.*/
 	  /* clear the buffers */
 	  t1p_aff_free(pr,buff1);
-	  t1p_aff_free(pr,buff2);
+	  t1p_aff_clear(pr,buff2);
 	  /* search for the affine form of equation->pdim and copy it in buff1 */
 	  /* printf("dim of current_term: %d\n",current_term->dim ); */
 	  /* printf("corresponding affine form:\n"); */
