@@ -47,6 +47,7 @@ void free_equation (ja_eq_t* equation)
     {
       cell2=cell1;
       cell1=cell1->n;
+      //itv_clear(cell2->coeff);
       free(cell2);
     }
   free(equation);
@@ -230,7 +231,7 @@ itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v)
 itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v)
 {
   CALL();
-   assert (eq_n < eqs->nb_eq); 
+  assert (eq_n < eqs->nb_eq); 
   /* find the right equation */
   ja_eq_list_elm* current_elm = eqs->first_eq;
   for (int i=0;i<eq_n;i++)
@@ -268,8 +269,8 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
   int j;
   itv_t* pitv=NULL;
   itv_t buff; // needed to negate all the coefficients
-  ja_eq_t* equation;
-  int nb_nsym=0; // number of noise symbols in [a]
+  ja_eq_t* equation=NULL;
+  int nb_nsym; // number of noise symbols in [a]
 
   itv_init(buff);
 
@@ -292,7 +293,6 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
 
   for (j=0; j<(int)dims ; j++)
     {
-      //itv_clear(buff);
       itv_neg(buff,a->paf[j]->c);
       add_equation_term_va (equation,buff,(ap_dim_t) j);
     }
@@ -312,13 +312,14 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
 	  /* if itv_buff exists, add the term */
 	  if (pitv!=NULL)
 	    {
-	      //itv_clear(buff);
 	      itv_neg(buff,*pitv);
 	      add_equation_term_va (equation, buff,(ap_dim_t)j);
 	    }
 	}
       add_equation(res,equation);
     }
+  itv_clear(buff);
+
   return res;
 }
 
@@ -335,7 +336,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
   itv_t* pitv1=NULL;
   itv_t* pitv2=NULL;
   itv_t itv_buff;
-  ja_eq_t* equation;
+  ja_eq_t* equation=NULL;
   int nb_nsym=0; // number of noise symbols in a1 and a2: we look at the last symbol of each affine form
 
   for (i=0 ; i< (int) dims;i++)
@@ -369,18 +370,21 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 
   for (j=0; j<(int)dims ; j++)
     {
+#ifdef _T1P_DEBUG
       /* printf("dim %d: itv1",j); */
       /* itv_print((a1->paf[j])->c); */
       /* printf("  itv2"); */
       /* itv_print((a2->paf[j])->c); */
+#endif
       itv_sub(itv_buff,(a1->paf[j])->c,(a2->paf[j])->c);
+#ifdef _T1P_DEBUG
       /* printf("\n itv1-itv2 ="); */
       /* itv_print(itv_buff); */
       /* printf("\n"); */
+#endif
       add_equation_term_va (equation, itv_buff,(ap_dim_t) j);
       //itv_clear(itv_buff);
     }
-  /* printf("*\n"); */
   add_equation(res,equation);
 
   /* 
@@ -396,6 +400,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 
       for (j=0; j<(int)dims ; j++)
 	{
+#ifdef _T1P_DEBUG
 	  /* printf("j=%d\n",j); */
 	  /* printf("a1[%d]",j); */
 	  /* t1p_aff_fprint(pr,stdout,a1->paf[j]); */
@@ -403,6 +408,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 	  /* printf("a2[%d]",j); */
 	  /* t1p_aff_fprint(pr,stdout,a2->paf[j]); */
 	  /* printf("\n"); */
+#endif
 	  pitv1=t1p_aff_get_coeff(pr,a1->paf[j],i);
 	  pitv2=t1p_aff_get_coeff(pr,a2->paf[j],i);
 
@@ -410,65 +416,77 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 	    {
 	      if (pitv2!=NULL)
 		{
-		  /* printf("pitv2 (eps %d):",i); */
-		  /* itv_print(*pitv2); */
-		  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+		  printf("pitv2 (eps %d):",i);
+		  itv_print(*pitv2);
+		  printf("\n");
+#endif
 		  itv_neg(itv_buff,*pitv2);
 		 
 		}
 	      // else do nothing, ie set itv_buff to 0
 	      else
 		itv_set_int(itv_buff,0);
-	      /* 	printf("both pointers are null for eps%d\n",i); */
 	    }
 	  else
 	    {
 	      if (pitv2==NULL)
 		{
+#ifdef _T1P_DEBUG
 		  /* printf("pitv1 (eps %d):",i); */
 		  /* itv_print(*pitv1); */
 		  /* printf("\n"); */
+#endif
 		  itv_set(itv_buff,*pitv1);
+#ifdef _T1P_DEBUG
 		  /* printf("add "); */
 		  /* itv_print(itv_buff); */
 		  /* printf(" eps%d\n",j); */
-		  
+#endif
 		}
 	      else // both pointers are not null
 		{
+#ifdef _T1P_DEBUG
 		  /* printf("pitv1 (eps %d):",i); */
 		  /* itv_print(*pitv1); */
 		  /* printf("\n"); */
 		  /* printf("pitv2 (eps %d):",i); */
 		  /* itv_print(*pitv2); */
 		  /* printf("\n"); */
+#endif
 		  itv_sub(itv_buff,*pitv1,*pitv2);
+#ifdef _T1P_DEBUG
 		  /* printf("add "); */
 		  /* itv_print(itv_buff); */
 		  /* printf(" eps%d\n",j); */
-		  
+#endif
 		}
 	    }
 	  /* if itv_buff is not zero, add the term */
 	  if (! itv_is_zero(itv_buff))
 	    {
+#ifdef _T1P_DEBUG
 	      /* printf("add "); */
 	      /* itv_print(itv_buff); */
 	      /* printf(" eps%d\n",j); */
+#endif
 	      add_equation_term_va (equation, itv_buff,(ap_dim_t)j);
 	    }
+#ifdef _T1P_DEBUG
 	  /* else */
 	  /*   { */
 	  /*     printf("coeff of eps%d is null\n ",j); */
 	  /*   } */
 	  
-	  /* printf(".\n"); */
+#endif
 	  //itv_clear(itv_buff);
 	}
       add_equation(res,equation);
     }
   
   /* printf("*\n"); */
+  itv_clear(itv_buff);
+  //free(itv_buff);
   return res;
 }
 
@@ -682,8 +700,8 @@ void matrix_lin_aff(itv_internal_t* intern, int length, itv_t** m, int i, itv_t 
   for (k=0; k<length;k++) {
     itv_mul(intern,temp,lambda,m[j][k]);
     itv_add(m[i][k],m[i][k],temp);
-    //itv_clear(temp);
   }
+  itv_clear(temp);
 }
 
 
@@ -757,6 +775,10 @@ int matrix_choose_pivot(int length, itv_t** m,  int i) {
       //itv_clear(pivot);
     }
   }
+  itv_clear(lambda);
+  //free(lambda);
+  itv_clear(pivot);
+  //free(pivot);
   return nb_rows;
 }
 
@@ -822,6 +844,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
       }
     /* else do nothing */
   }
+#ifdef _T1P_DEBUG
   printf("LU matrix\n");
   matrix_fdump(stdout,nb_rows,nb_columns,m);
   printf("tab_permut: [ ");
@@ -829,7 +852,7 @@ ja_eq_set_t* matrix_to_eq_set_Aprime (t1p_internal_t* pr, int rank, int nb_rows,
     printf("%d ",tab_permut[i]);
   printf("]\n");
   printf("rank=%d\n",rank);
-
+#endif
   /* main loop */
   for (k=rank;k<nb_columns;k++) {
     /* each value of k determine a value for the coefficients alpha_i (we take the canonical base for alpha_i with i>=rank), thus an independant equation. */
@@ -982,48 +1005,62 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   CALL();
   int nb_rows = eqs_prime->nb_eq;
   int nb_columns= dimensions;
-  int i,rank, rank_prime;
+  int i,j,rank, rank_prime;
 
   itv_t** m = NULL;
   ja_eq_set_t* mid_eqs = NULL;
   ja_eq_set_t* res = NULL ;
 
+#ifdef _T1P_DEBUG
   printf("eqs:\n");
   print_equation_set(stdout,eqs);
   printf("\n");
+#endif
 
   /* 0 : create the matrix m  with N+1 rows and P columns */
   m=malloc(nb_rows * sizeof(itv_t*));
   for (i=0;i<nb_rows;i++) {
     m[i]=malloc(nb_columns*sizeof(itv_t));
   }
+#ifdef _T1P_DEBUG
   printf("eqs_prime:\n");
   print_equation_set(stdout,eqs_prime);
   printf("\n");
+#endif
 
   /* 1: call the function [eq_set_B_to_matrix] to initialise matrix m */
   eq_set_B_to_matrix(eqs_prime,nb_rows,nb_columns,m);
-
+#ifdef _T1P_DEBUG
   printf("result of eq_set_B_to_matrix:\n");
   matrix_fdump(stdout,nb_rows,nb_columns,m);
   printf("******************************\n");
+#endif
 
   /* 2: transform m with the function [matrix_jordan_reduction] ->(rank) */ 
   rank = matrix_jordan_reduction(pr->itv, nb_rows, nb_columns,m);
+#ifdef _T1P_DEBUG
   printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank);
   matrix_fdump(stdout,nb_rows,nb_columns,m);
   printf("******************************\n");
+#endif
+
 
   /* 3: call the function [matrix_to_eq_set_Aprime] on m and the input equation*/
   mid_eqs= matrix_to_eq_set_Aprime(pr,rank,nb_rows,nb_columns, m, eqs);
+#ifdef _T1P_DEBUG
   printf("result of matrix_to_eq_set_Aprime :\n");
   print_equation_set(stdout,mid_eqs);
   printf("\n");
   printf("******************************\n");
+#endif
 
    /* 4: re-create m with (P-rank) rows and N+P+1 columns */
   /* free matrix  m */
   for (i=0;i<nb_rows;i++) {
+    for (j=0;j<nb_columns;j++) {
+      itv_clear(m[i][j]);
+      //free(m[i][j]);
+    }
     free(m[i]);
   }
   free(m);
@@ -1041,26 +1078,29 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
 
    /* 5: call the function [eq_set_Aprime_to_matrix] to re-initialise matrix m */
   eq_set_Aprime_to_matrix(mid_eqs,dimensions,nb_columns-dimensions-1,m);
-
+#ifdef _T1P_DEBUG
   printf("result of eq_set_Aprime_to_matrix:\n");
   matrix_fdump(stdout,nb_rows,nb_columns,m);
   printf("******************************\n");
-
+#endif
 
    /* 6: transform m with the function [matrix_jordan_reduction] ->(P-rank) */
   rank_prime = matrix_jordan_reduction(pr->itv, nb_rows, nb_columns,m);
   assert (rank_prime == dimensions-rank);
-
+#ifdef _T1P_DEBUG
   printf("result of matrix_jordan_reduction has %d nonzero rows:\n",rank_prime);
   matrix_fdump(stdout,nb_rows,nb_columns,m);
   printf("******************************\n");
+#endif
 
    /* 7: call the function [matrix_to_eq_set_A] on m */
   res = matrix_to_eq_set_A (pr, nb_rows, dimensions, nb_columns-dimensions-1, m);
+#ifdef _T1P_DEBUG
   printf("result of matrix_to_eq_set_A :\n");
   print_equation_set(stdout,res);
   printf("\n");
   printf("******************************\n");
+#endif
 
   /*  8: cleanup and return result */
   /* free mid_eqs */
@@ -1068,6 +1108,10 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
 
   /*  free m */
   for (i=0;i<nb_rows;i++) {
+    for (j=0;j<nb_columns;j++){
+      itv_clear(m[i][j]);
+      //free(m[i][j]);
+    }
     free(m[i]);
   }
   free(m);
@@ -1091,15 +1135,19 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   t1p_aff_t* buff2=malloc(sizeof(t1p_aff_t));
   ja_term_t* current_term;
 
-  /* print_equation(stdout,equation); */
-  /* printf("*\n"); */
+#ifdef _T1P_DEBUG
+  print_equation(stdout,equation);
+  printf("*\n");
+#endif
 
   t1p_aff_init(pr,a);
   /* we set the center*/ 
   itv_set (a->c,equation->c);
+#ifdef _T1P_DEBUG
   /* printf("[a] before first while loop:\n"); */
   /* t1p_aff_fprint(pr,stdout,a); */
   /* printf("\n"); */
+#endif
   /* loop on the equation to create an affine form from terms in beta (noise symbols) */
   current_term= equation->first_te;
   while (current_term != NULL)
@@ -1113,48 +1161,55 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
       /* if it is not a noise symbol, do nothing */
       current_term = current_term->n;
     }
+#ifdef _T1P_DEBUG
   /* printf("[a] after first while loop:\n"); */
   /* t1p_aff_fprint(pr,stdout,a); */
   /* printf("\n"); */
+#endif
   /* loop on the equation to create an affine form from terms in beta (noise symbols) */
   current_term= equation->first_te;
 
   t1p_aff_init(pr,buff1);
   t1p_aff_init(pr,buff2);
+#ifdef _T1P_DEBUG
   /* printf("[a] after buffer init:\n"); */
   /* t1p_aff_fprint(pr,stdout,a); */
   /* printf("\n"); */
+#endif
   while (current_term != NULL)
     {
-      printf(".\n");
-      t1p_aff_fprint(pr,stdout,a);
-      printf("\n");
+#ifdef _T1P_DEBUG
+      /* printf(".\n"); */
+      /* t1p_aff_fprint(pr,stdout,a); */
+      /* printf("\n"); */
+#endif
+
       if (current_term->t_coeff == VA)
 	{
 	  /* if it is a program variable.*/
 	  /* clear the buffers */
 	  t1p_aff_free(pr,buff1);
-	  t1p_aff_clear(pr,buff2);
+	  t1p_aff_free(pr,buff2);
 	  /* search for the affine form of equation->pdim and copy it in buff1 */
-	  printf("dim of current_term: %d\n",current_term->dim );
-	  printf("corresponding affine form:\n");
-	  t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]);
-	  printf("\n");
+	  /* printf("dim of current_term: %d\n",current_term->dim ); */
+	  /* printf("corresponding affine form:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]); */
+	  /* printf("\n"); */
 	  buff1 = t1p_aff_copy(pr,abstract_value->paf[current_term->dim]);
-	  printf("buff1 after copy:\n");
-	  t1p_aff_fprint(pr,stdout,buff1);
-	  printf("\n");
+	  /* printf("buff1 after copy:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,buff1); */
+	  /* printf("\n"); */
 	  /* then multiply this affine form by the coefficient of the equation */
 	  t1p_aff_mul_scalar(pr,buff1,current_term->coeff);
-	  printf("mult:");
-	  itv_fprint(stdout,current_term->coeff);
-	  printf("\n");
-	  printf("buff1 after mult:\n");
-	  t1p_aff_fprint(pr,stdout,buff1);
-	  printf("\n");
-	  printf("a:\n");
-	  t1p_aff_fprint(pr,stdout,a);
-	  printf("\n");
+	  /* printf("mult:"); */
+	  /* itv_fprint(stdout,current_term->coeff); */
+	  /* printf("\n"); */
+	  /* printf("buff1 after mult:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,buff1); */
+	  /* printf("\n"); */
+	  /* printf("a:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,a); */
+	  /* printf("\n"); */
 	  /* addition of the result with a, using buff2 */
 	  t1p_aff_add_aff(pr,buff2,a,buff1);
 	  /* printf("buff2 after add:\n"); */
@@ -1237,10 +1292,11 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
   assert(a1->dims==a2->dims && a1->intdim==a2->intdim);
   size_t realdim = a1->dims - a1->intdim;
   size_t intdim = a1->intdim;
-
+#ifdef _T1P_DEBUG
   fprintf(stdout, "###JOIN OPERANDS (des:%d)(a1: %tx and a2: %tx) ###\n", destructive, (intptr_t)a1, (intptr_t)a2);
   t1p_fprint(stdout, man, a1, NULL);
   t1p_fprint(stdout, man, a2, NULL);
+#endif
 
   if (t1p_is_eq(man, a1, a2)) {
 	if (destructive) res = a1;
@@ -1279,7 +1335,7 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	finite= t1p_aff_is_bounded(pr,a1->paf[i]) &&   t1p_aff_is_bounded(pr,a2->paf[i]) && itv_is_bounded(a1->box[i]) && itv_is_bounded(a2->box[i]);
 	i++;
       }
-      printf("finite=%d\n",finite);
+      /* printf("finite=%d\n",finite); */
       
       if (finite) {
 
@@ -1295,22 +1351,22 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
       ap_dim_t tdim[nb_eq];
       for(i=0;i<nb_eq;i++) {
 	tdim[i] = (ap_dim_t) current_equation->content->dim;
-	print_equation(stdout,current_equation->content);
-	printf("\n erase variable %d \n", tdim[i]);
+	/* print_equation(stdout,current_equation->content); */
+	/* printf("\n erase variable %d \n", tdim[i]); */
 	current_equation= current_equation->n;
       }
       
       /* forget and do the union */
-      fprintf(stdout, "###PROJECTION OPERANDS (%tx and %tx) ###\n", (intptr_t)a1, (intptr_t)a2);
-      t1p_fprint(stdout, man, a1, NULL);
-      t1p_fprint(stdout, man, a2, NULL);
+      /* fprintf(stdout, "###PROJECTION OPERANDS (%tx and %tx) ###\n", (intptr_t)a1, (intptr_t)a2); */
+      /* t1p_fprint(stdout, man, a1, NULL); */
+      /* t1p_fprint(stdout, man, a2, NULL); */
 
       a1bis = t1p_forget_array(man, false, a1, tdim, (size_t) nb_eq, false);
       a2bis = t1p_forget_array(man, false, a2, tdim, (size_t) nb_eq, false);
 
-     fprintf(stdout, "###PROJECTION RESULT (%tx and %tx) ###\n", (intptr_t)a1bis, (intptr_t)a2bis);
-      t1p_fprint(stdout, man, a1bis, NULL);
-      t1p_fprint(stdout, man, a2bis, NULL);
+     /* fprintf(stdout, "###PROJECTION RESULT (%tx and %tx) ###\n", (intptr_t)a1bis, (intptr_t)a2bis); */
+     /*  t1p_fprint(stdout, man, a1bis, NULL); */
+     /*  t1p_fprint(stdout, man, a2bis, NULL); */
       /* creation of the result */
       if (destructive) {
 	t1p_free(man, a1);
@@ -1322,13 +1378,13 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
       /* rebuild */
       rebuild_abstract_value(man, res, eqs_a);
-
+#ifdef _T1P_DEBUG
       printf("Result of JOIN ALT:\n");
       t1p_fdump(stdout,man,res);
-
+#endif
       /* cleanup */
-      t1p_fdump(stdout,man,a1bis);
-      t1p_fdump(stdout,man,a2bis);
+      /* t1p_fdump(stdout,man,a1bis); */
+      /* t1p_fdump(stdout,man,a2bis); */
       
       t1p_free(man,a1bis);
       t1p_free(man,a2bis);

@@ -812,12 +812,12 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
  while (i<(int)b->l)
    {
      //printf("symbol present in the first one\n");
-     t1p_aff_nsym_add(pr,a,term_c->coeff,term_c->pnsym);
+     t1p_aff_nsym_add(pr,a,term_b->coeff,term_b->pnsym);
      //t1p_aff_fprint(pr,stdout,a);
      //printf("\n");
      /* updates the terms and counters */
      i++;
-     term_c=term_c->n;
+     term_b=term_b->n;
    }
  while (j<(int)c->l)
    {
