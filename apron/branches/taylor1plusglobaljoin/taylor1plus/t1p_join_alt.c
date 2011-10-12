@@ -47,7 +47,7 @@ void free_equation (ja_eq_t* equation)
     {
       cell2=cell1;
       cell1=cell1->n;
-      //itv_clear(cell2->coeff);
+      itv_clear(cell2->coeff);
       free(cell2);
     }
   free(equation);
