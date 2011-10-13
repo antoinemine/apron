@@ -66,7 +66,7 @@ void print_equation (FILE* stream, ja_eq_t* equation)
       itv_fprint(stream, cell->coeff);
       if (cell->t_coeff==NS)
 	{
-	  fprintf(stream,".");
+	  fprintf(stream,"*");
 	  t1p_nsym_fprint(stream,cell->pnsym);
 	}
       else
@@ -255,12 +255,152 @@ itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v)
 
 
 
+/* indexed noise symbols lists */
+
+ja_nsym_list_t* new_nsym_list (void) {
+  CALL();
+  ja_nsym_list_t* res = malloc(sizeof(ja_nsym_list_t));
+  res->nb=0;
+  res->first=NULL;
+  res->last=NULL;
+  return res;
+}
+
+void free_nsym_list (ja_nsym_list_t* list)
+{
+  CALL();
+  ja_nsym_list_elm *cell1=list->first, *cell2;
+  while (cell1) {
+    cell2=cell1;
+    cell1=cell1->n;
+    free(cell2);
+  }
+  free(list);
+}
+
+void fprint_nsym_list (FILE* stream,ja_nsym_list_t* list) {
+  CALL();
+  ja_nsym_list_elm *cell=list->first;
+  fprintf(stream,"List of %d indexed noise symbols: [",list->nb);
+    while (cell) {
+      fprintf(stream," %d->",cell->indice);
+      t1p_nsym_fprint(stream,cell->pnsym);
+      cell=cell->n;
+    }
+  fprintf(stream," ]\n");
+}
+
+/* add psym to the list (if it is not present) and returns its indice */
+int add_nsym_to_list (ja_nsym_list_t* list, t1p_nsym_t* pnsym){
+  CALL();
+  ja_nsym_list_elm *cell=list->first;
+  ja_nsym_list_elm *new_cell = NULL;
+  int res;
+  if (!list->first) {
+    /* if the list is empty */
+    new_cell=malloc(sizeof(ja_nsym_list_elm));
+    new_cell->n = NULL;
+    new_cell->indice=0;
+    new_cell->pnsym = pnsym;
+
+    list->first=new_cell;
+    list->last=new_cell;
+    list->nb=1;
+    res=0;
+  }
+  else{
+    while (cell) {
+      if (cell->pnsym == pnsym){
+	return cell->indice;
+      }
+      /* else */
+      cell=cell->n;
+    }
+    /* pnsym is not in the list, create a new one */
+    new_cell=malloc(sizeof(ja_nsym_list_elm));
+    new_cell->n = NULL;
+    new_cell->indice=list->nb;
+    new_cell->pnsym = pnsym;
+
+    list->last->n=new_cell;
+    list->last=new_cell;
+    res = list->nb;
+    list->nb= list->nb+1;
+  }
+  return res;
+}
+
+/* returns the indice of pnsym in list. returns -1 if not present */
+int nsym_to_indice (ja_nsym_list_t* list, t1p_nsym_t* pnsym) {
+ ja_nsym_list_elm *cell=list->first;
+
+ while (cell) {
+   if (cell->pnsym==pnsym) 
+     return cell->indice;
+   cell=cell->n;
+ }
+ return -1;
+}
+
+/* returns a pointer to the noise symbol in list. returns NULL if not present */
+t1p_nsym_t* indice_to_nsym (ja_nsym_list_t* list, int indice) {
+  CALL();
+ja_nsym_list_elm *cell=list->first;
+
+ while (cell) {
+   if (cell->indice==indice) 
+     return cell->pnsym;
+   cell=cell->n;
+ }
+ return NULL;
+}
+
+/* returns the index of a noise symbol in list. returns -1 if not present */
+int indice_to_nsym_index (ja_nsym_list_t* list, int indice) {
+  CALL();
+ja_nsym_list_elm *cell=list->first;
+
+ while (cell) {
+   if (cell->pnsym->index==indice) 
+     return cell->pnsym->index;
+   cell=cell->n;
+ }
+ return -1;
+}
+
+
+
+/* permutes indice i and j in the list. Assert fails if i or j are not present */
+void permute_indice (ja_nsym_list_t* list, int i, int j) {
+  CALL();
+  int permut =0;
+  ja_nsym_list_elm *cell=list->first;
+
+  if (i != j) {
+    while (cell) {
+      if (cell->indice==i) {
+	cell->indice=j;
+	permut++;
+      } 
+      else if (cell->indice==j) {
+	cell->indice=i;
+	permut++;
+      } 
+      if (permut == 2)
+	cell=NULL;
+      else
+	cell=cell->n;
+    }
+    assert (permut == 2);
+  }
+}
+
 /* ********************************************************************** */
 /* 1. From 2 abstract values to equations */
 /* ********************************************************************** */
 
 /* result is of type B */
-ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
+ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, t1p_t* a)
 {
   CALL();
   ja_eq_set_t* res = new_equation_set();
@@ -270,22 +410,9 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
   itv_t* pitv=NULL;
   itv_t buff; // needed to negate all the coefficients
   ja_eq_t* equation=NULL;
-  int nb_nsym; // number of noise symbols in [a]
+   int nb_nsym = nsym_list->nb;
 
   itv_init(buff);
-
-  nb_nsym =-1;
-  for (i=0 ; i< (int) dims;i++)
-    {
-      if (a->paf[i]->end != NULL)
-	{
-	  if ((int) a->paf[i]->end->pnsym->index > nb_nsym)
-	    nb_nsym= a->paf[i]->end->pnsym->index;
-	}
-    }
- 
-  /* nb_nsym is the last index present, we add 1 to have the number of noise symbols*/
-  nb_nsym++;
 
   /* special loop for the constant terms */
   equation=new_equation();
@@ -304,11 +431,11 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
   for (i=0;i<nb_nsym;i++)
     {
       equation=new_equation();
-      equation->dim=(ap_dim_t)i;
+      equation->dim=(ap_dim_t) i;
    
       for (j=0; j<(int)dims ; j++)
 	{
-	  pitv=t1p_aff_get_coeff(pr,a->paf[j],i);
+	  pitv=t1p_aff_get_coeff(pr,a->paf[j],indice_to_nsym_index(nsym_list,i));
 	  /* if itv_buff exists, add the term */
 	  if (pitv!=NULL)
 	    {
@@ -324,8 +451,36 @@ ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a)
 }
 
 
+/* list the noise symbols present in a1 or a2 */
+void abstract_value_to_nsym_list  (ja_nsym_list_t* list, t1p_t* a){
+  CALL();
+ size_t dims = a->dims;
+ int i;
+ t1p_aaterm_t* cell;
+ for (i=0;i<(int) dims;i++) {
+   cell=a->paf[i]->q;
+   while (cell) {
+     assert (cell->pnsym);
+     add_nsym_to_list(list, cell->pnsym);
+     cell=cell->n;
+   }  
+ }
+}
+
+
+ja_nsym_list_t* two_abstract_values_to_nsym_list  (t1p_t* a1, t1p_t* a2){
+  CALL();
+  ja_nsym_list_t* res = new_nsym_list();
+  abstract_value_to_nsym_list(res,a1);
+  abstract_value_to_nsym_list(res,a2);
+  return res;
+}
+
+
+
+
 /* result is of type B prime */
-ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t* a2)
+ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, t1p_t* a1, t1p_t* a2)
 {
   CALL();
   ja_eq_set_t* res = new_equation_set();
@@ -337,31 +492,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
   itv_t* pitv2=NULL;
   itv_t itv_buff;
   ja_eq_t* equation=NULL;
-  int nb_nsym=0; // number of noise symbols in a1 and a2: we look at the last symbol of each affine form
-
-  for (i=0 ; i< (int) dims;i++)
-    {
-      if (a1->paf[i]->end != NULL)
-	{
-	  if ((int) a1->paf[i]->end->pnsym->index > nb_nsym)
-	    nb_nsym= a1->paf[i]->end->pnsym->index;
-	}
-      else {
-	if (a2->paf[i]->end != NULL)
-	  { 
-	    if((int) a2->paf[i]->end->pnsym->index > nb_nsym)
-	      nb_nsym= a2->paf[i]->end->pnsym->index;
-	  }
-	else 
-/* no noise symbol is present, set to -1 to have the correct number of noise symbols after increment */
-	  nb_nsym = -1;
-      }
-    }
- 
-  /* nb_nsym is the last index present, we add 1 to have the number of noise symbols*/
-  nb_nsym++;
-
-  /* printf("nb_nsym=%zu \n",nb_nsym); */
+  int nb_nsym=nsym_list->nb; // number of noise symbols in a1 and a2: we look at the last symbol of each affine form
 
   /* special loop for the constant terms */
   equation=new_equation();
@@ -409,15 +540,15 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 	  /* t1p_aff_fprint(pr,stdout,a2->paf[j]); */
 	  /* printf("\n"); */
 #endif
-	  pitv1=t1p_aff_get_coeff(pr,a1->paf[j],i);
-	  pitv2=t1p_aff_get_coeff(pr,a2->paf[j],i);
+	  pitv1=t1p_aff_get_coeff(pr,a1->paf[j],indice_to_nsym_index(nsym_list,i));
+	  pitv2=t1p_aff_get_coeff(pr,a2->paf[j],indice_to_nsym_index(nsym_list,i));
 
 	  if (pitv1==NULL)
 	    {
 	      if (pitv2!=NULL)
 		{
 #ifdef _T1P_DEBUG
-		  printf("pitv2 (eps %d):",i);
+		  printf("pitv2 (eps %d):",indice_to_nsym_index(nsym_list,i));
 		  itv_print(*pitv2);
 		  printf("\n");
 #endif
@@ -433,7 +564,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 	      if (pitv2==NULL)
 		{
 #ifdef _T1P_DEBUG
-		  /* printf("pitv1 (eps %d):",i); */
+		  /* printf("pitv1 (eps %d):",indice_to_nsym_index(nsym_list,i)); */
 		  /* itv_print(*pitv1); */
 		  /* printf("\n"); */
 #endif
@@ -441,16 +572,16 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 #ifdef _T1P_DEBUG
 		  /* printf("add "); */
 		  /* itv_print(itv_buff); */
-		  /* printf(" eps%d\n",j); */
+		  /* printf(" eps%d\n",indice_to_nsym_index(nsym_list,j)); */
 #endif
 		}
 	      else // both pointers are not null
 		{
 #ifdef _T1P_DEBUG
-		  /* printf("pitv1 (eps %d):",i); */
+		  /* printf("pitv1 (eps %d):",indice_to_nsym_index(nsym_list,i)); */
 		  /* itv_print(*pitv1); */
 		  /* printf("\n"); */
-		  /* printf("pitv2 (eps %d):",i); */
+		  /* printf("pitv2 (eps %d):",indice_to_nsym_index(nsym_list,i)); */
 		  /* itv_print(*pitv2); */
 		  /* printf("\n"); */
 #endif
@@ -458,7 +589,7 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 #ifdef _T1P_DEBUG
 		  /* printf("add "); */
 		  /* itv_print(itv_buff); */
-		  /* printf(" eps%d\n",j); */
+		  /* printf(" eps%d\n",indice_to_nsym_index(nsym_list,j)); */
 #endif
 		}
 	    }
@@ -468,9 +599,9 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t
 #ifdef _T1P_DEBUG
 	      /* printf("add "); */
 	      /* itv_print(itv_buff); */
-	      /* printf(" eps%d\n",j); */
+	      /* printf(" eps%d\n",indice_to_nsym_index(nsym_list,j)); */
 #endif
-	      add_equation_term_va (equation, itv_buff,(ap_dim_t)j);
+	      add_equation_term_va (equation, itv_buff,(ap_dim_t) indice_to_nsym_index(nsym_list,j));
 	    }
 #ifdef _T1P_DEBUG
 	  /* else */
@@ -1002,7 +1133,7 @@ ja_eq_set_t* matrix_to_eq_set_A (t1p_internal_t* pr, int nb_rows, int dims, int 
 
 /* eqs is of type B */
 /* result is of type A */
-ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions) {
+ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions) {
   CALL();
   int nb_rows = eqs_prime->nb_eq;
   int nb_columns= dimensions;
@@ -1013,6 +1144,7 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq
   ja_eq_set_t* res = NULL ;
 
 #ifdef _T1P_DEBUG
+  fprint_nsym_list(stdout,nsym_list);
   printf("eqs:\n");
   print_equation_set(stdout,eqs);
   printf("\n");
@@ -1287,6 +1419,7 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
   t1p_t *a1bis, *a2bis, *a_join, *res;
   ja_eq_set_t *eqs_a, *eqs_b, *eqs_b_prime;
   int nb_eq;
+  ja_nsym_list_t* nsym_list;
   int i; //iterator
   ja_eq_list_elm* current_equation; //idem
 
@@ -1339,66 +1472,69 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
       /* printf("finite=%d\n",finite); */
       
       if (finite) {
+	/* creation of the indexed symbol list */
+	nsym_list=two_abstract_values_to_nsym_list(a1,a2);
+	//fprint_nsym_list(stdout,nsym_list);
 
-      /* creation of the equations */
-      eqs_b = abstract_value_to_eq_set (pr, a1);
-      eqs_b_prime = two_abstract_values_to_eq_set (pr, a1, a2);
 
-      eqs_a = eq_set_transformation(pr, eqs_b, eqs_b_prime, dimensions);
-      current_equation =  eqs_a->first_eq;
-      nb_eq = eqs_a->nb_eq;
+	/* creation of the equations */
+	eqs_b = abstract_value_to_eq_set (pr, nsym_list, a1);
+	eqs_b_prime = two_abstract_values_to_eq_set (pr,  nsym_list, a1, a2);
+
+	eqs_a = eq_set_transformation(pr,  nsym_list, eqs_b, eqs_b_prime, dimensions);
+	current_equation =  eqs_a->first_eq;
+	nb_eq = eqs_a->nb_eq;
+	
+	/* creation of the array of dimensions to forget */
+	ap_dim_t tdim[nb_eq];
+	for(i=0;i<nb_eq;i++) {
+	  tdim[i] = (ap_dim_t) current_equation->content->dim;
+	  /* print_equation(stdout,current_equation->content); */
+	  /* printf("\n erase variable %d \n", tdim[i]); */
+	  current_equation= current_equation->n;
+	}
       
-      /* creation of the array of dimensions to forget */
-      ap_dim_t tdim[nb_eq];
-      for(i=0;i<nb_eq;i++) {
-	tdim[i] = (ap_dim_t) current_equation->content->dim;
-	/* print_equation(stdout,current_equation->content); */
-	/* printf("\n erase variable %d \n", tdim[i]); */
-	current_equation= current_equation->n;
-      }
-      
-      /* forget and do the union */
-      /* fprintf(stdout, "###PROJECTION OPERANDS (%tx and %tx) ###\n", (intptr_t)a1, (intptr_t)a2); */
-      /* t1p_fprint(stdout, man, a1, NULL); */
-      /* t1p_fprint(stdout, man, a2, NULL); */
+	/* forget and do the union */
+	/* fprintf(stdout, "###PROJECTION OPERANDS (%tx and %tx) ###\n", (intptr_t)a1, (intptr_t)a2); */
+	/* t1p_fprint(stdout, man, a1, NULL); */
+	/* t1p_fprint(stdout, man, a2, NULL); */
+	
+	a1bis = t1p_forget_array(man, false, a1, tdim, (size_t) nb_eq, false);
+	a2bis = t1p_forget_array(man, false, a2, tdim, (size_t) nb_eq, false);
+	
+	/* fprintf(stdout, "###PROJECTION RESULT (%tx and %tx) ###\n", (intptr_t)a1bis, (intptr_t)a2bis); */
+	/*  t1p_fprint(stdout, man, a1bis, NULL); */
+	/*  t1p_fprint(stdout, man, a2bis, NULL); */
+	/* creation of the result */
+	if (destructive) {
+	  t1p_free(man, a1);
+	  res = a1 = t1p_join_std(man, false, a1bis, a2bis); 
+	}
+	else
+	  res = t1p_join_std(man, false, a1bis, a2bis); 
 
-      a1bis = t1p_forget_array(man, false, a1, tdim, (size_t) nb_eq, false);
-      a2bis = t1p_forget_array(man, false, a2, tdim, (size_t) nb_eq, false);
-
-     /* fprintf(stdout, "###PROJECTION RESULT (%tx and %tx) ###\n", (intptr_t)a1bis, (intptr_t)a2bis); */
-     /*  t1p_fprint(stdout, man, a1bis, NULL); */
-     /*  t1p_fprint(stdout, man, a2bis, NULL); */
-      /* creation of the result */
-      if (destructive) {
-	t1p_free(man, a1);
-	res = a1 = t1p_join_std(man, false, a1bis, a2bis); 
-      }
-      else
-	res = t1p_join_std(man, false, a1bis, a2bis); 
-
-
-      /* rebuild */
-      rebuild_abstract_value(man, res, eqs_a);
+	
+	/* rebuild */
+	rebuild_abstract_value(man, res, eqs_a);
 #ifdef _T1P_DEBUG
-      printf("Result of JOIN ALT:\n");
-      t1p_fdump(stdout,man,res);
+	printf("Result of JOIN ALT:\n");
+	t1p_fdump(stdout,man,res);
 #endif
-      /* cleanup */
-      /* t1p_fdump(stdout,man,a1bis); */
-      /* t1p_fdump(stdout,man,a2bis); */
-      
-      t1p_free(man,a1bis);
-      t1p_free(man,a2bis);
- 
-
-      free_equation_set(eqs_a);
-      free_equation_set(eqs_b);
-      free_equation_set(eqs_b_prime);
+	/* cleanup */
+	/* t1p_fdump(stdout,man,a1bis); */
+	/* t1p_fdump(stdout,man,a2bis); */
+      	free_nsym_list(nsym_list);
+	
+	t1p_free(man,a1bis);
+	t1p_free(man,a2bis);
+	
+	
+	free_equation_set(eqs_a);
+	free_equation_set(eqs_b);
+	free_equation_set(eqs_b_prime);
       }
 
-
-
-      else /* one of the two abstract value is infiniete -> classical join */
+      else /* one of the two abstract value is infinite -> classical join */
 	res = t1p_join_std(man, destructive, a1, a2); 
     }
   return res;
