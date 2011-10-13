@@ -82,6 +82,9 @@ typedef struct ja_eq_set_t {
 /* ********************************************************************** */
 /* 0. Constructors */
 /* ********************************************************************** */
+
+
+/* ** Equations  ** */
 ja_eq_t* new_equation (void);
 void free_equation (ja_eq_t* equation);
 void print_equation (FILE* stream,ja_eq_t* equation);
@@ -105,6 +108,37 @@ itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v);
 itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v);
 
 
+
+
+/* **list of indexed noise symbols** */
+typedef struct ja_nsym_list_elm {
+  struct ja_nsym_list_elm*	n;	/* next element */
+  int                   indice; /*  indice of the noise symbol */
+  t1p_nsym_t*          	pnsym;	/* index of the noise symbol */
+} ja_nsym_list_elm;
+
+typedef struct ja_nsym_list_t {
+  int	                nb;	/* size of the list */
+  ja_nsym_list_elm*	first;	/* first cell */
+  ja_nsym_list_elm*	last;	/* last cell */
+} ja_nsym_list_t;
+
+/* assumptions on those lists: each symbol is present at most once, all indice are different */
+
+ja_nsym_list_t* new_nsym_list (void);
+void free_nsym_list (ja_nsym_list_t* list);
+void fprint_nsym_list (FILE* stream,ja_nsym_list_t* list);
+/* add psym to the list (if it is not present) and returns its indice */
+int add_nsym_to_list (ja_nsym_list_t* list, t1p_nsym_t* pnsym);
+/* returns the indice of pnsym in list. returns -1 if not present */
+int nsym_to_indice (ja_nsym_list_t* list, t1p_nsym_t* pnsym);
+/* returns a pointer to the noise symbol in list. returns NULL if not present */
+t1p_nsym_t* indice_to_nsym (ja_nsym_list_t* list, int indice);
+/* get the indice of noise symbol eps_i */
+int indice_to_nsym_index (ja_nsym_list_t* list, int indice);
+/* permutes indice i and j in the list. Assert fails if i or j are not present */
+void permute_indice (ja_nsym_list_t* list, int i, int j);
+
 /* ********************************************************************** */
 /* 1. Rebuild an abstract value */
 /* ********************************************************************** */
@@ -122,15 +156,17 @@ void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs);
 
 /* if one of the variable is "t1p_aff_top", the set of equation is empty */ 
 /* result is of type B */
-ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, t1p_t* a);
+ja_eq_set_t* abstract_value_to_eq_set (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, t1p_t* a);
 
 /* result is of type B prime */
-ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, t1p_t* a1, t1p_t* a2);
+ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, t1p_t* a1, t1p_t* a2);
 
+/* list the noise symbols present in a1 or a2 */
+ja_nsym_list_t* two_abstract_values_to_nsym_list  (t1p_t* a1, t1p_t* a2);
 
 /* eqs is of type B, eqs_prime is of type B prime */
 /* result is of type A */
-ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions);
+ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions);
 
 /* ********************************************************************** */
 /* 3. Alternative to the join operator */
