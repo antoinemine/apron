@@ -68,6 +68,9 @@ int numMPQ_hash(const numMPQ_t a)
     return INT_MAX;
 }
 
+void numMPQ_print(const numMPQ_t a)
+{ mpq_out_str(stdout,10,a); fflush(stdout); }
+
 int numMPQ_snprint(char* s, int size, const numMPQ_t a)
 {
   int res;

@@ -59,8 +59,8 @@ tbool_t ap_linconsXXX_array_reduce_integer(ap_linconsXXX_array_t array,
      ap_linconsXXX_array_reduce(.,.,true), not valid for testing satisfiablity */
 
 void ap_linconsXXX_array_append_set_env(ap_linconsXXX_array_t array, ap_linexprXXX_t env, bool* tchange);
-/* Append at the end of array the constraints equivalent to env considered as
-   a (sparse) bounding box.
+/* Append at the end of the array the constraints equivalent to env
+   considered as a (sparse) bounding box.
 
    Such a constraint is added only if tchange[2*dim] (inf bound) or
    tchange[2*dim+1] (sup bound) is true.
@@ -121,12 +121,12 @@ void ap_linconsXXX_array_intlinearize_tcons0_array(
 /* III. Boxization of interval linear expressions */
 /* ********************************************************************** */
 
-bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
+bool ap_linconsXXX_array_boxize(ap_linexprXXX_t env,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
-				ap_linexprXXX_t env, size_t intdim,
+				size_t intdim,
 				unsigned int kmax,
-				bool intervalonly, num_internal_t intern);
+				num_internal_t intern);
   /* Deduce interval constraints from a set of interval linear constraints.
 
      Return true if some bounds have been inferred.
@@ -140,6 +140,25 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
        coefficient associated to the current dimension is an interval.
   */
 
+
+/* ********************************************************************** */
+/* IV. Deduce zonal/octagonal constraints from quasi-linear constraints */
+/* ********************************************************************** */
+
+void ap_linconsXXX_extract_append_difference(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_linconsXXX_array_t tlincons, size_t i,
+    ap_linexprXXX_t env, size_t intdim,
+    bool octagonal, /* consider both difference and addition of variables */
+    num_internal_t intern
+);
+void ap_linconsXXX_array_extract_append_difference(
+    ap_linconsXXX_array_t array,
+    ap_linconsXXX_array_t tlincons,
+    ap_linexprXXX_t env, size_t intdim,
+    bool octagonal, /* consider both difference and addition of variables */
+    num_internal_t intern
+);
 
 /* ********************************************************************** */
 /* ********************************************************************** */

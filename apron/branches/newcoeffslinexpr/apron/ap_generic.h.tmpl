@@ -92,9 +92,11 @@ void* ap_generic_join_array(ap_manager_t* man,
 /* ============================================================ */
 
 void* ap_generic_meet_quasilinearize_lincons_array(
-    ap_manager_t* man, bool destructive, void* abs, ap_lincons0_array_t array,
+    ap_manager_t* man,
+    bool destructive, void* abs, ap_lincons0_array_t array,
     ap_scalar_discr_t discr, ap_linexpr_type_t linearize,
-    ap_linexpr_type_t boxize, unsigned int kmax, bool intervalonly,
+    ap_linexpr_type_t boxize, unsigned int kmax,
+    bool diffize, bool octagonal,
     void* (*meet_lincons_array)(ap_manager_t*,
 				bool, void*,
 				ap_lincons0_array_t)
@@ -104,7 +106,8 @@ void* ap_generic_meet_intlinearize_tcons_array(
     ap_manager_t* man,
     bool destructive, void* abs, ap_tcons0_array_t* array,
     ap_scalar_discr_t discr, ap_linexpr_type_t linearize,
-    ap_linexpr_type_t boxize, unsigned int kmax, bool intervalonly,
+    ap_linexpr_type_t boxize, unsigned int kmax,
+    bool diffize, bool octagonal,
     void* (*meet_lincons_array)(ap_manager_t*,
 				bool, void*,
 				ap_lincons0_array_t)

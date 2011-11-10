@@ -125,8 +125,8 @@ bool vectorXXX_set_linexpr_bound(
 #endif
 
 void vectorXXX_set_linexprMPQ(
-			      pkXXX_internal_t* pk, numintXXX_t* vec,
-			      ap_linexprMPQ_t expr, ap_dimension_t dim, int mode)
+    pkXXX_internal_t* pk, numintXXX_t* vec,
+    ap_linexprMPQ_t expr, ap_dimension_t dim, int mode)
 {
   size_t i;
   ap_dim_t d;

@@ -44,20 +44,22 @@ static inline bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern);
 
 MACRO_FOREACH ttt ("num","bound","itv","eitv")
 static inline bool tttXXX_set_lint(tttXXX_t a, long int i, num_internal_t intern);
-static inline bool tttXXX_set_mpz(tttXXX_t a, mpz_t b, num_internal_t intern);
+static inline bool tttXXX_set_mpz(tttXXX_t a, const mpz_t b, num_internal_t intern);
 static inline bool tttXXX_set_lfrac(tttXXX_t a, long int i, long int j, num_internal_t intern);
-static inline bool tttXXX_set_mpq(tttXXX_t a, mpq_t b, num_internal_t intern);
+bool tttXXX_set_mpzfrac(tttXXX_t a, const mpz_t i, const mpz_t j, num_internal_t intern);
+static inline bool tttXXX_set_mpq(tttXXX_t a, const mpq_t b, num_internal_t intern);
 static inline bool tttXXX_set_double(tttXXX_t a, double k, num_internal_t intern);
-static inline bool tttXXX_set_mpfr(tttXXX_t a, mpfr_t b, num_internal_t intern);
+static inline bool tttXXX_set_mpfr(tttXXX_t a, const mpfr_t b, num_internal_t intern);
 ENDMACRO
 
 MACRO_FOREACH ttt ("itv","eitv")
 static inline bool tttXXX_set_lint2(tttXXX_t a, long int i, long int j, num_internal_t intern);
-static inline bool tttXXX_set_mpz2(tttXXX_t a, mpz_t b, mpz_t c, num_internal_t intern);
-static inline bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern);
-static inline bool tttXXX_set_mpq2(tttXXX_t a, mpq_t b, mpq_t c, num_internal_t intern);
+static inline bool tttXXX_set_mpz2(tttXXX_t a, const mpz_t b, const mpz_t c, num_internal_t intern);
+bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern);
+bool tttXXX_set_mpzfrac2(tttXXX_t a, const mpz_t n1, const mpz_t d1, const mpz_t n2, const mpz_t d2, num_internal_t intern);
+static inline bool tttXXX_set_mpq2(tttXXX_t a, const mpq_t b, const mpq_t c, num_internal_t intern);
 static inline bool tttXXX_set_double2(tttXXX_t a, double k1, double k2, num_internal_t intern);
-static inline bool tttXXX_set_mpfr2(tttXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern);
+static inline bool tttXXX_set_mpfr2(tttXXX_t a, const mpfr_t b, const mpfr_t c, num_internal_t intern);
 ENDMACRO
 ENDMACRO
 
@@ -87,37 +89,32 @@ static inline bool mpfr_fits_numXXX(mpfr_t a, num_internal_t intern)
 MACRO_FOREACH ttt ("num","bound","itv","eitv")
 static inline bool tttXXX_set_lint(tttXXX_t a, long int i, num_internal_t intern)
 { return tttXXX_set_numIl(a,&i,intern); }
-static inline bool tttXXX_set_mpz(tttXXX_t a, mpz_t b, num_internal_t intern)
+static inline bool tttXXX_set_mpz(tttXXX_t a, const mpz_t b, num_internal_t intern)
 { return tttXXX_set_numMPZ(a,b,intern); }
 static inline bool tttXXX_set_lfrac(tttXXX_t a, long int i, long int j, num_internal_t intern)
 {
   numRl_t b; *b->n=i; *b->d=j;
   return tttXXX_set_numRl(a,b,intern);
 }
-static inline bool tttXXX_set_mpq(tttXXX_t a, mpq_t b, num_internal_t intern)
+static inline bool tttXXX_set_mpq(tttXXX_t a, const mpq_t b, num_internal_t intern)
 { return tttXXX_set_numMPQ(a,b,intern); }
 static inline bool tttXXX_set_double(tttXXX_t a, double k, num_internal_t intern)
 { return tttXXX_set_numD(a,&k,intern); }
-static inline bool tttXXX_set_mpfr(tttXXX_t a, mpfr_t b, num_internal_t intern)
+static inline bool tttXXX_set_mpfr(tttXXX_t a, const mpfr_t b, num_internal_t intern)
 { return tttXXX_set_numMPFR(a,b,intern); }
 ENDMACRO
 
 MACRO_FOREACH ttt ("itv","eitv")
 static inline bool tttXXX_set_lint2(tttXXX_t a, long int i, long int j, num_internal_t intern)
 { return tttXXX_set_numIl2(a,&i,&j,intern); }
-static inline bool tttXXX_set_mpz2(tttXXX_t a, mpz_t b, mpz_t c, num_internal_t intern)
+static inline bool tttXXX_set_mpz2(tttXXX_t a, const mpz_t b, const mpz_t c, num_internal_t intern)
 { return tttXXX_set_numMPZ2(a,b,c,intern); }
-static inline bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern)
-{
-  numRl_t b1; *b1->n=n1; *b1->d=d1;
-  numRl_t b2; *b2->n=n2; *b2->d=d2;
-  return tttXXX_set_numRl2(a,b1,b2,intern);
-}
-static inline bool tttXXX_set_mpq2(tttXXX_t a, mpq_t b, mpq_t c, num_internal_t intern)
+bool tttXXX_set_lfrac2(tttXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern);
+static inline bool tttXXX_set_mpq2(tttXXX_t a, const mpq_t b, const mpq_t c, num_internal_t intern)
 { return tttXXX_set_numMPQ2(a,b,c,intern); }
 static inline bool tttXXX_set_double2(tttXXX_t a, double k1, double k2, num_internal_t intern)
 { return tttXXX_set_numD2(a,&k1,&k2,intern); }
-static inline bool tttXXX_set_mpfr2(tttXXX_t a, mpfr_t b, mpfr_t c, num_internal_t intern)
+static inline bool tttXXX_set_mpfr2(tttXXX_t a, const mpfr_t b, const mpfr_t c, num_internal_t intern)
 { return tttXXX_set_numMPFR2(a,b,c,intern); }
 ENDMACRO
 

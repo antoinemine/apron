@@ -36,7 +36,7 @@ endif
 
 SUBDIR_C_DOM = box octagon polka
 ifneq ($(HAS_PPL),)
-SUBDIR_C_DOM += ppl products
+SUBDIR_C_DOM += ppl #products
 endif
 SUBDIR_C = apron $(SUBDIR_C_DOM)
 
@@ -51,14 +51,33 @@ ifneq ($(HAS_JAVA),)
 SUBDIR_ALL += java
 endif
 
-c_all: libapron.a
-c_debug: libapron.d.a
-c_prof: libapron.p.a
+c_all:
+	for i in $(SUBDIR_C); do make -C $$i all; done
+	$(MAKE) libapron.a
 ifneq ($(HAS_SHARED),)
-c_all: libapron.so
-c_debug: libapron.d.so
-c_prof: libapron.p.so
+	$(MAKE) libapron.so
 endif
+c_debug:
+	for i in $(SUBDIR_C); do make -C $$i debug; done
+	$(MAKE) libapron.d.a
+ifneq ($(HAS_SHARED),)
+	$(MAKE) libapron.d.so
+endif
+c_prof:
+	for i in $(SUBDIR_C); do make -C $$i prof; done
+	$(MAKE) libapron.p.a
+ifneq ($(HAS_SHARED),)
+	$(MAKE) libapron.p.so
+endif
+
+#c_all: libapron.a
+#c_debug: libapron.d.a
+#c_prof: libapron.p.a
+#ifneq ($(HAS_SHARED),)
+#c_all: libapron.so
+#c_debug: libapron.d.so
+#c_prof: libapron.p.so
+#endif
 
 cxx_all: libapronxx.a
 cxx_debug: libapronxx.d.a
@@ -89,7 +108,7 @@ install: $(CCLIB_TO_INSTALL)
 	for i in $(SUBDIR_C); do make -C $$i install; done
 ifneq ($(HAS_PPL),)
 	make -C ppl install
-	make -C products install
+#	make -C products install
 endif
 ifneq ($(HAS_OCAML),)
 	make -C mlapronidl install
@@ -124,29 +143,24 @@ endif
 # C part
 # ######################################################################
 
-define generate-sublib
-.PRECIOUS: $(1)/lib$(1)$(2).a
-$(1)/lib$(1)$(2).a:
-	make -C $(1) lib$(1)$(2).a
-endef
-$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),)))
-$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.d)))
-$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.p)))
+#define generate-sublib
+#$(1)/lib$(1)$(2).a:
+#	make -C $(1) src lib$(1)$(2).a
+#endef
+#$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),)))
+#$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.d)))
+#$(foreach M,$(SUBDIR_C),$(eval $(call generate-sublib,$(M),.p)))
 
 define generate-clib
 libapron$(1).a: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
 	$(AR) rcs $$@ $$(foreach d,$(SUBDIR_C),$$(patsubst %,$$(d)/%,$$(filter %.o,$$(shell $(AR) -t $$(d)/lib$$(d)$(1).a))))
 	$(RANLIB) $$@
-ifneq ($(HAS_SHARED),)
 libapron$(1).so: $(foreach M,$(SUBDIR_C),$(M)/lib$(M)$(1).a)
 	$(CC) $(CFLAGS) -shared -o $$@ -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp $$(foreach d,$(SUBDIR_C),$$(patsubst %,$$(d)/%,$$(filter %.o,$$(shell $(AR) -t $$(d)/lib$$(d)$(1).a))))
-endif
 endef
-$(eval $(call generate-clib,))
+$(eval $(call generate-clib,,))
 $(eval $(call generate-clib,.d))
 $(eval $(call generate-clib,.p))
-
-
 
 # make distribution, update to reflect current version
 

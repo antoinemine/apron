@@ -69,7 +69,7 @@ ap_manager_t* boxXXX_manager_alloc(void)
   }
 
   itv = boxXXX_internal_alloc();
-  man = ap_manager_alloc("box" "XXX", "1.0",
+  man = ap_manager_alloc(strdup("box" "XXX"), strdup("1.0"),
 			 itv, (void (*)(void*))boxXXX_internal_free);
   itv->num = man->num;
   funptr = man->funptr;

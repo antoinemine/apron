@@ -14,14 +14,10 @@
  * Please read the COPYING file packaged in the distribution.
  */
 
-#ifndef __PPL_GRID_HH
-#define __PPL_GRID_HH
+#ifndef __PPL_GRID_H
+#define __PPL_GRID_H
 
-#include "ppl.hh"
-
-using namespace std;
-using namespace Parma_Polyhedra_Library;
-
+#ifdef __cplusplus
 class PPL_Grid {
 public:
   Grid* p;
@@ -35,9 +31,9 @@ public:
   void reduce();
   void forget_dim(ap_dim_t d);
 };
-
-#ifdef __cplusplus
 extern "C" {
+#else
+typedef struct PPL_Grid* PPL_Grid
 #endif
 
 /* ============================================================ */

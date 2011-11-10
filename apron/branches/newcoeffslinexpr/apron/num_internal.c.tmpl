@@ -68,6 +68,8 @@ void numZZZ_internal_init(numZZZ_internal* intern)
   eitvZZZ_init(intern->boxize_lincons_eitv);
   eitvZZZ_init(intern->boxize_lincons_eval);
   boundZZZ_init(intern->boxize_lincons_bound);
+  numZZZ_init(intern->diffize_num1);
+  numZZZ_init(intern->diffize_num2);
   mpz_init(intern->reduce_lincons_gcd);
   mpz_init(intern->reduce_lincons_mpz);
 
@@ -103,6 +105,8 @@ void numZZZ_internal_clear(numZZZ_internal* intern)
   eitvZZZ_clear(intern->boxize_lincons_eitv);
   eitvZZZ_clear(intern->boxize_lincons_eval);
   boundZZZ_clear(intern->boxize_lincons_bound);
+  numZZZ_clear(intern->diffize_num1);
+  numZZZ_clear(intern->diffize_num2);
   mpz_clear(intern->reduce_lincons_gcd);
   mpz_clear(intern->reduce_lincons_mpz);
   numZZZ_floatconst_clear(&intern->cst_half);

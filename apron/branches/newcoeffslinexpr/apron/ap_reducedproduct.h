@@ -34,8 +34,6 @@ typedef struct ap_reducedproduct_internal_t {
   char funopt[AP_FUNID_SIZE];
   /* funopt[funid] & 0x1: reduce before operation
      funopt[funid] & 0x2: reduce after */
-  char* library;               /* (constructed) library name  */
-  char* version;               /* (constructed) library version */
   size_t size;                 /* size of the product */
   ap_manager_t* tmanagers[0];  /* of size size */
 } ap_reducedproduct_internal_t;

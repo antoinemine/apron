@@ -8,7 +8,7 @@
 #include "ap_tcons0.h"
 #include "num_conv.h"
 
-#define _ITVXXX_MARK_
+#define _NUMXXX_MARK_
 
 /* ********************************************************************** */
 /* I. Evaluation and simplification */
@@ -67,7 +67,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
 	res = tbool_true;
       }
       else {
-#if defined(_ITVRl_MARK_) || defined(_ITVRll_MARK_) || defined(_ITVMPQ_MARK_)
+#if defined(_NUMRl_MARK_) || defined(_NUMRll_MARK_) || defined(_NUMMPQ_MARK_)
 	numXXX_t numrat;
 	numXXX_init(numrat);
 	numXXX_set_mpq(numrat,lincons->mpq,intern);
@@ -79,7 +79,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
 	  res = tbool_false;
 	}
 	numXXX_clear(numrat);
-#elif defined(_ITVIl_MARK_) || defined(_ITVIll_MARK_) || defined(_ITVMPZ_MARK_)
+#elif defined(_NUMIl_MARK_) || defined(_NUMIll_MARK_) || defined(_NUMMPZ_MARK_)
 	numXXX_t numint;
 	if (mpz_cmp_ui(mpq_denref(lincons->mpq),1)!=0){
 	  res = tbool_top;
@@ -96,7 +96,7 @@ tbool_t ap_linconsXXX_evalcst(ap_linconsXXX_t lincons, num_internal_t intern)
 	  }
 	  numXXX_clear(numint);
 	}
-#elif defined(_ITVD_MARK_) || defined(_ITVDl_MARK_) || defined(_ITVMPFR_MARK_)
+#elif defined(_NUMD_MARK_) || defined(_NUMDl_MARK_) || defined(_NUMMPFR_MARK_)
 	res = tbool_top;
 #else
 #error "HERE"
@@ -202,7 +202,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
     if (!eitvXXX_is_point(pitv))
       return;
   }
-#if defined(_ITVRl_MARK_) || defined(_ITVRll_MARK_) || defined(_ITVMPQ_MARK_)
+#if defined(_NUMRl_MARK_) || defined(_NUMRll_MARK_) || defined(_NUMMPQ_MARK_)
   {
     /* compute lcm of denominators and gcd of numerators */
     numintXXX_set_int(numXXX_denref(intern->XXX.quasi_num),1);
@@ -235,7 +235,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
     eitvXXX_mul_num(expr->cst,expr->cst,intern->XXX.quasi_num);
   }
 #else
-#if defined(_ITVD_MARK_) || defined(_ITVDl_MARK_) || defined(_ITVMPFR_MARK_)
+#if defined(_NUMD_MARK_) || defined(_NUMDl_MARK_) || defined(_NUMMPFR_MARK_)
   {
     /* Assuming that all coefficients are either integer,
        compute the pgcd */
@@ -254,7 +254,7 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
     bool exact = numXXX_set_mpz(intern->XXX.quasi_num,intern->XXX.reduce_lincons_gcd,intern);
     if (!exact) return;
   }
-#elif defined(_ITVIl_MARK_) || defined(_ITVIll_MARK_) || defined(_ITVMPZ_MARK_)
+#elif defined(_NUMIl_MARK_) || defined(_NUMIll_MARK_) || defined(_NUMMPZ_MARK_)
   {
     numXXX_set_int(intern->XXX.quasi_num,0);
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,pitv) {
@@ -276,39 +276,27 @@ void ap_linconsXXX_reduce_integer(ap_linconsXXX_t cons,
   eitvXXX_div_num(expr->cst,expr->cst,intern->XXX.quasi_num);
 #endif
   /* Constrain bounds */
-  if (!boundXXX_infty(expr->cst->itv->sup)){
-    if (cons->constyp==AP_CONS_SUP){
-      if (numXXX_integer(boundXXX_numref(expr->cst->itv->sup))){
-	boundXXX_sub_uint(expr->cst->itv->sup,expr->cst->itv->sup,1);
-      }
-      else {
-	numXXX_floor(boundXXX_numref(expr->cst->itv->sup),
-		     boundXXX_numref(expr->cst->itv->sup));
-      }
-      cons->constyp = AP_CONS_SUPEQ;
-    }
-    else {
-      numXXX_floor(boundXXX_numref(expr->cst->itv->sup),
-		   boundXXX_numref(expr->cst->itv->sup));
-    }
-  }
   if (cons->constyp == AP_CONS_EQ){
-    if (!boundXXX_infty(expr->cst->itv->neginf)){
-      if (expr->cst->eq){
-	boundXXX_neg(expr->cst->itv->neginf,
-		     expr->cst->itv->sup);
-      }
-      else {
-	numXXX_floor(boundXXX_numref(expr->cst->itv->neginf),
-		     boundXXX_numref(expr->cst->itv->neginf));
-      }
-    }
-    if (eitvXXX_is_bottom(expr->cst)){
+    if (eitvXXX_canonicalize(expr->cst,true)){
       ap_linconsXXX_set_bool(cons,false);
     }
   }
   else {
     if (!boundXXX_infty(expr->cst->itv->sup)){
+      if (cons->constyp==AP_CONS_SUP){
+	if (numXXX_integer(boundXXX_numref(expr->cst->itv->sup))){
+	  boundXXX_sub_uint(expr->cst->itv->sup,expr->cst->itv->sup,1);
+	}
+	else {
+	  numXXX_floor(boundXXX_numref(expr->cst->itv->sup),
+		       boundXXX_numref(expr->cst->itv->sup));
+	}
+	cons->constyp = AP_CONS_SUPEQ;
+      }
+      else {
+	numXXX_floor(boundXXX_numref(expr->cst->itv->sup),
+		     boundXXX_numref(expr->cst->itv->sup));
+      }
       boundXXX_neg(expr->cst->itv->neginf,expr->cst->itv->sup);
       expr->cst->eq = true;
     }
@@ -378,11 +366,11 @@ void ap_linconsXXX_array_append_set_env(ap_linconsXXX_array_t array, ap_linexprX
   nbrows = 0;
   ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv) {
     if (eitv->eq){
-      if (tchange[2*dim] || tchange[2*dim+1]) nbrows++;
+      if (!tchange || tchange[2*dim] || tchange[2*dim+1]) nbrows++;
     }
     else {
-      if (!boundXXX_infty(eitv->itv->neginf) && tchange[2*dim]) nbrows++;
-      if (!boundXXX_infty(eitv->itv->sup) && tchange[2*dim+1]) nbrows++;
+      if (!boundXXX_infty(eitv->itv->neginf) && (!tchange || tchange[2*dim])) nbrows++;
+      if (!boundXXX_infty(eitv->itv->sup) && (!tchange || tchange[2*dim+1])) nbrows++;
     }
   }
   size_t oldsize = array->size;
@@ -390,17 +378,17 @@ void ap_linconsXXX_array_append_set_env(ap_linconsXXX_array_t array, ap_linexprX
   nbrows = 0;
   ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv) {
     if (eitv->eq){
-      if (tchange[2*dim] || tchange[2*dim+1]){
+      if (!tchange || tchange[2*dim] || tchange[2*dim+1]){
 	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,0,boundXXX_numref(eitv->itv->sup));
 	nbrows++;
       }
     }
     else {
-      if (!boundXXX_infty(eitv->itv->neginf) && tchange[2*dim]){
+      if (!boundXXX_infty(eitv->itv->neginf) && (!tchange || tchange[2*dim])){
 	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,-1,boundXXX_numref(eitv->itv->neginf));
 	nbrows++;
       }
-      if (!boundXXX_infty(eitv->itv->sup) && tchange[2*dim+1]){
+      if (!boundXXX_infty(eitv->itv->sup) && (!tchange || tchange[2*dim+1])){
 	ap_linconsXXX_set_dim_num(array->p[oldsize+nbrows],dim,+1,boundXXX_numref(eitv->itv->sup));
 	nbrows++;
       }
@@ -577,15 +565,14 @@ void ap_linconsXXX_array_intlinearize_tcons0_array(
 }
 
 /* ********************************************************************** */
-/* III. Boxization of interval linear expressions */
+/* III. Boxization of interval linear constraints */
 /* ********************************************************************** */
 
-static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
+static bool ap_linconsXXX_boxize(ap_linexprXXX_t env,
 				 bool* tchange,
 				 ap_linconsXXX_t cons,
-				 ap_linexprXXX_t env,
 				 size_t intdim,
-				 bool intervalonly, num_internal_t intern)
+				 num_internal_t intern)
 {
   size_t i;
   ap_linexprXXX_ptr expr;
@@ -597,7 +584,6 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
   if (0){
     printf("\ncons:"); ap_linconsXXX_print(cons,0);
     printf("\nenv:"); ap_linexprXXX_print(env,0);
-    printf("\nres:"); ap_linexprXXX_print(res,0);
     printf("\n");
   }
   assert(cons->constyp == AP_CONS_EQ ||
@@ -608,19 +594,10 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
   globalchange = false;
   if (expr->effsize==0 &&
       ap_linconsXXX_evalcst(cons, intern)==tbool_false){
-    eitvXXX_set_bottom(res->cst);
+    eitvXXX_set_bottom(env->cst);
     globalchange = true;
   }
   else {
-    /* */
-    if (res!=env){
-      ap_linexprXXX_ForeachLinterm0(env,i,dim,eitv){
-	resdim = ap_linexprXXX_eitvref0(res,dim,false);
-	if (resdim==NULL){
-	  ap_linexprXXX_set_eitv0(res,dim,eitv);
-	}
-      }
-    }
     /* Iterates on coefficients */
     eitvXXX_set_int(intern->XXX.boxize_lincons_eitv,0);
     ap_linexprXXX_ForeachLinterm0(expr,i,dim,eitv){
@@ -633,9 +610,9 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
 	/* 3. Perform deductions */
 	change = false;
 	if (!eitvXXX_is_top(intern->XXX.boxize_lincons_eval)){
-	  resdim = ap_linexprXXX_eitvref0(res,dim,false);
+	  resdim = ap_linexprXXX_eitvref0(env,dim,false);
 	  assert (resdim!=NULL);
-	  if (equality && !intervalonly){
+	  if (equality){
 	    int sgn = boundXXX_sgn(intern->XXX.boxize_lincons_eitv->itv->sup);
 	    if (sgn!=0){
 	      /*
@@ -853,8 +830,9 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
 	    globalchange = true;
 	    exc = itvXXX_canonicalize(resdim->itv,dim<intdim);
 	    if (exc){
-	      eitvXXX_set_bottom(res->cst);
-	      return true;
+	      eitvXXX_set_bottom(env->cst);
+	      globalchange = true;
+	      break;
 	    }
 	    else {
 	      resdim->eq = itvXXX_is_point(resdim->itv);
@@ -879,21 +857,18 @@ static bool ap_linconsXXX_boxize(ap_linexprXXX_t res,
    that the inf (resp. sup) bound of dimension dim has been improved.
    - env is the current bounds for variables
    - kmax specifies the maximum number of iterations, when res==env
-   - if intervalonly is true, deduces bounds from a constraint only when the
-   coefficient associated to the current dimension is an interval.
 */
-bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
+bool ap_linconsXXX_array_boxize(ap_linexprXXX_t env,
 				bool* tchange,
 				ap_linconsXXX_array_t array,
-				ap_linexprXXX_t env, size_t intdim,
+				size_t intdim,
 				unsigned int kmax,
-				bool intervalonly, num_internal_t intern)
+				num_internal_t intern)
 {
   size_t i,k;
   bool change,globalchange;
 
   if (kmax<1) kmax=1;
-  if (res!=env) kmax=1;
 
   globalchange = false;
   /* we possibly perform kmax passes */
@@ -904,12 +879,12 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
 	  array->p[i]->constyp==AP_CONS_SUPEQ ||
 	  array->p[i]->constyp==AP_CONS_SUP){
 	change =
-	  ap_linconsXXX_boxize(res,tchange,array->p[i],env,intdim,intervalonly, intern)
+	  ap_linconsXXX_boxize(env,tchange,array->p[i],intdim,intern)
 	  ||
 	  change
 	  ;
 	globalchange = globalchange || change;
-	if (eitvXXX_is_bottom(res->cst)){
+	if (eitvXXX_is_bottom(env->cst)){
 	  return true;
 	}
       }
@@ -919,5 +894,431 @@ bool ap_linconsXXX_array_boxize(ap_linexprXXX_t res,
   return globalchange;
 }
 
+/* ********************************************************************** */
+/* IV. Deduce zonal/octagonal constraints from quasi-linear constraints */
+/* ********************************************************************** */
 
-#undef _ITVXXX_MARK_
+/* Add to the array the constraint
+   coeff1 dim1 + coeff2 dim2 + eitv->itv->sup *constyp* 0
+*/
+static void ap_linconsXXX_array_append_octagonal(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_dim_t dim1, int coeff1,
+    ap_dim_t dim2, int coeff2,
+    eitvXXX_t eitv,
+    ap_constyp_t constyp
+)
+{
+  assert(*pindex<array->size);
+  ap_linconsXXX_ptr cons = array->p[*pindex];
+  assert(
+      cons->constyp == AP_CONS_SUPEQ ||
+      cons->constyp == AP_CONS_SUP ||
+      cons->constyp == AP_CONS_EQ
+  );
+
+  ap_linconsXXX_resize_strict(cons,2);
+  cons->constyp = constyp;
+
+  eitvXXX_ptr peitv;
+  peitv = ap_linconsXXX_eitvref0(cons,dim1,true);
+  eitvXXX_set_int(peitv,coeff1);
+  peitv = ap_linconsXXX_eitvref0(cons,dim2,true);
+  eitvXXX_set_int(peitv,coeff2);
+  assert(boundXXX_infty(eitv->itv->sup)==0);
+  eitvXXX_set_num(cons->linexpr->cst,boundXXX_numref(eitv->itv->sup));
+  *pindex = *pindex + 1;
+}
+
+static int ap_linexprXXX_cmp_sup_bound(ap_linexprXXX_t env,
+				       ap_dim_t dim1,
+				       ap_dim_t dim2)
+{
+  eitvXXX_ptr eitv1 = ap_linexprXXX_eitvref0(env,dim1,false);
+  eitvXXX_ptr eitv2 = ap_linexprXXX_eitvref0(env,dim2,false);
+  if (eitv1==NULL){
+    if (eitv2==NULL) return 0;
+    else return -boundXXX_sgn(eitv2->itv->sup);
+  } else {
+    if (eitv1==NULL) return boundXXX_sgn(eitv1->itv->sup);
+    else return boundXXX_cmp(eitv1->itv->sup,eitv2->itv->sup);
+  }
+}
+static int ap_linexprXXX_cmp_inf_bound(ap_linexprXXX_t env,
+				       ap_dim_t dim1,
+				       ap_dim_t dim2)
+{
+  eitvXXX_ptr eitv1 = ap_linexprXXX_eitvref0(env,dim1,false);
+  eitvXXX_ptr eitv2 = ap_linexprXXX_eitvref0(env,dim2,false);
+  if (eitv1==NULL){
+    if (eitv2==NULL) return 0;
+    else return boundXXX_sgn(eitv2->itv->neginf);
+  } else {
+    if (eitv1==NULL) return -boundXXX_sgn(eitv1->itv->neginf);
+    else return -boundXXX_cmp(eitv1->itv->neginf,eitv2->itv->neginf);
+  }
+}
+static int ap_linexprXXX_cmp_supinf_bound(ap_linexprXXX_t env,
+					  ap_dim_t dim1,
+					  ap_dim_t dim2)
+{
+  eitvXXX_ptr eitv1 = ap_linexprXXX_eitvref0(env,dim1,false);
+  eitvXXX_ptr eitv2 = ap_linexprXXX_eitvref0(env,dim2,false);
+  if (eitv1==NULL){
+    if (eitv2==NULL) return 0;
+    else return boundXXX_sgn(eitv2->itv->neginf);
+  } else {
+    if (eitv1==NULL) return boundXXX_sgn(eitv1->itv->sup);
+    else {
+      boundXXX_neg(eitv2->itv->neginf,eitv2->itv->neginf);
+      int res = boundXXX_cmp(eitv1->itv->sup,eitv2->itv->neginf);
+      boundXXX_neg(eitv2->itv->neginf,eitv2->itv->neginf);
+      return res;
+    }
+  }
+}
+
+static void ap_linconsXXX_extract_diff(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_linconsXXX_t lincons,
+    int i1, ap_dim_t dim1, numXXX_t num1,
+    int i2, ap_dim_t dim2, numXXX_t num2,
+    ap_linexprXXX_t env,
+    size_t intdim,
+    num_internal_t intern
+)
+{
+  ap_linexprXXX_ptr linexpr = lincons->linexpr;
+  eitvXXX_ptr eitv = intern->XXX.boxize_lincons_eval;
+
+  numXXX_neg(num2,num2);
+  /* we have ax-by+e >= 0 with a>0, b>0 */
+  int cmp = numXXX_cmp(num1,num2);
+  if (cmp==0){ /* the simplest case: x-y + (e/a) >=0 */
+    eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+    eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+    ap_linexprXXX_eval(eitv, linexpr, env, intern);
+    if (!boundXXX_infty(eitv->itv->sup)){
+      eitvXXX_div_num(eitv,eitv,num1);
+      ap_linconsXXX_array_append_octagonal(
+	  array,pindex,
+	  dim1,1,dim2,-1,eitv, lincons->constyp
+      );
+    }
+  }
+  else { /* a!=b */
+    /* taking m between a and b, we see the constraint as
+       m(x-y) + (a-m)x + (m-b)y + e >= 0 or
+       x-y + (a/m-1)x + (1-b/m)y + e/m >= 0
+       we shoud choose m so as minimize the upper bound of
+       (a/m-1)x + (1-b/m)y
+       1. if a>b and supx>=supy or a<b and infx<=infy,
+       we take m=a
+       2. If a>b and supx<supy or a<b and infx>infy,
+       we take m=b
+    */
+    if (cmp>0 ?
+	ap_linexprXXX_cmp_sup_bound(env,dim1,dim2)>=0 :
+	ap_linexprXXX_cmp_inf_bound(env,dim1,dim2)<=0){
+      eitvXXX_sub_num(linexpr->linterm[i2]->eitv,
+		      linexpr->linterm[i1]->eitv,
+		      num2);
+      eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num1);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,1,dim2,-1,eitv,lincons->constyp
+	);
+      }
+    }
+    else if (cmp>0 ?
+	     ap_linexprXXX_cmp_sup_bound(env,dim1,dim2)<0 :
+	     ap_linexprXXX_cmp_inf_bound(env,dim1,dim2)>0){
+      eitvXXX_sub_num(linexpr->linterm[i1]->eitv,
+		      linexpr->linterm[i1]->eitv,
+		      num2);
+      eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num2);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,1,dim2,-1,eitv, lincons->constyp
+	);
+      }
+    }
+  }
+  numXXX_neg(num2,num2);
+  eitvXXX_set_num(linexpr->linterm[i1]->eitv,num1);
+  eitvXXX_set_num(linexpr->linterm[i2]->eitv,num2);
+}
+static void ap_linconsXXX_extract_sum_pos(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_linconsXXX_t lincons,
+    int i1, ap_dim_t dim1, numXXX_t num1,
+    int i2, ap_dim_t dim2, numXXX_t num2,
+    ap_linexprXXX_t env,
+    size_t intdim,
+    num_internal_t intern
+)
+{
+  ap_linexprXXX_ptr linexpr = lincons->linexpr;
+  eitvXXX_ptr eitv = intern->XXX.boxize_lincons_eval;
+
+  /* we have ax+by+e >= 0 with a>0, b>0 */
+  int cmp = numXXX_cmp(num1,num2);
+  if (cmp==0){ /* the simplest case: x+y + (e/a) >=0 */
+    eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+    eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+    ap_linexprXXX_eval(eitv, linexpr, env, intern);
+    if (!boundXXX_infty(eitv->itv->sup)){
+      eitvXXX_div_num(eitv,eitv,num1);
+      ap_linconsXXX_array_append_octagonal(
+	  array,pindex,
+	  dim1,1,dim2,1,eitv, lincons->constyp
+      );
+    }
+  }
+  else { /* a!=b */
+    /* taking m between a and b, we see the constraint as
+       m(x+y) + (a-m)x + (b-m)y + e >= 0 or
+       x+y + (a/m-1)x + (b/m-1)y + e/m >= 0
+       we shoud choose m so as minimize the upper bound of
+       (a/m-1)x + (b/m-1)y
+       1. if a>b and supx>=infy or a<b and infx>=supy,
+       we take m=a
+       2. If a>b and supx<infy or a<b and infx<supy
+       we take m=b
+    */
+    if (cmp>0 ?
+	ap_linexprXXX_cmp_supinf_bound(env,dim1,dim2)>=0 :
+	ap_linexprXXX_cmp_supinf_bound(env,dim2,dim1)<=0){
+      eitvXXX_sub_num(linexpr->linterm[i2]->eitv,
+		      linexpr->linterm[i2]->eitv,
+		      num1);
+      eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num1);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,1,dim2,1,eitv,lincons->constyp
+	);
+      }
+    }
+    else if (cmp>0 ?
+	     ap_linexprXXX_cmp_supinf_bound(env,dim1,dim2)<0 :
+	     ap_linexprXXX_cmp_supinf_bound(env,dim2,dim1)>0){
+      eitvXXX_sub_num(linexpr->linterm[i1]->eitv,
+		      linexpr->linterm[i1]->eitv,
+		      num2);
+      eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num2);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,1,dim2,1,eitv, lincons->constyp
+	);
+      }
+    }
+  }
+  eitvXXX_set_num(linexpr->linterm[i1]->eitv,num1);
+  eitvXXX_set_num(linexpr->linterm[i2]->eitv,num2);
+}
+static void ap_linconsXXX_extract_sum_neg(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_linconsXXX_t lincons,
+    int i1, ap_dim_t dim1, numXXX_t num1,
+    int i2, ap_dim_t dim2, numXXX_t num2,
+    ap_linexprXXX_t env,
+    size_t intdim,
+    num_internal_t intern
+)
+{
+  ap_linexprXXX_ptr linexpr = lincons->linexpr;
+  eitvXXX_ptr eitv = intern->XXX.boxize_lincons_eval;
+
+  numXXX_neg(num1,num1);
+  numXXX_neg(num2,num2);
+  /* we have -ax-by+e >= 0 with a>0, b>0 */
+  int cmp = numXXX_cmp(num1,num2);
+  if (cmp==0){ /* the simplest case: -(x+y) + (e/a) >=0 */
+    eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+    eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+    ap_linexprXXX_eval(eitv, linexpr, env, intern);
+    if (!boundXXX_infty(eitv->itv->sup)){
+      eitvXXX_div_num(eitv,eitv,num1);
+      ap_linconsXXX_array_append_octagonal(
+	  array,pindex,
+	  dim1,-1,dim2,-1,eitv, lincons->constyp
+      );
+    }
+  }
+  else { /* a!=b */
+    /* taking m between a and b, we see the constraint as
+       -m(x+y) + (m-a)x + (m-b)y + e >= 0 or
+       -(x+y) + (1-a/m)x + (1-b/m)y + e/m >= 0
+       we shoud choose m so as minimize the upper bound of
+       (1-a/m)x + (1-b/m)y
+       1. if a>b and infx>=supy or a<b and supx>=infy,
+       we take m=a
+       2. If a>b and infx<supy or a<b and supx<supy
+       we take m=b
+    */
+    if (cmp>0 ?
+	ap_linexprXXX_cmp_supinf_bound(env,dim2,dim1)<=0 :
+	ap_linexprXXX_cmp_supinf_bound(env,dim1,dim2)>=0){
+      eitvXXX_sub_num(linexpr->linterm[i2]->eitv,
+		      lincons->linexpr->linterm[i1]->eitv,
+		      num2);
+      eitvXXX_set_int(linexpr->linterm[i1]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num1);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,-1,dim2,-1,eitv,lincons->constyp
+	);
+      }
+    }
+    else if (cmp>0 ?
+	     ap_linexprXXX_cmp_supinf_bound(env,dim2,dim1)>0 :
+	     ap_linexprXXX_cmp_supinf_bound(env,dim1,dim2)<0){
+      eitvXXX_sub_num(linexpr->linterm[i1]->eitv,
+		      lincons->linexpr->linterm[i2]->eitv,
+		      num1);
+      eitvXXX_set_int(linexpr->linterm[i2]->eitv,0);
+      ap_linexprXXX_eval(eitv, linexpr, env, intern);
+      if (!boundXXX_infty(eitv->itv->sup)){
+	eitvXXX_div_num(eitv,eitv,num2);
+	ap_linconsXXX_array_append_octagonal(
+	    array,pindex,
+	    dim1,-1,dim2,-1,eitv, lincons->constyp
+	);
+      }
+    }
+  }
+  numXXX_neg(num1,num1);
+  numXXX_neg(num2,num2);
+  eitvXXX_set_num(linexpr->linterm[i1]->eitv,num1);
+  eitvXXX_set_num(linexpr->linterm[i2]->eitv,num2);
+}
+
+void ap_linconsXXX_extract_append_difference(
+    ap_linconsXXX_array_t array, size_t* pindex,
+    ap_linconsXXX_array_t tlincons, size_t i,
+    ap_linexprXXX_t env,
+    size_t intdim,
+    bool octagonal,
+    num_internal_t intern
+)
+{
+  size_t i1,i2;
+
+  eitvXXX_ptr eitv1,eitv2,resdim;
+  ap_dim_t dim1,dim2;
+  bool change,globalchange;
+  bool exc;
+
+  if (tlincons->p[i]->linexpr->effsize<2)
+    return;
+  if (0){
+    printf("\ncons:"); ap_linconsXXX_print(tlincons->p[i],0);
+    printf("\nenv:"); ap_linexprXXX_print(env,0);
+    printf("\n");
+  }
+  assert(tlincons->p[i]->constyp == AP_CONS_SUPEQ ||
+	 tlincons->p[i]->constyp == AP_CONS_SUP);
+
+  ap_linexprXXX_ForeachLinterm0(tlincons->p[i]->linexpr,i1,dim1,eitv1){
+    assert(eitv1->eq);
+    numXXX_ptr num1 = boundXXX_numref(eitv1->itv->sup);
+    int sgn1 = numXXX_sgn(num1);
+    if (sgn1==0) continue;
+    ap_linexprXXX_ForeachLinterm0(tlincons->p[i]->linexpr,i2,dim2,eitv2){
+      if (i2==i1) continue;
+      assert(eitv2->eq);
+      numXXX_ptr num2 = boundXXX_numref(eitv2->itv->sup);
+      int sgn2 = numXXX_sgn(num2);
+      if (sgn2==0) continue;
+      if (*pindex >= array->size) ap_linconsXXX_array_resize(array,2*array->size+2);
+      if (sgn1>0 && sgn2<0){
+	numXXX_set(intern->XXX.diffize_num1,num1);
+	numXXX_set(intern->XXX.diffize_num2,num2);
+	ap_linconsXXX_extract_diff(array,pindex,
+				   tlincons->p[i],
+				   i1,dim1,intern->XXX.diffize_num1,
+				   i2,dim2,intern->XXX.diffize_num2,
+				   env,intdim,intern);
+      }
+      else if (sgn1<0 && sgn2>0){
+	/* if dim1<dim2, will be treated later,
+	   if dim1>dim2, has already been treated */
+      }
+      else if (octagonal && (i1<i2)){
+	numXXX_set(intern->XXX.diffize_num1,num1);
+	numXXX_set(intern->XXX.diffize_num2,num2);
+	if (sgn1>0 && sgn2>0){
+	  ap_linconsXXX_extract_sum_pos(array,pindex,
+					tlincons->p[i],
+					i1,dim1,intern->XXX.diffize_num1,
+					i2,dim2,intern->XXX.diffize_num2,
+					env,intdim,intern);
+	}
+	else if (sgn1<0 && sgn2<0){
+	  ap_linconsXXX_extract_sum_neg(array,pindex,
+					tlincons->p[i],
+					i1,dim1,intern->XXX.diffize_num1,
+					i2,dim2,intern->XXX.diffize_num2,
+					env,intdim,intern);
+	}
+      }
+    }
+  }
+}
+
+void ap_linconsXXX_array_extract_append_difference(
+    ap_linconsXXX_array_t array,
+    ap_linconsXXX_array_t tlincons,
+    ap_linexprXXX_t env,
+    size_t intdim,
+    bool octagonal,
+    num_internal_t intern
+)
+{
+  size_t i;
+  const size_t size = tlincons->size;
+  size_t index = size;
+  for (i=0; i<size; i++){
+    if (tlincons->p[i]->constyp==AP_CONS_EQ){
+      tlincons->p[i]->constyp = AP_CONS_SUPEQ;
+      ap_linconsXXX_extract_append_difference(
+	  array, &index,
+	  tlincons,i, env, intdim,
+	  octagonal,intern
+      );
+      ap_linexprXXX_neg(tlincons->p[i]->linexpr,tlincons->p[i]->linexpr);
+      ap_linconsXXX_extract_append_difference(
+	  array, &index,
+	  tlincons,i, env, intdim,
+	  octagonal,intern
+      );
+      ap_linexprXXX_neg(tlincons->p[i]->linexpr,tlincons->p[i]->linexpr);
+      tlincons->p[i]->constyp = AP_CONS_EQ;
+    }
+    else if (tlincons->p[i]->constyp==AP_CONS_SUPEQ ||
+	     tlincons->p[i]->constyp==AP_CONS_SUP){
+      ap_linconsXXX_extract_append_difference(
+	  array, &index,
+	  tlincons,i, env, intdim,
+	  octagonal,intern
+      );
+    }
+  }
+  ap_linconsXXX_array_resize(array,index);
+}
+
+#undef _NUMXXX_MARK_

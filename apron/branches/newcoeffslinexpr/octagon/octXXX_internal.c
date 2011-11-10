@@ -134,7 +134,7 @@ void boundsXXX_of_lingen0(octXXX_internal_t* pr, boundXXX_t* dst,
   }
   ap_linexpr0_ForeachLinterm(e,i,d,coeff){
     arg_assert(d<dim,return;);
-    boundsXXX_of_coeff(pr,dst[2*i],dst[2*i+1],coeff,false);
+    boundsXXX_of_coeff(pr,dst[2*d],dst[2*d+1],coeff,false);
   }
 }
 
@@ -187,12 +187,12 @@ void coeff_of_eitvXXX(octXXX_internal_t* pr,
   pr->conv = !exact;
 }
 void coeff_of_boundsXXX(octXXX_internal_t* pr,
-				      ap_coeff_t coeff,
-				      boundXXX_t neginf, boundXXX_t sup,
-				      bool div2)
+			ap_coeff_t coeff,
+			boundXXX_t neginf, boundXXX_t sup,
+			bool div2)
 {
   boundXXX_ptr pneginf,psup;
-  bool exact;
+  bool exact = true;
   if (div2){
     boundXXX_mul_2exp(pr->eitv->itv->neginf,neginf,-1);
     boundXXX_mul_2exp(pr->eitv->itv->sup,sup,-1);

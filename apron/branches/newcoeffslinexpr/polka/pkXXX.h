@@ -112,7 +112,7 @@ pk_option_t* pk_manager_option_ref(ap_manager_t* man);
      Flags can then be modified in-place */
 
 /* ============================================================ */
-/* D. Conversions */
+/* C. Conversions */
 /* ============================================================ */
 
 pkXXX_t* pkXXX_of_abstract0(ap_abstract0_t* abstract);
@@ -275,54 +275,30 @@ ap_dimension_t pkXXX_dimension(ap_manager_t* man, pkXXX_t* a);
 /* ============================================================ */
 
 bool pkXXX_is_bottom(ap_manager_t* man, pkXXX_t* a);
-  /* Emptiness test
-     algorithm >= 0: strict behaviour, compute canonical form if necessary
-     algorithm < 0: lazy behaviour, always cheap
-  */
+  /* Emptiness test */
 bool pkXXX_is_top(ap_manager_t* man, pkXXX_t* a);
-  /* Universe test
-     algorithm >= 0: strict behaviour, compute canonical form if necessary
-     algorithm < 0: lazy behaviour, always cheap
-  */
+  /* Universe test */
 
 bool pkXXX_is_leq(ap_manager_t* man, pkXXX_t* a1, pkXXX_t* a2);
-  /* Inclusion test:
-     Is always strict
-     algorithm > 0: (nearly always) compute canonical forms
-     algorithm <= 0: compute dual representations only if necessary
-  */
+  /* Inclusion test. Is always strict */
 
 bool pkXXX_is_eq(ap_manager_t* man, pkXXX_t* a1, pkXXX_t* a2);
-  /* Equality test:
-     Is always strict
-     Use algorithm field of is_leq.
-  */
+  /* Equality test. Is always strict */
 
 bool pkXXX_sat_lincons(ap_manager_t* man, pkXXX_t* a, ap_lincons0_t lincons);
-  /* Satisfiability of a linear constraint
-     Is always strict
-     algorithm > 0: (nearly always) compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
-  */
+  /* Satisfiability of a linear constraint. Is always strict */
 
 bool pkXXX_sat_tcons(ap_manager_t* man, pkXXX_t* a, ap_tcons0_t* cons);
   /* Satisfiability of a tree expression constraint. */
 
 bool pkXXX_sat_interval(ap_manager_t* man, pkXXX_t* a,
 			ap_dim_t dim, ap_coeff_t interval);
-  /* Inclusion of a dimension in an interval
-     Is always strict
-     algorithm > 0: (nearly always) compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
+  /* Inclusion of a dimension in an interval. Is always strict
   */
 
 bool pkXXX_is_dimension_unconstrained(ap_manager_t* man, pkXXX_t* po,
 				      ap_dim_t dim);
-  /* Is a dimension unconstrained ?
-     Is always strict
-     algorithm > 0: compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
-  */
+  /* Is a dimension unconstrained ? Is always strict */
 
 /* ============================================================ */
 /* II.4 Extraction of properties */
@@ -332,18 +308,12 @@ void pkXXX_bound_dimension(ap_manager_t* man,
 			   ap_coeff_t interval, pkXXX_t* a, ap_dim_t dim);
   /* Returns the interval taken by the dimension
      over the abstract value
-
-     algorithm > 0: compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
   */
 
 void pkXXX_bound_linexpr(ap_manager_t* man,
 			 ap_coeff_t interval, pkXXX_t* a, ap_linexpr0_t expr);
   /* Returns the interval taken by a linear expression
      over the abstract value.
-
-     algorithm > 0: compute canonical form
-     algorithm <= 0: compute dual representation only if necessary
   */
 
 void pkXXX_bound_texpr(ap_manager_t* man,
@@ -355,9 +325,6 @@ void pkXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkXXX_t* a);
   /* Converts an abstract value to an interval/hypercube.
      The size of the resulting array is pkXXX_dimension(man,a).  This
      function can be reimplemented by using pkXXX_bound_linexpr
-
-     algorithm >= 0: compute canonical form
-     algorithm < 0: compute dual representation only if necessary
   */
 
 void pkXXX_to_lincons_array(ap_manager_t* man, ap_lincons0_array_t array, pkXXX_t* a);

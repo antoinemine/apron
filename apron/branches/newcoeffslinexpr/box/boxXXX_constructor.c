@@ -61,17 +61,20 @@ boxXXX_t* boxXXX_of_box(ap_manager_t* man,
     eitvZZZ_ptr eitv;
     lastdim = 0;
     ap_linexprZZZ_ForeachLinterm0(box->linexpr.ZZZ,i,dim,eitv){
-      for (dim2=lastdim;dim2<dim;dim++){
+      for (dim2=lastdim;dim2<dim;dim2++){
 	eitvXXX_set_int(a->e->linterm[dim2]->eitv,0);
       }
       lastdim = dim+1;
-      man->result.flag_exact &=
-	eitvXXX_set_eitvZZZ(a->e->linterm[dim]->eitv,eitv,man->num);
+      man->result.flag_exact =
+	eitvXXX_set_eitvZZZ(a->e->linterm[dim]->eitv,eitv,man->num) &&
+	man->result.flag_exact;
       exc = eitvXXX_canonicalize(a->e->linterm[dim]->eitv,i<dimension.intd);
       if (exc) { boxXXX_set_bottom(a); break; }
     }
-    for (dim2=lastdim;dim2<size;dim++){
-      eitvXXX_set_int(a->e->linterm[dim2]->eitv,0);
+    if (a->e->linterm){
+      for (dim2=lastdim;dim2<size;dim2++){
+	eitvXXX_set_int(a->e->linterm[dim2]->eitv,0);
+      }
     }
   }
   ENDMACRO;
@@ -225,14 +228,16 @@ void boxXXX_eval_texpr(
   boxXXX_internal_t* intern = boxXXX_init_from_manager(man,AP_FUNID_BOUND_TEXPR);
   assert(a->e);
   eitvXXX_eval_ap_texpr0(eitv,texpr,a->e,man->num);
-  /* Intersect with linearisation: can give better results because
-     evaluating x=[a,b] is more precise than evaluating
-     2x-x=[2a,2b]-[a,b]=[2a-b,2b-a] */
-  ap_linexprXXX_intlinearize_texpr0(intern->eval_texpr_linexpr,
-				    texpr,a->e,a->dim.intd,man->num);
-  ap_linexprXXX_eval(intern->eval_texpr_itv,
-		     intern->eval_texpr_linexpr,a->e,man->num);
-  eitvXXX_meet(eitv,eitv,intern->eval_texpr_itv);
+  if (!eitvXXX_is_bottom(eitv)){
+    /* Intersect with linearisation: can give better results because
+       evaluating x=[a,b] is more precise than evaluating
+       2x-x=[2a,2b]-[a,b]=[2a-b,2b-a] */
+    ap_linexprXXX_intlinearize_texpr0(intern->eval_texpr_linexpr,
+				      texpr,a->e,a->dim.intd,man->num);
+    ap_linexprXXX_eval(intern->eval_texpr_itv,
+		       intern->eval_texpr_linexpr,a->e,man->num);
+    eitvXXX_meet(eitv,eitv,intern->eval_texpr_itv);
+  }
 }
 
 /* does the abstract value satisfy the tree constraint ? */
@@ -545,6 +550,7 @@ void boxXXX_to_box(ap_manager_t* man, ap_linexpr0_t res, boxXXX_t* a)
   if (a->e->linterm==NULL){
     size_t size = ap_dimension_size(a->dim);
     MACRO_SWITCH(res->discr) ZZZ {
+      eitvZZZ_set_bottom(res->linexpr.ZZZ->cst);
       ap_linexprZZZ_resize(res->linexpr.ZZZ,size);
       res->linexpr.ZZZ->effsize = size;
       for (i=0;i<size;i++){

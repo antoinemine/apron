@@ -148,7 +148,7 @@ quote(MLMLI,"\
 
 quote(MLMLI,"\n(** {2 Boxization of interval linear expressions} *)\n\n")
 
-quote(MLMLI,"external array_boxsize : LinexprXXX.t -> LinconsXXX.earray -> LinexprXXX.t -> int -> int -> bool -> Common.num_internal -> bool * bool array\t= \"camlidl_linconsXXX_array_boxize_bytecode\" \"camlidl_linconsXXX_array_boxize\"")
+quote(MLMLI,"external array_boxsize : LinexprXXX.t -> LinconsXXX.earray -> LinexprXXX.t -> int -> int -> Common.num_internal -> bool * bool array\t= \"camlidl_linconsXXX_array_boxize_bytecode\" \"camlidl_linconsXXX_array_boxize\"")
 quote(MLMLI,"\
   (** [(exact,tchange) = array_boxize nenv linarray env intdim kmax intervalonly intern] \n\
 \n\
@@ -169,19 +169,15 @@ quote(C,"\n\
 value camlidl_linconsXXX_array_boxize(\n\
     value _v_res,\n\
     value _v_array,\n\
-    value _v_env,\n\
     value _v_intdim,\n\
     value _v_kmax,\n\
-    value _v_intervalonly,\n\
     value _v_intern)\n\
 {\n\
   ap_linexprXXX_ptr res; /*in*/\n\
   bool* tchange; /*out*/\n\
   ap_linconsXXX_array_ptr array; /*in*/\n\
-  ap_linexprXXX_ptr env; /*in*/\n\
   unsigned int intdim; /*in*/\n\
   unsigned int kmax; /*in*/\n\
-  int intervalonly; /*in*/\n\
   num_internal_ptr intern; /*in*/\n\
   int _res;\n\
   struct camlidl_ctx_struct _ctxs = { CAMLIDL_TRANSIENT, NULL };\n\
@@ -193,15 +189,13 @@ value camlidl_linconsXXX_array_boxize(\n\
 \n\
   camlidl_ap_linexprXXX_ptr_ml2c(_v_res,&res);\n\
   camlidl_ap_linconsXXX_array_ptr_ml2c(_v_array,&array);\n\
-  camlidl_ap_linexprXXX_ptr_ml2c(_v_env,&env);\n\
   intdim = Int_val(_v_intdim);\n\
   kmax = Int_val(_v_kmax);\n\
-  intervalonly = Int_val(_v_intervalonly);\n\
   camlidl_apron_num_internal_ptr_ml2c(_v_intern, &intern);\n\
-  size_t size = env->effsize==0 ? 0 : (1+env->linterm[env->effsize-1]->dim);\n\
+  size_t size = res->effsize==0 ? 0 : (1+res->linterm[res->effsize-1]->dim);\n\
   tchange = camlidl_malloc(2*size * sizeof(bool), _ctx);\n\
   for (size_t i=0;i<2*size;i++) tchange[i] = false;\n\
-  _res = ap_linconsXXX_array_boxize(res, tchange, array, env, intdim, kmax, intervalonly, intern);\n\
+  _res = ap_linconsXXX_array_boxize(res, tchange, array, intdim, kmax, intern);\n\
   Begin_roots_block(_vres, 2)\n\
     _vres[0] = Val_int(_res);\n\
     _vres[1] = camlidl_alloc(2*size, 0);\n\
@@ -219,6 +213,6 @@ value camlidl_linconsXXX_array_boxize(\n\
 \n\
 value camlidl_linconsXXX_eval_ap_linconsXXX_array_boxize_bytecode(value * argv, int argn)\n\
 {\n\
-  return camlidl_linconsXXX_array_boxize(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);\n\
+  return camlidl_linconsXXX_array_boxize(argv[0], argv[1], argv[2], argv[3], argv[4]);\n\
 }\n\
 ")

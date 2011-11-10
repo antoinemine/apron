@@ -276,8 +276,8 @@ ap_abstract0_t* ap_abstract0_octXXX_narrowing( ap_manager_t* man,
   octXXX_t* a = (octXXX_t*) (a1->value);
   arg_assert(man->library==a1->man->library &&
 	     man->library==a2->man->library,
-	     return abstract0_of_oct(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
-  return abstract0_of_oct(man,octXXX_narrowing
+	     return abstract0_of_octXXX(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
+  return abstract0_of_octXXX(man,octXXX_narrowing
 			  (man,a1->value,a2->value));
 }
 
@@ -292,9 +292,9 @@ ap_abstract0_octXXX_widening_thresholds(ap_manager_t* man,
   octXXX_t* a = (octXXX_t*) (a1->value);
   arg_assert(man->library==a1->man->library &&
 	     man->library==a2->man->library,
-	     return abstract0_of_oct(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
+	     return abstract0_of_octXXX(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
   return
-    abstract0_of_oct(man,octXXX_widening_thresholds
+    abstract0_of_octXXX(man,octXXX_widening_thresholds
 		     (man,a1->value,a2->value,array,nb));
 }
 
@@ -341,8 +341,8 @@ ap_abstract0_octXXX_add_epsilon(ap_manager_t* man,
   octXXX_internal_t* pr = octXXX_init_from_manager(man,AP_FUNID_WIDENING,0);
   octXXX_t* a = (octXXX_t*) (a1->value);
   arg_assert(man->library==a1->man->library,
-	     return abstract0_of_oct(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
-  return abstract0_of_oct(man,octXXX_add_epsilon(man,a,epsilon));
+	     return abstract0_of_octXXX(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
+  return abstract0_of_octXXX(man,octXXX_add_epsilon(man,a,epsilon));
 }
 
 
@@ -396,6 +396,6 @@ ap_abstract0_octXXX_add_epsilon_bin(ap_manager_t* man,
   octXXX_t* a = (octXXX_t*) (a1->value);
   arg_assert(man->library==a1->man->library &&
 	     man->library==a2->man->library,
-	     return abstract0_of_oct(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
-  return abstract0_of_oct(man,octXXX_add_epsilon_bin(man,a1->value,a2->value,epsilon));
+	     return abstract0_of_octXXX(man,octXXX_alloc_top(pr,a->dim,a->intdim)););
+  return abstract0_of_octXXX(man,octXXX_add_epsilon_bin(man,a1->value,a2->value,epsilon));
 }
