@@ -138,8 +138,7 @@ int numMPQ_hash(const numMPQ_t a);
 /* Printing */
 /* ====================================================================== */
 
-static inline void numMPQ_print(const numMPQ_t a)
-{ mpq_out_str(stdout,10,a); }
+void numMPQ_print(const numMPQ_t a);
 static inline void numMPQ_fprint(FILE* stream, const numMPQ_t a)
 { mpq_out_str(stream,10,a); }
 int numMPQ_snprint(char* s, int size, const numMPQ_t a);

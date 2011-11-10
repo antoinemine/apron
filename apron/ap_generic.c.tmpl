@@ -119,10 +119,10 @@ ap_generic_sat_linconsXXX_array_internal(
 	if (!eitvXXX_is_zero(eitv0)) res = false;
 	break;
       case AP_CONS_SUP:
-	if (boundXXX_sgn(eitv0->itv->neginf)>0) res = false;
+	if (boundXXX_sgn(eitv0->itv->neginf)>=0) res = false;
 	break;
       case AP_CONS_SUPEQ:
-	if (boundXXX_sgn(eitv0->itv->neginf)>=0) res = false;
+	if (boundXXX_sgn(eitv0->itv->neginf)>0) res = false;
 	break;
       default:
 	res = false;
@@ -508,7 +508,8 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
     ap_linconsXXX_array_t arrayX, /* mutable: be careful ! */
     ap_linexpr_type_t linearize,
     ap_linexpr0_ptr penv, /* may be NULL */
-    ap_linexpr_type_t boxize, unsigned int kmax, bool intervalonly,
+    ap_linexpr_type_t boxize, unsigned int kmax,
+    bool diffize, bool octagonal,
     bool* exact,
     void* (*meet_lincons_array)(ap_manager_t*,
 				bool, void*,
@@ -527,11 +528,14 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
 
   ap_dimension_t dim = dimension(man,abs);
   ap_linexpr_type_t typ = ap_linconsXXX_array_type(arrayX);
+
   if (typ<=boxize){
+    /* We deduce box constraints */
     unsigned int i;
     ap_dim_t d;
     eitvXXX_ptr eitv;
 
+    /* Extract bouding box from abs if needed */
     if (!penv){
       ap_linexpr0_init(env,AP_SCALAR_XXX,0);
       penv = env;
@@ -542,10 +546,11 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
     unsigned int size = ap_dimension_size(dim);
     tchange = malloc(2*size);
     for (unsigned int i=0;i<2*size;i++) tchange[i] = false;
+    /* Extract bound constraints extracted from general constraints */
     change =
       ap_linconsXXX_array_boxize(
-	  penv->linexpr.XXX,tchange,arrayX,penv->linexpr.XXX,
-	  dim.intd,kmax,intervalonly,man->num
+	  penv->linexpr.XXX,tchange,arrayX,
+	  dim.intd,kmax,man->num
       );
     if (eitvXXX_is_bottom(penv->linexpr.XXX->cst)){
       void* (*bottom)(ap_manager_t*,ap_dimension_t) = man->funptr[AP_FUNID_BOTTOM];
@@ -557,14 +562,17 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
       free(tchange);
       goto ap_generic_meet_quasilinearize_linconsXXX_array_internal_exit;
     }
-  } else {
+  }
+  else {
     change = false;
     tchange = NULL;
   }
-  /* Cannot add boxised constraint now, because with more constrained
+  /* Cannot add boxized constraint now, because with more constrained
      environment some constraints can disappear. For instance, if we inferred
      x0=1, then in env we also have x0=1, and the linearisation algorithm
      will replace x0=1 with 1=1. */
+
+  /* Quasi or full linearization, using possibly the improved environment. */
   while (typ<linearize){
     switch (typ){
     case AP_LINEXPR_INTLINEAR:
@@ -586,10 +594,21 @@ ap_generic_meet_quasilinearize_linconsXXX_array_internal(
       assert(false);
     }
   }
+  /* Add possibly difference and sum constraints */
+  if (typ!=AP_LINEXPR_INTLINEAR && diffize){
+    ap_linconsXXX_array_extract_append_difference(
+	arrayX, arrayX, penv->linexpr.XXX, dim.intd,
+	octagonal, man->num
+    );
+  }
+  /* Add possibly bound constraint */
   if (change){
     ap_linconsXXX_array_append_set_env(arrayX,penv->linexpr.XXX,tchange);
+  }
+  if (tchange){
     free(tchange);
   }
+  /* Simplification s */
   tb = ap_linconsXXX_array_reduce_integer(arrayX,dim.intd,man->num);
   switch (tb){
   case tbool_false:
@@ -621,7 +640,8 @@ ap_generic_meet_quasilinearize_lincons_array(
     ap_manager_t* man, bool destructive, void* abs, ap_lincons0_array_t array,
     ap_scalar_discr_t discr,
     ap_linexpr_type_t linearize,
-    ap_linexpr_type_t boxize, unsigned int kmax, bool intervalonly,
+    ap_linexpr_type_t boxize, unsigned int kmax,
+    bool diffize, bool octagonal,
     void* (*meet_lincons_array)(ap_manager_t*,
 				bool, void*,
 				ap_lincons0_array_t)
@@ -638,7 +658,7 @@ ap_generic_meet_quasilinearize_lincons_array(
 
   size_t size = ap_lincons0_array_size(array);
   if (is_bottom(man,abs) || size==0){
-    res = destructive ? abs : copy(abs);
+    res = destructive ? abs : copy(man,abs);
   }
   else {
     MACRO_SWITCH(discr) XXX {
@@ -650,7 +670,8 @@ ap_generic_meet_quasilinearize_lincons_array(
 	ap_generic_meet_quasilinearize_linconsXXX_array_internal(
 	    man,destructive,abs,arrayX,
 	    linearize,NULL,
-	    boxize,kmax,intervalonly,
+	    boxize,kmax,
+	    diffize, octagonal,
 	    &exact,
 	    meet_lincons_array
 	);
@@ -665,7 +686,8 @@ void*
 ap_generic_meet_intlinearize_tcons_array(
     ap_manager_t* man, bool destructive, void* abs, ap_tcons0_array_t* array,
     ap_scalar_discr_t discr, ap_linexpr_type_t linearize,
-    ap_linexpr_type_t boxize, unsigned int kmax, bool intervalonly,
+    ap_linexpr_type_t boxize, unsigned int kmax,
+    bool diffize, bool octagonal,
     void* (*meet_lincons_array)(ap_manager_t*,
 				bool, void*,
 				ap_lincons0_array_t)
@@ -709,7 +731,8 @@ ap_generic_meet_intlinearize_tcons_array(
 	ap_generic_meet_quasilinearize_linconsXXX_array_internal(
 	    man,destructive,abs,arrayX,
 	    linearize,penv,
-	    boxize,kmax,intervalonly,
+	    boxize,kmax,
+	    diffize,octagonal,
 	    &exact,
 	    meet_lincons_array
 	);

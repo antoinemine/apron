@@ -181,6 +181,8 @@ void ap_manager_free(ap_manager_t* man)
     man->count--;
   }
   else {
+    free(man->library);
+    free(man->version);
     if (man->internal != NULL){
       man->internal_free(man->internal);
       man->internal = NULL;

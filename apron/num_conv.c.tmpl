@@ -7,7 +7,7 @@
 #include "eitv_all.h"
 #include <float.h>
 
-#define NUM_CONTINUED_FRACTION_SIZE 10
+#define NUM_CONTINUED_FRACTION_SIZE 3
 #define NUM_CONTINUED_FRACTION_RATIO 2
 
   /* For conversions from double to rationals */
@@ -883,6 +883,18 @@ ENDMACRO
       long int l = va_arg(*va,long int);
       res = itvXXX_set_lfrac2(a,i,j,k,l,intern); }
     break;
+  case ITV_MPZFRAC:
+    { mpz_ptr i = va_arg(*va,mpz_ptr);
+      mpz_ptr j = va_arg(*va,mpz_ptr);
+      res = itvXXX_set_mpzfrac(a,i,j,intern); }
+    break;
+  case ITV_MPZFRAC2:
+    { mpz_ptr i = va_arg(*va,mpz_ptr);
+      mpz_ptr j = va_arg(*va,mpz_ptr);
+      mpz_ptr k = va_arg(*va,mpz_ptr);
+      mpz_ptr l = va_arg(*va,mpz_ptr);
+      res = itvXXX_set_mpzfrac2(a,i,j,k,l,intern); }
+    break;
   case ITV_MPQ:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
       res = itvXXX_set_mpq(a,b,intern); }
@@ -992,6 +1004,18 @@ ENDMACRO
       long int k = va_arg(*va,long int);
       long int l = va_arg(*va,long int);
       res = eitvXXX_set_lfrac2(a,i,j,k,l,intern); }
+    break;
+  case EITV_MPZFRAC:
+    { mpz_ptr i = va_arg(*va,mpz_ptr);
+      mpz_ptr j = va_arg(*va,mpz_ptr);
+      res = eitvXXX_set_mpzfrac(a,i,j,intern); }
+    break;
+  case EITV_MPZFRAC2:
+    { mpz_ptr i = va_arg(*va,mpz_ptr);
+      mpz_ptr j = va_arg(*va,mpz_ptr);
+      mpz_ptr k = va_arg(*va,mpz_ptr);
+      mpz_ptr l = va_arg(*va,mpz_ptr);
+      res = eitvXXX_set_mpzfrac2(a,i,j,k,l,intern); }
     break;
   case EITV_MPQ:
     { mpq_ptr b = va_arg(*va,mpq_ptr);
@@ -1116,4 +1140,92 @@ void eitvXXX_to_double(eitvXXX_t a, const eitvXXX_t b, num_internal_t intern)
   itvXXX_to_double(a->itv,b->itv,intern);
   a->eq = itvXXX_is_point(a->itv);
 }
+ENDMACRO
+
+MACRO_FOREACH XXX @AllNum
+#define _MARK_XXX_
+extern inline bool numXXX_set_mpzfrac(numXXX_t a, const mpz_t i, const mpz_t j, num_internal_t intern)
+{
+#if defined(_MARK_MPZ_)
+  mpz_cdiv_qr(a,intern->r,i,j);
+  return mpz_sgn(intern->r)==0;
+#elif defined(_MARK_MPQ_)
+  mpz_set(mpq_numref(a),i);
+  mpz_set(mpq_denref(a),j);
+  mpq_canonicalize(a);
+  return true;
+#elif defined(_MARK_Rl_)
+  numIl_set_numMPZ(a->n,i,intern);
+  numIl_set_numMPZ(a->d,j,intern);
+  numRl_canonicalize(a);
+  return true;
+#elif defined(_MARK_Rll_)
+  numIll_set_numMPZ(a->n,i,intern);
+  numIll_set_numMPZ(a->d,j,intern);
+  numRll_canonicalize(a);
+  return true;
+#else
+  mpz_set(mpq_numref(intern->mpq),i);
+  mpz_set(mpq_denref(intern->mpq),j);
+  mpq_canonicalize(intern->mpq);
+  return numXXX_set_mpq(a,intern->mpq,intern);
+#endif
+}
+extern inline bool boundXXX_set_mpzfrac(boundXXX_t a, const mpz_t i, const mpz_t j, num_internal_t intern)
+{
+  _boundXXX_set_finite(a);
+  return numXXX_set_mpzfrac(boundXXX_numref(a),i,j,intern);
+}
+extern inline bool itvXXX_set_mpzfrac(itvXXX_t a, const mpz_t i, const mpz_t j, num_internal_t intern)
+{
+  assert(i!=j);
+  bool exact = boundXXX_set_mpzfrac(a->sup,i,j,intern);
+  if (exact){
+    boundXXX_neg(a->neginf,a->sup);
+    return true;
+  }
+  else {
+    mpz_neg((mpz_ptr)i,i);
+    boundXXX_set_mpzfrac(a->neginf,i,j,intern);
+    mpz_neg((mpz_ptr)i,i);
+    return false;
+  }
+}
+bool eitvXXX_set_mpzfrac(eitvXXX_t a, const mpz_t i, const mpz_t j, num_internal_t intern)
+{
+  a->eq = itvXXX_set_mpzfrac(a->itv,i,j,intern);
+  return a->eq;
+}
+bool itvXXX_set_lfrac2(itvXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern)
+{
+  numRl_t b1; *b1->n=n1; *b1->d=d1;
+  numRl_t b2; *b2->n=n2; *b2->d=d2;
+  numRl_canonicalize(b1);
+  numRl_canonicalize(b2);
+  return itvXXX_set_numRl2(a,b1,b2,intern);
+}
+bool eitvXXX_set_lfrac2(eitvXXX_t a, long int n1, long int d1, long int n2, long int d2, num_internal_t intern)
+{
+  numRl_t b1; *b1->n=n1; *b1->d=d1;
+  numRl_t b2; *b2->n=n2; *b2->d=d2;
+  numRl_canonicalize(b1);
+  numRl_canonicalize(b2);
+  return eitvXXX_set_numRl2(a,b1,b2,intern);
+}
+extern inline bool itvXXX_set_mpzfrac2(itvXXX_t a, const mpz_t n1, const mpz_t d1, const mpz_t n2, const mpz_t d2, num_internal_t intern)
+{
+  bool exact = boundXXX_set_mpzfrac(a->sup,n2,d2,intern);
+  mpz_neg((mpz_ptr)n1,n1);
+  exact = boundXXX_set_mpzfrac(a->neginf,n1,d1,intern);
+  mpz_neg((mpz_ptr)n1,n1);
+  return exact;
+}
+bool eitvXXX_set_mpzfrac2(eitvXXX_t a, const mpz_t n1, const mpz_t d1, const mpz_t n2, const mpz_t d2, num_internal_t intern)
+{
+  bool exact = itvXXX_set_mpzfrac2(a->itv,n1,d1,n2,d2,intern);
+  a->eq = exact && itvXXX_is_point(a->itv);
+  return exact;
+}
+
+#undef _MARK_XXX_
 ENDMACRO

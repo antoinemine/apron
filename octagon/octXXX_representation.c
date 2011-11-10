@@ -140,8 +140,8 @@ octXXX_t* octXXX_of_box(ap_manager_t* man, ap_dimension_t dim, ap_linexpr0_t box
   lastd = 0;
   ap_linexpr0_ForeachLinterm(box,i,d,coeff){
     for (d2=lastd;d2<d;d2++){
-      boundXXX_set(r->closed[matpos(2*d2,2*d2+1)],0);
-      boundXXX_set(r->closed[matpos(2*d2+1,2*d2)],0);
+      boundXXX_set_int(r->closed[matpos(2*d2,2*d2+1)],0);
+      boundXXX_set_int(r->closed[matpos(2*d2+1,2*d2)],0);
     }
     lastd = d+1;
     if (boundsXXX_of_coeff(pr,
@@ -155,8 +155,8 @@ octXXX_t* octXXX_of_box(ap_manager_t* man, ap_dimension_t dim, ap_linexpr0_t box
     }
   }
   for (d2=lastd;d2<size;d2++){
-    boundXXX_set(r->closed[matpos(2*d2,2*d2+1)],0);
-    boundXXX_set(r->closed[matpos(2*d2+1,2*d2)],0);
+    boundXXX_set_int(r->closed[matpos(2*d2,2*d2+1)],0);
+    boundXXX_set_int(r->closed[matpos(2*d2+1,2*d2)],0);
   }
   /* a S step is sufficient to ensure clsoure */
   if (hmatXXX_s_step(r->closed,r->dim)){
@@ -333,6 +333,7 @@ octXXX_t* octXXX_closure(ap_manager_t* man, bool destructive, octXXX_t* a)
 
 void octXXX_internal_free(octXXX_internal_t* pr)
 {
+  eitvXXX_clear(pr->eitv);
   boundXXX_clear_array(pr->tmp,pr->tmp_size);
   free(pr->tmp);
   free(pr->tmp2);
@@ -359,7 +360,7 @@ ap_manager_t* octXXX_manager_alloc(void)
   pr->tmp2 = malloc(sizeof(long)*pr->tmp_size);
   assert(pr->tmp2);
 
-  man = ap_manager_alloc("oct","1.0 with num" "XXX", pr,
+  man = ap_manager_alloc(strdup("oct" "XXX"),strdup("1.0"), pr,
 			 (void (*)(void*))octXXX_internal_free);
 
   pr->man = man;
@@ -443,7 +444,7 @@ octXXX_t* octXXX_of_abstract0(ap_abstract0_t* a)
   return (octXXX_t*)a->value;
 }
 
-ap_abstract0_t* abstract0_of_oct(ap_manager_t* man, octXXX_t* oct)
+ap_abstract0_t* abstract0_of_octXXX(ap_manager_t* man, octXXX_t* oct)
 {
   ap_abstract0_t* r = malloc(sizeof(ap_abstract0_t));
   assert(r);

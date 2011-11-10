@@ -27,7 +27,7 @@ void poly_projectforget_array(bool project,
 
   /* Get the generator systems, and possibly minimize */
   if (pk->option.forget_lazy)
-    pkXXX_obtain_F(man,pa,"of the argument");
+      pkXXX_obtain_F(man,pa,"of the argument");
   else
     pkXXX_chernikova(man,pa,"of the argument");
 
@@ -79,7 +79,7 @@ void poly_projectforget_array(bool project,
     matrixXXX_sort_rows(pk,mat);
     pkXXX_dual(pa);
     if (po!=pa) pkXXX_dual(po);
-    if (!pk->option.forget_lazy) pkXXX_obtain_satC(pa);
+    pkXXX_obtain_satC(pa);
     res = pkXXX_meet_matrix(false,man,po,pa,mat);
     pkXXX_dual(pa);
     if (po!=pa) pkXXX_dual(po);

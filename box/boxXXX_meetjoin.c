@@ -425,9 +425,9 @@ boxXXX_t* boxXXX_meet_lincons_array(ap_manager_t* man,
       goto _boxXXX_meet_lincons_array_bottom;
     }
     ap_linconsXXX_array_boxize(res->e,NULL,
-			       tlincons,res->e,a->dim.intd,kmax,false,
+			       tlincons,a->dim.intd,kmax,
 			       intern->num);
-    if (eitvXXX_is_bottom(res->e->linterm[0]->eitv)){
+    if (eitvXXX_is_bottom(res->e->cst)){
     _boxXXX_meet_lincons_array_bottom:
       boxXXX_set_bottom(res);
     }
@@ -466,7 +466,7 @@ boxXXX_t* boxXXX_meet_tcons_array(ap_manager_t* man,
       goto _boxXXX_meet_tcons_array_bottom;
     }
     ap_linconsXXX_array_boxize(res->e,NULL,
-			       tlincons,res->e,a->dim.intd,kmax,false,
+			       tlincons,a->dim.intd,kmax,
 			       intern->num);
     if (eitvXXX_is_bottom(res->e->cst)){
     _boxXXX_meet_tcons_array_bottom:

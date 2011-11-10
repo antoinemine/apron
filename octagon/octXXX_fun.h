@@ -59,8 +59,8 @@ typedef struct _octXXX_internal_t octXXX_internal_t;
   /* Abstract data type of library-specific manager options. */
 
 
-octXXX_t*          octXXX_of_abstract0(ap_abstract0_t* a);
-ap_abstract0_t* abstract0_of_oct(ap_manager_t* man, octXXX_t* oct);
+octXXX_t*       octXXX_of_abstract0(ap_abstract0_t* a);
+ap_abstract0_t* abstract0_of_octXXX(ap_manager_t* man, octXXX_t* oct);
   /* Wrapping / unwrapping of octXXX_t in ap_abstract0_t (no copy) */
 
 

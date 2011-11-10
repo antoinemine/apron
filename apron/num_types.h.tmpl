@@ -43,6 +43,8 @@ typedef enum itv_tag_t {
   ITV_MPZ2,	/* waiting for 2 mpz_t */
   ITV_LFRAC,	/* waiting for 2 long int */
   ITV_LFRAC2,	/* waiting for 4 long int */
+  ITV_MPZFRAC,	/* waiting for 2 mpz_t */
+  ITV_MPZFRAC2,	/* waiting for 4 mpz_t */
   ITV_MPQ,	/* waiting for 1 mpq_t */
   ITV_MPQ2,	/* waiting for 2 mpq_t */
   ITV_DOUBLE,	/* waiting for 1 double */
@@ -73,6 +75,8 @@ typedef enum eitv_tag_t {
   EITV_MPZ2,		/* waiting for 2 mpz_t */
   EITV_LFRAC,		/* waiting for 2 long int */
   EITV_LFRAC2,		/* waiting for 4 long int */
+  EITV_MPZFRAC,	        /* waiting for 2 mpz_t */
+  EITV_MPZFRAC2,	/* waiting for 4 mpz_t */
   EITV_MPQ,		/* waiting for 1 mpq_t */
   EITV_MPQ2,		/* waiting for 2 mpq_t */
   EITV_DOUBLE,		/* waiting for 1 double */
@@ -350,6 +354,8 @@ typedef struct numXXX_internal {
   eitvXXX_t boxize_lincons_eitv;
   eitvXXX_t boxize_lincons_eval;
   boundXXX_t boxize_lincons_bound;
+  numXXX_t diffize_num1;
+  numXXX_t diffize_num2;
   numXXX_floatconst cst_half, cst_single, cst_double, cst_extended, cst_quad;
   eitvXXX_t eitvXXX_half; /* [-0.5,0.5] */
   eitvXXX_t generic_eitv;

@@ -17,11 +17,7 @@
 #ifndef __PPL_POLY_H
 #define __PPL_POLY_H
 
-#include "ppl.hh"
-
-using namespace std;
-using namespace Parma_Polyhedra_Library;
-
+#ifdef __cplusplus
 class PPL_Poly {
 public:
   Polyhedron* p;
@@ -32,9 +28,9 @@ public:
 	   ap_dimension_t dim, Degenerate_Element kind);
   ~PPL_Poly();
 };
-
-#ifdef __cplusplus
 extern "C" {
+#else
+typedef struct PPL_Poly* PPL_Poly
 #endif
 
 typedef enum ap_ppl_poly_widening_option_t {
@@ -62,6 +58,14 @@ ap_manager_t* ap_ppl_poly_manager_alloc(bool strict);
      using only loose constraints. Managers and abstract values in strict or
      loose mode are incompatible.
   */
+
+/* ============================================================ */
+/* B. Options */
+/* ============================================================ */
+
+ap_ppl_poly_option_t* ap_ppl_poly_manager_option_ref(ap_manager_t* man);
+  /* Get a reference to the structure storing options.
+     Flags can then be modified in-place */
 
 /* ********************************************************************** */
 /* I. General management */

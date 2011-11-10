@@ -349,14 +349,14 @@ void pkXXX_bound_linexpr_quasilinear(ap_manager_t* man,
       eitvXXX_init(eitv);
       peitv = eitv;
     }
-  matrixXXX_bound_linexprMPQ(pk,peitv,pk->ap_linexprMPQ,po->F);
+  matrixXXX_bound_linexprMPQ(pk,peitv,linexprMPQptr,po->F);
   if (peitv==eitv){
     exact = ap_coeff_set_eitvXXX(interval,eitv,pk->num) && exact;
     eitvXXX_clear(eitv);
   }
   man->result.flag_exact = man->result.flag_best =
     ( (pk->funopt->flag_exact_wanted || pk->funopt->flag_best_wanted) &&
-      ap_linexprMPQ_is_real(pk->ap_linexprMPQ,po->dim.intd) ) ?
+      ap_linexprMPQ_is_real(linexprMPQptr,po->dim.intd) ) ?
     exact :
     false;
 
@@ -456,9 +456,11 @@ void pkXXX_to_box(ap_manager_t* man, ap_linexpr0_t box, pkXXX_t* po)
   }
   if (!po->F){
     ap_linexpr0_set_zero(box);
+    ap_coeff_t coeff;
+    ap_linexpr0_cstref(coeff,box);
+    ap_coeff_set_bottom(coeff);
     if (size>0){
       ap_linexpr0_resize(box,1);
-      ap_coeff_t coeff;
       ap_linexpr0_coeffref(coeff,box,0);
       ap_coeff_set_bottom(coeff);
     }

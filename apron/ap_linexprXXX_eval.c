@@ -83,9 +83,6 @@ bool ap_linexprXXX_add(ap_linexprXXX_t res,
 		       ap_linexprXXX_t exprA,
 		       ap_linexprXXX_t exprB, num_internal_t intern)
 {
-
-
-
   bool exact = true;
   size_t i,j,k;
   ap_linexprXXX_struct expr_struct;
@@ -988,7 +985,8 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
     ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
     /* interval square root */
     eitvXXX_sqrt(ires,ires, intern);
-    eitvXXX_round(ires,ires,n->type,n->dir,intern);
+    if (!eitvXXX_is_bottom(ires))
+      eitvXXX_round(ires,ires,n->type,n->dir,intern);
     ap_linexprXXX_resize(lres,0);
     eitvXXX_set(lres->cst,ires);
     break;

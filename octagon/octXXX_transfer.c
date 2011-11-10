@@ -19,7 +19,7 @@
 
 
 /* ============================================================ */
-/* Expression classification */
+/* Expression/Constraint classification */
 /* ============================================================ */
 
 uexpr octXXX_uexpr_of_linexpr0(octXXX_internal_t* pr, boundXXX_t* dst,
@@ -85,6 +85,29 @@ static void print_uexpr(uexpr u, boundXXX_t* dst, size_t dim)
   fflush(stdout);
 }
 
+static bool octXXX_is_lincons0_array_octagonal(
+    octXXX_internal_t* pr,
+    ap_lincons0_array_t array, size_t dim
+)
+{
+  ap_lincons0_t cons;
+  ap_linexpr0_t expr;
+  size_t i;
+  uexpr u;
+
+  bool res = true;
+  size_t size = ap_lincons0_array_size(array);
+  for (i=0;i<size;i++) {
+    ap_lincons0_array_ref_index(cons,array,i);
+    ap_lincons0_linexpr0ref(expr,cons);
+    u = octXXX_uexpr_of_linexpr0(pr,pr->tmp,expr,dim);
+    if (u.type==OTHER){
+      res=false;
+      break;
+    }
+  }
+  return res;
+}
 
 /* ============================================================ */
 /* Adding constraints / generators */
@@ -93,9 +116,11 @@ static void print_uexpr(uexpr u, boundXXX_t* dst, size_t dim)
 /* set *exact to 1 if all all constraints are octagonal ones
    return true if empty
  */
-bool hmatXXX_add_lincons0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim,
-				ap_lincons0_array_t ar, bool* exact,
-				bool* respect_closure)
+bool hmatXXX_add_lincons0_array(
+    octXXX_internal_t* pr, boundXXX_t* b, size_t dim,
+    ap_lincons0_array_t ar, bool* exact,
+    bool* respect_closure
+)
 {
   size_t i, j, k, ui, uj, size;
   ap_linexpr0_t expr;
@@ -194,219 +219,219 @@ bool hmatXXX_add_lincons0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim
       break;
 
     case OTHER:
-      {
-	/* general, approximated case */
+/*       { */
+/*	/\* general, approximated case *\/ */
 
-	boundXXX_t tmpa, tmpb, Cb, cb;
-	int Cinf = 0;            /* number of infinite upper bounds */
-	size_t Cj1 = 0, Cj2 = 0; /* variable index with infinite bound */
-	int cinf = 0;            /* number of infinite lower bounds */
-	size_t cj1 = 0, cj2 = 0; /* variable index with infinite bound */
+/*	boundXXX_t tmpa, tmpb, Cb, cb; */
+/*	int Cinf = 0;            /\* number of infinite upper bounds *\/ */
+/*	size_t Cj1 = 0, Cj2 = 0; /\* variable index with infinite bound *\/ */
+/*	int cinf = 0;            /\* number of infinite lower bounds *\/ */
+/*	size_t cj1 = 0, cj2 = 0; /\* variable index with infinite bound *\/ */
 
-	*respect_closure = false; /* do not respect closure */
+/*	*respect_closure = false; /\* do not respect closure *\/ */
 
-	boundXXX_init(tmpa); boundXXX_init(tmpb);
-	boundXXX_init(Cb); boundXXX_init(cb);
+/*	boundXXX_init(tmpa); boundXXX_init(tmpb); */
+/*	boundXXX_init(Cb); boundXXX_init(cb); */
 
-	/* compute 2 * upper bound, ignoring components leading to +oo */
-	boundXXX_mul_2exp(cb,pr->tmp[0],1);
-	boundXXX_mul_2exp(Cb,pr->tmp[1],1);
-	for (j=0;j<dim;j++) {
-	  boundsXXX_mul(tmpa,tmpb, b[matpos(2*j,2*j+1)],b[matpos(2*j+1,2*j)],
-			pr->tmp[2*j+2],pr->tmp[2*j+3], pr->tmp+2*(dim+1));
-	  if (boundXXX_infty(tmpa)){
-	    cinf++; cj2 = cj1; cj1 = j;
-	  }
-	  else
-	    boundXXX_badd(cb,tmpa);
-	  if (boundXXX_infty(tmpb)){
-	    Cinf++; Cj2 = Cj1; Cj1 = j;
-	  }
-	  else
-	    boundXXX_badd(Cb,tmpb);
-	}
+/*	/\* compute 2 * upper bound, ignoring components leading to +oo *\/ */
+/*	boundXXX_mul_2exp(cb,pr->tmp[0],1); */
+/*	boundXXX_mul_2exp(Cb,pr->tmp[1],1); */
+/*	for (j=0;j<dim;j++) { */
+/*	  boundsXXX_mul(tmpa,tmpb, b[matpos(2*j,2*j+1)],b[matpos(2*j+1,2*j)], */
+/*			pr->tmp[2*j+2],pr->tmp[2*j+3], pr->tmp+2*(dim+1)); */
+/*	  if (boundXXX_infty(tmpa)){ */
+/*	    cinf++; cj2 = cj1; cj1 = j; */
+/*	  } */
+/*	  else */
+/*	    boundXXX_badd(cb,tmpa); */
+/*	  if (boundXXX_infty(tmpb)){ */
+/*	    Cinf++; Cj2 = Cj1; Cj1 = j; */
+/*	  } */
+/*	  else */
+/*	    boundXXX_badd(Cb,tmpb); */
+/*	} */
 
-	/* upper bound */
-	if (boundXXX_infty(Cb)) ;
+/*	/\* upper bound *\/ */
+/*	if (boundXXX_infty(Cb)) ; */
 
-	else if (!Cinf) {
-	  /* no infinite bound: derive quadratic number of bounds */
-	  for (j=0;j<dim;j++) {
-	    if (boundXXX_cmp_int(pr->tmp[2*j+2],-1)<=0 &&
-		!boundXXX_infty(b[matpos(2*j+1,2*j)])) {
-	      /* -x <= expr-x <= max(expr) - max x */
-	      boundXXX_sub(tmpa,Cb,b[matpos(2*j+1,2*j)]);
-	      uj = 2*j+1;
-	    }
-	    else if (boundXXX_cmp_int(pr->tmp[2*j+3],-1)<=0 &&
-		     !boundXXX_infty(b[matpos(2*j,2*j+1)])) {
-	      /* x <= expr+x <= max(expr) - max(-x) */
-	      boundXXX_sub(tmpa,Cb,b[matpos(2*j,2*j+1)]);
-	      uj = 2*j;
-	    }
-	    else continue;
-	    for (k=j+1;k<dim;k++) {
-	      if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 &&
-		  !boundXXX_infty(b[matpos(2*k+1,2*k)])) {
-		/* (+/-)x -y <= max(expr) - max((+/-)x) - max y */
-		boundXXX_sub(tmpb,tmpa,b[matpos(2*k+1,2*k)]);
-		boundXXX_mul_2exp(tmpb,tmpb,-1);
-		boundXXX_bmin(b[matpos(2*k,uj)],tmpb);
-	      }
-	      else if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 &&
-		       !boundXXX_infty(b[matpos(2*k,2*k+1)])) {
-		/* (+/-)x +y <= max(expr) - max((+/-)x) - max (-y) */
-		boundXXX_sub(tmpb,tmpa,b[matpos(2*k,2*k+1)]);
-		boundXXX_mul_2exp(tmpb,tmpb,-1);
-		boundXXX_bmin(b[matpos(2*k+1,uj)],tmpb);
-	      }
-	    }
-	  }
-	}
+/*	else if (!Cinf) { */
+/*	  /\* no infinite bound: derive quadratic number of bounds *\/ */
+/*	  for (j=0;j<dim;j++) { */
+/*	    if (boundXXX_cmp_int(pr->tmp[2*j+2],-1)<=0 && */
+/*		!boundXXX_infty(b[matpos(2*j+1,2*j)])) { */
+/*	      /\* -x <= expr-x <= max(expr) - max x *\/ */
+/*	      boundXXX_sub(tmpa,Cb,b[matpos(2*j+1,2*j)]); */
+/*	      uj = 2*j+1; */
+/*	    } */
+/*	    else if (boundXXX_cmp_int(pr->tmp[2*j+3],-1)<=0 && */
+/*		     !boundXXX_infty(b[matpos(2*j,2*j+1)])) { */
+/*	      /\* x <= expr+x <= max(expr) - max(-x) *\/ */
+/*	      boundXXX_sub(tmpa,Cb,b[matpos(2*j,2*j+1)]); */
+/*	      uj = 2*j; */
+/*	    } */
+/*	    else continue; */
+/*	    for (k=j+1;k<dim;k++) { */
+/*	      if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 && */
+/*		  !boundXXX_infty(b[matpos(2*k+1,2*k)])) { */
+/*		/\* (+/-)x -y <= max(expr) - max((+/-)x) - max y *\/ */
+/*		boundXXX_sub(tmpb,tmpa,b[matpos(2*k+1,2*k)]); */
+/*		boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		boundXXX_bmin(b[matpos(2*k,uj)],tmpb); */
+/*	      } */
+/*	      else if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 && */
+/*		       !boundXXX_infty(b[matpos(2*k,2*k+1)])) { */
+/*		/\* (+/-)x +y <= max(expr) - max((+/-)x) - max (-y) *\/ */
+/*		boundXXX_sub(tmpb,tmpa,b[matpos(2*k,2*k+1)]); */
+/*		boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		boundXXX_bmin(b[matpos(2*k+1,uj)],tmpb); */
+/*	      } */
+/*	    } */
+/*	  } */
+/*	} */
 
-	else if (Cinf==1) {
-	  /* one infinite bound: derive linear number of bounds */
-	  if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3],-1) &&
-	      !boundXXX_cmp_int(pr->tmp[2*Cj1+2], 1))
-	    uj = 2*Cj1;
-	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3], 1) &&
-		   !boundXXX_cmp_int(pr->tmp[2*Cj1+2],-1))
-	    uj = 2*Cj1+1;
-	  else
-	    goto Cbrk;
-	  for (k=0;k<dim;k++) {
-	    if (k==Cj1) continue;
-	    if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 &&
-		!boundXXX_infty(b[matpos(2*k+1,2*k)])) {
-	      /* (+/-)x -y <= max(expr) - max((+/-)x) - max y */
-	      boundXXX_sub(tmpb,Cb,b[matpos(2*k+1,2*k)]);
-	      boundXXX_mul_2exp(tmpb,tmpb,-1);
-	      boundXXX_bmin(b[matpos2(2*k,uj)],tmpb);
-	    }
-	    else if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 &&
-		     !boundXXX_infty(b[matpos(2*k,2*k+1)])) {
-	      /* (+/-)x +y <= max(expr) - max((+/-)x) - max (-y) */
-	      boundXXX_sub(tmpb,Cb,b[matpos(2*k,2*k+1)]);
-	      boundXXX_mul_2exp(tmpb,tmpb,-1);
-	      boundXXX_bmin(b[matpos2(2*k+1,uj)],tmpb);
-	    }
-	  }
-	}
+/*	else if (Cinf==1) { */
+/*	  /\* one infinite bound: derive linear number of bounds *\/ */
+/*	  if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3],-1) && */
+/*	      !boundXXX_cmp_int(pr->tmp[2*Cj1+2], 1)) */
+/*	    uj = 2*Cj1; */
+/*	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3], 1) && */
+/*		   !boundXXX_cmp_int(pr->tmp[2*Cj1+2],-1)) */
+/*	    uj = 2*Cj1+1; */
+/*	  else */
+/*	    goto Cbrk; */
+/*	  for (k=0;k<dim;k++) { */
+/*	    if (k==Cj1) continue; */
+/*	    if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 && */
+/*		!boundXXX_infty(b[matpos(2*k+1,2*k)])) { */
+/*	      /\* (+/-)x -y <= max(expr) - max((+/-)x) - max y *\/ */
+/*	      boundXXX_sub(tmpb,Cb,b[matpos(2*k+1,2*k)]); */
+/*	      boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*	      boundXXX_bmin(b[matpos2(2*k,uj)],tmpb); */
+/*	    } */
+/*	    else if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 && */
+/*		     !boundXXX_infty(b[matpos(2*k,2*k+1)])) { */
+/*	      /\* (+/-)x +y <= max(expr) - max((+/-)x) - max (-y) *\/ */
+/*	      boundXXX_sub(tmpb,Cb,b[matpos(2*k,2*k+1)]); */
+/*	      boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*	      boundXXX_bmin(b[matpos2(2*k+1,uj)],tmpb); */
+/*	    } */
+/*	  } */
+/*	} */
 
-	else if (Cinf==2) {
-	  /* two infinite bounds: derive just one bound */
-	  if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3],-1) &&
-	      !boundXXX_cmp_int(pr->tmp[2*Cj1+2], 1))
-	    ui = 2*Cj1;
-	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3], 1) &&
-		   !boundXXX_cmp_int(pr->tmp[2*Cj1+2],-1))
-	    ui = 2*Cj1+1;
-	  else
-	    goto Cbrk;
-	  if (!boundXXX_cmp_int(pr->tmp[2*Cj2+3],-1) &&
-	      !boundXXX_cmp_int(pr->tmp[2*Cj2+2], 1))
-	    uj = 2*Cj2;
-	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj2+3], 1) &&
-		   !boundXXX_cmp_int(pr->tmp[2*Cj2+2],-1))
-	    uj = 2*Cj2+1;
-	  else
-	    goto Cbrk;
-	  boundXXX_mul_2exp(tmpa,Cb,-1);
-	  boundXXX_bmin(b[matpos2(uj^1,ui)],tmpa);
-	}
+/*	else if (Cinf==2) { */
+/*	  /\* two infinite bounds: derive just one bound *\/ */
+/*	  if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3],-1) && */
+/*	      !boundXXX_cmp_int(pr->tmp[2*Cj1+2], 1)) */
+/*	    ui = 2*Cj1; */
+/*	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj1+3], 1) && */
+/*		   !boundXXX_cmp_int(pr->tmp[2*Cj1+2],-1)) */
+/*	    ui = 2*Cj1+1; */
+/*	  else */
+/*	    goto Cbrk; */
+/*	  if (!boundXXX_cmp_int(pr->tmp[2*Cj2+3],-1) && */
+/*	      !boundXXX_cmp_int(pr->tmp[2*Cj2+2], 1)) */
+/*	    uj = 2*Cj2; */
+/*	  else if (!boundXXX_cmp_int(pr->tmp[2*Cj2+3], 1) && */
+/*		   !boundXXX_cmp_int(pr->tmp[2*Cj2+2],-1)) */
+/*	    uj = 2*Cj2+1; */
+/*	  else */
+/*	    goto Cbrk; */
+/*	  boundXXX_mul_2exp(tmpa,Cb,-1); */
+/*	  boundXXX_bmin(b[matpos2(uj^1,ui)],tmpa); */
+/*	} */
 
-	/* if more than two infinite bounds: do nothing */
+/*	/\* if more than two infinite bounds: do nothing *\/ */
 
-      Cbrk:
+/*       Cbrk: */
 
-	/* lower bound */
-	if (c==AP_CONS_EQ) {
+/*	/\* lower bound *\/ */
+/*	if (c==AP_CONS_EQ) { */
 
-	  if (boundXXX_infty(cb)) ;
-	  else if (!cinf) {
-	    for (j=0;j<dim;j++) {
-	      if (boundXXX_cmp_int(pr->tmp[2*j+3],-1)<=0 &&
-		  !boundXXX_infty(b[matpos(2*j+1,2*j)])) {
-		boundXXX_sub(tmpa,cb,b[matpos(2*j+1,2*j)]);
-		uj = 2*j+1;
-	      }
-	      else if (boundXXX_cmp_int(pr->tmp[2*j+2],-1)<=0 &&
-		       !boundXXX_infty(b[matpos(2*j,2*j+1)])) {
-		boundXXX_sub(tmpa,cb,b[matpos(2*j,2*j+1)]);
-		uj = 2*j;
-	      }
-	      else continue;
-	      for (k=j+1;k<dim;k++) {
-		if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 &&
-		    !boundXXX_infty(b[matpos(2*k+1,2*k)])) {
-		  boundXXX_sub(tmpb,tmpa,b[matpos(2*k+1,2*k)]);
-		  boundXXX_mul_2exp(tmpb,tmpb,-1);
-		  boundXXX_bmin(b[matpos(2*k,uj)],tmpb);
-		}
-		else if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 &&
-			 !boundXXX_infty(b[matpos(2*k,2*k+1)])) {
-		  boundXXX_sub(tmpb,tmpa,b[matpos(2*k,2*k+1)]);
-		  boundXXX_mul_2exp(tmpb,tmpb,-1);
-		  boundXXX_bmin(b[matpos(2*k+1,uj)],tmpb);
-		}
-	      }
-	    }
-	  }
-	  else if (cinf==1) {
-	    if (!boundXXX_cmp_int(pr->tmp[2*cj1+2],-1) &&
-		!boundXXX_cmp_int(pr->tmp[2*cj1+3], 1))
-	      uj = 2*cj1;
-	    else if (!boundXXX_cmp_int(pr->tmp[2*cj1+2], 1) &&
-		     !boundXXX_cmp_int(pr->tmp[2*cj1+3],-1))
-	      uj = 2*cj1+1;
-	    else
-	      goto cbrk;
-	    for (k=0;k<dim;k++) {
-	      if (k==cj1) continue;
-	      if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 &&
-		  !boundXXX_infty(b[matpos(2*k+1,2*k)])) {
-		boundXXX_sub(tmpb,cb,b[matpos(2*k+1,2*k)]);
-		boundXXX_mul_2exp(tmpb,tmpb,-1);
-		boundXXX_bmin(b[matpos2(2*k,uj)],tmpb);
-	      }
-	      else if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 &&
-		       !boundXXX_infty(b[matpos(2*k,2*k+1)])) {
-		boundXXX_sub(tmpb,cb,b[matpos(2*k,2*k+1)]);
-		boundXXX_mul_2exp(tmpb,tmpb,-1);
-		boundXXX_bmin(b[matpos2(2*k+1,uj)],tmpb);
-	      }
-	    }
-	  }
-	  else if (cinf==2) {
-	    if (!boundXXX_cmp_int(pr->tmp[2*cj1+2],-1) &&
-		!boundXXX_cmp_int(pr->tmp[2*cj1+3], 1))
-	      ui = 2*cj1;
-	    else if (!boundXXX_cmp_int(pr->tmp[2*cj1+2], 1) &&
-		     !boundXXX_cmp_int(pr->tmp[2*cj1+3],-1))
-	      ui = 2*cj1+1;
-	    else
-	      goto cbrk;
-	    if (!boundXXX_cmp_int(pr->tmp[2*cj2+2],-1) &&
-		!boundXXX_cmp_int(pr->tmp[2*cj2+3], 1))
-	      uj = 2*cj2;
-	    else if (!boundXXX_cmp_int(pr->tmp[2*cj2+2], 1) &&
-		     !boundXXX_cmp_int(pr->tmp[2*cj2+3],-1))
-	      uj = 2*cj2+1;
-	    else
-	      goto cbrk;
-	    boundXXX_mul_2exp(tmpa,cb,-1);
-	    boundXXX_bmin(b[matpos2(uj^1,ui)],tmpa);
-	  }
-	}
+/*	  if (boundXXX_infty(cb)) ; */
+/*	  else if (!cinf) { */
+/*	    for (j=0;j<dim;j++) { */
+/*	      if (boundXXX_cmp_int(pr->tmp[2*j+3],-1)<=0 && */
+/*		  !boundXXX_infty(b[matpos(2*j+1,2*j)])) { */
+/*		boundXXX_sub(tmpa,cb,b[matpos(2*j+1,2*j)]); */
+/*		uj = 2*j+1; */
+/*	      } */
+/*	      else if (boundXXX_cmp_int(pr->tmp[2*j+2],-1)<=0 && */
+/*		       !boundXXX_infty(b[matpos(2*j,2*j+1)])) { */
+/*		boundXXX_sub(tmpa,cb,b[matpos(2*j,2*j+1)]); */
+/*		uj = 2*j; */
+/*	      } */
+/*	      else continue; */
+/*	      for (k=j+1;k<dim;k++) { */
+/*		if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 && */
+/*		    !boundXXX_infty(b[matpos(2*k+1,2*k)])) { */
+/*		  boundXXX_sub(tmpb,tmpa,b[matpos(2*k+1,2*k)]); */
+/*		  boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		  boundXXX_bmin(b[matpos(2*k,uj)],tmpb); */
+/*		} */
+/*		else if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 && */
+/*			 !boundXXX_infty(b[matpos(2*k,2*k+1)])) { */
+/*		  boundXXX_sub(tmpb,tmpa,b[matpos(2*k,2*k+1)]); */
+/*		  boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		  boundXXX_bmin(b[matpos(2*k+1,uj)],tmpb); */
+/*		} */
+/*	      } */
+/*	    } */
+/*	  } */
+/*	  else if (cinf==1) { */
+/*	    if (!boundXXX_cmp_int(pr->tmp[2*cj1+2],-1) && */
+/*		!boundXXX_cmp_int(pr->tmp[2*cj1+3], 1)) */
+/*	      uj = 2*cj1; */
+/*	    else if (!boundXXX_cmp_int(pr->tmp[2*cj1+2], 1) && */
+/*		     !boundXXX_cmp_int(pr->tmp[2*cj1+3],-1)) */
+/*	      uj = 2*cj1+1; */
+/*	    else */
+/*	      goto cbrk; */
+/*	    for (k=0;k<dim;k++) { */
+/*	      if (k==cj1) continue; */
+/*	      if (boundXXX_cmp_int(pr->tmp[2*k+3],-1)<=0 && */
+/*		  !boundXXX_infty(b[matpos(2*k+1,2*k)])) { */
+/*		boundXXX_sub(tmpb,cb,b[matpos(2*k+1,2*k)]); */
+/*		boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		boundXXX_bmin(b[matpos2(2*k,uj)],tmpb); */
+/*	      } */
+/*	      else if (boundXXX_cmp_int(pr->tmp[2*k+2],-1)<=0 && */
+/*		       !boundXXX_infty(b[matpos(2*k,2*k+1)])) { */
+/*		boundXXX_sub(tmpb,cb,b[matpos(2*k,2*k+1)]); */
+/*		boundXXX_mul_2exp(tmpb,tmpb,-1); */
+/*		boundXXX_bmin(b[matpos2(2*k+1,uj)],tmpb); */
+/*	      } */
+/*	    } */
+/*	  } */
+/*	  else if (cinf==2) { */
+/*	    if (!boundXXX_cmp_int(pr->tmp[2*cj1+2],-1) && */
+/*		!boundXXX_cmp_int(pr->tmp[2*cj1+3], 1)) */
+/*	      ui = 2*cj1; */
+/*	    else if (!boundXXX_cmp_int(pr->tmp[2*cj1+2], 1) && */
+/*		     !boundXXX_cmp_int(pr->tmp[2*cj1+3],-1)) */
+/*	      ui = 2*cj1+1; */
+/*	    else */
+/*	      goto cbrk; */
+/*	    if (!boundXXX_cmp_int(pr->tmp[2*cj2+2],-1) && */
+/*		!boundXXX_cmp_int(pr->tmp[2*cj2+3], 1)) */
+/*	      uj = 2*cj2; */
+/*	    else if (!boundXXX_cmp_int(pr->tmp[2*cj2+2], 1) && */
+/*		     !boundXXX_cmp_int(pr->tmp[2*cj2+3],-1)) */
+/*	      uj = 2*cj2+1; */
+/*	    else */
+/*	      goto cbrk; */
+/*	    boundXXX_mul_2exp(tmpa,cb,-1); */
+/*	    boundXXX_bmin(b[matpos2(uj^1,ui)],tmpa); */
+/*	  } */
+/*	} */
 
-      cbrk:
+/*       cbrk: */
 
-	boundXXX_clear(tmpa); boundXXX_clear(tmpb);
-	boundXXX_clear(Cb); boundXXX_clear(cb);
-	*exact = 0;
-      }
+/*	boundXXX_clear(tmpa); boundXXX_clear(tmpb); */
+/*	boundXXX_clear(Cb); boundXXX_clear(cb); */
+/*	*exact = 0; */
+/*       } */
+      *exact = 0;
       break;
-
     default: assert(0);
     }
   }
@@ -417,6 +442,10 @@ bool hmatXXX_add_lincons0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim
 
   return false;
 }
+
+/* set *exact to 1 if all all constraints are octagonal ones
+   return true if empty
+ */
 
 void hmatXXX_add_lingen0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim,
 			       ap_lingen0_array_t ar)
@@ -456,7 +485,8 @@ void hmatXXX_add_lingen0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim,
       for (bb=b,j=0;j<2*dim;j++)
 	for (k=0;k<=(j|1);k++,bb++) {
 	  boundXXX_add(pr->tmp[0],pr->tmp[2+(k^1)],pr->tmp[2+j]);
-	  if (boundXXX_sgn(pr->tmp[0])>0) boundXXX_set_infty(*bb,1);
+	  if (boundXXX_sgn(pr->tmp[0])>0)
+	    boundXXX_set_infty(*bb,1);
 	}
       break;
 
@@ -486,9 +516,9 @@ void hmatXXX_add_lingen0_array(octXXX_internal_t* pr, boundXXX_t* b, size_t dim,
 /* ============================================================ */
 
 
-octXXX_t* octXXX_meet_lincons_array(ap_manager_t* man,
-			      bool destructive, octXXX_t* a,
-			      ap_lincons0_array_t array)
+octXXX_t* octXXX_meet_lincons_array_internal(ap_manager_t* man,
+					     bool destructive, octXXX_t* a,
+					     ap_lincons0_array_t array)
 {
   octXXX_internal_t* pr =
     octXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY,2*(a->dim+8));
@@ -506,6 +536,7 @@ octXXX_t* octXXX_meet_lincons_array(ap_manager_t* man,
     if (!destructive) m = hmatXXX_copy(pr,m,a->dim);
 
     /* go */
+
     if (hmatXXX_add_lincons0_array(pr,m,a->dim,array,&exact,&respect_closure)) {
       /* empty */
       if (!destructive) hmatXXX_free(pr,m,a->dim);
@@ -521,6 +552,31 @@ octXXX_t* octXXX_meet_lincons_array(ap_manager_t* man,
     }
   }
 }
+octXXX_t* octXXX_meet_lincons_array(ap_manager_t* man,
+				    bool destructive, octXXX_t* a,
+				    ap_lincons0_array_t array)
+{
+  octXXX_internal_t* pr =
+    octXXX_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY,2*(a->dim+8));
+  if (!a->closed && !a->m)
+    /* definitively empty */
+    return octXXX_set_mat(pr,a,NULL,NULL,destructive);
+  else {
+    if (octXXX_is_lincons0_array_octagonal(pr,array,a->dim)){
+      return octXXX_meet_lincons_array_internal(man,destructive,a,array);
+    }
+    else {
+      return
+	ap_generic_meet_quasilinearize_lincons_array(
+	    man,destructive,a,array,
+	    numXXX_scalar, AP_LINEXPR_LINEAR,
+	    AP_LINEXPR_LINEAR,1,
+	    true,true,
+	    (void*(*)(ap_manager_t*, bool, void*, ap_lincons0_array_t))octXXX_meet_lincons_array_internal
+	);
+    }
+  }
+}
 
 octXXX_t* octXXX_meet_tcons_array(ap_manager_t* man,
 			    bool destructive, octXXX_t* a,
@@ -529,9 +585,10 @@ octXXX_t* octXXX_meet_tcons_array(ap_manager_t* man,
   return
     ap_generic_meet_intlinearize_tcons_array(
 	man,destructive,a,array,
-	numXXX_scalar, AP_LINEXPR_INTLINEAR,
-	false,1,false,
-	(void*(*)(ap_manager_t*, bool, void*, ap_lincons0_array_t))octXXX_meet_lincons_array
+	numXXX_scalar, AP_LINEXPR_LINEAR,
+	AP_LINEXPR_LINEAR,1,
+	true,true,
+	(void*(*)(ap_manager_t*, bool, void*, ap_lincons0_array_t))octXXX_meet_lincons_array_internal
     );
 }
 
@@ -987,6 +1044,37 @@ octXXX_t* octXXX_substitute_linexpr(ap_manager_t* man,
   else return octXXX_set_mat(pr,a,m,NULL,destructive);
 }
 
+octXXX_t* octXXX_asssub_linexpr_array(
+    bool assign,
+    ap_manager_t* man,
+    bool destructive, octXXX_t* a,
+    ap_dim_t* tdim,
+    ap_linexpr0_array_t texpr,
+    octXXX_t* dest)
+{
+  size_t size = ap_linexpr0_array_size(texpr);
+
+  if (size==1){
+    octXXX_internal_t* pr =
+      octXXX_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY,
+			       2*(a->dim+size+5));
+    ap_linexpr0_t expr;
+    ap_linexpr0_array_ref_index(expr,texpr,0);
+    uexpr u = octXXX_uexpr_of_linexpr0(pr,pr->tmp,expr,a->dim);
+    if (u.type != BINARY && u.type != OTHER){
+      return
+	assign ?
+	octXXX_assign_linexpr(man,destructive,a,tdim[0],expr,dest) :
+	octXXX_substitute_linexpr(man,destructive,a,tdim[0],expr,dest);
+    }
+  }
+  return
+    ap_generic_asssub_linexpr_array(
+	assign, numXXX_scalar,
+	man,destructive,a,tdim,texpr,dest
+    );
+}
+
 octXXX_t* octXXX_assign_linexpr_array(
     ap_manager_t* man,
     bool destructive, octXXX_t* a,
@@ -994,93 +1082,10 @@ octXXX_t* octXXX_assign_linexpr_array(
     ap_linexpr0_array_t texpr,
     octXXX_t* dest)
 {
-  ap_linexpr0_t expr;
-  size_t size = ap_linexpr0_array_size(texpr);
-
-  if (size==1){
-    ap_linexpr0_array_ref_index(expr,texpr,0);
-    return octXXX_assign_linexpr(man,destructive,a,tdim[0],expr,dest);
-  }
-
-  octXXX_internal_t* pr =
-    octXXX_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY,2*(a->dim+size+5));
-  ap_dim_t* d = (ap_dim_t*) pr->tmp2;
-  boundXXX_t *m, *mm;
-  size_t i;
-  ap_dim_t p = a->dim;
-  int inexact = 0;
-  bool respect_closure = false; /* TODO */
-
-  /* checks */
-  arg_assert(size>0,return NULL;);
-  for (i=0;i<a->dim;i++) d[i] = 0;
-  for (i=0;i<size;i++) {
-    arg_assert(tdim[i]<a->dim,return NULL;);
-    arg_assert(!d[tdim[i]],return NULL;); /* tdim has duplicate */
-    d[tdim[i]] = 1;
-  }
-
-  if (dest && !dest->closed && !dest->m)
-    /* definitively empty due to dest*/
-    return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-  if (pr->option.assign_closure) octXXX_cache_closure(pr,a);
-  m = a->closed ? a->closed : a->m;
-  if (!m) return octXXX_set_mat(pr,a,NULL,NULL,destructive); /* empty */
-
-  /* add temporary dimensions to hold destination variables */
-  mm = hmatXXX_alloc_top(pr,a->dim+size);
-  boundXXX_set_array(mm,m,matsize(a->dim));
-
-  /* coefs in expr for temporary dimensions are set to 0 */
-  for (i=0;i<2*size;i++)
-    boundXXX_set_int(pr->tmp[2*a->dim+i+2],0);
-
-  /* perform assignments */
-  for (i=0;i<size;i++) {
-    ap_linexpr0_array_ref_index(expr,texpr,i);
-    uexpr u = octXXX_uexpr_of_linexpr0(pr,pr->tmp,expr,a->dim);
-
-    if (u.type==EMPTY) {
-      hmatXXX_free(pr,mm,a->dim+size);
-      return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-    }
-
-    if (u.type==BINARY || u.type==OTHER) inexact = 1;
-
-    hmatXXX_assign(pr,u,mm,a->dim+size,a->dim+i,&respect_closure);
-  }
-
-  /* now close & remove temporary variables */
-  if (pr->option.assign_closure) {
-    if (hmatXXX_close(mm,a->dim+size)) {
-      /* empty */
-      hmatXXX_free(pr,mm,a->dim+size);
-      return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-    }
-  }
-  else flag_algo;
-  if (!destructive) m = hmatXXX_alloc(pr,a->dim);
-  for (i=0;i<a->dim;i++) d[i] = i;
-  for (i=0;i<size;i++) {
-    d[a->dim+i] = tdim[i];
-    d[tdim[i]] = a->dim;
-  }
-  hmatXXX_permute(m,mm,a->dim,a->dim+size,d);
-  hmatXXX_free(pr,mm,a->dim+size);
-
-  /* intersect with dest */
-  if (dest) {
-    boundXXX_t* m2 = dest->closed ? dest->closed : dest->m;
-    size_t i;
-    for (i=0;i<matsize(a->dim);i++)
-      boundXXX_min(m[i],m[i],m2[i]);
-  }
-
-  if (inexact || a->intdim) flag_incomplete;
-  else if (!a->closed) flag_algo;
-  else if (pr->conv) flag_conv;
-
-  return octXXX_set_mat(pr,a,m,NULL,destructive);
+  return
+    octXXX_asssub_linexpr_array(
+	true,man,destructive,a,tdim,texpr,dest
+    );
 }
 
 octXXX_t* octXXX_substitute_linexpr_array(
@@ -1090,112 +1095,10 @@ octXXX_t* octXXX_substitute_linexpr_array(
     ap_linexpr0_array_t texpr,
     octXXX_t* dest)
 {
-  ap_linexpr0_t expr;
-  size_t size = ap_linexpr0_array_size(texpr);
-
-  if (size==1){
-    ap_linexpr0_array_ref_index(expr,texpr,0);
-    return octXXX_substitute_linexpr(man,destructive,a,tdim[0],expr,dest);
-  }
-
-  octXXX_internal_t* pr =
-    octXXX_init_from_manager(man,AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,
-			     2*(a->dim+size+5));
-  ap_dim_t* d = (ap_dim_t*) pr->tmp2;
-  boundXXX_t *m, *mm, *m2;
-  size_t i,j;
-  ap_dim_t p = a->dim;
-  int inexact = 0;
-  bool respect_closure = false; /* TODO */
-
-  /* checks */
-  arg_assert(size>0,return NULL;);
-  for (i=0;i<a->dim;i++) d[i] = 0;
-  for (i=0;i<size;i++) {
-    arg_assert(tdim[i]<a->dim,return NULL;);
-    arg_assert(!d[tdim[i]],return NULL;); /* tdim has duplicate */
-    d[tdim[i]] = 1;
-  }
-
-  m2 = dest ? (dest->closed ? dest->closed : dest->m) : NULL;
-  if (dest && !m2)
-    /* definitively empty due to dest*/
-    return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-  if (pr->option.substitute_closure) octXXX_cache_closure(pr,a);
-  m = a->closed ? a->closed : a->m;
-  if (!m) return octXXX_set_mat(pr,a,NULL,NULL,destructive); /* empty */
-
-  /* add temporary dimensions to hold destination variables */
-  mm = hmatXXX_alloc_top(pr,a->dim+size);
-  boundXXX_set_array(mm,m,matsize(a->dim));
-
-  /* susbstitute org with temp variables */
-  for (i=0;i<size;i++) {
-    size_t dst = 2*(a->dim+i), src = 2*tdim[i];
-    for (j=0;j<src;j++) {
-      boundXXX_bmin(mm[matpos(dst+1,j)],mm[matpos(src+1,j)]);
-      boundXXX_bmin(mm[matpos(dst,j)],mm[matpos(src,j)]);
-    }
-    for (j=src+2;j<2*a->dim+2*size;j++) {
-      boundXXX_bmin(mm[matpos2(dst+1,j)],mm[matpos(j^1,src)]);
-      boundXXX_bmin(mm[matpos2(dst,j)],mm[matpos(j^1,src+1)]);
-    }
-    boundXXX_bmin(mm[matpos(dst+1,dst)],mm[matpos(src+1,src)]);
-    boundXXX_bmin(mm[matpos(dst,dst+1)],mm[matpos(src,src+1)]);
-    hmatXXX_forget_var(mm,a->dim+size,tdim[i]);
-  }
-
-  /* coefs in expr for temporary dimensions are set to 0 */
-  for (i=0;i<2*size;i++)
-    boundXXX_set_int(pr->tmp[2*a->dim+i+2],0);
-
-  /* perform substitutions */
-  for (i=0;i<size;i++) {
-    ap_linexpr0_array_ref_index(expr,texpr,i);
-    uexpr u = octXXX_uexpr_of_linexpr0(pr,pr->tmp,expr,a->dim);
-
-    if (u.type==EMPTY) {
-      hmatXXX_free(pr,mm,a->dim+size);
-      return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-    }
-
-    if (u.type==BINARY || u.type==OTHER) inexact = 1;
-
-    if (hmatXXX_subst(pr,u,mm,a->dim+size,a->dim+i,m2,
-		      &respect_closure)) {
-      /* empty */
-      hmatXXX_free(pr,mm,a->dim+size);
-      return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-    }
-  }
-
-  /* now close */
-  if (pr->option.substitute_closure) {
-    if (hmatXXX_close(mm,a->dim+size)) {
-      /* empty */
-      hmatXXX_free(pr,mm,a->dim+size);
-      return octXXX_set_mat(pr,a,NULL,NULL,destructive);
-    }
-  }
-  else flag_algo;
-
-  /* remove temp */
-  if (!destructive) m = hmatXXX_copy(pr,mm,a->dim);
-  else boundXXX_set_array(m,mm,matsize(a->dim));
-  hmatXXX_free(pr,mm,a->dim+size);
-
-  /* intersect with dest */
-  if (m2) {
-    size_t i;
-    for (i=0;i<matsize(a->dim);i++)
-      boundXXX_min(m[i],m[i],m2[i]);
-  }
-
-  if (inexact || a->intdim) flag_incomplete;
-  else if (!a->closed) flag_algo;
-  else if (pr->conv) flag_conv;
-
-  return octXXX_set_mat(pr,a,m,NULL,destructive);
+  return
+    octXXX_asssub_linexpr_array(
+	false,man,destructive,a,tdim,texpr,dest
+    );
 }
 
 octXXX_t* octXXX_assign_texpr_array(ap_manager_t* man,

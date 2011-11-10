@@ -195,16 +195,15 @@ bool octXXX_is_dimension_unconstrained(ap_manager_t* man, octXXX_t* a,
 }
 
 
-/* not very precise for non unit constraints (always top) */
 /* the semantics of non-deterministic expressions (i.e., intervals) is
    true  saturates all expressions
    false may saturate some, may not saturate some
 */
-bool octXXX_sat_lincons(ap_manager_t* man, octXXX_t* a,
-			ap_lincons0_t lincons)
+bool octXXX_sat_lincons_internal(ap_manager_t* man, octXXX_t* a,
+				 ap_lincons0_t lincons)
 {
   octXXX_internal_t* pr = octXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS,
-					     2*(a->dim+1));
+						   2*(a->dim+1));
   if (pr->option.sat_test_closure) octXXX_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* really empty */
@@ -309,11 +308,60 @@ bool octXXX_sat_lincons(ap_manager_t* man, octXXX_t* a,
       /* no clue */
       flag_incomplete;
       return false;
-
     default:
       assert(0);
       return false; /* unreachable */
     }
+  }
+}
+bool octXXX_sat_lincons(ap_manager_t* man, octXXX_t* a,
+			ap_lincons0_t lincons)
+{
+  bool res = octXXX_sat_lincons_internal(man,a,lincons);
+  if (!res){
+    ap_constyp_t c = ap_lincons0_get_constyp(lincons);
+    uexpr u;
+
+    switch (c) {
+
+      /* skipped */
+    case AP_CONS_EQMOD:
+    case AP_CONS_DISEQ:
+      return res;
+
+      /* handled */
+    case AP_CONS_EQ:
+    case AP_CONS_SUPEQ:
+    case AP_CONS_SUP:
+      break;
+
+      /* error */
+    default:
+      assert(0);
+    }
+
+    octXXX_internal_t* pr = octXXX_init_from_manager(man,AP_FUNID_SAT_LINCONS,
+						     2*(a->dim+1));
+    ap_linexpr0_t linexpr;
+    ap_lincons0_linexpr0ref(linexpr,lincons);
+    u = octXXX_uexpr_of_linexpr0(pr,pr->tmp,linexpr,a->dim);
+
+    switch (u.type) {
+    case OTHER:
+      /* no clue */
+      flag_incomplete;
+      return
+	ap_generic_sat_lincons(
+	    man,a,lincons,numXXX_scalar,
+	    AP_LINEXPR_INTLINEAR,AP_LINEXPR_LINEAR,
+	    (bool(*)(ap_manager_t*,void*,ap_lincons0_t))octXXX_sat_lincons_internal
+	);
+    default:
+      return res;
+    }
+  }
+  else {
+    return res;
   }
 }
 
@@ -323,8 +371,8 @@ bool octXXX_sat_tcons(ap_manager_t* man, octXXX_t* a,
   return
     ap_generic_sat_tcons(
 	man,a,cons,numXXX_scalar,
-	AP_LINEXPR_INTLINEAR,false,
-	(bool(*)(ap_manager_t*,void*,ap_lincons0_t))octXXX_sat_lincons
+	AP_LINEXPR_INTLINEAR,AP_LINEXPR_LINEAR,
+	(bool(*)(ap_manager_t*,void*,ap_lincons0_t))octXXX_sat_lincons_internal
     );
 }
 

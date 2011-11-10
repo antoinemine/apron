@@ -552,7 +552,8 @@ pkXXX_t* pkXXX_meet_lincons_array(ap_manager_t* man, bool destructive, pkXXX_t* 
     ap_generic_meet_quasilinearize_lincons_array(
 	man,destructive,pa,array,
 	AP_SCALAR_MPQ, AP_LINEXPR_LINEAR,
-	AP_LINEXPR_INTLINEAR,1,false,
+	AP_LINEXPR_INTLINEAR,1,
+	false,false,
 	(void*(*)(ap_manager_t*,bool,void*,ap_lincons0_array_t))pkXXX_meet_lincons_array_linear
     );
 }
@@ -563,7 +564,8 @@ pkXXX_t* pkXXX_meet_tcons_array(ap_manager_t* man, bool destructive, pkXXX_t* pa
     ap_generic_meet_intlinearize_tcons_array(
 	man,destructive,pa,array,
 	AP_SCALAR_MPQ, AP_LINEXPR_LINEAR,
-	AP_LINEXPR_INTLINEAR,1,false,
+	AP_LINEXPR_INTLINEAR,1,
+	false,false,
 	(void*(*)(ap_manager_t*,bool,void*,ap_lincons0_array_t))pkXXX_meet_lincons_array_linear
     );
 }

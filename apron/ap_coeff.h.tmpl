@@ -53,6 +53,8 @@ typedef enum ap_coeff_tag_t {
   AP_COEFF_MPZ2,	/* waiting for 2 mpz_t and a dimension/var */
   AP_COEFF_LFRAC,	/* waiting for 2 long int and a dimension/var */
   AP_COEFF_LFRAC2,	/* waiting for 4 long int and a dimension/var */
+  AP_COEFF_MPZFRAC,	/* waiting for 2 mpz_t */
+  AP_COEFF_MPZFRAC2,	/* waiting for 4 mpz_t */
   AP_COEFF_MPQ,		/* waiting for 1 mpq_t and a dimension/var */
   AP_COEFF_MPQ2,	/* waiting for 2 mpq_t and a dimension/var */
   AP_COEFF_DOUBLE,	/* waiting for 1 double and a dimension/var */
@@ -72,6 +74,8 @@ typedef enum ap_coeff_tag_t {
   AP_CST_MPZ2,		/* waiting for 2 mpz_t */
   AP_CST_LFRAC,		/* waiting for 2 long int */
   AP_CST_LFRAC2,	/* waiting for 4 long int */
+  AP_CST_MPZFRAC,	/* waiting for 2 mpz_t */
+  AP_CST_MPZFRAC2,	/* waiting for 4 mpz_t */
   AP_CST_MPQ,		/* waiting for 1 mpq_t */
   AP_CST_MPQ2,		/* waiting for 2 mpq_t */
   AP_CST_DOUBLE,	/* waiting for 1 double */

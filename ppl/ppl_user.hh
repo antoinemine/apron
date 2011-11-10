@@ -23,9 +23,10 @@ using namespace Parma_Polyhedra_Library;
 /* APRON includes */
 #include "eitvMPQ.h"
 #include "ap_global0.h"
-#include "ap_ppl.h"
-#include "ppl_poly.hh"
-#include "ppl_grid.hh"
+#include "apron_ppl.h"
+#include "ppl_poly.h"
+#include "ppl_grid.h"
+#include "ppl_bd_shape.h"
 
 #ifndef PPL_VERSION_MAJOR
 #error "no version information"
@@ -42,6 +43,7 @@ using namespace Parma_Polyhedra_Library;
 typedef struct ap_ppl_internal_t {
   union {
     ap_ppl_poly_option_t poly;
+    ap_ppl_bd_shape_option_t bd_shape;
   } option;
   ap_linexprMPQ_t linexprMPQ;
   ap_coeff_t coeffMPQ;
