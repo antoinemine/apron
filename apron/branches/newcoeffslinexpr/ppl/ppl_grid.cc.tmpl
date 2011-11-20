@@ -17,7 +17,6 @@
 
 #include <assert.h>
 #include "ap_generic.h"
-#include "ap_global0.h"
 #include "num_conv.h"
 
 #include "ppl.hh"
@@ -258,6 +257,7 @@ void ap_ppl_grid_fdump(FILE* stream, ap_manager_t* man, PPL_Grid* a)
     /* dump generators */
     fprintf(stream,"generators: ");
     ap_lingen0_array_t ar2;
+    ap_lingen0_array_init(ar2,AP_SCALAR_MPQ,0);
     bool exact = ap_lingen0_array_set_ppl_Grid_Generator_System(ar2,a->p->grid_generators(),man->num);
     if (!exact) fprintf(stream,"(inexact) ");
     ap_lingen0_array_fprint(stream,ar2,NULL);
@@ -392,16 +392,45 @@ bool ap_ppl_grid_sat_lincons_internal(ap_manager_t* man, PPL_Grid* a,
 				      ap_lincons0_t lincons0)
 {
   assert(ap_lincons0_is_linear(lincons0));
-  Congruence r = Congruence::zero_dim_false();
-  man->result.flag_best = man->result.flag_exact = true;
-  try {
-    ap_ppl_Congruence_set_lincons0(r,lincons0,man);
-    Poly_Con_Relation relation = a->p->relation_with(r);
-    return relation.implies(Poly_Con_Relation::is_included());
+  assert(lincons0->discr==AP_SCALAR_MPQ);
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  ap_linconsMPQ_ptr lincons = lincons0->lincons.MPQ;
+
+  if (lincons->linexpr->effsize==0){
+    bool sat = (ap_linconsMPQ_evalcst(lincons,man->num)==tbool_true);
+    man->result.flag_exact = man->result.flag_best = true;
+    return sat;
   }
-  catch (cannot_convert w) {
-    man->result.flag_exact = man->result.flag_best = false;
-    return false;
+  else {
+    ap_constyp_t constyp = ap_lincons0_get_constyp(lincons0);
+    try {
+      switch (constyp){
+      case AP_CONS_EQ:
+      case AP_CONS_EQMOD:
+	{
+	  Congruence r = Congruence::zero_dim_false();
+	  man->result.flag_best = man->result.flag_exact = true;
+	  ap_ppl_Congruence_set_lincons0(r,lincons0,man);
+	  Poly_Con_Relation relation = a->p->relation_with(r);
+	  return relation.implies(Poly_Con_Relation::is_included());
+	}
+      case AP_CONS_SUP:
+      case AP_CONS_SUPEQ:
+	{
+	  Constraint r = Constraint::zero_dim_positivity();
+	  man->result.flag_best = man->result.flag_exact = true;
+	  ap_ppl_Constraint_set_lincons0(r,lincons0,man);
+	  Poly_Con_Relation relation = a->p->relation_with(r);
+	  return relation.implies(Poly_Con_Relation::is_included());
+	}
+      default:
+	throw cannot_convert();
+      }
+    }
+    catch (cannot_convert w) {
+      man->result.flag_exact = man->result.flag_best = false;
+      return false;
+    }
   }
 }
 
@@ -523,25 +552,35 @@ bool ap_ppl_grid_bound_linexpr_internal(
   MACRO_SWITCH(coeff->discr) ZZZ {
     eitvZZZ_ptr eitv = coeff->eitv.ZZZ;
     /* sup bound */
-    if (a->p->maximize(l,intern->num,intern->den,ok)){
-      exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
-    } else {
+    try {
+      if (a->p->maximize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
+      } else {
+	throw cannot_convert();
+      }
+    }
+    catch (cannot_convert w){
       boundZZZ_set_infty(eitv->itv->sup,1);
       exact = true;
     }
     /* inf bound */
-    {
+    try {
       ap_coeff_t coeff;
       ap_linexpr0_cstref(coeff,linexpr0);
       if (!ap_coeff_is_point(coeff)){
-	exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man) && exact;
+	exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,-1,man) && exact;
+      }
+      if (a->p->minimize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	mpz_ptr mpznum = intern->num.get_mpz_t();
+	mpz_neg(mpznum,mpznum);
+	exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
+      } else {
+	throw cannot_convert();
       }
     }
-    if (a->p->minimize(l,intern->num,intern->den,ok)){
-      mpz_ptr mpznum = intern->num.get_mpz_t();
-      mpz_neg(mpznum,mpznum);
-      exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
-    } else {
+    catch (cannot_convert w){
       boundZZZ_set_infty(eitv->itv->neginf,1);
     }
     eitv->eq = itvZZZ_is_point(eitv->itv);
@@ -836,9 +875,9 @@ PPL_Grid* ap_ppl_grid_asssub_linexpr_array_internal(
     bool exact = ap_ppl_Linear_Expression_set_linexpr0(e,linexpr0,1,man);
     assert(exact);
     if (assign)
-      r->p->affine_image(Variable(tdim[0]),e,intern->den);
+      r->p->affine_image(Variable(tdim[0]),e,intern->dengen);
     else
-      r->p->affine_preimage(Variable(tdim[0]),e,intern->den);
+      r->p->affine_preimage(Variable(tdim[0]),e,intern->dengen);
   } else {
     /* defaults to forget */
     r->forget_dim(tdim[0]);

@@ -188,7 +188,7 @@ ap_manager_t* pkXXX_manager_alloc(bool strict)
   void** funptr;
 
   pk = pkXXX_internal_alloc(strict);
-  man = ap_manager_alloc(strdup(strict ? "polka, strict mode, numXXX" : "polka, loose mode, numXXX"),
+  man = ap_manager_alloc(strdup(strict ? "polka, STRICT mode, numXXX" : "polka, LOOSE mode, numXXX"),
 			 strdup("3.0"),
 			 pk, (void (*)(void*))pkXXX_internal_free);
   pk->num = man->num;

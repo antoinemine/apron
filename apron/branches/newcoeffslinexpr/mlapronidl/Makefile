@@ -259,15 +259,6 @@ distclean: clean
 # IDL
 #-----------------------------------
 
-polka_caml.c polka.ml polka.mli: polka.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c sedscript_polka_caml
-	@mkdir -p tmp
-	@echo "module polka" 
-	@cp polka.idl tmp/polka.idl 
-	@$(CAMLIDL) -no-include -prepro cpp -I $(SRCDIR) tmp/polka.idl 
-	@$(SED) -f sedscript_c tmp/polka_stubs.c >polka_caml.c 
-	@$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.ml | ../cleanupidl.pl - >polka.ml 
-	@$(SED) -f sedscript_caml -f sedscript_polka_caml tmp/polka.mli | ../cleanupidl.pl - >polka.mli
-
 %_caml.c %.ml %.mli: %.idl mpz.idl mpq.idl mpf.idl mpfr.idl sedscript_caml sedscript_c
 	@mkdir -p tmp
 	@echo "module $*" 

@@ -413,12 +413,14 @@ pkXXX_t* pkXXX_permute_dimensions(ap_manager_t* man,
   if (pa->F){
     po->F = matrixXXX_permute_dimensions(pk,destructive,pa->F,permutation->p);
   }
-  if (!destructive){
+  if (destructive){
+    po->status &= (~pk_status_consgauss & ~pk_status_gengauss);
+  } else {
     po->satC = pa->satC ? satmat_copy(pa->satC) : NULL;
     po->satF = pa->satF ? satmat_copy(pa->satF) : NULL;
     po->nbline = pa->nbline;
     po->nbeq = pa->nbeq;
-    po->status = pa->status;
+    po->status = pa->status & (~pk_status_consgauss & ~pk_status_gengauss);
   }
   assert(pkXXX_check(pk,po));
   return po;

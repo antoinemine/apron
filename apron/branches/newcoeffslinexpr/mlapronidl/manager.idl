@@ -201,7 +201,7 @@ quote(MLI,"(** Exception raised by functions of the interface *)")
 quote(MLMLI,"exception Error of ap_exclog_t");
 
 quote(ML,"\
-let _ = Callback.register_exception \"apron exception\" \
+let _ = Callback.register_exception \"apron_exception\"\n\
 	  (Error { exn=Exc_none; funid = Funid_bottom; msg = \"dummy\"; })")
 
 quote(MLI,"val string_of_funid: ap_funid_t -> string")

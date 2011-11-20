@@ -20,16 +20,12 @@
 #include <assert.h>
 
 #include "ap_global0.h"
-#include "boxMPQ.h"
-#include "pkMPQ.h"
-#include "pkeqMPQ.h"
-#include "octMPQ.h"
-/*
-#include "pkeq.h"
-#include "ap_ppl.h"
-#include "ap_pkgrid.h"
-*/
-
+#include "box.h"
+#include "pk.h"
+#include "oct.h"
+#include "ppl_poly.h"
+#include "ppl_grid.h"
+#include "ppl_bd_shape.h"
 
 /* ********************************************************************** */
 /* Global paramaters */
@@ -1634,11 +1630,16 @@ with dim=%zd, intdim=%zd, abs=%s, abs2=%s\n\
 ap_manager_t* strtoman(char* name)
 {
   ap_manager_t* man = NULL;
-  if (strcmp(name,"box")==0) man = boxMPQ_manager_alloc();
-  else if (strcmp(name,"oct")==0) man = octMPQ_manager_alloc();
-  else if (strcmp(name,"pkl")==0) man = pkMPQ_manager_alloc(false);
-  else if (strcmp(name,"pks")==0) man = pkMPQ_manager_alloc(true);
-  else if (strcmp(name,"pkeq")==0) man = pkeqMPQ_manager_alloc();
+  if (strcmp(name,"box")==0) man = box_manager_alloc(NUM_MPQ);
+  else if (strcmp(name,"oct")==0) man = oct_manager_alloc(NUM_MPQ);
+  else if (strcmp(name,"pkl")==0) man = pk_manager_alloc(PK_LOOSE,NUM_MPQ);
+  else if (strcmp(name,"pks")==0) man = pk_manager_alloc(PK_STRICT,NUM_MPQ);
+  else if (strcmp(name,"pkeq")==0) man = pk_manager_alloc(PK_EQUALITIES,NUM_MPQ);
+  else if (strcmp(name,"pplpolyl")==0) man = ap_ppl_poly_manager_alloc(false);
+  else if (strcmp(name,"pplpolyl")==0) man = ap_ppl_poly_manager_alloc(false);
+  else if (strcmp(name,"pplpolys")==0) man = ap_ppl_poly_manager_alloc(true);
+  else if (strcmp(name,"pplgrid")==0) man = ap_ppl_grid_manager_alloc();
+  else if (strcmp(name,"pplbd")==0) man = ap_ppl_bd_shape_manager_alloc();
   return man;
 }
 
@@ -1766,7 +1767,7 @@ int main(int argc, char** argv)
   printf("\n\
 usage: domain <options> <roughdom> <precdom> <seed>\n\
 where <roughdom>: less precise domain, <precdom>: more precise domain\n\
-to be picked in the list: box oct pkl pks\n\
+to be picked in the list: box oct pkl pks pkeq pplpolyl pplpolys pplgrid pplbd\n\
 Options are :\n\
   -dim <n>\n\
   -intdim <n>\n\

@@ -1,0 +1,32 @@
+/* -*- mode: c -*- */
+
+/* ********************************************************************** */
+/* box.c */
+/* ********************************************************************** */
+
+#include "boxMPQ_internal.h"
+#include "box.h"
+
+PERLEVAL @BoxNum = split(" ",$ENV{BOX_NUMTYPES})
+
+MACRO_FOREACH XXX @BoxNum
+#include "boxXXX.h"
+ENDMACRO
+
+ap_manager_t* box_manager_alloc(num_discr_t discr)
+{
+  switch(discr){
+MACRO_FOREACH XXX @BoxNum
+  case NUM_XXX:
+    return boxXXX_manager_alloc();
+ENDMACRO
+  default:
+    return NULL;
+  }
+}
+
+box_option_t* box_manager_option_ref(ap_manager_t* man)
+{
+  boxMPQ_internal_t* intern = (boxMPQ_internal_t*)man->internal;
+  return &(intern->option);
+}

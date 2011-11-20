@@ -1,0 +1,32 @@
+/* -*- mode: c -*- */
+
+/* ********************************************************************** */
+/* oct.c */
+/* ********************************************************************** */
+
+#include "octMPQ_internal.h"
+#include "octMPQ.h"
+#include "oct.h"
+
+PERLEVAL @OctNum = split(" ",$ENV{OCT_NUMTYPES})
+MACRO_FOREACH XXX @OctNum
+#include "octXXX.h"
+ENDMACRO
+
+ap_manager_t* oct_manager_alloc(num_discr_t discr)
+{
+  switch(discr){
+MACRO_FOREACH XXX @OctNum
+  case NUM_XXX:
+    return octXXX_manager_alloc();
+ENDMACRO
+  default:
+    return NULL;
+  }
+}
+
+oct_option_t* oct_manager_option_ref(ap_manager_t* man)
+{
+  octMPQ_internal_t* intern = (octMPQ_internal_t*)man->internal;
+  return &(intern->option);
+}
