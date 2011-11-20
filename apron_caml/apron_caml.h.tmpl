@@ -1,6 +1,6 @@
 /* -*- mode: c -*- */
 
-PERLEVAL @AllNumIdl = split(" ",$ENV{MLAPRONIDL_NUMTYPES})
+PERLEVAL @AllNumIdl = split(" ",$ENV{APRON_CAML_NUMTYPES})
 
 /* ********************************************************************** */
 /* apron_caml.h */
@@ -35,7 +35,7 @@ struct camlidl_ctx_struct;
 extern "C" {
 #endif
 
-#if defined(MLAPRONIDL_CALLBACK)
+#if defined(APRON_CAML_CALLBACK)
 #define mlapronidl_ptr_of_value(X,val) (*(X ## _ptr*)(Data_custom_val(val)))
 #define mlapronidl_free(p) free(p)
 #else

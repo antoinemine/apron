@@ -38,7 +38,7 @@ LDFLAGS = -L.. -L$(CAML_LIB) -L$(CAMLIDL_LIB) -L$(GMP_PREFIX)/lib -L$(MPFR_PREFI
 # Files
 #---------------------------------------
 
-TMPL = $(MLAPRONIDL_NUMTYPES)
+TMPL = $(APRON_CAML_NUMTYPES)
 YYY = expr cons gen
 
 IDL_ORIG_MODULES_1 = dim var environment common
@@ -148,10 +148,10 @@ FILES_TOINSTALL = \
 	apron_caml.h \
 	$(IDL_MODULES:%=%.idl) \
 	apron.cmi $(ML_LIB_ALL) $(C_LIB_ALL)
-ifneq ($(MLAPRONIDL_DEBUG),)
+ifneq ($(CAML_DEBUG),)
 FILES_TOINSTALL += $(ML_LIB_DEBUG) $(C_LIB_DEBUG)
 endif
-ifneq ($(MLAPRONIDL_PROF),)
+ifneq ($(CAML_PROF),)
 FILES_TOINSTALL += $(ML_LIB_PROF) $(C_LIB_PROF)
 endif
 
@@ -237,7 +237,7 @@ uninstall:
 
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
-	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
+	/bin/rm -f apron_caml.out apron_caml.aux apron_caml.idx apron_caml.ilg apron_caml.ind apron_caml.bbl apron_caml.blg apron_caml.dvi apron_caml.log apron_caml.toc apron_caml.ps apron_caml.pdf
 	/bin/rm -f *.o *.a *.so *.cmi *.cmo *.cmx *.cmxa *.cma *.annot apron_parser.ml apron_parser.mli apron_parser.output apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
@@ -289,11 +289,11 @@ mpfr.idl: $(SITE-LIB-gmp)/mpfr.idl
 %.p.o: %.c apron_caml.h
 	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -c -o $@ $<
 %.callback.o: %.c apron_caml.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DAPRON_CAML_CALLBACK -c -o $@ $<
 %.callback.d.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DAPRON_CAML_CALLBACK -c -o $@ $<
 %.callback.p.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DMLAPRONIDL_CALLBACK -c -o $@ $<
+	$(CC) $(CFLAGS_PROF) $(ICFLAGS) -DMLGMPIDL_CALLBACK -DAPRON_CAML_CALLBACK -c -o $@ $<
 
 #-----------------------------------
 # CAML
@@ -335,23 +335,23 @@ apron.p.o apron.p.cmx: $(ML_MODULES:%=%.p.cmx)
 %.idl: %.idl.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+	APRON_CAML_NUMTYPES="$(APRON_CAML_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 %.ml: %.ml.tmpl
 	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
 	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
-	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
+	APRON_CAML_NUMTYPES="$(APRON_CAML_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
 %.mli: %.mli.tmpl
 	@echo "(* GENERATED FROM $<, DO NOT MODIFY *)" >$@
 	@echo "# 1 \"$(SRCDIR)/$<\"" >>$@
-	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
+	APRON_CAML_NUMTYPES="$(APRON_CAML_NUMTYPES)" ../macros.pl $(SRCDIR)/$< | $(SED) -e "s/#line \([0-9]*\) \"\([^\"]*\)\"/# \1 \"\2\"/g" >>$@
 %.h: %.h.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+	APRON_CAML_NUMTYPES="$(APRON_CAML_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 %.c: %.c.tmpl
 	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
 	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
-	MLAPRONIDL_NUMTYPES="$(MLAPRONIDL_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+	APRON_CAML_NUMTYPES="$(APRON_CAML_NUMTYPES)" BOX_NUMTYPES="$(BOX_NUMTYPES)" POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-idl-XXX
 $(subst XXX,$(1),$(2)): $(2)

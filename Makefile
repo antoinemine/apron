@@ -42,7 +42,7 @@ SUBDIR_C = apron $(SUBDIR_C_DOM)
 
 SUBDIR_ALL = $(SUBDIR_C) 
 ifneq ($(HAS_OCAML),)
-SUBDIR_ALL += caml
+SUBDIR_ALL += apron_caml
 endif
 ifneq ($(HAS_CPP),)
 SUBDIR_ALL += apronxx
@@ -89,11 +89,11 @@ cxx_prof: libapronxx.p.so
 endif
 
 ml_all:
-	make -C caml all
+	make -C apron_caml all
 ml_debug:
-	make -C caml debug
+	make -C apron_caml debug
 ml_prof:
-	make -C caml prof
+	make -C apron_caml prof
 
 depend:
 	for i in $(SUBDIR_ALL); do make -C $$i depend; done
@@ -111,7 +111,7 @@ ifneq ($(HAS_PPL),)
 #	make -C products install
 endif
 ifneq ($(HAS_OCAML),)
-	make -C caml install
+	make -C apron_caml install
 endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx install
@@ -136,7 +136,7 @@ distclean:
 doc:
 	make -C apron html apron.pdf
 ifneq ($(HAS_OCAML),)
-	make -C caml html mlapronidl.pdf
+	make -C apron_caml html apron_caml.pdf
 endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx doc
@@ -169,7 +169,7 @@ $(eval $(call generate-clib,.p))
 
 PKGNAME  = apron-1.0
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron box polka caml octagons examples test apronxx #apron_ppl products 
+PKGDIRS  = apron box polka apron_caml octagons examples test apronxx #apron_ppl products 
 
 dist:
 	$(MAKE) all
@@ -188,9 +188,9 @@ online: doc index.html
 	mkdir -p online
 	mv index.html poster.gif flyer.pdf online
 	mv apron/html online/apron
-	mv caml/html online/mlapronidl
+	mv apron_caml/html online/apron_caml
 	cp apron/apron.pdf online
-	cp caml/mlapronidl.pdf online
+	cp apron_caml/apron_caml.pdf online
 	cp examples/example1.c online
 	cp examples/mlexample?.ml online
 	cp Changes online
