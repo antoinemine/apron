@@ -111,7 +111,8 @@ bool do_generators_sat_vectorXXX(pkXXX_internal_t* pk, matrixXXX_t* F, numintXXX
 	}
 	else {
 	  /* ray or vertex */
-	  if (is_strict && sign==0 &&
+	  if (sign==0 && is_strict &&
+	      numintXXX_sgn(F->p[i][polka_cst]) /* vertex */ &&
 	      (pk->strict ? numintXXX_sgn(F->p[i][polka_eps])>0 : true))
 	    return false;
 	}

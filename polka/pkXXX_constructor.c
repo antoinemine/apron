@@ -157,7 +157,7 @@ int matrixXXX_fill_constraint_box(
   eitvXXX_init(eitv);
   lastdim = 0;
   ap_linexpr0_ForeachLinterm(box,i,dim,coeff){
-    for (dim2=lastdim;dim2<dim;dim++){
+    for (dim2=lastdim;dim2<dim;dim2++){
       numXXX_ptr num = boundXXX_numref(eitv->itv->sup);
       numXXX_set_int(num,0);
       ok = vectorXXX_set_dim_bound(pk,C->p[k],

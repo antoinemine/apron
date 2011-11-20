@@ -17,7 +17,11 @@
 #ifndef __PPL_POLY_H
 #define __PPL_POLY_H
 
+#include "ap_global0.h"
+
 #ifdef __cplusplus
+#include "ppl.hh"
+
 class PPL_Poly {
 public:
   Polyhedron* p;
@@ -30,7 +34,7 @@ public:
 };
 extern "C" {
 #else
-typedef struct PPL_Poly* PPL_Poly
+  typedef struct PPL_Poly* PPL_Poly;
 #endif
 
 typedef enum ap_ppl_poly_widening_option_t {

@@ -50,6 +50,7 @@ typedef struct ap_ppl_internal_t {
   eitvMPQ_t eitvMPQ;
   mpz_class num;
   mpz_class den;
+  mpz_class dengen;
   mpq_class mpqclass;
   bool strict; /* strict or loose mode for polyhedra */
 } ap_ppl_internal_t;

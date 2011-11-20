@@ -54,12 +54,45 @@ type 'a val1 = {\n\
   mutable env: Environment.t;\n\
 }\n\
 \n\
+type numIl\n\
 type numIll\n\
-type numRll\n\
 type numMPZ\n\
+type numRl\n\
+type numRll\n\
 type numMPQ\n\
 type numD\n\
+type numDl\n\
 type numMPFR\n\
+")
+
+quote(MLI,"\
+type 'a num_type\n\
+val numIl : numIl num_type\n\
+val numIll : numIl num_type\n\
+val numMPZ : numMPZ num_type\n\
+val numRl : numRl num_type\n\
+val numRll : numRll num_type\n\
+val numMPQ : numMPQ num_type\n\
+val numD : numD num_type\n\
+val numDl : numDl num_type\n\
+val numMPFR : numMPFR num_type\n\
+\n\
+val num_type_of_discr : num_discr -> 'a num_type\n\
+val num_discr_of_type : 'a num_type -> num_discr\n\
+")
+quote(ML,"\
+type 'a num_type = num_discr\n\
+let numIl = NUM_Il\n\
+let numIll = NUM_Il\n\
+let numMPZ = NUM_MPZ\n\
+let numRl = NUM_Rl\n\
+let numRll = NUM_Rll\n\
+let numMPQ = NUM_MPQ\n\
+let numD = NUM_D\n\
+let numDl = NUM_Dl\n\
+let numMPFR = NUM_MPFR\n\
+let num_type_of_discr = fun x -> x\n\
+let num_discr_of_type = fun x -> x\n\
 ")
 
 quote(MLMLI,"external num_internal_alloc : unit -> num_internal = \"camlidl_apron_num_internal_alloc\"")
@@ -77,6 +110,8 @@ quote(MLI,"\n\
 val string_of_exprtyp : exprtyp -> string\n\
 val string_of_constyp : constyp -> string\n\
 val string_of_gentyp : gentyp -> string\n\
+val string_of_num_discr : num_discr -> string\n\
+val string_of_num_type : 'a num_type -> string\n\
 val discr : ('a,'b,'c) t -> discr\n\
 val array_print :\n\
   ?first:(unit,Format.formatter,unit) format ->\n\
@@ -143,18 +178,29 @@ let string_of_exprtyp = function\n\
 | INTLINEAR -> \"INTLINEAR\"\n\
 | QUASILINEAR -> \"QUASILINEAR\"\n\
 | LINEAR -> \"LINEAR\"\n\
-let  string_of_constyp = function\n\
+let string_of_constyp = function\n\
 | EQ -> \"=\"\n\
 | SUPEQ -> \">=\"\n\
 | SUP -> \">\"\n\
 | EQMOD -> \"=\"\n\
 | DISEQ -> \"<>\"\n\
-let  string_of_gentyp = function\n\
+let string_of_gentyp = function\n\
 | LINE -> \"LINE\"\n\
 | RAY -> \"RAY\"\n\
 | VERTEX -> \"VTX\"\n\
 | LINEMOD -> \"LINEMOD\"\n\
 | RAYMOD -> \"RAYMOD\"\n\
+let string_of_num_discr = function\n\
+| NUM_Il -> \"Il\"\n\
+| NUM_Ill -> \"Ill\"\n\
+| NUM_MPZ -> \"MPZ\"\n\
+| NUM_Rl -> \"Rl\"\n\
+| NUM_Rll -> \"Rll\"\n\
+| NUM_MPQ -> \"MPQ\"\n\
+| NUM_D -> \"D\"\n\
+| NUM_Dl -> \"Dl\"\n\
+| NUM_MPFR -> \"MPFR\"\n\
+let string_of_num_type = string_of_num_discr\n\
 let discr x =\n\
   match x with\n\
   | D _ -> D()\n\

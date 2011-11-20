@@ -68,7 +68,12 @@ void matrixXXX_reduce(matrixXXX_t* mat)
 static
 void pkeqXXX_reduce(ap_manager_t* man, pkeqXXX_t* po)
 {
-  assert((!po->C && !po->F) || (po->C && po->F));
+  if (po->C && !po->F){
+    pkXXX_chernikova(man,po,"");
+  }
+  else if (!po->C && po->F){
+    abort();
+  }
   if (po->C && po->F){
     if (po->C->nbrows > po->nbeq + 1){
       pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
@@ -573,7 +578,8 @@ ap_manager_t* pkeqXXX_manager_alloc(void)
   void** funptr;
 
   man = pkXXX_manager_alloc(false);
-  man->library = "polka, equalities mode, numXXX";
+  free(man->library);
+  man->library = strdup("polka, EQUALITIES mode, numXXX");
   funptr = man->funptr;
   // funptr[AP_FUNID_COPY] = &pkXXX_copy;
   // funptr[AP_FUNID_FREE] = &pkXXX_free;
@@ -627,6 +633,10 @@ ap_manager_t* pkeqXXX_manager_alloc(void)
   funptr[AP_FUNID_CLOSURE] = &pkeqXXX_closure;
 
   pkXXX_internal_t* pk = (pkXXX_internal_t*)man->internal;
+  pk->option.expand_lazy = false;
   pk->option.forget_lazy = false;
+  pk->option.remove_dimensions_lazy = false;
+  pk->option.op_lazy = false;
+  pk->option.strong_normalization = true;
   return man;
 }

@@ -27,7 +27,6 @@ typedef pkXXX_t pkeqXXX_t;
 
 */
 
-
 /* ============================================================ */
 /* A. Constructor for APRON manager (to be freed with ap_manager_free). */
 /* ============================================================ */

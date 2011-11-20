@@ -17,7 +17,11 @@
 #ifndef __PPL_GRID_H
 #define __PPL_GRID_H
 
+#include "ap_global0.h"
+
 #ifdef __cplusplus
+#include "ppl.hh"
+
 class PPL_Grid {
 public:
   Grid* p;
@@ -33,14 +37,14 @@ public:
 };
 extern "C" {
 #else
-typedef struct PPL_Grid* PPL_Grid
+typedef struct PPL_Grid* PPL_Grid;
 #endif
 
 /* ============================================================ */
 /* A. Constructor for APRON manager (to be freed with ap_manager_free). */
 /* ============================================================ */
 
-ap_manager_t* ap_ppl_grid_manager_alloc();
+ap_manager_t* ap_ppl_grid_manager_alloc(void);
   /* Allocate a PPL manager for linear congruences. */
 
 /* ********************************************************************** */

@@ -33,26 +33,34 @@ C_TMPL_FILES = \
 octXXX_hmat.c octXXX_internal.c octXXX_print.c octXXX_transfer.c octXXX_closure.c octXXX_nary.c \
 octXXX_representation.c octXXX_predicate.c octXXX_resize.c
 
-H_ORIG_FILES = 
+H_TMPL_FILES_tmpl =
+C_TMPL_FILES_tmpl = oct.c.tmpl
+
+H_ORIG_FILES = oct.h
 C_ORIG_FILES =
 
-H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
-C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES) $(H_TMPL_FILES_tmpl)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES) $(C_TMPL_FILES_tmpl)
 
 H_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES)))
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
+
 C_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 
 H_GENERATED_FILES_ALL = \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES)))
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
 C_GENERATED_FILES_ALL = \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
-CCINC_TO_INSTALL = $(TMPL:%=oct%.h)
+CCINC_TO_INSTALL = $(TMPL:%=oct%.h) oct.h
 
 #---------------------------------------
 # Rules
@@ -102,6 +110,15 @@ liboctagon.p.a: $(C_FILES:%.c=%.p.o)
 #---------------------------------------
 # Files generation
 #---------------------------------------
+
+%.h: %.h.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	OCT_NUMTYPES="$(OCT_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+%.c: %.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	OCT_NUMTYPES="$(OCT_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-file
 $(subst XXX,$(1),$(2)): $(2)

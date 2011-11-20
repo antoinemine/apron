@@ -32,26 +32,34 @@ boxXXX.h boxXXX_internal.h
 C_TMPL_FILES = \
 boxXXX_internal.c boxXXX_representation.c boxXXX_constructor.c boxXXX_meetjoin.c boxXXX_assign.c boxXXX_resize.c boxXXX_otherops.c
 
-H_ORIG_FILES = 
-C_ORIG_FILES = box_misc.c
+H_TMPL_FILES_tmpl =
+C_TMPL_FILES_tmpl = box.c.tmpl
 
-H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
-C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
+H_ORIG_FILES = box.h
+C_ORIG_FILES = 
+
+H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES) $(H_TMPL_FILES_tmpl)
+C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES) $(C_TMPL_FILES_tmpl)
 
 H_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES)))
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
+
 C_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 
 H_GENERATED_FILES_ALL = \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES)))
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
 C_GENERATED_FILES_ALL = \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
-CCINC_TO_INSTALL = $(TMPL:%=box%.h)
+CCINC_TO_INSTALL = $(TMPL:%=box%.h) box.h
 
 #---------------------------------------
 # Rules
@@ -101,6 +109,15 @@ libbox.p.a: $(C_FILES:%.c=%.p.o)
 #---------------------------------------
 # Files generation
 #---------------------------------------
+
+%.h: %.h.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	BOX_NUMTYPES="$(BOX_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+%.c: %.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	BOX_NUMTYPES="$(BOX_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-file
 $(subst XXX,$(1),$(2)): $(2)

@@ -215,15 +215,19 @@ ap_generic_bound_linexprXXX_internal(
     ap_linexprXXX_quasilinearize(exprX, penv->linexpr.XXX,false,
 				 man->num);
   }
-  ap_coeff_t coeff;
-  ap_linexpr0_t expr0;
-  ap_coeff_cons_eitvXXX(coeff,eitv);
-  ap_linexpr0_cons_XXX(expr0,exprX);
-  bound_linexpr(man,coeff,abs,expr0);
-  if (penv==env) ap_linexpr0_clear(env);
-  if (typ<=boxize){
-    eitvXXX_meet(eitv,eitv,eitv0);
+  if (exprX->effsize==0){
+    eitvXXX_set(eitv,exprX->cst);
+  } else {
+    ap_coeff_t coeff;
+    ap_linexpr0_t expr0;
+    ap_coeff_cons_eitvXXX(coeff,eitv);
+    ap_linexpr0_cons_XXX(expr0,exprX);
+    bound_linexpr(man,coeff,abs,expr0);
+    if (penv==env) ap_linexpr0_clear(env);
+    if (typ<=boxize){
+      eitvXXX_meet(eitv,eitv,eitv0);
     eitvXXX_clear(eitv0);
+    }
   }
   man->result.flag_exact = man->result.flag_exact && exact;
   return res;
@@ -316,7 +320,7 @@ bool ap_generic_sat_tcons(
 }
 
 /*
-   This function implements a generic bound_texpr operation using linearisation
+   This function implements a generic bound_linexpr operation using linearisation
    and bound_linexpr
 */
 void

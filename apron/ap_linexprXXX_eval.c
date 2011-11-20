@@ -967,159 +967,115 @@ ap_linexprXXX_intlinearize_texpr0_node(ap_linexprXXX_t lres /* out */, eitvXXX_t
 
   switch (n->op) {
   case AP_TEXPR_NEG:
-    /* negate linear form & interval, no rounding */
-    t1 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
-    ap_linexprXXX_neg(lres,lres);
-    eitvXXX_neg(ires,ires);
-    return t1;
-
   case AP_TEXPR_CAST:
-    /* round linear form & interval */
-    t1 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
-    ap_linexprXXX_texpr0_round(lres,ires,t1,n->type,n->dir, intern);
-    ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
-    break;
-
   case AP_TEXPR_SQRT:
-    /* intlinearize argument, lres is not used */
-    ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
-    /* interval square root */
-    eitvXXX_sqrt(ires,ires, intern);
-    if (!eitvXXX_is_bottom(ires))
-      eitvXXX_round(ires,ires,n->type,n->dir,intern);
-    ap_linexprXXX_resize(lres,0);
-    eitvXXX_set(lres->cst,ires);
-    break;
-
+    t1 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
+    if (!eitvXXX_is_bottom(ires)){
+      assert(!eitvXXX_is_bottom(lres->cst));
+      switch (n->op){
+      case AP_TEXPR_NEG:
+	/* negate linear form & interval, no rounding */
+	ap_linexprXXX_neg(lres,lres);
+	eitvXXX_neg(ires,ires);
+	return t1;
+      case AP_TEXPR_CAST:
+	/* round linear form & interval */
+	ap_linexprXXX_texpr0_round(lres,ires,t1,n->type,n->dir, intern);
+	ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
+	return n->type;
+      case AP_TEXPR_SQRT:
+	/* intlinearize argument, lres is not used */
+	/* interval square root */
+	eitvXXX_sqrt(ires,ires, intern);
+	if (!eitvXXX_is_bottom(ires))
+	  eitvXXX_round(ires,ires,n->type,n->dir,intern);
+	ap_linexprXXX_resize(lres,0);
+	eitvXXX_set(lres->cst,ires);
+	return n->type;
+      default: abort();
+      }
+    }
+    else {
+      assert(lres->effsize==0 && eitvXXX_is_bottom(lres->cst));
+      return n->type;
+    }
+    abort();
   case AP_TEXPR_ADD:
   case AP_TEXPR_SUB:
-    eitvXXX_init(i1);
-    ap_linexprXXX_init(l1,0);
-
-    /* intlinearize arguments */
-    t1 = ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprA,env,intdim, intern);
-    t2 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
-      eitvXXX_set_bottom(ires);
-      ap_linexprXXX_resize(lres,0);
-      eitvXXX_set(lres->cst,ires);
-    }
-    else {
-      /* add/sub linear form & interval */
-      if (n->op==AP_TEXPR_ADD) {
-	ap_linexprXXX_add(lres,l1,lres, intern);
-	eitvXXX_add(ires,i1,ires);
-      }
-      else {
-	ap_linexprXXX_sub(lres,l1,lres, intern);
-	eitvXXX_sub(ires,i1,ires);
-      }
-      /* round */
-      ap_linexprXXX_texpr0_round(lres,ires,
-				 (t1==AP_RTYPE_INT && t2==AP_RTYPE_INT) ?
-				 AP_RTYPE_INT : AP_RTYPE_REAL,
-				 n->type,n->dir,intern);
-      /* reduce */
-      ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
-    }
-    eitvXXX_clear(i1);
-    ap_linexprXXX_clear(l1);
-    break;
-
-  case AP_TEXPR_DIV:
-    eitvXXX_init(i1);
-    ap_linexprXXX_init(l1,0);
-    /* intlinearize arguments, l1 is not used */
-    ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
-    ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
-      eitvXXX_set_bottom(ires);
-      ap_linexprXXX_resize(lres,0);
-      eitvXXX_set(lres->cst,ires);
-    }
-    else {
-      /* divide linear form & interval */
-      ap_linexprXXX_div(lres,lres,i1, intern);
-      eitvXXX_div(ires,ires,i1, intern);
-      /* round */
-      ap_linexprXXX_texpr0_round(lres,ires,AP_RTYPE_REAL,n->type,n->dir, intern);
-      /* reduce */
-      ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
-    }
-    eitvXXX_clear(i1);
-    ap_linexprXXX_clear(l1);
-    break;
-
   case AP_TEXPR_MUL:
-    eitvXXX_init(i1);
-    ap_linexprXXX_init(l1,0);
-    /* intlinearize arguments */
-    t1 = ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprA,env,intdim, intern);
-    t2 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprB,env,intdim, intern);
-    if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
-      eitvXXX_set_bottom(ires);
-      ap_linexprXXX_resize(lres,0);
-      eitvXXX_set(lres->cst,ires);
-      ap_linexprXXX_clear(l1);
-    }
-    else {
-      /* multiply one linear form with the other interval */
-      if (ap_linexprXXX_texpr0_cmp_range(l1,i1,lres,ires, intern))  {
-	/* res = ires * l1 */
-#if LOGDEBUG
-	printf("%*s lin * inter\n",2*debug_indent,"");
-#endif
-	ap_linexprXXX_clear(lres);
-	*lres = *l1;
-	ap_linexprXXX_scale(lres,lres,ires, intern);
-      }
-      else {
-	/* res = i1 * lres */
-#if LOGDEBUG
-	printf("%*s inter * lin\n",2*debug_indent,"");
-#endif
-	ap_linexprXXX_clear(l1);
-	ap_linexprXXX_scale(lres,lres,i1, intern);
-      }
-      eitvXXX_mul(ires,i1,ires, intern);
-      /* round */
-      ap_linexprXXX_texpr0_round(lres,ires,
-				 (t1==AP_RTYPE_INT && t2==AP_RTYPE_INT) ?
-				 AP_RTYPE_INT : AP_RTYPE_REAL,
-				 n->type,n->dir,
-				 intern);
-      /* reduce */
-      ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
-    }
-    eitvXXX_clear(i1);
-    break;
-
+  case AP_TEXPR_DIV:
   case AP_TEXPR_MOD:
     eitvXXX_init(i1);
     ap_linexprXXX_init(l1,0);
-    /* intlinearize arguments, lres & l1 are not used */
-    ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprA,env,intdim, intern);
-    ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprB,env,intdim, intern);
+    /* intlinearize arguments */
+    t1 = ap_linexprXXX_intlinearize_texpr0_rec(l1,i1,n->exprA,env,intdim, intern);
+    t2 = ap_linexprXXX_intlinearize_texpr0_rec(lres,ires,n->exprB,env,intdim, intern);
     if (eitvXXX_is_bottom(i1) || eitvXXX_is_bottom(ires)){
       eitvXXX_set_bottom(ires);
       ap_linexprXXX_resize(lres,0);
       eitvXXX_set(lres->cst,ires);
+    } else {
+      switch (n->op){
+	/* add/sub linear form & interval */
+      case AP_TEXPR_ADD:
+	ap_linexprXXX_add(lres,l1,lres, intern);
+	eitvXXX_add(ires,i1,ires);
+	break;
+      case AP_TEXPR_SUB:
+	ap_linexprXXX_sub(lres,l1,lres, intern);
+	eitvXXX_sub(ires,i1,ires);
+	break;
+      case AP_TEXPR_MUL:
+	/* multiply one linear form with the other interval */
+	if (ap_linexprXXX_texpr0_cmp_range(l1,i1,lres,ires, intern))  {
+	  /* res = ires * l1 */
+#if LOGDEBUG
+	  printf("%*s lin * inter\n",2*debug_indent,"");
+#endif
+	  ap_linexprXXX_clear(lres);
+	  *lres = *l1;
+	  ap_linexprXXX_scale(lres,lres,ires, intern);
+	}
+	else {
+	  /* res = i1 * lres */
+#if LOGDEBUG
+	  printf("%*s inter * lin\n",2*debug_indent,"");
+#endif
+	  ap_linexprXXX_clear(l1);
+	  ap_linexprXXX_scale(lres,lres,i1, intern);
+	}
+	eitvXXX_mul(ires,i1,ires, intern);
+	break;
+      case AP_TEXPR_DIV:
+	/* divide linear form & interval */
+	ap_linexprXXX_div(lres,l1,ires, intern);
+	eitvXXX_div(ires,i1,ires, intern);
+	break;
+      case AP_TEXPR_MOD:
+	/* interval modulo, no rounding */
+	eitvXXX_mod(ires,i1,ires,n->type==AP_RTYPE_INT, intern);
+	ap_linexprXXX_resize(lres,0);
+	eitvXXX_set(lres->cst,ires);
+	break;
+      default: abort();
+      }
+      if (n->op != AP_TEXPR_MOD){
+	/* round */
+	ap_linexprXXX_texpr0_round(lres,ires,
+				   (t1==AP_RTYPE_INT && t2==AP_RTYPE_INT) ?
+				   AP_RTYPE_INT : AP_RTYPE_REAL,
+				   n->type,n->dir,intern);
+	/* reduce */
+	ap_linexprXXX_texpr0_reduce(lres,ires,env, intern);
+      }
+      eitvXXX_clear(i1);
+      if (n->op != AP_TEXPR_MUL){
+	ap_linexprXXX_clear(l1);
+      }
     }
-    else {
-      /* interval modulo, no rounding */
-      eitvXXX_mod(ires,ires,i1,n->type==AP_RTYPE_INT, intern);
-      ap_linexprXXX_resize(lres,0);
-      eitvXXX_set(lres->cst,ires);
-    }
-    eitvXXX_clear(i1);
-    ap_linexprXXX_clear(l1);
-    break;
-
-  default:
-    assert(0);
+    return n->type;
+  default: abort();
   }
-
-  return n->type;
 }
 
 static ap_texpr_rtype_t

@@ -327,7 +327,7 @@ void pkXXX_canonicalize(ap_manager_t* man, pkXXX_t* po)
   pkXXX_internal_t* pk = pkXXX_init_from_manager(man,AP_FUNID_CANONICALIZE);
 
   assert(pkXXX_check(pk,po));
-  if (pk->option.strong_normalization >= 0)
+  if (pk->option.strong_normalization)
     pkXXX_chernikova3(man,po,NULL);
   else
     pkXXX_chernikova(man,po,NULL);
@@ -599,6 +599,26 @@ static bool matrixXXX_check3(pkXXX_internal_t* pk, matrixXXX_t* mat)
   return res;
 }
 
+static bool matrixXXX_check_gauss(pkXXX_internal_t* pk, matrixXXX_t* mat)
+{
+  size_t i,j,k;
+  numintXXX_t** p = mat->p;
+  int s;
+
+  /* Iterates on equalities */
+  for (i=0; i<mat->nbrows && numintXXX_sgn(p[i][0])==0; i++) {
+    /* find the greatest j such that p[i][j] is non zero */
+    for (j = mat->nbcolumns-1; j>=pk->dec; j--){
+      s = numintXXX_sgn(p[i][j]);
+      if (s) break;
+    }
+    if (s<=0) return false;
+    for (k=0; k<mat->nbrows; k++){
+      if (k!=i && numintXXX_sgn(p[k][j])) return false;
+    }
+  }
+  return true;
+}
 
 bool pkXXX_check(pkXXX_internal_t* pk, pkXXX_t* po)
 {
@@ -753,6 +773,19 @@ bool pkXXX_check(pkXXX_internal_t* pk, pkXXX_t* po)
     vectorXXX_free(vec,mat->nbcolumns);
     if (!res){
       fprintf(stderr,"pkXXX_check: pk_status_conseps true but the matrix is not normalized\n");
+      return false;
+    }
+  }
+  /* Check status: consgauss et gengauss */
+  if ((po->status & pk_status_consgauss) && po->C){
+    if (!matrixXXX_check_gauss(pk,po->C)){
+      fprintf(stderr,"pkXXX_check: consgauss is set in status but the constraint matrix does not satisfy it");
+      return false;
+    }
+  }
+  if ((po->status & pk_status_gengauss) && po->F){
+    if (!matrixXXX_check_gauss(pk,po->F)){
+      fprintf(stderr,"pkXXX_check: gengauss is set in status but the generator matrix does not satisfy it");
       return false;
     }
   }

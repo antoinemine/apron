@@ -17,10 +17,8 @@
 
 #include <assert.h>
 #include "ap_generic.h"
-#include "ap_global0.h"
 #include "num_conv.h"
 
-#include "ppl.hh"
 #include "ppl_user.hh"
 #include "ppl_poly.h"
 #include "apron_ppl.h"
@@ -248,12 +246,13 @@ void ap_ppl_poly_fdump(FILE* stream, ap_manager_t* man, PPL_Poly* a)
     fprintf(stream,"constraints: ");
     ap_lincons0_array_t ar;
     ap_lincons0_array_init(ar,AP_SCALAR_MPQ,0);
-     ap_lincons0_array_set_ppl_Constraint_System(ar,a->p->constraints(),man->num);
+    ap_lincons0_array_set_ppl_Constraint_System(ar,a->p->constraints(),man->num);
     ap_lincons0_array_fprint(stream,ar,NULL);
     ap_lincons0_array_clear(ar);
     /* dump generators */
     fprintf(stream,"generators: ");
     ap_lingen0_array_t ar2;
+    ap_lingen0_array_init(ar2,AP_SCALAR_MPQ,0);
     bool exact = ap_lingen0_array_set_ppl_Generator_System(ar2,a->p->generators(),man->num);
     if (!exact) fprintf(stream,"(inexact) ");
     ap_lingen0_array_fprint(stream,ar2,NULL);
@@ -391,25 +390,32 @@ bool ap_ppl_poly_sat_lincons_internal(ap_manager_t* man, PPL_Poly* a,
   assert(lincons0->discr==AP_SCALAR_MPQ);
   ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
   ap_linconsMPQ_ptr lincons = lincons0->lincons.MPQ;
-  Linear_Expression l;
-  ap_ppl_Linear_Expression_set_linexprMPQ(l,lincons->linexpr,1,man);
-  Constraint r = Constraint::zero_dim_positivity();
-  switch (lincons->constyp){
-  case AP_CONS_SUPEQ:
-    r = (l>=0); break;
-  case AP_CONS_SUP:
-    r = intern->strict ? (l>0) : (l>=0);
-    break;
-  case AP_CONS_EQMOD:
-    man->result.flag_exact = man->result.flag_exact && (mpq_sgn(lincons->mpq)==0);
-  case AP_CONS_EQ:
-    r = (l == 0);
-    break;
-  default:
-    assert(0);
+  if (lincons->linexpr->effsize==0){
+    bool sat = (ap_linconsMPQ_evalcst(lincons,man->num)==tbool_true);
+    man->result.flag_exact = man->result.flag_best = true;
+    return sat;
   }
-  Poly_Con_Relation relation = a->p->relation_with(r);
-  return relation.implies(Poly_Con_Relation::is_included());
+  else {
+    Linear_Expression l;
+    ap_ppl_Linear_Expression_set_linexprMPQ(l,lincons->linexpr,1,man);
+    Constraint r = Constraint::zero_dim_positivity();
+    switch (lincons->constyp){
+    case AP_CONS_SUPEQ:
+      r = (l>=0); break;
+    case AP_CONS_SUP:
+      r = intern->strict ? (l>0) : (l>=0);
+      break;
+    case AP_CONS_EQMOD:
+      man->result.flag_exact = man->result.flag_exact && (mpq_sgn(lincons->mpq)==0);
+    case AP_CONS_EQ:
+      r = (l == 0);
+      break;
+    default:
+      assert(0);
+    }
+    Poly_Con_Relation relation = a->p->relation_with(r);
+    return relation.implies(Poly_Con_Relation::is_included());
+  }
 }
 
 extern "C"
@@ -526,29 +532,39 @@ bool ap_ppl_poly_bound_linexpr_internal(
   ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
   bool ok,exact;
   Linear_Expression l;
-  exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
   MACRO_SWITCH(coeff->discr) ZZZ {
     eitvZZZ_ptr eitv = coeff->eitv.ZZZ;
     /* sup bound */
-    if (a->p->maximize(l,intern->num,intern->den,ok)){
-      exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
-    } else {
+    try {
+      exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+      if (a->p->maximize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
+      } else {
+	throw cannot_convert();
+      }
+    }
+    catch (cannot_convert w) {
       boundZZZ_set_infty(eitv->itv->sup,1);
       exact = true;
     }
     /* inf bound */
-    {
+    try {
       ap_coeff_t coeff;
       ap_linexpr0_cstref(coeff,linexpr0);
       if (!ap_coeff_is_point(coeff)){
-	exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man) && exact;
+	exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,-1,man) && exact;
+      }
+      if (a->p->minimize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	mpz_ptr mpznum = intern->num.get_mpz_t();
+	mpz_neg(mpznum,mpznum);
+	exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
+      } else {
+	throw cannot_convert();
       }
     }
-    if (a->p->minimize(l,intern->num,intern->den,ok)){
-      mpz_ptr mpznum = intern->num.get_mpz_t();
-      mpz_neg(mpznum,mpznum);
-      exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
-    } else {
+    catch (cannot_convert w) {
       boundZZZ_set_infty(eitv->itv->neginf,1);
     }
     eitv->eq = itvZZZ_is_point(eitv->itv);
@@ -842,9 +858,9 @@ PPL_Poly* ap_ppl_poly_asssub_linexpr_array_internal(
   bool exact = ap_ppl_Linear_Expression_set_linexpr0(e,linexpr0,1,man);
   assert(exact);
   if (assign)
-    r->p->affine_image(Variable(tdim[0]),e,intern->den);
+    r->p->affine_image(Variable(tdim[0]),e,intern->dengen);
   else
-    r->p->affine_preimage(Variable(tdim[0]),e,intern->den);
+    r->p->affine_preimage(Variable(tdim[0]),e,intern->dengen);
   if (dest) r->p->intersection_assign(*dest->p);
   return r;
 }

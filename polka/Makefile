@@ -33,26 +33,34 @@ pkXXX_meetjoin.c pkXXX_assign.c pkXXX_project.c pkXXX_expandfold.c pkXXX_resize.
 pkXXX_widening.c pkXXX_closure.c \
 pkeqXXX.c
 
-H_ORIG_FILES = mf_qsort.h pk_bit.h pk_satmat.h
+H_TMPL_FILES_tmpl =
+C_TMPL_FILES_tmpl = pk.c.tmpl
+
+H_ORIG_FILES = mf_qsort.h pk_bit.h pk_satmat.h pk.h
 C_ORIG_FILES = mf_qsort.c pk_bit.c pk_satmat.c pk_option.c
 
 H_SRC_FILES = $(H_ORIG_FILES) $(H_TMPL_FILES)
 C_SRC_FILES = $(C_ORIG_FILES) $(C_TMPL_FILES)
 
 H_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES)))
-C_GENERATED_FILES = \
-$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
 
-H_GENERATED_FILES_ALL= \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES)))
+C_GENERATED_FILES = \
+$(foreach T,$(TMPL), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
+
+H_GENERATED_FILES_ALL = \
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(H_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(H_TMPL_FILES_tmpl))
 C_GENERATED_FILES_ALL = \
-$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES)))
+$(foreach T,$(APRON_NUMTYPES), $(subst XXX,$(T),$(C_TMPL_FILES))) \
+$(patsubst %.tmpl,%,$(C_TMPL_FILES_tmpl))
 
 H_FILES = $(H_ORIG_FILES) $(H_GENERATED_FILES)
 C_FILES = $(C_ORIG_FILES) $(C_GENERATED_FILES)
 
-CCINC_TO_INSTALL = $(TMPL:%=pk%.h)
+CCINC_TO_INSTALL = $(TMPL:%=pk%.h pkeq%.h) pk.h
 
 #---------------------------------------
 # Rules
@@ -102,6 +110,15 @@ libpolka.p.a: $(C_FILES:%.c=%.p.o)
 #---------------------------------------
 # Files generation
 #---------------------------------------
+
+%.h: %.h.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
+%.c: %.c.tmpl
+	@echo "/* GENERATED FROM $<, DO NOT MODIFY */" >$@
+	@echo "#line 1 \"$(SRCDIR)/$<\"" >>$@
+	POLKA_NUMTYPES="$(POLKA_NUMTYPES)" ../macros.pl $(SRCDIR)/$< >>$@
 
 define generate-file
 $(subst XXX,$(1),$(2)): $(2)
