@@ -1,0 +1,1240 @@
+/* -*- mode: c++ -*- */
+/*
+ * ppl_poly.cc
+ *
+ * APRON Library / PPL library wrapper
+ *
+ * Wrappers specific to the Polyhedron PPL classes.
+ *
+ * Copyright (C) Antoine Mine' 2006
+ *
+ */
+
+/*
+ * This file is part of the APRON Library, released under GPL license.
+ * Please read the COPYING file packaged in the distribution.
+ */
+
+#include <assert.h>
+#include "ap_generic.h"
+#include "num_conv.h"
+
+#include "ppl_user.hh"
+#include "ppl_bd_shape.h"
+#include "apron_ppl.h"
+
+using namespace std;
+using namespace Parma_Polyhedra_Library;
+
+
+/* ********************************************************************** */
+/* General stuff */
+/* ********************************************************************** */
+
+/* ====================================================================== */
+/* PPL_BD_Shape */
+/* ====================================================================== */
+
+PPL_BD_Shape::PPL_BD_Shape(ap_manager_t* man, const PPL_BD_Shape& x)
+    : dim(x.dim)
+{
+  ap_ppl_internal_t* ppl = ap_ppl_get_internal(man);
+  p = new BD_Shape<mpq_class>(*x.p);
+}
+
+PPL_BD_Shape::PPL_BD_Shape(ap_manager_t* man,
+			   ap_dimension_t dim, Degenerate_Element kind)
+  : dim(dim)
+{
+  ap_ppl_internal_t* ppl = ap_ppl_get_internal(man);
+  size_t size = ap_dimension_size(dim);
+  try {
+    p = new BD_Shape<mpq_class>(size,kind);
+  }
+  catch (std::logic_error e) {
+    dim.intd = 0;
+    dim.reald = 1;
+    p = new BD_Shape<mpq_class>(1,kind);
+  }
+}
+
+PPL_BD_Shape::~PPL_BD_Shape() { delete p; }
+
+/* ====================================================================== */
+/* Error Handlers */
+/* ====================================================================== */
+
+/* returns a polyhedron, of specified size if possible */
+#define CATCH_WITH_DIM(funid,dimension)                                 \
+  catch (cannot_convert w) {						\
+    /* bailing out, not an error */					\
+    man->result.flag_exact = man->result.flag_best = false;		\
+    return new PPL_BD_Shape(man,dimension,UNIVERSE);                        \
+  }									\
+  catch (std::logic_error e) {						\
+    /* actual error */							\
+    ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
+    return new PPL_BD_Shape(man,dimension,UNIVERSE);                        \
+  }
+
+/* returns a polyhedron, with size compatible with poly if possible */
+#define CATCH_WITH_BD_SHAPE(funid,poly)					\
+  CATCH_WITH_DIM(funid,poly->dim);
+
+/* returns v */
+#define CATCH_WITH_VAL(funid,v)						\
+  catch (cannot_convert w) {						\
+    /* bailing out, not an error */					\
+    man->result.flag_exact = man->result.flag_best = false;		\
+    return v;								\
+  }									\
+  catch (std::logic_error e) {						\
+    /* actual error */							\
+    ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
+    return v;								\
+  }
+
+/* returns nothing */
+#define CATCH_WITH_VOID(funid) CATCH_WITH_VAL(funid,)
+
+/* prints message */
+#define CATCH_WITH_MSG(funid)						\
+  catch (cannot_convert w) {						\
+    /* bailing out, not an error */					\
+    fprintf(stream,"!exception!");					\
+  }									\
+  catch (std::logic_error e) {						\
+    /* actual error */							\
+    ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
+    fprintf(stream,"!exception!");					\
+  }
+
+
+/* ********************************************************************** */
+/* I. General management */
+/* ********************************************************************** */
+
+/* ============================================================ */
+/* I.1 Memory */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_copy(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    return new PPL_BD_Shape(man,*a);
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_COPY,a);
+}
+
+extern "C"
+void ap_ppl_bd_shape_free(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    delete a;
+  }
+  CATCH_WITH_VOID(AP_FUNID_FREE);
+}
+
+extern "C"
+size_t ap_ppl_bd_shape_size(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    return a->p->total_memory_in_bytes();
+  }
+  CATCH_WITH_VAL(AP_FUNID_ASIZE,0);
+}
+
+/* ============================================================ */
+/* I.2 Control of internal representation */
+/* ============================================================ */
+
+extern "C"
+void ap_ppl_bd_shape_minimize(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    /* the calls force in-place minimisation */
+    (void)a->p->minimized_constraints();
+  }
+  CATCH_WITH_VOID(AP_FUNID_MINIMIZE);
+}
+
+extern "C"
+void ap_ppl_bd_shape_canonicalize(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    /* the calls force in-place minimisation */
+    (void)a->p->minimized_constraints();
+  }
+  CATCH_WITH_VOID(AP_FUNID_CANONICALIZE);
+}
+extern "C"
+int ap_ppl_bd_shape_hash(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    (void)a->p->minimized_constraints();
+    return (int)a->dim.intd*151+(int)a->dim.reald*347+a->p->total_memory_in_bytes();
+  }
+  CATCH_WITH_VAL(AP_FUNID_HASH,0);
+}
+
+extern "C"
+void ap_ppl_bd_shape_approximate(ap_manager_t* man, PPL_BD_Shape* a, int algorithm)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  return;
+}
+
+/* ============================================================ */
+/* I.3 Printing */
+/* ============================================================ */
+
+extern "C"
+void ap_ppl_bd_shape_fprint(FILE* stream,
+			ap_manager_t* man,
+			PPL_BD_Shape* a,
+			char** name_of_dim)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    if (a->p->is_empty()){
+      fprintf(stream,"empty polyhedron of dim (%lu,%lu)\n",
+	      (unsigned long)a->dim.intd,(unsigned long)a->dim.reald);
+    }
+    else {
+      ap_lincons0_array_t ar;
+      ap_lincons0_array_init(ar,AP_SCALAR_MPQ,0);
+      ap_lincons0_array_set_ppl_Constraint_System(ar,a->p->minimized_constraints(),man->num);
+      ap_lincons0_array_fprint(stream,ar,name_of_dim);
+      ap_lincons0_array_clear(ar);
+    }
+  }
+  CATCH_WITH_MSG(AP_FUNID_FPRINT);
+}
+
+/* NOT IMPLEMENTED! */
+extern "C"
+void ap_ppl_bd_shape_fprintdiff(FILE* stream,
+			     ap_manager_t* man,
+			     PPL_BD_Shape* a1, PPL_BD_Shape* a2,
+			     char** name_of_dim)
+{
+  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_FPRINTDIFF,"not implemented");
+}
+
+/* fdump will print the unminimized contraint & generator systems */
+extern "C"
+void ap_ppl_bd_shape_fdump(FILE* stream, ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    /* dump constraints */
+    fprintf(stream,"constraints: ");
+    ap_lincons0_array_t ar;
+    ap_lincons0_array_init(ar,AP_SCALAR_MPQ,0);
+     ap_lincons0_array_set_ppl_Constraint_System(ar,a->p->constraints(),man->num);
+    ap_lincons0_array_fprint(stream,ar,NULL);
+    ap_lincons0_array_clear(ar);
+  }
+  CATCH_WITH_MSG(AP_FUNID_FPRINTDIFF);
+}
+
+/* ============================================================ */
+/* I.4 Serialization */
+/* ============================================================ */
+
+/* NOT IMPLEMENTED! */
+extern "C"
+ap_membuf_t ap_ppl_bd_shape_serialize_raw(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  ap_membuf_t membuf;
+  membuf.ptr = NULL;
+  membuf.size = 0;
+  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_SERIALIZE_RAW,"not implemented");
+  return membuf;
+}
+
+/* NOT IMPLEMENTED! */
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
+{
+  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,"not implemented");
+  return NULL;
+}
+
+/* ********************************************************************** */
+/* II. Constructor, accessors, tests and property extraction */
+/* ********************************************************************** */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_bottom(ap_manager_t* man, ap_dimension_t dimension)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    return new PPL_BD_Shape(man,dimension,EMPTY);
+  }
+  CATCH_WITH_DIM(AP_FUNID_BOTTOM,dimension);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_top(ap_manager_t* man, ap_dimension_t dimension)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    return new PPL_BD_Shape(man,dimension,UNIVERSE);
+  }
+  CATCH_WITH_DIM(AP_FUNID_TOP,dimension);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_of_box(ap_manager_t* man,
+			     ap_dimension_t dimension,
+			     ap_linexpr0_t box0)
+{
+  ap_coeff_t coeff;
+  man->result.flag_exact = man->result.flag_best = (dimension.intd==0);
+  PPL_BD_Shape* r = new PPL_BD_Shape(man,dimension,UNIVERSE);
+  try {
+    Constraint_System c;
+    bool exact = ap_ppl_Constraint_System_set_box(c,box0,dimension,man);
+    r->p->add_recycled_constraints(c);
+    return r;
+  }
+  CATCH_WITH_DIM(AP_FUNID_OF_BOX,dimension);
+}
+
+/* ============================================================ */
+/* II.2 Accessors */
+/* ============================================================ */
+
+extern "C"
+ap_dimension_t ap_ppl_bd_shape_dimension(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  return a->dim;
+}
+
+/* ============================================================ */
+/* II.3 Tests */
+/* ============================================================ */
+
+extern "C"
+bool ap_ppl_bd_shape_is_bottom(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    return a->p->is_empty();
+  }
+  CATCH_WITH_VAL(AP_FUNID_IS_BOTTOM,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_is_top(ap_manager_t* man, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    return a->p->is_universe();
+  }
+  CATCH_WITH_VAL(AP_FUNID_IS_TOP,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_is_leq(ap_manager_t* man, PPL_BD_Shape* a1,
+			PPL_BD_Shape* a2)
+{
+  man->result.flag_exact = man->result.flag_best = (a1->dim.intd==0);
+  try {
+    return a2->p->contains(*a1->p);
+  }
+  CATCH_WITH_VAL(AP_FUNID_IS_LEQ,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_is_eq(ap_manager_t* man, PPL_BD_Shape* a1,
+		       PPL_BD_Shape* a2)
+{
+  man->result.flag_exact = man->result.flag_best = (a1->dim.intd==0);
+  try {
+    return *a1->p == *a2->p;
+  }
+  CATCH_WITH_VAL(AP_FUNID_IS_EQ,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_sat_lincons_internal(ap_manager_t* man, PPL_BD_Shape* a,
+				      ap_lincons0_t lincons0)
+{
+  assert(ap_lincons0_is_linear(lincons0));
+  assert(lincons0->discr==AP_SCALAR_MPQ);
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  ap_linconsMPQ_ptr lincons = lincons0->lincons.MPQ;
+  if (lincons->linexpr->effsize==0){
+    bool sat = (ap_linconsMPQ_evalcst(lincons,man->num)==tbool_true);
+    man->result.flag_exact = man->result.flag_best = true;
+    return sat;
+  }
+  else {
+    Linear_Expression l;
+    ap_ppl_Linear_Expression_set_linexprMPQ(l,lincons->linexpr,1,man);
+    Constraint r = Constraint::zero_dim_positivity();
+    switch (lincons->constyp){
+    case AP_CONS_SUPEQ:
+      r = (l>=0); break;
+    case AP_CONS_SUP:
+      r = intern->strict ? (l>0) : (l>=0);
+      break;
+    case AP_CONS_EQMOD:
+      man->result.flag_exact = man->result.flag_exact && (mpq_sgn(lincons->mpq)==0);
+    case AP_CONS_EQ:
+      r = (l == 0);
+      break;
+    default:
+      assert(0);
+    }
+    Poly_Con_Relation relation = a->p->relation_with(r);
+    return relation.implies(Poly_Con_Relation::is_included());
+  }
+}
+
+extern "C"
+bool ap_ppl_bd_shape_sat_lincons(ap_manager_t* man, PPL_BD_Shape* a,
+			     ap_lincons0_t lincons0)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+
+  man->result.flag_best = man->result.flag_exact = (a->dim.intd==0);
+  try {
+    if (a->p->is_empty()){
+      return true;
+    } else {
+      return ap_generic_sat_lincons(
+	  man,a,lincons0,
+	  AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR,
+	  (bool(*)(ap_manager_t*,void*,ap_lincons0_t))ap_ppl_bd_shape_sat_lincons_internal
+      );
+    }
+  }
+  CATCH_WITH_VAL(AP_FUNID_SAT_LINCONS,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_sat_tcons(ap_manager_t* man, PPL_BD_Shape* a,
+			   ap_tcons0_t* cons)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+ try {
+   return ap_generic_sat_tcons(
+      man,a,cons,
+      AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR,
+      (bool(*)(ap_manager_t*,void*,ap_lincons0_t))ap_ppl_bd_shape_sat_lincons_internal
+  );
+ }
+ CATCH_WITH_VAL(AP_FUNID_SAT_TCONS,false);
+}
+
+bool ap_ppl_bd_shape_bound_dimension_internal(
+    ap_manager_t* man, ap_coeff_t coeff, PPL_BD_Shape* a, ap_dim_t dim
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  Linear_Expression l = Variable(dim);
+  bool ok,exact;
+
+  MACRO_SWITCH(coeff->discr) ZZZ {
+    eitvZZZ_ptr eitv = coeff->eitv.ZZZ;
+    /* sup bound */
+    if (a->p->maximize(l,intern->num,intern->den,ok)){
+      exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
+    } else {
+      boundZZZ_set_infty(eitv->itv->sup,1);
+      exact = true;
+    }
+    /* inf bound */
+    if (a->p->minimize(l,intern->num,intern->den,ok)){
+      mpz_ptr mpznum = intern->num.get_mpz_t();
+      mpz_neg(mpznum,mpznum);
+      exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
+    } else {
+      boundZZZ_set_infty(eitv->itv->neginf,1);
+    }
+    eitv->eq = itvZZZ_is_point(eitv->itv);
+  }
+  ENDMACRO;
+  return exact;
+}
+extern "C"
+bool ap_ppl_bd_shape_sat_interval(ap_manager_t* man, PPL_BD_Shape* a,
+			      ap_dim_t dim, ap_coeff_t sat)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    if (a->p->is_empty()){
+      return true;
+    } else {
+      ap_ppl_bd_shape_bound_dimension_internal(man,intern->coeffMPQ,a,dim);
+      eitvMPQ_set_ap_coeff(intern->eitvMPQ,sat,man->num);
+      return eitvMPQ_is_leq(intern->coeffMPQ->eitv.MPQ,intern->eitvMPQ);
+    }
+  }
+  CATCH_WITH_VAL(AP_FUNID_SAT_INTERVAL,false);
+}
+
+extern "C"
+bool ap_ppl_bd_shape_is_dimension_unconstrained(ap_manager_t* man,
+					    PPL_BD_Shape* a,
+					    ap_dim_t dim)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    if (a->p->is_empty()){
+      return false;
+    }
+    else {
+      Generator g = line(Variable(dim));
+      return a->p->relation_with(g) == Poly_Gen_Relation::subsumes();
+    }
+  }
+  CATCH_WITH_VAL(AP_FUNID_IS_DIMENSION_UNCONSTRAINED,false);
+}
+
+/* ============================================================ */
+/* II.4 Extraction of properties */
+/* ============================================================ */
+
+extern "C"
+bool ap_ppl_bd_shape_bound_linexpr_internal(
+    ap_manager_t* man, ap_coeff_t coeff, PPL_BD_Shape* a, ap_linexpr0_t linexpr0
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  bool ok,exact;
+  Linear_Expression l;
+  exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,1,man);
+  MACRO_SWITCH(coeff->discr) ZZZ {
+    eitvZZZ_ptr eitv = coeff->eitv.ZZZ;
+    /* sup bound */
+    try {
+      if (a->p->maximize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	exact = boundZZZ_set_mpzfrac(eitv->itv->sup,intern->num.get_mpz_t(),intern->den.get_mpz_t(),man->num);
+      } else {
+	throw cannot_convert();
+      }
+    }
+    catch (cannot_convert w) {
+      boundZZZ_set_infty(eitv->itv->sup,1);
+      exact = true;
+    }
+    /* inf bound */
+    try {
+      ap_coeff_t coeff;
+      ap_linexpr0_cstref(coeff,linexpr0);
+      if (!ap_coeff_is_point(coeff)){
+	exact = ap_ppl_Linear_Expression_set_linexpr0(l,linexpr0,-1,man) && exact;
+      }
+      if (a->p->minimize(l,intern->num,intern->den,ok)){
+	intern->den *= intern->dengen;
+	mpz_ptr mpznum = intern->num.get_mpz_t();
+	mpz_neg(mpznum,mpznum);
+	exact = boundZZZ_set_mpzfrac(eitv->itv->neginf,mpznum,intern->den.get_mpz_t(),man->num) && exact;
+      } else {
+	throw cannot_convert();
+      }
+    }
+    catch (cannot_convert w) {
+      boundZZZ_set_infty(eitv->itv->neginf,1);
+    }
+    eitv->eq = itvZZZ_is_point(eitv->itv);
+  }
+  ENDMACRO;
+  return exact;
+}
+
+extern "C"
+void ap_ppl_bd_shape_bound_linexpr(ap_manager_t* man,
+			       ap_coeff_t coeff,
+			       PPL_BD_Shape* a, ap_linexpr0_t linexpr0)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    if (a->p->is_empty()) {
+      /* empty */
+      ap_coeff_set_bottom(coeff);
+    }
+    else {
+      ap_generic_bound_linexpr(
+	  man,coeff,a,linexpr0,
+	  AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR,
+	    (void(*)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t))ap_ppl_bd_shape_bound_linexpr_internal
+      );
+    }
+  }
+  CATCH_WITH_VAL(AP_FUNID_BOUND_LINEXPR,ap_coeff_set_top(coeff));
+}
+
+
+extern "C"
+void ap_ppl_bd_shape_bound_texpr(ap_manager_t* man,
+			     ap_coeff_t coeff, PPL_BD_Shape* a, ap_texpr0_t* expr)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    ap_generic_bound_texpr(
+	man,coeff,a,expr,
+	AP_SCALAR_MPQ,true,AP_LINEXPR_INTLINEAR,
+	(void(*)(ap_manager_t*,ap_coeff_t,void*,ap_linexpr0_t))ap_ppl_bd_shape_bound_linexpr_internal
+    );
+  }
+  CATCH_WITH_VAL(AP_FUNID_BOUND_TEXPR,ap_coeff_set_top(coeff));
+}
+
+extern "C"
+void ap_ppl_bd_shape_bound_dimension(ap_manager_t* man,
+				 ap_coeff_t coeff, PPL_BD_Shape* a, ap_dim_t dim)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    if (a->p->is_empty())
+      ap_coeff_set_bottom(coeff); /* empty */
+    else
+      ap_ppl_bd_shape_bound_dimension_internal(man,coeff,a,dim);
+  }
+  CATCH_WITH_VAL(AP_FUNID_BOUND_DIMENSION,ap_coeff_set_top(coeff));
+}
+
+extern "C"
+void ap_ppl_bd_shape_to_lincons_array(ap_manager_t* man,
+				  ap_lincons0_array_t array, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = a->dim.intd==0;
+  try {
+    ap_lincons0_array_set_ppl_Constraint_System(array,a->p->constraints(),man->num);
+  }
+  CATCH_WITH_VAL(AP_FUNID_TO_LINCONS_ARRAY,ap_lincons0_array_resize(array,0));
+}
+
+extern "C"
+ap_tcons0_array_t ap_ppl_bd_shape_to_tcons_array(ap_manager_t* man,
+					     PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = a->dim.intd==0;
+  return ap_generic_to_tcons_array(man,a,AP_SCALAR_MPQ);
+}
+
+void ap_ppl_bd_shape_to_box(
+    ap_manager_t* man, ap_linexpr0_t box, PPL_BD_Shape* a
+)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  bool exact = true;
+  ap_dim_t dim;
+  ap_coeff_t coeff;
+  size_t size =  a->p->space_dimension();
+  ap_linexpr0_set_zero(box);
+  try {
+    if (a->p->is_empty()){
+      ap_linexpr0_cstref(coeff,box);
+      ap_coeff_set_bottom(coeff);
+      if (size>0){
+	ap_linexpr0_resize(box,1);
+	ap_linexpr0_coeffref(coeff,box,0);
+	ap_coeff_set_bottom(coeff);
+      }
+    }
+    else {
+      ap_linexpr0_resize(box,size);
+      for (dim=0;dim<size;dim++){
+	ap_linexpr0_coeffref(coeff,box,dim);
+	exact = ap_ppl_bd_shape_bound_dimension_internal(man,coeff,a,dim) && exact;
+      }
+    }
+    man->result.flag_exact = exact;
+    man->result.flag_best = true;
+  }
+  CATCH_WITH_VAL(AP_FUNID_TO_BOX,ap_ppl_box_set_universe(box,a->dim));
+}
+
+extern "C"
+void ap_ppl_bd_shape_to_lingen_array(ap_manager_t* man,
+				    ap_lingen0_array_t array, PPL_BD_Shape* a)
+{
+  if (a->p->is_empty()){
+    man->result.flag_exact = man->result.flag_best = true;
+    ap_lingen0_array_resize(array,0);
+  } else {
+    man->result.flag_exact = man->result.flag_best = false;
+    ap_ppl_lingen0_array_set_universe(array,ap_dimension_size(a->dim));
+  }
+}
+
+/* ********************************************************************** */
+/* III. Operations */
+/* ********************************************************************** */
+
+/* ============================================================ */
+/* III.1 Meet and Join */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_meet(ap_manager_t* man, bool destructive,
+			   PPL_BD_Shape* a1, PPL_BD_Shape* a2)
+{
+  man->result.flag_exact = man->result.flag_best = (a1->dim.intd==0);
+  try {
+    PPL_BD_Shape* r = destructive ? a1 : new PPL_BD_Shape(man,*a1);
+    r->p->intersection_assign(*a2->p);
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_MEET,a1);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_join(ap_manager_t* man, bool destructive,
+			   PPL_BD_Shape* a1, PPL_BD_Shape* a2)
+{
+  man->result.flag_exact = false;
+  man->result.flag_best = (a1->dim.intd==0);
+  try {
+    PPL_BD_Shape* r = destructive ? a1 : new PPL_BD_Shape(man,*a1);
+    r->p->upper_bound_assign(*a2->p);
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_JOIN,a1);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_meet_array(ap_manager_t* man,
+				 PPL_BD_Shape** tab, size_t size)
+{
+  assert(size>=1);
+  man->result.flag_exact = man->result.flag_best = (tab[0]->dim.intd==0);
+  try {
+    PPL_BD_Shape* r = new PPL_BD_Shape(man,*tab[0]);
+    for (size_t i=1;i<size;i++)
+      r->p->intersection_assign(*tab[i]->p);
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_MEET_ARRAY,tab[0]);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_join_array(ap_manager_t* man,
+				 PPL_BD_Shape** tab, size_t size)
+{
+  assert(size>=1);
+  man->result.flag_exact = false;
+  man->result.flag_best = (tab[0]->dim.intd==0);
+  try {
+    PPL_BD_Shape* r = new PPL_BD_Shape(man,*tab[0]);
+    for (size_t i=1;i<size;i++)
+      r->p->upper_bound_assign(*tab[i]->p);
+  return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_JOIN_ARRAY,tab[0]);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_meet_lincons_array_internal(
+    ap_manager_t* man,
+    bool destructive,
+    PPL_BD_Shape* a,
+    ap_lincons0_array_t array
+)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+  if (a->p->is_empty()){
+    return r;
+  }
+  Constraint_System c;
+  bool exact =
+    ap_ppl_Constraint_System_set_lincons0_array(c,array,man);
+  r->p->add_recycled_constraints(c);
+  return r;
+}
+
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_meet_lincons_array(
+    ap_manager_t* man, bool destructive, PPL_BD_Shape* a, ap_lincons0_array_t array
+)
+{
+  try {
+    return (PPL_BD_Shape*)ap_generic_meet_quasilinearize_lincons_array(
+	man,destructive,a,array,
+	AP_SCALAR_MPQ,AP_LINEXPR_LINEAR,AP_LINEXPR_LINEAR,1,true,false,
+	(void* (*)(ap_manager_t*, bool, void*, ap_lincons0_array_t))
+	ap_ppl_bd_shape_meet_lincons_array_internal
+    );
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_MEET_LINCONS_ARRAY,a);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_meet_tcons_array(ap_manager_t* man,
+				       bool destructive,
+				       PPL_BD_Shape* a,
+				       ap_tcons0_array_t* array)
+{
+  try {
+    return (PPL_BD_Shape*)ap_generic_meet_intlinearize_tcons_array(
+	man,destructive, a,
+	array,
+	AP_SCALAR_MPQ, AP_LINEXPR_LINEAR,AP_LINEXPR_INTLINEAR,2,true,false,
+	(void* (*)(ap_manager_t*, bool, void*, ap_lincons0_array_t))
+	ap_ppl_bd_shape_meet_lincons_array_internal
+    );
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_MEET_TCONS_ARRAY,a);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_add_ray_array(ap_manager_t* man,
+					    bool destructive,
+					    PPL_BD_Shape* a,
+					    ap_lingen0_array_t array)
+{
+  PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+  if (a->p->is_empty()){
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    return r;
+  } else {
+    PPL_BD_Shape* r = new PPL_BD_Shape(man,a->dim,UNIVERSE);
+    if (destructive) delete a;
+    return r;
+  }
+}
+
+/* ============================================================ */
+/* III.2 Assignement and Substitutions */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_asssub_linexpr_array_internal(
+    bool assign,
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_linexpr0_array_t array, PPL_BD_Shape* dest
+)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  ap_linexpr0_t linexpr0;
+  Linear_Expression e;
+  assert(ap_linexpr0_array_size(array)==1);
+  assert(ap_linexpr0_array_is_linear(array));
+
+  man->result.flag_exact = man->result.flag_best = (org->dim.intd==0);
+  PPL_BD_Shape* r = destructive ? org : new PPL_BD_Shape(man,*org);
+  ap_linexpr0_array_ref_index(linexpr0,array,0);
+  bool exact = ap_ppl_Linear_Expression_set_linexpr0(e,linexpr0,1,man);
+  assert(exact);
+  if (assign)
+    r->p->affine_image(Variable(tdim[0]),e,intern->dengen);
+  else
+    r->p->affine_preimage(Variable(tdim[0]),e,intern->dengen);
+  if (dest) r->p->intersection_assign(*dest->p);
+  return r;
+}
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_asssub_linexpr_array(
+    bool assign,
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_linexpr0_array_t array, PPL_BD_Shape* dest
+)
+{
+  man->result.flag_exact = man->result.flag_best = (org->dim.intd==0);
+  if (ap_linexpr0_array_size(array)==1 && ap_linexpr0_array_is_linear(array)){
+    try {
+      return
+	ap_ppl_bd_shape_asssub_linexpr_array_internal(
+	    assign,man,destructive,
+	    org,tdim,array,dest
+	);
+    }
+    CATCH_WITH_BD_SHAPE(assign ? AP_FUNID_ASSIGN_LINEXPR_ARRAY : AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,org);
+  } else {
+    return (PPL_BD_Shape*)ap_generic_asssub_linexpr_array(
+	assign,AP_SCALAR_MPQ,man,destructive,
+	org,tdim,array,dest
+    );
+  }
+}
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_assign_linexpr_array(
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_linexpr0_array_t array, PPL_BD_Shape* dest
+)
+{
+  return
+    ap_ppl_bd_shape_asssub_linexpr_array(
+	true,man,destructive,org,tdim,array,dest
+    );
+}
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_substitute_linexpr_array(
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_linexpr0_array_t array, PPL_BD_Shape* dest
+)
+{
+  return
+    ap_ppl_bd_shape_asssub_linexpr_array(
+	false,man,destructive,org,tdim,array,dest
+    );
+}
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_assign_texpr_array(
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_texpr0_array_t* array, PPL_BD_Shape* dest
+)
+{
+  man->result.flag_exact = man->result.flag_best = (org->dim.intd==0);
+  return (PPL_BD_Shape*)ap_generic_asssub_texpr_array(
+      true,man,destructive,org,tdim,array,dest
+  );
+}
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_substitute_texpr_array(
+    ap_manager_t* man, bool destructive,
+    PPL_BD_Shape* org, ap_dim_t* tdim, ap_texpr0_array_t* array, PPL_BD_Shape* dest
+)
+{
+  man->result.flag_exact = man->result.flag_best = (org->dim.intd==0);
+  return (PPL_BD_Shape*)ap_generic_asssub_texpr_array(
+      false,man,destructive,org,tdim,array,dest
+  );
+}
+
+/* ============================================================ */
+/* III.3 Projections */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_forget_array(ap_manager_t* man,
+					   bool destructive,
+					   PPL_BD_Shape* a,
+					   ap_dim_t* tdim, size_t size,
+					   bool project)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    if (!r->p->is_empty()){
+      Variables_Set s;
+      assert(size>0);
+      for (size_t i=1;i<size;i++)
+	s.insert(Variable(tdim[i]));
+      r->p->unconstrain(s);
+      if (project) {
+	for (size_t i=0;i<size;i++)
+	  r->p->add_constraint(Variable(tdim[i])==0);
+      }
+    }
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_FORGET_ARRAY,a);
+}
+
+/* ============================================================ */
+/* III.4 Change and permutation of dimensions */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_add_dimensions(ap_manager_t* man,
+				     bool destructive,
+				     PPL_BD_Shape* a,
+				     ap_dimchange_t* dimchange,
+				     bool project)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  size_t adddim = ap_dimension_size(dimchange->dim);
+  size_t olddim = a->p->space_dimension();
+  ap_dimension_t newdim = ap_dimension_add(a->dim,dimchange->dim);
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    /* add dimensions */
+    if (project) r->p->add_space_dimensions_and_project(adddim);
+    else r->p->add_space_dimensions_and_embed(adddim);
+    /* reorder dimensions */
+    ap_ppl_map map = ap_ppl_map(olddim+adddim,olddim+adddim);
+    size_t i,j=0;
+    for (i=0;i<adddim;i++) {
+      for (;j<dimchange->p[i];j++)
+	map.set(j,i+j);
+      map.set(olddim+i,i+j);
+    }
+    for (;j<olddim;j++)
+      map.set(j,i+j);
+    r->p->map_space_dimensions(map);
+    r->dim = newdim;
+    return r;
+  }
+  CATCH_WITH_DIM(AP_FUNID_ADD_DIMENSIONS,newdim);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_remove_dimensions(ap_manager_t* man,
+					bool destructive,
+					PPL_BD_Shape* a,
+					ap_dimchange_t* dimchange)
+{
+  man->result.flag_exact = man->result.flag_best = (a->dim.intd==0);
+  size_t deldim = ap_dimension_size(dimchange->dim);
+  size_t olddim = a->p->space_dimension();
+  ap_dimension_t newdim = ap_dimension_sub(a->dim,dimchange->dim);
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    /* reorder & drop dimensions */
+    ap_ppl_map map = ap_ppl_map(olddim,olddim-deldim);
+    for (size_t j=0,i=0;j<olddim;j++)
+      if (i<deldim && j==dimchange->p[i]) i++;
+      else map.set(j,j-i);
+    r->p->map_space_dimensions(map);
+    r->dim = newdim;
+    return r;
+  }
+  CATCH_WITH_DIM(AP_FUNID_REMOVE_DIMENSIONS,newdim);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_permute_dimensions(ap_manager_t* man,
+					 bool destructive,
+					 PPL_BD_Shape* a,
+					 ap_dimperm_t* perm)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    ap_ppl_map map = ap_ppl_map(perm->size,perm->size);
+    for (size_t i=0;i<perm->size;i++)
+      map.set(i,perm->p[i]);
+    r->p->map_space_dimensions(map);
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_PERMUTE_DIMENSIONS,a);
+}
+
+/* ============================================================ */
+/* III.5 Expansion and folding of dimensions */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_expand(ap_manager_t* man,
+			     bool destructive,
+			     PPL_BD_Shape* a,
+			     ap_dim_t dim,
+			     size_t n)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  ap_dimension_t olddim = a->dim;
+  ap_dimension_t newdim = a->dim;
+  if (dim < olddim.intd)
+    newdim.intd += n;
+  else
+    newdim.reald += n;
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    r->p->expand_space_dimension(Variable(dim),n);
+    if (dim<olddim.intd) {
+      /* expanded an integer dimension => needs some reordering */
+      size_t oldsize = ap_dimension_size(olddim);
+      ap_ppl_map map = ap_ppl_map(oldsize+n,oldsize+n);
+      size_t i;
+      for (i=0;i<olddim.intd;i++)
+	map.set(i,i);
+      for (i=0;i<n;i++)
+	map.set(oldsize+i,olddim.intd+i);
+      for (i=olddim.intd;i<oldsize;i++)
+	map.set(i,i+n);
+      r->p->map_space_dimensions(map);
+    }
+    r->dim = newdim;
+    return r;
+  }
+  CATCH_WITH_DIM(AP_FUNID_EXPAND,newdim);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_fold(ap_manager_t* man,
+			   bool destructive,
+			   PPL_BD_Shape* a,
+			   ap_dim_t* tdim,
+			   size_t size)
+{
+  man->result.flag_exact = false;
+  man->result.flag_best = (a->dim.intd==0);
+  ap_dimension_t newdim = a->dim;
+  if (tdim[0] < newdim.intd)
+    newdim.intd -= size-1;
+  else
+    newdim.reald -= size-1;
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    Variables_Set s;
+    assert(size>0);
+    for (size_t i=1;i<size;i++)
+      s.insert(Variable(tdim[i]));
+    r->p->fold_space_dimensions(s,Variable(tdim[0]));
+    r->dim = newdim;
+    return r;
+  }
+  CATCH_WITH_DIM(AP_FUNID_FOLD,newdim);
+}
+
+/* ============================================================ */
+/* III.6 Widening */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_widening(ap_manager_t* man,
+			       PPL_BD_Shape* a1,
+			       PPL_BD_Shape* a2)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  man->result.flag_exact = man->result.flag_best = false;
+  try {
+    PPL_BD_Shape* r = new PPL_BD_Shape(man,*a2);
+    switch (intern->option.poly.widening){
+    case ap_ppl_bd_shape_widening_H79:
+      r->p->H79_widening_assign(*a1->p);
+      break;
+    case ap_ppl_bd_shape_widening_BHMZ05:
+      r->p->BHMZ05_widening_assign(*a1->p);
+    default:
+      abort();
+    }
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_WIDENING,a1);
+}
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_widening_threshold(ap_manager_t* man,
+					 PPL_BD_Shape* a1,
+					 PPL_BD_Shape* a2,
+					 ap_lincons0_array_t array)
+{
+  ap_ppl_internal_t* intern = ap_ppl_get_internal(man);
+  man->result.flag_exact = man->result.flag_best = false;
+
+  try {
+    Constraint_System c;
+    /* when a1->strict=false, c will not contain any strict constraint */
+
+    ap_ppl_Constraint_System_set_lincons0_array(c,array,man);
+    PPL_BD_Shape* r = new PPL_BD_Shape(man,*a2);
+    switch (intern->option.poly.widening){
+    case ap_ppl_bd_shape_widening_H79:
+	r->p->limited_H79_extrapolation_assign(*a1->p,c);
+	break;
+    case ap_ppl_bd_shape_widening_BHMZ05:
+	r->p->limited_BHMZ05_extrapolation_assign(*a1->p,c);
+	break;
+    default: abort();
+    }
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_WIDENING,a1);
+}
+
+/* ============================================================ */
+/* III.7 Closure operation */
+/* ============================================================ */
+
+extern "C"
+PPL_BD_Shape* ap_ppl_bd_shape_closure(ap_manager_t* man, bool destructive, PPL_BD_Shape* a)
+{
+  man->result.flag_exact = man->result.flag_best = true;
+  try {
+    PPL_BD_Shape* r = destructive ? a : new PPL_BD_Shape(man,*a);
+    r->p->topological_closure_assign();
+    return r;
+  }
+  CATCH_WITH_BD_SHAPE(AP_FUNID_CLOSURE,a);
+}
+
+
+/* ********************************************************************** */
+/* Managers */
+/* ********************************************************************** */
+
+extern "C" ap_manager_t* ap_ppl_bd_shape_manager_alloc()
+{
+  int i;
+  ap_ppl_internal_t* ppl;
+  ap_manager_t* man;
+
+  ppl = ap_ppl_internal_alloc(false);
+  ppl->option.bd_shape.widening = ap_ppl_bd_shape_widening_H79;
+
+  char* name = strdup("PPL::BD_Shape");
+  man = ap_manager_alloc(name,
+			 strdup(PPL_VERSION),
+			 ppl,
+			 (void(*)(void*))ap_ppl_internal_free
+  );
+  assert(man);
+
+  man->funptr[AP_FUNID_COPY] = (void*)ap_ppl_bd_shape_copy;
+  man->funptr[AP_FUNID_FREE] = (void*)ap_ppl_bd_shape_free;
+  man->funptr[AP_FUNID_ASIZE] = (void*)ap_ppl_bd_shape_size;
+  man->funptr[AP_FUNID_MINIMIZE] = (void*)ap_ppl_bd_shape_minimize;
+  man->funptr[AP_FUNID_CANONICALIZE] = (void*)ap_ppl_bd_shape_canonicalize;
+  man->funptr[AP_FUNID_HASH] = (void*)ap_ppl_bd_shape_hash;
+  man->funptr[AP_FUNID_APPROXIMATE] = (void*)ap_ppl_bd_shape_approximate;
+  man->funptr[AP_FUNID_FPRINT] = (void*)ap_ppl_bd_shape_fprint;
+  man->funptr[AP_FUNID_FPRINTDIFF] = (void*)ap_ppl_bd_shape_fprintdiff;
+  man->funptr[AP_FUNID_FDUMP] = (void*)ap_ppl_bd_shape_fdump;
+  man->funptr[AP_FUNID_SERIALIZE_RAW] = (void*)ap_ppl_bd_shape_serialize_raw;
+  man->funptr[AP_FUNID_DESERIALIZE_RAW] = (void*)ap_ppl_bd_shape_deserialize_raw;
+  man->funptr[AP_FUNID_BOTTOM] = (void*)ap_ppl_bd_shape_bottom;
+  man->funptr[AP_FUNID_TOP] = (void*)ap_ppl_bd_shape_top;
+  man->funptr[AP_FUNID_OF_BOX] = (void*)ap_ppl_bd_shape_of_box;
+  man->funptr[AP_FUNID_DIMENSION] = (void*)ap_ppl_bd_shape_dimension;
+  man->funptr[AP_FUNID_IS_BOTTOM] = (void*)ap_ppl_bd_shape_is_bottom;
+  man->funptr[AP_FUNID_IS_TOP] = (void*)ap_ppl_bd_shape_is_top;
+  man->funptr[AP_FUNID_IS_LEQ] = (void*)ap_ppl_bd_shape_is_leq;
+  man->funptr[AP_FUNID_IS_EQ] = (void*)ap_ppl_bd_shape_is_eq;
+  man->funptr[AP_FUNID_IS_DIMENSION_UNCONSTRAINED] = (void*)ap_ppl_bd_shape_is_dimension_unconstrained;
+  man->funptr[AP_FUNID_SAT_INTERVAL] = (void*)ap_ppl_bd_shape_sat_interval;
+  man->funptr[AP_FUNID_SAT_LINCONS] = (void*)ap_ppl_bd_shape_sat_lincons;
+  man->funptr[AP_FUNID_SAT_TCONS] = (void*)ap_ppl_bd_shape_sat_tcons;
+  man->funptr[AP_FUNID_BOUND_DIMENSION] = (void*)ap_ppl_bd_shape_bound_dimension;
+  man->funptr[AP_FUNID_BOUND_LINEXPR] = (void*)ap_ppl_bd_shape_bound_linexpr;
+  man->funptr[AP_FUNID_BOUND_TEXPR] = (void*)ap_ppl_bd_shape_bound_texpr;
+  man->funptr[AP_FUNID_TO_BOX] = (void*)ap_ppl_bd_shape_to_box;
+  man->funptr[AP_FUNID_TO_LINCONS_ARRAY] = (void*)ap_ppl_bd_shape_to_lincons_array;
+  man->funptr[AP_FUNID_TO_TCONS_ARRAY] = (void*)ap_ppl_bd_shape_to_tcons_array;
+  man->funptr[AP_FUNID_TO_LINGEN_ARRAY] = (void*)ap_ppl_bd_shape_to_lingen_array;
+  man->funptr[AP_FUNID_MEET] = (void*)ap_ppl_bd_shape_meet;
+  man->funptr[AP_FUNID_MEET_ARRAY] = (void*)ap_ppl_bd_shape_meet_array;
+  man->funptr[AP_FUNID_MEET_LINCONS_ARRAY] = (void*)ap_ppl_bd_shape_meet_lincons_array;
+  man->funptr[AP_FUNID_MEET_TCONS_ARRAY] = (void*)ap_ppl_bd_shape_meet_tcons_array;
+  man->funptr[AP_FUNID_JOIN] = (void*)ap_ppl_bd_shape_join;
+  man->funptr[AP_FUNID_JOIN_ARRAY] = (void*)ap_ppl_bd_shape_join_array;
+  man->funptr[AP_FUNID_ADD_RAY_ARRAY] = (void*)ap_ppl_bd_shape_add_ray_array;
+  man->funptr[AP_FUNID_ASSIGN_LINEXPR_ARRAY] = (void*)ap_ppl_bd_shape_assign_linexpr_array;
+  man->funptr[AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY] = (void*)ap_ppl_bd_shape_substitute_linexpr_array;
+  man->funptr[AP_FUNID_ASSIGN_TEXPR_ARRAY] = (void*)ap_ppl_bd_shape_assign_texpr_array;
+  man->funptr[AP_FUNID_SUBSTITUTE_TEXPR_ARRAY] = (void*)ap_ppl_bd_shape_substitute_texpr_array;
+  man->funptr[AP_FUNID_ADD_DIMENSIONS] = (void*)ap_ppl_bd_shape_add_dimensions;
+  man->funptr[AP_FUNID_REMOVE_DIMENSIONS] = (void*)ap_ppl_bd_shape_remove_dimensions;
+  man->funptr[AP_FUNID_PERMUTE_DIMENSIONS] = (void*)ap_ppl_bd_shape_permute_dimensions;
+  man->funptr[AP_FUNID_FORGET_ARRAY] = (void*)ap_ppl_bd_shape_forget_array;
+  man->funptr[AP_FUNID_EXPAND] = (void*)ap_ppl_bd_shape_expand;
+  man->funptr[AP_FUNID_FOLD] = (void*)ap_ppl_bd_shape_fold;
+  man->funptr[AP_FUNID_WIDENING] = (void*)ap_ppl_bd_shape_widening;
+  man->funptr[AP_FUNID_CLOSURE] = (void*)ap_ppl_bd_shape_closure;
+
+  for (i=0;i<AP_EXC_SIZE;i++)
+    ap_manager_set_abort_if_exception(man,(ap_exc_t)i,false);
+
+  return man;
+}
