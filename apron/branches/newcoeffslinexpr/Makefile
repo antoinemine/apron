@@ -36,22 +36,19 @@ endif
 
 SUBDIR_C_DOM = box octagon polka
 ifneq ($(HAS_PPL),)
-SUBDIR_C_DOM += ppl #products
+SUBDIR_C_DOM += apron_ppl #products
 endif
 SUBDIR_C = apron $(SUBDIR_C_DOM)
 
 SUBDIR_ALL = $(SUBDIR_C) 
 ifneq ($(HAS_OCAML),)
-SUBDIR_ALL += mlapronidl
+SUBDIR_ALL += caml
 endif
 ifneq ($(HAS_CPP),)
 SUBDIR_ALL += apronxx
 endif
 ifneq ($(HAS_JAVA),)
 SUBDIR_ALL += java
-endif
-ifneq ($(HAS_PPL),)
-SUBDIR_ALL += ppl
 endif
 
 c_all:
@@ -92,11 +89,11 @@ cxx_prof: libapronxx.p.so
 endif
 
 ml_all:
-	make -C mlapronidl all
+	make -C caml all
 ml_debug:
-	make -C mlapronidl debug
+	make -C caml debug
 ml_prof:
-	make -C mlapronidl prof
+	make -C caml prof
 
 depend:
 	for i in $(SUBDIR_ALL); do make -C $$i depend; done
@@ -110,11 +107,11 @@ install: $(CCLIB_TO_INSTALL)
 	done
 	for i in $(SUBDIR_C); do make -C $$i install; done
 ifneq ($(HAS_PPL),)
-	make -C ppl install
+	make -C apron_ppl install
 #	make -C products install
 endif
 ifneq ($(HAS_OCAML),)
-	make -C mlapronidl install
+	make -C caml install
 endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx install
@@ -139,7 +136,7 @@ distclean:
 doc:
 	make -C apron html apron.pdf
 ifneq ($(HAS_OCAML),)
-	make -C mlapronidl html mlapronidl.pdf
+	make -C caml html mlapronidl.pdf
 endif
 ifneq ($(HAS_CPP),)
 	make -C apronxx doc
@@ -172,7 +169,7 @@ $(eval $(call generate-clib,.p))
 
 PKGNAME  = apron-1.0
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron box polka mlapronidl octagons examples test apronxx #ppl products 
+PKGDIRS  = apron box polka caml octagons examples test apronxx #apron_ppl products 
 
 dist:
 	$(MAKE) all
@@ -191,9 +188,9 @@ online: doc index.html
 	mkdir -p online
 	mv index.html poster.gif flyer.pdf online
 	mv apron/html online/apron
-	mv mlapronidl/html online/mlapronidl
+	mv caml/html online/mlapronidl
 	cp apron/apron.pdf online
-	cp mlapronidl/mlapronidl.pdf online
+	cp caml/mlapronidl.pdf online
 	cp examples/example1.c online
 	cp examples/mlexample?.ml online
 	cp Changes online
