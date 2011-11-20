@@ -50,6 +50,9 @@ endif
 ifneq ($(HAS_JAVA),)
 SUBDIR_ALL += java
 endif
+ifneq ($(HAS_PPL),)
+SUBDIR_ALL += ppl
+endif
 
 c_all:
 	for i in $(SUBDIR_C); do make -C $$i all; done
@@ -122,12 +125,15 @@ uninstall:
 
 clean:
 	for i in $(SUBDIR_ALL); do make -C $$i clean; done
+	make -C ctest clean
 	rm -f *.a *.so
 mostlyclean: 
 	for i in $(SUBDIR_ALL); do make -C $$i mostlyclean; done
+	make -C ctest mostlyclean
 	rm -f *.a *.so
 distclean:
 	for i in $(SUBDIR_ALL); do make -C $$i distclean; done
+	make -C ctest distclean
 	rm -f *.a *.so
 	rm -fr tmp
 doc:
