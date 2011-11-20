@@ -84,8 +84,8 @@ src: $(CXX_GENERATED_FILES) $(HXX_GENERATED_FILES)
 clean:
 	/bin/rm -f *.[ao] *.so
 
-distclean: clean
-	/bin/rm -f Makefile.depend $(CXX_GENERATED_FILES) $(HXX_GENERATED_FILES)
+mostlyclean distclean: clean
+	/bin/rm -f Makefile.depend TAGS $(CXX_GENERATED_FILES) $(HXX_GENERATED_FILES)
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALL) -d $(PREFIX)/include/apron
