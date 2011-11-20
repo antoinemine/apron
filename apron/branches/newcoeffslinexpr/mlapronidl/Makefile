@@ -242,9 +242,10 @@ clean:
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty
 
-distclean: clean
+mostlyclean distclean: clean
 	/bin/rm -f $(IDL_GENERATED_MODULES:%=%.idl) $(H_GENERATED_FILES) $(C_GENERATED_FILES) $(ML_GENERATED_MODULES:%=%.ml) $(ML_GENERATED_MODULES:%=%.mli) mpz.idl mpq.idl mpf.idl mpfr.idl
 	for i in $(APRON_NUMTYPES); do /bin/rm -f `find . -name "*$$i.*"`; done  
+	/bin/rm -f Makefile.depend TAGS
 
 #---------------------------------------
 # Library rules

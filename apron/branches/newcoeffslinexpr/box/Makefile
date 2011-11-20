@@ -76,7 +76,7 @@ clean:
 
 mostlyclean distclean: clean
 	/bin/rm -f $(H_GENERATED_FILES_ALL) $(C_GENERATED_FILES_ALL)
-	/bin/rm -f Makefile.depend
+	/bin/rm -f Makefile.depend TAGS
 
 install: $(CCINC_TO_INSTALL) 
 	$(INSTALL) -d $(PREFIX)/include/apron
