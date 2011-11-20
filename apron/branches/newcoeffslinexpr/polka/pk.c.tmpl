@@ -1,0 +1,40 @@
+/* -*- mode: c -*- */
+
+/* ********************************************************************** */
+/* pk.c.tmpl */
+/* ********************************************************************** */
+
+#include "pkMPQ_internal.h"
+#include "pk.h"
+
+PERLEVAL @PolkaNum = split(" ",$ENV{POLKA_NUMTYPES})
+
+MACRO_FOREACH XXX @PolkaNum
+#include "pkXXX.h"
+#include "pkeqXXX.h"
+ENDMACRO
+
+ap_manager_t* pk_manager_alloc(pk_kind_t kind, num_discr_t discr)
+{
+  switch(discr){
+MACRO_FOREACH XXX @PolkaNum
+  case NUM_XXX:
+    switch(kind){
+    case PK_LOOSE:
+    case PK_STRICT:
+      return pkXXX_manager_alloc(kind==PK_STRICT);
+    case PK_EQUALITIES:
+      return pkeqXXX_manager_alloc();
+    default: abort();
+    }
+ENDMACRO
+  default:
+    return NULL;
+  }
+}
+
+pk_option_t* pk_manager_option_ref(ap_manager_t* man)
+{
+  pkMPQ_internal_t* intern = (pkMPQ_internal_t*)man->internal;
+  return &(intern->option);
+}
