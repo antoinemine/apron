@@ -59,6 +59,7 @@ bool vector_set_dim_bound(pk_internal_t* pk,
 	numrat_clear(bound);
 	return false;
       }
+      numrat_set(bound,numrat);
     }
   } else {
     numrat_set(bound,numrat);
@@ -72,7 +73,7 @@ bool vector_set_dim_bound(pk_internal_t* pk,
   /* put the right sign now */
   if (mode>=0){
     numint_neg(vec[pk->dec+dim],vec[pk->dec+dim]);
-  } 
+  }
   return true;
 }
 
@@ -80,7 +81,7 @@ bool vector_set_dim_bound(pk_internal_t* pk,
 /* Fills the vector with the constraint:
    expr <= bound if sgn>0,
    expr = bound if sgn=0
-   expr >= -bound if sgn<0 
+   expr >= -bound if sgn<0
    (an inferior bound is implicitly negated, as in itv).
 
    Returns false if equality with a non-integer numbers (like 2x=1).
@@ -125,7 +126,7 @@ bool vector_set_linexpr_bound(pk_internal_t* pk,
   numint_set_int(vec[0], mode ? 1 : 0);
   vector_normalize(pk,vec,size);
   if (integer) vector_normalize_constraint_int(pk,vec,intdim,realdim);
-  
+
   return true;
 }
 
@@ -181,7 +182,7 @@ void vector_set_itv_linexpr(pk_internal_t* pk,
     numint_neg(vec[polka_cst],vec[polka_cst]);
   }
   /* Other coefficients */
-  for (i=pk->dec;i<pk->dec+dim; i++){ 
+  for (i=pk->dec;i<pk->dec+dim; i++){
     numint_set_int(vec[i],0);
   }
   itv_linexpr_ForeachLinterm(expr,i,d,pitv,peq){
@@ -200,7 +201,7 @@ void vector_set_itv_lincons(pk_internal_t* pk,
 			    bool integer)
 {
   size_t i,nb;
-  assert(cons->constyp == AP_CONS_EQ || 
+  assert(cons->constyp == AP_CONS_EQ ||
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
   assert(itv_linexpr_is_scalar(&cons->linexpr));
@@ -226,7 +227,7 @@ void vector_set_itv_lincons(pk_internal_t* pk,
 }
 
 /* Fills the vector(s) with the fully linear constraint cons for testing
-   satisfiability.  
+   satisfiability.
 
    Returns false if unsatisfiable
  */
@@ -243,10 +244,10 @@ bool vector_set_itv_lincons_sat(pk_internal_t* pk,
     return false;
   }
 
-  assert(cons->constyp == AP_CONS_EQ || 
+  assert(cons->constyp == AP_CONS_EQ ||
 	 cons->constyp == AP_CONS_SUPEQ ||
 	 cons->constyp == AP_CONS_SUP);
-  
+
   if (!bound_infty(cons->linexpr.cst->inf)){
     vector_set_itv_linexpr(pk, vec, &cons->linexpr, intdim+realdim,-1);
     vector_normalize(pk,vec,pk->dec+intdim+realdim);
@@ -284,17 +285,17 @@ bool vector_set_ap_generator0(pk_internal_t* pk,
 			      size_t intdim, size_t realdim)
 {
   assert(gen->gentyp != AP_GEN_VERTEX);
-  itv_linexpr_set_ap_linexpr0(pk->itv, 
+  itv_linexpr_set_ap_linexpr0(pk->itv,
 			      &pk->poly_itv_linexpr,
 			      gen->linexpr0);
   vector_set_itv_linexpr(pk, vec, &pk->poly_itv_linexpr, intdim+realdim, +1);
 
   if (pk->strict)
     numint_set_int(vec[polka_eps],0);
-  
-  numint_set_int(vec[0], 
+
+  numint_set_int(vec[0],
 		 ( ((gen->gentyp == AP_GEN_LINE) || (gen->gentyp == AP_GEN_LINEMOD)) ?
-		   0 : 
+		   0 :
 		   1 ));
   if (gen->gentyp != AP_GEN_VERTEX){
     numint_set_int(vec[polka_cst],0);
@@ -321,7 +322,7 @@ bool matrix_append_ap_generator0_array(pk_internal_t* pk,
 
   nbrows = mat->nbrows;
   matrix_resize_rows_lazy(mat,nbrows+array->size);
-  res = true;  
+  res = true;
   for (i=0; i<array->size; i++){
     exact = vector_set_ap_generator0(pk,mat->p[nbrows+i],&array->p[i],intdim,realdim);
     res = res && exact;
@@ -359,8 +360,8 @@ bool matrix_append_ap_lincons0_array(pk_internal_t* pk,
   k = 0;
   for (i=0; i<array->size; i++){
     if (ap_lincons0_is_unsat(&array->p[i])){
-      if (tab){ 
-	free(tab); tab=NULL; 
+      if (tab){
+	free(tab); tab=NULL;
 	k=0;
       }
       vector_clear(mat->p[0],mat->nbcolumns);
@@ -438,7 +439,7 @@ bool matrix_append_ap_intlincons0_array(pk_internal_t* pk,
   j = nbrows;
   for (i=0; i<size; i++){
     size_t index = tab[i];
-    
+
     exact = itv_lincons_set_ap_lincons0(pk->itv,
 					&pk->poly_itv_lincons,
 					&array->p[index])
@@ -451,9 +452,9 @@ bool matrix_append_ap_intlincons0_array(pk_internal_t* pk,
   mat->nbrows = j;
   return exact;
 }
-				 
+
 bool matrix_set_ap_intlincons0_array(pk_internal_t* pk,
-				     matrix_t** mat,	
+				     matrix_t** mat,
 				     itv_t* titv,
 				     ap_lincons0_array_t* array,
 				     size_t* tab, size_t size,
@@ -510,7 +511,7 @@ bool matrix_set_itv_lincons_array(pk_internal_t* pk,
 				  size_t intdim, size_t realdim,
 				  bool integer)
 {
-  
+
 
   *mat = matrix_alloc(array->size,pk->dec+intdim+realdim,false);
   (*mat)->nbrows = 0;
@@ -561,7 +562,7 @@ ap_generator0_t generator0_of_vector(pk_internal_t* pk,
   ap_linexpr0_t* linexpr;
   size_t i;
   int sgn;
-  
+
   linexpr = ap_linexpr0_alloc(AP_LINEXPR_DENSE, size - pk->dec);
   ap_coeff_set_scalar_int(&linexpr->cst, 0);
   sgn = numint_sgn(q[polka_cst]);
@@ -586,4 +587,3 @@ ap_generator0_t generator0_of_vector(pk_internal_t* pk,
   generator.linexpr0 = linexpr;
   return generator;
 }
-
