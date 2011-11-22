@@ -1509,11 +1509,34 @@ ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,
 				   ap_tcons0_t* cons,
 				   itv_t* env, size_t intdim)
 {
-  bool exc = itv_intlinearize_ap_texpr0(intern,&res->linexpr,cons->texpr0,env,intdim);
-  if (exc){
-    itv_lincons_set_bool(res,false);
+  bool exc;
+  itv_t i, bound;
+  itv_init(i);
+  itv_init(bound);
+  itv_intlinearize_texpr0_rec(intern,cons->texpr0,env,intdim,&res->linexpr,i);
+
+  /* checks that the contraint is satisfiable */
+  switch (cons->constyp){
+  case AP_CONS_EQ:
+    itv_set_int(bound,0);
+    itv_meet(intern,i,i,bound);
+    break;
+  case AP_CONS_SUPEQ:
+  case AP_CONS_SUP:
+    itv_set_top(bound);
+    bound_set_int(bound->inf,0);
+    bound_set_infty(bound->sup,1);
+    itv_meet(intern,i,i,bound);
+    break;
+  default:
+    break;
   }
-  else {
+
+  if (!itv_is_bottom(intern,i) && !itv_is_bottom(intern,res->linexpr.cst)) {
+    if (res->linexpr.size==0){
+      itv_meet(intern,res->linexpr.cst,res->linexpr.cst,i);
+      res->linexpr.equality = itv_is_point(intern,res->linexpr.cst);
+    }
     res->constyp = cons->constyp;
     if (cons->scalar){
       num_set_ap_scalar(res->num,cons->scalar);
@@ -1521,7 +1544,14 @@ ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,
     else {
       num_set_int(res->num,0);
     }
+    exc = false;
   }
+  else {
+    itv_lincons_set_bool(res,false);
+    exc = true;
+  }
+  itv_clear(i);
+  itv_clear(bound);
   return exc;
 }
 
@@ -1532,10 +1562,11 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
 					 itv_t* env, size_t intdim)
 {
   bool exc;
-  itv_t itv;
+  itv_t itv,bound;
   size_t i,index;
 
   itv_init(itv);
+  itv_init(bound);
   itv_lincons_array_reinit(res,array->size);
   exc = false;
   for (i=0; i<array->size;i++){
@@ -1548,6 +1579,24 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
     else {
       num_set_int(res->p[i].num,0);
     }
+
+    /* checks that the contraint is satisfiable */
+    switch (array->p[i].constyp){
+    case AP_CONS_EQ:
+      itv_set_int(bound,0);
+      itv_meet(intern,itv,itv,bound);
+      break;
+    case AP_CONS_SUPEQ:
+    case AP_CONS_SUP:
+      itv_set_top(bound);
+      bound_set_int(bound->inf,0);
+      bound_set_infty(bound->sup,1);
+      itv_meet(intern,itv,itv,bound);
+      break;
+    default:
+      break;
+    }
+
     if (itv_is_bottom(intern,itv) ||
 	itv_is_bottom(intern,res->p[i].linexpr.cst) ||
 	(res->p[i].linexpr.size==0 ?
@@ -1560,5 +1609,6 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
     }
   }
   itv_clear(itv);
+  itv_clear(bound);
   return exc;
 }
