@@ -1946,7 +1946,7 @@ freeing it can be done with
 @example
 ap_lincons1_t cons = ap_lincons1_make(AP_CONS_SUPEQ,
 				      ap_linexpr1_alloc(env,AP_LINEXPR_SPARSE,2),
-                                      NULL);
+				      NULL);
 ap_lincons1_set_list(&cons,
 		     AP_COEFF_I_INT, 1,2, "x",
 		     AP_COEFF_S_FRAC, 5,2, "y",
@@ -2856,9 +2856,9 @@ Get a reference to the underlying abstract value of level 0 in
 
 In abstract tests,
 @itemize
-@item 
+@item
 true means that the predicate is certainly true;
-@item 
+@item
 false means false @emph{or} don't know (an exception has occurred, or
 the exact computation was considered too expensive to be performed,
 according to the options).
@@ -3098,7 +3098,7 @@ embed them on the least common environment and then compute their
 meet. The result is defined on the least common environment.
 
 For instance, the unification of @code{1<=x<=3 and x=y} defined on
-@code{@{ x, y @}} and @code{2<=z<=4 and z=y} defined on 
+@code{@{ x, y @}} and @code{2<=z<=4 and z=y} defined on
 @code{@{y,z @}} results in @code{2<=x<=3 and x=y=z} defined on
 @code{@{x,y,z@}}.
 @end deftypefun
@@ -3133,13 +3133,13 @@ new library/abstract domain, or who want to build a composite domain
 from existing ones.
 
 @menu
-* Dimensions and related operations::  
-* Linear expressions of level 0::  
-* Linear constraints of level 0::  
-* Generators of level 0::       
-* Tree expressions of level 0::  
-* Tree constraints of level 0::  
-* Abstract values and operations of level 0::  
+* Dimensions and related operations::
+* Linear expressions of level 0::
+* Linear constraints of level 0::
+* Generators of level 0::
+* Tree expressions of level 0::
+* Tree constraints of level 0::
+* Abstract values and operations of level 0::
 @end menu
 
 @ifnothtml
@@ -3676,7 +3676,7 @@ Constraints are meant to be manipulated freely via their components. Creating th
 @example
 ap_lincons0_t cons = ap_lincons0_make(AP_CONS_SUPEQ,
 				      ap_linexpr0_alloc(AP_LINEXPR_SPARSE,2),
-                                      NULL);
+				      NULL);
 ap_linexpr0_set_list(cons.linexpr0,
 		     AP_COEFF_I_INT, 1,2, 0,
 		     AP_COEFF_S_FRAC, 5,2, 1,
@@ -4106,9 +4106,9 @@ Return the dimensionality of @var{a}.
 
 In abstract tests,
 @itemize
-@item 
+@item
 true means that the predicate is certainly true;
-@item 
+@item
 false means false @emph{or} don't know (an exception has occurred, or
 the exact computation was considered too expensive to be performed,
 according to the options).

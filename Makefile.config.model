@@ -31,7 +31,7 @@ HAS_OCAMLOPT = 1
 # If defined to non-empty value, assumed to be the right executable,
 # use FINDLIB/ocamlfind package system
 # (advised)
-# OCAMLFIND = ocamlfind
+OCAMLFIND = ocamlfind
 
 ######################################################################
 # Directories
@@ -157,7 +157,6 @@ M4 = m4
 INSTALL = install
 INSTALLd = install -d
 
-OCAMLFIND = ocamlfind
 OCAMLC = $(CAML_PREFIX)/bin/ocamlc.opt
 OCAMLOPT = $(CAML_PREFIX)/bin/ocamlopt.opt
 

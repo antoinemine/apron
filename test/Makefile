@@ -31,18 +31,18 @@ all: C
 
 C: ctest1
 
-ctest%: ctest%.o
-	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
-	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
-
 ctest%_debug: ctest%_debug.o
 	$(CXX) -g $(ICFLAGS) $(LCFLAGS) -o $@  $< \
 	-lap_pkgrid_debug -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -lmpfr -lgmp
 
-ctest%.o : ctest%.c
-	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
+ctest%: ctest%.o
+	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
+	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
+
 ctest%_debug.o: ctest%.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
+ctest%.o : ctest%.c
+	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<
 
 # OCaml examples
 %.opt: %.ml
@@ -52,7 +52,7 @@ ctest%_debug.o: ctest%.c
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -o $@ $<
 
 clean:
-	rm -f ctest1 ctest1_debug *.o *.cm[xoia] *.opt *.byte
+	rm -f ctest1 ctest?_debug *.o *.cm[xoia] *.opt *.byte
 
 distclean: clean
 

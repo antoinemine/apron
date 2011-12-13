@@ -144,7 +144,7 @@ bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
     u = oct_uexpr_of_linexpr(pr,pr->tmp,ar->p[i].linexpr0,dim);
 
     switch (u.type) {
-      
+
     case EMPTY:
       /* empty constraint: no added information */
       break;
@@ -962,7 +962,7 @@ oct_t* oct_assign_linexpr_array(ap_manager_t* man,
 				size_t size,
 				oct_t* dest)
 {
-  if (size==1) 
+  if (size==1)
     return oct_assign_linexpr(man,destructive,a,tdim[0],texpr[0],dest);
 
   oct_internal_t* pr =
@@ -1053,7 +1053,7 @@ oct_t* oct_substitute_linexpr_array(ap_manager_t* man,
 				    size_t size,
 				    oct_t* dest)
 {
-  if (size==1) 
+  if (size==1)
     return oct_substitute_linexpr(man,destructive,a,tdim[0],texpr[0],dest);
 
   oct_internal_t* pr =
