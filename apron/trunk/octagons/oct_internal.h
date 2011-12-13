@@ -10,7 +10,7 @@
  *
  */
 
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -41,8 +41,8 @@ struct _oct_internal_t {
   void* tmp2;
   size_t tmp_size;
 
-  /* raised when a conversion from/to a user type resulted in an 
-     overapproximation 
+  /* raised when a conversion from/to a user type resulted in an
+     overapproximation
   */
   bool conv;
 
@@ -52,7 +52,7 @@ struct _oct_internal_t {
 
 
 /* called by each function to setup and get manager-local data */
-static inline oct_internal_t* 
+static inline oct_internal_t*
 oct_init_from_manager(ap_manager_t* man, ap_funid_t id, size_t size)
 {
   oct_internal_t* pr = (oct_internal_t*) man->internal;
@@ -78,8 +78,8 @@ oct_init_from_manager(ap_manager_t* man, ap_funid_t id, size_t size)
    1) the algorithm is incomplete or
       the algorithm is incomplete on Z and we have intdim > 0
       or the numerical type induces overapproximation (NUMINT or NUMFLOAT)
-      => no solution at run-time, you need to recompile the library 
-         with another NUM base type
+      => no solution at run-time, you need to recompile the library
+	 with another NUM base type
    2) the user disabled closure (algorithm<0)
       => solution: raise algorithm
    3) approximation in the conversion from / to user type
@@ -182,7 +182,7 @@ bool hmat_check_closed(bound_t* m, size_t dim);
 /* ============================================================ */
 
 /* see oct_transfer.c */
-  
+
 bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
 		      ap_lincons0_array_t* ar, bool* exact,
 		      bool* respect_closure);
@@ -233,7 +233,7 @@ static inline void bound_badd(bound_t dst, bound_t arg)
 
 #if defined(NUM_LONGINT) || defined(NUM_LONGLONGINT)
 /* overflows produce unsound results, type not closed by / 2 */
-#define num_incomplete     1    
+#define num_incomplete     1
 #define num_safe           0
 
 #elif defined ( NUM_MPZ )
@@ -268,7 +268,7 @@ static inline void bound_badd(bound_t dst, bound_t arg)
 
 /* sound conversion from a scalar to a bound_t
    optional negation and multiplication by 2
-   if negation, lower approximation, otherwise, upper approximation 
+   if negation, lower approximation, otherwise, upper approximation
    pr->conv is set if the conversion is not exact
  */
 static inline void bound_of_scalar(oct_internal_t* pr,
@@ -285,7 +285,7 @@ static inline void bound_of_scalar(oct_internal_t* pr,
 }
 
 
-/* both bounds of an interval, the lower bound is negated 
+/* both bounds of an interval, the lower bound is negated
    pr->conv is set if the conversion is not exact
    returns true if the interval is empty
 */
@@ -318,7 +318,7 @@ static inline bool bounds_of_coeff(oct_internal_t* pr,
   }
 }
 
-static void bounds_of_generator(oct_internal_t* pr, bound_t* dst, 
+static void bounds_of_generator(oct_internal_t* pr, bound_t* dst,
 				ap_linexpr0_t* e, size_t dim)
 {
   size_t i;
@@ -384,7 +384,7 @@ static inline void scalar_of_upper_bound(oct_internal_t* pr,
 }
 
 /* opposite of lower bound => scalar, with optional division by 2
-   pr->conv is set if the conversion is not exact  
+   pr->conv is set if the conversion is not exact
 */
 static inline void scalar_of_lower_bound(oct_internal_t* pr,
 					 ap_scalar_t* r,
@@ -471,7 +471,7 @@ static inline void bounds_mul(bound_t r_inf, bound_t r_sup,
 
 /* constraint at line i, column j, with upper bound m */
 static inline ap_lincons0_t lincons_of_bound(oct_internal_t* pr,
-					     size_t i, size_t j, 
+					     size_t i, size_t j,
 					     bound_t m)
 {
   ap_linexpr0_t* e;
@@ -507,7 +507,7 @@ static inline ap_lincons0_t lincons_of_bound(oct_internal_t* pr,
 /* see oct_transfer.c */
 
 typedef struct {
-  enum { 
+  enum {
     EMPTY,    /* empty domain */
     ZERO,     /* 0 */
     UNARY,    /* unary unit expression */
@@ -545,7 +545,7 @@ struct _oct_t {
 /* several cases are possible
    m==NULL closed==NULL -- definitively empty octagon
    m!=NULL closed==NULL -- empty or non-empty octagon, closure not available
-   m==NULL closed!=NULL \_ definitively non-empty octagon, closure available  
+   m==NULL closed!=NULL \_ definitively non-empty octagon, closure available
    m!=NULL closed!=NULL /
 */
 
@@ -559,7 +559,7 @@ void   oct_free_internal  (oct_internal_t* pr, oct_t* o);
 oct_t* oct_copy_internal  (oct_internal_t* pr, oct_t* o);
 void   oct_cache_closure  (oct_internal_t* pr, oct_t* a);
 void   oct_close          (oct_internal_t* pr, oct_t* a);
-oct_t* oct_set_mat        (oct_internal_t* pr, oct_t* a, bound_t* m, 
+oct_t* oct_set_mat        (oct_internal_t* pr, oct_t* a, bound_t* m,
 			   bound_t* closed, bool destructive);
 oct_t* oct_alloc_top      (oct_internal_t* pr, size_t dim, size_t intdim);
 

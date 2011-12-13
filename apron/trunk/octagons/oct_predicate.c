@@ -9,7 +9,7 @@
  *
  */
 
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -37,7 +37,7 @@ bool oct_is_bottom(ap_manager_t* man, oct_t* a)
     return true;
   else {
     /* no closure => we don't know */
-    flag_algo; 
+    flag_algo;
     return false;
   }
 }
@@ -50,7 +50,7 @@ bool oct_is_top(ap_manager_t* man, oct_t* a)
   if (!m) return false;
   for (i=0;i<2*a->dim;i++)
     for (j=0;j<=(i|1);j++,m++)
-      if (!bound_infty(*m) && i!=j) 
+      if (!bound_infty(*m) && i!=j)
 	return false;
   return true;
 }
@@ -62,7 +62,7 @@ bool oct_is_leq(ap_manager_t* man, oct_t* a1, oct_t* a2)
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a1);
   if (!a1->closed && !a1->m) {
     /* a1 definitively empty */
-    return true;   
+    return true;
   }
   else if (!a2->closed && !a2->m) {
     /* a2 definitively empty */
@@ -130,7 +130,7 @@ bool oct_is_eq(ap_manager_t* man, oct_t* a1, oct_t* a2)
 	if (bound_cmp(*x,*y)) {
 	  if (a1->closed) {
 	    /* not equal on Q */
-	    if (num_incomplete || a1->intdim) 
+	    if (num_incomplete || a1->intdim)
 	      { flag_incomplete; }
 	    return false;
 	  }
@@ -165,8 +165,8 @@ bool oct_sat_interval(ap_manager_t* man, oct_t* a,
     if (r) return true; /* definitively saturates */
     else
       /* definitely does not saturate on Q if closed & no conv error */
-      if (num_incomplete || a->intdim) { flag_incomplete; return false; } 
-      else if (!a->closed) { flag_algo; return false; } 
+      if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+      else if (!a->closed) { flag_algo; return false; }
       else if (pr->conv) { flag_conv; return false; }
       else return false;
   }
@@ -176,7 +176,7 @@ bool oct_sat_interval(ap_manager_t* man, oct_t* a,
 bool oct_is_dimension_unconstrained(ap_manager_t* man, oct_t* a,
 				    ap_dim_t dim)
 {
-  oct_internal_t* pr = 
+  oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_IS_DIMENSION_UNCONSTRAINED,0);
   arg_assert(dim<a->dim,return false;);
   if (!a->closed && !a->m)
@@ -199,7 +199,7 @@ bool oct_is_dimension_unconstrained(ap_manager_t* man, oct_t* a,
    true  saturates all expressions
    false may saturate some, may not saturate some
 */
-bool oct_sat_lincons(ap_manager_t* man, oct_t* a, 
+bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 		     ap_lincons0_t* lincons)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_SAT_LINCONS,
@@ -236,7 +236,7 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 
     u = oct_uexpr_of_linexpr(pr,pr->tmp,lincons->linexpr0,a->dim);
 
-    switch (u.type) {      
+    switch (u.type) {
 
     case EMPTY:
       /* the empty set has all properties */
@@ -248,17 +248,17 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 	  (c==AP_CONS_SUP && bound_sgn(pr->tmp[0])<0) ||
 	  /* [-a,b] > 0 <=> a < 0 */
 	  (c==AP_CONS_EQ && !bound_sgn(pr->tmp[0]) && !bound_sgn(pr->tmp[1]))
-  	  /* [-a,b] = 0 <=> a=b=0 */
+	  /* [-a,b] = 0 <=> a=b=0 */
 	  )
 	return true; /* always saturates */
       else {
 	/* does not always saturate on Q, if closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
 	else if (!a->closed) { flag_algo; return false; }
 	else if (pr->conv) { flag_conv; return false; }
 	return false;
       }
-      
+
    case UNARY:
       if (u.coef_i==1) ui = 2*u.i; else ui = 2*u.i+1;
       bound_mul_2(pr->tmp[0],pr->tmp[0]);
@@ -271,16 +271,16 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 	  /* c_i X_i + [-a,b] >  0 <=> -c_i X_i + a <  0 */
 	  (c!=AP_CONS_EQ || bound_sgn(pr->tmp[1])<=0)
 	  /* c_i X_i + [-a,b] <= 0 <=>  c_i X_i + b <= 0 */
-	  ) 
+	  )
 	return true; /* always saturates */
       else {
 	/* does not always saturate on Q, if closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
 	else if (!a->closed) { flag_algo; return false; }
 	else if (pr->conv) { flag_conv; return false; }
 	return false;
       }
-      
+
     case BINARY:
       if ( u.coef_i==1) ui = 2*u.i; else ui = 2*u.i+1;
       if ( u.coef_j==1) uj = 2*u.j; else uj = 2*u.j+1;
@@ -296,7 +296,7 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 	return true;
       else {
 	/* does not saturate on Q, when closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
 	else if (!a->closed) { flag_algo; return false; }
 	else if (pr->conv) { flag_conv; return false; }
 	return false;
@@ -306,15 +306,15 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
       /* no clue */
       flag_incomplete;
       return false;
-      
-    default: 
+
+    default:
       assert(0);
       return false; /* unreachable */
     }
   }
 }
 
-bool oct_sat_tcons(ap_manager_t* man, oct_t* a, 
+bool oct_sat_tcons(ap_manager_t* man, oct_t* a,
 		   ap_tcons0_t* cons)
 {
   return ap_generic_sat_tcons(man,a,cons,NUM_AP_SCALAR,false);
@@ -353,7 +353,7 @@ ap_interval_t* oct_bound_linexpr(ap_manager_t* man,
       else if (!a->closed) flag_algo;
       else if (pr->conv) flag_conv;
       break;
-      
+
     case UNARY:
       if (u.coef_i==1) ui = 2*u.i; else ui = 2*u.i+1;
       bounds_of_coeff(pr,pr->tmp[0],pr->tmp[1],expr->cst,true);
@@ -365,7 +365,7 @@ ap_interval_t* oct_bound_linexpr(ap_manager_t* man,
       else if (!a->closed) flag_algo;
       else if (pr->conv) flag_conv;
       break;
-      
+
     case BINARY:
       if (u.coef_i==1) ui = 2*u.i; else ui = 2*u.i+1;
       if (u.coef_j==1) uj = 2*u.j; else uj = 2*u.j+1;
@@ -377,7 +377,7 @@ ap_interval_t* oct_bound_linexpr(ap_manager_t* man,
       else if (!a->closed) flag_algo;
       else if (pr->conv) flag_conv;
       break;
-      
+
     case OTHER:
       /* interval approximation */
       for (i=0;i<a->dim;i++) {

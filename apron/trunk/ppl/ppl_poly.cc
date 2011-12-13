@@ -147,12 +147,12 @@ static itv_t* ap_ppl_poly_to_itv_array(PPL_Poly* a)
   itv_t* env = itv_array_alloc(nb);
   for (i=0; i<nb; i++){
     l = Variable(i);
-    /* sup bound */ 
+    /* sup bound */
     if (a->p->maximize(l,sup_n,sup_d,ok)){
       bound_set_int(env[i]->sup,0);
       numrat_set_numint2(env[i]->sup,sup_n.get_mpz_t(),sup_d.get_mpz_t());
     }
-    else 
+    else
       bound_set_infty(env[i]->sup,1);
     /* inf bound */
     if (a->p->minimize(l,sup_n,sup_d,ok)){
@@ -160,7 +160,7 @@ static itv_t* ap_ppl_poly_to_itv_array(PPL_Poly* a)
       numrat_set_numint2(env[i]->inf,sup_n.get_mpz_t(),sup_d.get_mpz_t());
       numrat_neg(env[i]->inf,env[i]->inf);
     }
-    else 
+    else
       bound_set_infty(env[i]->inf,1);
   }
   return env;
@@ -237,7 +237,7 @@ int ap_ppl_poly_hash(ap_manager_t* man, PPL_Poly* a)
   man->result.flag_exact = man->result.flag_best = true;
   try {
     (void)a->p->minimized_constraints();
-    (void)a->p->minimized_generators();    
+    (void)a->p->minimized_generators();
     return a->p->total_memory_in_bytes();
   }
   CATCH_WITH_VAL(AP_FUNID_HASH,0);
@@ -1213,8 +1213,8 @@ extern "C" ap_manager_t* ap_ppl_poly_manager_alloc(bool strict)
   ap_manager_t* man;
 
   ppl = ap_ppl_internal_alloc(strict);
-  const char* name = (strict ? 
-		      "PPL::Polyhedron, strict mode" :  
+  const char* name = (strict ?
+		      "PPL::Polyhedron, strict mode" :
 		      "PPL::Polyhedron, loose mode");
   man = ap_manager_alloc(name,PPL_VERSION,ppl,&ap_ppl_internal_free);
   assert(man);

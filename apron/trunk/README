@@ -15,7 +15,7 @@ PREREQUISITES
 
 - C API (required)
   * GCC
-  * GMP 4.2 and MPFR 2.2 or up
+  * GMP 5.x.y and MPFR 3.x.y or up
   * Optionally, 
     * PPL library (PARMA Polyhedra library, http://www.cs.unipr.it/ppl/)
       - patch to apply before compiling it (see ./ppl/README)
@@ -23,7 +23,7 @@ PREREQUISITES
 
 - OCaml API (optional)
   * MLGMPIDL (http://www.inrialpes.fr/pop-art/people/bjeannet/mlxxxidl-forge/mlgmpidl, SVN: svn://scm.gforge.inria.fr/svn/mlxxxidl/mlgmpidl/)
-  * OCaml 3.09 or up (http://www.caml.org)
+  * OCaml 3.11 or up (http://www.caml.org)
   * CamlIDL 1.05 (http://caml.inria.fr/camlidl)
   * GNU sed 4.1 or up, GNU m4 (not necessary if you download an archive, but
     strongly recommended)
