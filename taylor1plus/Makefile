@@ -250,11 +250,11 @@ t1p_caml_debug.o: t1p_caml.c
 
 # DEBUG version
 
-t1p%.cma: t1p.cmo libt1p%_caml_debug.a libt1p%_debug.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmo -L. -lt1p$*_debug $(LIBS) 
+t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmo -L. -lt1p$* $(LIBS) 
 
-t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml_debug.a libt1p%_debug.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmx -L$(APRON_PREFIX)/lib -L. -lt1p$*_debug $(LIBS_DEBUG) 
+t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx -L$(APRON_PREFIX)/lib -L. -lt1p$* $(LIBS) 
 
 #---------------------------------------
 # IDL rules
