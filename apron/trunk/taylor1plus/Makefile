@@ -76,8 +76,8 @@ ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron
-LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L$(APRON_PREFIX)/lib -L../apron -lapron_debug
+LIBS = -L../apron -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS_DEBUG = -L../apron -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
 
 #---------------------------------------
 # Rules
@@ -115,6 +115,7 @@ exemple1%_debug: exemple1%_debug.o
 
 #test_join%_debug: t1p_test_join%_debug.o
 #	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
+
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
 
@@ -228,9 +229,9 @@ libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 	$(RANLIB) $@
 
 dllt1p%_caml.so: t1p_caml.o libt1p%.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  $(LIBS) -L. -lt1p$*
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  -L. -lt1p$* $(LIBS)
 dllt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o  $(LIBS) -L. -lt1p$*_debug
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o -L. -lt1p$*_debug $(LIBS_DEBUG)
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -250,10 +251,10 @@ t1p_caml_debug.o: t1p_caml.c
 # DEBUG version
 
 t1p%.cma: t1p.cmo libt1p%_caml_debug.a libt1p%_debug.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmo $(LIBS) -L. -lt1p$*_debug
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmo -L. -lt1p$*_debug $(LIBS) 
 
 t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml_debug.a libt1p%_debug.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmx $(LIBS) -L. -lt1p$*_debug -L$(APRON_PREFIX)/lib
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml_debug t1p.cmx -L$(APRON_PREFIX)/lib -L. -lt1p$*_debug $(LIBS_DEBUG) 
 
 #---------------------------------------
 # IDL rules

@@ -65,6 +65,7 @@ package "ppl" (
 requires = "apron.apron" 
 archive(byte) = "ppl.cma" 
 archive(native) = "ppl.cmxa" 
+linkopts(native) = "-cclib -lstdc++"
 )
 package "polkaGrid" ( 
 requires = "apron.apron apron.ppl apron.polkaMPQ"
