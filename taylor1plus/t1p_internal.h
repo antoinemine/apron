@@ -20,9 +20,9 @@
 #include "t1p_itv_utils.h"
 #include "t1p_macro_def.h"
 
-extern ap_manager_t* box_manager_alloc(void);
-extern ap_manager_t* pk_manager_alloc(bool strict);
-extern ap_manager_t* oct_manager_alloc(void);
+#include "../newpolka/pk.h"
+#include "../box/box.h"
+#include "../octagons/oct.h"
 
 typedef unsigned int uint_t;
 

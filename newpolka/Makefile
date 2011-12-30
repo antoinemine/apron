@@ -77,8 +77,8 @@ ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllpolkaMPQ_caml.so dllpolkaRll_caml.so 
 endif
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
-LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+LIBS = -L../apron -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS_DEBUG = -L../apron -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
 
 #---------------------------------------
 # Rules
@@ -226,17 +226,17 @@ libpolka%_caml_debug.a: polka_caml_debug.o libpolka%_debug.a
 	$(RANLIB) $@
 
 dllpolka%_caml.so: polka_caml.o libpolka%.so
-	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o $(LIBS) -L. -lpolka$*
+	$(CC) $(CFLAGS) -shared -o $@ polka_caml.o -L. -lpolka$* $(LIBS)
 
 #---------------------------------------
 # OCaml rules
 #---------------------------------------
 
 polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo $(LIBS) -L. -lpolka$*
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -L. -lpolka$* $(LIBS) 
 
 polka%.cmxa polka%.a: polka.cmx libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx $(LIBS) -L. -lpolka$*
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -L. -lpolka$* $(LIBS) 
 
 #---------------------------------------
 # IDL rules
