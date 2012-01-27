@@ -382,6 +382,21 @@ value camlidl_apron_init(value dummy)
 /* ********************************************************************** */
 /* ********************************************************************** */
 
+value camlidl_apron_policy_optr_c2ml(ap_policy_optr* p)
+{
+  if (p==NULL){
+    return Val_int(0);
+  } else {
+    value v,v2=0;
+    Begin_roots1(v2);
+    v2 = camlidl_apron_policy_ptr_c2ml(p);
+    v = alloc_small(1,0);
+    Field(v,0) = v2;
+    End_roots();
+    return v;
+  }
+}
+
 static
 void camlidl_apron_policy_manager_ptr_finalize(value v)
 {

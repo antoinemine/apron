@@ -329,6 +329,7 @@ value camlidl_apron_init(value dummy);
 
 typedef struct ap_policy_manager_t* ap_policy_manager_ptr;
 typedef struct ap_policy_t* ap_policy_ptr;
+typedef struct ap_policy_t* ap_policy_optr;
 
 extern struct custom_operations camlidl_apron_custom_policy_manager_ptr;
 extern struct custom_operations camlidl_apron_custom_policy_ptr;
@@ -356,6 +357,16 @@ void camlidl_apron_policy_ptr_ml2c(value v, ap_policy_ptr* p)
 {
   *p = *((ap_policy_ptr *) Data_custom_val(v));
 }
+static inline
+void camlidl_apron_policy_optr_ml2c(value v, ap_policy_optr* p)
+{
+  if (Is_long(v)){
+    *p = NULL;
+  } else {
+    value v2 = Field(v,0);
+    camlidl_apron_policy_ptr_ml2c(v2,p);
+  }
+}
 
 static inline
 value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
@@ -367,6 +378,7 @@ value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
   *((ap_policy_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
+value camlidl_apron_policy_optr_c2ml(ap_policy_optr* p);
 
 #ifdef __cplusplus
 }
