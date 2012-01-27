@@ -22,7 +22,6 @@ extern "C" {
 
 typedef enum ap_funpolicyid_t {
   AP_FUNPOLICYID_UNKNOWN,
-  AP_FUNPOLICYID_ALLOC,
   AP_FUNPOLICYID_COPY,
   AP_FUNPOLICYID_FREE,
   AP_FUNPOLICYID_FPRINT,
@@ -30,17 +29,15 @@ typedef enum ap_funpolicyid_t {
   AP_FUNPOLICYID_DIMENSION,
   AP_FUNPOLICYID_EQUAL,
   AP_FUNPOLICYID_HASH,
-  AP_FUNPOLICYID_MEET,
-  AP_FUNPOLICYID_MEET_ARRAY,
-  AP_FUNPOLICYID_MEET_LINCONS_ARRAY,
-  AP_FUNPOLICYID_MEET_TCONS_ARRAY,
-  AP_FUNPOLICYID_SIZE
-} ap_funpolicyid_t;
-
-typedef enum ap_policy_mode_t {
-  AP_POLICY_APPLY,
-  AP_POLICY_CHANGE
-} ap_policy_mode_t;
+  AP_FUNPOLICYID_MEET_APPLY,
+  AP_FUNPOLICYID_MEET_ARRAY_APPLY,
+  AP_FUNPOLICYID_MEET_LINCONS_ARRAY_APPLY,
+  AP_FUNPOLICYID_MEET_TCONS_ARRAY_APPLY,
+  AP_FUNPOLICYID_MEET_IMPROVE,
+  AP_FUNPOLICYID_MEET_ARRAY_IMPROVE,
+  AP_FUNPOLICYID_MEET_LINCONS_ARRAY_IMPROVE,
+  AP_FUNPOLICYID_MEET_TCONS_ARRAY_IMPROVE,
+  AP_FUNPOLICYID_SIZE} ap_funpolicyid_t;
 
 typedef struct ap_policy_manager_t {
   ap_manager_t* man;
@@ -92,56 +89,80 @@ size_t ap_policy_dimension(ap_policy_manager_t* pman, ap_policy_t* policy);
 /* III. Policy, level 0 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract0_policy_alloc(ap_policy_manager_t* pman, ap_funid_t funid, size_t nbdims);
+ap_abstract0_t*
+ap_abstract0_policy_meet_apply(ap_policy_manager_t* pman,
+			       ap_policy_t* policy,
+			       bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
+ap_abstract0_t*
+ap_abstract0_policy_meet_array_apply(ap_policy_manager_t* pman,
+				     ap_policy_t* policy,
+				     ap_abstract0_t** tab, size_t size);
+ap_abstract0_t*
+ap_abstract0_policy_meet_lincons_array_apply(ap_policy_manager_t* pman,
+					     ap_policy_t* policy,
+					     bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array);
+ap_abstract0_t*
+ap_abstract0_policy_meet_tcons_array_apply(ap_policy_manager_t* pman,
+					   ap_policy_t* policy,
+					   bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array);
 
-ap_abstract0_t*
-ap_abstract0_policy_meet(ap_policy_manager_t* pman,
-			 ap_policy_t* policy, ap_policy_mode_t mode,
-			 bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
-ap_abstract0_t*
-ap_abstract0_policy_meet_array(ap_policy_manager_t* pman,
-			       ap_policy_t* policy, ap_policy_mode_t mode,
-			       ap_abstract0_t** tab, size_t size);
-ap_abstract0_t*
-ap_abstract0_policy_meet_lincons_array(ap_policy_manager_t* pman,
-				       ap_policy_t* policy, ap_policy_mode_t mode,
-				       bool destructive, ap_abstract0_t* a, ap_lincons0_array_t* array);
-ap_abstract0_t*
-ap_abstract0_policy_meet_tcons_array(ap_policy_manager_t* pman,
-				     ap_policy_t* policy, ap_policy_mode_t mode,
-				     bool destructive, ap_abstract0_t* a, ap_tcons0_array_t* array);
-ap_abstract0_t*
-ap_abstract0_policy_meetjoin(ap_funpolicyid_t funid,
-			     /* either meet or join */
-			     ap_policy_manager_t* pman,
-			     ap_policy_t* policy, ap_policy_mode_t mode,
-			     bool destructive, ap_abstract0_t* a1, ap_abstract0_t* a2);
+ap_policy_t*
+ap_abstract0_policy_meet_improve(ap_policy_manager_t* pman,
+				 ap_policy_t* policy,
+				 ap_abstract0_t* a1, ap_abstract0_t* a2);
+ap_policy_t*
+ap_abstract0_policy_meet_array_improve(ap_policy_manager_t* pman,
+				       ap_policy_t* policy,
+				       ap_abstract0_t** tab, size_t size);
+ap_policy_t*
+ap_abstract0_policy_meet_lincons_array_improve(ap_policy_manager_t* pman,
+					       ap_policy_t* policy,
+					       ap_abstract0_t* a, ap_lincons0_array_t* array);
+ap_policy_t*
+ap_abstract0_policy_meet_tcons_array_improve(ap_policy_manager_t* pman,
+					     ap_policy_t* policy,
+					     ap_abstract0_t* a, ap_tcons0_array_t* array);
 
 /* ********************************************************************** */
 /* IV. Policy, level 1 */
 /* ********************************************************************** */
 
-ap_policy_t* ap_abstract1_policy_alloc(ap_policy_manager_t* pman,
-				       ap_funid_t funid, ap_environment_t* env);
+ap_abstract1_t
+ap_abstract1_policy_meet_apply(ap_policy_manager_t* pman,
+			       ap_policy_t* policy,
+			       bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2);
+ap_abstract1_t
+ap_abstract1_policy_meet_array_apply(ap_policy_manager_t* pman,
+				     ap_policy_t* policy,
+				     ap_abstract1_t* tab, size_t size);
+ap_abstract1_t
+ap_abstract1_policy_meet_lincons_array_apply(ap_policy_manager_t* pman,
+					     ap_policy_t* policy,
+					     bool destructive,
+					     ap_abstract1_t* a,
+					     ap_lincons1_array_t* array);
+ap_abstract1_t
+ap_abstract1_policy_meet_tcons_array_apply(ap_policy_manager_t* pman,
+					   ap_policy_t* policy,
+					   bool destructive, ap_abstract1_t* a, ap_tcons1_array_t* array);
 
-ap_abstract1_t
-ap_abstract1_policy_meet(ap_policy_manager_t* pman,
-			 ap_policy_t* policy, ap_policy_mode_t mode,
-			 bool destructive, ap_abstract1_t* a1, ap_abstract1_t* a2);
-ap_abstract1_t
-ap_abstract1_policy_meet_array(ap_policy_manager_t* pman,
-			       ap_policy_t* policy, ap_policy_mode_t mode,
-			       ap_abstract1_t* tab, size_t size);
-ap_abstract1_t
-ap_abstract1_policy_meet_lincons_array(ap_policy_manager_t* pman,
-				       ap_policy_t* policy, ap_policy_mode_t mode,
-				       bool destructive,
-				       ap_abstract1_t* a,
-				       ap_lincons1_array_t* array);
-ap_abstract1_t
-ap_abstract1_policy_meet_tcons_array(ap_policy_manager_t* pman,
-				     ap_policy_t* policy, ap_policy_mode_t mode,
-				     bool destructive, ap_abstract1_t* a, ap_tcons1_array_t* array);
+ap_policy_t*
+ap_abstract1_policy_meet_improve(ap_policy_manager_t* pman,
+				 ap_policy_t* policy,
+				 ap_abstract1_t* a1, ap_abstract1_t* a2);
+ap_policy_t*
+ap_abstract1_policy_meet_array_improve(ap_policy_manager_t* pman,
+				       ap_policy_t* policy,
+				       ap_abstract1_t* tab, size_t size);
+ap_policy_t*
+ap_abstract1_policy_meet_lincons_array_improve(ap_policy_manager_t* pman,
+					       ap_policy_t* policy,
+					       ap_abstract1_t* a, ap_lincons1_array_t* array);
+ap_policy_t*
+ap_abstract1_policy_meet_tcons_array_improve(ap_policy_manager_t* pman,
+					     ap_policy_t* policy,
+					     ap_abstract1_t* a, ap_tcons1_array_t* array);
+
 
 /* ********************************************************************** */
 /* Definition of inline functions */
@@ -151,6 +172,18 @@ ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman)
 {
   pman->count++;
   return pman;
+}
+static inline
+ap_policy_t* ap_policy_cons(ap_policy_manager_t* pman, ap_policy_t* oldpolicy, void* newvalue)
+{
+  if (newvalue==NULL){
+    return NULL;
+  } else {
+    ap_policy_t* res = (ap_policy_t*)malloc(sizeof(ap_policy_t));
+    res->value = newvalue;
+    res->pman = ap_policy_manager_copy(pman);
+    return res;
+  }
 }
 
 #ifdef __cplusplus

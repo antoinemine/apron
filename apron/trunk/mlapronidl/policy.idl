@@ -9,18 +9,6 @@ quote(C, "\n\
 #include \"ap_policy.h\"\n\
 #include \"caml/callback.h\"\n\
 #include \"apron_caml.h\"\n\
-void camlidl_apron_policy_mode_ml2c(value _v, enum ap_policy_mode_t* res)\n\
-{\n\
-  *res = Int_val(_v);\n\
-}\n\
-value camlidl_apron_policy_mode_c2ml(enum ap_policy_mode_t* arg)\n\
-{\n\
-    int n = *arg;\n\
-  if (! (n>=AP_POLICY_APPLY && n<=AP_POLICY_CHANGE)){\n\
-    invalid_argument(\"enum ap_policy_mode_t: bad enum value\");\n\
-  }\n\
-  return Val_int(n);\n\
-}\n\
 ")
 
 import "manager.idl";
@@ -36,15 +24,10 @@ typedef [abstract,
 	 ml2c(camlidl_apron_policy_ptr_ml2c),
 	 c2ml(camlidl_apron_policy_ptr_c2ml)]
 struct ap_policy_ptr ap_policy_ptr;
-
 typedef [abstract,
-	 ml2c(camlidl_apron_policy_mode_ml2c),
-	 c2ml(camlidl_apron_policy_mode_c2ml),
-	 mltype("\n\
-  | Apply\n\
-  | Change\n\
-")]
-enum ap_policy_mode_t ap_policy_mode_t;
+	 ml2c(camlidl_apron_policy_optr_ml2c),
+	 c2ml(camlidl_apron_policy_optr_c2ml)]
+struct ap_policy_ptr ap_policy_optr;
 
 quote(MLMLI,"(* ********************************************************************** *)")
 quote(MLMLI,"(** {2 Policy manager} *)")
@@ -78,48 +61,86 @@ quote(MLMLI,"\n")
 quote(MLI,"module Abstract0 : sig")
 quote(ML,"module Abstract0 = struct")
 
-ap_policy_ptr ap_abstract0_policy_alloc(ap_policy_manager_ptr pman, int nbdims)
-     quote(call,"_res = ap_abstract0_policy_alloc(pman, AP_FUNPOLICYID_UNKNOWN, nbdims);");
+ap_abstract0_ptr ap_abstract0_policy_meet_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a1, ap_abstract0_ptr a2
+)
+  quote(call,"_res = ap_abstract0_policy_meet_apply(pman,policy,false,a1,a2);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-ap_abstract0_ptr ap_abstract0_policy_meet(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-     quote(call,"_res = ap_abstract0_policy_meet(pman,policy,mode,false,a1,a2);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+ap_abstract0_ptr ap_abstract0_policy_meet_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [size_is(size)] ap_abstract0_ptr* array, unsigned int size
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-ap_abstract0_ptr ap_abstract0_policy_meet_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [size_is(size)] ap_abstract0_ptr* array, unsigned int size)
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+ap_abstract0_ptr ap_abstract0_policy_meet_lincons_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a, [ref]struct ap_lincons0_array_t* v
+)
+  quote(call,"_res = ap_abstract0_policy_meet_lincons_array_apply(pman,policy,false,a,v);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-ap_abstract0_ptr ap_abstract0_policy_meet_lincons_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a,
-						 [ref]struct ap_lincons0_array_t* v)
-     quote(call,"_res = ap_abstract0_policy_meet_lincons_array(pman,policy,mode,false,a,v);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+ap_abstract0_ptr ap_abstract0_policy_meet_tcons_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a, [ref]struct ap_tcons0_array_t* v
+)
+  quote(call,"_res = ap_abstract0_policy_meet_tcons_array_apply(pman,policy,false,a,v);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-ap_abstract0_ptr ap_abstract0_policy_meet_tcons_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a,
-					       [ref]struct ap_tcons0_array_t* v)
-     quote(call,"_res = ap_abstract0_policy_meet_tcons_array(pman,policy,mode,false,a,v);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
-
-void ap_abstract0_policy_meet_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a1, ap_abstract0_ptr a2)
-	 quote(call,"{\n\
-  ap_abstract0_t* res = ap_abstract0_policy_meet(pman,policy,mode,true,a1,a2);\n\
-  *((ap_abstract0_ptr *) Data_custom_val(_v_a1)) = res;\n\
+void ap_abstract0_policy_meet_with_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a1, ap_abstract0_ptr a2
+)
+  quote(call,"{\n\
+  ap_abstract0_t* res = ap_abstract0_policy_meet_apply(pman,policy,true,a1,a2);\n\
+  *((ap_abstract0_ptr *) Data_custom_val(_v_a1)) = res;\n               \
 }")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-void ap_abstract0_policy_meet_lincons_array_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a,
-					  [ref]struct ap_lincons0_array_t* v)
+void ap_abstract0_policy_meet_lincons_array_with_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a, [ref]struct ap_lincons0_array_t* v
+)
      quote(call,"{\n\
-  ap_abstract0_t* res = ap_abstract0_policy_meet_lincons_array(pman,policy,mode,true,a,v);\n\
+  ap_abstract0_t* res = ap_abstract0_policy_meet_lincons_array_apply(pman,policy,true,a,v);\n\
   *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
 }")
      quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-void ap_abstract0_policy_meet_tcons_array_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, ap_abstract0_ptr a,
-					[ref]struct ap_tcons0_array_t* v)
-     quote(call,"{\n\
-  ap_abstract0_t* res = ap_abstract0_policy_meet_tcons_array(pman,policy,mode,true,a,v);\n\
-  *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n\
+void ap_abstract0_policy_meet_tcons_array_with_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    ap_abstract0_ptr a, [ref]struct ap_tcons0_array_t* v)
+  quote(call,"{\n\
+  ap_abstract0_t* res = ap_abstract0_policy_meet_tcons_array_apply(pman,policy,true,a,v);\n \
+  *((ap_abstract0_ptr *) Data_custom_val(_v_a)) = res;\n                \
 }")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract0_policy_meet_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    ap_abstract0_ptr a1, ap_abstract0_ptr a2
+)
+  quote(call,"_res = ap_abstract0_policy_meet_improve(pman,policy,a1,a2);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract0_policy_meet_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    [size_is(size)] ap_abstract0_ptr* array, unsigned int size
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract0_policy_meet_lincons_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    ap_abstract0_ptr a, [ref]struct ap_lincons0_array_t* v
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract0_policy_meet_tcons_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    ap_abstract0_ptr a, [ref]struct ap_tcons0_array_t* v
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
 quote(MLMLI,"end")
 
@@ -132,51 +153,90 @@ quote(MLMLI,"\n")
 quote(MLI,"module Abstract1 : sig")
 quote(ML,"module Abstract1 = struct")
 
-ap_policy_ptr ap_abstract1_policy_alloc(ap_policy_manager_ptr pman, ap_environment_ptr env)
-     quote(call,"_res = ap_abstract1_policy_alloc(pman, AP_FUNPOLICYID_UNKNOWN, env);");
+struct ap_abstract1_t ap_abstract1_policy_meet_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2
+)
+  quote(call,"_res = ap_abstract1_policy_meet_apply(pman,policy,false,a1,a2);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-struct ap_abstract1_t ap_abstract1_policy_meet(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2)
-     quote(call,"_res = ap_abstract1_policy_meet(pman,policy,mode,false,a1,a2);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+struct ap_abstract1_t ap_abstract1_policy_meet_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [size_is(size)]struct ap_abstract1_t* array, unsigned int size
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-struct ap_abstract1_t ap_abstract1_policy_meet_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode,
-					[size_is(size)]struct ap_abstract1_t* array, unsigned int size)
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+struct ap_abstract1_t ap_abstract1_policy_meet_lincons_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a, [ref]struct ap_lincons1_array_t* v
+)
+  quote(call,"_res = ap_abstract1_policy_meet_lincons_array_apply(pman,policy,false,a,v);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-struct ap_abstract1_t ap_abstract1_policy_meet_lincons_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a,
-						 [ref]struct ap_lincons1_array_t* v)
-     quote(call,"_res = ap_abstract1_policy_meet_lincons_array(pman,policy,mode,false,a,v);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+struct ap_abstract1_t ap_abstract1_policy_meet_tcons_array_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a, [ref]struct ap_tcons1_array_t* v
+)
+  quote(call,"_res = ap_abstract1_policy_meet_tcons_array_apply(pman,policy,false,a,v);")
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-struct ap_abstract1_t ap_abstract1_policy_meet_tcons_array(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a,
-						 [ref]struct ap_tcons1_array_t* v)
-     quote(call,"_res = ap_abstract1_policy_meet_tcons_array(pman,policy,mode,false,a,v);")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
-
-void ap_abstract1_policy_meet_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2)
-	 quote(call,"{\n\
-  ap_abstract1_t res = ap_abstract1_policy_meet(pman,policy,mode,true,a1,a2);\n\
+void ap_abstract1_policy_meet_with_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2
+)
+  quote(call,"{\n\
+  ap_abstract1_t res = ap_abstract1_policy_meet_apply(pman,policy,true,a1,a2);\n\
   value v = Field(_v_a1,0);\n\
   *((ap_abstract0_ptr *) Data_custom_val(v)) = res.abstract0;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-void ap_abstract1_policy_meet_lincons_array_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a,
-				       [ref]struct ap_lincons1_array_t* v)
-	 quote(call,"{\n\
-  ap_abstract1_t res = ap_abstract1_policy_meet_lincons_array(pman,policy,mode,true,a,v);\n\
+void ap_abstract1_policy_meet_lincons_array_with_apply(
+    ap_policy_manager_ptr pman,
+    ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a, [ref]struct ap_lincons1_array_t* v
+)
+  quote(call,"{\n\
+  ap_abstract1_t res = ap_abstract1_policy_meet_lincons_array_apply(pman,policy,true,a,v);\n\
   value v = Field(_v_a,0);\n\
   *((ap_abstract0_ptr *) Data_custom_val(v)) = res.abstract0;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
-void ap_abstract1_policy_meet_tcons_array_with(ap_policy_manager_ptr pman, ap_policy_ptr policy, ap_policy_mode_t mode, [ref]struct ap_abstract1_t* a,
-				       [ref]struct ap_tcons1_array_t* v)
-	 quote(call,"{\n\
-  ap_abstract1_t res = ap_abstract1_policy_meet_tcons_array(pman,policy,mode,true,a,v);\n\
+void ap_abstract1_policy_meet_tcons_array_with_apply(
+    ap_policy_manager_ptr pman, ap_policy_ptr policy,
+    [ref]struct ap_abstract1_t* a,
+    [ref]struct ap_tcons1_array_t* v
+)
+  quote(call,"{\n\
+  ap_abstract1_t res = ap_abstract1_policy_meet_tcons_array_apply(pman,policy,true,a,v);\n\
   value v = Field(_v_a,0);\n\
   *((ap_abstract0_ptr *) Data_custom_val(v)) = res.abstract0;\n\
 }")
-     quote(dealloc,"I0_CHECK_EXC(pman->man)");
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract1_policy_meet_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract1_policy_meet_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    [size_is(size)]struct ap_abstract1_t* array, unsigned int size
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract1_policy_meet_lincons_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    [ref]struct ap_abstract1_t* a, [ref]struct ap_lincons1_array_t* v
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
+
+ap_policy_ptr ap_abstract1_policy_meet_tcons_array_improve(
+    ap_policy_manager_ptr pman, ap_policy_optr policy,
+    [ref]struct ap_abstract1_t* a, [ref]struct ap_tcons1_array_t* v
+)
+  quote(dealloc,"I0_CHECK_EXC(pman->man)");
 
 quote(MLMLI,"end")
