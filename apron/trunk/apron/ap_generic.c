@@ -26,7 +26,7 @@
 /* ********************************************************************** */
 
 bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
-			     ap_scalar_discr_t discr, 
+			     ap_scalar_discr_t discr,
 			     bool quasilinearize)
 {
   bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
@@ -71,7 +71,7 @@ ap_interval_t* ap_generic_bound_texpr(ap_manager_t* man, void* abs, ap_texpr0_t*
     ap_interval_set_bottom(res);
     return res;
   }
-  
+
   a0.value = abs;
   a0.man = man;
   linexpr0 = ap_intlinearize_texpr0(man,&a0,expr,&exact,discr,quasilinearize);
@@ -319,6 +319,7 @@ void* ap_generic_asssub_linexpr_array(bool assign,
   array = ap_lincons0_array_make(size);
   for (i=0; i<size; i++){
     ap_dim_t dim = tdim[i];
+    if (dim>=d.intdim) dim += dsup.intdim;
     ap_dim_t dimp = permutation.dim[dim];
     ap_linexpr0_t* expr = ap_linexpr0_add_dimensions(texpr[i],&dimchange);
     ap_linexpr0_set_coeff_scalar_double(expr,dimp,-1.0);
@@ -453,9 +454,10 @@ void* ap_generic_asssub_texpr_array(bool assign,
   array = ap_tcons0_array_make(size);
   for (i=0; i<size; i++){
     ap_dim_t dim = tdim[i];
+    if (dim>=d.intdim) dim += dsup.intdim;
     ap_dim_t dimp = permutation.dim[dim];
     ap_texpr0_t* expr = ap_texpr0_add_dimensions(texpr[i],&dimchange);
-    expr = ap_texpr0_binop(AP_TEXPR_SUB, expr,ap_texpr0_dim(dimp), 
+    expr = ap_texpr0_binop(AP_TEXPR_SUB, expr,ap_texpr0_dim(dimp),
 			   AP_RTYPE_REAL, AP_RDIR_RND);
     ap_tcons0_t cons = ap_tcons0_make(AP_CONS_EQ,expr,NULL);
     array.p[i] = cons;
@@ -509,4 +511,3 @@ void* ap_generic_asssub_texpr_array(bool assign,
   man->result.flag_best = best;
   return abs2;
 }
-
