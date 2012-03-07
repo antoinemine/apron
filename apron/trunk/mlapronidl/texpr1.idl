@@ -322,7 +322,8 @@ let to_expr texpr1 =\n\
 ")
 quote(MLI,"\n(** {3 Incremental constructors} *)\n")
 [ref]struct ap_texpr1_t* ap_texpr1_cst(ap_environment_ptr env, [ref]struct ap_coeff_t* coeff);
-[ref]struct ap_texpr1_t* ap_texpr1_var(ap_environment_ptr env, ap_var_t var);
+quote(MLI,"val var : Environment.t -> Var.t -> t")
+quote(ML,"let var env v = { texpr0 = Texpr0.dim (Environment.dim_of_var env v); env = env }")
 [ref]struct ap_texpr1_t* ap_texpr1_unop(ap_texpr_unop_t op,
 			     [ref]struct ap_texpr1_t* expr,
 			     ap_texpr_rtype_t type, ap_texpr_rdir_t dir)
