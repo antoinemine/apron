@@ -22,6 +22,9 @@
 
 
 
+
+
+
 /* ********************************************************************** */
 /* 0. Equation manipulation */
 /* ********************************************************************** */
@@ -361,7 +364,7 @@ int indice_to_nsym_index (ja_nsym_list_t* list, int indice) {
 ja_nsym_list_elm *cell=list->first;
 
  while (cell) {
-   if (cell->pnsym->index==indice) 
+   if ((int)cell->pnsym->index==indice) 
      return cell->pnsym->index;
    cell=cell->n;
  }
@@ -394,6 +397,10 @@ void permute_indice (ja_nsym_list_t* list, int i, int j) {
     assert (permut == 2);
   }
 }
+
+
+
+
 
 /* ********************************************************************** */
 /* 1. From 2 abstract values to equations */
@@ -1259,7 +1266,55 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_lis
 /* 1. Rebuild an abstract value */
 /* ********************************************************************** */
 
-void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* equation)
+/* recenters an affine form so that every coefficient is a singleton. the ranges are added to the perturbation interval */
+void recentering(t1p_internal_t* pr, t1p_aff_t* a, itv_t perturbation)
+{
+  CALL();
+  t1p_aaterm_t* cell=a->q;
+  itv_t itv_buff;
+  bound_t center,range;
+
+  itv_init(itv_buff);
+  bound_init(center);
+  bound_init(range);
+
+  /* center */
+  if (!itv_is_point(pr->itv,a->c))
+    {
+      /* compute half range */
+      itv_range_abs(range,a->c);
+      bound_div_2(range,range);
+      /* new center: sup - half_range */
+      bound_sub(center,a->c->sup,range);
+      /* enlarge perturbation */
+      itv_enlarge_bound(perturbation,perturbation,range);
+      /* set the interval to a singleton (center) */
+      itv_set_unit_bound(a->c,center);
+    }
+  while (cell)
+    {
+      if (!itv_is_point(pr->itv,cell->coeff))
+        {
+          /* compute half range */
+          itv_range_abs(range,cell->coeff);
+          bound_div_2(range,range);
+          /* new center: sup - half_range */
+          bound_sub(center,cell->coeff->sup,range);
+          /* enlarge perturbation */
+          itv_enlarge_bound(perturbation,perturbation,range);
+          /* set the interval to a singleton (center) */
+          itv_set_unit_bound(cell->coeff,center);
+        }
+      cell=cell->n;
+    }
+
+  bound_clear(range);
+  bound_clear(center);
+  itv_clear(itv_buff);
+}
+
+
+void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* equation, itv_t perturbation_range)
 {
   CALL();
   /* initialization */
@@ -1363,6 +1418,17 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   t1p_aff_free(pr,buff1);
   t1p_aff_free(pr,buff2);
 
+
+  /* recentering */
+  recentering(pr,a,perturbation_range);
+  /* adds a fresh noise symbol */
+  bound_t bound_buff;
+  bound_init(bound_buff);
+  itv_magnitude(bound_buff,perturbation_range);
+  itv_set_unit_bound(perturbation_range,bound_buff);
+  t1p_aff_nsym_create(pr, a, perturbation_range, UN);
+  bound_clear(bound_buff);
+
   itv_t new_itv; // updates the itv concretization of [a]
   itv_t itv_buff; 
   itv_init(itv_buff);
@@ -1396,24 +1462,165 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   //printf("\n");
 }
 
-void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs)
+void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, itv_t* perturbation_ranges_array)
 {
   CALL();
   t1p_internal_t* pr = man->internal;
   ja_eq_list_elm* cell=eqs->first_eq;
+  int i= 0;
   while (cell != NULL)
     {
-      equation_to_aff_set(pr,a,cell->content);
+      equation_to_aff_set(pr,a,cell->content,perturbation_ranges_array[i]);
       cell=cell->n;
+      i++;
     }
 
+}
+
+/* compare the difference between itv a and b, and enlarge res by the maximal difference of the bounds */
+/* if one of the bound is infinite, assert false */
+void compare_and_enlarge_itv_bounds(itv_t res, itv_t a, itv_t b) {
+  assert(itv_is_bounded(res));
+  assert(itv_is_bounded(a));
+  assert(itv_is_bounded(b));
+  bound_t buff_sup,buff_inf;
+  bound_init(buff_sup);
+  bound_init(buff_inf);
+
+  /* sup  */
+  bound_sub(buff_sup,a->sup,b->sup);
+  bound_abs(buff_sup,buff_sup);
+  
+  /* inf */
+  bound_sub(buff_inf,a->inf,b->inf);
+  bound_abs(buff_inf,buff_inf);
+  
+  /* max of the two in buff_sup */ 
+  bound_max(buff_sup,buff_inf,buff_sup);
+    
+  /* we enlarge res by buff_sup*/
+  itv_enlarge_bound(res,res,buff_sup);
+
+  bound_clear(buff_sup);
+  bound_clear(buff_inf);
+}
+
+
+void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_t *eq, itv_t itv) {
+  int i= eq->dim;
+  /* initial assignment: the value of the variame x_i */
+  t1p_aff_t* aff1 = t1p_aff_copy(pr,a1->paf[i]); //aff1 =x_i (in a1)
+  t1p_aff_t* aff2 = t1p_aff_copy(pr,a2->paf[i]); //aff2 =x_i (in a2)
+  /* buffers and iterators */
+  t1p_aff_t* aff_buff;
+  itv_t itv_buff;
+  ja_term_t* cell = eq->first_te;
+  t1p_aaterm_t *term1, *term2;
+
+  /*  init */
+  itv_init(itv_buff);
+
+  /* construction of the sum x_i - sum (alpha_j * x_j) */
+  while (cell) {
+    if (cell->t_coeff == VA) {
+      i= (int) cell->dim; 
+      /* itv_buff <- -1 * coeff */
+      itv_neg(itv_buff,cell->coeff);
+
+      /* part with a1 */
+      /* aff_buff = itv_buff * x_i */
+      aff_buff= t1p_aff_copy(pr, a1->paf[i]);
+      t1p_aff_mul_scalar(pr,aff_buff,itv_buff);
+      /* summ it with aff1 */
+      t1p_aff_add_aff(pr,aff1, aff1,aff_buff);
+      t1p_aff_free(pr,aff_buff);
+
+     /* part with a2 */
+      /* aff_buff = itv_buff * x_i */
+      aff_buff= t1p_aff_copy(pr, a2->paf[i]);
+      t1p_aff_mul_scalar(pr,aff_buff,itv_buff);
+      /* summ it with aff1 */
+      t1p_aff_add_aff(pr,aff2, aff2,aff_buff);
+      t1p_aff_free(pr,aff_buff);
+    }
+    cell= cell->n;
+  }
+
+  /* now we compare this expression with the equation */
+  itv_set_int(itv,0);
+  cell = eq->first_te;
+  term1= aff1->q;
+  term2= aff2->q;
+  
+
+  while (cell && term1 && term2){
+    if (cell->t_coeff==VA) 
+      cell=cell->n;
+    else {
+      i=(int) cell->pnsym->index;
+      /* we find the corresponding terms in aff1 and aff2 */
+      while (term1 && (int)term1->pnsym->index < i)
+        term1=term1->n;
+      while (term2 && (int)term2->pnsym->index < i)
+        term2=term2->n;
+
+      assert(term1);
+      assert(term2);
+
+      if ((int)term1->pnsym->index > i) // eps_i is not present in aff1
+        itv_set_int(itv_buff,0);
+      else
+        {
+          if ((int)term2->pnsym->index > i) // eps_i is not present in aff2
+            itv_set_int(itv_buff,0);
+          else // eps_i is present in both affine form
+            itv_meet(pr->itv,itv_buff,term1->coeff,term2->coeff);          
+        }
+      /* itv_buff now contains the intersection of the two coefficients */
+      compare_and_enlarge_itv_bounds(itv, itv_buff, cell->coeff);
+    }
+
+    /* free */
+    itv_clear(itv_buff);
+    t1p_aff_free(pr,aff1);
+    t1p_aff_free(pr,aff2);
+  }
+
+
+
+  /* free */
+  itv_clear(itv_buff);
+  t1p_aff_free(pr, aff1);
+  t1p_aff_free(pr, aff2);
+}
+
+
+itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_set_t *eqs)
+{
+  size_t const nb_eq = (size_t) eqs->nb_eq; /* conversion int->size_t */
+  itv_t* array_res = malloc(nb_eq*sizeof(itv_t)); /* result: array of intervals, one for each equation */
+  ja_eq_list_elm* cell = eqs->first_eq; /* iterator for the list of element */
+  int i = 0; /* counter of the loop */
+
+  /* initialization of the result */
+  itv_init_array(array_res, nb_eq);
+
+  while (cell) {
+    abstract_deviation_from_eq(pr,a1,a2, cell->content,array_res[i]);
+    cell=cell->n;
+    i++;
+  }
+  assert(nb_eq == (size_t) i);
+
+
+  return array_res;
 }
 
 
 /* ********************************************************************** */
 /* 3. Alternative to the join operator */
 /* ********************************************************************** */
-t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
+t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, ja_eq_set_t * eqs)
 {
   CALL();
   t1p_t *a1bis, *a2bis, *a_join, *res;
@@ -1478,13 +1685,23 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 
 	/* creation of the equations */
-	eqs_b = abstract_value_to_eq_set (pr, nsym_list, a1);
-	eqs_b_prime = two_abstract_values_to_eq_set (pr,  nsym_list, a1, a2);
+        if (eqs) {
+          eqs_a =eqs;
+         
+        }
+        else {
+          eqs_b = abstract_value_to_eq_set (pr, nsym_list, a1);
+          eqs_b_prime = two_abstract_values_to_eq_set (pr,  nsym_list, a1, a2);
+          eqs_a = eq_set_transformation(pr,  nsym_list, eqs_b, eqs_b_prime, dimensions);
 
-	eqs_a = eq_set_transformation(pr,  nsym_list, eqs_b, eqs_b_prime, dimensions);
+          /* HACK: sore the equation into the manager */
+          pr->exact_eqs = eqs_a;
+	}
+
+        itv_t* perturbation_ranges_array = adapt_eq_set_to_abstract_values(pr,a1,a2,eqs_a);         
 	current_equation =  eqs_a->first_eq;
 	nb_eq = eqs_a->nb_eq;
-	
+
 	/* creation of the array of dimensions to forget */
 	ap_dim_t tdim[nb_eq];
 	for(i=0;i<nb_eq;i++) {
@@ -1515,7 +1732,7 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 
 	
 	/* rebuild */
-	rebuild_abstract_value(man, res, eqs_a);
+	rebuild_abstract_value(man, res, eqs_a, perturbation_ranges_array);
 #ifdef _T1P_DEBUG
 	printf("Result of JOIN ALT:\n");
 	t1p_fdump(stdout,man,res);
@@ -1523,17 +1740,19 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 	/* cleanup */
 	/* t1p_fdump(stdout,man,a1bis); */
 	/* t1p_fdump(stdout,man,a2bis); */
+        itv_array_free(perturbation_ranges_array,nb_eq);
       	free_nsym_list(nsym_list);
 	
 	t1p_free(man,a1bis);
 	t1p_free(man,a2bis);
 	
-	
-	free_equation_set(eqs_a);
+	/* HACK */
+	//free_equation_set(eqs_a);
+       
 	free_equation_set(eqs_b);
 	free_equation_set(eqs_b_prime);
       }
-
+      
       else /* one of the two abstract value is infinite -> classical join */
 	res = t1p_join_std(man, destructive, a1, a2); 
     }
