@@ -14,73 +14,7 @@
 
 
 /* ********************************************************************** */
-/* 0. Structures */
-/* ********************************************************************** */
-typedef enum ja_coeff_t {
-    VA,		/* Variable of a program */
-    NS,		/* Union noise symbol */
-} ja_coeff_t;
-
-typedef struct ja_term_t {
-  struct ja_term_t*	n;	/* next element */
-  ja_coeff_t            t_coeff; /*  type of coefficient */
-  ap_dim_t     	        dim;	/* index of the program variable, if t_Coeff=VA */
-  t1p_nsym_t*          	pnsym;	/* index of the noise symbol, if t_Coeff=NS */
-  itv_t 	       	coeff;	/* coeff, encoded as interval */
-} ja_term_t;
-
-/* equation of the form dim = c + [value of the list or ja_terms]*/
-typedef struct ja_eq_t {
- 
-  ap_dim_t     dim;	/* index of the program variable, xp */
-  itv_t		c;	/* center */
-  ja_term_t*	first_te;	/* first term */
-  ja_term_t*	last_te;	/* quick jump to the term : to add a new term for instance */
-} ja_eq_t;
-
-/* list of equation */
-typedef struct ja_eq_list_elm {
- struct ja_eq_list_elm* n;   /* next element of the list */
-  struct ja_eq_t* content;   /* equation */
-} ja_eq_list_elm;
-
-
-/* assumption: the equation's order is the rebuild order: in other word the first equation should not include variables defined by the following equations. The second equation can only include the first vrariable and other variables not defined by equations, etc */
-typedef struct ja_eq_set_t {
-  int	                nb_eq;	        /* number_of_equations */
-  ja_eq_list_elm*	first_eq;	/* first equation */
-  ja_eq_list_elm*	last_eq;	/* last equation */
-} ja_eq_set_t;
-
-
-/*
- * IMPORTANT NOTE: the type ja_eq_set_t is used in four different contexts: 
- *
- * - context A: equations of the form 
- *      x_i = gamma+alpha_1.x_1+...+alpha_p+beta_0.eps_O+...+beta_n.eps_n
- *   in this contex, alpha_*, beta_* and gamma are constants
- *
- * - context Aprime: equations of the form 
- *      0 = gamma+alpha_1.x_1+...+alpha_p+beta_0.eps_O+...+beta_n.eps_n
- *   in this contex, alpha_*, beta_* and gamma are constants
- *
- * - context B: equations of the form 
- *      beta_i = 0+c_{i,1}.alpha_1+...+c_{i,p}.alpha_p
- *   in this context, alpha_* and beta_i are the unknown variables
- *
- * - context Bprime: equations of the form 
- *      0 = 0+c_{i,1}.alpha_1+...+c_{i,p}.alpha_p
- *   in this context, alpha_* are the unknown variables 
-
-
- * In this .h (and the .c), "eqs is of type X" means that eqs' context is X
- * DO NOT USE an equation set of type X in another context
- */
-
-
-
-/* ********************************************************************** */
-/* 0. Constructors */
+/* 2. Constructors */
 /* ********************************************************************** */
 
 
@@ -106,7 +40,6 @@ void add_equation (ja_eq_set_t* eqs, ja_eq_t* eq);
 itv_t* get_coeff_var (ja_eq_set_t* eqs, int eq_n, ap_dim_t v);
 /* NB: eqs of type B have no nsym terms */
 itv_t* get_coeff_nsym (ja_eq_set_t* eqs, int eq_n, size_t v);
-
 
 
 
@@ -139,6 +72,8 @@ int indice_to_nsym_index (ja_nsym_list_t* list, int indice);
 /* permutes indice i and j in the list. Assert fails if i or j are not present */
 void permute_indice (ja_nsym_list_t* list, int i, int j);
 
+
+
 /* ********************************************************************** */
 /* 1. Rebuild an abstract value */
 /* ********************************************************************** */
@@ -146,7 +81,7 @@ void permute_indice (ja_nsym_list_t* list, int i, int j);
 /* eqs is of type A */
 /* a should not be top or bottom, and the variables to be rebuild should be "t1p_aff_top" at the beginning */
 
-void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs);
+void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, itv_t* perturbation_ranges_array);
 
 
 /* ********************************************************************** */
@@ -168,10 +103,23 @@ ja_nsym_list_t* two_abstract_values_to_nsym_list  (t1p_t* a1, t1p_t* a2);
 /* result is of type A */
 ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_list, ja_eq_set_t* eqs,  ja_eq_set_t* eqs_prime, int dimensions);
 
+
+/* eqs is of type A  */
+/* the rsult is an array of intervals (one for each equation of eqs) that represents the perturbation  */
+itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1,t1p_t *a2,ja_eq_set_t *eqs);
+
+
+
+
 /* ********************************************************************** */
 /* 3. Alternative to the join operator */
 /* ********************************************************************** */
-t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2);
+
+/* eqs is of type A. It represents the exact equation. if eqs==NULL,
+   the function calls two_abstrac_valueto_eq_set and
+   eq_set_transformation to find an equation set */
+
+t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, ja_eq_set_t* eqs);
 
 
 #endif

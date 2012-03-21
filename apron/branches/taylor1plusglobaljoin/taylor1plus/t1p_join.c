@@ -30,6 +30,8 @@
 /* 2.Join					*/
 /************************************************/
 
+
+/* hack version */
 t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 {
     CALL();
@@ -39,10 +41,31 @@ t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     // global join
     //printf("DEBUG\n");
 
-
-    res=t1p_join_alt(man,destructive,a1,a2);
+    t1p_internal_t* pr = man->internal;
+    if (destructive)
+      res=t1p_join_alt(man,false,a1,a2,pr->exact_eqs);
+    else
+      res=t1p_join_alt(man,false,a1,a2,NULL);
     return res;
 }
+
+
+
+/* non hack version */
+/* t1p_t* t1p_join(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2) */
+/* { */
+/*     CALL(); */
+/*     t1p_t* res; */
+/*     // standart join */
+/*     // res=t1p_join_std(man,destructive,a1,a2); */
+/*     // global join */
+/*     //printf("DEBUG\n"); */
+
+
+/*     res=t1p_join_alt(man,destructive,a1,a2,NULL); */
+/*     return res; */
+/* } */
+
 
 
 /* t1p_join_old = t1p_join_std */
