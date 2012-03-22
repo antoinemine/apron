@@ -1,5 +1,5 @@
-include ../../../../Makefile.config
-include ../Makefile.config
+include ../../Makefile.config
+
 
 ICFLAGS = \
 -I../ \
@@ -18,9 +18,6 @@ ifneq ($(CSDP_PATH),)
 CSDP_LIBS = -L/usr/lib/sse2 -L$(CSDP_PATH)/lib -lsdp -llapack -lf77blas -lcblas -latlas -lgfortran -lm
 endif
 
-#SDPA = /home/donquijote/dev/sdpa/sdpa.7.3.0
-
-#SDPA_LIBS =  $(SDPA)/lib/libsdpa.a -L$(SDPA)/mumps/build/lib -ldmumps -lmumps_common -lpord -L$(SDPA)/mumps/build/libseq -lmpiseq -L/usr/lib/sse2/atlas -llapack -lgfortran -L/usr/lib/sse2 -lf77blas -lcblas -latlas -lgfortran -lpthread -L/usr/lib/gcc/i486-linux-gnu/4.3.3 -L/usr/lib/gcc/i486-linux-gnu/4.3.3/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/i486-linux-gnu/4.3.3/../../.. -L/usr/lib/i486-linux-gnu -lpthread -lgfortranbegin -lgfortran -lm
 
 LIBDEBUG = -lt1p_debug -loctD -lpolkaRll_debug -lap_ppl_debug -lboxD_debug -lapron_debug -lmpfr -lgmp -lgmpxx -lppl $(CSDP_LIBS) $(SDPA_LIBS) -lm
 LIB = -lt1p -loctD -lpolkaRll -lap_ppl -lboxD -lapron -lmpfr -lgmp -lgmpxx -lppl $(CSDP_LIBS) $(SDPA_LIBS) -lm

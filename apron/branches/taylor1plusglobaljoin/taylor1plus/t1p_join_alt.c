@@ -509,16 +509,16 @@ ja_eq_set_t* two_abstract_values_to_eq_set (t1p_internal_t* pr, ja_nsym_list_t* 
   for (j=0; j<(int)dims ; j++)
     {
 #ifdef _T1P_DEBUG
-      /* printf("dim %d: itv1",j); */
-      /* itv_print((a1->paf[j])->c); */
-      /* printf("  itv2"); */
-      /* itv_print((a2->paf[j])->c); */
+      printf("dim %d: itv1",j);
+      itv_print((a1->paf[j])->c);
+      printf("  itv2");
+      itv_print((a2->paf[j])->c);
 #endif
       itv_sub(itv_buff,(a1->paf[j])->c,(a2->paf[j])->c);
 #ifdef _T1P_DEBUG
-      /* printf("\n itv1-itv2 ="); */
-      /* itv_print(itv_buff); */
-      /* printf("\n"); */
+      printf("\n itv1-itv2 =");
+      itv_print(itv_buff);
+      printf("\n");
 #endif
       add_equation_term_va (equation, itv_buff,(ap_dim_t) j);
       //itv_clear(itv_buff);
@@ -1379,36 +1379,46 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
 	  t1p_aff_free(pr,buff1);
 	  t1p_aff_clear(pr,buff2);
 	  /* search for the affine form of equation->pdim and copy it in buff1 */
-	  /* printf("dim of current_term: %d\n",current_term->dim ); */
-	  /* printf("corresponding affine form:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]); */
-	  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+	  printf("dim of current_term: %d\n",current_term->dim );
+	  printf("corresponding affine form:\n");
+	  t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]);
+	  printf("\n");
+#endif
 	  buff1 = t1p_aff_copy(pr,abstract_value->paf[current_term->dim]);
-	  /* printf("buff1 after copy:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,buff1); */
-	  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+	  printf("buff1 after copy:\n");
+	  t1p_aff_fprint(pr,stdout,buff1);
+	  printf("\n");
+#endif
 	  /* then multiply this affine form by the coefficient of the equation */
 	  t1p_aff_mul_scalar(pr,buff1,current_term->coeff);
-	  /* printf("mult:"); */
-	  /* itv_fprint(stdout,current_term->coeff); */
-	  /* printf("\n"); */
-	  /* printf("buff1 after mult:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,buff1); */
-	  /* printf("\n"); */
-	  /* printf("a:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,a); */
-	  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+	  printf("mult:");
+	  itv_fprint(stdout,current_term->coeff);
+	  printf("\n");
+	  printf("buff1 after mult:\n");
+	  t1p_aff_fprint(pr,stdout,buff1);
+	  printf("\n");
+	  printf("a:\n");
+	  t1p_aff_fprint(pr,stdout,a);
+	  printf("\n");
+#endif
 	  /* addition of the result with a, using buff2 */
 	  t1p_aff_add_aff(pr,buff2,a,buff1);
-	  /* printf("buff2 after add:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,buff2); */
-	  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+	  printf("buff2 after add:\n");
+	  t1p_aff_fprint(pr,stdout,buff2);
+	  printf("\n");
+#endif
 	  /* set a to the computed affine form */
 	  t1p_aff_free(pr,a);
 	  a=t1p_aff_copy(pr,buff2);
-	  /* printf("a:\n"); */
-	  /* t1p_aff_fprint(pr,stdout,a); */
-	  /* printf("\n"); */
+#ifdef _T1P_DEBUG
+	  printf("a:\n");
+	  t1p_aff_fprint(pr,stdout,a);
+	  printf("\n");
+#endif
 	}
       /* if it is a noise symbol, do nothing */
       current_term = current_term->n;
@@ -1507,7 +1517,7 @@ void compare_and_enlarge_itv_bounds(itv_t res, itv_t a, itv_t b) {
 
 
 void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_t *eq, itv_t itv) {
-  int i= eq->dim;
+  int i= (int) eq->dim;
   /* initial assignment: the value of the variame x_i */
   t1p_aff_t* aff1 = t1p_aff_copy(pr,a1->paf[i]); //aff1 =x_i (in a1)
   t1p_aff_t* aff2 = t1p_aff_copy(pr,a2->paf[i]); //aff2 =x_i (in a2)
@@ -1519,6 +1529,18 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
 
   /*  init */
   itv_init(itv_buff);
+
+#ifdef _T1P_DEBUG
+  printf("Equation:");
+  print_equation(stdout,eq);
+  printf("\n");
+  printf("aff1:");
+  t1p_aff_fprint(pr, stdout, aff1);
+  printf("\n");
+  printf("aff2:");
+  t1p_aff_fprint(pr, stdout, aff2);
+  printf("\n");
+#endif
 
   /* construction of the sum x_i - sum (alpha_j * x_j) */
   while (cell) {
@@ -1533,6 +1555,7 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
       t1p_aff_mul_scalar(pr,aff_buff,itv_buff);
       /* summ it with aff1 */
       t1p_aff_add_aff(pr,aff1, aff1,aff_buff);
+      printf(".");
       t1p_aff_free(pr,aff_buff);
 
      /* part with a2 */
@@ -1554,45 +1577,45 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
   
 
   while (cell && term1 && term2){
-    if (cell->t_coeff==VA) 
-      cell=cell->n;
-    else {
-      i=(int) cell->pnsym->index;
-      /* we find the corresponding terms in aff1 and aff2 */
-      while (term1 && (int)term1->pnsym->index < i)
-        term1=term1->n;
-      while (term2 && (int)term2->pnsym->index < i)
-        term2=term2->n;
-
-      assert(term1);
-      assert(term2);
-
-      if ((int)term1->pnsym->index > i) // eps_i is not present in aff1
-        itv_set_int(itv_buff,0);
-      else
-        {
-          if ((int)term2->pnsym->index > i) // eps_i is not present in aff2
-            itv_set_int(itv_buff,0);
-          else // eps_i is present in both affine form
-            itv_meet(pr->itv,itv_buff,term1->coeff,term2->coeff);          
-        }
-      /* itv_buff now contains the intersection of the two coefficients */
-      compare_and_enlarge_itv_bounds(itv, itv_buff, cell->coeff);
-    }
+    if (!(cell->t_coeff==VA)) 
+      {
+        i=(int) cell->pnsym->index;
+        /* we find the corresponding terms in aff1 and aff2 */
+        while (term1 && (int)term1->pnsym->index < i)
+          term1=term1->n;
+        while (term2 && (int)term2->pnsym->index < i)
+          term2=term2->n;
+        
+        assert(term1);
+        assert(term2);
+        
+        if ((int)term1->pnsym->index > i) // eps_i is not present in aff1
+          itv_set_int(itv_buff,0);
+        else
+          {
+            if ((int)term2->pnsym->index > i) // eps_i is not present in aff2
+              itv_set_int(itv_buff,0);
+            else // eps_i is present in both affine form
+              itv_meet(pr->itv,itv_buff,term1->coeff,term2->coeff);          
+          }
+        /* itv_buff now contains the intersection of the two coefficients */
+        compare_and_enlarge_itv_bounds(itv, itv_buff, cell->coeff);
+      }
+    cell=cell->n;
+  }
+#ifdef _T1P_DEBUG
+  printf("deviation:");
+  itv_print(itv);
+  printf("\n");
+#endif
 
     /* free */
     itv_clear(itv_buff);
     t1p_aff_free(pr,aff1);
     t1p_aff_free(pr,aff2);
-  }
-
-
-
-  /* free */
-  itv_clear(itv_buff);
-  t1p_aff_free(pr, aff1);
-  t1p_aff_free(pr, aff2);
 }
+
+
 
 
 itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_set_t *eqs)
@@ -1606,7 +1629,7 @@ itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1, t1p_t *a2,
   itv_init_array(array_res, nb_eq);
 
   while (cell) {
-    abstract_deviation_from_eq(pr,a1,a2, cell->content,array_res[i]);
+    abstract_deviation_from_eq(pr,a1,a2,cell->content,array_res[i]);
     cell=cell->n;
     i++;
   }

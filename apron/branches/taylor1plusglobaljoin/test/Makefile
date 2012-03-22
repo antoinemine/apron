@@ -19,11 +19,11 @@ OCAMLINC = \
 
 OCAMLLDFLAGS = \
 -verbose -cc "g++" \
-bigarray.cma gmp.cma apron.cma boxMPQ.cma polkaMPQ.cma octD.cma ppl.cma polkaGrid.cma
+bigarray.cma gmp.cma apron.cma boxMPQ.cma polkaMPQ.cma octD.cma ppl.cma polkaGrid.cma t1pMPQ.cma
 
 OCAMLOPTLDFLAGS = \
 -noautolink -verbose -ccopt "$(LCFLAGS)" \
-bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa polkaMPQ.cmxa octD.cmxa ppl.cmxa polkaGrid.cmxa
+bigarray.cmxa gmp.cmxa apron.cmxa boxMPQ.cmxa polkaMPQ.cmxa octD.cmxa ppl.cmxa polkaGrid.cmxa t1pMPQ.cmxa
 all: C
 
 # C examples
@@ -33,11 +33,11 @@ C: ctest1
 
 ctest%: ctest%.o
 	$(CXX) $(ICFLAGS) $(LCFLAGS) -o $@  $< \
-	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp
+	-lap_pkgrid -lap_ppl -lppl -lgmpxx -lpolkaMPQ -loctMPQ -lboxMPQ -lapron -lmpfr -lgmp -lt1pMPQ
 
 ctest%_debug: ctest%_debug.o
 	$(CXX) -g $(ICFLAGS) $(LCFLAGS) -o $@  $< \
-	-lap_pkgrid_debug -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -lmpfr -lgmp
+	-lap_pkgrid_debug -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -lmpfr -lgmp -lt1pMPQ_debug
 
 ctest%.o : ctest%.c
 	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@ $<

@@ -25,6 +25,8 @@
 #include "ap_ppl.h"
 #include "ap_pkgrid.h"
 
+#include "t1p.h"
+
 ap_linexpr0_t* random_linexpr_linear(int);
 ap_abstract0_t* random_abstract_std(ap_manager_t* man, int dim);
 void random_abstract2_std(ap_manager_t*, ap_manager_t*, int,

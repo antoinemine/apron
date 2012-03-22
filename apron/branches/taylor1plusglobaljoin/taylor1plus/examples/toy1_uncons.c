@@ -33,7 +33,7 @@ int main(void) {
     ap_manager_t* manNS = box_manager_alloc();
     /* Vous pouvez choisir l'un des domaine précédent pour avoir les résus dans les zones/poly ... */
     //ap_manager_t* man = pk_manager_alloc(true);
-    ap_manager_t* man = t1p_manager_alloc(manNS);
+    ap_manager_t* man = t1p_manager_alloc();
     /* par exemple pour les octogones */
 
     /* Construite un environnement de 2 variables réélles */
