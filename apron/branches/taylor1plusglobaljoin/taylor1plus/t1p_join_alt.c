@@ -1267,7 +1267,7 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_lis
 /* ********************************************************************** */
 
 /* recenters an affine form so that every coefficient is a singleton. the ranges are added to the perturbation interval */
-void recentering(t1p_internal_t* pr, t1p_aff_t* a, itv_t perturbation)
+void recentering(t1p_internal_t* pr, t1p_aff_t* a, bound_t perturbation)
 {
   CALL();
   t1p_aaterm_t* cell=a->q;
@@ -1287,7 +1287,7 @@ void recentering(t1p_internal_t* pr, t1p_aff_t* a, itv_t perturbation)
       /* new center: sup - half_range */
       bound_sub(center,a->c->sup,range);
       /* enlarge perturbation */
-      itv_enlarge_bound(perturbation,perturbation,range);
+      bound_add(perturbation,perturbation,range);
       /* set the interval to a singleton (center) */
       itv_set_unit_bound(a->c,center);
     }
@@ -1301,7 +1301,7 @@ void recentering(t1p_internal_t* pr, t1p_aff_t* a, itv_t perturbation)
           /* new center: sup - half_range */
           bound_sub(center,cell->coeff->sup,range);
           /* enlarge perturbation */
-          itv_enlarge_bound(perturbation,perturbation,range);
+          bound_add(perturbation,perturbation,range);
           /* set the interval to a singleton (center) */
           itv_set_unit_bound(cell->coeff,center);
         }
@@ -1314,7 +1314,7 @@ void recentering(t1p_internal_t* pr, t1p_aff_t* a, itv_t perturbation)
 }
 
 
-void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* equation, itv_t perturbation_range)
+void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* equation, bound_t perturbation_range)
 {
   CALL();
   /* initialization */
@@ -1367,9 +1367,9 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   while (current_term != NULL)
     {
 #ifdef _T1P_DEBUG
-      printf(".\n");
-      t1p_aff_fprint(pr,stdout,a);
-      printf("\n");
+      /* printf(".\n"); */
+      /* t1p_aff_fprint(pr,stdout,a); */
+      /* printf("\n"); */
 #endif
 
       if (current_term->t_coeff == VA)
@@ -1380,44 +1380,44 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
 	  t1p_aff_clear(pr,buff2);
 	  /* search for the affine form of equation->pdim and copy it in buff1 */
 #ifdef _T1P_DEBUG
-	  printf("dim of current_term: %d\n",current_term->dim );
-	  printf("corresponding affine form:\n");
-	  t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]);
-	  printf("\n");
+	  /* printf("dim of current_term: %d\n",current_term->dim ); */
+	  /* printf("corresponding affine form:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,abstract_value->paf[current_term->dim]); */
+	  /* printf("\n"); */
 #endif
 	  buff1 = t1p_aff_copy(pr,abstract_value->paf[current_term->dim]);
 #ifdef _T1P_DEBUG
-	  printf("buff1 after copy:\n");
-	  t1p_aff_fprint(pr,stdout,buff1);
-	  printf("\n");
+	  /* printf("buff1 after copy:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,buff1); */
+	  /* printf("\n"); */
 #endif
 	  /* then multiply this affine form by the coefficient of the equation */
 	  t1p_aff_mul_scalar(pr,buff1,current_term->coeff);
 #ifdef _T1P_DEBUG
-	  printf("mult:");
-	  itv_fprint(stdout,current_term->coeff);
-	  printf("\n");
-	  printf("buff1 after mult:\n");
-	  t1p_aff_fprint(pr,stdout,buff1);
-	  printf("\n");
-	  printf("a:\n");
-	  t1p_aff_fprint(pr,stdout,a);
-	  printf("\n");
+	  /* printf("mult:"); */
+	  /* itv_fprint(stdout,current_term->coeff); */
+	  /* printf("\n"); */
+	  /* printf("buff1 after mult:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,buff1); */
+	  /* printf("\n"); */
+	  /* printf("a:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,a); */
+	  /* printf("\n"); */
 #endif
 	  /* addition of the result with a, using buff2 */
 	  t1p_aff_add_aff(pr,buff2,a,buff1);
 #ifdef _T1P_DEBUG
-	  printf("buff2 after add:\n");
-	  t1p_aff_fprint(pr,stdout,buff2);
-	  printf("\n");
+	  /* printf("buff2 after add:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,buff2); */
+	  /* printf("\n"); */
 #endif
 	  /* set a to the computed affine form */
 	  t1p_aff_free(pr,a);
 	  a=t1p_aff_copy(pr,buff2);
 #ifdef _T1P_DEBUG
-	  printf("a:\n");
-	  t1p_aff_fprint(pr,stdout,a);
-	  printf("\n");
+	  /* printf("a:\n"); */
+	  /* t1p_aff_fprint(pr,stdout,a); */
+	  /* printf("\n"); */
 #endif
 	}
       /* if it is a noise symbol, do nothing */
@@ -1428,20 +1428,41 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   t1p_aff_free(pr,buff1);
   t1p_aff_free(pr,buff2);
 
-
+#ifdef _T1P_DEBUG
+	  printf("a_before_recentering:\n");
+	  t1p_aff_fprint(pr,stdout,a);
+	  printf("\n");
+    	  printf("perturbation range(before):");
+	  bound_print(perturbation_range);
+	  printf("\n");      
+#endif
   /* recentering */
   recentering(pr,a,perturbation_range);
+#ifdef _T1P_DEBUG
+	  printf("a_after_recentering:\n");
+	  t1p_aff_fprint(pr,stdout,a);
+	  printf("\n");
+          printf("perturbation range(after):");
+	  bound_print(perturbation_range);
+	  printf("\n");   
+#endif
+
   /* adds a fresh noise symbol */
-  bound_t bound_buff;
-  bound_init(bound_buff);
-  itv_magnitude(bound_buff,perturbation_range);
-  itv_set_unit_bound(perturbation_range,bound_buff);
-  t1p_aff_nsym_create(pr, a, perturbation_range, UN);
-  bound_clear(bound_buff);
+  itv_t itv_buff;
+  itv_init(itv_buff);
+  itv_set_unit_bound(itv_buff,perturbation_range);
+  t1p_aff_nsym_create(pr, a, itv_buff, UN);
+
+#ifdef _T1P_DEBUG
+	  printf("after the addition of new noise symbol:\n");
+	  t1p_aff_fprint(pr,stdout,a);
+	  printf("\n");
+          printf("perturbation range(final):");
+	  bound_print(perturbation_range);
+	  printf("\n");   
+#endif
 
   itv_t new_itv; // updates the itv concretization of [a]
-  itv_t itv_buff; 
-  itv_init(itv_buff);
   itv_init(new_itv);
   itv_set(new_itv,a->c); // start with the center
 
@@ -1472,12 +1493,24 @@ void equation_to_aff_set (t1p_internal_t* pr, t1p_t* abstract_value, ja_eq_t* eq
   //printf("\n");
 }
 
-void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, itv_t* perturbation_ranges_array)
+void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, bound_t* perturbation_ranges_array)
 {
   CALL();
   t1p_internal_t* pr = man->internal;
   ja_eq_list_elm* cell=eqs->first_eq;
   int i= 0;
+
+#ifdef _T1P_DEBUG
+  printf("Perturbation array:\n");
+  for(i=0;i<(int)eqs->nb_eq;i++)
+    {
+      printf("%d:",i);
+      bound_print(perturbation_ranges_array[i]);
+      printf("\n",i);
+    }
+  i=0;
+#endif
+
   while (cell != NULL)
     {
       equation_to_aff_set(pr,a,cell->content,perturbation_ranges_array[i]);
@@ -1489,8 +1522,7 @@ void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, itv_t
 
 /* compare the difference between itv a and b, and enlarge res by the maximal difference of the bounds */
 /* if one of the bound is infinite, assert false */
-void compare_and_enlarge_itv_bounds(itv_t res, itv_t a, itv_t b) {
-  assert(itv_is_bounded(res));
+void compare_and_enlarge_perturbation(bound_t res, itv_t a, itv_t b) {
   assert(itv_is_bounded(a));
   assert(itv_is_bounded(b));
   bound_t buff_sup,buff_inf;
@@ -1509,14 +1541,14 @@ void compare_and_enlarge_itv_bounds(itv_t res, itv_t a, itv_t b) {
   bound_max(buff_sup,buff_inf,buff_sup);
     
   /* we enlarge res by buff_sup*/
-  itv_enlarge_bound(res,res,buff_sup);
+  bound_add(res,res,buff_sup);
 
   bound_clear(buff_sup);
   bound_clear(buff_inf);
 }
 
 
-void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_t *eq, itv_t itv) {
+void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_t *eq, bound_t perturbation) {
   int i= (int) eq->dim;
   /* initial assignment: the value of the variame x_i */
   t1p_aff_t* aff1 = t1p_aff_copy(pr,a1->paf[i]); //aff1 =x_i (in a1)
@@ -1530,17 +1562,7 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
   /*  init */
   itv_init(itv_buff);
 
-#ifdef _T1P_DEBUG
-  printf("Equation:");
-  print_equation(stdout,eq);
-  printf("\n");
-  printf("aff1:");
-  t1p_aff_fprint(pr, stdout, aff1);
-  printf("\n");
-  printf("aff2:");
-  t1p_aff_fprint(pr, stdout, aff2);
-  printf("\n");
-#endif
+
 
   /* construction of the sum x_i - sum (alpha_j * x_j) */
   while (cell) {
@@ -1553,24 +1575,23 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
       /* aff_buff = itv_buff * x_i */
       aff_buff= t1p_aff_copy(pr, a1->paf[i]);
       t1p_aff_mul_scalar(pr,aff_buff,itv_buff);
-      /* summ it with aff1 */
+
+      /* sum it with aff1 */      
       t1p_aff_add_aff(pr,aff1, aff1,aff_buff);
-      printf(".");
       t1p_aff_free(pr,aff_buff);
 
      /* part with a2 */
       /* aff_buff = itv_buff * x_i */
       aff_buff= t1p_aff_copy(pr, a2->paf[i]);
       t1p_aff_mul_scalar(pr,aff_buff,itv_buff);
-      /* summ it with aff1 */
+      /* summ it with aff2 */
       t1p_aff_add_aff(pr,aff2, aff2,aff_buff);
       t1p_aff_free(pr,aff_buff);
     }
     cell= cell->n;
   }
-
   /* now we compare this expression with the equation */
-  itv_set_int(itv,0);
+  bound_set_int(perturbation,0);
   cell = eq->first_te;
   term1= aff1->q;
   term2= aff2->q;
@@ -1599,13 +1620,13 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
               itv_meet(pr->itv,itv_buff,term1->coeff,term2->coeff);          
           }
         /* itv_buff now contains the intersection of the two coefficients */
-        compare_and_enlarge_itv_bounds(itv, itv_buff, cell->coeff);
+        compare_and_enlarge_perturbation(perturbation, itv_buff, cell->coeff);
       }
     cell=cell->n;
   }
 #ifdef _T1P_DEBUG
-  printf("deviation:");
-  itv_print(itv);
+  printf("perturbation:");
+  bound_print(perturbation);
   printf("\n");
 #endif
 
@@ -1618,15 +1639,15 @@ void abstract_deviation_from_eq (t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq
 
 
 
-itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_set_t *eqs)
+bound_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1, t1p_t *a2, ja_eq_set_t *eqs)
 {
   size_t const nb_eq = (size_t) eqs->nb_eq; /* conversion int->size_t */
-  itv_t* array_res = malloc(nb_eq*sizeof(itv_t)); /* result: array of intervals, one for each equation */
+  bound_t* array_res = malloc(nb_eq*sizeof(bound_t)); /* result: array of perturbation coefficient, one for each equation */
   ja_eq_list_elm* cell = eqs->first_eq; /* iterator for the list of element */
   int i = 0; /* counter of the loop */
 
   /* initialization of the result */
-  itv_init_array(array_res, nb_eq);
+  bound_init_array(array_res, nb_eq);
 
   while (cell) {
     abstract_deviation_from_eq(pr,a1,a2,cell->content,array_res[i]);
@@ -1721,7 +1742,16 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, j
           pr->exact_eqs = eqs_a;
 	}
 
-        itv_t* perturbation_ranges_array = adapt_eq_set_to_abstract_values(pr,a1,a2,eqs_a);         
+#ifdef _T1P_DEBUG
+  printf("a1:");
+  t1p_fdump(stdout, man, a1);
+  printf("\n");
+  printf("a2:");
+  t1p_fdump(stdout, man, a2);
+  printf("\n");
+#endif
+
+        bound_t* perturbation_ranges_array = adapt_eq_set_to_abstract_values(pr,a1,a2,eqs_a);         
 	current_equation =  eqs_a->first_eq;
 	nb_eq = eqs_a->nb_eq;
 
@@ -1763,7 +1793,7 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, j
 	/* cleanup */
 	/* t1p_fdump(stdout,man,a1bis); */
 	/* t1p_fdump(stdout,man,a2bis); */
-        itv_array_free(perturbation_ranges_array,nb_eq);
+        bound_clear_array(perturbation_ranges_array,nb_eq);
       	free_nsym_list(nsym_list);
 	
 	t1p_free(man,a1bis);

@@ -81,7 +81,7 @@ void permute_indice (ja_nsym_list_t* list, int i, int j);
 /* eqs is of type A */
 /* a should not be top or bottom, and the variables to be rebuild should be "t1p_aff_top" at the beginning */
 
-void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, itv_t* perturbation_ranges_array);
+void rebuild_abstract_value(ap_manager_t* man, t1p_t* a, ja_eq_set_t* eqs, bound_t* perturbation_ranges_array);
 
 
 /* ********************************************************************** */
@@ -106,7 +106,7 @@ ja_eq_set_t* eq_set_transformation (t1p_internal_t* pr, ja_nsym_list_t* nsym_lis
 
 /* eqs is of type A  */
 /* the rsult is an array of intervals (one for each equation of eqs) that represents the perturbation  */
-itv_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1,t1p_t *a2,ja_eq_set_t *eqs);
+bound_t* adapt_eq_set_to_abstract_values(t1p_internal_t *pr, t1p_t *a1,t1p_t *a2,ja_eq_set_t *eqs);
 
 
 
