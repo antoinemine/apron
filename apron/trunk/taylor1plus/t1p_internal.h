@@ -266,6 +266,8 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
 static inline bool t1p_aff_gamma_is_leq(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_t *b, itv_t* gammaa, itv_t* gammab);
 static inline bool t1p_aff_is_top(t1p_internal_t* pr, t1p_aff_t *a);
 static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a);
+/* test whether the best interval concretization is bounded */
+//static inline bool t1p_aff_is_bounded(t1p_internal_t* pr, t1p_aff_t *a);
 
 static inline void t1p_aff_fprint(t1p_internal_t* pr, FILE* stream, t1p_aff_t *expr);
 /* reduce all coefficients from intervals to single point, add a noise symbol if needed (insure a garanteed result) */
@@ -595,9 +597,7 @@ static inline t1p_nsym_t* t1p_nsym_add(t1p_internal_t *pr, nsym_t type)
     /* resize epsilon array */
     if ((dim+1) % 1024 == 0) pr->epsilon = (t1p_nsym_t**)realloc(pr->epsilon, (dim+1024)*sizeof(t1p_nsym_t*));
     res = pr->epsilon[dim] = (t1p_nsym_t*)malloc(sizeof(t1p_nsym_t));
-    /** MUB GLOBAL
     if (type == IN) {pr->inputns[pr->epssize] = dim; pr->epssize++;}
-    **/
     res->index = dim;
     res->type = type;
     pr->dim++;
@@ -812,12 +812,12 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
  while (i<(int)b->l)
    {
      //printf("symbol present in the first one\n");
-     t1p_aff_nsym_add(pr,a,term_c->coeff,term_c->pnsym);
+     t1p_aff_nsym_add(pr,a,term_b->coeff,term_b->pnsym);
      //t1p_aff_fprint(pr,stdout,a);
      //printf("\n");
      /* updates the terms and counters */
      i++;
-     term_c=term_c->n;
+     term_b=term_b->n;
    }
  while (j<(int)c->l)
    {
@@ -5240,6 +5240,14 @@ static inline bool t1p_aff_is_bottom(t1p_internal_t* pr, t1p_aff_t *a)
     else return true;
 }
 
+/* static inline bool t1p_aff_is_bounded(t1p_internal_t* pr, t1p_aff_t *a) */
+/* { */
+  
+/*   return itv_is_bounded(a->itv); */
+
+/* } */
+
+
 static inline t1p_internal_t* t1p_internal_alloc(ap_manager_t* manNS)
 {
     CALL();
@@ -5388,6 +5396,7 @@ static inline void t1p_nsymcons_get_gamma(t1p_internal_t * pr, itv_t res, uint_t
 	ap_dim_t dim;
 	if (t1p_nsymcons_get_dimpos(pr, &dim, nsymIndex, a)) {
 		itv_set_ap_interval(pr->itv, res, a->gamma[dim]);
+		
 	}
 	else itv_set(res, pr->muu);
     }
