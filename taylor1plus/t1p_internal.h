@@ -819,6 +819,7 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
   /* we copy b and c to avoid an infinite loop */
   t1p_aff_t *aux_b=t1p_aff_copy(pr,b) ; 
   t1p_aff_t *aux_c=t1p_aff_copy(pr,c) ;
+  t1p_aff_clear(pr,a);
   /* addition of the center and of the best interval concretisation */
   itv_add(a->c,aux_b->c,aux_c->c);
   itv_add(a->itv,aux_b->itv,aux_c->itv);
@@ -830,8 +831,8 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
   t1p_aaterm_t* term_c= aux_c->q;
   itv_t temp;
 #ifdef _T1P_DEBUG
-  /* printf("l1=%d\n",(int)aux_b->l); */
-  /* printf("l2=%d\n",(int)aux_c->l); */	  
+  printf("%d symbols in aff1\n",(int)aux_b->l);
+  printf("%d symbols in aff2\n",(int)aux_c->l);	  
 #endif
 
   while (i<(int)aux_b->l && j<(int)aux_c->l)
@@ -840,7 +841,7 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
 	{
 	  /* the symbol is present in both terms */
 #ifdef _T1P_DEBUG
-	  /* printf("symbol eps_%d present in both\n", (int)term_b->pnsym->index ); */
+	  printf("symbol eps_%d present in both\n", (int)term_b->pnsym->index );
 #endif
 	  /*compute the new coeff and add it to a */	  
 	  itv_init(temp);
@@ -874,15 +875,15 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
 	{
 	  /* the symbol is present in b but not in c */
 #ifdef _T1P_DEBUG
-	  /* printf("symbol eps_%d present in the first one\n", (int)term_b->pnsym->index); */
-	  /*compute the new coeff and add it to a */	  
+	  printf("symbol eps_%d present in the first one\n", (int)term_b->pnsym->index);
 #endif
-	  /* itv_init(temp); */
-	  /* itv_set(temp,term_b->coeff); */
-	  /* t1p_aff_nsym_add(pr,a,temp,term_b->pnsym); */
+	  /*compute the new coeff and add it to a */	  
+	  itv_init(temp);
+	  itv_set(temp,term_b->coeff);
+	  t1p_aff_nsym_add(pr,a,temp,term_b->pnsym);
 #ifdef _T1P_DEBUG
 	  /* t1p_aff_fprint(pr,stdout,a); */
-	  /* printf("\n");	   */
+	  /* printf("\n"); */
 #endif
 	  /* updates the terms and counters */
 	  i++;
@@ -892,15 +893,15 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
 	{
 	  /* the symbol is present in c but not in b */
 #ifdef _T1P_DEBUG
-	  /* printf("symbol %d present in the second one\n", (int)term_c->pnsym->index);	   */
+	  printf("symbol eps_%d present in the second one\n", (int)term_c->pnsym->index);
 #endif
 	  /*compute the new coeff and add it to a */
 	  itv_init(temp);
-	  itv_join(temp,temp,term_c->coeff);
+	  itv_set(temp,term_c->coeff);
 	  t1p_aff_nsym_add(pr,a,temp,term_c->pnsym);
 #ifdef _T1P_DEBUG
 	  /* t1p_aff_fprint(pr,stdout,a); */
-	  /* printf("\n");	 */  
+	  /* printf("\n");  */ 
 #endif
 	  /* updates the terms and counters */
 	  j++;
@@ -911,9 +912,11 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
  while (i<(int)aux_b->l)
    {
 #ifdef _T1P_DEBUG
-     /* printf("symbol eps_%d present in the first one\n",(int)term_b->pnsym->index); */
+     printf("symbol eps_%d present in the first one\n",(int)term_b->pnsym->index);
 #endif
-     t1p_aff_nsym_add(pr,a,term_b->coeff,term_b->pnsym);
+     itv_init(temp);
+     itv_set(temp,term_b->coeff);
+     t1p_aff_nsym_add(pr,a,temp,term_b->pnsym);
 #ifdef _T1P_DEBUG
      /* t1p_aff_fprint(pr,stdout,a); */
      /* printf("\n"); */
@@ -925,14 +928,16 @@ static inline void t1p_aff_add_aff(t1p_internal_t* pr, t1p_aff_t *a,  t1p_aff_t 
  while (j<(int)aux_c->l)
    {
 #ifdef _T1P_DEBUG
-     /* printf("symbol eps_%d present in the second one\n",(int)term_c->pnsym->index); */
+     printf("symbol eps_%d present in the second one\n",(int)term_c->pnsym->index);
 #endif
-     t1p_aff_nsym_add(pr,a,term_c->coeff,term_c->pnsym);
+     itv_init(temp);
+     itv_set(temp,term_c->coeff);
+     t1p_aff_nsym_add(pr,a,temp,term_c->pnsym);
 #ifdef _T1P_DEBUG
-     /* updates the terms and counters */
      /* t1p_aff_fprint(pr,stdout,a); */
      /* printf("\n"); */
 #endif
+ /* updates the terms and counters */
      j++;
      term_c=term_c->n;
    }
