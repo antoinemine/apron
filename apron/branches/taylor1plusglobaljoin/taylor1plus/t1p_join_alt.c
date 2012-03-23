@@ -1738,7 +1738,9 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, j
           eqs_b_prime = two_abstract_values_to_eq_set (pr,  nsym_list, a1, a2);
           eqs_a = eq_set_transformation(pr,  nsym_list, eqs_b, eqs_b_prime, dimensions);
 
-          /* HACK: sore the equation into the manager */
+          free_equation_set(eqs_b);
+          free_equation_set(eqs_b_prime);
+          /* HACK: store the equation into the manager */
           pr->exact_eqs = eqs_a;
 	}
 
@@ -1801,10 +1803,7 @@ t1p_t* t1p_join_alt(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2, j
 	
 	/* HACK */
 	//free_equation_set(eqs_a);
-       
-	free_equation_set(eqs_b);
-	free_equation_set(eqs_b_prime);
-      }
+             }
       
       else /* one of the two abstract value is infinite -> classical join */
 	res = t1p_join_std(man, destructive, a1, a2); 
