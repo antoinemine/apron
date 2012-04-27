@@ -70,8 +70,8 @@ CCLIB_TOINSTALL += dllapron_caml.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
-LIBS =  -L../apron -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
-LIBS_DEBUG =  -L../apron -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS = -L$(APRON_PREFIX)/lib -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS_DEBUG = -L$(APRON_PREFIX)/lib -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
 
 #---------------------------------------
 # Rules
@@ -131,10 +131,10 @@ install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 #---------------------------------------
 
 apron.cma: apron.cmo libapron_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo $(LIBS)
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo $(LIBS) -L../apron
 
 apron.cmxa apron.a: apron.cmx libapron_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx $(LIBS)
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx $(LIBS) -L../apron
 
 libapron_caml.a: $(CCMODULES:%=%.o)
 	$(AR) rc $@ $^
@@ -144,7 +144,7 @@ libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
 	$(RANLIB) $@
 
 dllapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
-	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) $(LIBS)
+	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) $(LIBS) -L../apron
 
 #---------------------------------------
 # CAML rules
