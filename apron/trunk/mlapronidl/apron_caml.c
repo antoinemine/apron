@@ -87,6 +87,79 @@ struct custom_operations camlidl_apron_custom_linexpr0_ptr = {
 };
 
 /* ********************************************************************** */
+/* lincons0 */
+/* ********************************************************************** */
+
+void camlidl_apron_lincons0_ml2c(value v, ap_lincons0_t* cons, struct camlidl_ctx_struct* _ctx)
+{
+  value _v_linexpr0;
+  value _v_constyp;
+  value _v_scalar;
+
+  _v_linexpr0 = Field(v,0);
+  camlidl_apron_linexpr0_ptr_ml2c(_v_linexpr0,&cons->linexpr0);
+  _v_constyp = Field(v,1);
+  if (Is_long(_v_constyp)){
+    switch (Int_val(_v_constyp)){
+    case 0:
+    case 1:
+    case 2:
+      cons->constyp = Int_val(_v_constyp);
+      break;
+    case 3:
+      cons->constyp = 4;
+      break;
+    default:
+     abort();
+    }
+    cons->scalar = NULL;
+  }
+  else {
+    switch (Tag_val(_v_constyp)){
+    case 0:
+      cons->constyp = AP_CONS_EQMOD;
+      _v_scalar = Field(_v_constyp,0);
+      cons->scalar = (ap_scalar_t *)camlidl_malloc(sizeof(ap_scalar_t),_ctx);
+      camlidl_apron_scalar_ml2c(_v_scalar,cons->scalar);
+      break;
+    default:
+      abort();
+    }
+  }
+}
+value camlidl_apron_lincons0_c2ml(ap_lincons0_t* cons)
+{
+  value vres;
+  value _v[3];
+  _v[0] = _v[1] = _v[2] = 0;
+
+  Begin_roots_block(_v, 3)
+    _v[0] = camlidl_apron_linexpr0_ptr_c2ml(&cons->linexpr0);
+    switch(cons->constyp){
+    case AP_CONS_EQ:
+    case AP_CONS_SUPEQ:
+    case AP_CONS_SUP:
+      _v[1] = Val_int(cons->constyp);
+      break;
+    case AP_CONS_DISEQ:
+      _v[1] = Val_int(3);
+      break;
+    case AP_CONS_EQMOD:
+      assert(cons->scalar!=NULL);
+      _v[2] = camlidl_apron_scalar_c2ml(cons->scalar);
+      _v[1] = caml_alloc_small(1, 0);
+      Field(_v[1],0) = _v[2];
+      ap_scalar_free(cons->scalar); cons->scalar = NULL;
+      break;
+    }
+    vres = caml_alloc_small(2, 0);
+    Field(vres, 0) = _v[0];
+    Field(vres, 1) = _v[1];
+  End_roots()
+  return vres;
+}
+
+/* ********************************************************************** */
 /* texpr0 */
 /* ********************************************************************** */
 
