@@ -257,6 +257,7 @@ ml: oct.mli oct.cmi
 mlIl: ml octIl.cma liboctIl_caml.a liboctIl_caml_debug.a
 mlIll: ml octIll.cma liboctIll_caml.a liboctIll_caml_debug.a 
 mlMPZ: ml octMPZ.cma liboctMPZ_caml.a liboctMPZ_caml_debug.a
+mlRi: ml octRi.cma liboctRi_caml.a liboctRi_caml_debug.a
 mlRll: ml octRll.cma liboctRll_caml.a liboctRll_caml_debug.a
 mlMPQ: ml octMPQ.cma liboctMPQ_caml.a liboctMPQ_caml_debug.a 
 mlD: ml octD.cma liboctD_caml.a liboctD_caml_debug.a
@@ -266,6 +267,7 @@ ifneq ($(HAS_OCAMLOPT),)
 mlIl: octIl.cmxa octIl.a
 mlIll: octIll.cmxa octIll.a
 mlMPZ: octMPZ.cmxa octMPZ.a
+mlRi: octRi.cmxa octRi.a
 mlRll: octRll.cmxa octRll.a
 mlMPQ: octMPQ.cmxa octMPQ.a
 mlD: octD.cmxa octD.a
