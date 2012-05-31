@@ -161,6 +161,8 @@ void ap_texpr1_fprint(FILE* stream, ap_texpr1_t* a)
   ap_texpr0_fprint(stream,a->texpr0,name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
+void ap_texpr1_print(ap_texpr1_t* a)
+{ ap_texpr1_fprint(stdout, a); }
 
 /* ====================================================================== */
 /* III. Tests, size */

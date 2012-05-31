@@ -27,8 +27,8 @@ extern "C" {
 /*
   IMPORTANT NOTE
   --------------
-  correct use of floating-point AP_RTYPE_xxx currently supposes that the 
-  FPU rounds towards +oo 
+  correct use of floating-point AP_RTYPE_xxx currently supposes that the
+  FPU rounds towards +oo
 */
 
 /* Tree expressions */
@@ -53,7 +53,7 @@ ap_texpr1_t* ap_texpr1_cst_interval_scalar (ap_environment_t* env, ap_scalar_t* 
 ap_texpr1_t* ap_texpr1_cst_interval_mpq    (ap_environment_t* env, mpq_t inf, mpq_t sup);
 ap_texpr1_t* ap_texpr1_cst_interval_mpfr   (ap_environment_t* env, mpfr_t inf, mpfr_t sup);
 ap_texpr1_t* ap_texpr1_cst_interval_int    (ap_environment_t* env, long int inf, long int sup);
-ap_texpr1_t* ap_texpr1_cst_interval_frac   (ap_environment_t* env, long int numinf, unsigned long int deninf, 
+ap_texpr1_t* ap_texpr1_cst_interval_frac   (ap_environment_t* env, long int numinf, unsigned long int deninf,
 					    long int numsup, unsigned long int densup);
 ap_texpr1_t* ap_texpr1_cst_interval_double (ap_environment_t* env, double inf, double sup);
 ap_texpr1_t* ap_texpr1_cst_interval_top    (ap_environment_t* env);
@@ -63,7 +63,7 @@ ap_texpr1_t* ap_texpr1_var(ap_environment_t* env, ap_var_t var);
   /* Create a variable leaf expression */
 
 ap_texpr1_t* ap_texpr1_unop(ap_texpr_op_t op,
-			    ap_texpr1_t* opA, 
+			    ap_texpr1_t* opA,
 			    ap_texpr_rtype_t type, ap_texpr_rdir_t dir);
   /* Create unary operator node */
 
@@ -86,7 +86,6 @@ ap_texpr1_t* ap_texpr1_from_linexpr1(ap_linexpr1_t* e);
 /* ====================================================================== */
 
 void ap_texpr1_fprint(FILE* stream, ap_texpr1_t* a);
-static inline
 void ap_texpr1_print(ap_texpr1_t* a);
   /* Prints the expression */
 
@@ -125,7 +124,7 @@ bool ap_texpr1_is_scalar(ap_texpr1_t* e);
 /* ====================================================================== */
 
 ap_texpr1_t* ap_texpr1_substitute(ap_texpr1_t* e, ap_var_t var, ap_texpr1_t *dst);
-  /* Substitute every occurrence of variable var with a copy of dst.  
+  /* Substitute every occurrence of variable var with a copy of dst.
      Return NULL in case of incorrect argument (w.r.t. var and/or environment
      compatibility). */
 bool ap_texpr1_substitute_with   (ap_texpr1_t* e, ap_var_t var, ap_texpr1_t *dst);
@@ -154,9 +153,6 @@ bool ap_texpr1_equal(ap_texpr1_t* a1, ap_texpr1_t* a2);
 /* ====================================================================== */
 /* Inline function definitions */
 /* ====================================================================== */
-
-static inline void ap_texpr1_print(ap_texpr1_t* a)
-{ ap_texpr1_fprint(stdout, a); }
 
 static inline bool ap_texpr1_is_interval_cst(ap_texpr1_t* a)
 { return ap_texpr0_is_interval_cst(a->texpr0); }

@@ -67,7 +67,6 @@ void ap_tcons1_clear(ap_tcons1_t* cons);
   /* Clear the constraint and set pointers to NULL */
 
 void ap_tcons1_fprint(FILE* stream, ap_tcons1_t* cons);
-static inline
 void ap_tcons1_print(ap_tcons1_t* cons);
   /* Printing */
 
@@ -131,9 +130,6 @@ void ap_tcons1_array_clear(ap_tcons1_array_t* array);
   /* Clear the constraints of the array, and then the array itself */
 void ap_tcons1_array_fprint(FILE* stream,
 			    ap_tcons1_array_t* array);
-static inline
-void ap_tcons1_array_print(ap_tcons1_array_t* array);
-  /* Printing */
 
 /* ====================================================================== */
 /* II.3 Access */
@@ -214,10 +210,6 @@ ap_tcons1_t ap_tcons1_copy(ap_tcons1_t* cons){
 }
 
 static inline
-void ap_tcons1_print(ap_tcons1_t* cons)
-{ ap_tcons1_fprint(stdout,cons); }
-
-static inline
 ap_environment_t* ap_tcons1_envref(ap_tcons1_t* cons){
   return cons->env;
 }
@@ -241,10 +233,6 @@ static inline
 ap_tcons0_t* ap_tcons1_tcons0ref(ap_tcons1_t* cons){
   return &cons->tcons0;
 }
-static inline
-void ap_tcons1_array_print(ap_tcons1_array_t* array)
-{ ap_tcons1_array_fprint(stdout,array); }
-
 static inline
 size_t ap_tcons1_array_size(ap_tcons1_array_t* array){
   return array->tcons0_array.size;
