@@ -137,15 +137,15 @@ ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy)
     return res;
   }
 }
-void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy)
+void ap_policy_fprint(FILE* name, ap_policy_manager_t* pman, ap_policy_t* policy)
 {
   if (ap_policy_check(AP_FUNPOLICYID_FPRINT,pman,policy)){
     if (policy==NULL){
-      fprintf(stdout,"NULL");
+      fprintf(name,"NULL");
     } else {
-      typedef void (*funptr)(FILE* stdout, ap_policy_manager_t* pman, void* policy);
+      typedef void (*funptr)(FILE* name, ap_policy_manager_t* pman, void* policy);
       funptr ptr = (funptr)pman->funptr[AP_FUNPOLICYID_FPRINT];
-    return (*ptr)(stdout,pman,policy->value);
+    return (*ptr)(name,pman,policy->value);
     }
   }
 }

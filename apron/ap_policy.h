@@ -79,7 +79,7 @@ ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman);
 
 void ap_policy_free(ap_policy_manager_t* pman, ap_policy_t* policy);
 ap_policy_t* ap_policy_copy(ap_policy_manager_t* pman, ap_policy_t* policy);
-void ap_policy_fprint(FILE* stdout, ap_policy_manager_t* pman, ap_policy_t* policy);
+void ap_policy_fprint(FILE* name, ap_policy_manager_t* pman, ap_policy_t* policy);
 char* ap_policy_sprint(ap_policy_manager_t* pman, ap_policy_t* policy);
 bool ap_policy_equal(ap_policy_manager_t* pman, ap_policy_t* policy1, ap_policy_t* policy2);
 long ap_policy_hash(ap_policy_manager_t* pman, ap_policy_t* policy);
