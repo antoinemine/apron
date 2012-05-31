@@ -35,6 +35,8 @@ void ap_tcons1_fprint(FILE* stream, ap_tcons1_t* cons)
   ap_tcons0_fprint(stream, &cons->tcons0, name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
+void ap_tcons1_print(ap_tcons1_t* cons)
+{ ap_tcons1_fprint(stdout,cons); }
 
 /* ====================================================================== */
 /* I.2 Tests */
@@ -103,6 +105,8 @@ void ap_tcons1_array_fprint(FILE* stream,
   ap_tcons0_array_fprint(stream,&array->tcons0_array,name_of_dim->p);
   ap_environment_name_of_dim_free(name_of_dim);
 }
+void ap_tcons1_array_print(ap_tcons1_array_t* array)
+{ ap_tcons1_array_fprint(stdout,array); }
 
 /* ====================================================================== */
 /* II.3 Access */
