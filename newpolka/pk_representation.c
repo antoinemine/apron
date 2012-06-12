@@ -482,6 +482,8 @@ void pk_fprint(FILE* stream, ap_manager_t* man, pk_t* po,
     }
   }
 }
+void pk_print(ap_manager_t* man, pk_t* po, char** name_of_dim)
+{ pk_fprint(stdout,man,po,name_of_dim); }
 
 void pk_fprintdiff(FILE* stream, ap_manager_t* man,
 		   pk_t* po1, pk_t* po2,
