@@ -80,6 +80,7 @@ void pk_set_max_coeff_size(pk_internal_t* pk, size_t size);
 void pk_set_approximate_max_coeff_size(pk_internal_t* pk, size_t size);
 size_t pk_get_max_coeff_size(pk_internal_t* pk);
 size_t pk_get_approximate_max_coeff_size(pk_internal_t* pk);
+void pk_print(ap_manager_t* man, pk_t* po, char** name_of_dim);
 
 /* ============================================================ */
 /* D. Conversions */
