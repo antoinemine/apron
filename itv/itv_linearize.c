@@ -558,6 +558,7 @@ bool ITVFUN(itv_quasilinearize_linexpr)(itv_internal_t* intern, itv_linexpr_t* l
 		env[dim]);
 	/* Addition to the constant coefficient */
 	itv_add(linexpr->cst,linexpr->cst,intern->eval_itv);
+	linexpr->equality = linexpr->equality && itv_is_point(intern,linexpr->cst);
 	if (itv_is_top(linexpr->cst)){
 	  k = 0;
 	  break;
