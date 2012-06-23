@@ -384,6 +384,45 @@ static inline void bound_to_double(bound_t a, bound_t b)
   }
 }
 
+static inline void bound_next_float(bound_t a, bound_t b)
+{
+  if (bound_infty(b) || !num_fits_float(bound_numref(b))) {
+    /* +oo overapproximates nextfloat(-oo) and nextfloat(+oo) */
+    bound_set_infty(a,1);
+  }
+  else {
+    double d;
+    double_set_num(&d,bound_numref(b));
+    d = nextafterf(d,d+1);
+    if (d == 1./0.) {
+      bound_set_infty(a,1);
+    }
+    else {
+      num_set_double(bound_numref(a),d);
+      _bound_inf(a);
+    }
+  }
+}
+
+static inline void bound_next_double(bound_t a, bound_t b)
+{
+  if (bound_infty(b) || !num_fits_double(bound_numref(b))) {
+    bound_set_infty(a,1);
+  }
+  else {
+    double d;
+    double_set_num(&d,bound_numref(b));
+    d = nextafter(d,d+1);
+    if (d == 1./0.) {
+      bound_set_infty(a,1);
+    }
+    else {
+      num_set_double(bound_numref(a),d);
+      _bound_inf(a);
+    }
+  }
+}
+
 static inline void bound_mul_2exp(bound_t a, bound_t b, int c)
 {
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));

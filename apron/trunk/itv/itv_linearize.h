@@ -121,6 +121,16 @@ static inline bool itv_intlinearize_ap_texpr0(itv_internal_t* intern, itv_linexp
 static inline bool itv_intlinearize_ap_tcons0(itv_internal_t* intern, itv_lincons_t* res, ap_tcons0_t* cons, itv_t* env, size_t intdim);
 static inline bool itv_intlinearize_ap_tcons0_array(itv_internal_t* intern, itv_lincons_array_t* res, ap_tcons0_array_t* cons, itv_t* env, size_t intdim);
 
+
+/* ====================================================================== */
+/* VII. Backward evaluation of tree expressions. */
+/* ====================================================================== */
+
+static inline bool itv_meet_ap_tcons0_array(itv_internal_t* intern, ap_tcons0_array_t* array, itv_t* env, size_t intdim, int max_iter);
+static inline bool itv_subst_ap_texpr0_array(itv_internal_t* intern, itv_t* res, itv_t* arg, ap_dim_t* dim, ap_texpr0_t** array, size_t size, size_t intdim, size_t realdim, int max_iter);
+
+
+
 /* ********************************************************************** */
 /* Prototypes of functions */
 /* ********************************************************************** */
@@ -150,6 +160,10 @@ bool ITVFUN(itv_intlinearize_ap_tcons0_array_intlinear)(itv_internal_t* intern,i
 bool ITVFUN(itv_intlinearize_ap_texpr0)(itv_internal_t* intern,itv_linexpr_t* res,ap_texpr0_t* expr,itv_t* env, size_t intdim);
 bool ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,itv_lincons_t* res, ap_tcons0_t* cons, itv_t* env, size_t intdim);
 bool ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,itv_lincons_array_t* res, ap_tcons0_array_t* cons, itv_t* env, size_t intdim);
+
+/* VII. Backward evaluation of tree expressions. */
+bool ITVFUN(itv_meet_ap_tcons0_array)(itv_internal_t* intern, ap_tcons0_array_t* array, itv_t* env, size_t intdim, int max_iter);
+bool ITVFUN(itv_subst_ap_texpr0_array)(itv_internal_t* intern, itv_t* res, itv_t* arg, ap_dim_t* dim, ap_texpr0_t** array, size_t size, size_t intdim, size_t realdim, int max_iter);
 
 /* ********************************************************************** */
 /* Definition of inline functions */
@@ -193,6 +207,13 @@ static inline bool itv_intlinearize_ap_tcons0(itv_internal_t* intern, itv_lincon
   { return ITVFUN(itv_intlinearize_ap_tcons0)(intern,lincons,cons,env,intdim); }
 static inline bool itv_intlinearize_ap_tcons0_array(itv_internal_t* intern, itv_lincons_array_t* tlincons, ap_tcons0_array_t* tcons, itv_t* env, size_t intdim)
   { return ITVFUN(itv_intlinearize_ap_tcons0_array)(intern,tlincons,tcons,env,intdim); }
+
+/* VII. Backward evaluation of tree expressions. */
+static inline bool itv_meet_ap_tcons0_array(itv_internal_t* intern, ap_tcons0_array_t* array, itv_t* env, size_t intdim, int max_iter)
+{ return ITVFUN(itv_meet_ap_tcons0_array)(intern,array,env,intdim,max_iter); }
+static inline bool itv_subst_ap_texpr0_array(itv_internal_t* intern, itv_t* res, itv_t* arg, ap_dim_t* dim, ap_texpr0_t** array, size_t size, size_t intdim, size_t realdim, int max_iter)
+{ return ITVFUN(itv_subst_ap_texpr0_array)(intern,res,arg,dim,array,size,intdim,realdim,max_iter); }
+
 
 #ifdef __cplusplus
 }

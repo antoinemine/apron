@@ -179,6 +179,14 @@ static inline void itv_to_int(itv_t a, itv_t b);
 static inline void itv_to_float(itv_t a, itv_t b);
 static inline void itv_to_double(itv_t a, itv_t b);
 
+  /* Inverse of the above functions */
+static inline void itv_unceil(itv_t a, itv_t b);
+static inline void itv_unfloor(itv_t a, itv_t b);
+static inline void itv_untrunc(itv_t a, itv_t b);
+static inline void itv_from_int(itv_t a, itv_t b);
+static inline void itv_from_float(itv_t a, itv_t b);
+static inline void itv_from_double(itv_t a, itv_t b);
+
 /* Printing */
 static inline int itv_snprint(char* s, size_t size, itv_t a);
 static inline void itv_fprint(FILE* stream, itv_t a);
@@ -542,6 +550,57 @@ static inline bool itv_is_int(itv_internal_t* intern, itv_t a)
   if (bound_cmp(intern->muldiv_bound,a->sup)) return false;
   bound_trunc(intern->muldiv_bound,a->inf);
   return !bound_cmp(intern->muldiv_bound,a->inf);
+}
+
+
+
+static inline void itv_unceil(itv_t a, itv_t b)
+{
+  /* [a,b] ->  [ceil(a)-1,floor(b)] */
+  bound_floor(a->sup,b->sup); 
+  bound_floor(a->inf,b->inf);
+  bound_add_uint(a->inf,a->inf,1);
+}
+
+static inline void itv_unfloor(itv_t a, itv_t b)
+{
+  /* [a,b] -> [ceil(a),floor(b)+1] */
+  bound_floor(a->inf,b->inf);
+  bound_floor(a->sup,b->sup); 
+  bound_add_uint(a->sup,a->sup,1);
+}
+
+static inline void itv_untrunc(itv_t a, itv_t b)
+{ 
+  /* trunc(x) = ceil(x) if x < 0, floor(x) if x > 0 */
+  bound_floor(a->inf,b->inf);
+  bound_floor(a->sup,b->sup);
+  if (bound_sgn(a->inf) > 0) bound_add_uint(a->inf,a->inf,1);
+  if (bound_sgn(a->sup) > 0) bound_add_uint(a->sup,a->sup,1);
+}
+
+static inline void itv_from_int(itv_t a, itv_t b)
+{ 
+  /* [a,b] -> [floor(a),ceil(b)] */
+  bound_ceil(a->sup,b->sup); 
+  bound_ceil(a->inf,b->inf);
+}
+
+static inline void itv_from_float(itv_t a, itv_t b)
+{ 
+  /* special case to ensure that signs are respected */
+  if (bound_sgn(b->sup)==0) bound_set(a->sup,b->sup);
+  else bound_next_float(a->sup,b->sup); 
+  if (bound_sgn(b->inf)==0) bound_set(a->inf,b->inf);
+  else bound_next_float(a->inf,b->inf); 
+}
+
+static inline void itv_from_double(itv_t a, itv_t b)
+{
+  if (bound_sgn(b->sup)==0) bound_set(a->sup,b->sup);
+  else bound_next_double(a->sup,b->sup); 
+  if (bound_sgn(b->inf)==0) bound_set(a->inf,b->inf);
+  else bound_next_double(a->inf,b->inf); 
 }
 
 
