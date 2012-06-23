@@ -221,7 +221,19 @@ box_t* box_meet_lincons_array(ap_manager_t* man,
 box_t*
 box_meet_tcons_array(ap_manager_t* man,
 		     bool destructive, box_t* a, ap_tcons0_array_t* array);
-  /* Meet of an box value with a set of tree expressions constraints */
+  /* Meet of an box value with a set of tree expressions constraints.
+     The algorithm field allows selecting between different algorithms
+     and levels of precision:
+
+     - between 0 and 99: legacy algorithm based on linearization.
+     The algorithm value corresponds to the number of local iterations
+     (0 selects the default number of iterations).
+
+     - between 100 and 199: algorithm based on forward-backward propagation in
+     expression trees, similar to the HC4 algorithm used in constraint
+     programming. The algorithm value corresponds to the number of iterations
+     plus 100 (the value 100 selects the default number of iterations).
+   */
 
 box_t* box_add_ray_array(ap_manager_t* man,
 			 bool destructive,

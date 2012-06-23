@@ -206,13 +206,14 @@ box_t* box_meet_lincons_array(ap_manager_t* man,
   return res;
 }
 
+
 box_t* box_meet_tcons_array(ap_manager_t* man,
 			    bool destructive,
 			    box_t* a,
 			    ap_tcons0_array_t* array)
 {
   box_t* res;
-  size_t kmax;
+  int kmax;
   box_internal_t* intern = (box_internal_t*)man->internal;
   itv_lincons_array_t tlincons;
 
@@ -222,26 +223,39 @@ box_t* box_meet_tcons_array(ap_manager_t* man,
     man->result.flag_exact = true;
   }
   else {
-    man->result.flag_best = array->size==1;
+    man->result.flag_best = false;
     man->result.flag_exact = false;
     kmax = man->option.funopt[AP_FUNID_MEET_TCONS_ARRAY].algorithm;
-    if (kmax<1) kmax=2;
 
-    itv_lincons_array_init(&tlincons,array->size);
-    itv_intlinearize_ap_tcons0_array(intern->itv,&tlincons,
-				     array,res->p,res->intdim);
-    tbool_t tb = itv_lincons_array_reduce_integer(intern->itv,&tlincons,a->intdim);
-    if (tb==tbool_false){
-      goto _box_meet_tcons_array_bottom;
+    if (kmax < 100) {
+      /* algo in -oo - 99: legacy implementation */
+
+      if (kmax<1) kmax=2;
+      itv_lincons_array_init(&tlincons,array->size);
+      itv_intlinearize_ap_tcons0_array(intern->itv,&tlincons,
+                                       array,res->p,res->intdim);
+      tbool_t tb = itv_lincons_array_reduce_integer(intern->itv,&tlincons,a->intdim);
+      if (tb==tbool_false){
+        goto _box_meet_tcons_array_bottom;
+      }
+      itv_boxize_lincons_array(intern->itv,
+                               res->p,NULL,
+                               &tlincons,res->p,a->intdim,kmax,false);
+      if (itv_is_bottom(intern->itv,res->p[0])){
+      _box_meet_tcons_array_bottom:
+        box_set_bottom(res);
+      }
+      itv_lincons_array_clear(&tlincons);
     }
-    itv_boxize_lincons_array(intern->itv,
-			     res->p,NULL,
-			     &tlincons,res->p,a->intdim,kmax,false);
-    if (itv_is_bottom(intern->itv,res->p[0])){
-    _box_meet_tcons_array_bottom:
-      box_set_bottom(res);
+    else {
+      /* algo in 100 - +oo: experimental implementation based on HC4 */
+
+      kmax -= 100;
+      if (kmax < 1) kmax = 2; /* default, for algorithm = 100 */
+      if (itv_meet_ap_tcons0_array(intern->itv,array,res->p,res->intdim,kmax)) {
+        box_set_bottom(res);
+      }
     }
-    itv_lincons_array_clear(&tlincons);
   }
   return res;
 }

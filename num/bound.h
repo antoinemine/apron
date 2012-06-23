@@ -101,6 +101,10 @@ static inline void bound_sqrt(bound_t up, bound_t down, bound_t b);
 static inline void bound_to_float(bound_t a, bound_t b);
 static inline void bound_to_double(bound_t a, bound_t b);
 
+  /* next float / double towards +oo, rounded towards +oo */
+static inline void bound_next_float(bound_t a, bound_t b);
+static inline void bound_next_double(bound_t a, bound_t b);
+
 /* ====================================================================== */
 /* Arithmetic Tests */
 /* ====================================================================== */
