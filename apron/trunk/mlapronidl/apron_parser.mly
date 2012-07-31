@@ -25,7 +25,7 @@ let rec neg acc = function
 
 %token TK_VERTEX TK_RAY TK_LINE TK_RAYMOD TK_LINEMOD
 
-%token TK_SUPEG TK_INFEG TK_SUP TK_INF TK_EG TK_DISEG TK_MOD
+%token TK_SUPEG TK_INFEG TK_SUP TK_INF TK_EG TK_DISEG TK_MOD TK_POW
 
 %token TK_LBRACKET TK_RBRACKET TK_SEMICOLON TK_LPAR TK_RPAR
 
@@ -34,6 +34,7 @@ let rec neg acc = function
 %token <(Texpr1.typ * Texpr1.round)> TK_SUB
 %token <(Texpr1.typ * Texpr1.round)> TK_DIV
 %token <(Texpr1.typ * Texpr1.round)> TK_MODULO
+%token <(Texpr1.typ * Texpr1.round)> TK_POW
 %token <(Texpr1.typ * Texpr1.round)> TK_CAST
 %token <(Texpr1.typ * Texpr1.round)> TK_SQRT
 
@@ -116,18 +117,23 @@ texpr0_1:
 | texpr0_1 TK_DIV texpr0_2
     { let (t,r) = $2 in Texpr1.Binop(Texpr1.Div,$1,$3,t,r) }
 | texpr0_1 TK_MODULO texpr0_2
-    { let (t,r) = $2 in Texpr1.Binop(Texpr1.Div,$1,$3,t,r) }
+    { let (t,r) = $2 in Texpr1.Binop(Texpr1.Mod,$1,$3,t,r) }
 | texpr0_2
     { $1 }
 texpr0_2:
-  TK_SUB texpr0_2 
-    { let (t,r) = $1 in Texpr1.Unop(Texpr1.Neg,$2,t,r) }
+| texpr0_3 TK_POW texpr0_2
+    { let (t,r) = $2 in Texpr1.Binop(Texpr1.Pow,$1,$3,t,r) }
 | texpr0_3
     { $1 }
 texpr0_3:
-  TK_CAST texpr0_3 
+  TK_SUB texpr0_3
+    { let (t,r) = $1 in Texpr1.Unop(Texpr1.Neg,$2,t,r) }
+| texpr0_4
+    { $1 }
+texpr0_4:
+  TK_CAST texpr0_4
     { let (t,r) = $1 in Texpr1.Unop(Texpr1.Cast,$2,t,r) }
-| TK_SQRT texpr0_3 
+| TK_SQRT texpr0_4 
     { let (t,r) = $1 in Texpr1.Unop(Texpr1.Sqrt,$2,t,r) }
 | TK_LPAR texpr0 TK_RPAR
     { $2 }

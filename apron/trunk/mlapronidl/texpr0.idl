@@ -173,7 +173,7 @@ typedef [mltype("\n  | Neg\n  | Cast\n  | Sqrt (** *)\n  (** Unary operators *)"
 	 c2ml(camlidl_apron_texpr_unop_t_c2ml)]
 struct ap_texpr_op_t ap_texpr_unop_t;
 
-typedef [mltype("\n  | Add\n  | Sub\n  | Mul\n  | Div\n  | Mod (** *)\n  (** Binary operators *)"),
+typedef [mltype("\n  | Add\n  | Sub\n  | Mul\n  | Div\n  | Mod\n  | Pow (** *)\n  (** Binary operators *)"),
 	 ml2c(camlidl_apron_texpr_binop_t_ml2c),
 	 c2ml(camlidl_apron_texpr_binop_t_c2ml)]
 struct ap_texpr_op_t ap_texpr_binop_t;
@@ -288,6 +288,7 @@ let string_of_binop = function\n\
 | Mul -> \"Mul\"\n\
 | Div -> \"Div\"\n\
 | Mod -> \"Mod\"\n\
+| Pow -> \"Pow\"\n\
 let string_of_typ = function\n\
 | Real -> \"Real\"\n\
 | Int -> \"Int\"\n\
@@ -317,6 +318,7 @@ let print_string_of_binop = function\n\
   | Mul -> \"*\"\n\
   | Div -> \"/\"\n\
   | Mod -> \"%\"\n\
+  | Pow -> \"^\"\n\
 let print_string_of_typ = function\n\
   | Real -> \"\"\n\
   | Int -> \"i\"\n\
@@ -347,11 +349,12 @@ let print_sprint_binop op typ round =\n\
     Format.sprintf \"%s_%s,%s\" (print_string_of_binop op)\n\
 	(print_string_of_typ typ) (print_string_of_round round)\n\
 let print_precedence_of_unop = function\n\
-  | Neg -> 3\n\
-  | Cast | Sqrt -> 4\n\
+  | Neg -> 4\n\
+  | Cast | Sqrt -> 5\n\
 let print_precedence_of_binop = function\n\
   | Add | Sub -> 1\n\
-  | Mul | Div | Mod -> 2\n\
+  | Mul | Div | Mod -> 2
+  | Pow -> 3\n\
 \n\
 \n\
 let rec print_expr (string_of_dim:Dim.t -> string) fmt expr =\n\

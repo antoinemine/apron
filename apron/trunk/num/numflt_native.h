@@ -41,7 +41,7 @@ typedef long double numflt_native;
 typedef numflt_native numflt_t[1];
 
 #define NUMFLT_MAX NUMFLT_ONE/NUMFLT_ZERO
-
+#define NUMFLT_MAX_EXACT ((numflt_native)(1 << NUMFLT_MANT_DIG))
 #define NUMFLT_NATIVE
 
 /* ====================================================================== */
@@ -155,6 +155,57 @@ static inline void numflt_sqrt(numflt_t up, numflt_t down, numflt_t b)
 static inline void numflt_mul_2exp(numflt_t a, numflt_t b, int c)
 { *a = ldexpl(*b,c); }
 #endif
+
+static inline int  numflt_pow(numflt_t up, numflt_t down, numflt_t b, unsigned long int n)
+{
+  /* we cannot rely on pow, we implement a simple fast power */
+  numflt_native u, d, fu, fd;
+  int sign;
+  if (*b < 0) { fu = fd = -*b; sign = n&1;}
+  else { fu = fd = *b; sign = 0; }
+  u = d = 1;
+  while (n) {
+    if (n & 1) { u *= fu; d = - ((-d) * fd); }
+    fu = fu * fu;
+    fd = - ((-fd) * fd);
+    n >>= 1;
+  }
+  if (sign) {
+    *up = -d;
+    *down = -u;
+  }
+  else {
+    *up = u;
+    *down = d;
+  }
+  return !(isfinite(u) && isfinite(d));
+}
+static inline void numflt_root(numflt_t up, numflt_t down, numflt_t b, unsigned long int n)
+{
+  /* we cannot rely on pow, we rely on MPFR */
+  mpfr_t arg, res;
+  assert((n & 1) || (*b >= 0));
+#if defined(NUMFLT_DOUBLE)
+  mpfr_init_set_d(arg, *b, GMP_RNDU);
+  mpfr_init(res);
+  mpfr_root(res, arg, n, GMP_RNDU);
+  *up = mpfr_get_d(res, GMP_RNDU);
+  mpfr_set_d(arg, *b, GMP_RNDD);
+  mpfr_root(res, arg, n, GMP_RNDD);
+  *down = mpfr_get_d(res, GMP_RNDD);
+#else
+  mpfr_init_set_ld(arg, *b, GMP_RNDU);
+  mpfr_init(res);
+  mpfr_root(res, arg, n, GMP_RNDU);
+  *up = mpfr_get_ld(res, GMP_RNDU);
+  mpfr_set_ld(arg, *b, GMP_RNDD);
+  mpfr_root(res, arg, n, GMP_RNDD);
+  *down = mpfr_get_ld(res, GMP_RNDD);
+#endif
+  mpfr_clear(arg);
+  mpfr_clear(res);
+}
+
 /* ====================================================================== */
 /* Arithmetic Tests */
 /* ====================================================================== */

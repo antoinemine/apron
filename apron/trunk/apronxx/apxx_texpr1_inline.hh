@@ -865,6 +865,12 @@ inline texpr1::builder mod(const texpr1::builder& a, const texpr1::builder& b,
   return texpr1::builder(AP_TEXPR_MOD, a, b, rtype, rdir);
 }
 
+inline texpr1::builder pow(const texpr1::builder& a, const texpr1::builder& b, 
+			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+{
+  return texpr1::builder(AP_TEXPR_POW, a, b, rtype, rdir);
+}
+
 inline texpr1::builder neg(const texpr1::builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
 {
   return texpr1::builder(AP_TEXPR_NEG, a, rtype, rdir);
@@ -928,6 +934,11 @@ inline texpr1::builder operator/(const texpr1::builder& a, const texpr1::builder
 inline texpr1::builder operator%(const texpr1::builder& a, const texpr1::builder& b)
 {
   return mod(a,b);
+}
+
+inline texpr1::builder operator^(const texpr1::builder& a, const texpr1::builder& b)
+{
+  return pow(a,b);
 }
 
 

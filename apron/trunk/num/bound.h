@@ -91,6 +91,8 @@ static inline void bound_floor(bound_t a, bound_t b);
 static inline void bound_ceil(bound_t a, bound_t b);
 static inline void bound_trunc(bound_t a, bound_t b);
 static inline void bound_sqrt(bound_t up, bound_t down, bound_t b);
+static inline void bound_pow(bound_t up, bound_t down, bound_t b, unsigned long n);
+static inline void bound_root(bound_t up, bound_t down, bound_t b, unsigned long n);
 
 
 /* ====================================================================== */

@@ -33,6 +33,7 @@ type binop = Texpr0.binop = \n\
   | Mul\n\
   | Div\n\
   | Mod\n\
+  | Pow\n\
 \n\
 (** Destination type for rounding *) \n\
 type typ = Texpr0.typ = \n\
@@ -425,7 +426,7 @@ let print_round = Texpr0.print_round\n\
 let rec print_expr fmt expr =\n\
   let precedence_of_expr = function\n\
     | Cst _\n\
-    | Var _ -> 5\n\
+    | Var _ -> 6\n\
     | Unop(op,_,_,_) -> Texpr0.print_precedence_of_unop op\n\
     | Binop(op,_,_,_,_) -> Texpr0.print_precedence_of_binop op\n\
   in\n\

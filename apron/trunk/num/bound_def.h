@@ -360,7 +360,34 @@ static inline void bound_sqrt(bound_t up, bound_t down, bound_t b)
     _bound_inf(down);
   }
 }
-
+static inline void bound_pow(bound_t up, bound_t down, bound_t b, unsigned long n)
+{
+  if (bound_infty(b)) {
+    bound_set_infty(up, 1);
+    bound_set_infty(down, 1);
+  }
+  else if (num_pow(bound_numref(up), bound_numref(down), bound_numref(b), n)) {
+    bound_set_infty(up,1);
+    if (n & 1) bound_set_infty(down,-1);
+    else bound_set_int(down, 0);
+  }
+  else {
+    _bound_inf(up);
+    _bound_inf(down);
+  }
+}
+static inline void bound_root(bound_t up, bound_t down, bound_t b, unsigned long n)
+{
+  if (bound_infty(b)) {
+    bound_set_infty(up, 1);
+    bound_set_infty(down, 1);
+  }
+  else {
+    num_root(bound_numref(up), bound_numref(down), bound_numref(b), n);
+    _bound_inf(up);
+    _bound_inf(down);
+  }  
+}
 static inline void bound_to_float(bound_t a, bound_t b)
 {
   if (bound_infty(b) || !num_fits_float(bound_numref(b)))

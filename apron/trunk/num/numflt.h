@@ -82,6 +82,8 @@ static inline void numflt_floor(numflt_t a, numflt_t b);
 static inline void numflt_ceil(numflt_t a, numflt_t b);
 static inline void numflt_trunc(numflt_t a, numflt_t b);
 static inline void numflt_sqrt(numflt_t up, numflt_t down, numflt_t b);
+static inline int  numflt_pow(numflt_t up, numflt_t down, numflt_t b, unsigned long int n);
+static inline void numflt_root(numflt_t up, numflt_t down, numflt_t b, unsigned long int n);
 static inline void numflt_mul_2exp(numflt_t a, numflt_t b, int c);
 
 /* ====================================================================== */

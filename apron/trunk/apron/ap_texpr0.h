@@ -38,6 +38,7 @@ typedef enum ap_texpr_op_t {
   /* Binary operators */
   AP_TEXPR_ADD, AP_TEXPR_SUB, AP_TEXPR_MUL, AP_TEXPR_DIV,
   AP_TEXPR_MOD,  /* either integer or real, no rounding */
+  AP_TEXPR_POW,
 
   /* Unary operators */
   AP_TEXPR_NEG   /* no rounding */,
@@ -151,7 +152,7 @@ static inline bool ap_texpr_is_unop(ap_texpr_op_t op){
   return (op>=AP_TEXPR_NEG && op<=AP_TEXPR_SQRT);
 }
 static inline bool ap_texpr_is_binop(ap_texpr_op_t op){
-  return (op<=AP_TEXPR_MOD);
+  return (op<=AP_TEXPR_POW);
 }
   /* Operator classification */
 

@@ -54,6 +54,9 @@ public class Texpr1BinNode
     /** Modulo (for integers or reals). */
     static public final int OP_MOD = 4;
 
+    /** Power. */
+    static public final int OP_POW = 5;
+
 
     // Operations
     /////////////
@@ -217,6 +220,8 @@ public class Texpr1BinNode
             return lArg.isIntervalPolynomial() && rArg.isIntervalPolynomial();
         case OP_DIV:
             return lArg.isIntervalPolynomial() && rArg.isIntervalCst();
+        case OP_POW:
+            return lArg.isIntervalPolynomial() && rArg.isIntervalCst();
         default: 
             return false;
         }
@@ -231,6 +236,8 @@ public class Texpr1BinNode
         case OP_MUL:
         case OP_DIV:
             return lArg.isIntervalPolyfrac() && rArg.isIntervalPolyfrac();
+        case OP_POW:
+            return lArg.isIntervalPolyfrac() && rArg.isIntervalCst();
         default: 
             return false;
         }

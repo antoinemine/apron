@@ -247,13 +247,13 @@ ap_texpr0_t* ap_texpr0_from_linexpr0(ap_linexpr0_t* e)
 /* ====================================================================== */
 
 static const char* ap_texpr_op_name[] =
-  { "+", "-", "*", "/", "%", /* binary */
-    "-", "cast", "sqrt",     /* unary */
+  { "+", "-", "*", "/", "%", "^", /* binary */
+    "-", "cast", "sqrt",          /* unary */
   };
 
 static const int ap_texpr_op_precedence[] =
-  { 1, 1, 2, 2, 2,  /* binary */
-    3, 4, 4         /* unary */
+  { 1, 1, 2, 2, 2, 3, /* binary */
+    4, 5, 5           /* unary */
   };
 
 static const char* ap_texpr_rtype_name[] =
@@ -568,6 +568,11 @@ bool ap_texpr0_is_interval_polynomial(ap_texpr0_t* a)
 	ap_texpr0_node_exact(a->val.node) &&
 	ap_texpr0_is_interval_polynomial(a->val.node->exprA) &&
 	ap_texpr0_is_interval_cst(a->val.node->exprB);
+    case AP_TEXPR_POW:
+      return
+	ap_texpr0_node_exact(a->val.node) &&
+        ap_texpr0_is_interval_polynomial(a->val.node->exprA) &&
+        ap_texpr0_is_interval_cst(a->val.node->exprB); /* check for positivity? */
     default:
       return false;
     }
@@ -600,6 +605,11 @@ bool ap_texpr0_is_interval_polyfrac(ap_texpr0_t* a)
 	ap_texpr0_node_exact(a->val.node) &&
 	ap_texpr0_is_interval_polyfrac(a->val.node->exprA) &&
 	ap_texpr0_is_interval_polyfrac(a->val.node->exprB);
+    case AP_TEXPR_POW:
+      return
+	ap_texpr0_node_exact(a->val.node) &&
+        ap_texpr0_is_interval_polyfrac(a->val.node->exprA) &&
+        ap_texpr0_is_interval_cst(a->val.node->exprB);
     default:
       return false;
     }

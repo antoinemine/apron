@@ -549,6 +549,97 @@ void ITVFUN(itv_div)(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
   }
 }
 
+
+/* ********************************************************************** */
+/* Power */
+/* ********************************************************************** */
+
+void ITVFUN(itv_pow)(itv_internal_t* intern, itv_t a, itv_t b, itv_t n)
+{
+  long x;
+  assert(a != b && a != n);
+  if (itv_is_bottom(intern, b) || itv_is_bottom(intern, n)) {
+    itv_set_bottom(a);
+    return;
+  }
+  /* ensures that the exponent is a singleton */
+  bound_neg(intern->mul_bound, n->inf);
+  if (bound_infty(n->sup) || bound_cmp(intern->mul_bound, n->sup)) {
+    itv_set_top(a);
+    return;
+  }
+  /* ensures that the exponent is a positive integer, stores it in x */
+  int_set_num(&x, bound_numref(n->sup));
+  bound_set_int(intern->mul_bound, x);
+  if (bound_cmp(intern->mul_bound, n->sup) || x < 0) {
+    itv_set_top(a);
+    return;
+  }
+  if (x & 1) itv_set(intern->mul_itv, b);
+  else itv_abs(intern->mul_itv, b);
+  bound_neg(intern->mul_itv->inf, intern->mul_itv->inf);
+  bound_pow(a->sup, intern->mul_bound, intern->mul_itv->sup, x);
+  bound_pow(intern->mul_bound, a->inf, intern->mul_itv->inf, x);
+  bound_neg(a->inf, a->inf);
+}
+
+/* inverse of pow, uses the sign of orga to determine the sign of a */
+void ITVFUN(itv_inv_pow)(itv_internal_t* intern, itv_t a, itv_t orga, itv_t b, itv_t n)
+{
+  long x;
+  assert(a != b && a != n);
+  if (itv_is_bottom(intern, b) || itv_is_bottom(intern, orga) || itv_is_bottom(intern, n)) {
+    itv_set_bottom(a);
+    return;
+  }
+  /* ensures that the exponent is a singleton */
+  bound_neg(intern->mul_bound, n->inf);
+  if (bound_infty(n->sup) || bound_cmp(intern->mul_bound, n->sup)) {
+    itv_set_top(a);
+    return;
+  }
+  /* ensures that the exponent is a positive integer, stores it in x */
+  int_set_num(&x, bound_numref(n->sup));
+  bound_set_int(intern->mul_bound, x);
+  if (bound_cmp(intern->mul_bound, n->sup) || x < 0) {
+    itv_set_top(a);
+    return;
+  }
+  if (!x) {
+    /* special case: 0-th root is undefined */
+    itv_set_top(a);
+    return;
+  }
+  if ((x & 1) || (bound_sgn(b->inf) <= 0)) {
+    /* keep bound sign */
+    bound_set(intern->mul_itv->sup, b->sup);
+    bound_neg(intern->mul_itv->inf, b->inf);
+  }
+  else {
+    /* intersect with [0;+oo] */
+    if (bound_sgn(b->sup) < 0) {
+      itv_set_bottom(a);
+      return;
+    }
+    bound_set(intern->mul_itv->sup, b->sup);
+    bound_set_int(intern->mul_itv->inf, 0);
+  }
+  bound_root(a->sup, intern->mul_bound, intern->mul_itv->sup, x);
+  bound_root(intern->mul_bound, a->inf, intern->mul_itv->inf, x);
+  bound_neg(a->inf, a->inf);
+  if (!(x & 1)) {
+    /* fix the sign of a depending on the sign of orga */
+    if ((bound_sgn(orga->sup) <= 0)) {
+      /* orga is negative -> the result is negative */
+      bound_swap(a->inf,a->sup);
+    }
+    else if (bound_sgn(orga->inf) >= 0) {
+      /* orga has unknown sign -> result has unknown sign */
+      bound_set(a->inf, a->sup);
+    }
+  }
+}
+
 /* ********************************************************************** */
 /* Printing */
 /* ********************************************************************** */

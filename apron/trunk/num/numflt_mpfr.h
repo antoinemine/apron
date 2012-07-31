@@ -113,6 +113,19 @@ static inline void numflt_sqrt(numflt_t up, numflt_t down, numflt_t b)
   mpfr_sqrt(up,b,GMP_RNDU);
   mpfr_sqrt(down,b,GMP_RNDD);
 }
+static inline int  numflt_pow(numflt_t up, numflt_t down, numflt_t b, unsigned long int n)
+{
+  mpfr_pow_ui(up, b, n, GMP_RNDU);
+  mpfr_pow_ui(down, b, n, GMP_RNDD);
+  return 0;
+}
+static inline void numflt_root(numflt_t up, numflt_t down, numflt_t b, unsigned long int n)
+{
+  assert(n > 0);
+  assert((n & 1) || (mpfr_sgn(b) >= 0));
+  mpfr_root(up, b, n, GMP_RNDU);
+  mpfr_root(down, b, n, GMP_RNDD);
+}
 static inline void numflt_mul_2exp(numflt_t a, numflt_t b, int c)
 { mpfr_mul_2si(a,b,c,GMP_RNDU); }
 
