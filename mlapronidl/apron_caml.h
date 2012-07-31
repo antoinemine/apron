@@ -161,11 +161,11 @@ value camlidl_apron_texpr_unop_t_c2ml(ap_texpr_op_t* op)
 static inline
 void camlidl_apron_texpr_binop_t_ml2c(value v, ap_texpr_op_t* op)
 {
-  *op = (ap_texpr_op_t)(Int_val(v)); assert(*op<=AP_TEXPR_MOD); }
+  *op = (ap_texpr_op_t)(Int_val(v)); assert(*op<=AP_TEXPR_POW); }
 static inline
 value camlidl_apron_texpr_binop_t_c2ml(ap_texpr_op_t* op)
 {
-  assert(*op<=AP_TEXPR_MOD); return Val_int((*op));
+  assert(*op<=AP_TEXPR_POW); return Val_int((*op));
 }
 static inline
 void camlidl_apron_texpr_rtype_t_ml2c(value v, ap_texpr_rtype_t* op)

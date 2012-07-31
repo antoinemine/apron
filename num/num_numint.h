@@ -110,6 +110,10 @@ static inline void num_trunc(num_t a, num_t b)
 	      { numint_set(a,b); }
 static inline void num_sqrt(num_t up, num_t down, num_t b)
 	      { numint_sqrt(up,down,b); }
+static inline int  num_pow(num_t up, num_t down, num_t b, unsigned long int n)
+              { return numint_pow(up,down,b,n); }
+static inline void num_root(num_t up, num_t down, num_t b, unsigned long int n)
+              { numint_root(up,down,b,n); }
 static inline void num_mul_2exp(num_t a, num_t b, int c)
 	      { numint_mul_2exp(a,b,c); }
 

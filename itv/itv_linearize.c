@@ -820,6 +820,9 @@ itv_eval_ap_texpr0_node(itv_internal_t* intern,
   case AP_TEXPR_DIV:
     itv_div(intern, res, arg1, arg2);
     break;
+  case AP_TEXPR_POW:
+    itv_pow(intern, res, arg1, arg2);
+    break;
   case AP_TEXPR_MOD:
     itv_mod(intern, res, arg1, arg2, n->type==AP_RTYPE_INT);
     return; /* no rounding */
@@ -908,6 +911,7 @@ ap_texpr0_node_intlinearize_linear(itv_internal_t* intern,
 
   case AP_TEXPR_MOD:
   case AP_TEXPR_SQRT:
+  case AP_TEXPR_POW:
     exc = true;
     break;
 
@@ -1418,6 +1422,27 @@ ap_texpr0_node_intlinearize(itv_internal_t* intern,
     itv_clear(i1);
     itv_linexpr_clear(&l1);
     break;
+  
+  case AP_TEXPR_POW:
+    itv_init(i1);
+    itv_linexpr_init(&l1,0);
+    /* intlinearize arguments, lres & l1 are not used */
+    itv_intlinearize_texpr0_rec(intern,n->exprA,env,intdim,lres,ires);
+    itv_intlinearize_texpr0_rec(intern,n->exprB,env,intdim,&l1,i1);
+    if (itv_is_bottom(intern,i1) || itv_is_bottom(intern,ires)){
+      itv_set_bottom(ires);
+      itv_linexpr_reinit(lres,0);
+      itv_set(lres->cst,ires);
+    }
+    else {
+      itv_pow(intern,ires,ires,i1);
+      itv_linexpr_reinit(lres,0);
+      itv_set(lres->cst,ires);
+      lres->equality = itv_is_point(intern,lres->cst);
+    }
+    itv_clear(i1);
+    itv_linexpr_clear(&l1);
+    break;
 
   default:
     assert(0);
@@ -1886,6 +1911,17 @@ itv_refine_ap_texpr0_node(itv_internal_t* intern,
     break;
     
     break;
+      
+  case AP_TEXPR_POW:
+    /* unround */
+    itv_unround(intern, intern->eval_itv3, res, n->type, n->dir);
+    /* keep right argument */
+    itv_set(arg2r, arg2);
+    /* refine left argument */
+    itv_inv_pow(intern, arg1r, arg1, res, arg2);
+    itv_meet(intern, arg1r, arg1r, arg1);
+    break;
+
   case AP_TEXPR_MOD:
     /* fall-back: no refinement */
     itv_set(arg1r, arg1);
@@ -2012,6 +2048,7 @@ ITVFUN(itv_meet_ap_tcons0_array)(itv_internal_t* intern,
 {
   bool empty = false;
   size_t i;
+  int j;
   int n;
   itv_expr_t** tab = malloc(array->size*sizeof(itv_expr_t*));
   /* annotate expressions */

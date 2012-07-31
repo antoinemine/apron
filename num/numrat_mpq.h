@@ -174,6 +174,24 @@ static inline void numrat_sqrt(numrat_t up, numrat_t down, numrat_t b)
   mpz_clear(tmp);
 }
 
+static inline int numrat_pow(numrat_t up, numrat_t down, numrat_t b, unsigned long int n)
+{
+  mpz_pow_ui(numrat_numref(up), numrat_numref(b), n);
+  mpz_pow_ui(numrat_denref(up), numrat_denref(b), n);
+  numrat_canonicalize(up);
+  mpz_set(numrat_numref(down), numrat_numref(up));
+  mpz_set(numrat_denref(down), numrat_denref(up));
+ return 0;
+}
+
+static inline void numrat_root(numrat_t up, numrat_t down, numrat_t b, unsigned long int n)
+{
+  numint_root(numrat_numref(up), numrat_numref(down), numrat_numref(b), n);
+  numint_root(numrat_denref(down), numrat_denref(up), numrat_denref(b), n);
+  numrat_canonicalize(up);
+  numrat_canonicalize(down);
+}
+
 static inline void numrat_mul_2exp(numrat_t a, numrat_t b, int c)
 {
   if (c>=0) mpq_mul_2exp(a,b,c);

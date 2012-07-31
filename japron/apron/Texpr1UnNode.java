@@ -37,13 +37,13 @@ public class Texpr1UnNode
     ////////////
 
     /** Negation (no rounding). */
-    static public final int OP_NEG = 5;
+    static public final int OP_NEG = 6;
 
     /** Cast. */
-    static public final int OP_CAST = 6;
+    static public final int OP_CAST = 7;
 
     /** Square root. */
-    static public final int OP_SQRT = 2;
+    static public final int OP_SQRT = 8;
 
     // Operations
     /////////////

@@ -244,6 +244,15 @@ bool ITVFUN(itv_set_ap_coeff)(itv_internal_t* intern, itv_t itv, ap_coeff_t* coe
 bool ITVFUN(ap_interval_set_itv)(itv_internal_t* intern,  ap_interval_t* a, itv_t b);
 bool ITVFUN(ap_coeff_set_itv)(itv_internal_t* intern, ap_coeff_t* a, itv_t b);
 bool ITVFUN(itv_array_set_ap_interval_array)(itv_internal_t* intern, itv_t** ptitv, ap_interval_t** array, size_t size);
+  
+/** The power operator */
+void ITVFUN(itv_pow)(itv_internal_t* intern, itv_t a, itv_t b, itv_t n);
+static inline void itv_pow(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
+{ ITVFUN(itv_pow)(intern,a,b,c); }
+void ITVFUN(itv_inv_pow)(itv_internal_t* intern, itv_t a, itv_t orga, itv_t b, itv_t n);
+static inline void itv_inv_pow(itv_internal_t* intern, itv_t a, itv_t orga, itv_t b, itv_t c)
+{ ITVFUN(itv_inv_pow)(intern,a,orga,b,c); }
+
 
 static inline void itv_internal_init(itv_internal_t* intern)
 { ITVFUN(itv_internal_init)(intern); }

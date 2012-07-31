@@ -36,6 +36,7 @@ void testunopi(char* str, bool (*ptr)(itv_internal_t*,itv_t,itv_t),itv_t c, itv_
   printf("x = unop x = "); itv_print(a); printf("\n"); 
   if (! itv_is_eq(a,c)) abort();
   itv_set(a,a2);
+  itv_clear(a2);
 }
 void testunop(char* str, void (*ptr)(itv_t,itv_t),itv_t c, itv_t a)
 {
@@ -48,6 +49,35 @@ void testunop(char* str, void (*ptr)(itv_t,itv_t),itv_t c, itv_t a)
   printf("x = unop x = "); itv_print(a); printf("\n"); check(a);
   if (! itv_is_eq(a,c)) abort();
   itv_set(a,a2);
+  itv_clear(a2);
+}
+
+void test_pow(itv_t a, int n)
+{
+  itv_t r,x;
+  itv_init(r); itv_init(x);
+  itv_set_int(x,n);
+  itv_pow(intern,r,a,x);
+  printf("x ^ %i = ", n); itv_print(r); printf("\n");
+  itv_clear(r); itv_clear(x);
+}
+
+void test_inv_pow(itv_t a, int n)
+{
+  itv_t r,x,p;
+  itv_init(r); itv_init(x); itv_init(p);
+  itv_set_int(x,n);
+  itv_set_int2(p,1,1);
+  itv_inv_pow(intern,r,p,a,x);
+  printf("x ^ 1/%i = ", n); itv_print(r);
+  itv_set_int2(p,-1,-1);
+  itv_inv_pow(intern,r,p,a,x);
+  printf(" / "); itv_print(r);
+  itv_set_int2(p,-1,1);
+  itv_inv_pow(intern,r,p,a,x);
+  printf(" / "); itv_print(r);
+  printf("\n");
+  itv_clear(r); itv_clear(x); itv_clear(p);
 }
 
 void testun(itv_t a)
@@ -68,6 +98,8 @@ void testun(itv_t a)
   testunop("to_double",itv_to_double,c,a);
   itv_mul_2exp(c,a,2); printf("x << 2 = "); itv_print(c); printf("\n");
   itv_mul_2exp(c,a,-2); printf("x >> 2 = "); itv_print(c); printf("\n");
+  test_pow(a,0); test_pow(a,1); test_pow(a,2); test_pow(a,3); test_pow(a,10); test_pow(a,11);
+  test_inv_pow(a,0); test_inv_pow(a,1); test_inv_pow(a,2); test_inv_pow(a,3); test_inv_pow(a,10); test_inv_pow(a,11);
   printf("\n");
   itv_clear(c);
   itv_clear(a2);
@@ -178,7 +210,7 @@ void testmod(itv_t a, itv_t b)
   itv_mod(intern,a,a,a,0);
   printf("x = x mod x = "); itv_print(a); printf("\n");
   itv_set(a,a2);
-  itv_clear(c);
+  itv_clear(c); itv_clear(a2); itv_clear(b2);
 }
 
 void set_double(itv_t a, double inf, double sup)

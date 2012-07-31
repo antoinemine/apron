@@ -118,6 +118,13 @@ static inline void num_trunc(num_t a, num_t b);
 static inline void num_sqrt(num_t up, num_t down, num_t b);
   /* Compute both an upper bound and a lower bound */
 
+static inline int num_pow(num_t up, num_t down, num_t b, unsigned long int n);
+  /* Compute b ^ n, returns non-zero in case of overflow  */
+
+static inline void num_root(num_t up, num_t down, num_t b, unsigned long int n);
+  /* Compute an upper bound and a lower bound of b ^ (-n) */
+
+
 /* ====================================================================== */
 /* Arithmetic Tests */
 /* ====================================================================== */

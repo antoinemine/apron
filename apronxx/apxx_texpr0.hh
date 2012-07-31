@@ -264,7 +264,7 @@ public:
     
     /*! \brief Returns the operator kind of an operator node.
      *
-     * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD,
+     * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD, \c AP_TEXPR_POW
      * \c AP_TEXPR_NEG, \c AP_TEXPR_CAST, or \c AP_TEXPR_SQRT.
      * \throw bad_discriminant if the node is not an operator node.
      */
@@ -471,7 +471,7 @@ public:
     
     /*! \brief Returns a (modifiable) reference to the operator kind of an operator node.
      *
-     * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD,
+     * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD, \c AP_TEXPR_POW
      * \c AP_TEXPR_NEG, \c AP_TEXPR_CAST, or \c AP_TEXPR_SQRT.
      * \throw bad_discriminant if the node is not an operator node.
      */
@@ -729,7 +729,7 @@ public:
      * Creates only one node. The argument expressions is aliased, not copied.
      *
      * \arg \c op should be a binary operator: addition (\c AP_TEXPR_ADD), subtraction (\c AP_TEXPR_SUB), 
-     * multiplication (\c AP_TEXPR_MUL), division (\c AP_TEXPR_DIV), or modulo (\c AP_TEXPR_MOD).
+     * multiplication (\c AP_TEXPR_MUL), division (\c AP_TEXPR_DIV), modulo (\c AP_TEXPR_MOD), or power (\c AP_TEXPR_POW).
      * \arg \c argA should point to the left argument expression.
      * \arg \c argB should point to the right argument expression.
      * \arg \c rtype is the destination type (for rounding): reals (\c AP_RTYPE_REAL, means no rounding),
@@ -760,6 +760,10 @@ public:
 
     //! Makes an \c AP_TEXPR_MOD expression node.
     friend builder mod(const builder& a, const builder& b, 
+		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+
+    //! Makes an \c AP_TEXPR_POW expression node.
+    friend builder pow(const builder& a, const builder& b, 
 		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
 
     //! Makes an \c AP_TEXPR_NEG expression node.
@@ -802,6 +806,9 @@ public:
 
     //! Makes a \c AP_TEXPR_MOD expression node using \c AP_RTYPE_REAL type (no rounding).
     friend builder operator%(const builder& a, const builder& b);
+
+    //! Makes a \c AP_TEXPR_POW expression node using \c AP_RTYPE_REAL type (no rounding).
+    friend builder operator^(const builder& a, const builder& b);
 
     //@}
 

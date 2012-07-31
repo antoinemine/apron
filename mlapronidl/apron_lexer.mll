@@ -82,6 +82,8 @@ rule lex = parse
     { TK_DIV(attributes_of_string 1 lexbuf) }
 | "%"(('_'['i''f''d''l''q'])(','("n"|"0"|"+oo"|"-oo"|"?"))?)?
     { TK_MODULO(attributes_of_string 1 lexbuf) }
+| ("^"|"**")(('_'['i''f''d''l''q'])(','("n"|"0"|"+oo"|"-oo"|"?"))?)?
+    { TK_POW(attributes_of_string 1 lexbuf) }
 | "cast"(('_'['i''f''d''l''q'])(','("n"|"0"|"+oo"|"-oo"|"?"))?)?
     { TK_CAST(attributes_of_string 4 lexbuf) }
 | "sqrt"(('_'['i''f''d''l''q'])(','("n"|"0"|"+oo"|"-oo"|"?"))?)?

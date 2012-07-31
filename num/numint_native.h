@@ -162,6 +162,45 @@ static inline void numint_sqrt(numint_t up, numint_t down, numint_t b)
   }
 }
 
+static inline int numint_pow(numint_t up, numint_t down, numint_t b, unsigned long int n)
+{
+  numint_native r = 1;
+  numint_native f = *b;
+  while (n) {
+    if (n & 1) r *= f;
+    f *= f;
+    if (f <= 0) return 1;
+    n >>= 1;
+  }
+  *up = r;
+  *down = *up;
+  return 0;
+}
+
+static inline void numint_root(numint_t up, numint_t down, numint_t b, unsigned long int n)
+{
+  /* we rely on GMP to do the heavy lifting for us */
+  mpz_t arg,res;
+  int exact;
+  long r;
+  assert(n > 0);
+  assert((n & 1) || (*b >= 0));
+  mpz_init_set_si(arg, (*b >= 0) ? *b : -*b);
+  mpz_init(res);
+  exact = mpz_root(res, arg, n);
+  r = mpz_get_ui(res);
+  if (*b >= 0) {
+    if (exact) *up = *down = r;
+    else { *down = r; *up = r+1; }
+  }
+  else {
+    if (exact) *up = *down = -r;
+    else { *down = -r-1; *up = -r; }
+  }
+  mpz_clear(arg);
+  mpz_clear(res);
+}
+
 static inline void numint_mul_2exp(numint_t a, numint_t b, int c)
 {
   if (c>=0) *a = *b << c;

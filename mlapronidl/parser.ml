@@ -27,7 +27,7 @@
   [texpr ::= coeff | identifier | unop texpr | texpr binop texpr | '(' texpr ')']
 
   [binop ::=
-  ('+'|'-'|'*'|'/'|'%')['_'('i'|'f'|'d'|'l'|'q')][','('n'|'0'|'+oo'|'-oo')]]
+  ('+'|'-'|'*'|'/'|'%'|'^')['_'('i'|'f'|'d'|'l'|'q')][','('n'|'0'|'+oo'|'-oo')]]
 
   [unop ::= ('cast' |
   'sqrt')['_'('i'|'f'|'d'|'l'|'q')][','('n'|'0'|'+oo'|'-oo')]]

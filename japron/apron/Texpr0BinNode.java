@@ -53,7 +53,10 @@ public class Texpr0BinNode
     /** Modulo (for integers or reals). */
     static public final int OP_MOD = 4;
 
-    /** Returns a String representation of an operator. */
+    /** Power. */
+    static public final int OP_POW = 5;
+
+   /** Returns a String representation of an operator. */
     static public String opName(int op)
     {
         switch (op) {
@@ -62,7 +65,8 @@ public class Texpr0BinNode
         case OP_MUL: return "*";
         case OP_DIV: return "/";
         case OP_MOD: return "%";
-        default: throw new IllegalArgumentException("unknown binary operation: "+op);
+        case OP_POW: return "^";
+       default: throw new IllegalArgumentException("unknown binary operation: "+op);
         }
     }
 
@@ -74,7 +78,8 @@ public class Texpr0BinNode
         case OP_SUB: return 1;
         case OP_MUL: 
         case OP_DIV: 
-        case OP_MOD: return 2;
+        case OP_MOD:
+        case OP_POW: return 2;
         default: throw new IllegalArgumentException("unknown binary operation: "+op);
         }
     }
@@ -248,6 +253,8 @@ public class Texpr0BinNode
             return lArg.isIntervalPolynomial() && rArg.isIntervalPolynomial();
         case OP_DIV:
             return lArg.isIntervalPolynomial() && rArg.isIntervalCst();
+        case OP_POW:
+            return lArg.isIntervalPolynomial() && rArg.isIntervalCst();
         default: 
             return false;
         }
@@ -262,7 +269,9 @@ public class Texpr0BinNode
         case OP_MUL:
         case OP_DIV:
             return lArg.isIntervalPolyfrac() && rArg.isIntervalPolyfrac();
-        default: 
+        case OP_POW:
+            return lArg.isIntervalPolyfrac() && rArg.isIntervalCst();
+       default: 
             return false;
         }
     }

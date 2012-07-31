@@ -72,6 +72,8 @@ static inline void numrat_floor(numrat_t a, numrat_t b);
 static inline void numrat_ceil(numrat_t a, numrat_t b);
 static inline void numrat_trunc(numrat_t a, numrat_t b);
 static inline void numrat_sqrt(numrat_t up, numrat_t down, numrat_t b);
+static inline int  numrat_pow(numrat_t up, numrat_t down, numrat_t b, unsigned long int n);
+static inline void numrat_root(numrat_t up, numrat_t down, numrat_t b, unsigned long int n);
 static inline void numrat_mul_2exp(numrat_t a, numrat_t b, int c);
 
 /* ====================================================================== */

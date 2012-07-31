@@ -22,13 +22,13 @@ const abstract1 abstract1::null((ap_abstract1_t){NULL,NULL});
 const int varname::xindex = std::ios_base::xalloc();     
 
 static const char* apxx_texpr_op_name[] =
-  { "+", "-", "*", "/", "%", /* binary */
-    "-", "cast", "sqrt",     /* unary */
+  { "+", "-", "*", "/", "%", "^", /* binary */
+    "-", "cast", "sqrt",          /* unary */
   };
 
 static const int apxx_texpr_op_precedence[] =
-  { 1, 1, 2, 2, 2,  /* binary */
-    3, 4, 4         /* unary */
+  { 1, 1, 2, 2, 2, 3, /* binary */
+    4, 5, 5           /* unary */
   };    
 
 static const char* apxx_texpr_rtype_name[] =

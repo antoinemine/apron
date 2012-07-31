@@ -115,6 +115,40 @@ static inline void numint_sqrt(numint_t up, numint_t down, numint_t b)
   else mpz_add_ui(up,down,1);
 }
 
+static inline int numint_pow(numint_t up, numint_t down, numint_t b, unsigned long int n)
+{
+  mpz_pow_ui(up, b, n);
+  mpz_set(down, up);
+  return 0;
+}
+
+static inline void numint_root(numint_t up, numint_t down, numint_t b, unsigned long int n)
+{
+  int sign = 0;
+  assert(n > 0);
+  assert((n & 1) || (mpz_sgn(b) >= 0));
+  if (mpz_sgn(b) < 0) {
+    mpz_neg(b,b);
+    if (mpz_root(up, b, n)) {
+      mpz_neg(up, up);
+      mpz_set(down, up);
+    }
+    else {
+      mpz_neg(up, up);
+      mpz_sub_ui(down, up, 1);
+    }  
+    mpz_neg(b,b);
+  }
+  else {
+    if (mpz_root(down, b, n)) {
+      mpz_set(up, down);
+    }
+    else {
+      mpz_add_ui(up, down, 1);
+    }  
+  }
+}
+
 static inline void numint_mul_2exp(numint_t a, numint_t b, int c)
 {
   if (c>=0) mpz_mul_2exp(a,b,c);
