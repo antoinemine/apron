@@ -73,8 +73,8 @@ ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so 
 endif
 
-LIBS = -L../apron -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
-LIBS_DEBUG = -L../apron -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS = -L$(APRON_PREFIX) -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS_DEBUG = -L$(APRON_PREFIX) -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
 
 #---------------------------------------
 # Rules
@@ -174,9 +174,9 @@ libbox%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libbox%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS) -L../apron
 libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG) -L../apron
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -207,7 +207,7 @@ libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 	$(RANLIB) $@
 
 dllbox%_caml.so: box_caml.o libbox%.so
-	$(CC) $(CFLAGS) -shared -o $@ box_caml.o -L. -lbox$* $(LIBS)
+	$(CC) $(CFLAGS) -shared -o $@ box_caml.o -L. -lbox$* $(LIBS) -L../apron
 
 box_caml.o: box_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -I../apron -DNUM_MPQ -c -o $@ $<
@@ -219,10 +219,10 @@ box_caml_debug.o: box_caml.c
 #---------------------------------------
 
 box%.cma: box.cmo libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo -L. -lbox$* $(LIBS)
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo -L. -lbox$* $(LIBS) -L../apron
 
 box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx -L$(APRON_PREFIX)/lib -L. -lbox$* $(LIBS) 
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx -L$(APRON_PREFIX)/lib -L. -lbox$* $(LIBS) -L../apron
 
 #---------------------------------------
 # IDL rules

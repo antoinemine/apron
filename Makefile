@@ -89,16 +89,33 @@ OCAMLFIND_FILES = \
 	$(patsubst %,taylor1plus/%, t1p.mli t1p.cmi t1p.cmx) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO)))
+	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,mlapronidl/%.idl, scalar interval coeff \
+dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
+var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy \
+disjunction) \
+	mlapronidl/apron_caml.h
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
-	$(patsubst %,ppl/%, ppl.mli ppl.cmi ppl.cma ppl.cmx ppl.cmxa ppl.a libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.so) \
-	$(patsubst %,products/%, polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
+	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx ppl.cmxa ppl.a libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.so) \
+	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
 endif
 ifneq ($(OCAMLPACK),)
 OCAMLFIND_FILES += mlapronidl/apron_ocamldoc.mli
+endif
+ifneq ($(HAS_TYPEREX),)
+OCAMLFIND_FILES += mlapronidl/apron.cmt \
+	$(patsubst %,box/%, box.cmti box.cmt) \
+	$(patsubst %,octagons/%, oct.cmti oct.cmt) \
+	$(patsubst %,newpolka/%, polka.cmti polka.cmt) \
+	$(patsubst %,taylor1plus/%, t1p.cmti t1p.cmt)
+ifneq ($(HAS_PPL),)
+OCAMLFIND_FILES += \
+	$(patsubst %,ppl/%, ppl.cmti ppl.cmt) \
+	$(patsubst %,products/%, polkaGrid.cmti polkaGrid.cmt)
+endif
 endif
 
 install:
@@ -123,7 +140,11 @@ ifneq ($(HAS_PPL),)
 endif
 else
 	$(OCAMLFIND) remove apron
-	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)
+	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES) \
+mlapronidl/apron.d.cmxa mlapronidl/apron.d.a \
+newpolka/polkaMPQ.d.cmxa newpolka/polkaMPQ.d.a \
+newpolka/polkaRll.d.cmxa newpolka/polkaRll.d.a
+
 endif
 endif
 ifneq ($(HAS_CPP),)
@@ -160,7 +181,7 @@ distclean: clean
 	(cd examples; make distclean)
 	(cd apronxx; make distclean)
 
-uninstall: 
+uninstall:
 	(cd num; make uninstall)
 	(cd itv; make uninstall)
 	(cd apron; make uninstall)
