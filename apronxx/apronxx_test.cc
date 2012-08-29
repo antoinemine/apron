@@ -18,6 +18,7 @@
 #include "apxx_box.hh"
 #include "apxx_oct.hh"
 #include "apxx_polka.hh"
+#include "apxx_t1p.hh"
 
 #if HAS_PPL
 #include "apxx_ppl.hh"
@@ -2802,6 +2803,15 @@ void test_polka()
   mm = polka_manager(true);
   test_manager(m,mm);
 }
+
+void test_t1p()
+{
+  cout << endl << "Taylor1plus" 
+       << endl << "=======" << endl << endl;
+  t1p_manager m,mm;
+  test_manager(m,mm);
+}
+
 
 #if HAS_PPL
 void test_ppl()
