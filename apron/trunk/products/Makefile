@@ -51,8 +51,8 @@ CCLIB_TO_INSTALL += \
 libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
 endif
 
-LIBS = -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl -L../apron -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -L../ppl -lap_ppl_debug -L$(PPL_PREFIX)/lib -lppl -L../apron -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS = -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS_DEBUG = -L../ppl -lap_ppl_debug -L$(PPL_PREFIX)/lib -lppl -L$(APRON_PREFIX) -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
 
 #---------------------------------------
 # Rules

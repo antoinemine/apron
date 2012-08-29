@@ -76,8 +76,8 @@ ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
 endif
 
-LIBS = -L../apron -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -L../apron -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS = -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS_DEBUG = -L$(APRON_PREFIX) -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
 
 #---------------------------------------
 # Rules
@@ -196,9 +196,9 @@ libt1p%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libt1p%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS) -L../apron
 libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG) -L../apron
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -229,9 +229,9 @@ libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 	$(RANLIB) $@
 
 dllt1p%_caml.so: t1p_caml.o libt1p%.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  -L. -lt1p$* $(LIBS)
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  -L. -lt1p$* $(LIBS) -L../apron
 dllt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o -L. -lt1p$*_debug $(LIBS_DEBUG)
+	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o -L. -lt1p$*_debug $(LIBS_DEBUG) -L../apron
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<

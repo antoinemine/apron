@@ -71,14 +71,16 @@ libpolkaRll_caml.a libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
 CAML_TO_INSTALL += \
 polkaMPQ.cmxa polkaMPQ.a \
-polkaRll.cmxa polkaRll.a
+polkaRll.cmxa polkaRll.a \
+polkaMPQ.d.cmxa polkaMPQ.d.a \
+polkaRll.d.cmxa polkaRll.d.a
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllpolkaMPQ_caml.so dllpolkaRll_caml.so 
+CAML_TO_INSTALL += dllpolkaMPQ_caml.so dllpolkaRll_caml.so
 endif
 
-LIBS = -L../apron -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
-LIBS_DEBUG = -L../apron -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS = -L../apron -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
+LIBS_DEBUG = -L../apron -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -102,8 +104,8 @@ ml: polka.mli polka.ml polka.cmi mlMPQ mlRll
 mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
 mlRll: polkaRll.cma libpolkaRll_caml.a libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: polkaMPQ.cmxa polkaMPQ.a
-mlRll: polkaRll.cmxa polkaRll.a
+mlMPQ: polkaMPQ.cmxa polkaMPQ.a polkaMPQ.d.cmxa polkaMPQ.d.a
+mlRll: polkaRll.cmxa polkaRll.a polkaRll.d.cmxa polkaRll.d.a
 endif
 ifneq ($(HAS_SHARED),)
 mlMPQ: dllpolkaMPQ_caml.so
@@ -166,7 +168,7 @@ dist: $(CCSRC) Makefile sedscript_caml newpolka.texi polka.idl polka.ml polka.ml
 
 .SUFFIXES: .tex .c .h .a .o
 
-.PRECIOUS: libpolka%.a libpolka%_debug.a libpolka%.so libpolka%_debug.so 
+.PRECIOUS: libpolka%.a libpolka%_debug.a libpolka%.so libpolka%_debug.so
 .PRECIOUS: libpolka%_caml.a libpolka%_caml_debug.a dllpolka%_caml.so
 .PRECIOUS: %Rl.o %Rll.o %MPQ.o
 .PRECIOUS: %Rl_debug.o %Rll_debug.o %MPQ_debug.o
@@ -233,10 +235,13 @@ dllpolka%_caml.so: polka_caml.o libpolka%.so
 #---------------------------------------
 
 polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -L. -lpolka$* $(LIBS) 
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o polka$* -oc polka$*_caml polka.cmo -L. -lpolka$* $(LIBS)
 
 polka%.cmxa polka%.a: polka.cmx libpolka%_caml.a libpolka%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -L. -lpolka$* $(LIBS) 
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$* -oc polka$*_caml polka.cmx -L. -lpolka$* $(LIBS)
+
+polka%.d.cmxa polka%.d.a: polka.cmx libpolka%_caml_debug.a libpolka%_debug.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o polka$*.d -oc polka$*_caml_debug polka.cmx -L. -lpolka$*_debug $(LIBS_DEBUG)
 
 #---------------------------------------
 # IDL rules

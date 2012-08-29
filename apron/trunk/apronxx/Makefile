@@ -37,6 +37,7 @@ ICXXFLAGS = \
 -I../ppl \
 -I../products \
 -I../box \
+-I../taylor1plus \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
 
 #---------------------------------------
@@ -61,7 +62,8 @@ CCINC = \
  apxx_expr0.hh               apxx_manager_inline.hh     apxx_texpr1.hh			\
  apxx_expr1.hh               apxx_oct.hh                apxx_texpr1_inline.hh		\
  apxx_generator0.hh          apxx_oct_inline.hh         apxx_var.hh			\
- apxx_generator0_inline.hh   apxx_polka.hh              apxx_var_inline.hh
+ apxx_generator0_inline.hh   apxx_polka.hh              apxx_var_inline.hh		\
+ apxx_t1p.hh apxx_t1p_inline.hh	
 
 LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -lgmpxx -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
 
@@ -131,7 +133,7 @@ libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L. -lapronxx_debug
+	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../taylor1plus -lt1pMPQ_debug -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L. -lapronxx_debug
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<
