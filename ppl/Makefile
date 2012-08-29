@@ -69,8 +69,8 @@ CXXSOURCES = ppl_user.cc ppl_poly.cc ppl_grid.cc
 CSOURCES = ppl_test.c
 CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 
-LIBS = -L$(PPL_PREFIX)/lib -lppl -L../apron -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -L$(PPL_PREFIX)/lib -lppl -L../apron -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS = -L$(PPL_PREFIX)/lib -lppl -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LIBS_DEBUG = -L$(PPL_PREFIX)/lib -lppl -L$(APRON_PREFIX) -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
 
 #---------------------------------------
 # Rules
@@ -134,9 +134,9 @@ libap_ppl_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_ppl.so: $(subst .cc,.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LIBS) -L../apron
 libap_ppl_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG) -L../apron
 
 ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 	$(CXX) $(CXXFLAGS) -o $@ ppl_test_debug.o \
@@ -189,13 +189,13 @@ libap_ppl_caml_debug.a: ap_ppl_caml_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 dllap_ppl_caml.so: ap_ppl_caml.o libap_ppl.so
-	$(CXX) $(CXXFLAGS) -shared -o $@ $<  -L. -lap_ppl $(LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $<  -L. -lap_ppl $(LIBS) -L../apron
 
 ppl.cma: ppl.cmo libap_ppl_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmo -L. -lap_ppl $(LIBS) 
+	$(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmo -L. -lap_ppl $(LIBS) -L../apron
 
 ppl.cmxa ppl.a: ppl.cmx libap_ppl_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmx -L. -lap_ppl $(LIBS) 
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmx -L. -lap_ppl $(LIBS) -L..:apron
 
 manager.idl: ../mlapronidl/manager.idl
 	ln -s $< $@

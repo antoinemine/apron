@@ -64,14 +64,14 @@ endif
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
-CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a 
+CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a
 ifneq ($(HAS_SHARED),)
 CCLIB_TOINSTALL += dllapron_caml.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
-LIBS = -L$(APRON_PREFIX)/lib -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
-LIBS_DEBUG = -L$(APRON_PREFIX)/lib -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS = -L$(APRON_PREFIX)/lib -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
+LIBS_DEBUG = -L$(APRON_PREFIX)/lib -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -80,7 +80,7 @@ LIBS_DEBUG = -L$(APRON_PREFIX)/lib -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$
 all: apron.cmi apron.cma libapron_caml.a libapron_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
-all: apron.cmxa apron.a
+all: apron.cmxa apron.a apron.d.cmxa apron.d.a
 endif
 
 ifneq ($(HAS_SHARED),)
@@ -115,7 +115,7 @@ clean:
 distclean: clean
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
-uninstall: 
+uninstall:
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
 	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%) libapron*.so
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
@@ -135,6 +135,9 @@ apron.cma: apron.cmo libapron_caml.a
 
 apron.cmxa apron.a: apron.cmx libapron_caml.a
 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx $(LIBS) -L../apron
+
+apron.d.cmxa apron.d.a: apron.cmx libapron_caml_debug.a
+	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron.d -oc apron_caml_debug apron.cmx $(LIBS_DEBUG) -L../apron
 
 libapron_caml.a: $(CCMODULES:%=%.o)
 	$(AR) rc $@ $^
@@ -166,7 +169,6 @@ apron_parser.ml apron_parser.mli: apron_parser.mly
 #---------------------------------------
 
 .PHONY: html
-
 apron_ocamldoc.mli: introduction.odoc $(MLMODULES:%=%.mli)
 	$(OCAMLPACK) -o apron_ocamldoc -title "APRON library" -intro introduction.odoc -intf $(MLMODULES)
 	$(SED) -i -e 's/{5/{6/g;s/{4/{5/g;s/{3/{4/g;s/{2/{3/g;s/{1/{2/g' $@
