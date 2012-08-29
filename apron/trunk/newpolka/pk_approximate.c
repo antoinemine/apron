@@ -81,19 +81,23 @@ static
 bool matrix_approximate_constraint_1(pk_internal_t* pk, matrix_t* C)
 {
   size_t i,j;
-  bool change;
+  bool change,removed;
   change = false;
-  for (i=0;i<C->nbrows; i++){
+  i=0;
+  while (i<C->nbrows){
+    removed = false;
     if (numint_sgn(C->p[i][0])){
       for (j=pk->dec; j<C->nbcolumns; j++){
 	if (numint_size2(C->p[i][j]) > pk->approximate_max_coeff_size){
 	  change = true;
+	  removed = true;
 	  C->nbrows--;
 	  matrix_exch_rows(C,i,C->nbrows);
 	  break;
 	}
       }
     }
+    if (!removed) i++;
   }
   if (change){
     /* Add positivity and strictness that may not be implied any more */
@@ -135,7 +139,7 @@ bool poly_approximate_1(ap_manager_t* man, pk_t* po, pk_t* pa)
 }
 
 /* ---------------------------------------------------------------------- */
-/* 1. Remove constraints with too big coefficients 
+/* 1. Remove constraints with too big coefficients
    2. Add interval constraints
    3. Add octagonal constraints
 */
@@ -145,7 +149,7 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
 {
   bool change;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
-  
+
   if (algorithm==1){
     poly_approximate_1(man,po,po);
   }
@@ -188,17 +192,17 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
       for (i=0; i<dim;i++){
 	matrix_bound_dimension(pk,itv,i,po->F);
 	if (!bound_infty(itv->inf)){
-	  vector_set_dim_bound(pk, 
-			       pa->C->p[nbrows], 
+	  vector_set_dim_bound(pk,
+			       pa->C->p[nbrows],
 			       i, bound_numref(itv->inf),
 			       -1,
 			       po->intdim, po->realdim, false);
 	  nbrows++;
 	}
 	if (!bound_infty(itv->sup)){
-	  vector_set_dim_bound(pk, 
-			       pa->C->p[nbrows], 
-			       i, bound_numref(itv->sup), 
+	  vector_set_dim_bound(pk,
+			       pa->C->p[nbrows],
+			       i, bound_numref(itv->sup),
 			       1,
 			       po->intdim, po->realdim, false);
 	  nbrows++;
@@ -211,21 +215,21 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
       numint_set_int(pk->poly_numintp[0],1);
       for (i=0; i<dim;i++){
 	numint_set_int(pk->poly_numintp[pk->dec+i],1);
-	nbrows2 = 2*(dim-i-1);
+	nbrows2 = 4*(dim-i-1);
 	matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
 	for (j=i+1; j<dim;j++){
 	  for (sgny=-1; sgny<=1; sgny += 2){
 	    numint_set_int(pk->poly_numintp[pk->dec+j],sgny);
 	    matrix_bound_vector(pk,itv,pk->poly_numintp,po->F);
 	    if (!bound_infty(itv->inf)){
-	      vector_set_linexpr_bound(pk, 
+	      vector_set_linexpr_bound(pk,
 				       pa->C->p[nbrows], pk->poly_numintp,
 				       itv->inf, -1,
 				       po->intdim, po->realdim, false);
 	      nbrows++;
 	    }
 	    if (!bound_infty(itv->sup)){
-	      vector_set_linexpr_bound(pk, 
+	      vector_set_linexpr_bound(pk,
 				       pa->C->p[nbrows], pk->poly_numintp,
 				       itv->sup, 1,
 				       po->intdim, po->realdim, false);
@@ -237,7 +241,7 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
 	numint_set_int(pk->poly_numintp[pk->dec+i],0);
       }
       pa->C->nbrows = nbrows;
-    }   
+    }
     itv_clear(itv);
     poly_clear(po);
     *po = *pa;
@@ -261,7 +265,7 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
   i = 0;
   while (i<C->nbrows){
     removed = false;
-    if (numint_sgn(C->p[i][0]) && 
+    if (numint_sgn(C->p[i][0]) &&
 	(pk->strict ? numint_sgn(C->p[i][polka_eps])<=0 : true)){
       /* Look for a too big coefficient in the row */
       size=0; /* for next test */
@@ -287,7 +291,7 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	/* C. Perform rounding of non constant coefficients */
 	size = maxsize - pk->approximate_max_coeff_size;
 	for (j=pk->dec; j<C->nbcolumns; j++){
-	  numint_fdiv_q_2exp(C->p[i][j],C->p[i][j], size);
+	  numint_tdiv_q_2exp(C->p[i][j],C->p[i][j], size);
 	}
 	/* D. Compute new constant coefficient */
 	numint_set_int(C->p[i][0],1);
@@ -300,12 +304,28 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	  removed = true;
 	}
 	else {
-	  /* Otherwise, we round the constant to an integer */
-	  bound_neg(itv->inf,itv->inf);
-	  numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
-			numrat_numref(bound_numref(itv->inf)),
-			numrat_denref(bound_numref(itv->inf)));
-	  numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
+	  if (false){
+	    /* we multiply by the denominator of inf value */
+	    if (numint_cmp_int(numrat_denref(bound_numref(itv->inf)),1)!=0){
+	      for (j=pk->dec; j<C->nbcolumns; j++){
+		numint_mul(C->p[i][j],C->p[i][j],numrat_denref(bound_numref(itv->inf)));
+	      }
+	    }
+	    numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
+	  } else {
+	    /* Otherwise, we round the constant to an integer */
+	    for (j=pk->dec; j<C->nbcolumns; j++){
+	      numint_mul_2exp(C->p[i][j],C->p[i][j],1);
+	    }
+	    bound_neg(itv->inf,itv->inf);
+	    numint_mul_2exp(numrat_numref(bound_numref(itv->inf)),
+			     numrat_numref(bound_numref(itv->inf)),
+			     1);
+	    numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
+			  numrat_numref(bound_numref(itv->inf)),
+			  numrat_denref(bound_numref(itv->inf)));
+	    numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
+	  }
 	  vector_normalize(pk,C->p[i],C->nbcolumns);
 	}
       	change = true;
@@ -362,12 +382,12 @@ Approximation:
 		 polyhedron)
 
 - algorithm==1: remove constraints with coefficients of size greater than
-	        max_coeff_size, if max_coeff_size > 0
+		max_coeff_size, if max_coeff_size > 0
 - algorithm==2: in addition, keep same bounding box (more precise)
 - algorithm==3: in addition, keep same bounding octagon (even more precise)
 
 - algorithm==10: round constraints with too big coefficients, of size greater than
-	         approximate_max_coeff_size, if approximate_max_coeff_size>0
+		 approximate_max_coeff_size, if approximate_max_coeff_size>0
 
 */
 void pk_approximate(ap_manager_t* man, pk_t* po, int algorithm)
@@ -398,4 +418,3 @@ void pk_approximate(ap_manager_t* man, pk_t* po, int algorithm)
   }
   assert(poly_check(pk,po));
 }
-
