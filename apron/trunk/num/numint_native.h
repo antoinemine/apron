@@ -139,6 +139,8 @@ static inline void numint_cdiv_q_2exp(numint_t a, numint_t b, unsigned long int 
 { *a = (*b >> c)+(*b & ((NUMINT_ONE<<c)-NUMINT_ONE) ? 1 : 0); }
 static inline void numint_fdiv_q_2exp(numint_t a, numint_t b, unsigned long int c)
 { *a = (*b >> c); }
+static inline void numint_tdiv_q_2exp(numint_t a, numint_t b, unsigned long int c)
+{ if (*b>=0) numint_fdiv_q_2exp(a,b,c); else numint_cdiv_q_2exp(a,b,c); }
 static inline void numint_min(numint_t a, numint_t b, numint_t c)
 { *a = (*b<=*c) ? *b : *c; }
 static inline void numint_max(numint_t a, numint_t b, numint_t c)

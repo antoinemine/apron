@@ -35,13 +35,13 @@ typedef mpz_t numint_t;
 static inline void numint_set(numint_t a, numint_t b)
 { mpz_set(a,b); }
 static inline void numint_set_array(numint_t* a, numint_t* b, size_t size)
-{ 
+{
   size_t i;
   for (i=0; i<size; i++) mpz_set(a[i],b[i]);
 }
 static inline void numint_set_int(numint_t a, long int i)
 { mpz_set_si(a,i); }
- 
+
 /* ====================================================================== */
 /* Constructors and Destructors */
 /* ====================================================================== */
@@ -50,8 +50,8 @@ static inline void numint_init(numint_t a)
 { mpz_init(a); }
 static inline void numint_init_array(numint_t* a, size_t size)
 {
-  size_t i; 
-  for (i=0; i<size; i++) mpz_init(a[i]); 
+  size_t i;
+  for (i=0; i<size; i++) mpz_init(a[i]);
 }
 static inline void numint_init_set(numint_t a, numint_t b)
 { mpz_init_set(a,b); }
@@ -61,9 +61,9 @@ static inline void numint_init_set_int(numint_t a, long int i)
 static inline void numint_clear(numint_t a)
 { mpz_clear(a); }
 static inline void numint_clear_array(numint_t* a, size_t size)
-{ 
-  size_t i; 
-  for (i=0; i<size; i++) mpz_clear(a[i]); 
+{
+  size_t i;
+  for (i=0; i<size; i++) mpz_clear(a[i]);
 }
 
 /* ====================================================================== */
@@ -100,6 +100,8 @@ static inline void numint_cdiv_q_2exp(numint_t a, numint_t b, unsigned long int 
 { mpz_cdiv_q_2exp(a,b,c); }
 static inline void numint_fdiv_q_2exp(numint_t a, numint_t b, unsigned long int c)
 { mpz_fdiv_q_2exp(a,b,c); }
+static inline void numint_tdiv_q_2exp(numint_t a, numint_t b, unsigned long int c)
+{ mpz_tdiv_q_2exp(a,b,c); }
 static inline void numint_min(numint_t a, numint_t b, numint_t c)
 { mpz_set(a, mpz_cmp(b,c)<=0 ? b : c); }
 static inline void numint_max(numint_t a, numint_t b, numint_t c)
@@ -193,9 +195,9 @@ static inline void numint_print(numint_t a)
 static inline void numint_fprint(FILE* stream, numint_t a)
 { mpz_out_str(stream,10,a); }
 static inline int numint_snprint(char* s, size_t size, numint_t a)
-{ 
+{
   int res;
-  if (mpz_sizeinbase(a,10)+2>size) 
+  if (mpz_sizeinbase(a,10)+2>size)
     res = snprintf(s,size, mpz_sgn(a)>0 ? "+BIG" : "-BIG");
   else {
     mpz_get_str(s,10,a);
@@ -210,7 +212,7 @@ static inline int numint_snprint(char* s, size_t size, numint_t a)
 
 /* int2 -> numint */
 static inline bool numint_set_int2(numint_t a, long int i, long int j)
-{  
+{
   unsigned long int r;
   assert(j>0);
   numint_set_int(a,i);
@@ -223,7 +225,7 @@ static inline bool numint_set_mpz(numint_t a, mpz_t b)
 { mpz_set(a,b); return true; }
 
 /* mpq -> numint */
-static inline bool numint_set_mpq_tmp(numint_t a, mpq_t b, 
+static inline bool numint_set_mpq_tmp(numint_t a, mpq_t b,
 				      mpz_t q, mpz_t r)
 {
   mpz_cdiv_qr(a, r, mpq_numref(b),mpq_denref(b));
@@ -231,7 +233,7 @@ static inline bool numint_set_mpq_tmp(numint_t a, mpq_t b,
   return res;
 }
 static inline bool numint_set_mpq(numint_t a, mpq_t b)
-{ 
+{
   mpz_t r;
   mpz_init(r);
   bool res = numint_set_mpq_tmp(a,b,r,r);
@@ -244,7 +246,7 @@ static inline bool numint_set_double(numint_t a, double b)
 {
   double c = ceil(b);
   if (!isfinite(c)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
-  mpz_set_d(a,c); 
+  mpz_set_d(a,c);
   return (b==c);
 }
 
@@ -265,14 +267,14 @@ static inline bool mpz_set_numint(mpz_t a, numint_t b)
 { mpz_set(a,b); return true; }
 /* numint -> mpq */
 static inline bool mpq_set_numint(mpq_t a, numint_t b)
-{ 
+{
   mpz_set(mpq_numref(a),b);
   mpz_set_ui(mpq_denref(a),1);
   return true;
 }
 /* numint -> double */
 /* mpfr is supposed to have exactly the IEEE754 double precision of 53 bits */
-static inline bool double_set_numint_tmp(double* a, numint_t b, 
+static inline bool double_set_numint_tmp(double* a, numint_t b,
 					 mpfr_t mpfr)
 {
   int res = mpfr_set_z(mpfr,b,GMP_RNDU);
@@ -282,7 +284,7 @@ static inline bool double_set_numint_tmp(double* a, numint_t b,
 static inline bool double_set_numint(double* a, numint_t b)
 {
   mpfr_t mpfr;
-  
+
   mpfr_init2(mpfr,53);
   bool res = double_set_numint_tmp(a,b,mpfr);
   mpfr_clear(mpfr);
@@ -319,7 +321,7 @@ static inline unsigned char numint_serialize_id(void)
 { return 0xf; }
 
 static inline size_t numint_serialize(void* dst, numint_t src)
-{ 
+{
   size_t count = 0;
   *((char*)dst) = mpz_sgn(src);
   mpz_export((char*)dst+5,&count,1,1,1,0,src);
@@ -328,7 +330,7 @@ static inline size_t numint_serialize(void* dst, numint_t src)
   return count+5;
 }
 
-static inline size_t numint_deserialize(numint_t dst, const void* src) 
+static inline size_t numint_deserialize(numint_t dst, const void* src)
 {
   size_t count = num_undump_word32((const char*)src+1);
   mpz_import(dst,count,1,1,1,0,(const char*)src+5);
@@ -338,7 +340,7 @@ static inline size_t numint_deserialize(numint_t dst, const void* src)
 }
 
 /* not the exact size of serialized data, but a sound overapproximation */
-static inline size_t numint_serialized_size(numint_t a) 
+static inline size_t numint_serialized_size(numint_t a)
 { return mpz_sizeinbase(a,2)/8+5+sizeof(mp_limb_t); }
 
 #ifdef __cplusplus
