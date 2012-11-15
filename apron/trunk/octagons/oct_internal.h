@@ -183,7 +183,7 @@ bool hmat_check_closed(bound_t* m, size_t dim);
 
 /* see oct_transfer.c */
 
-bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
+bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t intdim, size_t dim,
 		      ap_lincons0_array_t* ar, bool* exact,
 		      bool* respect_closure);
 
@@ -519,11 +519,14 @@ typedef struct {
   size_t i,j;
   int coef_i,coef_j; /* -1 or 1 */
 
+  /* expression has integer value */
+  int is_int;
+
 } uexpr;
 
 /* convert expression to bounds, look for unit unary or binary form */
 uexpr oct_uexpr_of_linexpr(oct_internal_t* pr, bound_t* dst,
-			   ap_linexpr0_t* e, size_t dim);
+			   ap_linexpr0_t* e, size_t intdim, size_t dim);
 
 
 /* ********************************************************************** */

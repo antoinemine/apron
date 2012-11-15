@@ -471,7 +471,6 @@ static inline int bound_cmp_num(bound_t a, num_t b)
 { return num_cmp(a,b); }
 static inline bool bound_equal(bound_t a, bound_t b)
 { return num_equal(a,b); }
-
 #else
 
 static inline int bound_cmp(bound_t a, bound_t b)
@@ -652,6 +651,9 @@ static inline size_t bound_serialized_size_array(bound_t* src, size_t size)
     n += bound_serialized_size(src[i]);
   return n;
 }
+
+static inline bool bound_integer(bound_t a)
+{ return !bound_infty(a) && num_integer(bound_numref(a)); }
 
 #ifdef __cplusplus
 }
