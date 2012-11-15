@@ -557,7 +557,6 @@ void ITVFUN(itv_div)(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
 void ITVFUN(itv_pow)(itv_internal_t* intern, itv_t a, itv_t b, itv_t n)
 {
   long x;
-  assert(a != b && a != n);
   if (itv_is_bottom(intern, b) || itv_is_bottom(intern, n)) {
     itv_set_bottom(a);
     return;
@@ -587,7 +586,7 @@ void ITVFUN(itv_pow)(itv_internal_t* intern, itv_t a, itv_t b, itv_t n)
 void ITVFUN(itv_inv_pow)(itv_internal_t* intern, itv_t a, itv_t orga, itv_t b, itv_t n)
 {
   long x;
-  assert(a != b && a != n);
+  assert(orga != a);
   if (itv_is_bottom(intern, b) || itv_is_bottom(intern, orga) || itv_is_bottom(intern, n)) {
     itv_set_bottom(a);
     return;

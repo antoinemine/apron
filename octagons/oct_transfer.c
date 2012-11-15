@@ -23,9 +23,8 @@
 /* ============================================================ */
 
 uexpr oct_uexpr_of_linexpr(oct_internal_t* pr, bound_t* dst,
-			   ap_linexpr0_t* e, size_t dim)
+			   ap_linexpr0_t* e, size_t intdim, size_t dim)
 {
-
 #define CLASS_COEFF(idx,coef)						\
   if (!bound_cmp_int(dst[2*idx+2],-coef) &&				\
       !bound_cmp_int(dst[2*idx+3],coef)) {				\
@@ -33,24 +32,29 @@ uexpr oct_uexpr_of_linexpr(oct_internal_t* pr, bound_t* dst,
     else              { u.type = BINARY; u.j = idx; u.coef_j = coef; }	\
     continue;								\
   }
-
+  
 #define CLASS_VAR(idx)							\
+  if (idx>=intdim) u.is_int = 0;                                        \
   if (u.type==EMPTY) continue;						\
   if (!bound_sgn(dst[2*idx+2]) && !bound_sgn(dst[2*idx+3])) continue;	\
   if (u.type>=BINARY) { u.type = OTHER; continue; }			\
   CLASS_COEFF(idx,1);							\
   CLASS_COEFF(idx,-1);							\
   u.type = OTHER;
-
-  uexpr u = { ZERO, 0, 0, 0, 0 };
+  
+#define COEFF(c,i)                                                      \
+  ap_coeff_reduce(&c);                                                   \
+  if (bounds_of_coeff(pr,dst[i],dst[(i)+1],c,false)) u.type = EMPTY;    \
+  if (c.discr!=AP_COEFF_SCALAR || !bound_integer(dst[i])) u.is_int = 0;
+  
+  uexpr u = { ZERO, 0, 0, 0, 0, 1 };
   size_t i;
-  if (bounds_of_coeff(pr,dst[0],dst[1],e->cst,false)) u.type = EMPTY;
+  COEFF(e->cst,0);
   switch (e->discr) {
   case AP_LINEXPR_DENSE:
     arg_assert(e->size<=dim,return u;);
     for (i=0;i<e->size;i++) {
-      if (bounds_of_coeff(pr,dst[2*i+2],dst[2*i+3],e->p.coeff[i],false))
-	u.type = EMPTY;
+      COEFF(e->p.coeff[i],2*i+2);
       CLASS_VAR(i);
     }
     for (;i<dim;i++) {
@@ -67,8 +71,7 @@ uexpr oct_uexpr_of_linexpr(oct_internal_t* pr, bound_t* dst,
       ap_dim_t d = e->p.linterm[i].dim;
       if (d==AP_DIM_MAX) continue;
       arg_assert(d<dim,return u;);
-      if (bounds_of_coeff(pr,dst[2*d+2],dst[2*d+3],e->p.linterm[i].coeff,false))
-	u.type = EMPTY;
+      COEFF(e->p.linterm[i].coeff,2*d+2);
       CLASS_VAR(d);
     }
     break;
@@ -107,7 +110,7 @@ static void print_uexpr(uexpr u, bound_t* dst, size_t dim)
 /* set *exact to 1 if all all constraints are octagonal ones
    return true if empty
  */
-bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
+bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t intdim, size_t dim,
 		      ap_lincons0_array_t* ar, bool* exact,
 		      bool* respect_closure)
 {
@@ -116,7 +119,7 @@ bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
   int closure_pending = 0;
   *exact = 1;
   for (i=0;i<ar->size;i++) {
-    ap_constyp_t c = ar->p[i].constyp;
+   ap_constyp_t c = ar->p[i].constyp;
     uexpr u;
 
     switch (c) {
@@ -141,7 +144,15 @@ bool hmat_add_lincons(oct_internal_t* pr, bound_t* b, size_t dim,
 
     /* now handle ==, >=, > */
 
-    u = oct_uexpr_of_linexpr(pr,pr->tmp,ar->p[i].linexpr0,dim);
+    u = oct_uexpr_of_linexpr(pr,pr->tmp,ar->p[i].linexpr0,intdim,dim);
+
+    /* transform e+[-a,b] > 0 into >= e+[-(a+1),b-1] >= 0 on integer constraints */
+    if (u.is_int && c==AP_CONS_SUP) {
+      c = AP_CONS_SUPEQ;
+      bound_add_uint(pr->tmp[0], pr->tmp[0], 1);
+      bound_sub_uint(pr->tmp[1], pr->tmp[1], 1);
+    }
+    
 
     switch (u.type) {
 
@@ -477,7 +488,7 @@ oct_t* oct_meet_lincons_array(ap_manager_t* man,
     if (!destructive) m = hmat_copy(pr,m,a->dim);
 
     /* go */
-    if (hmat_add_lincons(pr,m,a->dim,array,&exact,&respect_closure)) {
+    if (hmat_add_lincons(pr,m,a->intdim,a->dim,array,&exact,&respect_closure)) {
       /* empty */
       if (!destructive) hmat_free(pr,m,a->dim);
       return oct_set_mat(pr,a,NULL,NULL,destructive);
@@ -854,7 +865,7 @@ oct_t* oct_assign_linexpr(ap_manager_t* man,
 {
   oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY,2*(a->dim+1+5));
-  uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,expr,a->dim);
+  uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,expr,a->intdim,a->dim);
   bound_t* m;
   bool respect_closure;
   arg_assert(d<a->dim,return NULL;);
@@ -906,7 +917,7 @@ oct_t* oct_substitute_linexpr(ap_manager_t* man,
 {
   oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,2*(a->dim+1+5));
-  uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,expr,a->dim);
+  uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,expr,a->intdim,a->dim);
   bound_t * m, *m2;
   bool respect_closure;
   arg_assert(d<a->dim,return NULL;);
@@ -1001,7 +1012,7 @@ oct_t* oct_assign_linexpr_array(ap_manager_t* man,
   /* perform assignments */
   for (i=0;i<size;i++) {
 
-    uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a->dim);
+    uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a->intdim,a->dim);
 
     if (u.type==EMPTY) {
       hmat_free(pr,mm,a->dim+size);
@@ -1109,7 +1120,7 @@ oct_t* oct_substitute_linexpr_array(ap_manager_t* man,
 
   /* perform substitutions */
   for (i=0;i<size;i++) {
-    uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a->dim);
+    uexpr u = oct_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a->intdim,a->dim);
 
     if (u.type==EMPTY) {
       hmat_free(pr,mm,a->dim+size);

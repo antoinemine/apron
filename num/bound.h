@@ -117,6 +117,7 @@ static inline int bound_cmp_int(bound_t a, long int b);
 static inline int bound_cmp_num(bound_t a, num_t b);
 static inline bool bound_equal(bound_t a, bound_t b);
 static inline int bound_hash(bound_t a);
+static inline bool bound_integer(bound_t a);
 
 /* ====================================================================== */
 /* Printing */
