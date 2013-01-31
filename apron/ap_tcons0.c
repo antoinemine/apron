@@ -21,7 +21,9 @@ void ap_tcons0_fprint(FILE* stream, ap_tcons0_t* cons, char** name_of_dim)
 	    " >= 0" :
 	    (cons->constyp == AP_CONS_SUP ?
 	     " > 0" :
-	     "\"ERROR in ap_tcons0_fprint\"")));
+	     (cons->constyp == AP_CONS_DISEQ ?
+	      " != 0" :
+	      "\"ERROR in ap_tcons0_fprint\""))));
   if (cons->constyp == AP_CONS_EQMOD){
     assert(cons->scalar!=NULL);
     fprintf(stream," mod ");
