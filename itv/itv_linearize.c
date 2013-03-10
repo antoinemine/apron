@@ -898,7 +898,7 @@ ap_texpr0_node_intlinearize_linear(itv_internal_t* intern,
   itv_t i1;
   itv_linexpr_t l1;
 
-  bool exc = n->type!=AP_RTYPE_REAL;
+  bool exc = n->type!=AP_RTYPE_REAL && n->op!=AP_TEXPR_NEG;
   if (exc) return exc;
   switch (n->op) {
   case AP_TEXPR_NEG:
@@ -1422,7 +1422,7 @@ ap_texpr0_node_intlinearize(itv_internal_t* intern,
     itv_clear(i1);
     itv_linexpr_clear(&l1);
     break;
-  
+
   case AP_TEXPR_POW:
     itv_init(i1);
     itv_linexpr_init(&l1,0);
@@ -1681,8 +1681,8 @@ itv_expr_free(itv_internal_t* intern, itv_expr_t* arg)
  */
 static itv_expr_t*
 itv_expr_build(itv_internal_t* intern,
-               ap_texpr0_t* arg,
-               itv_t* env, size_t intdim)
+	       ap_texpr0_t* arg,
+	       itv_t* env, size_t intdim)
 {
   itv_expr_t* res;
   if (!arg) return NULL;
@@ -1705,7 +1705,7 @@ itv_expr_build(itv_internal_t* intern,
       ap_texpr0_node_t* nres = malloc(sizeof(ap_texpr0_node_t));
       a = itv_expr_build(intern, narg->exprA, env, intdim);
       if (narg->exprB) {
-        b = itv_expr_build(intern, narg->exprB, env, intdim);
+	b = itv_expr_build(intern, narg->exprB, env, intdim);
       }
       res->expr.val.node = nres;
       nres->op = narg->op;
@@ -1714,10 +1714,10 @@ itv_expr_build(itv_internal_t* intern,
       nres->exprA = (ap_texpr0_t*)a;
       nres->exprB = (ap_texpr0_t*)b;
       if (itv_is_bottom(intern, a->val) || (b && itv_is_bottom(intern, b->val))) {
-        itv_set_bottom(res->val);
+	itv_set_bottom(res->val);
       }
       else {
-        itv_eval_ap_texpr0_node(intern, narg, res->val, a->val, b?b->val:a->val);    
+	itv_eval_ap_texpr0_node(intern, narg, res->val, a->val, b?b->val:a->val);
       }
     }
     break;
@@ -1727,14 +1727,14 @@ itv_expr_build(itv_internal_t* intern,
   return res;
 }
 
-/* Update arg with a bottom-up evaluation pass. 
+/* Update arg with a bottom-up evaluation pass.
    Return true if some node value has changed.
    Use intern->eval_itv.
  */
 static bool
 itv_expr_bottom_up(itv_internal_t* intern,
-                   itv_expr_t* arg,
-                   itv_t* env, size_t intdim)
+		   itv_expr_t* arg,
+		   itv_t* env, size_t intdim)
 {
   if (!arg) return false;
   switch (arg->expr.discr) {
@@ -1758,21 +1758,21 @@ itv_expr_bottom_up(itv_internal_t* intern,
       itv_expr_t* b = (itv_expr_t*)n->exprB;
       r1 = itv_expr_bottom_up(intern, a, env, intdim);
       if (b) {
-        r2 = itv_expr_bottom_up(intern, b, env, intdim);
+	r2 = itv_expr_bottom_up(intern, b, env, intdim);
       }
       if (itv_is_bottom(intern, a->val) || (b && itv_is_bottom(intern, b->val))) {
-        itv_set_bottom(intern->eval_itv);
+	itv_set_bottom(intern->eval_itv);
       }
       else {
-        itv_eval_ap_texpr0_node(intern, n, intern->eval_itv, a->val, b?b->val:a->val);    
-        itv_meet(intern, intern->eval_itv, intern->eval_itv, arg->val);
-      }     
+	itv_eval_ap_texpr0_node(intern, n, intern->eval_itv, a->val, b?b->val:a->val);
+	itv_meet(intern, intern->eval_itv, intern->eval_itv, arg->val);
+      }
       if (itv_is_eq(intern->eval_itv, arg->val)) {
-        return r1 || r2;
+	return r1 || r2;
       }
       else {
-        itv_set(arg->val, intern->eval_itv);
-        return true;
+	itv_set(arg->val, intern->eval_itv);
+	return true;
       }
     }
   default:
@@ -1787,7 +1787,7 @@ itv_expr_bottom_up(itv_internal_t* intern,
  */
 static void
 itv_unround(itv_internal_t* intern, itv_t res, itv_t arg,
-            ap_texpr_rtype_t t, ap_texpr_rdir_t d)
+	    ap_texpr_rtype_t t, ap_texpr_rdir_t d)
 {
   switch (t) {
   case AP_RTYPE_REAL:
@@ -1825,16 +1825,16 @@ itv_unround(itv_internal_t* intern, itv_t res, itv_t arg,
   }
 }
 
-/* Backward refine a node. 
+/* Backward refine a node.
    Given arg1, arg2, and a refined res, refine arg1 and arg2 and store the
    result in arg1r and arg2r.
    Use intern->eval_itv3.
  */
 static void
 itv_refine_ap_texpr0_node(itv_internal_t* intern,
-                          ap_texpr0_node_t* n,
-                          itv_t res, itv_t arg1, itv_t arg2,
-                          itv_t arg1r, itv_t arg2r)
+			  ap_texpr0_node_t* n,
+			  itv_t res, itv_t arg1, itv_t arg2,
+			  itv_t arg1r, itv_t arg2r)
 {
   switch (n->op) {
   case AP_TEXPR_NEG:
@@ -1843,8 +1843,8 @@ itv_refine_ap_texpr0_node(itv_internal_t* intern,
     itv_meet(intern, arg1r, arg1r, arg1);
     break;
   case AP_TEXPR_ADD:
-    /* res = round(arg1+arg2) => 
-       arg1 = unround(res) - arg2 /\ arg2 = unround(res) - arg1 
+    /* res = round(arg1+arg2) =>
+       arg1 = unround(res) - arg2 /\ arg2 = unround(res) - arg1
     */
     itv_unround(intern, intern->eval_itv3, res, n->type, n->dir);
     itv_sub(arg1r, intern->eval_itv3, arg2);
@@ -1853,7 +1853,7 @@ itv_refine_ap_texpr0_node(itv_internal_t* intern,
     itv_meet(intern, arg2r, arg2r, arg2);
     break;
   case AP_TEXPR_SUB:
-    /* res = round(arg1-arg2) => 
+    /* res = round(arg1-arg2) =>
        arg1 = arg2 + unround(res) /\ arg2 = arg1 - unround(res)
     */
     itv_unround(intern, intern->eval_itv3, res, n->type, n->dir);
@@ -1909,9 +1909,9 @@ itv_refine_ap_texpr0_node(itv_internal_t* intern,
       itv_meet(intern, arg2r, arg2r, arg2);
     }
     break;
-    
+
     break;
-      
+
   case AP_TEXPR_POW:
     /* unround */
     itv_unround(intern, intern->eval_itv3, res, n->type, n->dir);
@@ -1934,14 +1934,14 @@ itv_refine_ap_texpr0_node(itv_internal_t* intern,
 
 
 
-/* Update arg and env with a top-down backward refinement pass. 
+/* Update arg and env with a top-down backward refinement pass.
    Return true if some variable in env has changed.
    Use intern->eval_itv, intern->eval_itv2.
  */
 static bool
 itv_expr_top_down(itv_internal_t* intern,
-                  itv_expr_t* arg,
-                  itv_t* env, size_t intdim)
+		  itv_expr_t* arg,
+		  itv_t* env, size_t intdim)
 {
   if (!arg) return false;
   if (itv_is_bottom(intern, arg->val)) return true;
@@ -1966,15 +1966,15 @@ itv_expr_top_down(itv_internal_t* intern,
       ap_texpr0_node_t* n = arg->expr.val.node;
       itv_expr_t* a = (itv_expr_t*)n->exprA;
       itv_expr_t* b = (itv_expr_t*)n->exprB;
-      itv_refine_ap_texpr0_node(intern, n, arg->val, a->val, b?b->val:a->val, 
-                                intern->eval_itv, intern->eval_itv2);
+      itv_refine_ap_texpr0_node(intern, n, arg->val, a->val, b?b->val:a->val,
+				intern->eval_itv, intern->eval_itv2);
       if (!itv_is_eq(intern->eval_itv, a->val)) {
-        itv_set(a->val, intern->eval_itv);
-        r1 = true;
+	itv_set(a->val, intern->eval_itv);
+	r1 = true;
       }
       if (b && !itv_is_eq(intern->eval_itv2, b->val)) {
-        itv_set(b->val, intern->eval_itv2);
-        r2 = true;
+	itv_set(b->val, intern->eval_itv2);
+	r2 = true;
       }
       r1 = r1 && itv_expr_top_down(intern, a, env, intdim);
       r2 = r2 && itv_expr_top_down(intern, b, env, intdim);
@@ -1987,14 +1987,14 @@ itv_expr_top_down(itv_internal_t* intern,
 }
 
 
-/* Update expr and env by assuming that the condition on expr holds, 
+/* Update expr and env by assuming that the condition on expr holds,
    by calling itv_expr_top_down.
    Return true if env was updated.
 */
 static bool
 itv_refine_cons(itv_internal_t* intern,
-                itv_expr_t* expr, ap_constyp_t cons,
-                itv_t* env, size_t intdim)
+		itv_expr_t* expr, ap_constyp_t cons,
+		itv_t* env, size_t intdim)
 {
   switch (cons) {
   case AP_CONS_EQ:
@@ -2003,7 +2003,7 @@ itv_refine_cons(itv_internal_t* intern,
     itv_meet(intern, expr->val, expr->val, intern->eval_itv);
     return itv_expr_top_down(intern, expr, env, intdim);
   case AP_CONS_SUPEQ:
-  case AP_CONS_SUP: /* approximated as >= */ 
+  case AP_CONS_SUP: /* approximated as >= */
     if (itv_is_pos(expr->val)) return false;
     itv_set_top(intern->eval_itv);
     bound_set_int(intern->eval_itv->inf, 0);
@@ -2025,8 +2025,8 @@ itv_refine_cons(itv_internal_t* intern,
 */
 static bool
 itv_refine_expr(itv_internal_t* intern,
-                itv_expr_t* expr, itv_t val,
-                itv_t* env, size_t intdim)
+		itv_expr_t* expr, itv_t val,
+		itv_t* env, size_t intdim)
 {
   itv_meet(intern, intern->eval_itv, expr->val, val);
   if (itv_is_eq(intern->eval_itv, expr->val)) return false;
@@ -2042,9 +2042,9 @@ itv_refine_expr(itv_internal_t* intern,
  */
 bool
 ITVFUN(itv_meet_ap_tcons0_array)(itv_internal_t* intern,
-                                 ap_tcons0_array_t* array,
-                                 itv_t* env, size_t intdim,
-                                 int max_iter)
+				 ap_tcons0_array_t* array,
+				 itv_t* env, size_t intdim,
+				 int max_iter)
 {
   bool empty = false;
   size_t i;
@@ -2060,19 +2060,19 @@ ITVFUN(itv_meet_ap_tcons0_array)(itv_internal_t* intern,
     bool stable = true;
     for (i=0; i<array->size; i++) {
       if (itv_refine_cons(intern, tab[i], array->p[i].constyp, env, intdim)) {
-        stable = false;
+	stable = false;
       }
     }
     if (stable) break;
     stable = true;
     for (i=0; i<array->size; i++) {
       if (itv_expr_bottom_up(intern, tab[i], env, intdim)) {
-        stable = false;
+	stable = false;
       }
       if (itv_is_bottom(intern, tab[i]->val)) {
-        stable = true;
-        empty = true;
-        break;
+	stable = true;
+	empty = true;
+	break;
       }
     }
     if (stable) break;
@@ -2090,18 +2090,18 @@ ITVFUN(itv_meet_ap_tcons0_array)(itv_internal_t* intern,
    result environment in res.
    res is used as an over-approximation of the result and must always be
    given (it may be top, though).
-   Return true if the result is empty.   
+   Return true if the result is empty.
  */
 bool
 ITVFUN(itv_subst_ap_texpr0_array)(itv_internal_t* intern,
-                                  itv_t* res, /* in-out */
-                                  itv_t* arg,
-                                  ap_dim_t* dim,
-                                  ap_texpr0_t** array,
-                                  size_t size, /* size of dim & array */
-                                  size_t intdim,
-                                  size_t realdim,
-                                  int max_iter)
+				  itv_t* res, /* in-out */
+				  itv_t* arg,
+				  ap_dim_t* dim,
+				  ap_texpr0_t** array,
+				  size_t size, /* size of dim & array */
+				  size_t intdim,
+				  size_t realdim,
+				  int max_iter)
 {
   bool empty = false;
   size_t i;
@@ -2128,19 +2128,19 @@ ITVFUN(itv_subst_ap_texpr0_array)(itv_internal_t* intern,
     bool stable = true;
     for (i=0; i<size; i++) {
       if (itv_refine_expr(intern, tab[i], arg[i], res, intdim)) {
-        stable = false;
+	stable = false;
       }
     }
     if (stable) break;
     stable = true;
     for (i=0; i<size; i++) {
       if (itv_expr_bottom_up(intern, tab[i], res, intdim)) {
-        stable = false;
+	stable = false;
       }
       if (itv_is_bottom(intern, tab[i]->val)) {
-        stable = true;
-        empty = true;
-        break;
+	stable = true;
+	empty = true;
+	break;
       }
     }
     if (stable) break;
