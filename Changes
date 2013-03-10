@@ -1,3 +1,12 @@
+Version 0.9.11
+
+- New domain: Taylor1plus (aka zonotopes), provided by CEA LIST
+
+- Distribution/Packaging
+  * OCaml version uses now FINDLIB/ocamlfind tool
+  
+- Bugs corrected: several
+
 Version 0.9.10
 
 - Migration advices (due to some API and compilation process changes)

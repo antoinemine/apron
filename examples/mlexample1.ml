@@ -1,4 +1,3 @@
-
 (* This file is part of the APRON Library, released under GPL license (use of
    PPL). Please read the COPYING file packaged in the distribution. *)
 
@@ -99,14 +98,14 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
     (Some (Coeff.Scalar (Scalar.Float (4.0))))
   ;
   Lincons1.array_set tab 1 (Lincons1.make expr Lincons1.SUPEQ);
- 
+
   let expr = Linexpr1.make env2 in
   Linexpr1.set_array expr
     [|
       (Coeff.Scalar (Scalar.Float 1.0), var_z);
       (Coeff.Scalar (Scalar.Float 2.0), var_w)
     |]
-    (Some 
+    (Some
       (Coeff.Interval
 	(Interval.of_infsup
 	  (Scalar.Float (-2.0))
@@ -114,7 +113,7 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
     ;
   Linexpr1.extend_environment_with expr env;
   Lincons1.array_set tab 2 (Lincons1.make expr Lincons1.SUPEQ);
- 
+
   let cons = Lincons1.make (Linexpr1.make env) Lincons1.SUPEQ in
   Lincons1.set_array cons
     [|
@@ -131,7 +130,7 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
     (Some (Coeff.Scalar (Scalar.Mpqf (Mpqf.of_int 5))))
   ;
   Lincons1.array_set tab 4 cons;
- 
+
   printf "tab = %a@." lincons1_array_print tab;
 
   let abs = Abstract1.of_lincons_array man env tab in
@@ -155,23 +154,23 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
   (* 2. dimensions *)
   (* 3. of box *)
   let abs2 = Abstract1.of_box man env [|var_x; var_y; var_z; var_w; var_u; var_v; var_a; var_b|]
-    box.Abstract1.interval_array 
+    box.Abstract1.interval_array
   in
   printf "abs2=%a@." Abstract1.print abs2;
   (* 4. Tests top and bottom *)
   let abs3 = Abstract1.bottom man env in
   printf "abs3=%a@.is_bottom(abs3)=%b@."
-    Abstract1.print abs3 
+    Abstract1.print abs3
     (Abstract1.is_bottom man abs3);
 
-  printf "abs=%a@." 
+  printf "abs=%a@."
     Abstract1.print abs;
   let p2 = Abstract1.expand man abs (var_y) [|Var.of_string "y1"; Var.of_string "y2"|] in
   printf "p2=expand(abs,y,[y1,y2]))=%a@."
-    Abstract1.print p2; 
+    Abstract1.print p2;
   let p2 = Abstract1.expand man abs (var_u) [|Var.of_string "u1"; Var.of_string "u2"|] in
   printf "p2=expand(abs,u,[u1,u2]))=%a@."
-    Abstract1.print p2; 
+    Abstract1.print p2;
   abs
 ;;
 

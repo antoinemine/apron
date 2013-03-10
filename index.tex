@@ -65,11 +65,12 @@ library/abstract domain, as shown by the poster on the right
 Currently, APRON provides a C interface and an \ocaml interface.
 There also exists a C++ interface, which is more experimental.
 
-The version 0.9.10 (10th septembre 2009) contains 3 libraries and 4 abstract domains:
+The version 0.9.11 (august 2012) contains 4 libraries and 5 abstract domains:
 \begin{itemize}
 \item The BOX intervals library
 \item The OCT octagon library
 \item The NEWPOLKA Convex Polyhedra and Linear Equalities library
+\item The TAYLOR1PLUS zonotope abstract domain, provided by CEA LIST \cite{Ghorbal2009}
 \end{itemize}
 It also provides an optional interface to the \xlink{Parma Polyhedra Library}{http://www.cs.unipr.it/ppl/}, which adds
 \begin{itemize}
@@ -92,9 +93,9 @@ PPL library.
 
 \begin{itemize}
 \item \xlink{Detailed presentation}{expose_mine_CEA_2007.pdf};
-\item On-line \xlink{C interface}{http://apron.cri.ensmp.fr/library/0.9.10/apron/apron.html} and \xlink{OCaml interface}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl/index.html};
-\item \xlink{C pdf}{http://apron.cri.ensmp.fr/library/0.9.10/apron.pdf} or \xlink{OCaml pdf}{http://apron.cri.ensmp.fr/library/0.9.10/mlapronidl.pdf};
-\item \xlink{C example}{http://apron.cri.ensmp.fr/library/0.9.10/example1.c} or \xlink{OCaml example 1}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample1.ml}/\xlink{OCaml example 2}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample2.ml}/\xlink{OCaml example 3}{http://apron.cri.ensmp.fr/library/0.9.10/mlexample3.ml}. For the
+\item On-line \xlink{C interface}{http://apron.cri.ensmp.fr/library/0.9.11/apron/apron.html} and \xlink{OCaml interface}{http://apron.cri.ensmp.fr/library/0.9.11/mlapronidl/index.html};
+\item \xlink{C pdf}{http://apron.cri.ensmp.fr/library/0.9.11/apron.pdf} or \xlink{OCaml pdf}{http://apron.cri.ensmp.fr/library/0.9.11/mlapronidl.pdf};
+\item \xlink{C example}{http://apron.cri.ensmp.fr/library/0.9.11/example1.c} or \xlink{OCaml example 1}{http://apron.cri.ensmp.fr/library/0.9.11/mlexample1.ml}/\xlink{OCaml example 2}{http://apron.cri.ensmp.fr/library/0.9.11/mlexample2.ml}/\xlink{OCaml example 3}{http://apron.cri.ensmp.fr/library/0.9.11/mlexample3.ml}. For the
   ML examples, they are almost identical, but the ones with the
   higher numbers use higher-level functions to define affine
   expressions and constraints.
@@ -113,7 +114,7 @@ PPL library.
   \kbd{-enable-cxx} configuration option)
 \item If you want the C++ interface (still experimental), GCC 4.1.2 or up
 \item If you want to use the \ocaml interface, you need the \ocaml
-  system, version 3.09 or up, the \camlidl 1.05 stub code
+  system, version 3.11 or up, the \camlidl 1.05 stub code
   generator for the OCaml interface, as well as GNU SED 4.1 or
   up, and GNU m4 (if you download from subversion repository).
 
@@ -121,13 +122,9 @@ PPL library.
   the ``distribution'' version of APRON (see below).
 \end{itemize}
 
-\subsection{Current version: 0.9.10}
+\subsection{Current version: 0.9.11}
 
 \begin{itemize}
-%\item \xlink{Tar-gzipped
-%    sources}{http://apron.cri.ensmp.fr/library/apron-0.9.10.tgz}
-%\item \xlink{Tar-gzipped sources of both APRON and
-%    MLGMPIDL}{http://apron.cri.ensmp.fr/library/apron-dist-0.9.10.tgz}
 \item \xlink{Changes}{http://apron.cri.ensmp.fr/library/Changes}
 
 \item The best way is to access to the \xlink{SUBVERSION
@@ -175,16 +172,23 @@ to be up-to-date with the most recent version.
     sources}{http://apron.cri.ensmp.fr/library/apron-0.9.0.tgz}
 \end{itemize}
 
-%\bibliography{mybib}
+%\bibliography{bib,jabref,mybib}
 %\bibliographystyle{alpha}
 
-\begin{thebibliography}{JM09}
+\begin{thebibliography}{GGP09}
+
+\bibitem[GGP09]{Ghorbal2009}
+Khalil Ghorbal, Eric Goubault, and Sylvie Putot.
+\newblock The zonotope abstract domain taylor1+.
+\newblock In {\em Computer Aided Verification, CAV'09}, volume 5643 of {\em
+  LNCS}, 2009.
 
 \bibitem[JM09]{jeannetmine09}
 B.~Jeannet and A.~Min\'e.
 \newblock {APRON}: A library of numerical abstract domains for static analysis.
 \newblock In {\em Computer Aided Verification, CAV'2009}, volume 5643 of {\em
   LNCS}, pages 661--667, 2009.
+\newblock \url{http://apron.cri.ensmp.fr/library/}.
 
 \end{thebibliography}
 
