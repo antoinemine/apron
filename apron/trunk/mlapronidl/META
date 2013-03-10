@@ -1,11 +1,11 @@
 description = "Numerical abstract domains"
-version = "1.9.0"
+version = "0.9.11"
 requires = "apron.apron"
 package "apron" (
 requires = "gmp"
+archive(native,debug) = "apron.d.cmxa"
 archive(byte) = "apron.cma"
 archive(native) = "apron.cmxa"
-archive(native,debug) = "apron.d.cmxa"
 )
 package "boxD" (
 requires = "apron.apron"
@@ -34,15 +34,15 @@ archive(native) = "octMPQ.cmxa"
 )
 package "polkaMPQ" (
 requires = "apron.apron"
+archive(native,debug) = "polkaMPQ.d.cmxa"
 archive(byte) = "polkaMPQ.cma"
 archive(native) = "polkaMPQ.cmxa"
-archive(native,debug) = "polkaMPQ.d.cmxa"
 )
 package "polkaRll" (
 requires = "apron.apron"
+archive(native,debug) = "polkaRll.d.cmxa"
 archive(byte) = "polkaRll.cma"
 archive(native) = "polkaRll.cmxa"
-archive(native,debug) = "polkaRll.d.cmxa"
 )
 package "t1pD" (
 requires = "apron.apron"
