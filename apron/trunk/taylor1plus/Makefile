@@ -49,7 +49,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
 CCSRC = t1p_config.h t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
-CCINC_TO_INSTALL = *.h
+CCINC_TO_INSTALL = t1p.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libt1pMPQ.a libt1pD.a libt1pMPFR.a \
