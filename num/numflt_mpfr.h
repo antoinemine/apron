@@ -50,11 +50,11 @@ static inline void numflt_set_int(numflt_t a, long int i)
 /* ====================================================================== */
 
 static inline void numflt_init(numflt_t a)
-{ mpfr_init(a); }
+{ mpfr_init_set_ui(a,0,MPFR_RNDN); }
 static inline void numflt_init_array(numflt_t* a, size_t size)
 {
   size_t i; 
-  for (i=0; i<size; i++) mpfr_init(a[i]);
+  for (i=0; i<size; i++) mpfr_init_set_ui(a[i],0,MPFR_RNDN);
 }
 static inline void numflt_init_set(numflt_t a, numflt_t b)
 { mpfr_init_set(a,b,GMP_RNDU); }
