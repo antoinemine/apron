@@ -270,6 +270,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
   nbrows2 = nbrows;
   while (i<nbrows){
     numint_t* vec = C->p[i];
+    removed = false;
     if (numint_sgn(vec[0]) &&
 	(pk->strict ? numint_sgn(vec[polka_eps])<=0 : true)){
       /* Look for a too big coefficient in the row */
@@ -304,7 +305,6 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	finite = !bound_infty(itv->inf);
 	if (finite){
 	  /* D. We round the constant to an integer and keep the constraint */
-	  removed = false;
 	  bound_neg(itv->inf,itv->inf);
 	  numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
 			numrat_numref(bound_numref(itv->inf)),
