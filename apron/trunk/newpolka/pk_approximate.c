@@ -258,11 +258,10 @@ static
 bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* F,
 				      bool outerfallback, bool combine)
 {
-  size_t i,ni,j,size,nbrows,nbrows2;
+  size_t i,j,size,nbrows,nbrows2;
   bool change,finite,removed;
   itv_t itv;
   numint_t* vecs = NULL;
-  numint_t* vec = NULL;
 
   itv_init(itv);
   change = false;
@@ -270,12 +269,13 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
   nbrows = C->nbrows;
   nbrows2 = nbrows;
   while (i<nbrows){
-    if (numint_sgn(C->p[i][0]) &&
-	(pk->strict ? numint_sgn(C->p[i][polka_eps])<=0 : true)){
+    numint_t* vec = C->p[i];
+    if (numint_sgn(vec[0]) &&
+	(pk->strict ? numint_sgn(vec[polka_eps])<=0 : true)){
       /* Look for a too big coefficient in the row */
       size=0;
       for (j=pk->dec; j<C->nbcolumns; j++){
-	size = numint_size2(C->p[i][j]);
+	size = numint_size2(vec[j]);
 	if (size > pk->approximate_max_coeff_size) /* Too big coefficient detected  */
 	  break;
       }
@@ -283,13 +283,12 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	change = true;
 	/* save the vector */
 	if (vecs==NULL) vecs=vector_alloc(C->nbcolumns);
-	vector_copy(vecs,C->p[i],C->nbcolumns);
-	vec = C->p[i];
-	if (true){ printf("\nconstraint to be rounded: "); vector_print(vec,C->nbcolumns); }
+	vector_copy(vecs,vec,C->nbcolumns);
+	if (false){ printf("\nconstraint to be rounded: "); vector_print(vec,C->nbcolumns); }
 	/* A. Compute maximum magnitude */
 	size_t maxsize = size;
 	for (j=j+1; j<C->nbcolumns; j++){
-	  size = numint_size2(C->p[ni][j]);
+	  size = numint_size2(vec[j]);
 	  if (size>maxsize) maxsize=size;
 	}
 	/* B. Perform rounding (inner truncation) of non constant coefficients */
@@ -297,7 +296,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	for (j=pk->dec; j<C->nbcolumns; j++){
 	  numint_tdiv_q_2exp(vec[j],vec[j], size);
 	}
-	if (true){ printf("rounding 1: "); vector_print(vec,C->nbcolumns); }
+	if (false){ printf("rounding 1: "); vector_print(vec,C->nbcolumns); }
 	/* C. Compute new constant coefficient */
 	numint_set_int(vec[0],1);
 	numint_set_int(vec[polka_cst],0);
@@ -311,9 +310,9 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 			numrat_numref(bound_numref(itv->inf)),
 			numrat_denref(bound_numref(itv->inf)));
 	  numint_neg(vec[polka_cst],numrat_numref(bound_numref(itv->inf)));
-	  if (true){ printf("before norm 1: "); vector_print(vec,C->nbcolumns); }
+	  if (false){ printf("before norm 1: "); vector_print(vec,C->nbcolumns); }
 	  vector_normalize(pk,vec,C->nbcolumns);
-	  if (true){ printf("after norm 1: "); vector_print(vec,C->nbcolumns); }
+	  if (false){ printf("after norm 1: "); vector_print(vec,C->nbcolumns); }
 	} else {
 	  /* we remove the vector */
 	  removed = true;
@@ -330,7 +329,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	    if (sgn>0) numint_cdiv_q_2exp(vec[j],vec[j], size);
 	    else if (sgn<0) numint_fdiv_q_2exp(vec[j],vec[j], size);
 	  }
-	  if (true){ printf("rounding 2: "); vector_print(vec,C->nbcolumns); }
+	  if (false){ printf("rounding 2: "); vector_print(vec,C->nbcolumns); }
 	  /* G. Compute new constant coefficient */
 	  numint_set_int(vec[0],1);
 	  numint_set_int(vec[polka_cst],0);
@@ -343,9 +342,9 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 			  numrat_numref(bound_numref(itv->inf)),
 			  numrat_denref(bound_numref(itv->inf)));
 	    numint_neg(vec[polka_cst],numrat_numref(bound_numref(itv->inf)));
-	    if (true){ printf("before norm 2: "); vector_print(vec,C->nbcolumns); }
+	    if (false){ printf("before norm 2: "); vector_print(vec,C->nbcolumns); }
 	    vector_normalize(pk,vec,C->nbcolumns);
-	    if (true){ printf("after norm 2: "); vector_print(vec,C->nbcolumns); }
+	    if (false){ printf("after norm 2: "); vector_print(vec,C->nbcolumns); }
 	    if (nbrows2>=C->_maxrows) matrix_resize_rows(C,(C->_maxrows*3+1)/2);
 	    vector_copy(C->p[nbrows2],vec,C->nbcolumns);
 	    nbrows2++;
