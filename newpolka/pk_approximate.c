@@ -251,89 +251,112 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
 }
 
 /* ---------------------------------------------------------------------- */
-/* 10. Round constraints with too big coefficients */
+/* 1x (10,11,12,...) Round constraints with too big coefficients */
 /* ---------------------------------------------------------------------- */
+
 static
-bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* F)
+bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* F,
+				      bool outerfallback, bool combine)
 {
-  size_t i,j,size;
-  bool change,removed;
+  size_t i,ni,j,size,nbrows,nbrows2;
+  bool change,finite,removed;
   itv_t itv;
+  numint_t* vecs = NULL;
+  numint_t* vec = NULL;
 
   itv_init(itv);
   change = false;
   i = 0;
-  while (i<C->nbrows){
-    removed = false;
+  nbrows = C->nbrows;
+  nbrows2 = nbrows;
+  while (i<nbrows){
     if (numint_sgn(C->p[i][0]) &&
 	(pk->strict ? numint_sgn(C->p[i][polka_eps])<=0 : true)){
       /* Look for a too big coefficient in the row */
-      size=0; /* for next test */
+      size=0;
       for (j=pk->dec; j<C->nbcolumns; j++){
 	size = numint_size2(C->p[i][j]);
-	if (size > pk->approximate_max_coeff_size){
-	  /* Too big coefficient detected in the row */
+	if (size > pk->approximate_max_coeff_size) /* Too big coefficient detected  */
 	  break;
-	}
       }
-      if (size > pk->approximate_max_coeff_size){
-	/* Too big coefficient detected in the row */
+      if (size > pk->approximate_max_coeff_size){ /* Too big coefficient detected */
+	change = true;
+	/* save the vector */
+	if (vecs==NULL) vecs=vector_alloc(C->nbcolumns);
+	vector_copy(vecs,C->p[i],C->nbcolumns);
+	vec = C->p[i];
+	if (true){ printf("\nconstraint to be rounded: "); vector_print(vec,C->nbcolumns); }
 	/* A. Compute maximum magnitude */
 	size_t maxsize = size;
 	for (j=j+1; j<C->nbcolumns; j++){
-	  size = numint_size2(C->p[i][j]);
+	  size = numint_size2(C->p[ni][j]);
 	  if (size>maxsize) maxsize=size;
 	}
-	/* B. Relax if constraint is strict */
-	if (pk->strict){
-	  numint_set_int(C->p[i][polka_eps],0);
-	}
-	/* C. Perform rounding of non constant coefficients */
+	/* B. Perform rounding (inner truncation) of non constant coefficients */
 	size = maxsize - pk->approximate_max_coeff_size;
 	for (j=pk->dec; j<C->nbcolumns; j++){
-	  numint_tdiv_q_2exp(C->p[i][j],C->p[i][j], size);
+	  numint_tdiv_q_2exp(vec[j],vec[j], size);
 	}
-	/* D. Compute new constant coefficient */
-	numint_set_int(C->p[i][0],1);
-	numint_set_int(C->p[i][polka_cst],0);
-	matrix_bound_vector(pk,itv,C->p[i],F);
-	if (bound_infty(itv->inf)){
-	  /* If no bound, we remove the constraint */
-	  C->nbrows--;
-	  matrix_exch_rows(C,i,C->nbrows);
+	if (true){ printf("rounding 1: "); vector_print(vec,C->nbcolumns); }
+	/* C. Compute new constant coefficient */
+	numint_set_int(vec[0],1);
+	numint_set_int(vec[polka_cst],0);
+	matrix_bound_vector(pk,itv,vec,F);
+	finite = !bound_infty(itv->inf);
+	if (finite){
+	  /* D. We round the constant to an integer and keep the constraint */
+	  removed = false;
+	  bound_neg(itv->inf,itv->inf);
+	  numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
+			numrat_numref(bound_numref(itv->inf)),
+			numrat_denref(bound_numref(itv->inf)));
+	  numint_neg(vec[polka_cst],numrat_numref(bound_numref(itv->inf)));
+	  if (true){ printf("before norm 1: "); vector_print(vec,C->nbcolumns); }
+	  vector_normalize(pk,vec,C->nbcolumns);
+	  if (true){ printf("after norm 1: "); vector_print(vec,C->nbcolumns); }
+	} else {
+	  /* we remove the vector */
 	  removed = true;
+	  matrix_exch_rows(C,i,nbrows-1);
+	  matrix_exch_rows(C,nbrows-1,nbrows2-1);
+	  nbrows--; nbrows2--;
 	}
-	else {
-	  if (false){
-	    /* we multiply by the denominator of inf value */
-	    if (numint_cmp_int(numrat_denref(bound_numref(itv->inf)),1)!=0){
-	      for (j=pk->dec; j<C->nbcolumns; j++){
-		numint_mul(C->p[i][j],C->p[i][j],numrat_denref(bound_numref(itv->inf)));
-	      }
-	    }
-	    numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
-	  } else {
-	    /* Otherwise, we round the constant to an integer */
-	    for (j=pk->dec; j<C->nbcolumns; j++){
-	      numint_mul_2exp(C->p[i][j],C->p[i][j],1);
-	    }
+	if (combine || (!finite && outerfallback)){
+	  /* we work on vecs */
+	  vec = vecs;
+	  /* E. perform rounding (outer truncation) of non-constant coefficients */
+	  for (j=pk->dec; j<C->nbcolumns; j++){
+	    int sgn = numint_sgn(vec[j]);
+	    if (sgn>0) numint_cdiv_q_2exp(vec[j],vec[j], size);
+	    else if (sgn<0) numint_fdiv_q_2exp(vec[j],vec[j], size);
+	  }
+	  if (true){ printf("rounding 2: "); vector_print(vec,C->nbcolumns); }
+	  /* G. Compute new constant coefficient */
+	  numint_set_int(vec[0],1);
+	  numint_set_int(vec[polka_cst],0);
+	  matrix_bound_vector(pk,itv,vec,F);
+	  finite = !bound_infty(itv->inf);
+	  if (finite){
+	    /* E. We round the constant to an integer and keep the constraint */
 	    bound_neg(itv->inf,itv->inf);
-	    numint_mul_2exp(numrat_numref(bound_numref(itv->inf)),
-			     numrat_numref(bound_numref(itv->inf)),
-			     1);
 	    numint_fdiv_q(numrat_numref(bound_numref(itv->inf)),
 			  numrat_numref(bound_numref(itv->inf)),
 			  numrat_denref(bound_numref(itv->inf)));
-	    numint_neg(C->p[i][polka_cst],numrat_numref(bound_numref(itv->inf)));
+	    numint_neg(vec[polka_cst],numrat_numref(bound_numref(itv->inf)));
+	    if (true){ printf("before norm 2: "); vector_print(vec,C->nbcolumns); }
+	    vector_normalize(pk,vec,C->nbcolumns);
+	    if (true){ printf("after norm 2: "); vector_print(vec,C->nbcolumns); }
+	    if (nbrows2>=C->_maxrows) matrix_resize_rows(C,(C->_maxrows*3+1)/2);
+	    vector_copy(C->p[nbrows2],vec,C->nbcolumns);
+	    nbrows2++;
 	  }
-	  vector_normalize(pk,C->p[i],C->nbcolumns);
 	}
-      	change = true;
       }
     }
     if (!removed) i++;
   }
   if (change){
+    C->nbrows = nbrows2;
     /* Add positivity and strictness that may not be implied any more */
     size_t nbrows = C->nbrows;
     matrix_resize_rows_lazy(C,nbrows+pk->dec-1);
@@ -341,10 +364,12 @@ bool matrix_approximate_constraint_10(pk_internal_t* pk, matrix_t* C, matrix_t* 
     C->_sorted = false;
   }
   itv_clear(itv);
+  if (vecs) vector_free(vecs,C->nbcolumns);
   return change;
 }
+
 static
-void poly_approximate_10(ap_manager_t* man, pk_t* po)
+void poly_approximate_1x(ap_manager_t* man, pk_t* po, bool outerfallback, bool combine)
 {
   bool change;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
@@ -358,7 +383,7 @@ void poly_approximate_10(ap_manager_t* man, pk_t* po)
     return;
   }
   assert(po->C && po->F);
-  change = matrix_approximate_constraint_10(pk, po->C, po->F);
+  change = matrix_approximate_constraint_1x(pk, po->C, po->F, outerfallback,combine);
   if (change){
     if (po->F) matrix_free(po->F);
     if (po->satC) satmat_free(po->satC);
@@ -387,8 +412,15 @@ Approximation:
 - algorithm==3: in addition, keep same bounding octagon (even more precise)
 
 - algorithm==10: round constraints with too big coefficients, of size greater than
-		 approximate_max_coeff_size, if approximate_max_coeff_size>0
+		 approximate_max_coeff_size, if approximate_max_coeff_size>0.
+		 Rounding is done by truncation towards zero.
 
+- algorithm==11: same, but if the constraint truncated towards
+                 zero is removed, try with the constraint
+                 truncated towards -oo or +oo.
+
+- algorithm==12: consider both inner and outer truncation (may
+                 increase the number of constraint
 */
 void pk_approximate(ap_manager_t* man, pk_t* po, int algorithm)
 {
@@ -412,9 +444,14 @@ void pk_approximate(ap_manager_t* man, pk_t* po, int algorithm)
       poly_approximate_123(man,po,algorithm);
     break;
   case 10:
-     if (pk->approximate_max_coeff_size>0)
-       poly_approximate_10(man,po);
-     break;
+  case 11:
+  case 12:
+    if (pk->approximate_max_coeff_size>0){
+      bool outerfallback = (algorithm==11);
+      bool combine = (algorithm==12);
+      poly_approximate_1x(man,po,outerfallback,combine);
+    }
+    break;
   }
   assert(poly_check(pk,po));
 }
