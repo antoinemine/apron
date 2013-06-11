@@ -163,9 +163,16 @@ void pk_approximate(ap_manager_t* man, pk_t* a, int algorithm);
      - algorithm==3: in addition, keep same bounding octagon (even more
 		     precise)
 
-     - algorithm==10: round constraints with too big coefficients, of size
-		      greater than approximate_max_coeff_size, if
-		      approximate_max_coeff_size>0
+     - algorithm==10: round constraints with too big coefficients,
+		      of size greater than
+		      approximate_max_coeff_size, if
+		      approximate_max_coeff_size>0.  Rounding is
+		      done by truncation towards zero.
+     - algorithm==11: same, but if the constraint truncated
+                      towards zero is removed, try with the
+                      constraint truncated towards -oo or +oo.
+     - algorithm==12: consider both inner and outer truncation
+                      (may increase the number of constraint
 */
 
 /* ============================================================ */
