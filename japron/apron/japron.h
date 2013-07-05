@@ -73,6 +73,20 @@ extern jfieldID japron_environment_ptr;
 extern jfieldID japron_dimension_intdim;
 extern jfieldID japron_dimension_realdim;
 
+extern jmethodID japron_mpqscalar_init;
+extern jmethodID japron_mpfrscalar_init;
+extern jmethodID japron_doublescalar_init;
+extern jmethodID japron_interval_init;
+extern jmethodID japron_scalar_init;
+extern jmethodID japron_coeff_init;
+extern jmethodID japron_abstract0_init;
+extern jmethodID japron_dimchange_init;
+extern jmethodID japron_dimperm_init;
+extern jmethodID japron_environment_init;
+extern jmethodID japron_linexpr0_init;
+extern jmethodID japron_manager_init;
+extern jmethodID japron_texpr0intern_init;
+
 /* fills cache, once */
 void japron_cache(JNIEnv *env);
 

@@ -162,7 +162,7 @@ JNIEXPORT jobject JNICALL Java_apron_Dimperm_invert
 {
   check_nonnull(o,NULL);
   ap_dimperm_t* x = as_dimperm(o);
-  jobject oo = (*env)->AllocObject(env, japron_dimperm);
+  jobject oo = (*env)->NewObject(env, japron_dimperm, japron_dimperm_init);
   if (!oo) return NULL;
   ap_dimperm_t* y = ap_dimperm_alloc(x->size);
   ap_dimperm_invert(y, x);
@@ -183,7 +183,7 @@ JNIEXPORT jobject JNICALL Java_apron_Dimperm_compose
   ap_dimperm_t* x = as_dimperm(o1);
   ap_dimperm_t* y = as_dimperm(o2);
   if (x->size!=y->size) { illegal_argument("incompatible sizes"); return NULL; }
-  jobject oo = (*env)->AllocObject(env, japron_dimperm);
+  jobject oo = (*env)->NewObject(env, japron_dimperm, japron_dimperm_init);
   if (!oo) return NULL;
   ap_dimperm_t* z = ap_dimperm_alloc(x->size);
   ap_dimperm_compose(z, x, y);

@@ -414,11 +414,22 @@ public class Test
     /* Main */
     /* ---- */
 
+    
     /** Calling main performs a few API tests. */
     public static void main(String[] args)
+         throws ApronException, CloneNotSupportedException
+   {
+       int i;
+       for (i=0; i<10; i++) {
+           mainx(args);
+           System.gc();
+           System.runFinalization();
+       }
+    }
+    
+    public static void mainx(String[] args)
         throws ApronException, CloneNotSupportedException
     {
-
         /* level 0 */
 
         System.out.println("Dimperm test");
@@ -741,9 +752,6 @@ public class Test
         System.out.println("");
         testDomain(new PolkaGrid(true));
         */
-
-        System.gc();
-        System.runFinalization();
-   }
+    }
 
 }

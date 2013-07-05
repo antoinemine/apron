@@ -81,7 +81,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_add
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2)
 {
   check_nonnull(o,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1 = 0, nb2 = 0;
   char** x1 = NULL, **x2 = NULL;
@@ -98,6 +98,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_add
   if (x1) japron_string_array_free(x1, nb1);
   if (x2) japron_string_array_free(x2, nb2);
   if (!r) { illegal_argument("environment has duplicate names"); return NULL; }
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -111,7 +112,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_addPerm
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2, jobjectArray pr)
 {
   check_nonnull(o,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1 = 0, nb2 = 0;
   char** x1 = NULL, **x2 = NULL;
@@ -133,12 +134,13 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_addPerm
     illegal_argument("environment has duplicate names"); 
     return NULL; 
   }
-  jobject pp = (*env)->AllocObject(env, japron_dimperm);
+  jobject pp = (*env)->NewObject(env, japron_dimperm, japron_dimperm_init);
   if (!pp) { ap_environment_free(r); if (p.dim) free(p.dim); return NULL; }
   ap_dimperm_t* p2 = (ap_dimperm_t*)malloc(sizeof(ap_dimperm_t));
   *p2 = p;
   set_dimperm(pp,p2);
   (*env)->SetObjectArrayElement(env, pr, 0, pp);
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -153,7 +155,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_remove
 {
   check_nonnull(o,NULL);
   check_nonnull(ar,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb;
   char** x = japron_string_array_alloc_set(env, ar, &nb);
@@ -161,6 +163,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_remove
   ap_environment_t* r = ap_environment_remove(as_environment(o),(void*)x, nb);
   japron_string_array_free(x, nb);
   if (!r) { illegal_argument("removing nonexistent names"); return NULL; }
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -175,7 +178,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_lce__Lapron_Environment_2
 {
   check_nonnull(o1,NULL);
   check_nonnull(o2,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   ap_dimchange_t *p1 = NULL, *p2 = NULL;
   ap_environment_t* r = 
@@ -183,6 +186,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_lce__Lapron_Environment_2
   if (p1) ap_dimchange_free(p1);
   if (p2) ap_dimchange_free(p2);
   if (!r) { illegal_argument("incompatible environments"); return NULL; }
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -196,7 +200,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_lce___3Lapron_Environment_2
   (JNIEnv *env, jclass cls, jobjectArray ar)
 {
   check_nonnull(ar,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t i, nb = (*env)->GetArrayLength(env, ar);
   ap_environment_t** e = 
@@ -222,6 +226,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_lce___3Lapron_Environment_2
     illegal_argument("incompatible environments"); 
     return NULL; 
   }
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -237,7 +242,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_rename
   check_nonnull(o,NULL);
   check_nonnull(ar1,NULL);
   check_nonnull(ar2,NULL);
-  jobject rr = (*env)->AllocObject(env, japron_environment);
+  jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1, nb2;
   char** x1, **x2;
@@ -261,7 +266,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_rename
   japron_string_array_free(x2, nb2);
   if (!r) { illegal_argument("environment has duplicate names"); return NULL; }
   if (pr) {
-    jobject pp = (*env)->AllocObject(env, japron_dimperm);
+    jobject pp = (*env)->NewObject(env, japron_dimperm, japron_dimperm_init);
     if (!pp) { ap_environment_free(r); if (p.dim) free(p.dim); return NULL; }
     ap_dimperm_t* p2 = (ap_dimperm_t*)malloc(sizeof(ap_dimperm_t));
     *p2 = p;
@@ -270,6 +275,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_rename
   }
   else
     if (p.dim) free(p.dim);
+  ap_environment_free(as_environment(rr));
   set_environment(rr, r);
   return rr;
 }
@@ -397,7 +403,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_dimchange
     illegal_argument("not a super-environment");
     return NULL;
   }
-  jobject r = (*env)->AllocObject(env, japron_dimchange);
+  jobject r = (*env)->NewObject(env, japron_dimchange, japron_dimchange_init);
   if (!r) { ap_dimchange_free(x); return NULL; }
   set_dimchange(r, x);
   return r;
@@ -416,14 +422,14 @@ JNIEXPORT jobjectArray JNICALL Java_apron_Environment_dimchange2
   ap_dimchange2_t* x = 
     ap_environment_dimchange2(as_environment(o),as_environment(e));
   if (!x) {
-    illegal_argument("incompativle environments");
+    illegal_argument("incompatible environments");
     return NULL;
   }
   jobjectArray r = (*env)->NewObjectArray(env, 2, japron_dimchange, NULL);
+  jobject d1 = (*env)->NewObject(env, japron_dimchange, japron_dimchange_init);
+  jobject d2 = (*env)->NewObject(env, japron_dimchange, japron_dimchange_init);
   if (!r) { ap_dimchange2_free(x); return NULL; }
-  jobject d1 = (*env)->AllocObject(env, japron_dimchange);
   if (!d1) { ap_dimchange2_free(x); return NULL; }
-  jobject d2 = (*env)->AllocObject(env, japron_dimchange);
   if (!d2) { ap_dimchange2_free(x); return NULL; }
   if (!x->add)    x->add = ap_dimchange_alloc(0,0);
   if (!x->remove) x->remove = ap_dimchange_alloc(0,0);

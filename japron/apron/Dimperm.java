@@ -38,7 +38,9 @@ public class Dimperm
 
     static { System.loadLibrary("japron"); class_init(); }
 
-    
+    private Dimperm() { }
+
+   
     // Constructors
     ///////////////
 

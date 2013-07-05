@@ -234,8 +234,8 @@ JNIEXPORT jobject JNICALL Java_gmp_Mpq_getNum
   (JNIEnv *env, jobject o)
 {
   check_nonnull(o,NULL);
-  jobject r = jgmp_alloc_mpz(env);
-  if (r) mpz_init_set(as_mpz(r), mpq_numref(as_mpq(o)));
+  jobject r = jgmp_alloc_init_mpz(env);
+  if (r) mpz_set(as_mpz(r), mpq_numref(as_mpq(o)));
   return r;
 }
 
@@ -248,8 +248,8 @@ JNIEXPORT jobject JNICALL Java_gmp_Mpq_getDen
   (JNIEnv *env, jobject o)
 {
   check_nonnull(o,NULL);
-  jobject r = jgmp_alloc_mpz(env);
-  if (r) mpz_init_set(as_mpz(r), mpq_denref(as_mpq(o)));
+  jobject r = jgmp_alloc_init_mpz(env);
+  if (r) mpz_set(as_mpz(r), mpq_denref(as_mpq(o)));
   return r;
 }
 

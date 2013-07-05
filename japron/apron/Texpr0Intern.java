@@ -46,6 +46,8 @@ public class Texpr0Intern
 
     static { System.loadLibrary("japron"); class_init(); }
 
+    private Texpr0Intern() { }
+
 
     // Operations
     /////////////
