@@ -22,6 +22,9 @@ jfieldID jgmp_mpq_ptr;
 jfieldID jgmp_mpfr_ptr;
 jfieldID jgmp_randstate_ptr;
 
+jmethodID jgmp_mpz_init;
+jmethodID jgmp_mpq_init;
+jmethodID jgmp_mpfr_init;
 
 static int jgmp_cached = 0;
 
@@ -38,6 +41,9 @@ void jgmp_cache(JNIEnv *env)
   cache_field(jgmp_mpq_ptr,        jgmp_mpq,       "ptr",    "J");
   cache_field(jgmp_mpfr_ptr,       jgmp_mpfr,      "ptr",    "J");
   cache_field(jgmp_randstate_ptr,  jgmp_randstate, "ptr",    "J");
+  cache_init(jgmp_mpz);
+  cache_init(jgmp_mpq);
+  cache_init(jgmp_mpfr);
   jgmp_cached = 1;
 }
 
@@ -66,11 +72,10 @@ mpz_ptr jgmp_make_mpz(JNIEnv *env, jobject o)
   return ptr;
 }
 
-jobject jgmp_alloc_mpz(JNIEnv *env)
+jobject jgmp_alloc_init_mpz(JNIEnv *env)
 {
-  jobject o = (*env)->AllocObject(env, jgmp_mpz);
+  jobject o = (*env)->NewObject(env, jgmp_mpz, jgmp_mpz_init);
   if (!o) return NULL;
-  if (!jgmp_make_mpz(env,o)) return NULL;
   return o;
 }
 
@@ -82,11 +87,10 @@ mpq_ptr jgmp_make_mpq(JNIEnv *env, jobject o)
   return ptr;
 }
 
-jobject jgmp_alloc_mpq(JNIEnv *env)
+jobject jgmp_alloc_init_mpq(JNIEnv *env)
 {
-  jobject o = (*env)->AllocObject(env, jgmp_mpq);
+  jobject o = (*env)->NewObject(env, jgmp_mpq, jgmp_mpq_init);
   if (!o) return NULL;
-  if (!jgmp_make_mpq(env,o)) return NULL;
   return o;
 }
 
@@ -98,11 +102,10 @@ mpfr_ptr jgmp_make_mpfr(JNIEnv *env, jobject o)
   return ptr;
 }
 
-jobject jgmp_alloc_mpfr(JNIEnv *env)
+jobject jgmp_alloc_init_mpfr(JNIEnv *env)
 {
-  jobject o = (*env)->AllocObject(env, jgmp_mpfr);
+  jobject o = (*env)->NewObject(env, jgmp_mpfr, jgmp_mpfr_init);
   if (!o) return NULL;
-  if (!jgmp_make_mpfr(env,o)) return NULL;
   return o;
 }
 

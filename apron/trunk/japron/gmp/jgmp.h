@@ -43,6 +43,10 @@ extern jfieldID jgmp_mpq_ptr;
 extern jfieldID jgmp_mpfr_ptr;
 extern jfieldID jgmp_randstate_ptr;
 
+extern jmethodID jgmp_mpz_init;
+extern jmethodID jgmp_mpq_init;
+extern jmethodID jgmp_mpfr_init;
+
 #define cache_class(r,name)                     \
   r = (*env)->FindClass(env, name);             \
   if (r) r =(*env)->NewGlobalRef(env, r);       \
@@ -52,6 +56,8 @@ extern jfieldID jgmp_randstate_ptr;
   r = (*env)->GetFieldID(env, cls, nm, typ); \
   if (!r) return;
 
+#define cache_init(cls)                                         \
+  cls##_init = (*env)->GetMethodID(env, cls, "<init>", "()V");
 
 /* fills cache, once */
 void jgmp_cache(JNIEnv *env);
@@ -137,6 +143,6 @@ mpq_ptr jgmp_make_mpq(JNIEnv *env, jobject o);
 mpfr_ptr jgmp_make_mpfr(JNIEnv *env, jobject o);
 gmp_randstate_ptr jgmp_make_randstate(JNIEnv *env, jobject o);
 
-jobject jgmp_alloc_mpz(JNIEnv *env);
-jobject jgmp_alloc_mpq(JNIEnv *env);
-jobject jgmp_alloc_mpfr(JNIEnv *env);
+jobject jgmp_alloc_init_mpz(JNIEnv *env);
+jobject jgmp_alloc_init_mpq(JNIEnv *env);
+jobject jgmp_alloc_init_mpfr(JNIEnv *env);

@@ -40,7 +40,9 @@ public class Dimchange
 
     static { System.loadLibrary("japron"); class_init(); }
 
-    
+    private Dimchange() { }
+
+
     // Constructors
     ///////////////
 

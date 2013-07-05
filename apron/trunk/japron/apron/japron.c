@@ -72,6 +72,14 @@ jfieldID japron_abstract0_ptr;
 jfieldID japron_environment_ptr;
 jfieldID japron_dimension_intdim;
 jfieldID japron_dimension_realdim;
+ 
+jmethodID japron_abstract0_init;
+jmethodID japron_dimchange_init;
+jmethodID japron_dimperm_init;
+jmethodID japron_environment_init;
+jmethodID japron_linexpr0_init;
+jmethodID japron_manager_init;
+jmethodID japron_texpr0intern_init;
 
 static int japron_cached = 0;
 
@@ -136,6 +144,13 @@ void japron_cache(JNIEnv *env)
   cache_field(japron_environment_ptr,   japron_environment,  "ptr",     "J");
   cache_field(japron_dimension_intdim,  japron_dimension,    "intDim",  "I");
   cache_field(japron_dimension_realdim, japron_dimension,    "realDim", "I");
+  cache_init(japron_abstract0);
+  cache_init(japron_dimchange);
+  cache_init(japron_dimperm);
+  cache_init(japron_environment);
+  cache_init(japron_linexpr0);
+  cache_init(japron_manager);
+  cache_init(japron_texpr0intern);
   japron_cached = 1;
 }
 
@@ -209,21 +224,20 @@ jobject japron_scalar_get(JNIEnv *env, ap_scalar_t* c)
     return o;
 
   case AP_SCALAR_MPQ:
-    p = jgmp_alloc_mpq(env);
+    p = jgmp_alloc_init_mpq(env);
     if (!p) return NULL;
     o = (*env)->AllocObject(env, japron_mpqscalar);
     if (!o) return NULL;
-    mpq_init(as_mpq(p));
     mpq_set(as_mpq(p), c->val.mpq);
     (*env)->SetObjectField(env, o, japron_mpqscalar_val, p);
     return o;
 
   case AP_SCALAR_MPFR:
-    p = jgmp_alloc_mpfr(env);
+    p = jgmp_alloc_init_mpfr(env);
     if (!p) return NULL;
     o = (*env)->AllocObject(env, japron_mpfrscalar);
     if (!o) return NULL;
-    mpfr_init2(as_mpfr(p), mpfr_get_prec(c->val.mpfr));
+    mpfr_set_prec(as_mpfr(p), mpfr_get_prec(c->val.mpfr));
     mpfr_set(as_mpfr(p), c->val.mpfr, GMP_RNDN);
     (*env)->SetObjectField(env, o, japron_mpfrscalar_val, p);
     return o;
@@ -375,8 +389,9 @@ jobject japron_lincons0_get(JNIEnv *env, ap_lincons0_t* t)
     if (!s) return NULL;
   }
   (*env)->SetObjectField(env, c, japron_lincons0_scalar, s);
-  jobject e = (*env)->AllocObject(env, japron_linexpr0);
+  jobject e = (*env)->NewObject(env, japron_linexpr0, japron_linexpr0_init);
   if (!e) return NULL;
+  ap_linexpr0_free(as_linexpr0(e));
   set_linexpr0(e, t->linexpr0);
   t->linexpr0 = NULL;
   (*env)->SetObjectField(env, c, japron_lincons0_expr, e);
@@ -478,7 +493,8 @@ jobjectArray japron_generator0_array_get(JNIEnv *env, ap_generator0_array_t* t)
     jobject c = (*env)->AllocObject(env, japron_generator0);
     if (!c) return NULL;
     (*env)->SetIntField(env, c, japron_generator0_kind, t->p[i].gentyp);
-    jobject e = (*env)->AllocObject(env, japron_linexpr0);
+    jobject e = (*env)->NewObject(env, japron_linexpr0, japron_linexpr0_init);
+    ap_linexpr0_free(as_linexpr0(e));
     set_linexpr0(e, t->p[i].linexpr0);
     t->p[i].linexpr0 = NULL;
     (*env)->SetObjectField(env, c, japron_generator0_coord, e);
@@ -534,7 +550,7 @@ jobject japron_tcons0_get(JNIEnv *env, ap_tcons0_t* t)
     if (!s) return NULL;
   }
   (*env)->SetObjectField(env, c, japron_tcons0_scalar, s);
-  jobject e = (*env)->AllocObject(env, japron_texpr0intern);
+  jobject e = (*env)->NewObject(env, japron_texpr0intern, japron_texpr0intern_init);
   set_texpr0(e, t->texpr0);
   t->texpr0 = NULL;
   (*env)->SetObjectField(env, c, japron_tcons0_expr, e);
@@ -759,7 +775,7 @@ ap_texpr0_t** japron_texpr0_array_alloc_set(JNIEnv *env, jobjectArray ar, size_t
 jobject japron_manager_get(JNIEnv *env, ap_manager_t* m)
 {
   check_nonnull(m,NULL);
-  jobject mm = (*env)->AllocObject(env, japron_manager);
+  jobject mm = (*env)->NewObject(env, japron_manager, japron_manager_init);
   if (!mm) return NULL;
   set_manager(mm, ap_manager_copy(m));
   return mm;
@@ -786,7 +802,7 @@ jobject japron_dimension_get(JNIEnv *env, int intdim, int realdim)
 jobject japron_abstract0_get(JNIEnv *env, ap_manager_t* man, ap_abstract0_t* a)
 {
   check_nonnull(a,NULL);
-  jobject o = (*env)->AllocObject(env, japron_abstract0);
+  jobject o = (*env)->NewObject(env, japron_abstract0, japron_abstract0_init);
   if (!o) { ap_abstract0_free(man, a); return NULL; }
   set_abstract0(o, a);
   return o;

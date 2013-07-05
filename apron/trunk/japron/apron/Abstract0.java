@@ -52,6 +52,8 @@ public class Abstract0
 
     static { System.loadLibrary("japron"); class_init(); }
 
+    private Abstract0() { }
+
 
     // Constructors
     ///////////////

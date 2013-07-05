@@ -369,9 +369,8 @@ JNIEXPORT jobject JNICALL Java_gmp_Mpfr_MpzValue
   (JNIEnv *env, jobject o1, jint p)
 {
   check_nonnull(o1,NULL);
-  jobject r = jgmp_alloc_mpz(env);
+  jobject r = jgmp_alloc_init_mpz(env);
   if (r) {
-    mpz_init(as_mpz(r));
     mpfr_get_z(as_mpz(r), as_mpfr(o1), p);
   }
   return r;
