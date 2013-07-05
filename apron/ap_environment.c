@@ -974,6 +974,7 @@ ap_environment_t* ap_environment_lce_array(ap_environment_t** tenv,
 			(*ptdimchange)[i],(*ptdimchange)[i]->intdim, tdenv[i].envint.size);
     }
   }
+  free(tdenv);
   if (j>0){
     env_clear(&denv.envint);
     env_clear(&denv.envreal);
