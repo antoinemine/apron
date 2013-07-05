@@ -1313,7 +1313,7 @@ public class Abstract1
         String[] var0 = { env.varOfDim(dim[0]) };
         String[] var1 = { var[0] };
         if (env.isInt(var0[0])) env = env.remove(var).add(var0, null);
-        else env = env.remove(var0).add(null, var0);
+        else env = env.remove(var).add(null, var0);
         abs.fold(man, dim);
         if (!var0[0].equals(var1[0])) rename(man, var0, var1);
     }
