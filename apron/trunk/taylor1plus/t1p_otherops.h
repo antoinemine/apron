@@ -11,6 +11,10 @@
 #include "ap_var.h"
 #include "ap_abstract1.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Other functions */
 /*******************/
 
@@ -44,5 +48,10 @@ t1p_t t1p_closure(ap_manager_t* man, bool destructive, t1p_t* a);
 /* for internal use */
 /* pour test */
 ap_interval_t* t1p_create_pos(ap_manager_t* man);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 

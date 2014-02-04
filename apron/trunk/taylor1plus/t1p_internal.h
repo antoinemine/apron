@@ -24,6 +24,10 @@
 #include "../box/box.h"
 #include "../octagons/oct.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned int uint_t;
 
 /**************************************************************************************************/
@@ -5663,5 +5667,9 @@ static inline double t1p_aff_distance(t1p_internal_t* pr, t1p_aff_t *a, t1p_aff_
     itv_clear(tmp);
     return res;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

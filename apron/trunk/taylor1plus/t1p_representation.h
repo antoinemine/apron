@@ -8,6 +8,10 @@
 #ifndef _T1P_REPRESENTATION_H_
 #define _T1P_REPRESENTATION_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Taylor1+ type */
 
 //typedef struct _t1p_t {
@@ -61,5 +65,9 @@ void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a);
 void t1p_serialize_raw(ap_manager_t* man, t1p_t* a);
 
 void t1p_deserialize_raw(ap_manager_t* man, t1p_t* a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

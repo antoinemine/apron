@@ -11,6 +11,10 @@
 #include "ap_dimension.h"
 #include "ap_manager.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Resize dimensions */
 /*********************/
 t1p_t* t1p_add_dimensions(ap_manager_t* man,
@@ -26,5 +30,9 @@ t1p_t* t1p_permute_dimensions(ap_manager_t* man,
 		bool destructive,
 		t1p_t* a,
 		ap_dimperm_t* permutation);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

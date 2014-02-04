@@ -14,6 +14,10 @@
 #include "ap_generic.h"
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Assign and Substitute */
 /*************************/
 t1p_t* t1p_assign_linexpr_array(ap_manager_t* man,
@@ -44,4 +48,9 @@ t1p_t* t1p_substitute_texpr_array(ap_manager_t* man,
 		ap_dim_t* tdim, ap_texpr0_t** texpr,
 		size_t size,
 		t1p_t* dest);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

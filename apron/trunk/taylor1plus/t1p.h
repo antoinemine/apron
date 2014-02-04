@@ -10,6 +10,10 @@
 
 #include "ap_global0.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //ap_manager_t* t1p_manager_alloc(ap_manager_t* manNS);
 ap_manager_t* t1p_manager_alloc(void);
 typedef struct _t1p_t t1p_t;
@@ -71,5 +75,9 @@ typedef struct _t1p_t t1p_t;
 /* for internal use */
 /* pour test */
 //ap_interval_t* t1p_create_pos(ap_manager_t* man);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -17,6 +17,10 @@
 #include "ap_generic.h"
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Meet and Join */
 /*****************/
 /* 1.Meet */
@@ -37,5 +41,9 @@ t1p_t* t1p_join_array(ap_manager_t* man, t1p_t** tab, size_t size);
 t1p_t* t1p_add_ray_array(ap_manager_t* man,
 		bool destructive,
 		t1p_t* a, ap_generator0_array_t* array);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
