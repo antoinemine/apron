@@ -83,7 +83,10 @@ struct custom_operations camlidl_apron_custom_linexpr0_ptr = {
   camlidl_apron_linexpr0_ptr_compare,
   camlidl_apron_linexpr0_ptr_hash,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -190,7 +193,10 @@ struct custom_operations camlidl_apron_custom_texpr0_ptr = {
   camlidl_apron_texpr0_ptr_compare,
   camlidl_apron_texpr0_ptr_hash,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -221,7 +227,10 @@ struct custom_operations camlidl_apron_custom_manager_ptr = {
   camlidl_apron_manager_ptr_compare,
   custom_hash_default,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx)
@@ -334,7 +343,10 @@ struct custom_operations camlidl_apron_custom_abstract0_ptr = {
   camlidl_apron_abstract0_ptr_compare,
   camlidl_apron_abstract0_ptr_hash,
   camlidl_apron_abstract0_serialize,
-  camlidl_apron_abstract0_deserialize
+  camlidl_apron_abstract0_deserialize,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -389,7 +401,10 @@ struct custom_operations camlidl_apron_custom_var_ptr = {
   camlidl_apron_var_ptr_compare,
   camlidl_apron_var_ptr_hash,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -429,7 +444,10 @@ struct custom_operations camlidl_apron_custom_environment_ptr = {
   camlidl_apron_environment_ptr_compare,
   camlidl_apron_environment_ptr_hash,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
@@ -483,7 +501,10 @@ struct custom_operations camlidl_apron_custom_policy_manager_ptr = {
   custom_compare_default,
   custom_hash_default,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
 
 
@@ -526,5 +547,8 @@ struct custom_operations camlidl_apron_custom_policy_ptr = {
   camlidl_apron_policy_ptr_compare,
   camlidl_apron_policy_ptr_hash,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#ifdef custom_compare_ext_default
+  custom_compare_ext_default,
+#endif
 };
