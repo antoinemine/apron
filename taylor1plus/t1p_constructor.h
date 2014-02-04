@@ -17,6 +17,10 @@
 #include "ap_generator0.h"
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /****************/
 /* Constructors */
 /****************/
@@ -48,5 +52,9 @@ ap_interval_t** t1p_to_box(ap_manager_t* man, t1p_t* a);
 ap_tcons0_array_t t1p_to_tcons_array(ap_manager_t* man, t1p_t* a);
 ap_lincons0_array_t t1p_to_lincons_array(ap_manager_t* man, t1p_t* a);
 ap_generator0_array_t t1p_to_generator_array(ap_manager_t* man, t1p_t* a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

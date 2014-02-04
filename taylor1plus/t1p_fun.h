@@ -14,6 +14,10 @@
 #include "t1p_representation.h"
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 t1p_aff_t* t1p_aff_eval_ap_texpr0(t1p_internal_t* pr, ap_texpr0_t* expr, t1p_t* env);
 
 t1p_aff_t* t1p_aff_eval_node(t1p_internal_t* pr, ap_texpr0_node_t* node, t1p_t* env);
@@ -60,4 +64,9 @@ bool call_sdp(itv_internal_t* itv, itv_t res, t1p_aaterm_t* p, t1p_aaterm_t* q, 
 
 void buildIntervalUpperTriangle(t1p_internal_t* pr, itv_t* array, t1p_aaterm_t* p, t1p_aaterm_t* q, size_t dim, int* hash);
 double* buildDoubleUpperTriangle(t1p_internal_t* pr, itv_t* array, size_t dim);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

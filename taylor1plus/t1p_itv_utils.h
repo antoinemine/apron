@@ -12,6 +12,10 @@
 #include <errno.h>
 #include "itv.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* TODO: To be add to itv lib (?) */
 static inline bool itv_has_infty_bound(itv_t itv);
 static inline bool itv_has_finite_bound(itv_t itv);
@@ -161,5 +165,9 @@ static inline void itv_middev_regular(itv_internal_t *itv, itv_t mid, itv_t dev,
     itv_clear(sup);
     itv_clear(minf);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
