@@ -326,13 +326,18 @@ void test_coeff()
   printf("print: "); cc.print(); printf("\n");
 }
 
+ap_dim_t dim123[] = {1,2,3};
+ap_dim_t dim102[] = {1,0,2};
+ap_dim_t dim12[] = {1,2};
+ap_dim_t dim02[] = {0,2};
+
 void test_dimchange()
 {
   cout << endl << "dimchange" 
        << endl << "=========" << endl << endl;
-  dimchange d = dimchange(1,2,(ap_dim_t[]){1,2,3});
+  dimchange d = dimchange(1,2,dim123);
   cout << "from array 1 2 3: " << d;
-  d = (ap_dim_t[]){3,2,1};
+  d = dim123;
   cout << "from array 3 2 1: " << d;
   cout << d.get_intdim() << " " << d.get_realdim() << " " << d.get(0) << " " << d[1] << endl;
   try { d.get(3); assert(0); } catch (out_of_range& b) {}
@@ -367,11 +372,11 @@ void test_dimperm()
        << endl << "=======" << endl << endl;
   dimperm i = id(3);
   cout << "identity:         " << i << endl;
-  dimperm d = dimperm(3,(ap_dim_t[]){1,0,2});
+  dimperm d = dimperm(3,dim102);
   cout << "from array 1 0 2: " << d;
   d = id(3);
   cout << "identity:         " << d;  
-  d = (ap_dim_t[]){1,2,0};
+  d = dim102;
   cout << "from array 1 2 0: " << d;
   cout << d.size() << " " << d.get(0) << " " << d[1] << endl;
   try { d.get(3); assert(0); } catch (out_of_range& b) {}
@@ -409,8 +414,8 @@ void test_dimperm()
 
 void test_linexpr0()
 {
-  dimchange dim = dimchange(1,1,(ap_dim_t[]){0,2});
-  dimperm perm  = dimperm(3,(ap_dim_t[]){1,0,2});
+  dimchange dim = dimchange(1,1,dim02);
+  dimperm perm  = dimperm(3,dim102);
   dimperm perm2 = -perm;
 
   // dense
@@ -569,10 +574,12 @@ void test_lincons0()
   lincons0 m = l;
   assert(!l.is_unsat() && l.is_quasilinear() && l.is_linear());
   cout << "copy 1x0 + 2x1 + 3x2 + 4 = 0:            " << m << endl;
-  lincons0 n = lincons0(m,dimchange(2,0,(ap_dim_t[]){0,2}));
+  ap_dim_t na[] = {0,2};
+  lincons0 n = lincons0(m,dimchange(2,0,na));
   assert(!n.is_unsat() && n.is_quasilinear() && n.is_linear());
   cout << "dimchange 1x1 + 2x2 + 3x4 + 4 = 0:       " << n << endl;
-  lincons0 o = lincons0(m,dimperm(3,(ap_dim_t[]){1,0,2}));
+  ap_dim_t oa[] = {1,0,2};
+  lincons0 o = lincons0(m,dimperm(3,oa));
   assert(!o.is_unsat() && o.is_quasilinear() && o.is_linear());
   cout << "dimperm 2x0 + 1x1 + 3x2 + 4 = 0:         " << o << endl;
   cout << "unsat:                                   " << lincons0(unsat()) << endl;
@@ -583,9 +590,9 @@ void test_lincons0()
   cout << "unsat:                                   " << l << endl;
   o = n = lincons0(AP_CONS_EQ,linexpr0(3,a,4));
   cout << "chained copy 1x0 + 2x1 + 3x2 + 4 = 0:    " << o << endl;
-  o.add_dimensions(dimchange(2,0,(ap_dim_t[]){0,2}));
+  o.add_dimensions(dimchange(2,0,na));
   cout << "dimchange 1x1 + 2x2 + 3x4 + 4 = 0:       " << o << endl;
-  n.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  n.permute_dimensions(dimperm(3,oa));
   cout << "dimperm 2x0 + 1x1 + 3x2 + 4 = 0:         " << n << endl;
   n.resize(2);
   cout << "resize 2x0 + 1x1 + 4 = 0:                " << n << endl;
@@ -632,9 +639,9 @@ void test_lincons0_array()
   cout << "construct:    " << t << endl;
   lincons0_array u = t;
   cout << "copy:         " << t << endl; 
-  lincons0_array v = lincons0_array(u,dimperm(3,(ap_dim_t[]){1,0,2}));
+  lincons0_array v = lincons0_array(u,dimperm(3,dim102));
   cout << "permutation: " << v << endl;
-  lincons0_array w = lincons0_array(u,dimchange(1,1,(ap_dim_t[]){0,2}));
+  lincons0_array w = lincons0_array(u,dimchange(1,1,dim02));
   cout << "dim change:   " << w << endl;
   lincons0 ar[3] = { lincons0(AP_CONS_EQ,linexpr0(3,a,5)), 
 		     lincons0(AP_CONS_EQ,linexpr0(2,b,4)),
@@ -651,10 +658,10 @@ void test_lincons0_array()
   cout << "from vector:  " << x << endl;  
   w = v;
   cout << "copy:         " << w << endl;
-  w.add_dimensions(dimchange(1,1,(ap_dim_t[]){0,2}));
+  w.add_dimensions(dimchange(1,1,dim02));
   cout << "dim change:   " << w << endl;
   w = v;
-  w.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  w.permute_dimensions(dimperm(3,dim102));
   cout << "permutation:  " << w << endl;
   cout << "size:     " << w.size() << endl;
   assert(w.is_linear() && w.is_quasilinear());
@@ -689,17 +696,17 @@ void test_generator0()
   generator0 l = generator0(AP_GEN_VERTEX,linexpr0(3,a,4));
   generator0 m = l;
   cout << "copy vert 1x0 + 2x1 + 3x2 + 4:          " << m << endl;
-  generator0 n = generator0(m,dimchange(2,0,(ap_dim_t[]){0,2}));
+  generator0 n = generator0(m,dimchange(2,0,dim02));
   cout << "dimchange vert 1x1 + 2x2 + 3x4 + 4:     " << n << endl;
-  generator0 o = generator0(m,dimperm(3,(ap_dim_t[]){1,0,2}));
+  generator0 o = generator0(m,dimperm(3,dim102));
   cout << "dimperm vert 2x0 + 1x1 + 3x2 + 4:       " << o << endl;
   l = generator0(AP_GEN_RAY,linexpr0(4,b,5));
   cout << "copy ray 4x0 + 3x1 + 2x2 + 1x3 + 5:     " << l << endl;
   o = n = generator0(AP_GEN_LINE,linexpr0(3,a,4));
   cout << "chained copy line 1x0 + 2x1 + 3x2 + 4:  " << o << endl;
-  o.add_dimensions(dimchange(2,0,(ap_dim_t[]){0,2}));
+  o.add_dimensions(dimchange(2,0,dim02));
   cout << "dimchange line 1x1 + 2x2 + 3x4 + 4:     " << o << endl;
-  n.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  n.permute_dimensions(dimperm(3,dim102));
   cout << "dimperm line 2x0 + 1x1 + 3x2 + 4:       " << n << endl;
   n.resize(2);
   cout << "resize line 2x0 + 1x1 + 4:              " << n << endl;
@@ -735,9 +742,9 @@ void test_generator0_array()
   cout << "construct:    " << t << endl;
   generator0_array u = t;
   cout << "copy:         " << t << endl; 
-  generator0_array v = generator0_array(u,dimperm(3,(ap_dim_t[]){1,0,2}));
+  generator0_array v = generator0_array(u,dimperm(3,dim102));
   cout << "permutation: " << v << endl;
-  generator0_array w = generator0_array(u,dimchange(1,1,(ap_dim_t[]){0,2}));
+  generator0_array w = generator0_array(u,dimchange(1,1,dim02));
   cout << "dim change:   " << w << endl;
   generator0 ar[3] = { generator0(AP_GEN_VERTEX,linexpr0(3,a,5)), 
 		       generator0(AP_GEN_VERTEX,linexpr0(2,b,4)),
@@ -754,10 +761,10 @@ void test_generator0_array()
   cout << "from vector:  " << x << endl;  
   w = v;
   cout << "copy:         " << w << endl;
-  w.add_dimensions(dimchange(1,1,(ap_dim_t[]){0,2}));
+  w.add_dimensions(dimchange(1,1,dim02));
   cout << "dim change:   " << w << endl;
   w = v;
-  w.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  w.permute_dimensions(dimperm(3,dim102));
   cout << "permutation:  " << w << endl;
   cout << "size:     " << w.size() << endl;
   w[0] = generator0(AP_GEN_LINE,linexpr0(2,b,88));
@@ -858,8 +865,8 @@ void test_texpr0()
   x = y = sqrt(dim(0)+1); cout << "chained assign sqrt(x0+1): " << x << "; " << y << endl;
 
   // dimensions
-  dimchange dimc = dimchange(1,1,(ap_dim_t[]){0,2});
-  dimperm perm  = dimperm(3,(ap_dim_t[]){1,0,2});
+  dimchange dimc = dimchange(1,1,dim02);
+  dimperm perm  = dimperm(3,dim102);
   x = dim(0)/dim(1);
   cout << "add dim x1/x2:         " << texpr0(x,dimc) << endl;
   cout << "del dim ]-oo;+oo[/x0:  " << texpr0(x,dimc,false) << endl;
@@ -1027,9 +1034,9 @@ void test_tcons0()
   assert(!l.is_interval_cst() && !l.is_interval_linear() && l.is_interval_polynomial() && 
 	 l.is_interval_polyfrac() && l.is_scalar());
   cout << "copy x0 * x2 = 0:                    " << m << endl;
-  tcons0 n = tcons0(m,dimchange(2,0,(ap_dim_t[]){0,2}));
+  tcons0 n = tcons0(m,dimchange(2,0,dim02));
   cout << "dimchange x1 * x4 = 0:               " << n << endl;
-  tcons0 o = tcons0(m,dimperm(3,(ap_dim_t[]){1,0,2}));
+  tcons0 o = tcons0(m,dimperm(3,dim102));
   cout << "dimperm x1 * x2 = 0:                 " << o << endl;
   cout << "unsat:                               " << tcons0(unsat()) << endl;
   l = tcons0(AP_CONS_SUPEQ,dim(0));
@@ -1041,12 +1048,12 @@ void test_tcons0()
 	 l.is_interval_polyfrac() && l.is_scalar());
   o = n = tcons0(AP_CONS_EQ,dim(0)*dim(2)+2);
   cout << "chained copy x0 * x2 +2 = 0:         " << o << endl;
-  o.add_dimensions(dimchange(2,0,(ap_dim_t[]){0,2}));
+  o.add_dimensions(dimchange(2,0,dim02));
   cout << "dimchange x1 * x4 + 2 = 0:           " << o << endl;
   o = tcons0(AP_CONS_EQ,dim(0)*dim(3)+2);
-  o.remove_dimensions(dimchange(2,0,(ap_dim_t[]){0,2}));
+  o.remove_dimensions(dimchange(2,0,dim02));
   cout << "dimchange ]-oo;+oo[ * x1 + 2 = 0:    " << o << endl;
-  n.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  n.permute_dimensions(dimperm(3,dim102));
   cout << "dimperm x1 * x2 + 2 = 0:              " << n << endl;
   assert(n.get_constyp()==AP_CONS_EQ);
   n.get_constyp()=AP_CONS_SUP;
@@ -1096,11 +1103,11 @@ void test_tcons0_array()
   cout << "construct:    " << t << endl;
   tcons0_array u = t;
   cout << "copy:         " << t << endl; 
-  tcons0_array v = tcons0_array(u,dimperm(3,(ap_dim_t[]){1,0,2}));
+  tcons0_array v = tcons0_array(u,dimperm(3,dim102));
   cout << "permutation:  " << v << endl;
-  tcons0_array w = tcons0_array(u,dimchange(1,1,(ap_dim_t[]){0,2}));
+  tcons0_array w = tcons0_array(u,dimchange(1,1,dim02));
   cout << "add dim:      " << w << endl;
-  tcons0_array ww = tcons0_array(u,dimchange(1,1,(ap_dim_t[]){0,2}),false);
+  tcons0_array ww = tcons0_array(u,dimchange(1,1,dim02),false);
   cout << "rem dim:      " << ww << endl;
   tcons0 ar[3] = { tcons0(AP_CONS_SUPEQ,dim(0)*dim(1)*dim(2)),
 		   tcons0(AP_CONS_EQ,dim(0)%dim(1)),
@@ -1118,13 +1125,13 @@ void test_tcons0_array()
   cout << "from vector:  " << x << endl;  
   w = u;
   cout << "copy:         " << w << endl;
-  w.add_dimensions(dimchange(1,1,(ap_dim_t[]){0,2}));
+  w.add_dimensions(dimchange(1,1,dim02));
   cout << "add dim:      " << w << endl;
   w = u;
-  w.remove_dimensions(dimchange(1,1,(ap_dim_t[]){0,2}));
+  w.remove_dimensions(dimchange(1,1,dim02));
   cout << "del dim:      " << w << endl;
   w = u;
-  w.permute_dimensions(dimperm(3,(ap_dim_t[]){1,0,2}));
+  w.permute_dimensions(dimperm(3,dim102));
   cout << "permutation:  " << w << endl;
   cout << "size:     " << w.size() << endl;
   assert(!w.is_interval_linear());
@@ -2076,22 +2083,21 @@ void test_abstract0(manager& m, manager& mm)
   cout << "assign linexpr inter:   " << a3 << endl;
   linexpr0* ea[] = { &e, &ee };
   vector<const linexpr0*> ev(2); ev[0] = &e; ev[1] = &ee;
-  ap_dim_t da[] = { 1,2 };
   vector<ap_dim_t> dv(2); dv[0] = 1; dv[1] = 2;
   a1 = abstract0(m,2,3,ia);
   assign(m,a2,a1,dv,ev);
-  assign(m,a3,a1,2,da,ea);
+  assign(m,a3,a1,2,dim12,ea);
   a4 = a1;
   a1.assign(m,dv,ev);
-  a4.assign(m,2,da,ea);
+  a4.assign(m,2,dim12,ea);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "assign linexprs:        " << a1 << endl;
   a1 = abstract0(m,2,3,ia);
   assign(m,a2,a1,dv,ev,a5);
-  assign(m,a3,a1,2,da,ea,a5);
+  assign(m,a3,a1,2,dim12,ea,a5);
   a4 = a1;
   a1.assign(m,dv,ev,a5);
-  a4.assign(m,2,da,ea,a5);
+  a4.assign(m,2,dim12,ea,a5);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "assign linexprs inter:  " << a1 << endl;
 
@@ -2110,18 +2116,18 @@ void test_abstract0(manager& m, manager& mm)
   vector<const texpr0*> xv(2); xv[0] = &x; xv[1] = &xx;
   a1 = abstract0(m,2,3,ia);
   assign(m,a2,a1,dv,xv);
-  assign(m,a3,a1,2,da,xa);
+  assign(m,a3,a1,2,dim12,xa);
   a4 = a1;
   a1.assign(m,dv,xv);
-  a4.assign(m,2,da,xa);
+  a4.assign(m,2,dim12,xa);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "assign texprs:          " << a1 << endl;
   a1 = abstract0(m,2,3,ia);
   assign(m,a2,a1,dv,xv,a5);
-  assign(m,a3,a1,2,da,xa,a5);
+  assign(m,a3,a1,2,dim12,xa,a5);
   a4 = a1;
   a1.assign(m,dv,xv,a5);
-  a4.assign(m,2,da,xa,a5);
+  a4.assign(m,2,dim12,xa,a5);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "assign texprs inter:    " << a1 << endl;
 
@@ -2140,18 +2146,18 @@ void test_abstract0(manager& m, manager& mm)
   cout << "subst linexpr inter:    " << a3 << endl;
   a1 = abstract0(m,2,3,ia);
   substitute(m,a2,a1,dv,ev);
-  substitute(m,a3,a1,2,da,ea);
+  substitute(m,a3,a1,2,dim12,ea);
   a4 = a1;
   a1.substitute(m,dv,ev);
-  a4.substitute(m,2,da,ea);
+  a4.substitute(m,2,dim12,ea);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "subst linexprs:         " << a1 << endl;
   a1 = abstract0(m,2,3,ia);
   substitute(m,a2,a1,dv,ev,a5);
-  substitute(m,a3,a1,2,da,ea,a5);
+  substitute(m,a3,a1,2,dim12,ea,a5);
   a4 = a1;
   a1.substitute(m,dv,ev,a5);
-  a4.substitute(m,2,da,ea,a5);
+  a4.substitute(m,2,dim12,ea,a5);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "subst linexprs inter:   " << a1 << endl;
 
@@ -2168,18 +2174,18 @@ void test_abstract0(manager& m, manager& mm)
   cout << "subst texpr inter:      " << a3 << endl;
   a1 = abstract0(m,2,3,ia);
   substitute(m,a2,a1,dv,xv);
-  substitute(m,a3,a1,2,da,xa);
+  substitute(m,a3,a1,2,dim12,xa);
   a4 = a1;
   a1.substitute(m,dv,xv);
-  a4.substitute(m,2,da,xa);
+  a4.substitute(m,2,dim12,xa);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "subst texprs:           " << a1 << endl;
   a1 = abstract0(m,2,3,ia);
   substitute(m,a2,a1,dv,xv,a5);
-  substitute(m,a3,a1,2,da,xa,a5);
+  substitute(m,a3,a1,2,dim12,xa,a5);
   a4 = a1;
   a1.substitute(m,dv,xv,a5);
-  a4.substitute(m,2,da,xa,a5);
+  a4.substitute(m,2,dim12,xa,a5);
   assert(a1==a2 && a1==a3 && a1==a4);
   cout << "subst texprs inter:     " << a1 << endl;
 
@@ -2198,11 +2204,11 @@ void test_abstract0(manager& m, manager& mm)
   cout << "forget 0:           " << a3 << endl;
   a1 = abstract0(m,2,3,ia);
   a3 = a1;
-  forget(m,a2,a1,2,da);
-  a1.forget(m,2,da);
+  forget(m,a2,a1,2,dim12);
+  a1.forget(m,2,dim12);
   assert(a1==a2);
-  forget(m,a4,a3,2,da,true);
-  a3.forget(m,2,da,true);
+  forget(m,a4,a3,2,dim12,true);
+  a3.forget(m,2,dim12,true);
   assert(a3==a4);
   assert(a3<=a1);
   cout << "forgets:            " << a1 << endl;
@@ -2221,7 +2227,8 @@ void test_abstract0(manager& m, manager& mm)
 
   // dim change & permute
 
-  dimchange dc = dimchange(1,2,(ap_dim_t[]){1,2,3});
+  ap_dim_t dca[] = {1,2,3};
+  dimchange dc = dimchange(1,2,dca);
   a1 = abstract0(m,2,3,ia);
   add_dimensions(m,a2,a1,dc);
   add_dimensions(m,a3,a1,dc,true);
@@ -2236,7 +2243,8 @@ void test_abstract0(manager& m, manager& mm)
   assert(a1==abstract0(m,2,3,ia));
   cout << "remove dim:         " << a1 << endl;
 
-  dimperm dp = dimperm(5,(ap_dim_t[]){0,1,3,4,2});
+  ap_dim_t dpa[] = {0,1,3,4,2};
+  dimperm dp = dimperm(5,dpa);
   a1 = abstract0(m,2,3,ia);
   permute_dimensions(m,a2,a1,dp);
   a1.permute_dimensions(m,dp);
@@ -2244,7 +2252,8 @@ void test_abstract0(manager& m, manager& mm)
   cout << "permute dim:        " << a1 << endl;
   a1.permute_dimensions(m,-dp);
   assert(a1==abstract0(m,2,3,ia));
-  try { a1.permute_dimensions(m,dimperm(3,(ap_dim_t[]){0,1,2})); assert(0); }
+  ap_dim_t dpa2[] = {0,1,2};
+  try { a1.permute_dimensions(m,dimperm(3,dpa2)); assert(0); }
   catch (invalid_argument&c) {}
     
   // expand fold
