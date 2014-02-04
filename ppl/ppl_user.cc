@@ -320,7 +320,12 @@ bool ap_ppl_of_box(Congruence_System& r, ap_interval_t** a, size_t intdim, size_
       exact = false;
     }
     /* singleton */
-    else r.insert(Constraint(Variable(i)==temp));
+    else {
+      /* integerness check */
+      mpz_class temp2 = mpz_class(temp);
+      if (temp==temp2) r.insert(Constraint(Variable(i)==temp2));
+      else exact = false;
+    }
   }
   return exact;
 }
