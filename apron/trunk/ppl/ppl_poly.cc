@@ -484,9 +484,11 @@ bool ap_ppl_poly_sat_lincons(ap_manager_t* man, PPL_Poly* a,
 	itv_lincons_clear(&lincons);
 	switch (lincons.constyp){
 	case AP_CONS_SUPEQ:
-	  r = (l>=0); break;
+	  r = (l>=0); 
+          break;
 	case AP_CONS_SUP:
-	  r = intern->strict ? (l>0) : (l>=0);
+          if (intern->strict) r = (l>0);
+          else { exact = false; r = (l>=0); }
 	  break;
 	case AP_CONS_EQMOD:
 	  exact = exact && (num_sgn(lincons.num)==0);

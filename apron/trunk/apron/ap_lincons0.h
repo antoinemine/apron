@@ -87,6 +87,8 @@ void ap_lincons0_fprint(FILE* stream,
 bool ap_lincons0_is_unsat(ap_lincons0_t* cons);
   /* True if the constraint is b>=0 or [a,b]>=0 with b negative */
 
+bool ap_lincons0_is_sat(ap_lincons0_t* cons);
+  /* True if the constraint is trivially satisfiable, e.g. [a,b]>=0 with a positive */
 
 /* ====================================================================== */
 /* I.3 Change of dimensions and permutations */

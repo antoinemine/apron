@@ -44,7 +44,7 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
   a0.value = abs;
   a0.man = man;
   lincons0 = ap_intlinearize_tcons0(man,&a0,cons,&exact,discr,quasilinearize,false);
-  res = sat_lincons(man,abs,&lincons0);
+  res = ap_lincons0_is_sat(&lincons0) || sat_lincons(man,abs,&lincons0);
   ap_lincons0_clear(&lincons0);
   if (!exact){
     man->result.flag_exact = man->result.flag_best = false;

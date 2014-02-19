@@ -471,46 +471,71 @@ bool ap_ppl_grid_sat_lincons(ap_manager_t* man, PPL_Grid* a,
 {
   ppl_internal_t* intern = get_internal(man);
   man->result.flag_exact = man->result.flag_best = true;
+
   try {
-    if (a->p->is_empty()){
-      return true;
-    }
+    if (a->p->is_empty()) return true;
     else {
       itv_lincons_t lincons;
+      Linear_Expression l;
       mpz_class den;
-      Congruence c = Congruence::zero_dim_false();
-      bool res;
+      Constraint r = Constraint::zero_dim_positivity();
+      bool exact = true;
 
-      if (!ap_linexpr0_is_linear(lincons0->linexpr0)){
-	man->result.flag_exact = man->result.flag_best = false;
-	return false;
-      }
-      itv_lincons_init(&lincons);
-      if (!itv_lincons_set_ap_lincons0(intern->itv,&lincons,lincons0))
-	man->result.flag_exact = man->result.flag_best = false;
-     if (itv_sat_lincons_is_false(intern->itv,&lincons)){
-	itv_lincons_clear(&lincons);
-	return false;
-      }
-      assert(itv_lincons_is_scalar(&lincons));
-      try {
-	if (!ap_ppl_of_itv_lincons(c,den,&lincons))
+      switch (lincons0->constyp) {
+      case AP_CONS_EQ:
+      case AP_CONS_EQMOD:
+	if (!ap_linexpr0_is_linear(lincons0->linexpr0)){
 	  man->result.flag_exact = man->result.flag_best = false;
-	Poly_Con_Relation relation = a->p->relation_with(c);
-	if (relation.implies(Poly_Con_Relation::is_included())){
-	  res = true;
+	  return false;
 	}
-	else {
-	  res = false;
+      case AP_CONS_SUPEQ:
+      case AP_CONS_SUP:
+	itv_lincons_init(&lincons);
+	exact = itv_lincons_set_ap_lincons0(intern->itv,&lincons,lincons0) && exact;
+	if (itv_sat_lincons_is_false(intern->itv,&lincons)){
+	  itv_lincons_clear(&lincons);
+	  if (!exact)
+	    man->result.flag_exact = man->result.flag_best = false;
+	  return false;
 	}
-	man->result.flag_exact = man->result.flag_best = true;
-      }
-      catch (cannot_convert w) {
+	if (!itv_lincons_is_quasilinear(&lincons)){
+	  itv_t* env = ap_ppl_grid_to_itv_array(a);
+	  exact = itv_quasilinearize_lincons(intern->itv,&lincons,env,false) && exact;
+	  itv_array_free(env,a->p->space_dimension());
+	}
+	if (itv_sat_lincons_is_false(intern->itv,&lincons)){
+	  itv_lincons_clear(&lincons);
+	  man->result.flag_exact = man->result.flag_best = true;
+	  return false;
+	}
+	assert (!bound_infty(lincons.linexpr.cst->inf));
+	exact = ap_ppl_of_itv_linexpr(l,den,&lincons.linexpr,-1) && exact;
+	itv_lincons_clear(&lincons);
+	switch (lincons.constyp){
+	case AP_CONS_SUPEQ:
+	  r = (l>=0); 
+          break;
+	case AP_CONS_SUP:
+          exact = false;
+          r = (l>=0); 
+          break;
+	case AP_CONS_EQMOD:
+	  exact = exact && (num_sgn(lincons.num)==0);
+	case AP_CONS_EQ:
+	  r = (l == 0);
+	  break;
+	default:
+	  assert(0);
+	}
+	break;
+      default:
 	man->result.flag_exact = man->result.flag_best = false;
-	res = false;
+	return false;
       }
-      itv_lincons_clear(&lincons);
-      return res;
+      if (!exact)
+	man->result.flag_exact = man->result.flag_best = false;
+      Poly_Con_Relation relation = a->p->relation_with(r);
+      return relation.implies(Poly_Con_Relation::is_included());
     }
   }
   CATCH_WITH_VAL(AP_FUNID_SAT_LINCONS,false);
@@ -567,6 +592,7 @@ ap_interval_t* ap_ppl_grid_bound_linexpr(ap_manager_t* man,
   ppl_internal_t* intern = get_internal(man);
   man->result.flag_exact = man->result.flag_best = true;
   ap_interval_t* r = ap_interval_alloc();
+
   try {
     if (a->p->is_empty()) {
       /* empty */
@@ -1206,7 +1232,6 @@ PPL_Grid* ap_ppl_grid_widening_threshold(ap_manager_t* man,
   man->result.flag_exact = man->result.flag_best = false;
   try {
     Congruence_System c;
-    /* when a1->strict=false, c will not contain any strict constraint */
     ap_ppl_of_lincons_array(intern->itv,c,array);
     PPL_Grid* r = new PPL_Grid(*a2);
     r->p->limited_extrapolation_assign(*a1->p,c);
