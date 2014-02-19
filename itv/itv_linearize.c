@@ -907,6 +907,7 @@ ap_texpr0_node_intlinearize_linear(itv_internal_t* intern,
     break;
 
   case AP_TEXPR_CAST:
+    exc = itv_intlinearize_ap_texpr0_intlinear(intern,lres,n->exprA);
     break;
 
   case AP_TEXPR_MOD:
