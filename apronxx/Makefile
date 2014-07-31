@@ -127,13 +127,13 @@ libapronxx_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(RANLIB) $@
 
 libapronxx.so: $(subst .cc,.o,$(CXXSOURCES))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS)
+	$(CXX) $(CFLAGS) -shared -o $@ $^ $(LIBS)
 
 libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
+	$(CXX) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../taylor1plus -lt1pMPQ_debug -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L. -lapronxx_debug
+	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ -L. -lapronxx_debug
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<
