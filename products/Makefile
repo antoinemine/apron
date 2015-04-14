@@ -39,16 +39,19 @@ CCSRC = $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = ap_pkgrid.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libap_pkgrid.a libap_pkgrid_debug.a \
-polkaGrid.mli polkaGrid.cmi polkaGrid.cma \
-libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
+CCLIB_TO_INSTALL = libap_pkgrid.a libap_pkgrid_debug.a
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so
+endif
+
+ifneq ($(HAS_OCAML),)
+CAML_TO_INSTALL := polkaGrid.mli polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
 ifneq ($(HAS_OCAMLOPT),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) polkaGrid.cmxa polkaGrid.a 
+CAML_TO_INSTALL += polkaGrid.cmxa polkaGrid.a
 endif
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += \
-libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
+CAML_TO_INSTALL += dllpolkaGrid_caml.so
+endif
 endif
 
 LIBS = -L../ppl -lap_ppl -L$(PPL_PREFIX)/lib -lppl -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
@@ -92,9 +95,11 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-	for i in dllpolkaGrid_caml*.so dllpkDisj_caml*.so; do \
+ifeq ($(OCAMLFIND),)
+	for i in $(CAML_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
+endif
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done

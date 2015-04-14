@@ -59,6 +59,8 @@ CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
 libt1pMPQ.so libt1pD.so libt1pMPFR.so \
 libt1pMPQ_debug.so libt1pD_debug.so libt1pMPFR_debug.so
 endif
+
+ifneq ($(HAS_OCAML),)
 CAML_TO_INSTALL = \
 t1p.idl t1p.ml t1p.mli t1p.cmi \
 t1pMPQ.cma \
@@ -74,6 +76,7 @@ t1pMPFR.cmxa t1pMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
+endif
 endif
 
 LIBS = -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
@@ -156,17 +159,16 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-#	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
-#	done
+ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
+endif
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
-	/bin/rm -f $(PREFIX)/lib/libt1p*.* $(PREFIX)/lib/liboct*_debug.*
-	/bin/rm -f $(PREFIX)/lib/dllt1p*.so $(PREFIX)/lib/dlloct*_debug.so
+	/bin/rm -f $(PREFIX)/lib/libt1p*.* $(PREFIX)/lib/libt1p*_debug.*
+	/bin/rm -f $(PREFIX)/lib/dllt1p*.so $(PREFIX)/lib/dllt1p*_debug.so
 	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
 
 

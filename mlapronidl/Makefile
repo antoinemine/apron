@@ -66,7 +66,7 @@ CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
 CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a
 ifneq ($(HAS_SHARED),)
-CCLIB_TOINSTALL += dllapron_caml.so
+MLLIB_TOINSTALL += dllapron_caml.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
@@ -116,15 +116,20 @@ distclean: clean
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
 uninstall:
+ifeq ($(OCAMLFIND),)
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
 	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%) libapron*.so
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
+endif
 
 install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
+ifeq ($(OCAMLFIND),)
 	mkdir -p $(APRON_PREFIX)/lib
 	mkdir -p $(APRON_PREFIX)/include
-	for i in $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
+	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
 	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_PREFIX)/include
+	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
+endif
 
 #---------------------------------------
 # Library rules

@@ -101,12 +101,14 @@ install:
 	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.so libap_ppl_debug.so; do \
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
+ifeq ($(OCAMLFIND),)
 	for i in libap_ppl_caml*.a dllap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(CAMLDIR); fi; \
 	done
 	for i in ap_ppl_test pplrun ppltop; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
+endif
 
 uninstall:
 	/bin/rm -f $(INCDIR)/ap_ppl*
