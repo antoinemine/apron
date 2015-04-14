@@ -17,20 +17,10 @@ LCFLAGS = \
 
 OCAMLINC = \
 -I $(MLGMPIDL_PREFIX)/lib \
--I $(APRON_PREFIX)/lib
+-I $(APRON_PREFIX)/lib \
+-I $(CAML_PREFIX)/lib/ocaml/apron
 
-OCAMLLDFLAGS = \
--verbose -noautolink -ccopt "$(LCFLAGS)" \
-bigarray.cma gmp.cma apron.cma \
-boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma \
--cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolkaMPQ_caml -lpolkaMPQ_debug -loctMPQ_caml -loctMPQ -lboxMPQ_caml -lboxMPQ_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl" \
--dllib "-lpolkaGrid_caml -lap_ppl_caml -lpolkaMPQ_caml -loctMPQ_caml -lboxMPQ_caml -lapron_caml -lgmp_caml -lbigarray"
-
-OCAMLOPTLDFLAGS = \
--noautolink -verbose -ccopt "$(LCFLAGS)" \
-bigarray.cmxa gmp.cmxa apron.cmxa \
-boxMPQ.cmxa polkaMPQ.cmxa ppl.cmxa \
--cclib "-lpolkaGrid_caml -lap_pkgrid_debug -lap_ppl_caml -lap_ppl_debug -lppl -lpolkaMPQ_caml -lpolkaMPQ_debug -loctMPQ_caml -loctMPQ -lboxMPQ_caml -lboxMPQ_debug -litv_debug -lapron_caml_debug -lapron_debug -lgmp_caml -lmpfr -lgmpxx -lgmp -lbigarray -lcamlidl"
+OCAMLPACKAGES = -package "apron.boxMPQ,apron.octMPQ,apron.polkaMPQ,apron.ppl,apron.polkaGrid" -linkpkg
 
 all: C ml
 
@@ -39,7 +29,7 @@ all: C ml
 C: example1g
 
 %g: %g.o
-	$(CXX) $(CXXFLAGS) $(ICFLAGS) $(LCFLAGS) -o $@  $< -lapron_ppl_debug -lppl -lgmpxx -lpolkag_debug -loctQg_debug -lboxMPQ_debug -lapron_debug -litvMPQ_debug -litvdbl_debug -lmpfr -lgmp
+	$(CXX) $(CXXFLAGS) $(ICFLAGS) $(LCFLAGS) -o $@  $< -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -litvMPQ_debug -litvD_debug -lmpfr -lgmp
 
 %g.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
@@ -49,19 +39,19 @@ C: example1g
 ml: mlexample1.opt
 
 mlexample%.opt: mlexample%.cmx
-	$(OCAMLOPT) -cc "g++" $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
+	$(OCAMLFIND) ocamlopt -o $@ $< $(OCAMLPACKAGES)
 
 mlexample%.byte: mlexample%.cmo
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) $(OCAMLLDFLAGS) -g -o $@ $<
+	$(OCAMLFIND) ocamlc -o $@ $< $(OCAMLPACKAGES)
 
 test.opt: test.cmx
-	$(OCAMLOPT) -cc "g++" $(OCAMLOPTFLAGS) $(OCAMLINC) $(OCAMLOPTLDFLAGS) -o $@ $<
+	$(OCAMLFIND) ocamlopt -c -o $@ $< $(OCAMLPACKAGES)
 
 %.cmo: %.ml
-	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -c -o $@ $<
+	$(OCAMLFIND) ocamlc -c -o $@ $< $(OCAMLPACKAGES)
 
 %.cmx: %.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC)  -c -o $@ $<
+	$(OCAMLFIND) ocamlopt -c -o $@ $< $(OCAMLPACKAGES)
 
 #
 

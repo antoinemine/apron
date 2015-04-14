@@ -11,7 +11,7 @@
 #include "oct.h"
 #include "pk.h"
 #include "pkeq.h"
-#include "apron_ppl.h"
+#include "ap_ppl.h"
 
 void ex1(ap_manager_t* man)
 {
