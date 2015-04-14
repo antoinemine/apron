@@ -56,6 +56,8 @@ CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
 libboxMPQ.so libboxD.so libboxMPFR.so \
 libboxMPQ_debug.so libboxD_debug.so libboxMPFR_debug.so
 endif
+
+ifneq ($(HAS_OCAML),)
 CAML_TO_INSTALL = \
 box.idl box.ml box.mli box.cmi \
 boxMPQ.cma \
@@ -71,6 +73,7 @@ boxMPFR.cmxa boxMPFR.a
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so 
+endif
 endif
 
 LIBS = -L$(APRON_PREFIX) -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
@@ -132,12 +135,11 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-#	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
-#	done
+ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
+endif
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done

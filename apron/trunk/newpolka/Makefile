@@ -58,9 +58,12 @@ CCINC_TO_INSTALL = pk.h pkeq.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = \
 libpolkaMPQ.a libpolkaMPQ_debug.a \
-libpolkaRll.a libpolkaRll_debug.a \
+libpolkaRll.a libpolkaRll_debug.a 
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += \
 libpolkaMPQ.so libpolkaMPQ_debug.so \
-libpolkaRll.so libpolkaRll_debug.so \
+libpolkaRll.so libpolkaRll_debug.so
+endif
 
 CAML_TO_INSTALL = \
 polka.idl polka.mli polka.ml polka.cmi \
@@ -145,18 +148,19 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
-#	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
-#	done
+ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
 	done
+endif
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
-	/bin/rm -f $(PREFIX)/lib/libpolka*.* $(PREFIX)/lib/liboct*_debug.*
-	/bin/rm -f $(PREFIX)/lib/dllpolka*.so $(PREFIX)/lib/dlloct*_debug.so
+	/bin/rm -f $(PREFIX)/lib/libpolka*.* $(PREFIX)/lib/libpolka*_debug.*
+	/bin/rm -f $(PREFIX)/lib/dllpolka*.so $(PREFIX)/lib/dllpolka*_debug.so
+ifeq ($(OCAMLFIND),)
 	/bin/rm -f $(PREFIX)/lib/polka.mli $(PREFIX)/lib/polka.ml $(PREFIX)/lib/polka.cm[ix] $(PREFIX)/lib/polka.idl $(PREFIX)/lib/polka*.cma $(PREFIX)/lib/polka*.cmxa $(PREFIX)/lib/polka*.a
+endif
 
 
 dist: $(CCSRC) Makefile sedscript_caml newpolka.texi polka.idl polka.ml polka.mli polka_caml.c COPYING README

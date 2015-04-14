@@ -138,18 +138,20 @@ install:
 	$(INSTALLd) $(INCDIR) $(INCDIR)/oct $(LIBDIR) $(BINDIR)
 	$(INSTALL) oct.h $(INCDIR)
 	$(INSTALL) $(CCINC) $(INCDIR)/oct
-	for i in liboct*.* liboct*_debug.* liboct*_caml.* oct.idl; do \
-		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
-	done
-	for i in dlloct*_caml.so; do \
-		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
-	done
 	for i in octtest* octtop* octrun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(BINDIR); fi; \
 	done
-	for i in oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
+	for i in liboct*.* liboct*_debug.*; do \
 		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
 	done
+ifeq ($(OCAMLFIND),)
+	for i in liboct*_caml.* dlloct*_caml.so; do \
+		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
+	done
+	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
+		if test -f $$i; then $(INSTALL) $$i $(LIBDIR); fi; \
+	done
+endif
 
 uninstall:
 	/bin/rm -fr $(INCDIR)/oct.h
