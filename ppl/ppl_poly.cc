@@ -796,6 +796,7 @@ PPL_Poly* ap_ppl_poly_meet_lincons_array(ap_manager_t* man,
       itv_array_free(env,a->p->space_dimension());
     }
     itv_linearize_lincons_array(intern->itv,&array2,true);
+    itv_lincons_array_reduce_integer(intern->itv,&array2,a->intdim);
     Constraint_System c;
     exact = ap_ppl_of_itv_lincons_array(c,den,&array2,intern->strict) && exact;
     if (!exact)
