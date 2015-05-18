@@ -100,9 +100,9 @@ static inline void numrat_init_set_int(numrat_t a, long int i)
 { numint_set_int(a->n,i); numint_set_int(a->d,1); }
 
 static inline void numrat_clear(numrat_t a)
-{}
+{ (void)a; }
 static inline void numrat_clear_array(numrat_t* a, size_t size)
-{}
+{ (void)a; (void)size; }
 
 
 /* ====================================================================== */
@@ -407,7 +407,7 @@ static inline bool int_set_numrat(long int* a, numrat_t b)
 }
 static inline bool int_set_numrat_tmp(long int* a, numrat_t b, 
 				      mpz_t q, mpz_t r)
-{ return int_set_numrat(a,b); }
+{ (void)q; (void)r; return int_set_numrat(a,b); }
 
 /* numrat -> mpz */
 static inline bool mpz_set_numrat(mpz_t a, numrat_t b)
@@ -418,7 +418,7 @@ static inline bool mpz_set_numrat(mpz_t a, numrat_t b)
   return (numint_sgn(r)==0);
 }
 static inline bool mpz_set_numrat_tmp(mpz_t a, numrat_t b, mpz_t mpz)
-{ return mpz_set_numrat(a,b); }
+{ (void)mpz; return mpz_set_numrat(a,b); }
 
 /* numrat -> mpq */
 static inline bool mpq_set_numrat(mpq_t a, numrat_t b)
@@ -495,11 +495,11 @@ static inline bool numrat_fits_int(numrat_t a)
   return *b<=LONG_MAX && *b>=-LONG_MAX;
 }
 static inline bool numrat_fits_float(numrat_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool numrat_fits_double(numrat_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool numrat_fits_mpfr(numrat_t a)
-{ return true; }
+{ (void)a; return true; }
 
 
 

@@ -197,13 +197,13 @@ static inline bool numflt_set_int2(numflt_t a, long int i, long int j)
 
 /* mpz -> numflt */
 static inline bool numflt_set_mpz_tmp(numflt_t a, mpz_t b, mpfr_t mpfr)
-{ return !mpfr_set_z(a,b,GMP_RNDU); }
+{ (void)mpfr; return !mpfr_set_z(a,b,GMP_RNDU); }
 static inline bool numflt_set_mpz(numflt_t a, mpz_t b)
 { return !mpfr_set_z(a,b,GMP_RNDU); }
 
 /* mpq -> numflt */
 static inline bool numflt_set_mpq_tmp(numflt_t a, mpq_t b, mpfr_t mpfr)
-{ return !mpfr_set_q(a,b,GMP_RNDU); }
+{ (void)mpfr; return !mpfr_set_q(a,b,GMP_RNDU); }
 static inline bool numflt_set_mpq(numflt_t a, mpq_t b)
 { return !mpfr_set_q(a,b,GMP_RNDU); }
 
@@ -261,9 +261,9 @@ static inline bool mpq_fits_numflt(mpq_t a)
 	  (int)mpz_sizeinbase(mpq_denref(a),2)+1<mpfr_get_emax());
 }
 static inline bool double_fits_numflt(double a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool mpfr_fits_numflt(mpfr_t a)
-{ return true; }
+{ (void)a; return true; }
 
 static inline bool numflt_fits_int(numflt_t a)
 { return mpfr_number_p(a) && mpfr_fits_slong_p(a,GMP_RNDU); }
@@ -272,7 +272,7 @@ static inline bool numflt_fits_float(numflt_t a)
 static inline bool numflt_fits_double(numflt_t a)
 { return mpfr_number_p(a) && mpfr_get_exp(a)<1022; }
 static inline bool numflt_fits_mpfr(numflt_t a)
-{ return true; }
+{ (void)a; return true; }
 
 
 /* ====================================================================== */

@@ -217,11 +217,11 @@ static inline bool double_fits_num_tmp(double k, mpq_t mpq)
 
 static inline bool num_set_mpq_tmp(num_t a, mpq_t b, 
 				   mpz_t q, mpz_t r, mpfr_t mpfr)
-{ return numrat_set_mpq(a,b); }
+{ (void)q; (void)r; (void)mpfr; return numrat_set_mpq(a,b); }
 static inline bool mpq_fits_num_tmp(mpq_t a, mpz_t mpz)
-{ return mpq_fits_numrat(a); }
+{ (void)mpz; return mpq_fits_numrat(a); }
 static inline bool num_set_mpz_tmp(num_t a, mpz_t b, mpfr_t mpfr)
-{ return numrat_set_mpz(a,b); }
+{ (void)mpfr; return numrat_set_mpz(a,b); }
 
 /* ====================================================================== */
 /* Serialization */

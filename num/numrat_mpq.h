@@ -263,7 +263,7 @@ static inline bool numrat_set_double(numrat_t a, double k)
   return true; 
 }
 static inline bool numrat_set_double_tmp(numrat_t a, double k, mpq_t mpq)
-{ return numrat_set_double(a,k); }
+{ (void)mpq; return numrat_set_double(a,k); }
 /* mpfr -> numrat */
 static inline bool numrat_set_mpfr(numrat_t a, mpfr_t b)
 {
@@ -317,6 +317,7 @@ static inline bool double_set_numrat_tmp(double* a, numrat_t b,
 					 mpq_t mpq, // not used
 					 mpfr_t mpfr)
 {
+  (void)mpq;
   int res = mpfr_set_q(mpfr,b,GMP_RNDU);
   *a = mpfr_get_d(mpfr,GMP_RNDU); /* should be exact */
   return (res==0);
@@ -334,13 +335,13 @@ static inline bool mpfr_set_numrat(mpfr_t a, numrat_t b)
 { return !mpfr_set_q(a,b,GMP_RNDU); }
 
 static inline bool mpz_fits_numrat(mpz_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool mpq_fits_numrat(mpq_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool double_fits_numrat(double k)
 { return isfinite(k); }
 static inline bool double_fits_numrat_tmp(double k, mpq_t mpq)
-{ return double_fits_numrat(k); }
+{ (void)mpq; return double_fits_numrat(k); }
 static inline bool mpfr_fits_numrat(mpfr_t a)
 { return mpfr_number_p(a); }
 static inline bool numrat_fits_int(numrat_t a)

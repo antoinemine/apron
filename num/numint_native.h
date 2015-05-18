@@ -73,9 +73,9 @@ static inline void numint_init_set_int(numint_t a, long int i)
 { numint_set_int(a,i); }
 
 static inline void numint_clear(numint_t a)
-{}
+{ (void)a; }
 static inline void numint_clear_array(numint_t* a, size_t size)
-{}
+{ (void)a; (void)size; }
 
 /* ====================================================================== */
 /* Arithmetic Operations */
@@ -257,7 +257,7 @@ static inline int numint_cmp_int(numint_t a, long int b)
 static inline bool numint_equal(numint_t a, numint_t b)
 { return *a==*b; }
 static inline bool numint_integer(numint_t a)
-{ return true; }
+{ (void)a; return true; }
 
 /* ====================================================================== */
 /* Printing */
@@ -455,16 +455,16 @@ static inline bool mpfr_fits_numint(mpfr_t a)
 }
 static inline bool numint_fits_int(numint_t a)
 #if defined(NUMINT_LONGINT)
-{ return true; }
+{ (void)a; return true; }
 #else
 { return (*a>=-LONG_MAX && *a<=LONG_MAX); }
 #endif
 static inline bool numint_fits_float(numint_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool numint_fits_double(numint_t a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool numint_fits_mpfr(numint_t a)
-{ return true; }
+{ (void)a; return true; }
 
 
 /* ====================================================================== */
@@ -487,7 +487,7 @@ static inline size_t numint_deserialize(numint_t dst, const void* src)
 }
 
 static inline size_t numint_serialized_size(numint_t a)
-{ return sizeof(numint_t); }
+{ (void)a; return sizeof(numint_t); }
 
 #ifdef __cplusplus
 }

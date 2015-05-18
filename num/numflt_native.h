@@ -71,9 +71,9 @@ static inline void numflt_init_set_int(numflt_t a, long int i)
 { numflt_set_int(a,i); }
 
 static inline void numflt_clear(numflt_t a)
-{}
+{ (void)a; }
 static inline void numflt_clear_array(numflt_t* a, size_t size)
-{}
+{ (void)a; (void)size; }
 
 static inline void numflt_swap(numflt_t a, numflt_t b)
 { numflt_t t; *t=*a;*a=*b;*b=*t; }
@@ -377,7 +377,7 @@ static inline bool mpq_fits_numflt(mpq_t a)
   return (fabs(k)+1.0) != (double)1.0/(double)0.0;
 }
 static inline bool double_fits_numflt(double a)
-{ return true; }
+{ (void)a; return true; }
 static inline bool mpfr_fits_numflt(mpfr_t a)
 { return mpfr_get_exp(a)<1022; /* XXX >1022 for long double */ }
 static inline bool numflt_fits_int(numflt_t a)
@@ -399,6 +399,7 @@ static inline bool numflt_fits_float(numflt_t a)
 static inline bool numflt_fits_double(numflt_t a)
 {
 #if defined(NUMFLT_DOUBLE)
+  (void)a;
   return true;
 #else
   int e;
@@ -443,7 +444,7 @@ static inline size_t numflt_deserialize(numflt_t dst, const void* src)
 }
 
 static inline size_t numflt_serialized_size(numflt_t a)
-{ return sizeof(numflt_t); }
+{ (void)a; return sizeof(numflt_t); }
 
 
 /* */
