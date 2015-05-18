@@ -122,7 +122,7 @@ static inline void num_mul_2exp(num_t a, num_t b, int c)
 /* ====================================================================== */
 
 static inline int num_sgn(num_t a)
-	 { return numint_sgn(a); }
+      { return numint_sgn(a); }
 static inline int num_cmp(num_t a, num_t b)
       { return numint_cmp(a,b); }
 static inline int num_cmp_int(num_t a, long int b)
@@ -130,7 +130,7 @@ static inline int num_cmp_int(num_t a, long int b)
 static inline bool num_equal(num_t a, num_t b)
       { return numint_equal(a,b); }
 static inline bool num_integer(num_t a)
-      { return true; }
+      { (void)a; return true; }
 
 /* ====================================================================== */
 /* Printing */
@@ -208,24 +208,24 @@ static inline bool num_fits_mpfr(num_t a)
 /* Optimized versions */
 static inline bool num_set_mpq_tmp(numint_t a, mpq_t b,
 				   mpz_t q, mpz_t r, mpfr_t mpfr)
-	  { return numint_set_mpq_tmp(a,b,q,r); }
+{ (void)mpfr; return numint_set_mpq_tmp(a,b,q,r); }
 static inline bool mpq_fits_num_tmp(mpq_t a, mpz_t mpz)
-	  { return mpq_fits_numint_tmp(a,mpz); }
-
+{ return mpq_fits_numint_tmp(a,mpz); }
+  
 static inline bool num_set_double_tmp(num_t a, double k, mpq_t mpq)
-{ return numint_set_double(a,k); }
+{ (void)mpq; return numint_set_double(a,k); }
 static inline bool num_set_mpz_tmp(num_t a, mpz_t b, mpfr_t mpfr)
-{ return numint_set_mpz(a,b); }
+{ (void)mpfr; return numint_set_mpz(a,b); }
 static inline bool int_set_num_tmp(long int* a, num_t b,
 				   mpz_t q, mpz_t r)
-{ return int_set_numint(a,b); }
+{ (void)q; (void)r; return int_set_numint(a,b); }
 static inline bool mpz_set_num_tmp(mpz_t a, num_t b, mpz_t mpz)
-{ return mpz_set_numint(a,b); }
+{ (void)mpz; return mpz_set_numint(a,b); }
 static inline bool double_set_num_tmp(double* a, num_t b,
 				      mpq_t mpq, mpfr_t mpfr)
-{ return double_set_numint(a,b); }
+{ (void)mpq; (void)mpfr; return double_set_numint(a,b); }
 static inline bool double_fits_num_tmp(double k, mpq_t mpq)
-{ return double_fits_numint(k); }
+{ (void)mpq; return double_fits_numint(k); }
 
 /* ====================================================================== */
 /* Serialization */

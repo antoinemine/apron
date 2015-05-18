@@ -211,23 +211,23 @@ static inline bool num_set_mpz_tmp(numflt_t a, mpz_t b, mpfr_t mpfr)
 { return numflt_set_mpz_tmp(a,b,mpfr); }
 static inline bool num_set_mpq_tmp(numflt_t a, mpq_t b,
 				   mpz_t q, mpz_t r, mpfr_t mpfr)
-{ return numflt_set_mpq_tmp(a,b,mpfr); }
+{ (void)q; (void)r; return numflt_set_mpq_tmp(a,b,mpfr); }
 
 
 static inline bool mpq_fits_num_tmp(mpq_t a, mpz_t mpz)
-{ return mpq_fits_numflt(a); }
+{ (void)mpz; return mpq_fits_numflt(a); }
 static inline bool num_set_double_tmp(num_t a, double k, mpq_t mpq)
-{ return numflt_set_double(a,k); }
+{ (void)mpq; return numflt_set_double(a,k); }
 static inline bool int_set_num_tmp(long int* a, num_t b,
 				   mpz_t q, mpz_t r)
-{ return int_set_numflt(a,b); }
+{ (void)q; (void)r; return int_set_numflt(a,b); }
 static inline bool mpz_set_num_tmp(mpz_t a, num_t b, mpz_t mpz)
-{ return mpz_set_numflt(a,b); }
+{ (void)mpz; return mpz_set_numflt(a,b); }
 static inline bool double_set_num_tmp(double* a, num_t b,
 				      mpq_t mpq, mpfr_t mpfr)
-{ return double_set_numflt(a,b); }
+{ (void)mpq; (void) mpfr; return double_set_numflt(a,b); }
 static inline bool double_fits_num_tmp(double k, mpq_t mpq)
-{ return double_fits_numflt(k); }
+{ (void)mpq; return double_fits_numflt(k); }
 
 
 /* ====================================================================== */
@@ -244,7 +244,7 @@ static inline size_t num_deserialize(num_t dst, const void* src)
 { return numflt_deserialize(dst,src); }
 
 static inline size_t num_serialized_size(num_t a)
-{ return numflt_serialized_size(a); }
+{ (void)a; return numflt_serialized_size(a); }
 
 #ifdef __cplusplus
 }

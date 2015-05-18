@@ -729,6 +729,7 @@ bool ITVFUN(itv_set_ap_coeff)(itv_internal_t* intern,
 bool ITVFUN(ap_interval_set_itv)(itv_internal_t* intern,
 				   ap_interval_t* a, itv_t b)
 {
+  (void)intern;
   bool b1 = ap_scalar_set_bound(a->inf,b->inf);
   ap_scalar_neg(a->inf,a->inf);
   bool b2 = ap_scalar_set_bound(a->sup,b->sup);

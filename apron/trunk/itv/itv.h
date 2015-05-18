@@ -342,6 +342,8 @@ static inline void itv_clear(itv_t a)
 }
 static inline void itv_clear_array(itv_t* a, size_t size)
 {
+  (void)a;
+  (void)size;
 #if !defined(NUM_NATIVE)
   size_t i;
   for (i=0; i<size; i++) itv_clear(a[i]);

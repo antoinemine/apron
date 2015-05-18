@@ -1790,6 +1790,7 @@ static void
 itv_unround(itv_internal_t* intern, itv_t res, itv_t arg,
 	    ap_texpr_rtype_t t, ap_texpr_rdir_t d)
 {
+  (void)intern;
   switch (t) {
   case AP_RTYPE_REAL:
     itv_set(res,arg);
