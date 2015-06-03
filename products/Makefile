@@ -86,7 +86,7 @@ clean:
 	/bin/rm -fr tmp
 
 distclean: clean
-	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 sedscript_c
+	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 perlscript_c.pl
 	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
 
 install:
@@ -107,7 +107,7 @@ uninstall:
 	for i in dllpolkaGrid_caml*.so; do /bin/rm -f $(PREFIX)/lib/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
 
-dist: $(CCSRC) ap_pkgrid.texi sedscript_caml polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile COPYING README
+dist: $(CCSRC) ap_pkgrid.texi perlscript_caml.pl polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile COPYING README
 	(cd ..; tar zcvf products.tgz $(^:%=products/%))
 
 #---------------------------------------
@@ -182,17 +182,17 @@ abstract0.idl: ../mlapronidl/abstract0.idl
 	ln -sf $< $@
 macros.m4: ../mlapronidl/macros.m4
 	ln -sf $< $@
-sedscript_c: ../mlapronidl/sedscript_c
+perlscript_c.pl: ../mlapronidl/perlscript_c.pl
 	ln -sf $< $@
 
 # generates polkaGrid.ml, polkaGrid.mli, polkaGrid_caml.c from polkaGrid.idl
-rebuild: polkaGrid.idl macros.m4 sedscript_c scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
+rebuild: polkaGrid.idl macros.m4 perlscript_c.pl scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
 	mkdir -p tmp
 	cp polkaGrid.idl tmp/polkaGrid.idl
 	$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" tmp/polkaGrid.idl
-	$(SED) -f sedscript_c tmp/polkaGrid_stubs.c >polkaGrid_caml.c
-	$(SED) -f sedscript_caml tmp/polkaGrid.ml >polkaGrid.ml
-	$(SED) -f sedscript_caml tmp/polkaGrid.mli >polkaGrid.mli
+	$(PERL) perlscript_c.pl < tmp/polkaGrid_stubs.c >polkaGrid_caml.c
+	$(PERL) perlscript_caml.pl < tmp/polkaGrid.ml >polkaGrid.ml
+	$(PERL) perlscript_caml.pl < tmp/polkaGrid.mli >polkaGrid.mli
 
 #---------------------------------------
 # ML generic rules

@@ -150,7 +150,7 @@ uninstall:
 distclean: mostlyclean
 	/bin/rm -f Makefile.depend
 
-dist: $(CCSRC) Makefile sedscript_caml box.texi box.idl box.ml box.mli box_caml.c COPYING README
+dist: $(CCSRC) Makefile perl.script_caml.pl box.texi box.idl box.ml box.mli box_caml.c COPYING README
 	(cd ..; tar zcvf box.tgz $(^:%=box/%))
 
 #---------------------------------------
@@ -238,9 +238,9 @@ rebuild: $(IDLDEP) box.idl
 	mkdir -p tmp
 	cp box.idl tmp/box.idl
 	$(CAMLIDL) -no-include -nocpp tmp/box.idl
-	$(SED) -f ../mlapronidl/sedscript_c tmp/box_stubs.c >box_caml.c
-	$(SED) -f sedscript_caml tmp/box.ml >box.ml
-	$(SED) -f sedscript_caml tmp/box.mli >box.mli
+	$(PERL) ../mlapronidl/perlscript_c.pl < tmp/box_stubs.c >box_caml.c
+	$(PERL) perlscript_caml.pl < tmp/box.ml >box.ml
+	$(PERL) perlscript_caml.pl < tmp/box.mli >box.mli
 
 #---------------------------------------
 # ML generic rules
