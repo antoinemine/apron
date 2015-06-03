@@ -20,7 +20,6 @@ ITV library
 APRON library
 
 For the OCaml interface, in addition:
-M4 preprocessor (standard on any UNIX system)
 OCaml 3.0 or up (tested with 3.09)
 Camlidl (tested with 1.05)
 MLGMPIDL package

@@ -154,7 +154,6 @@ AR = ar
 RANLIB = ranlib
 SED = sed
 PERL = perl
-M4 = m4
 INSTALL = install
 INSTALLd = install -d
 
