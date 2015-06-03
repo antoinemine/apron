@@ -27,7 +27,6 @@ PREREQUISITES
   * CamlIDL 1.05 (http://caml.inria.fr/camlidl)
   * perl
   * sed (GNU sed is no longer required, as we use perl scripts now)
-  * GNU m4
 - C++ API (optional)
   * GCC 4.1.2 or up
 - Documentation (optional)

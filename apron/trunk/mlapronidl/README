@@ -33,7 +33,6 @@ Parser     : parsing of expressions, constraints and generators
 
 REQUIREMENTS
 ============
-M4 preprocessor (standard on any UNIX system)
 APRON library
 GMP library (tested with version 4.0 and up)
 MPFR library (tested with version 2.2 and up)

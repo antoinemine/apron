@@ -86,7 +86,7 @@ clean:
 	/bin/rm -fr tmp
 
 distclean: clean
-	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.m4 perlscript_c.pl
+	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.pl perlscript_c.pl
 	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
 
 install:
@@ -180,16 +180,16 @@ manager.idl: ../mlapronidl/manager.idl
 	ln -sf $< $@
 abstract0.idl: ../mlapronidl/abstract0.idl
 	ln -sf $< $@
-macros.m4: ../mlapronidl/macros.m4
+macros.pl: ../mlapronidl/macros.pl
 	ln -sf $< $@
 perlscript_c.pl: ../mlapronidl/perlscript_c.pl
 	ln -sf $< $@
 
 # generates polkaGrid.ml, polkaGrid.mli, polkaGrid_caml.c from polkaGrid.idl
-rebuild: polkaGrid.idl macros.m4 perlscript_c.pl scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
+rebuild: polkaGrid.idl macros.pl perlscript_c.pl scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
 	mkdir -p tmp
 	cp polkaGrid.idl tmp/polkaGrid.idl
-	$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" tmp/polkaGrid.idl
+	$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" tmp/polkaGrid.idl
 	$(PERL) perlscript_c.pl < tmp/polkaGrid_stubs.c >polkaGrid_caml.c
 	$(PERL) perlscript_caml.pl < tmp/polkaGrid.ml >polkaGrid.ml
 	$(PERL) perlscript_caml.pl < tmp/polkaGrid.mli >polkaGrid.mli
