@@ -98,10 +98,10 @@ mldep: $(MLSRC)
 # Misc rules
 #---------------------------------------
 
-tar: $(IDLMODULES:%=%.idl) apron_lexer.mll apron_lexer.mli apron_parser.mly parser.ml parser.mli apron_caml.c apron_caml.h macros.m4 Makefile COPYING README mlapronidl.tex sedscript_caml sedscript_c
+tar: $(IDLMODULES:%=%.idl) apron_lexer.mll apron_lexer.mli apron_parser.mly parser.ml parser.mli apron_caml.c apron_caml.h macros.m4 Makefile COPYING README mlapronidl.tex perlscript_caml.pl perlscript_c.pl
 	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
 
-dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.m4 apron_caml.c apron_caml.h Makefile COPYING README mlapronidl.tex sedscript_caml sedscript_c mlapronidl.pdf html
+dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.m4 apron_caml.c apron_caml.h Makefile COPYING README mlapronidl.tex perlscript_caml.pl perlscript_c.pl mlapronidl.pdf html
 	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
 
 clean:
@@ -225,9 +225,9 @@ rebuild: mpz.idl mpq.idl
 		echo "module $$i"; \
 		cp $${i}.idl tmp/$${i}.idl; \
 		$(CAMLIDL) -no-include -prepro "$(M4) --prefix-builtins macros.m4" -I $(SRCDIR) tmp/$${i}.idl; \
-		$(SED) -f sedscript_c tmp/$${i}_stubs.c >$${i}_caml.c; \
-		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
-		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
+		$(PERL) perlscript_c.pl < tmp/$${i}_stubs.c >$${i}_caml.c; \
+		$(PERL) perlscript_caml.pl < tmp/$${i}.ml >$${i}.ml; \
+		$(PERL) perlscript_caml.pl < tmp/$${i}.mli >$${i}.mli; \
 	done
 #	rm -fr tmp
 

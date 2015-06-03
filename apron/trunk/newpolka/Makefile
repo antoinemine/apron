@@ -163,7 +163,7 @@ ifeq ($(OCAMLFIND),)
 endif
 
 
-dist: $(CCSRC) Makefile sedscript_caml newpolka.texi polka.idl polka.ml polka.mli polka_caml.c COPYING README
+dist: $(CCSRC) Makefile perlscript_caml.pl newpolka.texi polka.idl polka.ml polka.mli polka_caml.c COPYING README
 	(cd ..; tar zcvf newpolka.tgz $(^:%=newpolka/%))
 
 #---------------------------------------
@@ -262,8 +262,8 @@ rebuild: manager.idl polka.idl
 		cp $${i}.idl tmp/$${i}.idl; \
 		$(CAMLIDL) -no-include -nocpp tmp/$${i}.idl; \
 		cp tmp/$${i}_stubs.c $${i}_caml.c; \
-		$(SED) -f sedscript_caml tmp/$${i}.ml >$${i}.ml; \
-		$(SED) -f sedscript_caml tmp/$${i}.mli >$${i}.mli; \
+		$(PERL) perlscript_caml.pl < tmp/$${i}.ml >$${i}.ml; \
+		$(PERL) perlscript_caml.pl < tmp/$${i}.mli >$${i}.mli; \
 	done
 
 #---------------------------------------

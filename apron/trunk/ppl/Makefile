@@ -116,7 +116,7 @@ uninstall:
 	/bin/rm -f $(BINDIR)/*ap_ppl*
 	/bin/rm -f $(BINDIR)/pplrun $(BINDIR)/ppltop
 
-dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) ppl.idl sedscript_caml ap_ppl_caml.c ppl.ml ppl.mli ppl.patch
+dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) ppl.idl perlscript_caml.pl ap_ppl_caml.c ppl.ml ppl.mli ppl.patch
 	(cd ..; tar zcvf ppl.tgz $(^:%=ppl/%))
 
 #---------------------------------------
@@ -207,8 +207,8 @@ rebuild: manager.idl ppl.idl
 	cp ppl.idl tmp/
 	$(CAMLIDL) -no-include -nocpp tmp/ppl.idl
 	cp tmp/ppl_stubs.c ap_ppl_caml.c
-	sed -f sedscript_caml tmp/ppl.ml >ppl.ml
-	sed -f sedscript_caml tmp/ppl.mli >ppl.mli
+	$(PERL) perlscript_caml.pl < tmp/ppl.ml >ppl.ml
+	$(PERL) perlscript_caml.pl < tmp/ppl.mli >ppl.mli
 
 .PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a dllap_ppl_caml.so ppl.cmx ppl.cmo
 

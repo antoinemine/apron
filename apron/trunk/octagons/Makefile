@@ -161,7 +161,7 @@ uninstall:
 	/bin/rm -f $(LIBDIR)/dlloct*.so $(LIBDIR)/dlloct*_debug.so
 	/bin/rm -f $(LIBDIR)/oct.mli $(LIBDIR)/oct.cm[ix] $(LIBDIR)/oct.idl $(LIBDIR)/oct*.cma $(LIBDIR)/oct*.cmxa $(LIBDIR)/oct*.a
 
-dist: Makefile COPYING README oct_doc.html sedscript_caml sedscript_c $(CCSOURCES) $(CCINC) oct.h oct_test.c oct.idl oct.mli oct.ml oct_caml.c
+dist: Makefile COPYING README oct_doc.html perlscript_caml.pl perlscript_c.pl $(CCSOURCES) $(CCINC) oct.h oct_test.c oct.idl oct.mli oct.ml oct_caml.c
 	(cd ..; tar zcvf octagons.tgz $(^:%=octagons/%))
 
 #---------------------------------------
@@ -313,9 +313,9 @@ rebuild: oct.idl
 	cp ../mlapronidl/*.idl tmp
 	cp oct.idl tmp/
 	cd tmp && $(CAMLIDL) -no-include -nocpp -I . oct.idl
-	$(SED) -f sedscript_c tmp/oct_stubs.c >oct_caml.c
-	$(SED) -f sedscript_caml tmp/oct.ml >oct.ml
-	$(SED) -f sedscript_caml tmp/oct.mli >oct.mli
+	$(PERL) perlscript_c.pl < tmp/oct_stubs.c >oct_caml.c
+	$(PERL) perlscript_caml.pl < tmp/oct.ml >oct.ml
+	$(PERL) perlscript_caml.pl < tmp/oct.mli >oct.mli
 
 .PRECIOUS: %_caml.c %.ml %.mli %.cmi liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.so oct.cmx oct.cmo
 

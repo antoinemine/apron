@@ -172,7 +172,7 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
 
 
-dist: $(CCSRC) Makefile sedscript_caml t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.c COPYING README
+dist: $(CCSRC) Makefile perlscript_caml.pl t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.c COPYING README
 	(cd ..; tar zcvf t1p.tgz $(^:%=t1p/%))
 
 #---------------------------------------
@@ -271,8 +271,8 @@ rebuild: manager.idl t1p.idl
 	cp t1p.idl tmp/t1p.idl
 	$(CAMLIDL) -no-include -nocpp tmp/t1p.idl
 	cp tmp/t1p_stubs.c t1p_caml.c
-	$(SED) -f sedscript_caml tmp/t1p.ml >t1p.ml
-	$(SED) -f sedscript_caml tmp/t1p.mli >t1p.mli
+	$(PERL) perlscript_caml.pl < tmp/t1p.ml >t1p.ml
+	$(PERL) perlscript_caml.pl < tmp/t1p.mli >t1p.mli
 
 #---------------------------------------
 # ML generic rules
