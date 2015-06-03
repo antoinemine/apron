@@ -80,17 +80,18 @@ void ITVFUN(itv_linexpr_clear)(itv_linexpr_t* expr)
 
 void ITVFUN(itv_linexpr_fprint)(FILE* stream, itv_linexpr_t* expr, char** name)
 {
-  itv_linexpr_t* e;
   size_t i;
   ap_dim_t dim;
   itv_ptr pitv;
   bool* peq;
+  (void)peq;
   itv_fprint(stream,expr->cst);
   itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq) {
     fprintf(stream, " + ");
     itv_fprint(stream,pitv);
     if (name) fprintf(stream,"%s",name[dim]);
     else fprintf(stream,"x%lu",(unsigned long)dim);
+    (void)peq;
   }
 }
 void ITVFUN(itv_linexpr_print)(itv_linexpr_t* expr, char** name)
@@ -271,6 +272,7 @@ void ITVFUN(ap_linexpr0_set_itv_linexpr)(itv_internal_t* intern,
     linexpr0->p.linterm[k].dim = dim;
     ap_coeff_set_itv(intern,&linexpr0->p.linterm[k].coeff,pitv);
     k++;
+    (void)peq;
   }
   *plinexpr0 = linexpr0;
   return;
@@ -311,6 +313,7 @@ void ITVFUN(itv_linexpr_neg)(itv_linexpr_t* expr)
   itv_neg(expr->cst,expr->cst);
   itv_linexpr_ForeachLinterm(expr,i,dim,pitv,peq){
     itv_neg(pitv,pitv);
+    (void)peq;
   }
   return;
 }
@@ -675,7 +678,6 @@ void ITVFUN(itv_lincons_reduce_integer)(itv_internal_t* intern,
   itv_ptr pitv;
   ap_dim_t dim;
   bool* peq;
-  bool integer;
 
   switch (cons->constyp){
   case AP_CONS_EQ:

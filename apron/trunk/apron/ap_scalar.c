@@ -188,6 +188,7 @@ int ap_mpq_set_scalar(mpq_t mpq, ap_scalar_t* scalar, mp_rnd_t round)
 {
   mp_exp_t e;
   int inf = ap_scalar_infty(scalar);
+  (void)round;
   if (inf) {
     mpz_set_si(mpq_numref(mpq),inf);
     mpz_set_si(mpq_denref(mpq),0);

@@ -11,7 +11,7 @@ LCFLAGS = \
 -L$(MPFR_PREFIX)/lib \
 -L$(APRON_PREFIX)/lib \
 -L$(PPL_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)/lib/ocaml
+-L$(CAMLIDL_PREFIX)
 
 OCAMLINC = \
 -I $(MLGMPIDL_PREFIX)/lib \

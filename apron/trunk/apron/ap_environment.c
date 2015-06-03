@@ -12,8 +12,8 @@
 
 static int var_cmp(const void* a, const void* b)
 {
-  void* aa = *((void**)a);
-  void* bb = *((void**)b);
+  void* aa = *((void*const*)a);
+  void* bb = *((void*const*)b);
   return ap_var_operations->compare(aa,bb);
 }
 
@@ -24,8 +24,8 @@ typedef struct vardim_t {
 
 static int vardim_cmp(const void* a, const void* b)
 {
-  vardim_t* aa = (vardim_t*)a;
-  vardim_t* bb = (vardim_t*)b;
+  const vardim_t* aa = (const vardim_t*)a;
+  const vardim_t* bb = (const vardim_t*)b;
   return ap_var_operations->compare(aa->var,bb->var);
 }
 
@@ -887,8 +887,8 @@ ap_environment_t* ap_environment_lce(ap_environment_t* env1,
 */
 static int env_cmp(const void* a, const void* b)
 {
-  ap_environment_t* pa = *((ap_environment_t**)a);
-  ap_environment_t* pb = *((ap_environment_t**)b);
+  ap_environment_t* pa = *((ap_environment_t*const*)a);
+  ap_environment_t* pb = *((ap_environment_t*const*)b);
   return (pa>pb ? 1 : (pa==pb ? 0 : -1));
 }
 

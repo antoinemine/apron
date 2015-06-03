@@ -65,11 +65,11 @@ PPL_PREFIX = /usr
 
 # Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
 #
-CAML_PREFIX = $(dir $(shell which ocamlc))/..
+CAML_PREFIX = `ocamlfind printconf stdlib`
 
-# Where to find CAMLIDL ($(CAMLIDL_PREFIX)/bin, $(CAMLIDL_PREFIX)/lib/ocaml, ...)
+# Where to find CAMLIDL
 #
-CAMLIDL_PREFIX = $(dir $(shell which camlidl))/..
+CAMLIDL_PREFIX = `ocamlfind query camlidl`
 
 ######################################################################
 # Java binaries and directories
@@ -109,7 +109,7 @@ JNIINC    = -I/java/include
 CFLAGS = \
 -Wcast-qual -Wswitch -Werror-implicit-function-declaration \
 -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
--Wno-unused \
+-Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -std=c99 -U__STRICT_ANSI__ \
 -fPIC -O3 -DNDEBUG
 
@@ -117,7 +117,7 @@ CFLAGS = \
 CFLAGS_DEBUG = \
 -Wcast-qual -Wswitch -Werror-implicit-function-declaration \
 -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
--Wno-unused \
+-Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -std=c99  -U__STRICT_ANSI__ \
 -fPIC -g -O0 -UNDEBUG
 
@@ -125,7 +125,7 @@ CFLAGS_DEBUG = \
 CFLAGS_PROF = \
 -Wcast-qual -Wswitch -Werror-implicit-function-declaration \
 -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes \
--Wno-unused \
+-Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -std=c99 \
 -fPIC -O3 -DNDEBUG -g -pg
 
@@ -141,13 +141,13 @@ CFLAGS_PROF = \
 CXXFLAGS = \
 -Wcast-qual -Wswitch \
 -Wall -Wextra -Wundef -Wcast-align \
--Wno-unused \
+-Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -fPIC -O3 -DNDEBUG
 # C++ compilation flags in debug (or profile) mode
 CXXFLAGS_DEBUG = \
 -Wcast-qual -Wswitch \
 -Wall -Wextra -Wundef -Wcast-align \
--Wno-unused \
+-Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -fPIC -g -O0 -UNDEBUG
 
 AR = ar
@@ -157,22 +157,22 @@ M4 = m4
 INSTALL = install
 INSTALLd = install -d
 
-OCAMLC = $(CAML_PREFIX)/bin/ocamlc.opt
-OCAMLOPT = $(CAML_PREFIX)/bin/ocamlopt.opt
+OCAMLC = ocamlc.opt
+OCAMLOPT = ocamlopt.opt
 
 # ocamlc compilation flags
 OCAMLFLAGS = -g
 # ocamlopt compilation flags
 OCAMLOPTFLAGS = -inline 20
 
-OCAMLDEP = $(CAML_PREFIX)/bin/ocamldep
-OCAMLLEX = $(CAML_PREFIX)/bin/ocamllex.opt
-OCAMLYACC = $(CAML_PREFIX)/bin/ocamlyacc
-OCAMLDOC = $(CAML_PREFIX)/bin/ocamldoc.opt
-OCAMLMKTOP = $(CAML_PREFIX)/bin/ocamlmktop
-OCAMLMKLIB = $(CAML_PREFIX)/bin/ocamlmklib
+OCAMLDEP = ocamldep
+OCAMLLEX = ocamllex
+OCAMLYACC = ocamlyacc
+OCAMLDOC = ocamldoc
+OCAMLMKTOP = ocamlmktop
+OCAMLMKLIB = ocamlmklib
 
-CAMLIDL = $(CAMLIDL_PREFIX)/bin/camlidl
+CAMLIDL = camlidl
 
 LATEX=latex
 DVIPDF=dvipdf

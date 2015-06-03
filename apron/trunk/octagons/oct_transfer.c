@@ -504,6 +504,14 @@ oct_t* oct_meet_lincons_array(ap_manager_t* man,
   }
 }
 
+static
+void* oct_meet_lincons_array2(ap_manager_t* man,
+                              bool destructive, void* a,
+                              ap_lincons0_array_t* array)
+{
+  return (void*)(oct_meet_lincons_array(man,destructive,(oct_t*)a,array));
+}
+
 oct_t* oct_meet_tcons_array(ap_manager_t* man,
 			    bool destructive, oct_t* a,
 			    ap_tcons0_array_t* array)
@@ -511,7 +519,7 @@ oct_t* oct_meet_tcons_array(ap_manager_t* man,
   return ap_generic_meet_intlinearize_tcons_array(man,destructive,a,array,
 						  NUM_AP_SCALAR,
 						  AP_LINEXPR_INTLINEAR,
-						  &oct_meet_lincons_array);
+						  &oct_meet_lincons_array2);
 }
 
 oct_t* oct_add_ray_array(ap_manager_t* man,

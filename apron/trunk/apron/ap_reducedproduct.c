@@ -673,6 +673,7 @@ ap_interval_t** ap_reducedproduct_to_box(ap_manager_t* manager, ap_reducedproduc
 ap_generator0_array_t ap_reducedproduct_to_generator_array(ap_manager_t* manager, ap_reducedproduct_t* a)
 {
   ap_generator0_array_t array;
+  (void)a;
   ap_manager_raise_exception(manager,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_TO_GENERATOR_ARRAY,NULL);
   array.p = NULL;
   array.size = 0;

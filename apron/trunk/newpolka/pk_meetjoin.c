@@ -570,10 +570,11 @@ void poly_meet_itv_lincons_array(bool lazy,
   }
 }
 
-pk_t* pk_meet_lincons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_lincons0_array_t* array)
+void* pk_meet_lincons_array(ap_manager_t* man, bool destructive, void* ppa, ap_lincons0_array_t* array)
 {
   itv_lincons_array_t tcons;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY);
+  pk_t* pa = (pk_t*) ppa;
   pk_t* po = destructive ? pa : poly_alloc(pa->intdim,pa->realdim);
 
   itv_lincons_array_init(&tcons,array->size);
@@ -582,7 +583,7 @@ pk_t* pk_meet_lincons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_li
 			      man,po,pa,&tcons);
   itv_lincons_array_clear(&tcons);
   assert(poly_check(pk,po));
-  return po;
+  return (void*)po;
 }
 
 pk_t* pk_meet_tcons_array(ap_manager_t* man, bool destructive, pk_t* pa, ap_tcons0_array_t* array)
@@ -617,8 +618,8 @@ pk_t* pk_join(ap_manager_t* man, bool destructive, pk_t* pa, pk_t* pb)
 
 static int poly_cmp(const void* a, const void* b)
 {
-  pk_t* pa = *((pk_t**)a);
-  pk_t* pb = *((pk_t**)b);
+  const pk_t* pa = *((const pk_t*const*)a);
+  const pk_t* pb = *((const pk_t*const*)b);
   return (pa>pb ? 1 : (pa==pb ? 0 : -1));
 }
 

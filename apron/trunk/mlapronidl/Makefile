@@ -30,7 +30,7 @@ ICFLAGS = \
 -I$(MLGMPIDL_INCLUDE) -I../apron \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
--I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
+-I$(CAML_PREFIX) -I$(CAMLIDL_PREFIX)
 
 #---------------------------------------
 # Files

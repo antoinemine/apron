@@ -5,7 +5,7 @@ LCFLAGS = \
 -L$(PPL_PREFIX)/lib -Lppl \
 -Lproducts \
 -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)/lib/ocaml
+-L$(CAMLIDL_PREFIX)
 
 all: c
 ifneq ($(HAS_OCAML),)
@@ -165,6 +165,7 @@ clean:
 	(cd apronxx; make clean)
 	(cd examples; make clean)
 	(cd test; make clean)
+	(cd japron; make clean)
 	rm -fr online tmp apron*run aprontop apronppltop
 
 distclean: clean

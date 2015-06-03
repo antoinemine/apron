@@ -65,7 +65,7 @@ We use here the quick sort. */
 typedef struct qsort_man_t {
   size_t size;
 } qsort_man_t;
-static int qsort_rows_compar(void* qsort_man, const void* p1, const void* p2)
+static int qsort_rows_compar(void* qsort_man, void* p1, void* p2)
 {
   qsort_man_t* qm = (qsort_man_t*)qsort_man;
   return (bitstring_cmp( ((satmat_row_t*)p1)->p,

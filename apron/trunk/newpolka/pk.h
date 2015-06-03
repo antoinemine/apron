@@ -369,8 +369,8 @@ pk_t* pk_meet_array(ap_manager_t* man, pk_t** tab, size_t size);
 pk_t* pk_join_array(ap_manager_t* man, pk_t** tab, size_t size);
   /* Meet and Join of a non empty array of abstract values. */
 
-pk_t* pk_meet_lincons_array(ap_manager_t* man,
-			    bool destructive, pk_t* a,
+void* pk_meet_lincons_array(ap_manager_t* man,
+			    bool destructive, void* a,
 			    ap_lincons0_array_t* array);
 pk_t* pk_meet_tcons_array(ap_manager_t* man,
 			  bool destructive, pk_t* a,

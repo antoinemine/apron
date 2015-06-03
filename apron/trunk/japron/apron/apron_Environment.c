@@ -303,8 +303,8 @@ JNIEXPORT jboolean JNICALL Java_apron_Environment_hasVar
 {
   check_nonnull(o,0);
   check_nonnull(s,0);
-  char* str = (char*)(*env)->GetStringUTFChars(env, s, NULL);
-  bool r = ap_environment_mem_var(as_environment(o), str);
+  const char* str = (const char*)(*env)->GetStringUTFChars(env, s, NULL);
+  bool r = ap_environment_mem_var(as_environment(o), (ap_var_t)str);
   (*env)->ReleaseStringUTFChars(env, s, str);
   return r;
 }
@@ -319,8 +319,8 @@ JNIEXPORT jint JNICALL Java_apron_Environment_dimOfVar
 {
   check_nonnull(o,0);
   check_nonnull(s,0);
-  char* str = (char*)(*env)->GetStringUTFChars(env, s, NULL);
-  ap_dim_t d = ap_environment_dim_of_var(as_environment(o), str);
+  const char* str = (const char*)(*env)->GetStringUTFChars(env, s, NULL);
+  ap_dim_t d = ap_environment_dim_of_var(as_environment(o), (ap_var_t)str);
   (*env)->ReleaseStringUTFChars(env, s, str);
   if (d==AP_DIM_MAX) {
     illegal_argument("no such variable"); 
