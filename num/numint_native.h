@@ -145,6 +145,10 @@ static inline void numint_min(numint_t a, numint_t b, numint_t c)
 { *a = (*b<=*c) ? *b : *c; }
 static inline void numint_max(numint_t a, numint_t b, numint_t c)
 { *a = (*b>=*c) ? *b : *c; }
+static inline void numint_floor(numint_t a, numint_t b)
+{ *a = *b; }
+static inline void numint_ceil(numint_t a, numint_t b)
+{ *a = *b; }
 
 static const long long numint_max_exact_double = 1LL << 52;
 
@@ -295,32 +299,32 @@ static inline bool numint_set_int2(numint_t a, long int i, long int j)
 /* mpz -> numint */
 static inline bool numint_set_mpz(numint_t a, mpz_t b)
 {
-  if (sizeof(numint_t)==sizeof(long int)) {
-    *a = mpz_get_si(b);
-  }
-  else if (sizeof(numint_t)==2*sizeof(long int)) {
-    int sgn;
-    size_t count;
-    unsigned long int tab[2];
+#if NUMINT_MAX == LONG_MAX
+  *a = mpz_get_si(b);
+#else
+  int sgn;
+  size_t count;
+  unsigned long int tab[2];
 
-    sgn = mpz_sgn(b);
-    mpz_export(&tab,&count,1,sizeof(long int),0,0,b);
-    if (count==0){
-      *a = 0;
-    }
-    else {
-      *a = tab[0];
-      if (count==2){
-	*a = *a << (sizeof(long int)*8);
-	*a = *a + (long long int)(tab[1]);
-	if (*a<0){
-	  assert(0);
-	}
-      }
-      if (sgn<0) *a = -(*a);
-    }
+  assert(sizeof(numint_t)==2*sizeof(long int));
+    
+  sgn = mpz_sgn(b);
+  mpz_export(&tab,&count,1,sizeof(long int),0,0,b);
+  if (count==0){
+    *a = 0;
   }
-  else assert(0);
+  else {
+    *a = tab[0];
+    if (count==2){
+      *a = *a << (sizeof(long int)*8);
+      *a = *a + (long long int)(tab[1]);
+      if (*a<0){
+        assert(0);
+      }
+    }
+    if (sgn<0) *a = -(*a);
+  }
+#endif
   return true;
 }
 
@@ -367,35 +371,35 @@ static inline bool int_set_numint(long int* a, numint_t b)
 /* numint -> mpz */
 static inline bool mpz_set_numint(mpz_t a, numint_t b)
 {
-  if (sizeof(numint_t)==sizeof(long int)) {
-    mpz_set_si(a,*b);
-  }
-  else if (sizeof(numint_t)==2*sizeof(long int)) {
-    unsigned long long int n;
-    unsigned long int rep[2];
+#if NUMINT_MAX == LONG_MAX
+  mpz_set_si(a,*b);
+#else
+  unsigned long long int n;
+  unsigned long int rep[2];
 
-    n = llabs(*b);
-    rep[1] = n & ULONG_MAX;
-    rep[0] = n >> (sizeof(long int)*8);
-    mpz_import(a,2,1,sizeof(unsigned long int),0,0,rep);
-    if (*b<0)
-      mpz_neg(a,a);
+  assert(sizeof(numint_t)==2*sizeof(long int));
+
+  n = llabs(*b);
+  rep[1] = n & ULONG_MAX;
+  rep[0] = n >> (sizeof(long int)*8);
+  mpz_import(a,2,1,sizeof(unsigned long int),0,0,rep);
+  if (*b<0)
+    mpz_neg(a,a);
   }
-  else assert(0);
+#endif
   return true;
 }
 
 /* numint -> mpq */
 static inline bool mpq_set_numint(mpq_t a, numint_t b)
 {
-  if (sizeof(numint_t)==sizeof(long int)) {
-    mpq_set_si(a,*b,1);
-    return true;
-  }
-  else {
-    mpz_set_ui(mpq_denref(a),1);
-    return mpz_set_numint(mpq_numref(a),b);
-  }
+#if NUMINT_MAX == LONG_MAX
+  mpq_set_si(a,*b,1);
+  return true;
+#else
+  mpz_set_ui(mpq_denref(a),1);
+  return mpz_set_numint(mpq_numref(a),b);
+#endif
 }
 
 /* numint -> double */
@@ -418,13 +422,12 @@ static inline bool mpfr_set_numint(mpfr_t a, numint_t b)
 
 static inline bool mpz_fits_numint(mpz_t a)
 {
-  if (sizeof(numint_t)==sizeof(long int)) {
-    return mpz_fits_slong_p(a);
-  }
-  else {
-    size_t size = mpz_sizeinbase(a,2);
-    return (size <= sizeof(numint_t)*8-1);
-  }
+#if NUMINT_MAX == LONG_MAX
+  return mpz_fits_slong_p(a);
+#else
+  size_t size = mpz_sizeinbase(a,2);
+  return (size <= sizeof(numint_t)*8-1);
+#endif
 }
 
 static inline bool mpq_fits_numint_tmp(mpq_t a, mpz_t mpz)

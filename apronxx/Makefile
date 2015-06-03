@@ -133,7 +133,7 @@ libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CXX) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ -L. -lapronxx_debug
+	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ_debug -L. -lapronxx_debug
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<

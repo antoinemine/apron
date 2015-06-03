@@ -176,6 +176,7 @@ ap_policy_manager_t* ap_policy_manager_copy(ap_policy_manager_t* pman)
 static inline
 ap_policy_t* ap_policy_cons(ap_policy_manager_t* pman, ap_policy_t* oldpolicy, void* newvalue)
 {
+  (void)oldpolicy;
   if (newvalue==NULL){
     return NULL;
   } else {

@@ -168,8 +168,6 @@ static inline bool mpq_set_num(mpq_t a, num_t b);
   /* num -> mpq */
 static inline bool double_set_num(double* a, num_t b);
   /* num -> double */
-static inline bool float_set_num(float* a, num_t b);
-  /* num -> float */
 static inline bool mpfr_set_num(mpfr_t a, num_t b);
   /* num -> mpfr */
 static inline bool ap_scalar_set_num(ap_scalar_t* a, num_t b);

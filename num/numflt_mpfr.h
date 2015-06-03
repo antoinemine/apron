@@ -161,7 +161,7 @@ static inline int numflt_snprint(char* s, size_t size, numflt_t a)
     /* general case */
     char* tmp;
     mp_exp_t e;
-    int x,i;
+    int x;
     tmp = mpfr_get_str(NULL,&e,10,NUMFLT_PRINT_PREC,a,GMP_RNDU);
     if (!tmp) { *s = 0; return 0; }
     if (tmp[0]=='-' || tmp[0]=='+')

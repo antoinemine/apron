@@ -106,6 +106,10 @@ static inline void numint_min(numint_t a, numint_t b, numint_t c)
 { mpz_set(a, mpz_cmp(b,c)<=0 ? b : c); }
 static inline void numint_max(numint_t a, numint_t b, numint_t c)
 { mpz_set(a, mpz_cmp(b,c)>=0 ? b : c); }
+static inline void numint_floor(numint_t a, numint_t b)
+{ mpz_set(a, b); }
+static inline void numint_ceil(numint_t a, numint_t b)
+{ mpz_set(a, b); }
 
 static inline void numint_sqrt(numint_t up, numint_t down, numint_t b)
 {
@@ -126,7 +130,6 @@ static inline int numint_pow(numint_t up, numint_t down, numint_t b, unsigned lo
 
 static inline void numint_root(numint_t up, numint_t down, numint_t b, unsigned long int n)
 {
-  int sign = 0;
   assert(n > 0);
   assert((n & 1) || (mpz_sgn(b) >= 0));
   if (mpz_sgn(b) < 0) {

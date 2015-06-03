@@ -45,7 +45,7 @@ ICFLAGS = \
 -I../itv \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
--I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
+-I$(CAML_PREFIX) -I$(CAMLIDL_PREFIX)
 
 ICXXFLAGS = \
 -I../newpolka \
@@ -56,7 +56,7 @@ ICXXFLAGS = \
 -I../itv \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
--I$(CAML_PREFIX)/lib/ocaml -I$(CAMLIDL_PREFIX)/lib/ocaml
+-I$(CAML_PREFIX) -I$(CAMLIDL_PREFIX)
 
 # Caml
 OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
@@ -144,7 +144,7 @@ ap_ppl_test: libap_ppl_debug.a ppl_test_debug.o
 	$(CXX) $(CXXFLAGS) -o $@ ppl_test_debug.o \
 	-L. -lap_ppl_debug \
 	-L../newpolka -L$(APRON_PREFIX)/lib -lpolkaMPQ_debug \
-	-L../apron -L$(APRON_PREFIX)/lib -lapron \
+	-L../apron -L$(APRON_PREFIX)/lib -lapron_debug \
 	-L$(PPL_PREFIX)/lib -lppl \
 	-L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -lgmpxx -lmpfr -lgmp -lm
 

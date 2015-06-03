@@ -303,6 +303,7 @@ void ap_abstract1_fdump(FILE* stream, ap_manager_t* man, ap_abstract1_t* a)
 
 ap_membuf_t ap_abstract1_serialize_raw(ap_manager_t* man, ap_abstract1_t* a){
   ap_membuf_t membuf;
+  (void)a;
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_SERIALIZE_RAW,"");
   membuf.ptr = NULL;
   membuf.size = 0;
@@ -312,6 +313,8 @@ ap_membuf_t ap_abstract1_serialize_raw(ap_manager_t* man, ap_abstract1_t* a){
 /* Return the abstract value read in raw binary format from the input stream
    and store in size the number of bytes read */
 ap_abstract1_t ap_abstract1_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size){
+  (void)ptr;
+  (void)size;
   ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,"");
   return ap_abstract1_top(man,ap_environment_alloc_empty());
 }
@@ -375,10 +378,13 @@ ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
 /* ============================================================ */
 
 ap_environment_t* ap_abstract1_environment(ap_manager_t* man, ap_abstract1_t* a){
+  (void)man;
   return a->env;
 }
 
-ap_abstract0_t* ap_abstract1_abstract0(ap_manager_t* man, ap_abstract1_t* a){
+ap_abstract0_t* ap_abstract1_abstract0(ap_manager_t* man, ap_abstract1_t* a)
+{
+  (void)man;
   return a->abstract0;
 }
 
@@ -1137,8 +1143,8 @@ ap_abstract1_t ap_abstract1_expand(ap_manager_t* man,
 
 static int compar_dim(const void* a, const void* b)
 {
-  int va = *((ap_dim_t*)a);
-  int vb = *((ap_dim_t*)b);
+  int va = *((const ap_dim_t*)a);
+  int vb = *((const ap_dim_t*)b);
   return (va-vb);
 }
 ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,

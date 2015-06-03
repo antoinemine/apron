@@ -293,7 +293,7 @@ typedef struct qsort_man_t {
   size_t size;
 } qsort_man_t;
 
-static int qsort_rows_compar(void* qsort_man, const void* pq1, const void* pq2)
+static int qsort_rows_compar(void* qsort_man, void* pq1, void* pq2)
 {
   qsort_man_t* qm = (qsort_man_t*)qsort_man;
   numint_t* q1 = *((numint_t**)pq1);
@@ -324,7 +324,7 @@ typedef struct qsort_t {
   bitstring_t* satp;
 } qsort_t;
 
-static int qsort_rows_with_sat_compar(void* qsort_man, const void* q1, const void* q2)
+static int qsort_rows_with_sat_compar(void* qsort_man, void* q1, void* q2)
 {
   qsort_man_t* qm = (qsort_man_t*)qsort_man;
   const qsort_t* qs1 = (const qsort_t*)q1;

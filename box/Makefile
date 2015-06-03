@@ -28,7 +28,7 @@ ICFLAGS = \
 -I../apron \
 -I../mlapronidl \
 -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
--I$(CAMLIDL_PREFIX)/lib/ocaml -I$(CAML_PREFIX)/lib/ocaml
+-I$(CAMLIDL_PREFIX) -I$(CAML_PREFIX)
 
 # Caml
 OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
