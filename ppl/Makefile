@@ -91,9 +91,9 @@ clean:
 	/bin/rm -f *.[ao] *.so ap_ppl_test
 	/bin/rm -f *.annot *.cm[ioax] *.cmxa pplrun ppltop manager.idl
 	/bin/rm -fr *~ \#*\# tmp
+	/bin/rm -f ap_ppl_caml.c ppl.ml ppl.mli
 
 distclean: clean
-	/bin/rm -f ap_ppl_caml.c ppl.ml ppl.mli
 
 install:
 	$(INSTALLd) $(INCDIR) $(LIBDIR) $(BINDIR) $(CAMLDIR)
@@ -199,16 +199,25 @@ ppl.cma: ppl.cmo libap_ppl_caml.a
 ppl.cmxa ppl.a: ppl.cmx libap_ppl_caml.a
 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)" -verbose -o ppl -oc ap_ppl_caml ppl.cmx -L. -lap_ppl $(LIBS) -L..:apron
 
+
+#---------------------------------------
+# IDL rules
+#---------------------------------------
+
 manager.idl: ../mlapronidl/manager.idl
 	ln -s $< $@
 
-rebuild: manager.idl ppl.idl
+ppl.ml ppl.mli ppl_caml.c: ppl.idl perlscript_caml.pl ../mlapronidl/manager.idl
 	mkdir -p tmp
-	cp ppl.idl tmp/
-	$(CAMLIDL) -no-include -nocpp tmp/ppl.idl
+	cp ppl.idl ../mlapronidl/manager.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -nocpp ppl.idl
 	cp tmp/ppl_stubs.c ap_ppl_caml.c
 	$(PERL) perlscript_caml.pl < tmp/ppl.ml >ppl.ml
 	$(PERL) perlscript_caml.pl < tmp/ppl.mli >ppl.mli
+
+rebuild:
+	@echo "make rebuild is no longer necessary"
+
 
 .PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a dllap_ppl_caml.so ppl.cmx ppl.cmo
 

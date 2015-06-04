@@ -147,11 +147,10 @@ clean:
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr t1ppolkarung t1ppolkatopg tmp
 	/bin/rm -fr test*
-
-distclean: clean
-	/bin/rm -fr manager.idl
 	/bin/rm -f t1p.ml t1p.mli t1p_caml.c
 	/bin/rm -f Makefile.depend
+
+distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -262,17 +261,17 @@ t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
 # IDL rules
 #---------------------------------------
 
-manager.idl: ../mlapronidl/manager.idl
-	ln -s -f $< $@
-
 # generates t1p.ml, t1p.mli, t1p_caml.c from t1p.idl
-rebuild: manager.idl t1p.idl
+t1p.ml t1p.mli t1p_caml.c: t1p.idl perlscript_caml.pl ../mlapronidl/manager.idl
 	mkdir -p tmp
-	cp t1p.idl tmp/t1p.idl
-	$(CAMLIDL) -no-include -nocpp tmp/t1p.idl
+	cp t1p.idl ../mlapronidl/manager.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -nocpp t1p.idl
 	cp tmp/t1p_stubs.c t1p_caml.c
 	$(PERL) perlscript_caml.pl < tmp/t1p.ml >t1p.ml
 	$(PERL) perlscript_caml.pl < tmp/t1p.mli >t1p.mli
+
+rebuild:
+	@echo "make rebuild is no longer necessary"
 
 #---------------------------------------
 # ML generic rules

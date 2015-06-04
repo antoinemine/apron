@@ -134,13 +134,11 @@ clean:
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -f test[01]Il* test[01]MPQ test[01]Il*_debug test[01]MPQ_debug
 	/bin/rm -fr *.annot *.cm[ioax] *.cmxa
-	/bin/rm -f manager.idl
 	/bin/rm -fr tmp
-
-distclean: clean
-	/bin/rm -f manager.idl
 	/bin/rm -fr polka_caml.* polka.ml polka.mli
 	/bin/rm -f Makefile.depend
+
+distclean: clean
 
 install:
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -251,20 +249,16 @@ polka%.d.cmxa polka%.d.a: polka.cmx libpolka%_caml_debug.a libpolka%_debug.a
 # IDL rules
 #---------------------------------------
 
-manager.idl: ../mlapronidl/manager.idl
-	ln -s -f $< $@
-
-# generates X.ml, X.mli, X_caml.c for X = polka
-rebuild: manager.idl polka.idl
+polka.ml polka.mli polka_caml.c: polka.idl perlscript_caml.pl ../mlapronidl/manager.idl
 	mkdir -p tmp
-	for i in polka; do \
-		echo "module $$i"; \
-		cp $${i}.idl tmp/$${i}.idl; \
-		$(CAMLIDL) -no-include -nocpp tmp/$${i}.idl; \
-		cp tmp/$${i}_stubs.c $${i}_caml.c; \
-		$(PERL) perlscript_caml.pl < tmp/$${i}.ml >$${i}.ml; \
-		$(PERL) perlscript_caml.pl < tmp/$${i}.mli >$${i}.mli; \
-	done
+	cp ../mlapronidl/manager.idl polka.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -nocpp polka.idl
+	cp tmp/polka_stubs.c polka_caml.c
+	$(PERL) perlscript_caml.pl < tmp/polka.ml >polka.ml
+	$(PERL) perlscript_caml.pl < tmp/polka.mli >polka.mli
+
+rebuild:
+	@echo "make rebuild is no longer necessary"
 
 #---------------------------------------
 # C generic rules

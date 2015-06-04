@@ -91,9 +91,6 @@ clean:
 
 distclean: clean
 
-rebuild:
-
-
 install:
 	$(INSTALLd) $(INCDIR) $(INCDIR)/apronxx $(LIBDIR) $(BINDIR)
 	$(INSTALL) $(CCINC) $(INCDIR)/apronxx
