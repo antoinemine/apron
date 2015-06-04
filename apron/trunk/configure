@@ -1,0 +1,432 @@
+#! /bin/sh
+
+# configuration script for Apron
+#
+# generates autoamtically a suitable Makefile.config
+
+
+##############################################
+# help
+#######
+
+help()
+{
+    cat <<EOF
+usage: configure [options]
+
+where options include:
+  -prefix dir       installation directory
+
+Environment variables that affect configuration:
+  CC                   C compiler to use (default: gcc)
+  CFLAGS               extra flags to pass to the C compiler
+  CXXFLAGS             extra flags to pass to the C++ compiler
+  LDFLAGS              extra link flags
+  GMP_PREFIX
+  MPFR_PREFIX
+  PPL_PREFIX
+EOF
+    exit
+}
+
+
+##############################################
+# parse arguments
+#################
+
+apron_prefix=/usr/local
+
+while : ; do
+    case "$1" in
+        "") 
+            break;;
+        -prefix|--prefix)
+            apron_prefix="$2"
+            shift;;
+        *)
+            echo "unknown option $1, try -help"
+            exit 2;;
+    esac
+    shift
+done
+
+
+##############################################
+# utilities
+###########
+
+# print utility
+echo_n()
+{
+    echo "$1" | tr -d '\012'
+}
+
+
+# checkcc cc opt
+# checks that compiler cc can compile a simple program with option opt
+# if so, add it to acc
+checkcomp()
+{
+    testcc="$1"
+    testopt="$2";
+    echo_n "checking compilation with $testcc $testopt: "
+    rm -f tmp.c tmp.out
+    echo "int main() { return 1; }" >> tmp.c
+    r=1
+    $testcc $testopt tmp.c -o tmp.out >/dev/null 2>/dev/null || r=0
+    if test ! -x tmp.out; then r=0; fi
+    rm -f tmp.c tmp.o tmp.out
+    if test $r -eq 0; then
+        echo "not working"
+    else
+        acc="$acc $testopt"
+        echo "working"
+    fi
+    return $r
+}
+
+
+# checking include file
+checkinc()
+{
+    testcc="$1"
+    testinc="$2"
+    echo_n "include $testinc: "
+    rm -f tmp.c tmp.o
+    echo "#include <$testinc>" > tmp.c
+    echo "int main() { return 1; }" >> tmp.c
+    r=1
+    $testcc -c tmp.c -o tmp.o >/dev/null 2>/dev/null || r=0
+    if test ! -f tmp.o; then r=0; fi
+    rm -f tmp.c tmp.o
+    if test $r -eq 0; then echo "not found"; else echo "found"; fi
+    return $r
+}
+
+
+# checking library
+checklib()
+{
+    testcc="$1"
+    testlib="$2"
+    echo_n "library $testlib: "
+    rm -f tmp.c tmp.out
+    echo "int main() { return 1; }" >> tmp.c
+    r=1
+    $testcc tmp.c -l$testlib -o tmp.out >/dev/null 2>/dev/null || r=0
+    if test ! -x tmp.out; then r=0; fi
+    rm -f tmp.c tmp.o tmp.out
+    if test $r -eq 0; then echo "not found"; else echo "found"; fi
+    return $r
+}
+
+
+# checkprefix include lib
+#
+# tries to find a prefix needed to get the library
+checkprefix()
+{
+    testcc="$1"
+    testinc="$2"
+    testlib="$3"
+    testprefix="$4"
+    # try without any prefix (unless the user forced a prefix)
+    if test "x$testprefix" = "x"
+    then
+        echo "looking for $testlib without prefix"
+        prefix="."
+        checkinc "$testcc" "$testinc"
+        if test $r -eq 1
+        then
+            checklib "$testcc" "$testlib"
+            if test $r -eq 1
+            then
+                echo "library $testlib found without prefix"
+                return 1
+            fi
+        fi
+    fi
+    # check with a prefix
+    for prefix in $testprefix /usr/local /usr "$HOME"
+    do
+        echo "looking for $testlib in prefix $prefix"
+        checkinc "$testcc -I$prefix/include" "$testinc"
+        if test $r -eq 1
+        then
+            checklib "$testcc -L$prefix/lib" "$testlib"
+            if test $r -eq 1
+            then
+                echo "library $testlib found with prefix $prefix"
+                return 1
+            fi
+        fi
+    done
+    echo "library $testlib not found"
+    return 0
+}
+
+
+
+# checking binaries in $PATH
+
+searchbin()
+{
+    if test "x$1" = "x"; then return 0; fi
+    echo_n "binary $1: "
+    IFS=':'
+    path=""
+    for i in $PATH
+    do
+        if test -z "$i"; then i='.'; fi
+        if test -x "$i/$1"
+        then
+            echo "found in $i"
+            path="$i/$1"
+            unset IFS
+            return 1
+        fi
+    done
+    echo "not found"
+    unset IFS
+    return 0
+}
+
+searchbinreq()
+{
+    searchbin $1
+    if test $? -eq 0; then echo "required program $1 not found"; exit 1; fi
+}
+
+
+#####################################
+# tests
+#######
+
+
+# C compiler
+
+cc="none"
+for i in $CC cc gcc
+do
+    checkcomp "$i" ""
+    if test $? -eq 1; then cc="$i"; break; fi
+done
+if test "$cc" = "none"; then echo "no C compiler found"; exit 1; fi
+
+acc=""
+for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wno-unused -Wno-unused-parameter -Wno-unused-function -std=c99 -fPIC "-undefined supress" -flat_namespace "$CFLAGS" "$LDFLAGS"
+do
+    checkcomp "$cc" "$i"
+done
+cflags=$acc
+
+
+# C++ compiler
+
+has_cxx=0
+for i in $CXX c++ g++
+do
+    checkcomp "$i" ""
+    if test $? -eq 1; then has_cxx=1; cxx="$i"; break; fi
+done
+if test $has_cxx -eq 1
+then
+    acc=""
+    for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wno-unused -Wno-unused-parameter -Wno-unused-function -std=c99 -fPIC "-undefined supress" -flat_namespace "$CXXFLAGS" "$LDFLAGS"
+    do
+        checkcomp "$cxx" "$i"
+    done
+    cxxflags=$acc
+fi
+
+
+# tools
+
+searchbinreq "ar"; ar="$path"
+searchbinreq "ranlib"; ranlib="$path"
+searchbinreq "sed"; sed="$path"
+searchbinreq "perl"; perl="$path"
+searchbinreq "install"; install="$path"
+
+
+# C libraries
+
+checkprefix "$cc $cflags" gmp.h gmp "$GMP_PREFIX"
+if test $? -eq 0; then echo "GMP not found, set GMP_PREFIX"; exit 1; fi
+gmp_prefix="$prefix"
+
+checkprefix "$cc $cflags" mpfr.h mpfr "$MPFR_PREFIX"
+if test $? -eq 0; then echo "MPFR not found, set MPFR_PREFIX"; exit 1; fi
+mpfr_prefix="$prefix"
+
+has_ppl=0
+if test $has_cxx -eq 1
+then
+    checkprefix "$cxx $cxxflags" ppl.hh ppl "$PPL_PREFIX"
+    if test $? -eq 1; then has_ppl=1; fi
+    ppl_prefix="$prefix"
+fi
+
+
+# OCaml environment
+
+# check OCaml binaries
+has_ocaml=1
+if test $has_ocaml -eq 1; then searchbin "ocamlc.opt"; has_ocaml=$?; ocamlc="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamlopt.opt"; has_ocaml=$?; ocamlopt="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamldep"; has_ocaml=$?; ocamldep="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamllex"; has_ocaml=$?; ocamllex="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamlyacc"; has_ocaml=$?; ocamlyacc="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamldoc"; has_ocaml=$?; ocamldoc="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamlmktop"; has_ocaml=$?; ocamlmktop="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "ocamlmklib"; has_ocaml=$?; ocamlmklib="$path"; fi
+if test $has_ocaml -eq 1; then searchbin "camlidl"; has_ocaml=$?; camlidl="$path"; fi
+
+# optional ocamlfind
+has_ocamlfind=0
+if test $has_ocaml = 1; then searchbin "ocamlfind"; has_ocamlfind=1; ocamlfind="$path"; fi
+
+# guess prefix
+if test $has_ocamlfind -eq 1
+then
+    caml_prefix=`$ocamlfind printconf stdlib`
+    camlidl_prefix=`$ocamlfind query camlidl`
+    if test "x$camlidl_prefix" = "x"; then camlidl_prefix=`$ocamlc -where`; fi
+    mlgmpidl_prefix=`$ocamlfind query gmp`
+    if test "x$mlgmpidl_prefix" = "x"; then mlgmpidl_prefix=`ocamlc -where`; fi
+else
+    # sane default (but does not work with OPAM)
+    caml_prefix=`$ocamlc -where`
+    camlidl_prefix=`$ocamlc -where`
+    mlgmpidl_prefix=`ocamlc -where`
+fi
+
+# check that the prefix is correct
+if test $has_ocaml -eq 1
+then
+    checkinc "$cc $cflags -I$caml_prefix" caml/mlvalues.h
+    has_ocaml=$?
+fi
+if test $has_ocaml = 1
+then
+    checkinc "$cc $cflags -I$caml_prefix -I$camlidl_prefix" caml/camlidlruntime.h
+    has_ocaml=$?
+fi
+if test $has_ocaml = 1
+then
+    checkinc "$cc $cflags -I$caml_prefix -I$mlgmpidl_prefix" gmp_caml.h
+    has_ocaml=$?
+fi
+
+
+# Java environment
+
+# check Java binaries
+has_java=1
+if test $has_java -eq 1; then searchbin "java"; has_java=$?; java="$path"; fi
+if test $has_java -eq 1; then searchbin "javac"; has_java=$?; javac="$path"; fi
+if test $has_java -eq 1; then searchbin "javah"; has_java=$?; javah="$path"; fi
+if test $has_java -eq 1; then searchbin "javadoc"; has_java=$?; javadoc="$path"; fi
+if test $has_java -eq 1; then searchbin "jar"; has_java=$?; jar="$path"; fi
+
+# check jni includes
+if test $? -eq 0
+then
+    java_home=$JAVA_HOME
+    checkinc "$cc $cflags -I$java_home/include" jni.h
+    if test $? -eq 0; then echo "JNI not found, please set JAVA_HOME"; has_java=0; fi
+fi
+
+
+
+
+##############################################
+# log
+#####
+
+cat <<EOF
+
+detected configuration:
+
+   optional OCaml support       $has_ocaml
+   optional OCamlFind support   $has_ocamlfind
+   optional C++ support         $has_cxx
+   optional Java support        $has_java
+   optional PPL support         $has_ppl
+
+   installation path            $apron_prefix
+
+EOF
+
+
+##############################################
+# generation
+############
+
+cat > Makefile.config <<EOF
+# generated by ./configure
+
+HAS_OCAML = $has_ocaml
+HAS_OCAMLOPT = $has_ocaml
+HAS_MPFR = 1
+HAS_PPL = $has_ppl
+HAS_CPP = $has_cxx
+HAS_LONG_DOUBLE = 1
+HAS_SHARED = 1
+HAS_JAVA = $has_java
+
+APRON_PREFIX = $apron_prefix
+
+MLGMPIDL_PREFIX = $mlgmpidl_prefix
+PPL_PREFIX = $ppl_prefix
+GMP_PREFIX = $gmp_prefix
+MPFR_PREFIX = $mpfr_prefix
+
+JAVA_PREFIX = $apron_prefix/lib
+JAVA      = $java
+JAVAC     = $javac -Xlint:unchecked
+JAVAH     = $javah
+JAVADOC   = $javadoc
+JAR       = $jar
+JAVA_HOME = $java_home
+JNIINC    = -I$java_home/include
+
+CC = $cc
+CFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cflags
+CFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cflags
+
+CXX = $cxx
+CXXFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cxxflags
+CXXFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cxxflags
+
+AR = $ar
+RANLIB = $ranlib
+SED = $sed
+PERL = $perl
+INSTALL = $install
+INSTALLd = $install -d
+
+CAML_PREFIX = $caml_prefix
+CAMLIDL_PREFIX = $camlidl_prefix
+OCAMLC = $ocamlc
+OCAMLOPT = $ocamlopt
+OCAMLFLAGS = -g
+OCAMLOPTFLAGS = -inline 20
+OCAMLDEP = $ocamldep
+OCAMLLEX = $ocamllex
+OCAMLYACC = $ocamlyacc
+OCAMLDOC = $ocamldoc
+OCAMLMKTOP = $ocamlmktop
+OCAMLMKLIB = $ocamlmklib
+CAMLIDL = $camlidl
+OCAMLFIND = $ocamlfind
+
+# TODO: to be configured
+LATEX = latex
+DVIPDF = dvipdf
+MAKEINDEX = makeindex
+TEXI2DVI = texi2dvi
+TEXI2HTML = texi2html
+
+EOF
+

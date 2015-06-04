@@ -19,33 +19,33 @@ all: java
 endif
 
 c:
-	(cd num; make all)
-	(cd itv; make all)
-	(cd apron; make all)
-	(cd newpolka; make all)
-	(cd box; make all)
-	(cd octagons; make MPQ D)
-	(cd taylor1plus; make all)
+	(cd num; $(MAKE) all)
+	(cd itv; $(MAKE) all)
+	(cd apron; $(MAKE) all)
+	(cd newpolka; $(MAKE) all)
+	(cd box; $(MAKE) all)
+	(cd octagons; $(MAKE) MPQ D)
+	(cd taylor1plus; $(MAKE) all)
 ifneq ($(HAS_PPL),)
-	(cd ppl; make)
-	(cd products; make)
+	(cd ppl; $(MAKE))
+	(cd products; $(MAKE))
 endif
 
 cxx:
-	(cd apronxx; make)
+	(cd apronxx; $(MAKE))
 
 java:
-	(cd japron; make)
+	(cd japron; $(MAKE))
 
 ml:
-	(cd mlapronidl; make all)
-	(cd newpolka; make ml)
-	(cd box; make ml)
-	(cd octagons; make mlMPQ mlD)
-	(cd taylor1plus; make ml)
+	(cd mlapronidl; $(MAKE) all)
+	(cd newpolka; $(MAKE) ml)
+	(cd box; $(MAKE) ml)
+	(cd octagons; $(MAKE) mlMPQ mlD)
+	(cd taylor1plus; $(MAKE) ml)
 ifneq ($(HAS_PPL),)
-	(cd ppl; make ml)
-	(cd products; make ml)
+	(cd ppl; $(MAKE) ml)
+	(cd products; $(MAKE) ml)
 endif
 
 .PHONY: aprontop apronppltop
@@ -59,7 +59,7 @@ apronppltop:
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa
 
 rebuild:
-	@echo "make rebuild is no longer necessary"
+	@echo "$(MAKE) rebuild is no longer necessary"
 
 OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a libxxx_caml_debug.a
 ifneq ($(HAS_SHARED),)
@@ -111,20 +111,20 @@ endif
 endif
 
 install:
-	(cd num; make install)
-	(cd itv; make install)
-	(cd apron; make install)
-	(cd newpolka; make install)
-	(cd box; make install)
-	(cd octagons; make install)
-	(cd taylor1plus; make install)
+	(cd num; $(MAKE) install)
+	(cd itv; $(MAKE) install)
+	(cd apron; $(MAKE) install)
+	(cd newpolka; $(MAKE) install)
+	(cd box; $(MAKE) install)
+	(cd octagons; $(MAKE) install)
+	(cd taylor1plus; $(MAKE) install)
 ifneq ($(HAS_PPL),)
-	(cd ppl; make install)
-	(cd products; make install)
+	(cd ppl; $(MAKE) install)
+	(cd products; $(MAKE) install)
 endif
 ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
-	(cd mlapronidl; make install)
+	(cd mlapronidl; $(MAKE) install)
 	$(INSTALLd) $(APRON_PREFIX)/bin
 	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
 ifneq ($(HAS_PPL),)
@@ -140,53 +140,53 @@ newpolka/polkaRll.d.cmxa newpolka/polkaRll.d.a
 endif
 endif
 ifneq ($(HAS_CPP),)
-	(cd apronxx; make install)
+	(cd apronxx; $(MAKE) install)
 endif
 
 clean:
-	(cd num; make clean)
-	(cd itv; make clean)
-	(cd apron; make clean)
-	(cd mlapronidl; make clean)
-	(cd box; make clean)
-	(cd newpolka; make clean)
-	(cd octagons; make clean)
-	(cd taylor1plus; make clean)
-	(cd ppl; make clean)
-	(cd products; make clean)
-	(cd apronxx; make clean)
-	(cd examples; make clean)
-	(cd test; make clean)
-	(cd japron; make clean)
+	(cd num; $(MAKE) clean)
+	(cd itv; $(MAKE) clean)
+	(cd apron; $(MAKE) clean)
+	(cd mlapronidl; $(MAKE) clean)
+	(cd box; $(MAKE) clean)
+	(cd newpolka; $(MAKE) clean)
+	(cd octagons; $(MAKE) clean)
+	(cd taylor1plus; $(MAKE) clean)
+	(cd ppl; $(MAKE) clean)
+	(cd products; $(MAKE) clean)
+	(cd apronxx; $(MAKE) clean)
+	(cd examples; $(MAKE) clean)
+	(cd test; $(MAKE) clean)
+	(cd japron; $(MAKE) clean)
 	rm -fr online tmp apron*run aprontop apronppltop
 
 distclean: clean
 
 uninstall:
-	(cd num; make uninstall)
-	(cd itv; make uninstall)
-	(cd apron; make uninstall)
-	(cd mlapronidl; make uninstall)
-	(cd box; make uninstall)
-	(cd newpolka; make uninstall)
-	(cd octagons; make uninstall)
-	(cd taylor1plus; make uninstall)
-	(cd examples; make uninstall)
-	(cd ppl; make uninstall)
-	(cd products; make uninstall)
-	(cd apronxx; make uninstall)
+	(cd num; $(MAKE) uninstall)
+	(cd itv; $(MAKE) uninstall)
+	(cd apron; $(MAKE) uninstall)
+	(cd mlapronidl; $(MAKE) uninstall)
+	(cd box; $(MAKE) uninstall)
+	(cd newpolka; $(MAKE) uninstall)
+	(cd octagons; $(MAKE) uninstall)
+	(cd taylor1plus; $(MAKE) uninstall)
+	(cd examples; $(MAKE) uninstall)
+	(cd ppl; $(MAKE) uninstall)
+	(cd products; $(MAKE) uninstall)
+	(cd apronxx; $(MAKE) uninstall)
 	(cd $(APRON_PREFIX)/bin; rm -f apron*)
 ifneq ($(OCAMLFIND),)
 	$(OCAMLFIND) remove apron
 endif
 
 doc:
-	(cd apron; make html apron.pdf)
+	(cd apron; $(MAKE) html apron.pdf)
 ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; make html mlapronidl.pdf)
+	(cd mlapronidl; $(MAKE) html mlapronidl.pdf)
 endif
 ifneq ($(HAS_CPP),)
-	(cd apronxx; make doc)
+	(cd apronxx; $(MAKE) doc)
 endif
 
 # make distribution, update to reflect current version
