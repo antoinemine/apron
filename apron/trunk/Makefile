@@ -59,15 +59,7 @@ apronppltop:
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa
 
 rebuild:
-ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; make rebuild)
-	(cd newpolka; make rebuild)
-	(cd box; make rebuild)
-	(cd octagons; make rebuild)
-	(cd taylor1plus; make rebuild)
-	(cd ppl; make rebuild)
-	(cd products; make rebuild)
-endif
+	@echo "make rebuild is no longer necessary"
 
 OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a libxxx_caml_debug.a
 ifneq ($(HAS_SHARED),)
@@ -169,18 +161,6 @@ clean:
 	rm -fr online tmp apron*run aprontop apronppltop
 
 distclean: clean
-	(cd num; make uninstall)
-	(cd itv; make uninstall)
-	(cd apron; make uninstall)
-	(cd mlapronidl; make distclean)
-	(cd box; make distclean)
-	(cd octagons; make distclean)
-	(cd taylor1plus; make distclean)
-	(cd newpolka; make distclean)
-	(cd ppl; make distclean)
-	(cd products; make distclean)
-	(cd examples; make distclean)
-	(cd apronxx; make distclean)
 
 uninstall:
 	(cd num; make uninstall)

@@ -70,13 +70,9 @@ How to compile (given a numeric suffix Xx):
     NUM_PREFIX    where the num module from APRON is installed
     GMP_PREFIX    where the GMP library is installed
 
- 3) if you just check-out the SVN distribution, you need to
-    "make rebuild"
-    if you use a stable tarball distribution, this is not necessary
+ 3) "make Xx"
 
- 4) "make Xx"
-
- 5) "make install" will install the compiled C library(ies) in
+ 4) "make install" will install the compiled C library(ies) in
      OCT_PREFIX/lib, and the headers in OCT_PREFIX/include/oct
 
 
@@ -136,10 +132,6 @@ How to compile the library:
 
  3) "make install" will install the OCaml module(s) in OCT_PREFIX/lib
 
-"make rebuild" will generate some .ml, .mli, .c source files from the .idl
-files (and some sed scripts). This is only needed if you check-out from SVN as
-the generated files are provided in tarballs (to ease installation).
-
 The library to link with is called oct.cma, for byte-code, and oct.cmxa 
 for native code. The corresponding module is called Oct.
 There is no numeric suffix here: the OCaml wrapper is independent from the
@@ -159,13 +151,4 @@ Here, you must tell with numeric suffix "Xx" you wish to use.
 CLEANING
 ========
 
-"make clean" will delete all object files, but not auto-generated sources.
-
-"make mostlyclean" will also delete sources generated from idl files
-(only relevant for the OCaml library).
-After mostlyclean-ing, you will need to rebuild them manually with
-"make rebuild".
-This requires CAMLIDL_PREFIX to be setup properly in ../Makefile.config.
-
-"make distclean" will clean all objects (not auto-generated sources) and
-uninstall them.
+"make clean" will delete all object files, including auto-generated sources.

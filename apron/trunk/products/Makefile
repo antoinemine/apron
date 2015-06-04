@@ -84,10 +84,9 @@ clean:
 	/bin/rm -f *.[ao] *.so *.annot *.cm[xiao] *.cmxa
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr tmp
+	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
 
 distclean: clean
-	/bin/rm -fr scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl macros.pl perlscript_c.pl
-	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
 
 install:
 	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
@@ -158,41 +157,17 @@ polkaGrid.cmxa polkaGrid.a: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
 # IDL rules
 #---------------------------------------
 
-scalar.idl: ../mlapronidl/scalar.idl
-	ln -sf $< $@
-interval.idl: ../mlapronidl/interval.idl
-	ln -sf $< $@
-coeff.idl: ../mlapronidl/coeff.idl
-	ln -sf $< $@
-dim.idl: ../mlapronidl/dim.idl
-	ln -sf $< $@
-linexpr0.idl: ../mlapronidl/linexpr0.idl
-	ln -sf $< $@
-lincons0.idl: ../mlapronidl/lincons0.idl
-	ln -sf $< $@
-generator0.idl: ../mlapronidl/generator0.idl
-	ln -sf $< $@
-texpr0.idl: ../mlapronidl/texpr0.idl
-	ln -sf $< $@
-tcons0.idl: ../mlapronidl/tcons0.idl
-	ln -sf $< $@
-manager.idl: ../mlapronidl/manager.idl
-	ln -sf $< $@
-abstract0.idl: ../mlapronidl/abstract0.idl
-	ln -sf $< $@
-macros.pl: ../mlapronidl/macros.pl
-	ln -sf $< $@
-perlscript_c.pl: ../mlapronidl/perlscript_c.pl
-	ln -sf $< $@
-
 # generates polkaGrid.ml, polkaGrid.mli, polkaGrid_caml.c from polkaGrid.idl
-rebuild: polkaGrid.idl macros.pl perlscript_c.pl scalar.idl interval.idl coeff.idl dim.idl linexpr0.idl lincons0.idl generator0.idl texpr0.idl tcons0.idl manager.idl abstract0.idl
+polkaGrid.mli polkaGrid.ml polkaGrid_caml.c: polkaGrid.idl ../mlapronidl/macros.pl ../mlapronidl/perlscript_c.pl perlscript_caml.pl ../mlapronidl/*.idl
 	mkdir -p tmp
-	cp polkaGrid.idl tmp/polkaGrid.idl
-	$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" tmp/polkaGrid.idl
-	$(PERL) perlscript_c.pl < tmp/polkaGrid_stubs.c >polkaGrid_caml.c
+	cp polkaGrid.idl ../mlapronidl/*.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -prepro "$(PERL) ../../mlapronidl/macros.pl" polkaGrid.idl
+	$(PERL) ../mlapronidl/perlscript_c.pl < tmp/polkaGrid_stubs.c >polkaGrid_caml.c
 	$(PERL) perlscript_caml.pl < tmp/polkaGrid.ml >polkaGrid.ml
 	$(PERL) perlscript_caml.pl < tmp/polkaGrid.mli >polkaGrid.mli
+
+rebuild:
+	@echo "make rebuild is no longer necessary"
 
 #---------------------------------------
 # ML generic rules

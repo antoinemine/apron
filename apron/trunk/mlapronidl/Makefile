@@ -106,14 +106,13 @@ dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.pl apron_caml.c apron_caml.
 
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
-	/bin/rm -f mpz.idl mpq.idl
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
 	/bin/rm -f *.o *.a *.so *.annot *.cmi *.cmo *.cmx *.cmxa *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty apron_ocamldoc.mli
+	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
 distclean: clean
-	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
 uninstall:
 ifeq ($(OCAMLFIND),)
@@ -213,23 +212,17 @@ html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODU
 # IDL generic rules
 #---------------------------------------
 
-mpz.idl: $(MLGMPIDL_LIB)/mpz.idl
-	ln -sf $^ $@
-mpq.idl: $(MLGMPIDL_LIB)/mpq.idl
-	ln -sf $^ $@
-
 # Generate for each %.idl: %i.ml, %i.mli, %_caml.c
-rebuild: mpz.idl mpq.idl
+%.ml %.mli %_caml.c: %.idl macros.pl perlscript_c.pl perlscript_caml.pl
 	mkdir -p tmp
-	for i in $(IDLMODULES); do \
-		echo "module $$i"; \
-		cp $${i}.idl tmp/$${i}.idl; \
-		$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" -I $(SRCDIR) tmp/$${i}.idl; \
-		$(PERL) perlscript_c.pl < tmp/$${i}_stubs.c >$${i}_caml.c; \
-		$(PERL) perlscript_caml.pl < tmp/$${i}.ml >$${i}.ml; \
-		$(PERL) perlscript_caml.pl < tmp/$${i}.mli >$${i}.mli; \
-	done
-#	rm -fr tmp
+	cp $*.idl tmp/$*.idl
+	$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" -I $(SRCDIR) tmp/$*.idl
+	$(PERL) perlscript_c.pl < tmp/$*_stubs.c >$*_caml.c
+	$(PERL) perlscript_caml.pl < tmp/$*.ml >$*.ml;
+	$(PERL) perlscript_caml.pl < tmp/$*.mli >$*.mli
+
+rebuild:
+	@echo "make rebuild is no longer necessary"
 
 #---------------------------------------
 # ML generic rules
