@@ -192,8 +192,8 @@ endif
 # make distribution, update to reflect current version
 
 PKGNAME  = apron-0.9.11
-PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes
-PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx
+PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure
+PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all

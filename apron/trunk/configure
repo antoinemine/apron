@@ -232,7 +232,7 @@ done
 if test $has_cxx -eq 1
 then
     acc=""
-    for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wno-unused -Wno-unused-parameter -Wno-unused-function -std=c99 -fPIC "-undefined supress" -flat_namespace "$CXXFLAGS" "$LDFLAGS"
+    for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC "-undefined supress" -flat_namespace "$CXXFLAGS" "$LDFLAGS"
     do
         checkcomp "$cxx" "$i"
     done

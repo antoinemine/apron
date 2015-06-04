@@ -143,7 +143,7 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/box.mli $(PREFIX)/lib/box.ml $(PREFIX)/lib/box.cm[ix] $(PREFIX)/lib/box.idl $(PREFIX)/lib/box*.cma $(PREFIX)/lib/box*.cmxa $(PREFIX)/lib/box*.a
 
 
-dist: $(CCSRC) Makefile perl.script_caml.pl box.texi box.idl box.ml box.mli box_caml.c COPYING README
+dist: $(CCSRC) Makefile perlscript_caml.pl box.texi box.idl box.ml box.mli box_caml.c COPYING README
 	(cd ..; tar zcvf box.tgz $(^:%=box/%))
 
 #---------------------------------------
