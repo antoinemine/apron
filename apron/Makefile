@@ -227,7 +227,7 @@ depend: $(C_FILES) $(H_FILES)
 ap_scalar.o: ap_scalar.c ap_scalar.h ap_config.h
 ap_interval.o: ap_interval.c ap_interval.h \
   ap_config.h \
-  ap_scalar.h $(MPFR_PREFIX)/include/mpfr.h
+  ap_scalar.h
 ap_coeff.o: ap_coeff.c ap_coeff.h \
   ap_config.h \
   ap_scalar.h \
@@ -335,7 +335,7 @@ ap_policy.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
 ap_scalar_debug.o: ap_scalar.c ap_scalar.h ap_config.h
 ap_interval_debug.o: ap_interval.c ap_interval.h \
   ap_config.h \
-  ap_scalar.h $(MPFR_PREFIX)/include/mpfr.h
+  ap_scalar.h
 ap_coeff_debug.o: ap_coeff.c ap_coeff.h \
   ap_config.h \
   ap_scalar.h \
