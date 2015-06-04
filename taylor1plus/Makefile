@@ -47,7 +47,7 @@ OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
 #---------------------------------------
 
 CCMODULES = t1p_internal t1p_representation t1p_constructor t1p_meetjoin t1p_assign t1p_resize t1p_otherops t1p_fun t1p_itv_utils
-CCSRC = t1p_config.h t1p.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
+CCSRC = t1p.h t1p_macro_def.h t1p_test.c t1p_test_eval_texp.c $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = t1p.h
 CCBIN_TO_INSTALL =
@@ -171,8 +171,8 @@ uninstall:
 	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
 
 
-dist: $(CCSRC) Makefile perlscript_caml.pl t1p.texi t1p.idl t1p.ml t1p.mli t1p_caml.c COPYING README
-	(cd ..; tar zcvf t1p.tgz $(^:%=t1p/%))
+dist: $(CCSRC) Makefile perlscript_caml.pl t1p.idl t1p.ml t1p.mli t1p_caml.c
+	(cd ..; tar zcvf taylor1plus.tgz $(^:%=taylor1plus/%))
 
 #---------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES

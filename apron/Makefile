@@ -120,7 +120,7 @@ apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi b
 
 
 html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
-	$(TEXI2HTML) -split=section -nonumber -menu -subdir=html $<
+	$(TEXI2HTML) -split=section -nonumber-sections -menu -subdir=html $<
 	cp -f ../octagons/oct_doc.html html
 
 #---------------------------------------
