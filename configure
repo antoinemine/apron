@@ -22,9 +22,11 @@ Environment variables that affect configuration:
   CFLAGS               extra flags to pass to the C compiler
   CXXFLAGS             extra flags to pass to the C++ compiler
   LDFLAGS              extra link flags
-  GMP_PREFIX
-  MPFR_PREFIX
-  PPL_PREFIX
+  GMP_PREFIX           where to find the GMP library
+  MPFR_PREFIX          where to find the MPFR library
+  PPL_PREFIX           where to find tye PPL library
+  JAVA_HOME            where to find Java
+
 EOF
     exit
 }
@@ -43,6 +45,8 @@ while : ; do
         -prefix|--prefix)
             apron_prefix="$2"
             shift;;
+        -help|--help)
+            help;;
         *)
             echo "unknown option $1, try -help"
             exit 2;;
