@@ -15,7 +15,16 @@ help()
 usage: configure [options]
 
 where options include:
-  -prefix dir       installation directory
+  -prefix dir          installation directory
+  -gmp-prefix dir      where to find the GMP library
+  -mpfr-prefix dir     where to find the MPFR library
+  -ppl-prefix dir      where to find the PPL library
+  -java-prefix dir     where to find Java
+  -no-cxx              disable C++ support
+  -no-ocaml            disable OCaml support
+  -no-ocamlfind        disable OCamlfind support
+  -no-ppl              disable PPL support
+  -no-java             disable Java support
 
 Environment variables that affect configuration:
   CC                   C compiler to use (default: gcc)
@@ -37,7 +46,11 @@ EOF
 #################
 
 apron_prefix=/usr/local
-
+has_cxx=1
+has_ppl=1
+has_ocaml=1
+has_ocamlfind=1
+has_java=1
 while : ; do
     case "$1" in
         "") 
@@ -45,6 +58,29 @@ while : ; do
         -prefix|--prefix)
             apron_prefix="$2"
             shift;;
+        -gmp-prefix|--gmp-prefix)
+            gmp_prefix="$2"
+            shift;;
+        -mpfr-prefix|--mpfr-prefix)
+            mpfr_prefix="$2"
+            shift;;
+        -ppl-prefix|--ppl-prefix)
+            ppl_prefix="$2"
+            shift;;
+        -java-prefix|--java-prefix)
+            java_prefix="$2"
+            shift;;
+        -no-cxx|--no-cxx)
+            has_cxx=0
+            has_ppl=0;;
+        -no-ppl|--no-ppl)
+            has_ppl=0;;
+        -no-ocaml|--no-ocaml)
+            has_ocaml=0;;
+        -no-ocamlfind|--no-ocamlfind)
+            has_ocamlfind=0;;
+        -no-java|--no-java)
+            has_java=0;;
         -help|--help)
             help;;
         *)
@@ -227,12 +263,15 @@ cflags=$acc
 
 # C++ compiler
 
-has_cxx=0
-for i in $CXX c++ g++
-do
-    checkcomp "$i" ""
-    if test $? -eq 1; then has_cxx=1; cxx="$i"; break; fi
-done
+if test $has_cxx -eq 1
+then
+    has_cxx=0
+    for i in $CXX c++ g++
+    do
+        checkcomp "$i" ""
+        if test $? -eq 1; then has_cxx=1; cxx="$i"; break; fi
+    done
+fi
 if test $has_cxx -eq 1
 then
     acc=""
@@ -255,17 +294,19 @@ searchbinreq "install"; install="$path"
 
 # C libraries
 
+if test "x$gmp_prefix" != "x"; then GMP_PREFIX="$gmp_prefix"; fi
 checkprefix "$cc $cflags" gmp.h gmp "$GMP_PREFIX"
 if test $? -eq 0; then echo "GMP not found, set GMP_PREFIX"; exit 1; fi
 gmp_prefix="$prefix"
 
+if test "x$mpfr_prefix" != "x"; then MPFR_PREFIX="$mpfr_prefix"; fi
 checkprefix "$cc $cflags" mpfr.h mpfr "$MPFR_PREFIX"
 if test $? -eq 0; then echo "MPFR not found, set MPFR_PREFIX"; exit 1; fi
 mpfr_prefix="$prefix"
 
-has_ppl=0
-if test $has_cxx -eq 1
+if test $has_cxx -eq 1 -a $has_ppl -eq 1
 then
+    if test "x$ppl_prefix" != "x"; then PPL_PREFIX="$ppl_prefix"; fi
     checkprefix "$cxx $cxxflags" ppl.hh ppl "$PPL_PREFIX"
     if test $? -eq 1; then has_ppl=1; fi
     ppl_prefix="$prefix"
@@ -275,7 +316,6 @@ fi
 # OCaml environment
 
 # check OCaml binaries
-has_ocaml=1
 if test $has_ocaml -eq 1; then searchbin "ocamlc.opt"; has_ocaml=$?; ocamlc="$path"; fi
 if test $has_ocaml -eq 1; then searchbin "ocamlopt.opt"; has_ocaml=$?; ocamlopt="$path"; fi
 if test $has_ocaml -eq 1; then searchbin "ocamldep"; has_ocaml=$?; ocamldep="$path"; fi
@@ -287,8 +327,11 @@ if test $has_ocaml -eq 1; then searchbin "ocamlmklib"; has_ocaml=$?; ocamlmklib=
 if test $has_ocaml -eq 1; then searchbin "camlidl"; has_ocaml=$?; camlidl="$path"; fi
 
 # optional ocamlfind
-has_ocamlfind=0
-if test $has_ocaml = 1; then searchbin "ocamlfind"; has_ocamlfind=1; ocamlfind="$path"; fi
+if test $has_ocamlfind -eq 1
+then
+    has_ocamlfind=0
+    if test $has_ocaml -eq 1; then searchbin "ocamlfind"; has_ocamlfind=1; ocamlfind="$path"; fi
+fi
 
 # guess prefix
 if test $has_ocamlfind -eq 1
@@ -311,12 +354,12 @@ then
     checkinc "$cc $cflags -I$caml_prefix" caml/mlvalues.h
     has_ocaml=$?
 fi
-if test $has_ocaml = 1
+if test $has_ocaml -eq 1
 then
     checkinc "$cc $cflags -I$caml_prefix -I$camlidl_prefix" caml/camlidlruntime.h
     has_ocaml=$?
 fi
-if test $has_ocaml = 1
+if test $has_ocaml -eq 1
 then
     checkinc "$cc $cflags -I$caml_prefix -I$mlgmpidl_prefix" gmp_caml.h
     has_ocaml=$?
@@ -326,7 +369,8 @@ fi
 # Java environment
 
 # check Java binaries
-has_java=1
+if test "x$java_prefix" != "x"; then JAVA_HOME="$java_prefix"; fi
+if test "x$JAVA_HOME" != "x"; then PATH=$JAVA_HOME/bin:$PATH; fi
 if test $has_java -eq 1; then searchbin "java"; has_java=$?; java="$path"; fi
 if test $has_java -eq 1; then searchbin "javac"; has_java=$?; javac="$path"; fi
 if test $has_java -eq 1; then searchbin "javah"; has_java=$?; javah="$path"; fi
@@ -334,10 +378,9 @@ if test $has_java -eq 1; then searchbin "javadoc"; has_java=$?; javadoc="$path";
 if test $has_java -eq 1; then searchbin "jar"; has_java=$?; jar="$path"; fi
 
 # check jni includes
-if test $? -eq 0
+if test $has_java -eq 1
 then
-    java_home=$JAVA_HOME
-    checkinc "$cc $cflags -I$java_home/include" jni.h
+    checkinc "$cc $cflags -I$JAVA_HOME/include" jni.h
     if test $? -eq 0; then echo "JNI not found, please set JAVA_HOME"; has_java=0; fi
 fi
 
@@ -366,6 +409,11 @@ EOF
 ##############################################
 # generation
 ############
+
+if test "$has_cxx" -eq 0; then has_cxx=; fi
+if test "$has_ocaml" -eq 0; then has_ocaml=; fi
+if test "$has_java" -eq 0; then has_java=; fi
+if test "$has_ppl" -eq 0; then has_ppl=; fi
 
 cat > Makefile.config <<EOF
 # generated by ./configure
