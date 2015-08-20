@@ -34,8 +34,8 @@ CXXSOURCES = ppl_user.cc ppl_poly.cc ppl_grid.cc
 CSOURCES = ppl_test.c
 CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 
-LIBS = -lppl -lapron -lgmpxx -lgmp -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lstdc++ -lm
+LIBS = -lppl -lapron -lgmpxx -lgmp -lmpfr -lm
+LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lm
 
 #---------------------------------------
 # Rules

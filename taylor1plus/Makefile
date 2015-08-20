@@ -58,9 +58,8 @@ endif
 endif
 
 LDFLAGS += -L../box -L../newpolka
-LIBS = -lapron -lgmpxx -lgmp -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lstdc++ -lm
-
+LIBS = -lapron -lgmpxx -lgmp -lmpfr -lm
+LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lm
 
 #---------------------------------------
 # Rules

@@ -264,7 +264,7 @@ checkdirinpath()
 #######
 
 # Flags common to c and c++ compilation
-c_cxx_flags="-Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
+c_cxx_flags="-Wcast-qual -Wswitch -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
 
 
 # C compiler
@@ -278,7 +278,7 @@ done
 if test "$cc" = "none"; then echo "no C compiler found"; exit 1; fi
 
 acc=""
-for i in $c_cxx_flags -Wbad-function-cast -Wstrict-prototypes -std=c99 $CFLAGS $LDFLAGS
+for i in $c_cxx_flags -Werror-implicit-function-declaration -Wbad-function-cast -Wstrict-prototypes -std=c99 $CFLAGS $LDFLAGS
 do
     checkcomp "$cc" "$i"
 done
