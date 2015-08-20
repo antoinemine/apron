@@ -1,11 +1,8 @@
 include Makefile.config
-
-LCFLAGS = \
--Lapron -Litv -Lbox -Loctagons -Lnewpolka -Ltaylor1plus \
--L$(PPL_PREFIX)/lib -Lppl \
--Lproducts \
--L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)
+SRCROOT = .
+include vars.mk
+PKGNAME = apron
+VERSION_STR = 20150729
 
 all: c
 ifneq ($(HAS_OCAML),)
@@ -48,14 +45,12 @@ ifneq ($(HAS_PPL),)
 	(cd products; $(MAKE) ml)
 endif
 
-.PHONY: aprontop apronppltop
-
 aprontop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX)/lib -I $(APRON_PREFIX)/lib -verbose -o $@ \
+	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma
 
 apronppltop:
-	$(OCAMLMKTOP) -I $(MLGMPIDL_PREFIX)/lib -I $(APRON_PREFIX)/lib -verbose -o $@ \
+	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
 	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa
 
 rebuild:
@@ -110,7 +105,7 @@ OCAMLFIND_FILES += \
 endif
 endif
 
-install:
+install: all
 	(cd num; $(MAKE) install)
 	(cd itv; $(MAKE) install)
 	(cd apron; $(MAKE) install)
@@ -125,10 +120,10 @@ endif
 ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
 	(cd mlapronidl; $(MAKE) install)
-	$(INSTALLd) $(APRON_PREFIX)/bin
-	if test -f aprontop; then $(INSTALL) aprontop $(APRON_PREFIX)/bin; fi
+	$(INSTALLd) $(APRON_BIN)
+	if test -f aprontop; then $(INSTALL) aprontop $(APRON_BIN); fi
 ifneq ($(HAS_PPL),)
-	if test -f apronppltop; then $(INSTALL) apronppltop $(APRON_PREFIX)/bin; fi
+	if test -f apronppltop; then $(INSTALL) apronppltop $(APRON_BIN); fi
 endif
 else
 	$(OCAMLFIND) remove apron
@@ -136,11 +131,19 @@ else
 mlapronidl/apron.d.cmxa mlapronidl/apron.d.a \
 newpolka/polkaMPQ.d.cmxa newpolka/polkaMPQ.d.a \
 newpolka/polkaRll.d.cmxa newpolka/polkaRll.d.a
-
 endif
 endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; $(MAKE) install)
+endif
+
+ifneq ($(OCAMLFIND),)
+install: mlapronidl/META
+mlapronidl/META: mlapronidl/META.in mlapronidl/META.ppl.in
+	$(SED) -e "s!@VERSION@!$(VERSION_STR)!g;" $< > $@;
+  ifneq ($(HAS_PPL),)
+	cat mlapronidl/META.ppl.in >> $@;
+  endif
 endif
 
 clean:
@@ -159,8 +162,10 @@ clean:
 	(cd test; $(MAKE) clean)
 	(cd japron; $(MAKE) clean)
 	rm -fr online tmp apron*run aprontop apronppltop
+	rm -f mlapronidl/META
 
 distclean: clean
+	rm -f Makefile.config
 
 uninstall:
 	(cd num; $(MAKE) uninstall)
@@ -175,7 +180,7 @@ uninstall:
 	(cd ppl; $(MAKE) uninstall)
 	(cd products; $(MAKE) uninstall)
 	(cd apronxx; $(MAKE) uninstall)
-	(cd $(APRON_PREFIX)/bin; rm -f apron*)
+	(cd $(APRON_BIN); rm -f apron*)
 ifneq ($(OCAMLFIND),)
 	$(OCAMLFIND) remove apron
 endif
@@ -191,18 +196,18 @@ endif
 
 # make distribution, update to reflect current version
 
-PKGNAME  = apron-0.9.11
-PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure
+PKG  = $(PKGNAME)-$(VERSION_STR)
+PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure vars.mk
 PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all
 	$(MAKE) doc
-	mkdir -p $(PKGNAME)
+	mkdir -p $(PKG)
 	$(MAKE) $(foreach pkg,$(PKGDIRS),pkg_$(pkg))
-	cp $(PKGFILES) $(PKGNAME)
-	tar vczf $(PKGNAME).tgz $(PKGNAME)
-	rm -rf $(PKGNAME)
+	cp $(PKGFILES) $(PKG)
+	tar vczf $(PKG).tgz $(PKG)
+	rm -rf $(PKG)
 
 # these 2 targets are for main developpers only
 index.html: index.tex
@@ -221,5 +226,7 @@ online: doc index.html
 
 pkg_%:
 	(cd $*; $(MAKE) dist)
-	(cd $(PKGNAME); tar xzf ../$*.tgz)
+	(cd $(PKG); tar xzf ../$*.tgz)
 	rm -rf $*.tgz
+
+.NOTPARALLEL:

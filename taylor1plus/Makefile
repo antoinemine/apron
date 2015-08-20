@@ -1,21 +1,9 @@
-
 include ../Makefile.config
+include ../vars.mk
 
 ifneq ($(CSDP_PATH),)
 CSDP_CFLAGS = -ansi -Wall -DNOSHORTS -DUSEGETTIME -I$(CSDP_PATH)/include -D_USE_SDP
 CSDP_LIBS = -L/usr/lib/sse2 -L$(CSDP_PATH)/lib -lsdp -llapack -lf77blas -lcblas -latlas -lgfortran -lm
-endif
-
-PREFIX = $(APRON_PREFIX)
-
-SRCDIR = $(shell pwd)
-
-ifneq ($(OCAMLFIND),)
-MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
-MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
-else
-MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
-MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
 endif
 
 #---------------------------------------
@@ -29,18 +17,8 @@ endif
 CFLAGS := $(CSDP_CFLAGS) $(CFLAGS)
 CFLAGS_DEBUG := $(CSDP_CFLAGS) $(CFLAGS_DEBUG) -D_GET_CPU_TIME -D_T1P_DEBUG #-D_T1P_DEBUG_FUN #-pg -D_CALL_DEBUG
 
-# Use ICFLAGS to specify machine-independent compilation flags.
-ICFLAGS = \
--I$(MLGMPIDL_INCLUDE) \
--I../num \
--I../itv \
--I../apron \
--I../mlapronidl \
--I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
--I$(CAMLIDL_PREFIX) -I$(CAML_PREFIX)
-
-# Caml
-OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
+ICFLAGS = $(BASE_ICFLAGS) $(ML_ICFLAGS)
+LDFLAGS += $(BASE_LIFLAGS)
 
 #---------------------------------------
 # Files
@@ -79,8 +57,10 @@ CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMP
 endif
 endif
 
-LIBS = -L$(APRON_PREFIX) -lapron -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -L$(APRON_PREFIX) -lapron_debug -L$(GMP_PREFIX)/lib -lgmpxx -lgmp -L$(MPFR_PREFIX)/lib -lmpfr -lstdc++ -lm
+LDFLAGS += -L../box -L../newpolka
+LIBS = -lapron -lgmpxx -lgmp -lmpfr -lstdc++ -lm
+LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lstdc++ -lm
+
 
 #---------------------------------------
 # Rules
@@ -104,7 +84,7 @@ allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
 endif
 
 exemple1%_debug: exemple1%_debug.o
-	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -loct$*_debug -lapron_debug $(LIBS_DEBUG)
+	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -loct$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 #test%: t1p_test_eval_texp%.o
 #	$(CC) $(CFLAGS) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron t1p_internal$*.o t1p_representation$*.o
@@ -114,10 +94,10 @@ exemple1%_debug: exemple1%_debug.o
 
 
 #test_join%: t1p_test_join%.o
-#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug -lapron_debug t1p_internal$*.o t1p_representation$*.o 
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ $(LIBS) -L. $< -lt1p$* -lbox$* -lpolkaMPQ_debug t1p_internal$*.o t1p_representation$*.o
 
 #test_join%_debug: t1p_test_join%_debug.o
-#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o -lapron_debug $(LIBS_DEBUG)
+#	$(CC) $(CFLAGS_DEBUG) -DNUM_DOUBLE -o $@ -L. $< -lt1p$*_debug -lbox$*_debug -lpolkaMPQ_debug t1p_internal$*_debug.o $(LIBS_DEBUG)
 
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
@@ -137,10 +117,10 @@ mlMPFR: dllt1pMPFR_caml.so dllt1pMPFR_caml_debug.so
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma t1p$*.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cma gmp.cma apron.cma t1p$*.cma $<
 
 mlexample%.opt: mlexample.ml t1p%.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt *.annot
@@ -153,22 +133,22 @@ clean:
 distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
+	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
 
 uninstall:
-	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
-	/bin/rm -f $(PREFIX)/lib/libt1p*.* $(PREFIX)/lib/libt1p*_debug.*
-	/bin/rm -f $(PREFIX)/lib/dllt1p*.so $(PREFIX)/lib/dllt1p*_debug.so
-	/bin/rm -f $(PREFIX)/lib/t1p.mli $(PREFIX)/lib/t1p.ml $(PREFIX)/lib/t1p.cm[ix] $(PREFIX)/lib/t1p.idl $(PREFIX)/lib/t1p*.cma $(PREFIX)/lib/t1p*.cmxa $(PREFIX)/lib/t1p*.a
+	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
+	/bin/rm -f $(APRON_LIB)/libt1p*.* $(APRON_LIB)/libt1p*_debug.*
+	/bin/rm -f $(APRON_LIB)/dllt1p*.so $(APRON_LIB)/dllt1p*_debug.so
+	/bin/rm -f $(APRON_LIB)/t1p.mli $(APRON_LIB)/t1p.ml $(APRON_LIB)/t1p.cm[ix] $(APRON_LIB)/t1p.idl $(APRON_LIB)/t1p*.cma $(APRON_LIB)/t1p*.cmxa $(APRON_LIB)/t1p*.a
 
 
 dist: $(CCSRC) Makefile perlscript_caml.pl t1p.idl t1p.ml t1p.mli t1p_caml.c
@@ -197,9 +177,9 @@ libt1p%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libt1p%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS) -lbox$* -lpolkaMPQ -L../apron -L../box -L../newpolka
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LIBS) -lbox$* -lpolkaMPQ
 libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG) -lbox$*_debug -lpolkaMPQ_debug -L../apron -L../box -L../newpolka
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG) -lbox$*_debug -lpolkaMPQ_debug
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -222,17 +202,11 @@ libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 # OCaml binding
 #---------------------------------------
 
-libt1p%_caml.a: t1p_caml.o libt1p%.a
-	$(AR) rcs $@ $<
-	$(RANLIB) $@
-libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
-	$(AR) rcs $@ $<
-	$(RANLIB) $@
+dllt1p%_caml.so libt1p%_caml.a: t1p_caml.o libt1p%.a
+	$(OCAMLMKLIB) -o t1p$*_caml t1p_caml.o -L. -lt1p$* $(LDFLAGS) $(LIBS)
 
-dllt1p%_caml.so: t1p_caml.o libt1p%.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml.o  -L. -lt1p$* $(LIBS) -L../apron
-dllt1p%_caml_debug.so: t1p_caml_debug.o libt1p%_debug.so
-	$(CC) $(CFLAGS) -shared -o $@ t1p_caml_debug.o -L. -lt1p$*_debug $(LIBS_DEBUG) -L../apron
+dllt1p%_caml_debug.so libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
+	$(OCAMLMKLIB) -o t1p$*_caml_debug t1p_caml_debug.o -L. -lt1p$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 t1p_caml.o: t1p_caml.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -243,32 +217,24 @@ t1p_caml_debug.o: t1p_caml.c
 # OCaml rules
 #---------------------------------------
 
-# t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
-# 	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmo $(LIBS) -L. -lt1p$*
-
-# t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
-# 	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx $(LIBS) -L. -lt1p$* -L$(APRON_PREFIX)/lib
-
-# DEBUG version
-
 t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmo -L. -lt1p$* $(LIBS) 
+	$(OCAMLMKLIB) -o t1p$* -oc t1p$*_caml t1p.cmo -lt1p$* $(LIBS)
 
 t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o t1p$* -oc t1p$*_caml t1p.cmx -L$(APRON_PREFIX)/lib -L. -lt1p$* $(LIBS) 
+	$(OCAMLMKLIB) -o t1p$* -oc t1p$*_caml t1p.cmx -lt1p$* $(LIBS)
 
 #---------------------------------------
 # IDL rules
 #---------------------------------------
 
 # generates t1p.ml, t1p.mli, t1p_caml.c from t1p.idl
-t1p.ml t1p.mli t1p_caml.c: t1p.idl perlscript_caml.pl ../mlapronidl/manager.idl
+%.ml %.mli %_caml.c: %.idl perlscript_caml.pl ../mlapronidl/manager.idl
 	mkdir -p tmp
-	cp t1p.idl ../mlapronidl/manager.idl tmp/
-	cd tmp && $(CAMLIDL) -no-include -nocpp t1p.idl
-	cp tmp/t1p_stubs.c t1p_caml.c
-	$(PERL) perlscript_caml.pl < tmp/t1p.ml >t1p.ml
-	$(PERL) perlscript_caml.pl < tmp/t1p.mli >t1p.mli
+	cp $*.idl ../mlapronidl/manager.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -nocpp $*.idl
+	cp tmp/$*_stubs.c $*_caml.c
+	$(PERL) perlscript_caml.pl < tmp/$*.ml >$*.ml
+	$(PERL) perlscript_caml.pl < tmp/$*.mli >$*.mli
 
 rebuild:
 	@echo "make rebuild is no longer necessary"

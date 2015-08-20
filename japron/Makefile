@@ -8,9 +8,7 @@
 # Please read the COPYING file packaged in the distribution.
 
 include ../Makefile.config
-
-PREFIX = $(APRON_PREFIX)
-LIBDIR = $(PREFIX)/lib
+include ../vars.mk
 
 ############################
 
@@ -98,7 +96,7 @@ APRONALL   = $(APRONCLASS) $(APRONH) $(APRONO) libjapron.so
 # built and installed in JAVA_PREFIX
 JAVAINST   = gmp.jar apron.jar
 
-# built and installed in LIBDIR
+# built and installed in APRON_LIB
 SOINST     = libjgmp.so libjapron.so
 
 ############################
@@ -146,9 +144,9 @@ doc:
 	$(JAVADOC) -d doc gmp apron
 
 install:
-	$(INSTALLd) $(LIBDIR); \
+	$(INSTALLd) $(APRON_LIB); \
 	for i in $(SOINST); do \
-		$(INSTALL) $$i $(LIBDIR); \
+		$(INSTALL) $$i $(APRON_LIB); \
 	done; \
 	$(INSTALLd) $(JAVA_PREFIX); \
 	for i in $(JAVAINST); do \
@@ -157,7 +155,7 @@ install:
 
 uninstall:
 	for i in $(SOINST); do \
-		/bin/rm -f $(LIBDIR)/$$i; \
+		/bin/rm -f $(APRON_LIB)/$$i; \
 	done; \
 	for i in $(JAVAINST); do \
 		/bin/rm -f $(JAVA_PREFIX)/$$i; \

@@ -1,5 +1,5 @@
 description = "Numerical abstract domains"
-version = "0.9.11"
+version = "@VERSION@"
 requires = "apron.apron"
 package "apron" (
 requires = "gmp"
@@ -63,15 +63,4 @@ package "disjPk" (
 requires = "apron.apron apron.polkaMPQ"
 archive(byte) = "disjPk.cma"
 archive(native) = "disjPk.cmxa"
-)
-package "ppl" (
-requires = "apron.apron"
-archive(byte) = "ppl.cma"
-archive(native) = "ppl.cmxa"
-linkopts(native) = "-cclib -lstdc++"
-)
-package "polkaGrid" (
-requires = "apron.apron apron.ppl apron.polkaMPQ"
-archive(byte) = "polkaGrid.cma"
-archive(native) = "polkaGrid.cmxa"
 )

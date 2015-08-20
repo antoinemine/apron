@@ -1,4 +1,5 @@
 include ../Makefile.config
+include ../vars.mk
 
 H_FILES = \
 num_config.h \
@@ -22,11 +23,11 @@ bound_def.h
 all:
 
 install:
-	mkdir -p $(APRON_PREFIX)/include
-	cp $(H_FILES) $(APRON_PREFIX)/include
+	mkdir -p $(APRON_INCLUDE)
+	cp $(H_FILES) $(APRON_INCLUDE)
 
 uninstall:
-	(cd $(APRON_PREFIX)/include; /bin/rm -f $(H_FILES))
+	(cd $(APRON_INCLUDE) && /bin/rm -f $(H_FILES) || exit 0)
 
 dist: $(H_FILES) Makefile README
 	(cd ..; tar zcvf num.tgz $(^:%=num/%))
@@ -36,38 +37,37 @@ clean:
 
 distclean: clean
 
-ICFLAGS = -I../apron -I$(APRON_PREFIX)/include -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include -L$(APRON_PREFIX)/lib -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib
-
-CLIBS = -L../apron -lapron -lmpfr -lgmp -lm
+ICFLAGS = $(APRON_ICFLAGS) $(MP_ICFLAGS)
+LDFLAGS += $(APRON_LIFLAGS) $(MP_LIFLAGS) -lapron -lmpfr -lgmp -lm
 
 tests: testli testlli testlr testllr testmpz testmpq testdbl testldbl testmpfr
 
 testli: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGINT -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGINT -o $@ test.c $(LDFLAGS)
 
 testlli: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGINT -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGINT -o $@ test.c $(LDFLAGS)
 
 testlr: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGRAT -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGRAT -o $@ test.c $(LDFLAGS)
 
 testllr: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGRAT -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGRAT -o $@ test.c $(LDFLAGS)
 
 testmpz: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPZ -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPZ -o $@ test.c $(LDFLAGS)
 
 testmpq: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -o $@ test.c $(LDFLAGS)
 
 testdbl: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -o $@ test.c $(LDFLAGS)
 
 testldbl: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -o $@ test.c $(LDFLAGS)
 
 testmpfr: test.c $(H_FILES)
-	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -o $@ test.c $(CLIBS)
+	$(CC) -g $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -o $@ test.c $(LDFLAGS)
 
 out: tests
 	./testli   > out.li

@@ -1,4 +1,5 @@
 include ../Makefile.config
+include ../vars.mk
 
 ICFLAGS = \
 -I$(GMP_PREFIX)/include \
@@ -16,7 +17,7 @@ LCFLAGS = \
 -L$(CAMLIDL_PREFIX)
 
 OCAMLINC = \
--I $(MLGMPIDL_PREFIX)/lib \
+-I $(MLGMPIDL_LIB) \
 -I $(APRON_PREFIX)/lib \
 -I $(CAML_PREFIX)/lib/ocaml/apron
 
