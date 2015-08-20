@@ -6,7 +6,7 @@
  * Copyright (C) Antoine Mine' 2007
  *
  */
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -32,14 +32,14 @@ namespace apron {
  *
  * Level 1 version of abstract values.
  * Variable names (var) are used in place of dimensions (ap_dim_t).
- * Internally, an abstract1 wraps together an abstract0 (memory managed) and an environment 
+ * Internally, an abstract1 wraps together an abstract0 (memory managed) and an environment
  * (holding a reference count).
  */
 
 class abstract1 : public use_malloc {
 
 protected:
-  
+
   ap_abstract1_t a; //!< Structure managed by APRON.
 
   //! NULL abstract element, to be used only as default argument in assign and substitute.
@@ -77,20 +77,20 @@ public:
    * Variables not in v have unconstrained bounds.
    */
   abstract1(manager &m, const environment& e, const var v[], const interval_array& x);
-  
+
   /*! \brief Creates an abstract element from a box.
    *
    * x[i] is the bound for all the variables in v.
    * Variables not in v have unconstrained bounds.
    */
   abstract1(manager &m, const environment& e, const std::vector<var>& v, const interval_array& x);
-  
+
   //! Creates an abstract element from a conjunction of linear constraints.
   abstract1(manager &m, const lincons1_array& x);
-  
+
   //! Creates an abstract element from a conjunction of arbitrary constraints.
   abstract1(manager &m, const tcons1_array& x);
-  
+
   /*! \brief Creates a (deep) copy of the abstract element.
    *
    * Implicitly uses the manager used to create *this.
@@ -99,13 +99,13 @@ public:
 
   //@}
 
-  
+
   /* destructor */
   /* ========== */
 
   /** @name Destructors */
   //@{
-  
+
   /*! \brief Destroys the abstract element.
    *
    * Implicitly uses the manager used to create *this.
@@ -127,7 +127,7 @@ public:
 
   /** @name Copies and conversions to abstract elements */
   //@{
-  
+
   /*! \brief Assigns a copy of t to *this.
    *
    * Implicitly uses the manager used to create *this.
@@ -155,7 +155,7 @@ public:
    * \throw std::invalid_argument if the array has insufficient size.
    */
   abstract1& operator=(const interval_array& x);
-  
+
   /*! \brief Assigns a conjunction of linear constraints to *this.
    *
    * Implicitly uses the manager used to create *this.
@@ -245,7 +245,7 @@ public:
 
   /** @name Control of internal representation */
   //@{
-  
+
   /*! \brief Minimizes the size of the representation, to save memory.
    *
    * \return a reference to *this.
@@ -272,12 +272,12 @@ public:
 
   /** @name Printing */
   //@{
-  
+
   //! Pretty-printing to a C stream.
   void print(manager& m, FILE* stream=stdout) const;
 
   //! Pretty-printing the difference between x and y to a C stream.
-  friend void printdiff(manager& m, const abstract1& x, const abstract1& y, FILE* stream=stdout);
+  friend void printdiff(manager& m, const abstract1& x, const abstract1& y, FILE* stream);
 
   //! Raw printing to a C stream (mainly for debug purposes).
   void dump(manager& m, FILE* stream=stdout) const;
@@ -312,7 +312,7 @@ public:
    * string.
    * \return a reference to dst.
    */
-  friend abstract1& deserialize(manager& m, abstract1& dst, const std::string& s, size_t* eaten = NULL);
+  friend abstract1& deserialize(manager& m, abstract1& dst, const std::string& s, size_t* eaten);
 
   //@}
 
@@ -325,16 +325,16 @@ public:
 
   //! Returns the manager the abstract element was created with (with reference count incremented).
   manager get_manager() const;
-  
+
    //! Returns the environment of the abstract element (with reference count incremented).
   environment get_environment() const;
-  
+
   //! Returns a (modifiable) reference to the underlying abstract0.
   abstract0& get_abstract0();
-  
+
   //! Returns a reference to the underlying abstract0.
   const abstract0& get_abstract0() const;
-  
+
   /*! \brief Returns the (abstract) size of the abstract element.
    *
    * The unit in which size is computed is library-specific.
@@ -345,13 +345,13 @@ public:
 
   //@}
 
-  
+
   /* predicates */
   /* ========== */
 
   /** @name Predicates */
   //@{
-  
+
   //! \brief Whether *this represents the empty set.
   bool is_bottom(manager& m) const;
 
@@ -383,19 +383,19 @@ public:
    * The manager for the left argument is used implicitly.
    */
   friend bool operator== (const abstract1& x, const abstract1& y);
-  
+
   /*! \brief Whether x and y represent different sets.
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator!= (const abstract1& x, const abstract1& y);
-  
+
   /*! \brief Whether x is included within y (set-wise).
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator<= (const abstract1& x, const abstract1& y);
-  
+
   /*! \brief Whether x contains y (set-wise).
    *
    * The manager for the left argument is used implicitly.
@@ -407,14 +407,14 @@ public:
    * The manager for the left argument is used implicitly.
    */
   friend bool operator> (const abstract1& x, const abstract1& y);
-  
+
   /*! \brief Whether x is strictly included within y (set-wise).
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator< (const abstract1& x, const abstract1& y);
 
-  
+
 
   /* Properties */
   /* ========== */
@@ -433,7 +433,7 @@ public:
 
   //! Returns a bounding box for the set represented by the abstract element.
   interval_array to_box(manager& m) const;
-  
+
   /*! \brief Returns a generator representation of (an over-approximation of) the
    * set represented by the abstract element.
    */
@@ -474,7 +474,7 @@ public:
   /*! \brief Replaces *this with the meet of *this and the abstract element y.
    *
    * *this and y can have different environment.
-   * They are first embedded into the least common environment before the meet is computed. 
+   * They are first embedded into the least common environment before the meet is computed.
    *
    * \return a reference to *this.
    */
@@ -483,7 +483,7 @@ public:
   /*! \brief Replaces dst with the meet of x and y.
    *
    * x and y can have different environment.
-   * They are first embedded into the least common environment before the meet is computed. 
+   * They are first embedded into the least common environment before the meet is computed.
    *
    * \return a reference to dst.
    */
@@ -629,7 +629,7 @@ public:
 
   /** @name Assignment */
   //@{
- 
+
   /*! \brief In-place assignment of linear expression.
    *
    * *this is modified in-place to reflect the effect of assigning l to variable v.
@@ -650,7 +650,7 @@ public:
    */
   abstract1& assign(manager& m,  size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter = null);
 
-  
+
   /*! \brief In-place parallel assignment of linear expressions.
    *
    * *this is modified in-place to reflect the effect of assigning l[i] to variable v[i].
@@ -662,7 +662,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract1& assign(manager& m, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter = null);
-  
+
   /*! \brief Assignment of linear expression.
    *
    * dst is replaced with the effect of assigning l to variable v in src.
@@ -670,18 +670,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const var& v, const linexpr1& l, const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const var& v, const linexpr1& l, const abstract1& inter);
 
   /*! \brief Parallel assignment of linear expressions.
    *
-   * dst is replaced with the effect of assigning l[i] to variable v[i] in src, 
+   * dst is replaced with the effect of assigning l[i] to variable v[i] in src,
    * for i from 0 to size-1.
    * Assignments are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter);
 
   /*! \brief Parallel assignment of linear expressions.
    *
@@ -693,7 +693,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter);
 
 
 
@@ -718,7 +718,7 @@ public:
    */
   abstract1& assign(manager& m, size_t size, const var v[], const texpr1 * const l[], const abstract1& inter = null);
 
-  
+
   /*! \brief In-place parallel assignment of arbitrary expressions.
    *
    * *this is modified in-place to reflect the effect of assigning l[i] to variable v[i].
@@ -730,7 +730,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract1& assign(manager& m, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter = null);
-  
+
   /*! \brief Assignment of arbitrary expression.
    *
    * dst is replaced with the effect of assigning l to variable v in src.
@@ -738,18 +738,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const var& v, const texpr1& l, const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const var& v, const texpr1& l, const abstract1& inter);
 
   /*! \brief Parallel assignment of arbitrary expressions.
    *
-   * dst is replaced with the effect of assigning l[i] to variable v[i] in src, 
+   * dst is replaced with the effect of assigning l[i] to variable v[i] in src,
    * for i from 0 to size-1.
    * Assignments are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, size_t size, const var v[], const texpr1 * const l[], const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, size_t size, const var v[], const texpr1 * const l[], const abstract1& inter);
 
   /*! \brief Parallel assignment of arbitrary expressions.
    *
@@ -761,7 +761,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter = null);
+  friend abstract1& assign(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter);
 
   //@}
 
@@ -771,7 +771,7 @@ public:
 
   /** @name Substitution */
   //@{
- 
+
   /*! \brief In-place substitution (backward assignment) of linear expression.
    *
    * *this is modified in-place to reflect the effect of substituting l to variable v.
@@ -792,7 +792,7 @@ public:
    */
   abstract1& substitute(manager& m, size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter = null);
 
-  
+
   /*! \brief In-place parallel substitution (backward assignment) of linear expressions.
    *
    * *this is modified in-place to reflect the effect of substituting l[i] to variable v[i].
@@ -804,7 +804,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract1& substitute(manager& m, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter = null);
-  
+
   /*! \brief Substitution (backward assignment) of linear expression.
    *
    * dst is replaced with the effect of substituting l to variable v in src.
@@ -812,18 +812,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const var& v, const linexpr1& l, const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const var& v, const linexpr1& l, const abstract1& inter);
 
   /*! \brief Parallel substitution (backward assignment) of linear expressions.
    *
-   * dst is replaced with the effect of substituting l[i] to variable v[i] in src, 
+   * dst is replaced with the effect of substituting l[i] to variable v[i] in src,
    * for i from 0 to size-1.
    * Substitutions are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const linexpr1 * const l[], const abstract1& inter);
 
   /*! \brief Parallel substitution (backward assignment) of linear expressions.
    *
@@ -835,7 +835,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const linexpr1*>& l, const abstract1& inter);
 
 
 
@@ -860,7 +860,7 @@ public:
    */
   abstract1& substitute(manager& m,  size_t size, const var v[], const texpr1 * const l[], const abstract1& inter = null);
 
-  
+
   /*! \brief In-place parallel substitution (backward assignment) of arbitrary expressions.
    *
    * *this is modified in-place to reflect the effect of substituting l[i] to variable v[i].
@@ -872,7 +872,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract1& substitute(manager& m, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter = null);
-  
+
   /*! \brief Substitution (backward assignment) of arbitrary expression.
    *
    * dst is replaced with the effect of substituting l to variable v in src.
@@ -880,18 +880,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const var& v, const texpr1& l, const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const var& v, const texpr1& l, const abstract1& inter);
 
   /*! \brief Parallel substitution (backward assignment) of arbitrary expressions.
    *
-   * dst is replaced with the effect of substituting l[i] to variable v[i] in src, 
+   * dst is replaced with the effect of substituting l[i] to variable v[i] in src,
    * for i from 0 to size-1.
    * Substitutions are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const texpr1 * const l[], const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src,  size_t size, const var v[], const texpr1 * const l[], const abstract1& inter);
 
   /*! \brief Parallel substitution (backward assignment) of arbitrary expressions.
    *
@@ -903,7 +903,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter = null);
+  friend abstract1& substitute(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, const std::vector<const texpr1*>& l, const abstract1& inter);
 
   //@}
 
@@ -922,7 +922,7 @@ public:
    * \return a reference to *this.
    */
   abstract1& forget(manager& m, const var& v, bool project = false);
-  
+
   /*! \brief Forgets about the value of variables v[0] to v[size-1] in *this.
    *
    * \arg \c project whether to reset the variables to 0 (if true), or it them undefined (if false).
@@ -930,7 +930,7 @@ public:
    * \return a reference to *this.
    */
   abstract1& forget(manager& m, size_t size, const var v[], bool project = false);
-  
+
   /*! \brief Forgets about the value of all the variables in v in *this.
    *
    * \arg \c project whether to reset the variables to 0 (if true), or leave them undefined (if false).
@@ -945,24 +945,24 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, const var& v, bool project = false);
-  
-  /*! \brief Stores in dst the result of forgetting the value of variables v[0] to 
+  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, const var& v, bool project);
+
+  /*! \brief Stores in dst the result of forgetting the value of variables v[0] to
    * v[size-1] in src.
    *
    * \arg \c project whether to reset the variables to 0 (if true), or leave them undefined (if false).
    *
    * \return a reference to dst.
    */
-  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, size_t size, const var v[], bool project = false);
-  
+  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, size_t size, const var v[], bool project);
+
   /*! \brief Stores in dst the result of forgetting the value of all the variables in v in src.
    *
    * \arg \c project whether to reset the variables to 0 (if true), or leave them undefined (if false).
    *
    * \return a reference to dst.
    */
-  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, bool project = false);
+  friend abstract1& forget(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& v, bool project);
 
   //@}
 
@@ -972,7 +972,7 @@ public:
 
   /** @name Change of environment */
   //@{
-  
+
   /*! \brief Modifies the environment of *this.
    *
    * \arg \c project whether new variables are initialized to 0 (if true), or undefined (if false).
@@ -987,7 +987,7 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract1& change_environment(manager& m, abstract1& dst, const abstract1& src, const environment& e, bool project = false);
+  friend abstract1& change_environment(manager& m, abstract1& dst, const abstract1& src, const environment& e, bool project);
 
   /*! \brief Removes from *this the variables that are unconstrained.
    *
@@ -1012,7 +1012,7 @@ public:
    * \return a reference to *this.
    */
   abstract1& rename(manager& m, const std::vector<var>& oldv, const std::vector<var>& newv);
- 
+
   /*! \brief Replaces dst with src and renames oldv[i] into newv[i].
    *
    * \return a reference to dst.
@@ -1024,7 +1024,7 @@ public:
    * \return a reference to dst.
    */
   friend abstract1& rename(manager& m, abstract1& dst, const abstract1& src, const std::vector<var>& oldv, const std::vector<var>& newv);
- 
+
   //@}
 
 
