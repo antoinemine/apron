@@ -141,12 +141,12 @@ libapron_debug.a: $(O_FILES_DEBUG) ../itv/libitv_debug.a
 	$(RANLIB) $@
 
 libapron.so: $(O_FILES) ../itv/libitv.a
-	$(CC) $(CFLAGS) -shared -o $@ $(O_FILES) $(patsubst	\
+	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $(O_FILES) $(patsubst	\
 		%,../itv/%,$(filter %.o, $(shell $(AR) t	\
 		../itv/libitv.a))) $(LDFLAGS)
 
 libapron_debug.so: $(O_FILES_DEBUG) ../itv/libitv_debug.a
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(O_FILES_DEBUG)	\
+	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $(O_FILES_DEBUG)	\
 		$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t	\
 		../itv/libitv_debug.a))) $(LDFLAGS)
 

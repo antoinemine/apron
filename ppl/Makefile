@@ -104,9 +104,9 @@ libap_ppl_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_ppl.so: $(subst .cc,.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LIBS)
+	$(CXX_APRON_DYLIB) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
 libap_ppl_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
+	$(CXX_APRON_DYLIB) $(CXXFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 ifneq ($(HAS_SHARED),)
 ap_ppl_test: libap_ppl_debug.so

@@ -114,9 +114,9 @@ libap_pkgrid_debug.a: ap_pkgrid_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libap_pkgrid.so: ap_pkgrid.o
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ -L../newpolka -lpolkaMPQ $(LDFLAGS) $(LIBS)
+	$(CXX_APRON_DYLIB) $(CXXFLAGS) -o $@ $^ -L../newpolka -lpolkaMPQ $(LDFLAGS) $(LIBS)
 libap_pkgrid_debug.so: ap_pkgrid_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -shared -o $@ $^ -L../newpolka -lpolkaMPQ_debug $(LDFLAGS) $(LIBS_DEBUG)
+	$(CXX_APRON_DYLIB) $(CXXFLAGS_DEBUG) -o $@ $^ -L../newpolka -lpolkaMPQ_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 #---------------------------------------
 # C rules

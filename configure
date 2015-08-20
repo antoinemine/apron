@@ -25,6 +25,7 @@ where options include:
   -no-ocamlfind        disable OCamlfind support
   -no-ppl              disable PPL support
   -no-java             disable Java support
+  -absolute-dylibs     force absolute library names (OSX only)
 
 Environment variables that affect configuration:
   CC                   C compiler to use (default: gcc)
@@ -51,6 +52,7 @@ has_ppl=1
 has_ocaml=1
 has_ocamlfind=1
 has_java=1
+force_absolute_dylib_install_names=0;
 while : ; do
     case "$1" in
         "") 
@@ -81,6 +83,8 @@ while : ; do
             has_ocamlfind=0;;
         -no-java|--no-java)
             has_java=0;;
+	-absolute-dylibs|--absolute-dylibs)
+	    force_absolute_dylib_install_names=1;;
         -help|--help)
             help;;
         *)
@@ -237,6 +241,23 @@ searchbinreq()
     if test $? -eq 0; then echo "required program $1 not found"; exit 1; fi
 }
 
+checkdirinpath()
+{
+    dir="$1"
+    path="$2"
+    echo_n "checking whether $1 belongs to $3: "
+    # env bash -c '[[ ":'${path}':" == *":'${dir}':"* ]]';
+    # if test $? -eq 1; then echo "no"; return 1; fi
+    IFS=':'
+    found=0
+    for d in $path
+    do
+	if test "$d" -ef "$dir"; then found=1; fi
+    done
+    unset IFS;
+    if test $found -eq 0; then echo "no"; return 1; fi
+    echo "yes"
+}
 
 #####################################
 # tests
@@ -390,6 +411,43 @@ then
 fi
 
 
+##############################################
+# Custom tests
+##############
+
+# Use abolute dynamic library names under OSX when explicitly asked,
+# or when the installation prefix does not belong to DYLD_LIBRARY_PATH
+# nor DYLD_FALLBACK_LIBRARY_PATH or
+# '$(HOME)/lib:/usr/local/lib:/lib:/usr/lib' (the default fallback).
+absolute_dylib_install_names=;
+if test "x$(uname -s)" = "xDarwin"
+then
+    if test $force_absolute_dylib_install_names -eq 1
+    then
+	echo "using absolute dynamic library install names as requested"
+	absolute_dylib_install_names=1
+    else
+	libdir="${apron_prefix}/lib"
+	if test "x$DYLD_FALLBACK_LIBRARY_PATH" != "x"
+	then
+	    fldpath="$DYLD_FALLBACK_LIBRARY_PATH"
+	else
+	    fldpath="$HOME/lib:/usr/local/lib:/lib:/usr/lib"
+	fi
+	checkdirinpath "${libdir}" "$DYLD_LIBRARY_PATH" "DYLD_LIBRARY_PATH" || \
+	    checkdirinpath "${libdir}" "${fldpath}" "DYLD_FALLBACK_LIBRARY_PATH"
+	if test $? -eq 1
+	then
+	    echo "forcing absolute dynamic library install names"
+	    absolute_dylib_install_names=1
+	fi
+    fi
+else
+    if test $force_absolute_dylib_install_names -eq 1
+    then
+	echo "ignoring option \`-absolute-dylibs', only meaningful under OSX";
+    fi
+fi
 
 
 ##############################################
@@ -410,6 +468,10 @@ detected configuration:
 
 EOF
 
+test "x$absolute_dylib_install_names" = "x1" && cat <<EOF
+   dynamic libraries shall use absolute install names
+
+EOF
 
 ##############################################
 # generation
@@ -484,6 +546,9 @@ DVIPDF = dvipdf
 MAKEINDEX = makeindex
 TEXI2DVI = texi2dvi
 TEXI2HTML = texi2html
+
+# OSX only:
+ABSOLUTE_DYLIB_INSTALL_NAMES = $absolute_dylib_install_names
 
 EOF
 

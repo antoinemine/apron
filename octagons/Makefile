@@ -154,10 +154,10 @@ liboct%_debug.a: $(subst .c,%_debug.o,$(CCSOURCES))
 	$(RANLIB) $@
 
 liboct%.so: $(subst .c,%.o,$(CCSOURCES))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LIBS)
+	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
 
 liboct%_debug.so: $(subst .c,%_debug.o,$(CCSOURCES))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
+	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 ifneq ($(HAS_SHARED),)
 octtest%: oct_test%.o liboct%_debug.a liboct%_debug.so
