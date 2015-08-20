@@ -6,7 +6,7 @@
  * Copyright (C) Antoine Mine' 2007
  *
  */
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -79,12 +79,12 @@ public:
    */
   texpr1(const environment& e, const var& v);
 
-  /*! \brief Makes a (deep) copy of the level 0 expression tree and associates an environment 
+  /*! \brief Makes a (deep) copy of the level 0 expression tree and associates an environment
    * (increments reference count).
    */
   texpr1(const environment& e, const texpr0::const_iterator& x);
 
-  /*! \brief Makes a (deep) copy of the level 0 expression tree and associates an environment 
+  /*! \brief Makes a (deep) copy of the level 0 expression tree and associates an environment
    * (increments reference count).
    */
   texpr1(const environment& e, const texpr0& x);
@@ -130,9 +130,9 @@ public:
 
   //! Frees the memory occupied by the expression and decrements the reference count of the environment.
   ~texpr1();
-  
+
   //@}
- 
+
   /* assignment */
   /* ========== */
 
@@ -145,7 +145,7 @@ public:
   //! Makes a (deep) copy of the expression.
   texpr1& operator=(const const_iterator& x);
 
-  /*! \brief Assigns from a temporary expression, performing a deep copy and deleting the previous 
+  /*! \brief Assigns from a temporary expression, performing a deep copy and deleting the previous
    * value of *this.
    */
   texpr1& operator=(const builder& x);
@@ -193,7 +193,7 @@ public:
     friend class tcons1;
 
   public:
-       
+
     /* constructors */
     /* ============ */
 
@@ -208,16 +208,16 @@ public:
 
     //@}
 
-        
+
     /* access */
     /* ====== */
 
     /** @name Access */
     //@{
-    
+
     //! \brief Returns (a copy of) the environment associated with the expression.
     environment get_environment() const;
-    
+
     //! Returns a constant iterator at the root of the underlying texpr0.
     texpr0::const_iterator get_texpr0() const;
 
@@ -233,19 +233,19 @@ public:
      * \throw bad_discriminant if the node is not a constant leaf.
      */
     const coeff& get_coeff() const;
-    
+
     /*! \brief Returns a (unmodifiable) reference to the variable name of a dimension node.
      *
      * \throw bad_discriminant if the node is not a dimension node.
      */
     const var& get_var() const;
-    
+
     /*! \brief Returns the dimension of a dimension node.
      *
      * \throw bad_discriminant if the node is not a dimension node.
      */
     ap_dim_t get_dim() const;
-    
+
     /*! \brief Returns the operator kind of an operator node.
      *
      * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD, \c AP_TEXPR_POW,
@@ -253,7 +253,7 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     ap_texpr_op_t get_op() const;
-    
+
     /*! \brief Returns the destination type of an operator node.
      *
      * \return either \c AP_RTYPE_REAL, \c AP_RTYPE_INT, \c AP_RTYPE_SINGLE (32-bit), \c AP_RTYPE_DOUBLE (64-bit),
@@ -261,7 +261,7 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     ap_texpr_rtype_t get_rtype() const;
-    
+
     /*! \brief Returns the rounding direction of an operator node.
      *
      * \return either \c AP_RDIR_NEAREST, \c AP_RDIR_ZERO, \c AP_RDIR_UP, \c AP_RDIR_DOWN, or \c AP_RDIR_RND.
@@ -271,7 +271,7 @@ public:
 
     //@}
 
-    
+
     /* traversal */
     /* ========= */
 
@@ -286,14 +286,14 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     const_iterator child() const;
-    
+
     /*! \brief Constructs a const_iterator to the only of left sub-expression of an operator node.
      *
      * (Identical to child()).
      * \throw bad_discriminant if the node is not an operator node.
      */
     const_iterator left() const;
-    
+
     /*! \brief Constructs a const_iterator to the right sub-expression argument of a binary operator node.
      *
      * \throw bad_discriminant if the node is not an operator node.
@@ -343,34 +343,34 @@ public:
 
     //@}
 
-    
+
     /* print */
     /* ===== */
-    
+
     /** @name Printing */
     //@{
-    
+
     //! Printing.
     friend std::ostream& operator<< (std::ostream& os, const const_iterator& s);
-    
+
     //! Prints to a C stream.
     void print(FILE* stream=stdout) const;
-    
+
     //@}
 
 
     /* C-level compatibility */
     /* ===================== */
-    
+
     /** @name C API compatibility */
     //@{
-    
+
     //! Returns a pointer to the internal APRON object stored in *this.
     ap_texpr1_t* get_ap_texpr1_t();
-    
+
     //! Returns a pointer to the internal APRON object stored in *this.
     const ap_texpr1_t* get_ap_texpr1_t() const;
-    
+
     //@}
 
   };
@@ -394,7 +394,7 @@ public:
     friend class tcons1;
 
   public:
-       
+
     /* constructors */
     /* ============ */
 
@@ -409,13 +409,13 @@ public:
 
     //@}
 
-        
+
     /* substitution */
     /* ============ */
 
     /** @name Expression substitutions */
     //@{
-    
+
     /*! \brief Replace the sub-expression at the iterator position with a (deep) copy of c.
      *
      * Assumes that the *this and have the same environment (unchecked).
@@ -435,7 +435,7 @@ public:
 
     /** @name Access */
     //@{
-    
+
     //! Returns an iterator at the root of the underlying texpr0.
     texpr0::iterator get_texpr0() const;
 
@@ -449,15 +449,15 @@ public:
      *
      * \throw bad_discriminant if the node is not a dimension node.
      * \throw std::invalid_argument if the environment does not contain a variable.
-     */    
+     */
     void set_var(const var& v) const;
- 
+
     /*! \brief Returns a (modifiable) reference to the dimension of a dimension node.
      *
      * \throw bad_discriminant if the node is not a dimension node.
      */
     ap_dim_t& get_dim() const;
-    
+
     /*! \brief Returns a (modifiable) reference to the operator kind of an operator node.
      *
      * \return either \c AP_TEXPR_ADD, \c AP_TEXPR_SUB, \c AP_TEXPR_MUL, \c AP_TEXPR_DIV, \c AP_TEXPR_MOD, \c AP_TEXPR_POW,
@@ -465,7 +465,7 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     ap_texpr_op_t& get_op() const;
-    
+
     /*! \brief Returns a (modifiable) reference to the destination type of an operator node.
      *
      * \return either \c AP_RTYPE_REAL, \c AP_RTYPE_INT, \c AP_RTYPE_SINGLE (32-bit), \c AP_RTYPE_DOUBLE (64-bit),
@@ -473,7 +473,7 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     ap_texpr_rtype_t& get_rtype() const;
-    
+
     /*! \brief Returns a (modifiable) reference to the rounding direction of an operator node.
      *
      * \return either \c AP_RDIR_NEAREST, \c AP_RDIR_ZERO, \c AP_RDIR_UP, \c AP_RDIR_DOWN, or \c AP_RDIR_RND.
@@ -483,7 +483,7 @@ public:
 
     //@}
 
-    
+
     /* traversal */
     /* ========= */
 
@@ -498,14 +498,14 @@ public:
      * \throw bad_discriminant if the node is not an operator node.
      */
     iterator child() const;
-    
+
     /*! \brief Constructs an iterator to the only of left sub-expression of an operator node.
      *
      * (Identical to child()).
      * \throw bad_discriminant if the node is not an operator node.
      */
     iterator left() const;
-    
+
     /*! \brief Constructs an iterator to the right sub-expression argument of a binary operator node.
      *
      * \throw bad_discriminant if the node is not an operator node.
@@ -518,16 +518,16 @@ public:
 
     /* C-level compatibility */
     /* ===================== */
-    
+
     /** @name C API compatibility */
     //@{
-    
+
     //! Returns a pointer to the internal APRON object stored in *this.
     ap_texpr1_t* get_ap_texpr1_t();
-    
+
     //! Returns a pointer to the internal APRON object stored in *this.
     const ap_texpr1_t* get_ap_texpr1_t() const;
-    
+
     //@}
 
   };
@@ -544,7 +544,7 @@ public:
 
   /* builders */
   /* ======== */
-  
+
   /** @name Builders */
   //@{
 
@@ -556,16 +556,16 @@ public:
    * builder objects as arguments.
    */
   class builder : public use_malloc {
-    
+
     friend class texpr1;
 
   protected:
-    
+
     ap_texpr1_t l;
-        
+
     //! Not to be used. (Temporaries are not to be re-assigned).
     builder& operator= (const builder& x) { assert(0); return *this; }
-    
+
     //! Internal use only: makes a shallow copy, copying only the root node and referencing the environment.
     void init_from(ap_texpr1_t* x);
 
@@ -574,9 +574,9 @@ public:
 
     //! Internal use only: makes a shallow copy, copying only the root node and referencing the environment.
     builder(ap_texpr1_t* x);
-    
+
   public:
-    
+
     /* constructors */
     /* ============ */
 
@@ -649,7 +649,7 @@ public:
 
     //! Makes a constant interval leaf from two fraction bounds (converted to MPQ).
     builder(const environment& e, const frac& inf, const frac& sup);
-  
+
     //! Makes a constant interval leaf equal to ]-oo;+oo[.
     builder(const environment& e, top t);
 
@@ -658,7 +658,7 @@ public:
 
     //! Makes a unary expression node.
     builder(ap_texpr_op_t op, const builder& argA, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
-  
+
     //! Makes a binary expression node.
     builder(ap_texpr_op_t op, const builder& argA, const builder& argB, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
@@ -697,7 +697,7 @@ public:
 
     //! Returns a pointer to the internal APRON object stored in *this.
     ap_texpr1_t* get_ap_texpr1_t();
-  
+
     //! Returns a pointer to the internal APRON object stored in *this.
     const ap_texpr1_t* get_ap_texpr1_t() const;
 
@@ -714,7 +714,7 @@ public:
      *
      * Creates only one node. The argument expression is aliased, not copied.
      *
-     * \arg \c op should be a unary operator: negation (\c AP_TEXPR_NEG), typecast (\c AP_TEXPR_CAST), 
+     * \arg \c op should be a unary operator: negation (\c AP_TEXPR_NEG), typecast (\c AP_TEXPR_CAST),
      * or square root (\c AP_TEXPR_SQRT).
      * \arg \c argA should point to the argument expression.
      * \arg \c rtype is the destination type (for rounding): reals (\c AP_RTYPE_REAL, means no rounding),
@@ -726,13 +726,13 @@ public:
      * \throw std::invalid_argument if \c op is not a unary operator.
      */
     friend builder unary(ap_texpr_op_t op, const builder& a,
-			 ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
-  
+			 ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
+
     /*! \brief Makes a binary expression node.
      *
      * Creates only one node. The argument expressions is aliased, not copied.
      *
-     * \arg \c op should be a binary operator: addition (\c AP_TEXPR_ADD), subtraction (\c AP_TEXPR_SUB), 
+     * \arg \c op should be a binary operator: addition (\c AP_TEXPR_ADD), subtraction (\c AP_TEXPR_SUB),
      * multiplication (\c AP_TEXPR_MUL), division (\c AP_TEXPR_DIV), or modulo (\c AP_TEXPR_MOD, \c AP_TEXPR_POW).
      * \arg \c argA should point to the left argument expression.
      * \arg \c argB should point to the right argument expression.
@@ -743,39 +743,39 @@ public:
      * towards +oo (\c AP_RDIR_UP), towards -oo (\c AP_RDIR_DOWN), or non-deterministic (\c AP_RDIR_RND).
      * \throw std::invalid_argument if \c op is not a binary operator.
      */
-    friend builder binary(ap_texpr_op_t op, const builder& a, const builder& b, 
-			  ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder binary(ap_texpr_op_t op, const builder& a, const builder& b,
+			  ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_ADD expression node.
-    friend builder add(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder add(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_SUB expression node.
-    friend builder sub(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder sub(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_MUL expression node.
-    friend builder mul(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder mul(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_DIV expression node.
-    friend builder div(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder div(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_MOD expression node.
-    friend builder mod(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder mod(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_POW expression node.
-    friend builder pow(const builder& a, const builder& b, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder pow(const builder& a, const builder& b,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_NEG expression node.
-    friend builder neg(const builder& a, 
-		       ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder neg(const builder& a,
+		       ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_CAST expression node.
-    friend builder cast(const builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
+    friend builder cast(const builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
 
     //! Makes an \c AP_TEXPR_CAST expression node to \c AP_RTYPE_INT type rounded towards \c AP_RDIR_DOWN.
     friend builder floor(const builder& a);
@@ -787,9 +787,9 @@ public:
     friend builder trunc(const builder& a);
 
     //! Makes an \c AP_TEXPR_SQRT expression node.
-    friend builder sqrt(const builder& a, 
-			ap_texpr_rtype_t rtype = AP_RTYPE_REAL, ap_texpr_rdir_t rdir = AP_RDIR_NEAREST);
-  
+    friend builder sqrt(const builder& a,
+			ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir);
+
     //! Makes a copy of the node.
     friend builder operator+(const builder& a);
 
@@ -847,7 +847,7 @@ public:
 
   //@}
 
-  
+
   /* access */
   /* ====== */
 
@@ -919,7 +919,7 @@ public:
 
   //! Returns a pointer to the internal APRON object stored in *this.
   ap_texpr1_t* get_ap_texpr1_t();
-  
+
   //! Returns a pointer to the internal APRON object stored in *this.
   const ap_texpr1_t* get_ap_texpr1_t() const;
 

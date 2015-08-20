@@ -8,7 +8,7 @@
  * Copyright (C) Antoine Mine' 2007
  *
  */
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -20,7 +20,7 @@ inline dim::dim(const environment& e, const var& v)
 {
   ap_dim_t d = ap_environment_dim_of_var(const_cast<ap_environment_t*>(e.get_ap_environment_t()),
 					 v.get_ap_var_t());
-  if (d==AP_DIM_MAX) 
+  if (d==AP_DIM_MAX)
     throw std::invalid_argument("apron::dim::dim(const environment&, const var&) invalid variable name");
 }
 
@@ -61,26 +61,26 @@ inline texpr0::texpr0(const texpr0& x)
 
 
 /* linear expression */
-  
+
 inline texpr0::texpr0(const linexpr0& l)
 { init_from(ap_texpr0_from_linexpr0(const_cast<ap_linexpr0_t*>(l.get_ap_linexpr0_t()))); }
 
 
 /* change of dimension */
-  
+
 inline texpr0::texpr0(const texpr0& x, const dimchange& d, bool add)
 {
   if (add)
-    init_from(ap_texpr0_add_dimensions(const_cast<ap_texpr0_t*>(&x.l), 
+    init_from(ap_texpr0_add_dimensions(const_cast<ap_texpr0_t*>(&x.l),
 				       const_cast<ap_dimchange_t*>(d.get_ap_dimchange_t())));
   else
-    init_from(ap_texpr0_remove_dimensions(const_cast<ap_texpr0_t*>(&x.l), 
+    init_from(ap_texpr0_remove_dimensions(const_cast<ap_texpr0_t*>(&x.l),
 					  const_cast<ap_dimchange_t*>(d.get_ap_dimchange_t())));
 }
 
 inline texpr0::texpr0(const texpr0& x, const dimperm& d)
 {
-  init_from(ap_texpr0_permute_dimensions(const_cast<ap_texpr0_t*>(&x.l), 
+  init_from(ap_texpr0_permute_dimensions(const_cast<ap_texpr0_t*>(&x.l),
 					 const_cast<ap_dimperm_t*>(d.get_ap_dimperm_t())));
 }
 
@@ -109,35 +109,35 @@ inline texpr0::~texpr0()
 
 
 inline texpr0& texpr0::operator= (const builder& x)
-{ 
+{
   // copy first, as x.l may alias this!
   ap_texpr0_t* c = ap_texpr0_copy(const_cast<ap_texpr0_t*>(x.get_ap_texpr0_t()));
-  ap_texpr0_clear(&l); 
+  ap_texpr0_clear(&l);
   init_from(c);
-  return *this; 
+  return *this;
 }
 
 inline texpr0& texpr0::operator= (const texpr0& x)
-{ 
+{
   // copy first, as x.l may alias this!
   ap_texpr0_t* c = ap_texpr0_copy(const_cast<ap_texpr0_t*>(&x.l));
-  ap_texpr0_clear(&l); 
+  ap_texpr0_clear(&l);
   init_from(c);
-  return *this; 
+  return *this;
 }
 
 inline texpr0& texpr0::operator= (const const_iterator& x)
-{ 
+{
   // copy first, as x.l may alias this!
   ap_texpr0_t* c = ap_texpr0_copy(const_cast<ap_texpr0_t*>(x.get_ap_texpr0_t()));
-  ap_texpr0_clear(&l); 
+  ap_texpr0_clear(&l);
   init_from(c);
-  return *this; 
+  return *this;
 }
 
 inline texpr0& texpr0::operator= (const linexpr0& x)
-{ 
-  ap_texpr0_clear(&l); 
+{
+  ap_texpr0_clear(&l);
   init_from(ap_texpr0_from_linexpr0(const_cast<ap_linexpr0_t*>(x.get_ap_linexpr0_t())));
   return *this;
 }
@@ -171,12 +171,12 @@ inline bool texpr0::equal(const texpr0& x) const
 }
 
 inline size_t texpr0::depth() const
-{ 
+{
   return root().depth();
 }
 
 inline size_t texpr0::size() const
-{ 
+{
   return root().size();
 }
 
@@ -196,7 +196,7 @@ inline std::vector<ap_dim_t> texpr0::dimlist() const
 }
 
 inline bool texpr0::is_interval_cst() const
-{ 
+{
   return root().is_interval_cst();
 }
 
@@ -216,7 +216,7 @@ inline bool texpr0::is_interval_polyfrac() const
 }
 
 inline bool texpr0::is_scalar() const
-{ 
+{
   return root().is_scalar();
 }
 
@@ -225,8 +225,8 @@ inline bool texpr0::is_scalar() const
 /* ========== */
 
 inline void texpr0::substitute(ap_dim_t dim, const texpr0& dst)
-{ 
-  ap_texpr0_substitute_with(&l,dim,const_cast<ap_texpr0_t*>(&dst.l)); 
+{
+  ap_texpr0_substitute_with(&l,dim,const_cast<ap_texpr0_t*>(&dst.l));
 }
 
 #if 0
@@ -242,7 +242,7 @@ inline interval texpr0::eval(manager& m, const abstract0& a, ap_scalar_discr_t d
 		   discr, pexact);
 }
 
-inline linexpr0 texpr0::intlinearize(manager& m, const abstract0& a, ap_scalar_discr_t discr, 
+inline linexpr0 texpr0::intlinearize(manager& m, const abstract0& a, ap_scalar_discr_t discr,
 				     bool quasilinearize, bool* pexact) const
 {
   bool b;
@@ -267,34 +267,34 @@ inline long texpr0::hash() const
 
 
 inline void texpr0::add_dimensions(const dimchange& d)
-{ 
+{
   ap_texpr0_add_dimensions_with(&l, const_cast<ap_dimchange_t*>(d.get_ap_dimchange_t()));
 }
 
 
 inline void texpr0::remove_dimensions(const dimchange& d)
-{ 
-  ap_texpr0_remove_dimensions_with(&l, const_cast<ap_dimchange_t*>(d.get_ap_dimchange_t())); 
+{
+  ap_texpr0_remove_dimensions_with(&l, const_cast<ap_dimchange_t*>(d.get_ap_dimchange_t()));
 }
-  
+
 inline void texpr0::permute_dimensions(const dimperm& d)
-{ 
-  ap_texpr0_permute_dimensions_with(&l, const_cast<ap_dimperm_t*>(d.get_ap_dimperm_t())); 
+{
+  ap_texpr0_permute_dimensions_with(&l, const_cast<ap_dimperm_t*>(d.get_ap_dimperm_t()));
 }
-  
+
 
 
 /* C-level compatibility */
 /* ===================== */
 
 inline ap_texpr0_t* texpr0::get_ap_texpr0_t()
-{ 
-  return &l; 
+{
+  return &l;
 }
 
 inline const ap_texpr0_t* texpr0::get_ap_texpr0_t() const
-{ 
-  return &l; 
+{
+  return &l;
 }
 
 
@@ -314,17 +314,17 @@ inline texpr0::const_iterator texpr0::root() const
   return const_iterator(const_cast<ap_texpr0_t*>(&l));
 }
 
-inline texpr0::const_iterator::const_iterator(ap_texpr0_t* l) : l(l) 
+inline texpr0::const_iterator::const_iterator(ap_texpr0_t* l) : l(l)
 {}
 
 
-inline texpr0::const_iterator::const_iterator(const texpr0& e) 
+inline texpr0::const_iterator::const_iterator(const texpr0& e)
   : l(const_cast<ap_texpr0_t*>(e.get_ap_texpr0_t()))
 {}
 
 inline texpr0::const_iterator::const_iterator(const const_iterator& i) : l(i.l)
 {}
-        
+
 
 /* access */
 /* ====== */
@@ -339,27 +339,27 @@ inline const coeff& texpr0::const_iterator::get_coeff() const
   if (l->discr!=AP_TEXPR_CST) throw(bad_discriminant("apron::texpr0::const_iterator::get_coeff()"));
   return reinterpret_cast<coeff&>(l->val.cst);
 }
-  
+
 inline ap_dim_t texpr0::const_iterator::get_dim() const
-{  
+{
   if (l->discr!=AP_TEXPR_DIM) throw(bad_discriminant("apron::texpr0::const_iterator::get_dim()"));
   return l->val.dim;
 }
-  
+
 inline ap_texpr_op_t texpr0::const_iterator::get_op() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::const_iterator::get_op()"));
   return l->val.node->op;
 }
 
 inline ap_texpr_rtype_t texpr0::const_iterator::get_rtype() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::const_iterator::get_type()"));
   return l->val.node->type;
 }
 
 inline ap_texpr_rdir_t texpr0::const_iterator::get_rdir() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::const_iterator::get_dir()"));
   return l->val.node->dir;
 }
@@ -429,13 +429,13 @@ inline bool texpr0::const_iterator::equal(const texpr0& x) const
 }
 
 inline size_t texpr0::const_iterator::depth() const
-{ 
+{
   return ap_texpr0_depth(const_cast<ap_texpr0_t*>(l));
 }
 
 inline size_t texpr0::const_iterator::size() const
-{ 
-  return ap_texpr0_size(const_cast<ap_texpr0_t*>(l)); 
+{
+  return ap_texpr0_size(const_cast<ap_texpr0_t*>(l));
 }
 
 inline ap_dim_t texpr0::const_iterator::max_dim() const
@@ -460,7 +460,7 @@ inline std::vector<ap_dim_t> texpr0::const_iterator::dimlist() const
 }
 
 inline bool texpr0::const_iterator::is_interval_cst() const
-{ 
+{
   return ap_texpr0_is_interval_cst(const_cast<ap_texpr0_t*>(l));
 }
 
@@ -475,23 +475,23 @@ inline bool texpr0::const_iterator::is_interval_polynomial() const
 }
 
 inline bool texpr0::const_iterator::is_interval_polyfrac() const
-{ 
-  return ap_texpr0_is_interval_polyfrac(const_cast<ap_texpr0_t*>(l)); 
+{
+  return ap_texpr0_is_interval_polyfrac(const_cast<ap_texpr0_t*>(l));
 }
 
 inline bool texpr0::const_iterator::is_scalar() const
-{ 
+{
   return ap_texpr0_is_scalar(const_cast<ap_texpr0_t*>(l));
 }
 
 
 /* C-level compatibility */
 /* ===================== */
- 
+
 inline ap_texpr0_t* texpr0::const_iterator::get_ap_texpr0_t()
 {
   return l;
-}    
+}
 
 inline const ap_texpr0_t* texpr0::const_iterator::get_ap_texpr0_t() const
 {
@@ -507,16 +507,16 @@ inline texpr0::iterator texpr0::root()
   return iterator(*this);
 }
 
-inline texpr0::iterator::iterator(ap_texpr0_t* l) 
+inline texpr0::iterator::iterator(ap_texpr0_t* l)
   : texpr0::const_iterator(l)
 {}
 
 
-inline texpr0::iterator::iterator(texpr0& e) 
+inline texpr0::iterator::iterator(texpr0& e)
   : texpr0::const_iterator(e.get_ap_texpr0_t())
 {}
 
-inline texpr0::iterator::iterator(const iterator& i) 
+inline texpr0::iterator::iterator(const iterator& i)
   : texpr0::const_iterator(i)
 {}
 
@@ -528,7 +528,7 @@ inline texpr0::iterator::iterator(const iterator& i)
 inline texpr0::iterator& texpr0::iterator::operator= (const builder& c)
 {
   ap_texpr0_t* cc = ap_texpr0_copy(const_cast<ap_texpr0_t*>(c.get_ap_texpr0_t()));
-  ap_texpr0_clear(l); 
+  ap_texpr0_clear(l);
   *l = *cc;
   free(cc);
   return *this;
@@ -543,27 +543,27 @@ inline coeff& texpr0::iterator::get_coeff() const
   if (l->discr!=AP_TEXPR_CST) throw(bad_discriminant("apron::texpr0::iterator::get_coeff()"));
   return reinterpret_cast<coeff&>(l->val.cst);
 }
-  
+
 inline ap_dim_t& texpr0::iterator::get_dim() const
-{  
+{
   if (l->discr!=AP_TEXPR_DIM) throw(bad_discriminant("apron::texpr0::iterator::get_dim()"));
   return l->val.dim;
 }
-  
+
 inline ap_texpr_op_t& texpr0::iterator::get_op() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::iterator::get_op()"));
   return l->val.node->op;
 }
 
 inline ap_texpr_rtype_t& texpr0::iterator::get_rtype() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::iterator::get_type()"));
   return l->val.node->type;
 }
 
 inline ap_texpr_rdir_t& texpr0::iterator::get_rdir() const
-{  
+{
   if (l->discr!=AP_TEXPR_NODE) throw(bad_discriminant("apron::texpr0::iterator::get_dir()"));
   return l->val.node->dir;
 }
@@ -602,11 +602,11 @@ inline texpr0::iterator texpr0::iterator::right() const
 
 /* C-level compatibility */
 /* ===================== */
- 
+
 inline ap_texpr0_t* texpr0::iterator::get_ap_texpr0_t()
 {
   return l;
-}    
+}
 
 inline const ap_texpr0_t* texpr0::iterator::get_ap_texpr0_t() const
 {
@@ -620,12 +620,12 @@ inline const ap_texpr0_t* texpr0::iterator::get_ap_texpr0_t() const
 /* ================================= */
 
 
-inline void texpr0::builder::init_from(ap_texpr0_t* x) 
+inline void texpr0::builder::init_from(ap_texpr0_t* x)
 {
   switch (x->discr) {
   case AP_TEXPR_DIM:  l = ap_texpr0_dim(x->val.dim); break;
   case AP_TEXPR_CST:  l = ap_texpr0_cst(const_cast<ap_coeff_t*>(&x->val.cst)); break;
-  case AP_TEXPR_NODE: 
+  case AP_TEXPR_NODE:
     l = ap_texpr0_node(x->val.node->op,
                        x->val.node->type, x->val.node->dir,
                        x->val.node->exprA, x->val.node->exprB);
@@ -639,12 +639,12 @@ inline texpr0::builder::builder(ap_texpr0_t* x)
   init_from(x);
 }
 
-inline texpr0::builder::builder(const builder& x) 
+inline texpr0::builder::builder(const builder& x)
 {
   init_from(x.l);
 }
 
-inline texpr0::builder::builder(const const_iterator& x) 
+inline texpr0::builder::builder(const const_iterator& x)
 {
   init_from(const_cast<ap_texpr0_t*>(x.get_ap_texpr0_t()));
 }
@@ -729,16 +729,16 @@ inline texpr0::builder::builder(dim d)
 {}
 
 inline texpr0::builder::builder(ap_texpr_op_t op, const builder& argA, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
-{ 
+{
   if (!ap_texpr_is_unop(op))
     throw std::invalid_argument("apron::texpr0::builder::builder(ap_texpr_op_t, const builder&, ap_texpr_rtype_t, ap_texpr_rdir_t) not a unary operator");
   l = ap_texpr0_unop(op,
 		     const_cast<ap_texpr0_t*>(argA.l),
-		     rtype, rdir); 
+		     rtype, rdir);
 }
-  
+
 inline texpr0::builder::builder(ap_texpr_op_t op, const builder& argA, const builder& argB, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
-{ 
+{
   if (!ap_texpr_is_binop(op))
     throw std::invalid_argument("apron::texpr0::builder::builder(ap_texpr_op_t, const builder&, const builder&, ap_texpr_rtype_t, ap_texpr_rdir_t) not a binary operator");
   l = ap_texpr0_binop(op,
@@ -750,61 +750,72 @@ inline texpr0::builder::builder(ap_texpr_op_t op, const builder& argA, const bui
 
 /* 'intelligent' constructors */
 
-inline texpr0::builder unary(ap_texpr_op_t op, const texpr0::builder& a, 
-			     ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder unary(ap_texpr_op_t op, const texpr0::builder& a,
+			     ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			     ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(op, a, rtype, rdir);
 }
 
-inline texpr0::builder binary(ap_texpr_op_t op, const texpr0::builder& a, const texpr0::builder& b, 
-			      ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder binary(ap_texpr_op_t op, const texpr0::builder& a, const texpr0::builder& b,
+			      ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			      ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(op, a, b, rtype, rdir);
 }
 
 
-inline texpr0::builder add(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder add(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_ADD, a, b, rtype, rdir);
 }
 
-inline texpr0::builder sub(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder sub(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_SUB, a, b, rtype, rdir);
 }
 
-inline texpr0::builder mul(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder mul(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_MUL, a, b, rtype, rdir);
 }
 
-inline texpr0::builder div(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder div(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_DIV, a, b, rtype, rdir);
 }
 
-inline texpr0::builder mod(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder mod(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_MOD, a, b, rtype, rdir);
 }
 
-inline texpr0::builder pow(const texpr0::builder& a, const texpr0::builder& b, 
-			   ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder pow(const texpr0::builder& a, const texpr0::builder& b,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_POW, a, b, rtype, rdir);
 }
 
-inline texpr0::builder neg(const texpr0::builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder neg(const texpr0::builder& a,
+			   ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			   ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_NEG, a, rtype, rdir);
 }
 
-inline texpr0::builder cast(const texpr0::builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder cast(const texpr0::builder& a, ap_texpr_rtype_t rtype,
+			    ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_CAST, a, rtype, rdir);
 }
@@ -824,7 +835,9 @@ inline texpr0::builder trunc(const texpr0::builder& a)
   return texpr0::builder(AP_TEXPR_CAST, a, AP_RTYPE_INT, AP_RDIR_ZERO);
 }
 
-inline texpr0::builder sqrt(const texpr0::builder& a, ap_texpr_rtype_t rtype, ap_texpr_rdir_t rdir)
+inline texpr0::builder sqrt(const texpr0::builder& a,
+			    ap_texpr_rtype_t rtype = AP_RTYPE_REAL,
+			    ap_texpr_rdir_t rdir = AP_RDIR_NEAREST)
 {
   return texpr0::builder(AP_TEXPR_SQRT, a, rtype, rdir);
 }
@@ -902,5 +915,3 @@ inline const ap_texpr0_t* texpr0::builder::get_ap_texpr0_t() const
 {
   return l;
 }
-
-

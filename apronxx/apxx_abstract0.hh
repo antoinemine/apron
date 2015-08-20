@@ -6,7 +6,7 @@
  * Copyright (C) Antoine Mine' 2007
  *
  */
-/* This file is part of the APRON Library, released under LGPL license.  
+/* This file is part of the APRON Library, released under LGPL license.
    Please read the COPYING file packaged in the distribution.
 */
 
@@ -39,7 +39,7 @@ namespace apron {
  * - returned constraint conjunction may satisfy more points than the original abstract element,
  * - returned generators may span more points than the original abstract element,
  * - predicates return \c true if the predicate is definitively true,
- * and \c false if either the predicate is false (flag_exact is then true), or 
+ * and \c false if either the predicate is false (flag_exact is then true), or
  * due to abstraction, the domain cannot conclude (flag_exact is then false).
  *
  * An abstract0 is always created with a manager that indicates the underlying library. This
@@ -47,14 +47,14 @@ namespace apron {
  * cost vs. precision trade-off.
  * Most operations to manipulate an abstract0 also take a manager as first argument.
  * This must be a manager compatible with the one of all abstract0 arguments (including this),
- * that is, a manger created by the same library (e.g., NewPolka polyhedra) and using the same 
+ * that is, a manger created by the same library (e.g., NewPolka polyhedra) and using the same
  * parameter values, if any (e.g., strictness).
  * It need not be the very same manager the abstract0 was created with.
  *
  * Overloaded arithmetic, assignment and copy operators that cannot take an extra manager
  * argument will implicitly use the manager used to create the first argument.
- * 
- * Additionally, for binary or n-aray operators, all abstract0 must have the same number of 
+ *
+ * Additionally, for binary or n-aray operators, all abstract0 must have the same number of
  * integer and real dimensions.
  *
  * Many operations exist in two kinds:
@@ -66,7 +66,7 @@ namespace apron {
  *
  * Most functions can throw a variety of exceptions:
  * - std::invalid_argument, when arguments have incompatible managers, types, or dimensions,
- * - std::length_error, when running out of memory or exceeding the \c max_object_size 
+ * - std::length_error, when running out of memory or exceeding the \c max_object_size
  * value set by the user in the manager,
  * - std::overflow_error, when a numerical overflow occurs,
  * - not_implemented, when some function is not available,
@@ -75,7 +75,7 @@ namespace apron {
 class abstract0 : public use_malloc {
 
 protected:
-  
+
   ap_abstract0_t* a; //!< Pointer managed by APRON.
 
   //! Internal use only. Wraps an abstract0 around the pointer x, taking ownership of the object.
@@ -109,13 +109,13 @@ public:
    * \throw std::invalid_argument if x has less than intdim+realdim dimensions.
    */
   abstract0(manager &m, size_t intdim, size_t realdim, const interval_array& x);
-  
+
   //! Creates an abstract element from a conjunction of linear constraints.
   abstract0(manager &m, size_t intdim, size_t realdim, const lincons0_array& x);
-  
+
   //! Creates an abstract element from a conjunction of arbitrary constraints.
   abstract0(manager &m, size_t intdim, size_t realdim, const tcons0_array& x);
-  
+
   /*! \brief Creates a (deep) copy of the abstract element.
    *
    * Implicitly uses the manager used to create *this.
@@ -124,13 +124,13 @@ public:
 
   //@}
 
-  
+
   /* destructor */
   /* ========== */
 
   /** @name Destructors */
   //@{
-  
+
   /*! \brief Destroys the abstract element.
    *
    * Implicitly uses the manager used to create *this.
@@ -152,7 +152,7 @@ public:
 
   /** @name Copies and conversions to abstract elements */
   //@{
-  
+
   /*! \brief Assigns a copy of t to *this.
    *
    * Implicitly uses the manager used to create *this.
@@ -178,7 +178,7 @@ public:
    * \throw std::invalid_argument if the array has insufficient size.
    */
   abstract0& operator=(const interval_array& x);
-  
+
   /*! \brief Assigns a conjunction of linear constraints to *this.
    *
    * Implicitly uses the manager used to create *this.
@@ -251,7 +251,7 @@ public:
 
   /** @name Control of internal representation */
   //@{
-  
+
   /*! \brief Minimizes the size of the representation, to save memory.
    *
    * \return a reference to *this.
@@ -278,12 +278,12 @@ public:
 
   /** @name Printing */
   //@{
-  
+
   //! Pretty-printing to a C stream.
   void print(manager& m, char** name_of_dim=NULL, FILE* stream=stdout) const;
 
   //! Pretty-printing the difference between x and y to a C stream.
-  friend void printdiff(manager& m, const abstract0& x, const abstract0& y, char** name_of_dim=NULL, FILE* stream=stdout);
+  friend void printdiff(manager& m, const abstract0& x, const abstract0& y, char** name_of_dim, FILE* stream);
 
   //! Raw printing to a C stream (mainly for debug purposes).
   void dump(manager& m, FILE* stream=stdout) const;
@@ -318,7 +318,7 @@ public:
    * string.
    * \return a reference to dst.
    */
-  friend abstract0& deserialize(manager& m, abstract0& dst, const std::string& s, size_t* eaten = NULL);
+  friend abstract0& deserialize(manager& m, abstract0& dst, const std::string& s, size_t* eaten);
 
   //@}
 
@@ -331,7 +331,7 @@ public:
 
   //! Returns the manager the abstract element was created with (with reference count incremented).
   manager get_manager() const;
-  
+
   //! \brief Returns the number of integer and real dimensions in the abstract element.
   ap_dimension_t get_dimension(manager& m) const;
 
@@ -345,13 +345,13 @@ public:
 
   //@}
 
-  
+
   /* predicates */
   /* ========== */
 
   /** @name Predicates */
   //@{
-  
+
   //! \brief Whether *this represents the empty set.
   bool is_bottom(manager& m) const;
 
@@ -375,7 +375,7 @@ public:
    */
   bool sat(manager& m, ap_dim_t dim, const interval& i) const;
 
-  //! \brief Whether the points in *this are unbounded in the given dimension.  
+  //! \brief Whether the points in *this are unbounded in the given dimension.
   bool is_dimension_unconstrained(manager& m, ap_dim_t dim) const;
 
   /*! \brief Whether x and y represent the same set.
@@ -383,19 +383,19 @@ public:
    * The manager for the left argument is used implicitly.
    */
   friend bool operator== (const abstract0& x, const abstract0& y);
-  
+
   /*! \brief Whether x and y represent different sets.
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator!= (const abstract0& x, const abstract0& y);
-  
+
   /*! \brief Whether x is included within y (set-wise).
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator<= (const abstract0& x, const abstract0& y);
-  
+
   /*! \brief Whether x contains y (set-wise).
    *
    * The manager for the left argument is used implicitly.
@@ -407,14 +407,14 @@ public:
    * The manager for the left argument is used implicitly.
    */
   friend bool operator> (const abstract0& x, const abstract0& y);
-  
+
   /*! \brief Whether x is strictly included within y (set-wise).
    *
    * The manager for the left argument is used implicitly.
    */
   friend bool operator< (const abstract0& x, const abstract0& y);
 
-  
+
 
   /* Properties */
   /* ========== */
@@ -433,7 +433,7 @@ public:
 
   //! Returns a bounding box for the set represented by the abstract element.
   interval_array to_box(manager& m) const;
-  
+
   /*! \brief Returns a generator representation of (an over-approximation of) the
    * set represented by the abstract element.
    */
@@ -609,7 +609,7 @@ public:
 
   /** @name Assignment */
   //@{
- 
+
   /*! \brief In-place assignment of linear expression.
    *
    * *this is modified in-place to reflect the effect of assigning l to dimension dim.
@@ -630,7 +630,7 @@ public:
    */
   abstract0& assign(manager& m,  size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter = null);
 
-  
+
   /*! \brief In-place parallel assignment of linear expressions.
    *
    * *this is modified in-place to reflect the effect of assigning l[i] to dimension dim[i].
@@ -642,7 +642,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract0& assign(manager& m, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter = null);
-  
+
   /*! \brief Assignment of linear expression.
    *
    * dst is replaced with the effect of assigning l to dimension dim in src.
@@ -650,18 +650,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const linexpr0& l, const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const linexpr0& l, const abstract0& inter);
 
   /*! \brief Parallel assignment of linear expressions.
    *
-   * dst is replaced with the effect of assigning l[i] to dimension dim[i] in src, 
+   * dst is replaced with the effect of assigning l[i] to dimension dim[i] in src,
    * for i from 0 to size-1.
    * Assignments are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter);
 
   /*! \brief Parallel assignment of linear expressions.
    *
@@ -673,7 +673,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter);
 
 
 
@@ -698,7 +698,7 @@ public:
    */
   abstract0& assign(manager& m, size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter = null);
 
-  
+
   /*! \brief In-place parallel assignment of arbitrary expressions.
    *
    * *this is modified in-place to reflect the effect of assigning l[i] to dimension dim[i].
@@ -710,7 +710,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract0& assign(manager& m, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter = null);
-  
+
   /*! \brief Assignment of arbitrary expression.
    *
    * dst is replaced with the effect of assigning l to dimension dim in src.
@@ -718,18 +718,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const texpr0& l, const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const texpr0& l, const abstract0& inter);
 
   /*! \brief Parallel assignment of arbitrary expressions.
    *
-   * dst is replaced with the effect of assigning l[i] to dimension dim[i] in src, 
+   * dst is replaced with the effect of assigning l[i] to dimension dim[i] in src,
    * for i from 0 to size-1.
    * Assignments are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter);
 
   /*! \brief Parallel assignment of arbitrary expressions.
    *
@@ -741,7 +741,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter = null);
+  friend abstract0& assign(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter);
 
   //@}
 
@@ -751,7 +751,7 @@ public:
 
   /** @name Substitution */
   //@{
- 
+
   /*! \brief In-place substitution (backward assignment) of linear expression.
    *
    * *this is modified in-place to reflect the effect of substituting l to dimension dim.
@@ -772,7 +772,7 @@ public:
    */
   abstract0& substitute(manager& m, size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter = null);
 
-  
+
   /*! \brief In-place parallel substitution (backward assignment) of linear expressions.
    *
    * *this is modified in-place to reflect the effect of substituting l[i] to dimension dim[i].
@@ -784,7 +784,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract0& substitute(manager& m, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter = null);
-  
+
   /*! \brief Substitution (backward assignment) of linear expression.
    *
    * dst is replaced with the effect of substituting l to dimension dim in src.
@@ -792,18 +792,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const linexpr0& l, const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const linexpr0& l, const abstract0& inter);
 
   /*! \brief Parallel substitution (backward assignment) of linear expressions.
    *
-   * dst is replaced with the effect of substituting l[i] to dimension dim[i] in src, 
+   * dst is replaced with the effect of substituting l[i] to dimension dim[i] in src,
    * for i from 0 to size-1.
    * Substitutions are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const linexpr0 * const l[], const abstract0& inter);
 
   /*! \brief Parallel substitution (backward assignment) of linear expressions.
    *
@@ -815,7 +815,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const linexpr0*>& l, const abstract0& inter);
 
 
 
@@ -840,7 +840,7 @@ public:
    */
   abstract0& substitute(manager& m,  size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter = null);
 
-  
+
   /*! \brief In-place parallel substitution (backward assignment) of arbitrary expressions.
    *
    * *this is modified in-place to reflect the effect of substituting l[i] to dimension dim[i].
@@ -852,7 +852,7 @@ public:
    * \throw std::invalid_argument if the vectors have different size.
    */
   abstract0& substitute(manager& m, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter = null);
-  
+
   /*! \brief Substitution (backward assignment) of arbitrary expression.
    *
    * dst is replaced with the effect of substituting l to dimension dim in src.
@@ -860,18 +860,18 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const texpr0& l, const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, const texpr0& l, const abstract0& inter);
 
   /*! \brief Parallel substitution (backward assignment) of arbitrary expressions.
    *
-   * dst is replaced with the effect of substituting l[i] to dimension dim[i] in src, 
+   * dst is replaced with the effect of substituting l[i] to dimension dim[i] in src,
    * for i from 0 to size-1.
    * Substitutions are performed in parallel.
    * If inter is specified, dst is then intersected with it.
    *
    * \return a reference to dst.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src,  size_t size, const ap_dim_t dim[], const texpr0 * const l[], const abstract0& inter);
 
   /*! \brief Parallel substitution (backward assignment) of arbitrary expressions.
    *
@@ -883,7 +883,7 @@ public:
    *
    * \throw std::invalid_argument if the vectors have different size.
    */
-  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter = null);
+  friend abstract0& substitute(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t>& dim, const std::vector<const texpr0*>& l, const abstract0& inter);
 
   //@}
 
@@ -902,7 +902,7 @@ public:
    * \return a reference to *this.
    */
   abstract0& forget(manager& m, ap_dim_t dim, bool project = false);
-  
+
   /*! \brief Forgets about the value of dimensions dims[0] to dims[size-1] in *this.
    *
    * \arg \c project whether to reset the dimensions to 0 (if true), or leave them undefined (if false).
@@ -910,7 +910,7 @@ public:
    * \return a reference to *this.
    */
   abstract0& forget(manager& m, size_t size, const ap_dim_t dim[], bool project = false);
-  
+
   /*! \brief Forgets about the value of all the dimensions in dim in *this.
    *
    * \arg \c project whether to reset the dimensions to 0 (if true), or leave them undefined (if false).
@@ -925,24 +925,24 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, bool project = false);
-  
-  /*! \brief Stores in dst the result of forgetting the value of dimensions dim[0] to 
+  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, bool project);
+
+  /*! \brief Stores in dst the result of forgetting the value of dimensions dim[0] to
    * dim[size-1] in src.
    *
    * \arg \c project whether to reset the dimensions to 0 (if true), or leave them undefined (if false).
    *
    * \return a reference to dst.
    */
-  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, size_t size, const ap_dim_t dim[], bool project = false);
-  
+  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, size_t size, const ap_dim_t dim[], bool project);
+
   /*! \brief Stores in dst the result of forgetting the value of all the dimensions in dim in src.
    *
    * \arg \c project whether to reset the dimensions to 0 (if true), or leave them undefined (if false).
    *
    * \return a reference to dst.
    */
-  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t> dim, bool project = false);
+  friend abstract0& forget(manager& m, abstract0& dst, const abstract0& src, const std::vector<ap_dim_t> dim, bool project);
 
   //@}
 
@@ -981,7 +981,7 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& add_dimensions(manager& m, abstract0& dst, const abstract0& src, const dimchange& d, bool project = false);
+  friend abstract0& add_dimensions(manager& m, abstract0& dst, const abstract0& src, const dimchange& d, bool project);
 
   /*! \brief Copies src into dst and removes some dimensions.
    *
@@ -1018,7 +1018,7 @@ public:
    *
    * \return a reference to dst.
    */
-  friend abstract0& expand(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, size_t n = 1);
+  friend abstract0& expand(manager& m, abstract0& dst, const abstract0& src, ap_dim_t dim, size_t n);
 
   /*! \brief Folds dimensions dim[0] to dim[size-1] in *this (modified in-place).
    *
@@ -1124,7 +1124,7 @@ public:
 };
 
 #include "apxx_abstract0_inline.hh"
-  
+
 }
 
 #endif /* __APXX_ABSTRACT0_HH */
