@@ -42,8 +42,8 @@ CAML_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
 endif
 endif
 
-LIBS = -lap_ppl -lppl -lapron -lgmpxx -lgmp -lmpfr -lstdc++ -lm
-LIBS_DEBUG = -lap_ppl_debug -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lstdc++ -lm
+LIBS = -lap_ppl -lppl -lapron -lgmpxx -lgmp -lmpfr -lm
+LIBS_DEBUG = -lap_ppl_debug -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lm
 
 #---------------------------------------
 # Rules
