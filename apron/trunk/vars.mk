@@ -1,0 +1,66 @@
+# Definitions of common variables.
+
+SRCROOT ?= ..
+
+APRON_INCLUDE = $(APRON_PREFIX)/include
+APRON_LIB = $(APRON_PREFIX)/lib
+APRON_BIN = $(APRON_PREFIX)/bin
+
+ifneq ($(OCAMLFIND),)
+  MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
+  MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
+else
+  MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
+  MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
+endif
+
+# IC/LI-FLAGS
+
+APRON_ICFLAGS = -I$(SRCROOT)/apron
+APRON_LIFLAGS = -L$(SRCROOT)/apron
+NUM_ICFLAGS = -I$(SRCROOT)/num
+NUM_LIFLAGS =
+ITV_ICFLAGS = -I$(SRCROOT)/itv
+ITV_LIFLAGS =
+
+MP_ICFLAGS =
+MP_LIFLAGS =
+ifneq ($(GMP_PREFIX),)
+  MP_ICFLAGS += -I$(GMP_PREFIX)/include
+  MP_LIFLAGS += -L$(GMP_PREFIX)/lib
+endif
+ifneq ($(MPFR_PREFIX),)
+  ifneq ($(MPFR_PREFIX),$(GMP_PREFIX))
+    MP_ICFLAGS += -I$(MPFR_PREFIX)/include
+    MP_LIFLAGS += -L$(MPFR_PREFIX)/lib
+  endif
+endif
+
+BASE_ICFLAGS = $(APRON_ICFLAGS) $(NUM_ICFLAGS) $(ITV_ICFLAGS) $(MP_ICFLAGS)
+BASE_LIFLAGS = $(APRON_LIFLAGS) $(NUM_LIFLAGS) $(ITV_LIFLAGS) $(MP_LIFLAGS)
+
+ML_ICFLAGS =
+OCAMLINC =
+ifneq ($(HAS_OCAML),)
+  ML_ICFLAGS += -I$(MLGMPIDL_INCLUDE) -I$(SRCROOT)/mlapronidl \
+		-I$(CAMLIDL_PREFIX) -I$(CAML_PREFIX)
+  OCAMLINC   += -I $(MLGMPIDL_LIB) -I $(SRCROOT)/mlapronidl
+endif
+
+PPL_ICFLAGS =
+PPL_LIFLAGS =
+ifneq ($(PPL_PREFIX),)
+  PPL_ICFLAGS += -I$(PPL_PREFIX)/include
+  PPL_LIFLAGS += -L$(PPL_PREFIX)lib
+endif
+
+# ---
+
+ifneq ($(HAS_SHARED),)
+  ifneq ($(HAS_OCAML),)
+    OCAMLMKLIB := $(OCAMLMKLIB) -dllpath $(APRON_LIB)
+    OCAMLMKLIB := $(OCAMLMKLIB) -L$(APRON_LIB)
+  endif
+endif
+
+OCAMLPACK := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/ocamlpack

@@ -174,7 +174,7 @@ checkprefix()
     if test "x$testprefix" = "x"
     then
         echo "looking for $testlib without prefix"
-        prefix="."
+        prefix=""
         checkinc "$testcc" "$testinc"
         if test $r -eq 1
         then
@@ -242,6 +242,9 @@ searchbinreq()
 # tests
 #######
 
+# Flags common to c and c++ compilation
+c_cxx_flags="-Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
+
 
 # C compiler
 
@@ -254,7 +257,7 @@ done
 if test "$cc" = "none"; then echo "no C compiler found"; exit 1; fi
 
 acc=""
-for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wno-unused -Wno-unused-parameter -Wno-unused-function -std=c99 -fPIC "-undefined suppress" -flat_namespace "$CFLAGS" "$LDFLAGS"
+for i in $c_cxx_flags -Wbad-function-cast -Wstrict-prototypes -std=c99 $CFLAGS $LDFLAGS
 do
     checkcomp "$cc" "$i"
 done
@@ -275,7 +278,7 @@ fi
 if test $has_cxx -eq 1
 then
     acc=""
-    for i in -Wcast-qual -Wswitch -Werror-implicit-function-declaration -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC "-undefined suppress" -flat_namespace "$CXXFLAGS" "$LDFLAGS"
+    for i in $c_cxx_flags $CXXFLAGS $LDFLAGS
     do
         checkcomp "$cxx" "$i"
     done
@@ -340,12 +343,12 @@ then
     camlidl_prefix=`$ocamlfind query camlidl`
     if test "x$camlidl_prefix" = "x"; then camlidl_prefix=`$ocamlc -where`; fi
     mlgmpidl_prefix=`$ocamlfind query gmp`
-    if test "x$mlgmpidl_prefix" = "x"; then mlgmpidl_prefix=`ocamlc -where`; fi
+    if test "x$mlgmpidl_prefix" = "x"; then mlgmpidl_prefix=`$ocamlc -where`; fi
 else
     # sane default (but does not work with OPAM)
     caml_prefix=`$ocamlc -where`
     camlidl_prefix=`$ocamlc -where`
-    mlgmpidl_prefix=`ocamlc -where`
+    mlgmpidl_prefix=`$ocamlc -where`
 fi
 
 # check that the prefix is correct
@@ -361,7 +364,9 @@ then
 fi
 if test $has_ocaml -eq 1
 then
-    checkinc "$cc $cflags -I$caml_prefix -I$mlgmpidl_prefix" gmp_caml.h
+    cc_cmd="$cc $cflags -I$caml_prefix -I$mlgmpidl_prefix";
+    if test "x$gmp_prefix" != "x"; then cc_cmd="$cc_cmd  -I$gmp_prefix/include"; fi
+    checkinc "$cc_cmd" gmp_caml.h
     has_ocaml=$?
 fi
 

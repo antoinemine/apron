@@ -1,0 +1,85 @@
+#!/bin/sh
+# -*- mode: sh -*-
+
+# command line (very primitive...)
+if test $1 != "-o"; then
+     echo "ocamlpack: usage: ocamlpack -o outputmodule -title <str> -intro <intro>
+module1 module2 ..."
+     exit -1
+fi
+shift
+out=$1
+shift
+if test $1 != "-title"; then
+     echo "ocamlpack: usage: ocamlpack -o outputmodule -title <str> -intro <intro>
+module1 module2 ..."
+     exit -1
+fi
+shift
+outtitle=$1
+shift
+if test $1 != "-intro"; then
+     echo "ocamlpack: usage: ocamlpack -o outputmodule -title <str> -intro <intro>
+module1 module2 ..."
+     exit -1
+fi
+shift
+introfile=$1
+shift
+
+# prepare output
+/bin/rm -f $out
+exec 1>$out;
+echo "(** $outtitle *)";
+echo "(**";
+cat $introfile;
+echo "*)";
+
+# iterate on input module,
+for i in $*; do
+     name=$i
+# 1.A Look for the first (** *) comment, and output it
+     awk -v name=$name '
+BEGIN {
+   start=1
+   nb = split(name, dirname, "/")
+   name = dirname[nb]
+   if (RLENGTH>0)
+     name = substr(name,RINDEX,length(name)-RINDEX)
+   hd = toupper(substr(name,1,1))
+   tl = substr(name,2,length(name)-1)
+}
+{
+   if (start==1) {
+     match($0, /\(\*\*([ ]+)([^*]*)([ ]+)\*\)/ )
+     if (RLENGTH>0){
+       start=0
+       title=substr($0,RSTART+4,RLENGTH-7)
+       print "\n(** {1 Module [",hd tl "]:",title "} *)\n"
+       print "module",hd tl,": sig"
+     }
+   }
+}
+END {
+   if (start==1) {
+     print "\n(** {1 Module [",hd tl "]} *)\n"
+     print "module",hd tl,": sig"
+   }
+}
+'	$i.mli;
+# 1.B Output the rest of name.mli to out
+	awk -v name=$name '
+{
+   if (start==1) {
+     match($0, /\(\*\*([ ]+)([^*]*)([ ]+)\*\)/ )
+     if (RLENGTH>0)
+       start=0
+     else
+       print $0
+   }
+   else
+     print " ",$0
+}
+END { print "end\n" }
+'	$i.mli;
+done

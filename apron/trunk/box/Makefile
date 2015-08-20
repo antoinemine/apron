@@ -1,16 +1,5 @@
 include ../Makefile.config
-
-PREFIX = $(APRON_PREFIX)
-
-SRCDIR = $(shell pwd)
-
-ifneq ($(OCAMLFIND),)
-MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
-MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
-else
-MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
-MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
-endif
+include ../vars.mk
 
 #---------------------------------------
 # Programs
@@ -20,18 +9,8 @@ endif
 # Flags
 #---------------------------------------
 
-# Use ICFLAGS to specify machine-independent compilation flags.
-ICFLAGS = \
--I$(MLGMPIDL_INCLUDE) \
--I../num \
--I../itv \
--I../apron \
--I../mlapronidl \
--I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include \
--I$(CAMLIDL_PREFIX) -I$(CAML_PREFIX)
-
-# Caml
-OCAMLINC = -I $(MLGMPIDL_LIB) -I ../mlapronidl
+ICFLAGS = $(BASE_ICFLAGS) $(ML_ICFLAGS)
+LDFLAGS += $(BASE_LIFLAGS)
 
 #---------------------------------------
 # Files
@@ -70,8 +49,8 @@ CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so
 endif
 endif
 
-LIBS = -L$(APRON_PREFIX) -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
-LIBS_DEBUG = -L$(APRON_PREFIX) -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm 
+LIBS = -lapron -lmpfr -lgmp -lm
+LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -109,10 +88,10 @@ mlMPFR: dllboxMPFR_caml.so
 endif
 
 mlexample%.byte: mlexample.ml box%.cma
-	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cma gmp.cma apron.cma box$*.cma $<
+	$(OCAMLC) $(OCAMLFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cma gmp.cma apron.cma box$*.cma $<
 
 mlexample%.opt: mlexample.ml box%.cmxa
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_PREFIX)/lib -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
 	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmxa *.byte *.opt
@@ -125,22 +104,22 @@ mostlyclean: clean
 distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
+	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
 
 uninstall:
-	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
-	/bin/rm -f $(PREFIX)/lib/libbox*.* $(PREFIX)/lib/liboct*_debug.*
-	/bin/rm -f $(PREFIX)/lib/dllbox*.so $(PREFIX)/lib/dlloct*_debug.so
-	/bin/rm -f $(PREFIX)/lib/box.mli $(PREFIX)/lib/box.ml $(PREFIX)/lib/box.cm[ix] $(PREFIX)/lib/box.idl $(PREFIX)/lib/box*.cma $(PREFIX)/lib/box*.cmxa $(PREFIX)/lib/box*.a
+	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
+	/bin/rm -f $(APRON_LIB)/libbox*.* $(APRON_LIB)/liboct*_debug.*
+	/bin/rm -f $(APRON_LIB)/dllbox*.so $(APRON_LIB)/dlloct*_debug.so
+	/bin/rm -f $(APRON_LIB)/box.mli $(APRON_LIB)/box.ml $(APRON_LIB)/box.cm[ix] $(APRON_LIB)/box.idl $(APRON_LIB)/box*.cma $(APRON_LIB)/box*.cmxa $(APRON_LIB)/box*.a
 
 
 dist: $(CCSRC) Makefile perlscript_caml.pl box.texi box.idl box.ml box.mli box_caml.c COPYING README
@@ -169,9 +148,9 @@ libbox%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 libbox%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LIBS) -L../apron
+	$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LIBS)
 libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG) -L../apron
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
@@ -194,42 +173,38 @@ libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 # OCaml binding
 #---------------------------------------
 
-libbox%_caml.a: box_caml.o libbox%.a
-	$(AR) rcs $@ $<
-	$(RANLIB) $@
-libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
-	$(AR) rcs $@ $<
-	$(RANLIB) $@
+dllbox%_caml.so libbox%_caml.a: box_caml.o libbox%.a
+	$(OCAMLMKLIB) -o box$*_caml $< -L. -lbox$* $(LDFLAGS) $(LIBS)
 
-dllbox%_caml.so: box_caml.o libbox%.so
-	$(CC) $(CFLAGS) -shared -o $@ box_caml.o -L. -lbox$* $(LIBS) -L../apron
+dllbox%_caml_debug.so libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
+	$(OCAMLMKLIB) -o box$*_caml_debug $< -L. -lbox$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 box_caml.o: box_caml.c
-	$(CC) $(CFLAGS) $(ICFLAGS) -I../apron -DNUM_MPQ -c -o $@ $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
 box_caml_debug.o: box_caml.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -I../apron -DNUM_MPQ -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
 
 #---------------------------------------
 # OCaml rules
 #---------------------------------------
 
 box%.cma: box.cmo libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o box$* -oc box$*_caml box.cmo -L. -lbox$* $(LIBS) -L../apron
+	$(OCAMLMKLIB) -o box$* -oc box$*_caml box.cmo -lbox$* $(LIBS)
 
 box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o box$* -oc box$*_caml box.cmx -L$(APRON_PREFIX)/lib -L. -lbox$* $(LIBS) -L../apron
+	$(OCAMLMKLIB) -o box$* -oc box$*_caml box.cmx -lbox$* $(LIBS)
 
 #---------------------------------------
 # IDL rules
 #---------------------------------------
 
-box.ml box.mli box_caml.c: box.idl ../mlapronidl/perlscript_c.pl perlscript_caml.pl ../mlapronidl/*.idl
+%.ml %.mli %_caml.c: %.idl ../mlapronidl/perlscript_c.pl perlscript_caml.pl ../mlapronidl/*.idl
 	mkdir -p tmp
-	cp box.idl ../mlapronidl/*.idl tmp/
-	cd tmp && $(CAMLIDL) -no-include -nocpp -I . box.idl
-	$(PERL) ../mlapronidl/perlscript_c.pl < tmp/box_stubs.c >box_caml.c
-	$(PERL) perlscript_caml.pl < tmp/box.ml >box.ml
-	$(PERL) perlscript_caml.pl < tmp/box.mli >box.mli
+	cp $*.idl ../mlapronidl/*.idl tmp/
+	cd tmp && $(CAMLIDL) -no-include -nocpp -I . $*.idl
+	$(PERL) ../mlapronidl/perlscript_c.pl < tmp/$*_stubs.c >$*_caml.c
+	$(PERL) perlscript_caml.pl < tmp/$*.ml >$*.ml
+	$(PERL) perlscript_caml.pl < tmp/$*.mli >$*.mli
 
 rebuild:
 	@echo "make rebuild is no longer necessary"

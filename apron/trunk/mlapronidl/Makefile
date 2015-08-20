@@ -1,36 +1,12 @@
 include ../Makefile.config
-
-#---------------------------------------
-# Directories
-#---------------------------------------
-
-SRCDIR = $(shell pwd)
-#
-#
-PREFIX = $(APRON_PREFIX)
-#
-ifneq ($(OCAMLFIND),)
-MLGMPIDL_INCLUDE = $(shell $(OCAMLFIND) query gmp)
-MLGMPIDL_LIB = $(MLGMPIDL_INCLUDE)
-else
-MLGMPIDL_INCLUDE = $(MLGMPIDL_PREFIX)/include
-MLGMPIDL_LIB = $(MLGMPIDL_PREFIX)/lib
-endif
-
-#---------------------------------------
-# CAML part
-#---------------------------------------
-
-OCAMLINC = -I $(MLGMPIDL_LIB)
+include ../vars.mk
 
 #---------------------------------------
 # C part
 #---------------------------------------
-ICFLAGS = \
--I$(MLGMPIDL_INCLUDE) -I../apron \
--I$(GMP_PREFIX)/include \
--I$(MPFR_PREFIX)/include \
--I$(CAML_PREFIX) -I$(CAMLIDL_PREFIX)
+
+ICFLAGS = $(APRON_ICFLAGS) $(MP_ICFLAGS) $(ML_ICFLAGS)
+LDFLAGS += $(APRON_LIFLAGS) $(MP_LIFLAGS)
 
 #---------------------------------------
 # Files
@@ -70,8 +46,8 @@ MLLIB_TOINSTALL += dllapron_caml.so
 endif
 CCINC_TOINSTALL = apron_caml.h
 
-LIBS = -L$(APRON_PREFIX)/lib -lapron -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
-LIBS_DEBUG = -L$(APRON_PREFIX)/lib -lapron_debug -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp -lm
+LIBS = -lapron -lmpfr -lgmp -lm
+LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -113,21 +89,22 @@ clean:
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
 
 distclean: clean
+	/bin/rm -f depend
 
 uninstall:
 ifeq ($(OCAMLFIND),)
-	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%)
-	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_PREFIX)/lib/%) libapron*.so
-	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_PREFIX)/include/%)
+	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_LIB)/%)
+	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_LIB)/%) libapron*.so
+	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_INCLUDE)/%)
 endif
 
 install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 ifeq ($(OCAMLFIND),)
-	mkdir -p $(APRON_PREFIX)/lib
-	mkdir -p $(APRON_PREFIX)/include
-	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
-	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_PREFIX)/include
-	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_PREFIX)/lib; fi; done
+	mkdir -p $(APRON_LIB)
+	mkdir -p $(APRON_INCLUDE)
+	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
+	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_INCLUDE)
+	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
 endif
 
 #---------------------------------------
@@ -135,23 +112,23 @@ endif
 #---------------------------------------
 
 apron.cma: apron.cmo libapron_caml.a
-	$(OCAMLMKLIB) -ocamlc "$(OCAMLC)" -verbose -o apron -oc apron_caml apron.cmo $(LIBS) -L../apron
+	$(OCAMLMKLIB) -o apron -oc apron_caml apron.cmo $(LIBS)
 
-apron.cmxa apron.a: apron.cmx libapron_caml.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron -oc apron_caml apron.cmx $(LIBS) -L../apron
+apron.cmxa: apron.a
+apron.a: apron.cmx libapron_caml.a
+	$(OCAMLMKLIB) -o apron -oc apron_caml apron.cmx $(LIBS)
 
-apron.d.cmxa apron.d.a: apron.cmx libapron_caml_debug.a
-	$(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT)" -verbose -o apron.d -oc apron_caml_debug apron.cmx $(LIBS_DEBUG) -L../apron
+apron.d.cmxa: apron.d.a
+apron.d.a: apron.cmx libapron_caml_debug.a
+	$(OCAMLMKLIB) -o apron.d -oc apron_caml_debug apron.cmx $(LIBS_DEBUG)
+
+dllapron_caml.so: libapron_caml.a
 
 libapron_caml.a: $(CCMODULES:%=%.o)
-	$(AR) rc $@ $^
-	$(RANLIB) $@
-libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
-	$(AR) rc $@ $^
-	$(RANLIB) $@
+	$(OCAMLMKLIB) $(CCMODULES:%=%.o) $(LDFLAGS) $(LIBS) -o apron_caml
 
-dllapron_caml.so: $(CCMODULES:%=%.o) ../apron/libapron.so
-	$(CC) $(CFLAGS) -shared -o $@ $(CCMODULES:%=%.o) $(LIBS) -L../apron
+libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
+	$(OCAMLMKLIB) $(CCMODULES:%=%_debug.o) $(LDFLAGS) $(LIBS_DEBUG) -o apron_caml_debug
 
 #---------------------------------------
 # CAML rules
@@ -174,7 +151,7 @@ apron_parser.ml apron_parser.mli: apron_parser.mly
 
 .PHONY: html
 apron_ocamldoc.mli: introduction.odoc $(MLMODULES:%=%.mli)
-	$(OCAMLPACK) -o apron_ocamldoc -title "APRON library" -intro introduction.odoc -intf $(MLMODULES)
+	sh $(OCAMLPACK) -o $@ -title "APRON Library" -intro introduction.odoc $(MLMODULES)
 	$(SED) -i -e 's/{5/{6/g;s/{4/{5/g;s/{3/{4/g;s/{2/{3/g;s/{1/{2/g' $@
 
 mlapronidl.pdf: mlapronidl.dvi
@@ -204,19 +181,21 @@ html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODU
 #---------------------------------------
 
 %.o: %.c apron_caml.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -fPIC -c $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -c $< -o $@
 %_debug.o: %.c apron_caml.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -fPIC -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c $< -o $@
 
 #---------------------------------------
 # IDL generic rules
 #---------------------------------------
 
-# Generate for each %.idl: %i.ml, %i.mli, %_caml.c
-%.ml %.mli %_caml.c: %.idl macros.pl perlscript_c.pl perlscript_caml.pl
+tmp:
 	mkdir -p tmp
+
+# Generate for each %.idl: %i.ml, %i.mli, %_caml.c
+%.ml %.mli %_caml.c: %.idl macros.pl perlscript_c.pl perlscript_caml.pl tmp
 	cp $*.idl tmp/$*.idl
-	$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" -I $(SRCDIR) tmp/$*.idl
+	$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" tmp/$*.idl
 	$(PERL) perlscript_c.pl < tmp/$*_stubs.c >$*_caml.c
 	$(PERL) perlscript_caml.pl < tmp/$*.ml >$*.ml;
 	$(PERL) perlscript_caml.pl < tmp/$*.mli >$*.mli
@@ -242,104 +221,9 @@ rebuild:
 #---------------------------------------
 
 depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
-	$(OCAMLDEP) $^
+	$(OCAMLDEP) $^ > $@
 
-scalar.cmo: scalar.cmi
-scalar.cmx: scalar.cmi
-interval.cmo: scalar.cmi interval.cmi
-interval.cmx: scalar.cmx interval.cmi
-coeff.cmo: scalar.cmi interval.cmi coeff.cmi
-coeff.cmx: scalar.cmx interval.cmx coeff.cmi
-dim.cmo: dim.cmi
-dim.cmx: dim.cmi
-linexpr0.cmo: scalar.cmi interval.cmi dim.cmi coeff.cmi linexpr0.cmi
-linexpr0.cmx: scalar.cmx interval.cmx dim.cmx coeff.cmx linexpr0.cmi
-lincons0.cmo: scalar.cmi linexpr0.cmi lincons0.cmi
-lincons0.cmx: scalar.cmx linexpr0.cmx lincons0.cmi
-generator0.cmo: linexpr0.cmi generator0.cmi
-generator0.cmx: linexpr0.cmx generator0.cmi
-texpr0.cmo: linexpr0.cmi dim.cmi coeff.cmi texpr0.cmi
-texpr0.cmx: linexpr0.cmx dim.cmx coeff.cmx texpr0.cmi
-tcons0.cmo: texpr0.cmi scalar.cmi lincons0.cmi tcons0.cmi
-tcons0.cmx: texpr0.cmx scalar.cmx lincons0.cmx tcons0.cmi
-manager.cmo: manager.cmi
-manager.cmx: manager.cmi
-abstract0.cmo: texpr0.cmi tcons0.cmi manager.cmi linexpr0.cmi lincons0.cmi \
-    interval.cmi generator0.cmi dim.cmi abstract0.cmi
-abstract0.cmx: texpr0.cmx tcons0.cmx manager.cmx linexpr0.cmx lincons0.cmx \
-    interval.cmx generator0.cmx dim.cmx abstract0.cmi
-var.cmo: var.cmi
-var.cmx: var.cmi
-environment.cmo: var.cmi dim.cmi environment.cmi
-environment.cmx: var.cmx dim.cmx environment.cmi
-linexpr1.cmo: var.cmi linexpr0.cmi environment.cmi coeff.cmi linexpr1.cmi
-linexpr1.cmx: var.cmx linexpr0.cmx environment.cmx coeff.cmx linexpr1.cmi
-lincons1.cmo: var.cmi scalar.cmi linexpr1.cmi linexpr0.cmi lincons0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi lincons1.cmi
-lincons1.cmx: var.cmx scalar.cmx linexpr1.cmx linexpr0.cmx lincons0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx lincons1.cmi
-generator1.cmo: var.cmi linexpr1.cmi linexpr0.cmi generator0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi generator1.cmi
-generator1.cmx: var.cmx linexpr1.cmx linexpr0.cmx generator0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx generator1.cmi
-texpr1.cmo: var.cmi texpr0.cmi linexpr1.cmi environment.cmi coeff.cmi \
-    texpr1.cmi
-texpr1.cmx: var.cmx texpr0.cmx linexpr1.cmx environment.cmx coeff.cmx \
-    texpr1.cmi
-tcons1.cmo: var.cmi texpr1.cmi texpr0.cmi tcons0.cmi scalar.cmi lincons0.cmi \
-    environment.cmi coeff.cmi abstract0.cmi tcons1.cmi
-tcons1.cmx: var.cmx texpr1.cmx texpr0.cmx tcons0.cmx scalar.cmx lincons0.cmx \
-    environment.cmx coeff.cmx abstract0.cmx tcons1.cmi
-abstract1.cmo: var.cmi texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi \
-    lincons1.cmi interval.cmi generator1.cmi environment.cmi abstract0.cmi \
-    abstract1.cmi
-abstract1.cmx: var.cmx texpr1.cmx tcons1.cmx manager.cmx linexpr1.cmx \
-    lincons1.cmx interval.cmx generator1.cmx environment.cmx abstract0.cmx \
-    abstract1.cmi
-policy.cmo: tcons1.cmi tcons0.cmi manager.cmi lincons1.cmi lincons0.cmi \
-    environment.cmi abstract1.cmi abstract0.cmi policy.cmi
-policy.cmx: tcons1.cmx tcons0.cmx manager.cmx lincons1.cmx lincons0.cmx \
-    environment.cmx abstract1.cmx abstract0.cmx policy.cmi
-disjunction.cmo: manager.cmi lincons0.cmi abstract0.cmi disjunction.cmi
-disjunction.cmx: manager.cmx lincons0.cmx abstract0.cmx disjunction.cmi
-apron_parser.cmo: var.cmi texpr1.cmi tcons0.cmi scalar.cmi lincons0.cmi \
-    interval.cmi generator0.cmi coeff.cmi apron_parser.cmi
-apron_parser.cmx: var.cmx texpr1.cmx tcons0.cmx scalar.cmx lincons0.cmx \
-    interval.cmx generator0.cmx coeff.cmx apron_parser.cmi
-apron_lexer.cmo: texpr1.cmi apron_parser.cmi apron_lexer.cmi
-apron_lexer.cmx: texpr1.cmx apron_parser.cmx apron_lexer.cmi
-parser.cmo: var.cmi texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi \
-    lincons1.cmi lincons0.cmi generator1.cmi generator0.cmi environment.cmi \
-    coeff.cmi apron_parser.cmi apron_lexer.cmi abstract1.cmi parser.cmi
-parser.cmx: var.cmx texpr1.cmx tcons1.cmx manager.cmx linexpr1.cmx \
-    lincons1.cmx lincons0.cmx generator1.cmx generator0.cmx environment.cmx \
-    coeff.cmx apron_parser.cmx apron_lexer.cmx abstract1.cmx parser.cmi
-scalar.cmi:
-interval.cmi: scalar.cmi
-coeff.cmi: scalar.cmi interval.cmi
-dim.cmi:
-linexpr0.cmi: dim.cmi coeff.cmi
-lincons0.cmi: scalar.cmi linexpr0.cmi dim.cmi
-generator0.cmi: linexpr0.cmi dim.cmi
-texpr0.cmi: linexpr0.cmi dim.cmi coeff.cmi
-tcons0.cmi: texpr0.cmi scalar.cmi lincons0.cmi dim.cmi
-manager.cmi:
-abstract0.cmi: texpr0.cmi tcons0.cmi manager.cmi linexpr0.cmi lincons0.cmi \
-    interval.cmi generator0.cmi dim.cmi
-var.cmi:
-environment.cmi: var.cmi dim.cmi
-linexpr1.cmi: var.cmi linexpr0.cmi environment.cmi coeff.cmi
-lincons1.cmi: var.cmi scalar.cmi linexpr1.cmi lincons0.cmi environment.cmi \
-    coeff.cmi
-generator1.cmi: var.cmi linexpr1.cmi generator0.cmi environment.cmi coeff.cmi
-texpr1.cmi: var.cmi texpr0.cmi linexpr1.cmi environment.cmi coeff.cmi
-tcons1.cmi: texpr1.cmi tcons0.cmi scalar.cmi lincons0.cmi environment.cmi
-abstract1.cmi: var.cmi texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi \
-    lincons1.cmi interval.cmi generator1.cmi environment.cmi abstract0.cmi
-policy.cmi: tcons1.cmi tcons0.cmi manager.cmi lincons1.cmi lincons0.cmi \
-    environment.cmi abstract1.cmi abstract0.cmi
-disjunction.cmi: manager.cmi lincons0.cmi abstract0.cmi
-apron_parser.cmi: texpr1.cmi tcons0.cmi lincons0.cmi generator0.cmi coeff.cmi
-apron_lexer.cmi: apron_parser.cmi
-parser.cmi: texpr1.cmi tcons1.cmi manager.cmi linexpr1.cmi lincons1.cmi \
-    generator1.cmi environment.cmi abstract1.cmi
+# Hack to avoid rebuilding depends on cleanup
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+  -include depend
+endif

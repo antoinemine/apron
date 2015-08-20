@@ -1,23 +1,12 @@
 include ../Makefile.config
-
-#---------------------------------------
-# Directories
-#---------------------------------------
-
-SRCDIR = $(shell pwd)
-#
-PREFIX = $(APRON_PREFIX)
-#
-# C include and lib directories
-INCDIR = $(PREFIX)/include
-LIBDIR = $(PREFIX)/lib
-BINDIR = $(PREFIX)/bin
-#
+include ../vars.mk
 
 #---------------------------------------
 # C part
 #---------------------------------------
-ICFLAGS = -I../num -I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+
+ICFLAGS = $(NUM_ICFLAGS) $(ITV_ICFLAGS) $(MP_ICFLAGS)
+OCAMLINC = -I $(MLGMPIDL)
 
 #---------------------------------------
 # Files
@@ -55,16 +44,18 @@ C_FILES_AUX = ap_linearize_aux.c
 H_FILES_AUX = ap_linearize_aux.h
 CH_FILES_AUX = $(H_FILES_AUX) $(C_FILES_AUX)
 
-LIBS = -lm -L$(GMP_PREFIX)/lib -lgmp -L$(MPFR_PREFIX)/lib -lmpfr
+LDFLAGS += $(MP_LIFLAGS) -lm -lgmp -lmpfr
 
 #---------------------------------------
 # Rules
 #---------------------------------------
 
-all: libapron.a libapron_debug.a
+LIB_FILES = libapron.a libapron_debug.a
 ifneq ($(HAS_SHARED),)
-all: libapron.so libapron_debug.so
+LIB_FILES += libapron.so libapron_debug.so
 endif
+
+all: $(LIB_FILES)
 
 #---------------------------------------
 # Misc rules
@@ -85,17 +76,17 @@ clean:
 distclean: clean
 
 install: all
-	mkdir -p $(APRON_PREFIX)/include
-	cp $(H_FILES) $(APRON_PREFIX)/include
-	mkdir -p $(APRON_PREFIX)/lib
-	for i in libapron.a libapron_debug.a libapron.so libapron_debug.so; do if test -f $$i; then $(INSTALL) $$i $(APRON_PREFIX)/lib; fi; done
+	mkdir -p $(APRON_INCLUDE)
+	cp $(H_FILES) $(APRON_INCLUDE)
+	mkdir -p $(APRON_LIB)
+	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 
 uninstall:
-	/bin/rm -f $(H_FILES:%=$(APRON_PREFIX)/include/%)
-	/bin/rm -f $(APRON_PREFIX)/lib/libapron.a
-	/bin/rm -f $(APRON_PREFIX)/lib/libapron_debug.a
-	/bin/rm -f $(APRON_PREFIX)/lib/libapron.so
-	/bin/rm -f $(APRON_PREFIX)/lib/libapron_debug.so
+	/bin/rm -f $(H_FILES:%=$(APRON_INCLUDE)/%)
+	/bin/rm -f $(APRON_LIB)/libapron.a
+	/bin/rm -f $(APRON_LIB)/libapron_debug.a
+	/bin/rm -f $(APRON_LIB)/libapron.so
+	/bin/rm -f $(APRON_LIB)/libapron_debug.so
 
 #---------------------------------------
 # Latex rules
@@ -127,59 +118,43 @@ html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.tex
 # C rules
 #---------------------------------------
 
-libapron.a: $(C_FILES:%.c=%.o) \
+O_FILES = \
+$(C_FILES:%.c=%.o) \
 $(C_FILES_AUX:%.c=%MPQ.o) \
 $(C_FILES_AUX:%.c=%D.o) \
-$(C_FILES_AUX:%.c=%MPFR.o) \
-../itv/libitv.a
+$(C_FILES_AUX:%.c=%MPFR.o)
+
+O_FILES_DEBUG = \
+$(C_FILES:%.c=%_debug.o) \
+$(C_FILES_AUX:%.c=%MPQ_debug.o) \
+$(C_FILES_AUX:%.c=%D_debug.o) \
+$(C_FILES_AUX:%.c=%MPFR_debug.o)
+
+libapron.a: $(O_FILES) ../itv/libitv.a
 	cp ../itv/libitv.a $@
-	$(AR) rs $@ $(C_FILES:%.c=%.o) \
-		$(C_FILES_AUX:%.c=%MPQ.o) \
-		$(C_FILES_AUX:%.c=%D.o) \
-		$(C_FILES_AUX:%.c=%MPFR.o)
+	$(AR) rs $@ $(O_FILES)
 	$(RANLIB) $@
 
-libapron_debug.a: $(C_FILES:%.c=%_debug.o) \
-$(C_FILES_AUX:%.c=%MPQ_debug.o) \
-$(C_FILES_AUX:%.c=%D_debug.o) \
-$(C_FILES_AUX:%.c=%MPFR_debug.o) \
-../itv/libitv_debug.a
+libapron_debug.a: $(O_FILES_DEBUG) ../itv/libitv_debug.a
 	cp ../itv/libitv_debug.a $@
-	$(AR) rs $@ $(C_FILES:%.c=%_debug.o) \
-		$(C_FILES_AUX:%.c=%MPQ_debug.o) \
-		$(C_FILES_AUX:%.c=%D_debug.o) \
-		$(C_FILES_AUX:%.c=%MPFR_debug.o)
+	$(AR) rs $@ $(O_FILES_DEBUG)
 	$(RANLIB) $@
 
-libapron.so: $(C_FILES:%.c=%.o) \
-$(C_FILES_AUX:%.c=%MPQ.o) \
-$(C_FILES_AUX:%.c=%D.o) \
-$(C_FILES_AUX:%.c=%MPFR.o) \
-../itv/libitv.a
-	$(CC) $(CFLAGS) -shared -o $@ $(C_FILES:%.c=%.o) \
-	$(C_FILES_AUX:%.c=%MPQ.o) \
-	$(C_FILES_AUX:%.c=%D.o) \
-	$(C_FILES_AUX:%.c=%MPFR.o) \
-	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv.a))) \
-	$(LIBS)
+libapron.so: $(O_FILES) ../itv/libitv.a
+	$(CC) $(CFLAGS) -shared -o $@ $(O_FILES) $(patsubst	\
+		%,../itv/%,$(filter %.o, $(shell $(AR) t	\
+		../itv/libitv.a))) $(LDFLAGS)
 
-libapron_debug.so: $(C_FILES:%.c=%_debug.o) \
-$(C_FILES_AUX:%.c=%MPQ_debug.o) \
-$(C_FILES_AUX:%.c=%D_debug.o) \
-$(C_FILES_AUX:%.c=%MPFR_debug.o) \
-../itv/libitv_debug.a
-	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(C_FILES:%.c=%_debug.o) \
-	$(C_FILES_AUX:%.c=%MPQ_debug.o) \
-	$(C_FILES_AUX:%.c=%D_debug.o) \
-	$(C_FILES_AUX:%.c=%MPFR_debug.o) \
-	$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t ../itv/libitv_debug.a))) \
-	$(LIBS)
+libapron_debug.so: $(O_FILES_DEBUG) ../itv/libitv_debug.a
+	$(CC) $(CFLAGS_DEBUG) -shared -o $@ $(O_FILES_DEBUG)	\
+		$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t	\
+		../itv/libitv_debug.a))) $(LDFLAGS)
 
 .PHONY : dep
 
 dep: $(H_FILES)
 	for i in $(C_FILES); do		\
-		cpp $(ICFLAGS) -I../itv -MM $$i;	\
+		cpp $(ICFLAGS) -MM $$i;	\
 	done
 
 #--------------------------------------------------------------
@@ -193,35 +168,35 @@ dep: $(H_FILES)
 #---------------------------------------
 
 %.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS)  -I../itv -c $<
+	$(CC) $(CFLAGS) $(ICFLAGS) -c $<
 
 %MPQ.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -I../num -I../itv -I. -c $< -o $@
+	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -I. -c $< -o $@
 %D.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -I../num -I../itv -I. -c $< -o $@
+	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -I. -c $< -o $@
 %Dl.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -I../num -I../itv -I. -c $< -o $@
+	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -I. -c $< -o $@
 %MPFR.o: %.c %.h
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -I../num -I../itv -I. -c $< -o $@
+	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -I. -c $< -o $@
 
 %_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS)  -I../itv -c -o $@ $<
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
 %MPQ_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -I../num -I../itv -I. -c -o $@ $< -o $@
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -I. -c -o $@ $< -o $@
 %D_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_DOUBLE -I../num -I../itv -I. -c -o $@ $< -o $@
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_DOUBLE -I. -c -o $@ $< -o $@
 %Dl_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGDOUBLE -I../num -I../itv -I. -c -o $@ $< -o $@
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGDOUBLE -I. -c -o $@ $< -o $@
 %MPFR_debug.o: %.c %.h
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -I../num -I../itv -I. -c -o $@ $< -o $@
+	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -I. -c -o $@ $< -o $@
 
 #---------------------------------------
 # dependencies (generated with make depend)
 #---------------------------------------
 
 depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -I../num -E -MM $(C_FILES)
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES)
 
 
 ap_scalar.o: ap_scalar.c ap_scalar.h ap_config.h

@@ -19,7 +19,7 @@
 #include <assert.h>
 
 #include "ap_global0.h"
-#include "pk.h"
+#include "../newpolka/pk.h"
 #include "ap_ppl.h"
 
 ap_manager_t* ppl;

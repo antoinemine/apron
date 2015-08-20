@@ -4,41 +4,17 @@
 #
 # Copyright (C) Antoine Mine' 2007
 
-
 include ../Makefile.config
-
-#---------------------------------------
-# Directories
-#---------------------------------------
-
-SRCDIR = $(shell pwd)
-#
-PREFIX = $(APRON_PREFIX)
-#
-# C include and lib directories
-INCDIR = $(PREFIX)/include
-LIBDIR = $(PREFIX)/lib
-BINDIR = $(PREFIX)/bin
-#
-SRCDIR = $(shell pwd)
-
+include ../vars.mk
 
 #---------------------------------------
 # Flags
 #---------------------------------------
 
 # Machine-independent compilation flags.
-ICXXFLAGS = \
--I../apron \
--I../num \
--I../itv \
--I../newpolka \
--I../octagons \
--I../ppl \
--I../products \
--I../box \
--I../taylor1plus \
--I$(GMP_PREFIX)/include -I$(MPFR_PREFIX)/include
+ICXXFLAGS = $(BASE_ICFLAGS) \
+	-I../box -I../newpolka -I../octagons -I../taylor1plus
+LDFLAGS += $(BASE_LIFLAGS)
 
 #---------------------------------------
 # Files
@@ -65,15 +41,14 @@ CCINC = \
  apxx_generator0_inline.hh   apxx_polka.hh              apxx_var_inline.hh		\
  apxx_t1p.hh apxx_t1p_inline.hh	
 
-LIBS = -L$(GMP_PREFIX)/lib -lm -lgmp -lgmpxx -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron
-
-LIBS_DEBUG = -L$(GMP_PREFIX)/lib -lm -lgmp -lgmpxx -L$(MPFR_PREFIX)/lib -lmpfr -L../apron -lapron_debug
+LIBS = $(LDFLAGS) -lapron -lgmp -lgmpxx -lmpfr -lm
+LIBS_DEBUG = $(LDFLAGS) -lapron_debug -lgmp -lgmpxx -lmpfr -lm
 
 ifneq ($(HAS_PPL),)
-DEFS := $(DEFS) -DHAS_PPL
-LIBS := $(LIBS) -L$(PPL_PREFIX)/lib -L../ppl -L../products -lap_pkgrid -lap_ppl -lppl
-LIBS_DEBUG := $(LIBS_DEBUG) -L$(PPL_PREFIX)/lib -L../ppl -L../products -lap_pkgrid_debug -lap_ppl_debug -lppl
-ICXXFLAGS := $(ICXXFLAGS) -I$(PPL_PREFIX)/include  -I../ppl -I../products
+  DEFS := $(DEFS) -DHAS_PPL
+  LIBS := $(LIBS) $(PPL_LIFLAGS) -L../ppl -L../products -lap_pkgrid -lap_ppl -lppl
+  LIBS_DEBUG := $(LIBS_DEBUG) $(PPL_LIFLAGS) -L../ppl -L../products -lap_pkgrid_debug -lap_ppl_debug -lppl
+  ICXXFLAGS := $(ICXXFLAGS) $(PPL_ICFLAGS) -I../ppl -I../products
 endif
 
 #---------------------------------------
@@ -92,13 +67,13 @@ clean:
 distclean: clean
 
 install:
-	$(INSTALLd) $(INCDIR) $(INCDIR)/apronxx $(LIBDIR) $(BINDIR)
-	$(INSTALL) $(CCINC) $(INCDIR)/apronxx
-	$(INSTALL) libapronxx.* libapronxx_debug.* $(LIBDIR)
+	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/apronxx $(APRON_LIB)
+	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/apronxx
+	$(INSTALL) libapronxx.* libapronxx_debug.* $(APRON_LIB)
 
 uninstall:
-	/bin/rm -rf $(INCDIR)/apronxx
-	/bin/rm -f $(LIBDIR)/libapronxx*.*
+	/bin/rm -rf $(APRON_INCLUDE)/apronxx
+	/bin/rm -f $(APRON_LIB)/libapronxx*.*
 
 
 dist: $(CCINC) $(CXXSOURCES) apronxx_test.cc apronxx_test_result.txt Makefile COPYING.GPL COPYING.LGPL README doc/Doxyfile
@@ -130,7 +105,7 @@ libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CXX) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CXXFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ_debug -L. -lapronxx_debug
+	$(CXX) $(CFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ_debug -L. -lapronxx_debug
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<

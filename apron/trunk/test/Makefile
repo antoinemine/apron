@@ -1,21 +1,22 @@
 include ../Makefile.config
+include ../vars.mk
 
 ICFLAGS = \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
--I$(APRON_PREFIX)/include \
+-I$(APRON_INCLUDE) \
 -I$(PPL_PREFIX)/include 
 
 LCFLAGS = \
 -L$(GMP_PREFIX)/lib \
 -L$(MPFR_PREFIX)/lib \
--L$(APRON_PREFIX)/lib \
+-L$(APRON_LIB) \
 -L$(PPL_PREFIX)/lib \
 -L$(CAMLIDL_PREFIX)
 
 OCAMLINC = \
--I $(MLGMPIDL_PREFIX)/lib \
--I $(APRON_PREFIX)/lib 
+-I $(MLGMPIDL_LIB) \
+-I $(APRON_LIB)
 
 OCAMLLDFLAGS = \
 -verbose -cc "g++" \

@@ -25,7 +25,7 @@ void srand48(long int seedval);
 #include "oct_fun.h"
 #include "oct_internal.h"
 
-#include "pk.h"
+#include "../newpolka/pk.h"
 
 ap_manager_t* mo; /* octagon */
 ap_manager_t* mp; /* polyhedron */

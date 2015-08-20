@@ -37,7 +37,7 @@ CONFIGURATION and COMPILATION
 
 1. Copy Makefile.config.model into Makefile.config and edit the
    _PREFIX paths to suit your installation (you might want to set
-   APRON_PREFIX, MLGMPIDL_PREFIX, CAMLIDL_PREFIX and CAML_PREFIX
+   APRON_PREFIX, MLGMPIDL_PREFIX, CAMLIDL_DIR and CAML_DIR
    to some of your directory instead of the default /tmp).
 
 2. 'make'

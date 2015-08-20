@@ -1,20 +1,8 @@
-
 include ../Makefile.config
+include ../vars.mk
 
-PREFIX = $(APRON_PREFIX)
-
-SRCDIR = $(shell pwd)
-
-#---------------------------------------
-# Flags
-#---------------------------------------
-
-# Use ICFLAGS to specify machine-independent compilation flags.
-ICFLAGS = \
--I../num \
--I../apron \
--I$(GMP_PREFIX)/include \
--I$(MPFR_PREFIX)/include
+ICFLAGS = $(NUM_ICFLAGS) $(APRON_ICFLAGS) $(MP_ICFLAGS)
+LDFLAGS += $(NUM_LIFLAGS) $(APRON_LIFLAGS) $(MP_LIFLAGS) -lapron_debug -lgmp -lmpfr -lm
 
 #---------------------------------------
 # Files
@@ -74,19 +62,19 @@ clean:
 distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
-	$(INSTALLd) $(PREFIX)/include $(PREFIX)/lib
-	$(INSTALL) $(CCINC_TO_INSTALL) $(PREFIX)/include
+	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
+	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/lib; fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 #	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALL) $$i $(PREFIX)/bin; fi; \
+#		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 #	done
 
 uninstall:
-	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(PREFIX)/include/$$i; done
-	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(PREFIX)/lib/$$i; done
-	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(PREFIX)/bin/$$i; done
+	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
+	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(APRON_LIB)/$$i; done
+	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(APRON_BIN)/$$i; done
 	/bin/rm -f Makefile.depend
 
 dist: $(CCSRC) Makefile COPYING README
@@ -163,30 +151,29 @@ libitv%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 %MPFR_debug.o: %.c
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPFR -c -o $@ $<
 
-
 testMPQ: testMPQ_debug.o libitvMPQ_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvMPQ_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvMPQ_debug $(LDFLAGS)
 
 testRll: testRll_debug.o libitvRll_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvRll_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvRll_debug $(LDFLAGS)
 
 testD: testD_debug.o libitvD_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvD_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvD_debug $(LDFLAGS)
 
 testMPFR: testMPFR_debug.o libitvMPFR_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvMPFR_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvMPFR_debug $(LDFLAGS)
 
 test2MPQ: test2MPQ_debug.o libitvMPQ_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvMPQ_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvMPQ_debug $(LDFLAGS)
 
 test2Rll: test2Rll_debug.o libitvRll_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvRll_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvRll_debug $(LDFLAGS)
 
 test2D: test2D_debug.o libitvD_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvD_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvD_debug $(LDFLAGS)
 
 test2MPFR: test2MPFR_debug.o libitvMPFR_debug.a
-	$(CC) $(CFLAGS_DEBUG) -L. -L$(GMP_PREFIX)/lib -L$(MPFR_PREFIX)/lib -L../apron -o $@ $< -litvMPFR_debug -lapron_debug -lgmp -lmpfr -lm
+	$(CC) $(CFLAGS_DEBUG) -o $@ $< -L. -litvMPFR_debug $(LDFLAGS)
 
 out: tests
 	./testMPQ > out.MPQ
