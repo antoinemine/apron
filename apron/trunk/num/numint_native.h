@@ -383,7 +383,7 @@ static inline bool mpz_set_numint(mpz_t a, numint_t b)
   rep[1] = n & ULONG_MAX;
   rep[0] = n >> (sizeof(long int)*8);
   mpz_import(a,2,1,sizeof(unsigned long int),0,0,rep);
-  if (*b<0)
+  if (*b<0) {
     mpz_neg(a,a);
   }
 #endif
