@@ -166,7 +166,11 @@ int get_clk_tck (void)
 void log_init(void* addr, uint_t length, int fd)
 {
 
+#if (defined __CYGWIN__ || defined __MINGW32__)
+	uint_t page_size = 4096;
+#else
 	uint_t page_size = (uint_t) sysconf(_SC_PAGESIZE);
+#endif
 	char * path = getcwd(NULL, (uint_t)0);
 	if (!(path)) {
 		fprintf(stderr,"getcwd: %s\n",strerror(errno));
