@@ -222,7 +222,7 @@ void t1p_fprint(FILE* stream,
 	    if (name_of_dim) {
 		fprintf(stream, "%s", name_of_dim[i]);
 	    } else {
-		fprintf(stream, "(%zu)", i);
+              fprintf(stream, "(%llu)", (unsigned long long)i);
 	    }
 	    fprintf(stream, " := ");
 	    t1p_aff_fprint(pr, stream, a->paf[i]);
@@ -268,7 +268,7 @@ void t1p_fdump(FILE* stream, ap_manager_t* man, t1p_t* a)
 	fprintf(stdout,"[[[___");
 #endif
 	for (i=0; i<a->dims; i++) {
-		fprintf(stream, "%zu: ", i);
+          fprintf(stream, "%llu: ", (unsigned long long)i);
 		fprintf(stream,"*** pby %u ***",a->paf[i]->pby);
 		t1p_aff_fprint(pr, stream, a->paf[i]);
 		fprintf(stream," ; \n");

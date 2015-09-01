@@ -177,10 +177,10 @@ char* box_policy_sprint(ap_policy_manager_t* man, box_policy_t* boxpolicy)
     return strdup("NULL");
   }
 }
-void box_policy_fprint(FILE* stdout, ap_policy_manager_t* man, box_policy_t* boxpolicy)
+void box_policy_fprint(FILE* stdoutput, ap_policy_manager_t* man, box_policy_t* boxpolicy)
 {
   char* s = box_policy_sprint(man,boxpolicy);
-  fputs(s,stdout);
+  fputs(s,stdoutput);
   free(s);
 }
 

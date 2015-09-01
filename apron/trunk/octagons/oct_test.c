@@ -18,8 +18,13 @@
 #include <time.h>
 #include <assert.h>
 
-long int lrand48(void);
-void srand48(long int seedval);
+#if (defined __CYGWIN__ || defined __MINGW32__)
+inline long int lrand48(void){ return rand(); }
+inline void srand48(long int seedval){ srand(seedval); }
+#else
+extern long int lrand48(void);
+extern void srand48(long int seedval);
+#endif
 
 #include "oct.h"
 #include "oct_fun.h"
