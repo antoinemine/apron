@@ -2,7 +2,7 @@
 
 # configuration script for Apron
 #
-# generates autoamtically a suitable Makefile.config
+# generates automatically a suitable Makefile.config
 
 
 ##############################################
@@ -387,6 +387,7 @@ if test $has_ocaml -eq 1
 then
     cc_cmd="$cc $cflags -I$caml_prefix -I$mlgmpidl_prefix";
     if test "x$gmp_prefix" != "x"; then cc_cmd="$cc_cmd  -I$gmp_prefix/include"; fi
+    if test "x$mpfr_prefix" != "x"; then cc_cmd="$cc_cmd  -I$mpfr_prefix/include"; fi
     checkinc "$cc_cmd" gmp_caml.h
     has_ocaml=$?
 fi
