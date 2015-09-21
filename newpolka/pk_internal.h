@@ -2,8 +2,11 @@
 /* pk_internal.h: internal manager */
 /* ************************************************************************* */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution */
 
 #ifndef _PK_INTERNAL_H_
 #define _PK_INTERNAL_H_

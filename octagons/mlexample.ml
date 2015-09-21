@@ -1,5 +1,9 @@
-(* This file is part of the APRON Library, released under LGPL license. (use of
-   PPL) Please read the COPYING file packaged in the distribution. *)
+(* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution. 
+*)
 
 (*
 with default setting (if dynamic libraries):

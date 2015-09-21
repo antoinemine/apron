@@ -1,4 +1,4 @@
-(* This file is part of the APRON Library, released under LGPL license. (use of
+(* This file is part of the APRON Library, released under GPL license. (use of
    PPL) Please read the COPYING file packaged in the distribution. *)
 
 (*

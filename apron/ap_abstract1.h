@@ -2,8 +2,11 @@
 /* ap_abstract1.h: generic operations on abstract values at level 1 */
 /* ************************************************************************* */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution */
 
 /* GENERATED FROM ap_abstract1.nw: DO NOT MODIFY ! */
 

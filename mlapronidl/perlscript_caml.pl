@@ -1,4 +1,4 @@
-print "\n(* This file is part of the APRON Library, released under LGPL license.\n   Please read the COPYING file packaged in the distribution *)\n";
+print "\n(* This file is part of the APRON Library, released under LGPL license with an exception allowing the redistribution of statically linked executables.\n   Please read the COPYING file packaged in the distribution *)\n";
 while (<>) {
     s/mutable_/mutable /g;
     s/mpq_ptr/t/g;

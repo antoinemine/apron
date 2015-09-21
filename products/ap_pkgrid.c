@@ -2,7 +2,7 @@
 /* ap_pkgrid.c: reduced product of NewPolka polyhedra and PPL grids */
 /* ************************************************************************* */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
+/* This file is part of the APRON Library, released under GPL license.  Please
    read the COPYING file packaged in the distribution */
 
 #include <stdlib.h>
