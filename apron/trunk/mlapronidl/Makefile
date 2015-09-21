@@ -74,10 +74,8 @@ mldep: $(MLSRC)
 # Misc rules
 #---------------------------------------
 
-tar: $(IDLMODULES:%=%.idl) apron_lexer.mll apron_lexer.mli apron_parser.mly parser.ml parser.mli apron_caml.c apron_caml.h macros.pl Makefile COPYING README mlapronidl.tex perlscript_caml.pl perlscript_c.pl META
-	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
 
-dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.pl apron_caml.c apron_caml.h Makefile COPYING README mlapronidl.tex perlscript_caml.pl perlscript_c.pl mlapronidl.pdf html META
+dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.pl apron_caml.c apron_caml.h Makefile COPYING README mlapronidl.tex perlscript_caml.pl perlscript_c.pl introduction.odoc mlapronidl.odoc META.in META.ppl.in
 	(cd ..; tar zcvf mlapronidl.tgz $(^:%=mlapronidl/%))
 
 clean:

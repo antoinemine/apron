@@ -197,12 +197,11 @@ endif
 # make distribution, update to reflect current version
 
 PKG  = $(PKGNAME)-$(VERSION_STR)
-PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure vars.mk
+PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure vars.mk ocamlpack
 PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all
-	$(MAKE) doc
 	mkdir -p $(PKG)
 	$(MAKE) $(foreach pkg,$(PKGDIRS),pkg_$(pkg))
 	cp $(PKGFILES) $(PKG)
