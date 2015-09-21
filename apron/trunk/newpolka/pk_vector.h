@@ -2,8 +2,11 @@
 /* pk_vector.h: operations on vectors */
 /* ********************************************************************** */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution */
 
 /* This header file defines operations on vectors. A vector is just an array of
    elements of type pkint_t, as a consequence functions need to be given also

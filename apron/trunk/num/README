@@ -9,7 +9,8 @@ It requires the GMP and MPFR libraries. If bounds are used, it also requires
 the APRON library.
 
 It may be freely distributed and/or modified under the conditions of the LGPL
-license.
+license with an exception allowing the redistribution of statically linked
+executables; see the accompanying COPYING file.
 
 Numbers
 =======

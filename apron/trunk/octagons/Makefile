@@ -4,7 +4,10 @@
 #
 # Copyright (C) Antoine Mine' 2006
 
-# This file is part of the APRON Library, released under LGPL license.
+# This file is part of the APRON Library, released under LGPL license
+# with an exemption allowing the redistribution of statically linked
+# executables.
+#
 # Please read the COPYING file packaged in the distribution.
 
 include ../Makefile.config

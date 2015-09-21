@@ -7,7 +7,7 @@
  *
  */
 
-/* This file is part of the APRON Library, released under GPL license.  
+/* This file is part of the APRON Library, released under GPL license.
    Please read the COPYING file packaged in the distribution.
 */
 

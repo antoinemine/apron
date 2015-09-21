@@ -2,8 +2,11 @@
 /* pk_cherni.h: Conversion from one representation to the dual one.  */
 /* ********************************************************************** */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+   
+   Please read the COPYING file packaged in the distribution */
 
 /* This header file define operations allowing to convert polyhedra
 from one representation to the dual one. */

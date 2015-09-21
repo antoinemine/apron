@@ -2,8 +2,11 @@
 /* ap_linearize_aux.h: auxiliary functions for (quasi)linearisation */
 /* ************************************************************************* */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution */
 
 /* Auxiliary module to ap_linearize, which contains functions depending of the
    number representation */

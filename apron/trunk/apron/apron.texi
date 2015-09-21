@@ -10,8 +10,11 @@
 @end iftex
 @comment %**end of header
 
-@c This file is part of the APRON Library, released under LGPL
-@c license. Please read the COPYING file packaged in the distribution
+@c This file is part of the APRON Library, released under LGPL license
+@c with an exception allowing the redistribution of statically linked
+@c executables.
+
+@c Please read the COPYING file packaged in the distribution
 
 @setcontentsaftertitlepage
 

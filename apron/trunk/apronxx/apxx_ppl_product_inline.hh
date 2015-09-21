@@ -9,7 +9,7 @@
  *
  */
 /* This file is part of the APRON Library.
-   As it includes both APRON and PPL files, it is released under GPL license.  
+   As it includes both APRON and PPL files, it is released under GPL license. 
    Please read the ppl/COPYING file packaged in the distribution.
 */
 

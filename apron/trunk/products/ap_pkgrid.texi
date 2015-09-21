@@ -1,4 +1,4 @@
-@c This file is part of the APRON Library, released under LGPL
+@c This file is part of the APRON Library, released under GPL
 @c license. Please read the COPYING file packaged in the distribution
 
 @c to be included from apron.texi

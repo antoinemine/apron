@@ -2,8 +2,11 @@
 /* pk_resize.c: change and permutation of dimensions  */
 /* ********************************************************************** */
 
-/* This file is part of the APRON Library, released under LGPL license.  Please
-   read the COPYING file packaged in the distribution */
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution */
 
 #include "pk_config.h"
 #include "pk_vector.h"
