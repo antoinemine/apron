@@ -69,4 +69,4 @@ ifneq ($(HAS_SHARED),)
   endif
 endif
 
-OCAMLPACK := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/ocamlpack
+OCAMLPACK := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))ocamlpack

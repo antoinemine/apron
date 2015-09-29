@@ -29,6 +29,7 @@ where options include:
 
 Environment variables that affect configuration:
   CC                   C compiler to use (default: gcc)
+  CXX                  C++ compiler to use (default: g++)
   CFLAGS               extra flags to pass to the C compiler
   CXXFLAGS             extra flags to pass to the C++ compiler
   LDFLAGS              extra link flags
@@ -264,13 +265,34 @@ checkdirinpath()
 #######
 
 # Flags common to c and c++ compilation
-c_cxx_flags="-Wcast-qual -Wswitch -Wall -Wextra -Wundef -Wcast-align -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
+c_cxx_flags="-Wcast-qual -Wswitch -Wall -Wextra -Wundef -Wcast-align \
+             -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
+
+
+# System-based selection of default compilers
+case $(uname -s)-$(uname -r)
+in
+    FreeBSD-9.*)
+	# NB: Select clang as default compiler on FreeBSD-9.* as gcc
+	# on this system is known to trigger some bugs when compiling
+	# Apron (like "junk `(%rip)' after expression").  See
+	# `https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52554'
+	echo "FreeBSD-9.* system detected:"\
+	     "default C/C++ compilers set to clang/clang++"
+	cc_compilers="$CC clang"
+	cxx_compilers="$CXX clang++"
+	;;
+    *)
+	cc_compilers="$CC cc gcc clang"
+	cxx_compilers="$CXX c++ g++ clang++"
+	;;
+esac
 
 
 # C compiler
 
 cc="none"
-for i in $CC cc gcc
+for i in $cc_compilers
 do
     checkcomp "$i" ""
     if test $? -eq 1; then cc="$i"; break; fi
@@ -290,7 +312,7 @@ cflags=$acc
 if test $has_cxx -eq 1
 then
     has_cxx=0
-    for i in $CXX c++ g++
+    for i in $cxx_compilers
     do
         checkcomp "$i" ""
         if test $? -eq 1; then has_cxx=1; cxx="$i"; break; fi
