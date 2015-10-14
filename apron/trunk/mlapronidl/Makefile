@@ -32,7 +32,7 @@ MLOBJ = $(MLMODULES:%=%.cmo)
 MLOBJx = $(MLMODULES:%=%.cmx)
 MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) apron.cmi apron.cma
 ifneq ($(HAS_OCAMLOPT),)
-MLLIB_TOINSTALL += apron.cmxa apron.a
+MLLIB_TOINSTALL += $(call OCAMLOPT_TARGETS, apron)
 endif
 ifneq ($(OCAMLPACK),)
 MLLIB_TOINSTALL += apron_ocamldoc.mli
@@ -56,7 +56,7 @@ LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 all: apron.cmi apron.cma libapron_caml.a libapron_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
-all: apron.cmxa apron.a apron.d.cmxa apron.d.a
+all: $(call OCAMLOPT_TARGETS, apron apron.d)
 endif
 
 ifneq ($(HAS_SHARED),)
@@ -81,7 +81,7 @@ dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.pl apron_caml.c apron_caml.
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
-	/bin/rm -f *.o *.a *.so *.annot *.cmi *.cmo *.cmx *.cmxa *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
+	/bin/rm -f *.o *.a *.so *.annot *.cmi *.cmo *.cmx *.cmx[as] *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty apron_ocamldoc.mli
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
@@ -213,6 +213,9 @@ rebuild:
 
 %.cmx: %.ml %.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -for-pack Apron -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
 
 #---------------------------------------
 # Dependencies

@@ -40,7 +40,7 @@ C: example1g
 ml: mlexample1.opt
 
 mlexample%.opt: mlexample%.cmx
-	$(OCAMLFIND) ocamlopt -o $@ $< $(OCAMLPACKAGES)
+	$(OCAMLFIND) ocamlopt $(OCAMLINC) -o $@ $< $(OCAMLPACKAGES)
 
 mlexample%.byte: mlexample%.cmo
 	$(OCAMLFIND) ocamlc -o $@ $< $(OCAMLPACKAGES)

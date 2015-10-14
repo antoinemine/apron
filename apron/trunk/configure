@@ -23,6 +23,7 @@ where options include:
   -no-cxx              disable C++ support
   -no-ocaml            disable OCaml support
   -no-ocamlfind        disable OCamlfind support
+  -no-ocaml-plugins    disable OCaml native plugins
   -no-ppl              disable PPL support
   -no-java             disable Java support
   -absolute-dylibs     force absolute library names (OSX only)
@@ -52,6 +53,7 @@ has_cxx=1
 has_ppl=1
 has_ocaml=1
 has_ocamlfind=1
+has_ocaml_plugins=1
 has_java=1
 force_absolute_dylib_install_names=0;
 while : ; do
@@ -82,6 +84,8 @@ while : ; do
             has_ocaml=0;;
         -no-ocamlfind|--no-ocamlfind)
             has_ocamlfind=0;;
+        -no-ocaml-plugins|--no-ocaml-plugins)
+            has_ocaml_plugins=0;;
         -no-java|--no-java)
             has_java=0;;
 	-absolute-dylibs|--absolute-dylibs)
@@ -260,6 +264,27 @@ checkdirinpath()
     echo "yes"
 }
 
+# checking support for OCaml native plugins
+
+checkcmxs()
+{
+    testocamlopt="$1"
+    echo_n "checking support for native plugins: "
+    rm -f tmp.ml tmp.cmxs
+    echo "let f = ()" >> tmp.ml
+    r=1
+    $testocamlopt tmp.ml -a -o tmp.cmxa >/dev/null 2>/dev/null && \
+	$testocamlopt -shared -o tmp.cmxs tmp.cmxa >/dev/null 2>/dev/null || r=0
+    if test ! -x tmp.cmxs; then r=0; fi
+    rm -f tmp.ml tmp.cmxa tmp.cmxs tmp.a tmp.cmi tmp.cmx
+    if test $r -eq 0; then
+        echo "not working"
+    else
+        echo "working"
+    fi
+    return $r
+}
+
 #####################################
 # tests
 #######
@@ -394,6 +419,9 @@ else
     mlgmpidl_prefix=`$ocamlc -where`
 fi
 
+# test that we can actually build plugins
+if test $has_ocaml_plugins -eq 1; then checkcmxs "$ocamlopt"; has_ocaml_plugins=$?; fi
+
 # check that the prefix is correct
 if test $has_ocaml -eq 1
 then
@@ -483,6 +511,7 @@ detected configuration:
 
    optional OCaml support       $has_ocaml
    optional OCamlFind support   $has_ocamlfind
+   optional plugins support     $has_ocaml_plugins
    optional C++ support         $has_cxx
    optional Java support        $has_java
    optional PPL support         $has_ppl
@@ -502,6 +531,7 @@ EOF
 
 if test "$has_cxx" -eq 0; then has_cxx=; fi
 if test "$has_ocaml" -eq 0; then has_ocaml=; fi
+if test "$has_ocaml_plugins" -eq 0; then has_ocaml_plugins=; fi
 if test "$has_java" -eq 0; then has_java=; fi
 if test "$has_ppl" -eq 0; then has_ppl=; fi
 
@@ -510,6 +540,7 @@ cat > Makefile.config <<EOF
 
 HAS_OCAML = $has_ocaml
 HAS_OCAMLOPT = $has_ocaml
+HAS_NATIVE_PLUGINS = $has_ocaml_plugins
 HAS_MPFR = 1
 HAS_PPL = $has_ppl
 HAS_CPP = $has_cxx

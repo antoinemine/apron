@@ -100,7 +100,7 @@ mlexample%.opt: mlexample.ml oct%.cmxa
 clean:
 	/bin/rm -f *.[ao] *.so octtest*
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
-	/bin/rm -fr *.annot *.cm[ioax] *.cmxa
+	/bin/rm -fr *.annot *.cm[ioax] *.cmx[as]
 	/bin/rm -fr octtop* octrun* tmp
 	/bin/rm -fr *~ \#*\#
 	/bin/rm -fr oct_caml.c oct.ml oct.mli
@@ -133,7 +133,7 @@ uninstall:
 	/bin/rm -f $(APRON_BIN)/octtest* $(APRON_BIN)/octtop* $(APRON_BIN)/octrun*
 	/bin/rm -f $(APRON_LIB)/liboct*.* $(APRON_LIB)/liboct*_debug.*
 	/bin/rm -f $(APRON_LIB)/dlloct*.so $(APRON_LIB)/dlloct*_debug.so
-	/bin/rm -f $(APRON_LIB)/oct.mli $(APRON_LIB)/oct.cm[ix] $(APRON_LIB)/oct.idl $(APRON_LIB)/oct*.cma $(APRON_LIB)/oct*.cmxa $(APRON_LIB)/oct*.a
+	/bin/rm -f $(APRON_LIB)/oct.mli $(APRON_LIB)/oct.cm[ix] $(APRON_LIB)/oct.idl $(APRON_LIB)/oct*.cma $(APRON_LIB)/oct*.cmx[as] $(APRON_LIB)/oct*.a
 
 dist: Makefile COPYING README oct_doc.html perlscript_caml.pl perlscript_c.pl $(CCSOURCES) $(CCINC) oct.h oct_test.c oct.idl oct.mli oct.ml oct_caml.c
 	(cd ..; tar zcvf octagons.tgz $(^:%=octagons/%))
@@ -240,15 +240,15 @@ mlD: ml octD.cma liboctD_caml.a liboctD_caml_debug.a
 mlDl: ml octDl.cma liboctDl_caml.a liboctDl_caml_debug.a
 mlMPFR: ml octMPFR.cma liboctMPFR_caml.a liboctMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlIl: octIl.cmxa octIl.a
-mlIll: octIll.cmxa octIll.a
-mlMPZ: octMPZ.cmxa octMPZ.a
-mlRi: octRi.cmxa octRi.a
-mlRll: octRll.cmxa octRll.a
-mlMPQ: octMPQ.cmxa octMPQ.a
-mlD: octD.cmxa octD.a
-mlDl: octDl.cmxa octDl.a
-mlMPFR: octMPFR.cmxa octMPFR.a
+mlIl: $(call OCAMLOPT_TARGETS, octIl)
+mlIll: $(call OCAMLOPT_TARGETS, octIll)
+mlMPZ: $(call OCAMLOPT_TARGETS, octMPZ)
+mlRi: $(call OCAMLOPT_TARGETS, octRi)
+mlRll: $(call OCAMLOPT_TARGETS, octRll)
+mlMPQ: $(call OCAMLOPT_TARGETS, octMPQ)
+mlD: $(call OCAMLOPT_TARGETS, octD)
+mlDl: $(call OCAMLOPT_TARGETS, octDl)
+mlMPFR: $(call OCAMLOPT_TARGETS, octMPFR)
 endif
 ifneq ($(HAS_SHARED),)
 mlIl: dlloctIl_caml.so 
@@ -305,7 +305,8 @@ rebuild:
 %.cmx: %.ml %.cmi  $(DEPS)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
 
-
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES
