@@ -54,7 +54,7 @@ mlexample.opt: mlexample.ml ppl.cmxa
 
 clean:
 	/bin/rm -f *.[ao] *.so ap_ppl_test
-	/bin/rm -f *.annot *.cm[ioax] *.cmxa pplrun ppltop
+	/bin/rm -f *.annot *.cm[ioax] *.cmx[as] pplrun ppltop
 	/bin/rm -fr *~ \#*\# tmp
 	/bin/rm -f ap_ppl_caml.c ppl.ml ppl.mli
 
@@ -135,7 +135,7 @@ ap_ppl_test: libap_ppl_debug.a libap_ppl_debug.so ppl_test_debug.o
 ml: ppl.cma libap_ppl_caml.a libap_ppl_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
-ml: ppl.cmxa ppl.a
+ml: $(call OCAMLOPT_TARGETS, ppl)
 endif
 
 ifneq ($(HAS_SHARED),)
@@ -199,3 +199,6 @@ rebuild:
 
 %.cmx: %.ml %.cmi  $(DEPS)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<

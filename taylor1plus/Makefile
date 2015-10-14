@@ -47,10 +47,7 @@ t1pMPFR.cma \
 libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a \
 libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL += \
-t1pMPQ.cmxa t1pMPQ.a \
-t1pD.cmxa t1pD.a \
-t1pMPFR.cmxa t1pMPFR.a
+  CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR)
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
@@ -105,9 +102,9 @@ mlMPQ: t1pMPQ.cma libt1pMPQ_caml.a libt1pMPQ_caml_debug.a
 mlD: t1pD.cma libt1pD_caml.a libt1pD_caml_debug.a
 mlMPFR: t1pMPFR.cma libt1pMPFR_caml.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: t1pMPQ.cmxa t1pMPQ.a
-mlD: t1pD.cmxa t1pD.a
-mlMPFR: t1pMPFR.cmxa t1pMPFR.a
+mlMPQ: $(call OCAMLOPT_TARGETS, t1pMPQ)
+mlD: $(call OCAMLOPT_TARGETS, t1pD)
+mlMPFR: $(call OCAMLOPT_TARGETS, t1pMPFR)
 endif
 ifneq ($(HAS_SHARED),)
 mlMPQ: dllt1pMPQ_caml.so dllt1pMPQ_caml_debug.so
@@ -122,7 +119,7 @@ mlexample%.opt: mlexample.ml t1p%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmxa *.byte *.opt *.annot
+	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmx[as] *.byte *.opt *.annot
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr t1ppolkarung t1ppolkatopg tmp
 	/bin/rm -fr test*
@@ -147,7 +144,7 @@ uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
 	/bin/rm -f $(APRON_LIB)/libt1p*.* $(APRON_LIB)/libt1p*_debug.*
 	/bin/rm -f $(APRON_LIB)/dllt1p*.so $(APRON_LIB)/dllt1p*_debug.so
-	/bin/rm -f $(APRON_LIB)/t1p.mli $(APRON_LIB)/t1p.ml $(APRON_LIB)/t1p.cm[ix] $(APRON_LIB)/t1p.idl $(APRON_LIB)/t1p*.cma $(APRON_LIB)/t1p*.cmxa $(APRON_LIB)/t1p*.a
+	/bin/rm -f $(APRON_LIB)/t1p.mli $(APRON_LIB)/t1p.ml $(APRON_LIB)/t1p.cm[ix] $(APRON_LIB)/t1p.idl $(APRON_LIB)/t1p*.cma $(APRON_LIB)/t1p*.cmx[as] $(APRON_LIB)/t1p*.a
 
 
 dist: $(CCSRC) Makefile perlscript_caml.pl t1p.idl t1p.ml t1p.mli t1p_caml.c
@@ -250,6 +247,9 @@ rebuild:
 
 %.cmx: %.ml %.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES

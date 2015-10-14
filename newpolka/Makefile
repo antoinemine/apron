@@ -51,11 +51,8 @@ polkaRll.cma \
 libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a \
 libpolkaRll_caml.a libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL += \
-polkaMPQ.cmxa polkaMPQ.a \
-polkaRll.cmxa polkaRll.a \
-polkaMPQ.d.cmxa polkaMPQ.d.a \
-polkaRll.d.cmxa polkaRll.d.a
+CAML_TO_INSTALL += 							\
+	$(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ Rll MPQ.d Rll.d))
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllpolkaMPQ_caml.so dllpolkaRll_caml.so
@@ -86,8 +83,8 @@ ml: polka.mli polka.ml polka.cmi mlMPQ mlRll
 mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
 mlRll: polkaRll.cma libpolkaRll_caml.a libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: polkaMPQ.cmxa polkaMPQ.a polkaMPQ.d.cmxa polkaMPQ.d.a
-mlRll: polkaRll.cmxa polkaRll.a polkaRll.d.cmxa polkaRll.d.a
+mlMPQ: $(call OCAMLOPT_TARGETS, polkaMPQ polkaMPQ.d)
+mlRll: $(call OCAMLOPT_TARGETS, polkaRll polkaRll.d)
 endif
 ifneq ($(HAS_SHARED),)
 mlMPQ: dllpolkaMPQ_caml.so
@@ -110,7 +107,7 @@ clean:
 	/bin/rm -f *.[ao] *.so
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -f test[01]Il* test[01]MPQ test[01]Il*_debug test[01]MPQ_debug
-	/bin/rm -fr *.annot *.cm[ioax] *.cmxa
+	/bin/rm -fr *.annot *.cm[ioax] *.cmx[as]
 	/bin/rm -fr tmp
 	/bin/rm -fr polka_caml.* polka.ml polka.mli
 	/bin/rm -f Makefile.depend
@@ -134,7 +131,7 @@ uninstall:
 	/bin/rm -f $(APRON_LIB)/libpolka*.* $(APRON_LIB)/libpolka*_debug.*
 	/bin/rm -f $(APRON_LIB)/dllpolka*.so $(APRON_LIB)/dllpolka*_debug.so
 ifeq ($(OCAMLFIND),)
-	/bin/rm -f $(APRON_LIB)/polka.mli $(APRON_LIB)/polka.ml $(APRON_LIB)/polka.cm[ix] $(APRON_LIB)/polka.idl $(APRON_LIB)/polka*.cma $(APRON_LIB)/polka*.cmxa $(APRON_LIB)/polka*.a
+	/bin/rm -f $(APRON_LIB)/polka.mli $(APRON_LIB)/polka.ml $(APRON_LIB)/polka.cm[ix] $(APRON_LIB)/polka.idl $(APRON_LIB)/polka*.cma $(APRON_LIB)/polka*.cmx[as] $(APRON_LIB)/polka*.a
 endif
 
 
@@ -254,6 +251,9 @@ rebuild:
 
 %.cmx: %.ml %.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES

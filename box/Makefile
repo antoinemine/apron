@@ -16,37 +16,32 @@ LDFLAGS += $(BASE_LIFLAGS)
 # Files
 #---------------------------------------
 
-CCMODULES = box_internal box_representation box_constructor box_meetjoin box_assign box_resize box_otherops box_policy
+CCMODULES = box_internal box_representation box_constructor	\
+box_meetjoin box_assign box_resize box_otherops box_policy
 CCSRC = box_config.h box.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = box.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libboxMPQ.a libboxD.a libboxMPFR.a \
+CCLIB_TO_INSTALL = libboxMPQ.a libboxD.a libboxMPFR.a	\
 libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
-libboxMPQ.so libboxD.so libboxMPFR.so \
-libboxMPQ_debug.so libboxD_debug.so libboxMPFR_debug.so
+  CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libboxMPQ.so libboxD.so	\
+  libboxMPFR.so libboxMPQ_debug.so libboxD_debug.so			\
+  libboxMPFR_debug.so
 endif
 
 ifneq ($(HAS_OCAML),)
-CAML_TO_INSTALL = \
-box.idl box.ml box.mli box.cmi \
-boxMPQ.cma \
-boxD.cma \
-boxMPFR.cma \
-libboxMPQ_caml.a libboxD_caml.a libboxMPFR_caml.a \
-libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a
-ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL := $(CAML_TO_INSTALL) \
-boxMPQ.cmxa boxMPQ.a \
-boxD.cmxa boxD.a \
-boxMPFR.cmxa boxMPFR.a
-endif
-ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so dllboxMPFR_caml.so 
-endif
+  CAML_TO_INSTALL = box.idl box.ml box.mli box.cmi boxMPQ.cma	\
+  boxD.cma boxMPFR.cma libboxMPQ_caml.a libboxD_caml.a		\
+  libboxMPFR_caml.a libboxMPQ_caml_debug.a libboxD_caml_debug.a	\
+  libboxMPFR_caml_debug.a
+  ifneq ($(HAS_OCAMLOPT),)
+    CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, boxMPQ boxD boxMPFR)
+  endif
+  ifneq ($(HAS_SHARED),)
+    CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so	\
+    dllboxMPFR_caml.so
+  endif
 endif
 
 LIBS = -lapron -lmpfr -lgmp -lm
@@ -66,9 +61,9 @@ allMPQ: libboxMPQ.a libboxMPQ_debug.a
 allD: libboxD.a libboxD_debug.a
 allMPFR: libboxMPFR.a libboxMPFR_debug.a
 ifneq ($(HAS_SHARED),)
-allMPQ: libboxMPQ.so libboxMPQ_debug.so
-allD: libboxD.so libboxD_debug.so
-allMPFR: libboxMPFR.so libboxMPFR_debug.so
+  allMPQ: libboxMPQ.so libboxMPQ_debug.so
+  allD: libboxD.so libboxD_debug.so
+  allMPFR: libboxMPFR.so libboxMPFR_debug.so
 endif
 
 ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR
@@ -77,14 +72,14 @@ mlMPQ: boxMPQ.cma libboxMPQ_caml.a libboxMPQ_caml_debug.a
 mlD: boxD.cma libboxD_caml.a libboxD_caml_debug.a
 mlMPFR: boxMPFR.cma libboxMPFR_caml.a libboxMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: boxMPQ.cmxa boxMPQ.a
-mlD: boxD.cmxa boxD.a
-mlMPFR: boxMPFR.cmxa boxMPFR.a
+  mlMPQ: $(call OCAMLOPT_TARGETS, boxMPQ)
+  mlD: $(call OCAMLOPT_TARGETS, boxD)
+  mlMPFR: $(call OCAMLOPT_TARGETS, boxMPFR)
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: dllboxMPQ_caml.so 
-mlD: dllboxD_caml.so
-mlMPFR: dllboxMPFR_caml.so
+  mlMPQ: dllboxMPQ_caml.so 
+  mlD: dllboxD_caml.so
+  mlMPFR: dllboxMPFR_caml.so
 endif
 
 mlexample%.byte: mlexample.ml box%.cma
@@ -94,7 +89,7 @@ mlexample%.opt: mlexample.ml box%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmxa *.byte *.opt
+	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmx[as] *.byte *.opt
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr boxpolkarung boxpolkatopg tmp
 	/bin/rm -f box.ml box.mli box_caml.c
@@ -119,7 +114,10 @@ uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
 	/bin/rm -f $(APRON_LIB)/libbox*.* $(APRON_LIB)/liboct*_debug.*
 	/bin/rm -f $(APRON_LIB)/dllbox*.so $(APRON_LIB)/dlloct*_debug.so
-	/bin/rm -f $(APRON_LIB)/box.mli $(APRON_LIB)/box.ml $(APRON_LIB)/box.cm[ix] $(APRON_LIB)/box.idl $(APRON_LIB)/box*.cma $(APRON_LIB)/box*.cmxa $(APRON_LIB)/box*.a
+	/bin/rm -f $(APRON_LIB)/box.mli $(APRON_LIB)/box.ml		\
+	           $(APRON_LIB)/box.cm[ix] $(APRON_LIB)/box.idl		\
+	           $(APRON_LIB)/box*.cma $(APRON_LIB)/box*.cmx[as]	\
+	           $(APRON_LIB)/box*.a
 
 
 dist: $(CCSRC) Makefile perlscript_caml.pl box.texi box.idl box.ml box.mli box_caml.c COPYING README
@@ -221,6 +219,9 @@ rebuild:
 
 %.cmx: %.ml %.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES

@@ -18,6 +18,7 @@ endif
 
 APRON_ICFLAGS = -I$(SRCROOT)/apron
 APRON_LIFLAGS = -L$(SRCROOT)/apron
+APRON_OCAMLINC = -I $(SRCROOT)/apron
 NUM_ICFLAGS = -I$(SRCROOT)/num
 NUM_LIFLAGS =
 ITV_ICFLAGS = -I$(SRCROOT)/itv
@@ -56,6 +57,8 @@ endif
 
 # ---
 
+OCAMLOPT_TARGETS0 = $(addsuffix .cmxa, $(1)) $(addsuffix .a, $(1))
+
 ifneq ($(HAS_SHARED),)
   CC_APRON_DYLIB = $(CC) -shared
   CXX_APRON_DYLIB = $(CXX) -shared
@@ -66,6 +69,12 @@ ifneq ($(HAS_SHARED),)
   ifneq ($(ABSOLUTE_DYLIB_INSTALL_NAMES),)
     CC_APRON_DYLIB += -install_name $(APRON_LIB)/$@
     CXX_APRON_DYLIB += -install_name $(APRON_LIB)/$@
+  endif
+  ifneq ($(HAS_NATIVE_PLUGINS),)
+    OCAMLOPT_CMXS = $(OCAMLOPT) $(OCAMLOPTFLAGS) -linkall -shared
+    OCAMLOPT_TARGETS = $(call OCAMLOPT_TARGETS0,$(1)) $(addsuffix .cmxs, $(1))
+  else
+    OCAMLOPT_TARGETS = $(call OCAMLOPT_TARGETS0,$(1))
   endif
 endif
 

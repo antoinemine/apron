@@ -33,13 +33,18 @@ CCLIB_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so
 endif
 
 ifneq ($(HAS_OCAML),)
-CAML_TO_INSTALL := polkaGrid.mli polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
-ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL += polkaGrid.cmxa polkaGrid.a
-endif
-ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so dllpolkaGrid_caml.so
-endif
+  CAML_TO_INSTALL := polkaGrid.mli polkaGrid.cmi polkaGrid.cma	\
+  libpolkaGrid_caml.a libpolkaGrid_caml_debug.a
+  ifneq ($(HAS_OCAMLOPT),)
+    CAML_TO_INSTALL += polkaGrid.cmxa polkaGrid.a
+    ifneq ($(HAS_NATIVE_PLUGINS),)
+      CAML_TO_INSTALL += polkaGrid.cmxs
+    endif
+  endif
+  ifneq ($(HAS_SHARED),)
+    CAML_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so	\
+    dllpolkaGrid_caml.so
+  endif
 endif
 
 LIBS = -lap_ppl -lppl -lapron -lgmpxx -lgmp -lmpfr -lm
@@ -56,7 +61,7 @@ endif
 
 ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
 ifneq ($(HAS_OCAMLOPT),)
-ml: polkaGrid.cmxa polkaGrid.a
+ml: $(call OCAMLOPT_TARGETS, polkaGrid)
 endif
 ifneq ($(HAS_SHARED),)
 ml: dllpolkaGrid_caml.so dllpolkaGrid_caml_debug.so
@@ -69,7 +74,7 @@ mlexample%.opt: mlexample.ml $(APRON_LIB)/polka%.cmxa $(APRON_LIB)/ppl.cmxa polk
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa polka%.cmxa ppl.cmxa polkaGrid.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.annot *.cm[xiao] *.cmxa
+	/bin/rm -f *.[ao] *.so *.annot *.cm[xiao] *.cmx[as]
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr tmp
 	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
@@ -171,6 +176,9 @@ rebuild:
 
 %.cmx: %.ml %.cmi
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
+
+%.cmxs: %.cmxa
+	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) $(OCAMLINC) -I . -o $@ $<
 
 #---------------------------------------
 # C generic rules

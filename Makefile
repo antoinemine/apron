@@ -56,7 +56,8 @@ apronppltop:
 rebuild:
 	@echo "$(MAKE) rebuild is no longer necessary"
 
-OCAMLFIND_PROTO = xxx.cma xxx.cmxa xxx.a libxxx_caml.a libxxx_caml_debug.a
+OCAMLFIND_PROTO = xxx.cma $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a	\
+		  libxxx_caml_debug.a
 ifneq ($(HAS_SHARED),)
 OCAMLFIND_PROTO += dllxxx_caml.so
 endif
@@ -85,7 +86,7 @@ disjunction) \
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
-	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx ppl.cmxa ppl.a libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.so) \
+	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.so) \
 	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
 endif
@@ -127,10 +128,10 @@ ifneq ($(HAS_PPL),)
 endif
 else
 	$(OCAMLFIND) remove apron
-	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES) \
-mlapronidl/apron.d.cmxa mlapronidl/apron.d.a \
-newpolka/polkaMPQ.d.cmxa newpolka/polkaMPQ.d.a \
-newpolka/polkaRll.d.cmxa newpolka/polkaRll.d.a
+	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)	\
+		$(call OCAMLOPT_TARGETS, mlapronidl/apron.d		\
+					 newpolka/polkaMPQ.d		\
+					 newpolka/polkaRll.d)
 endif
 endif
 ifneq ($(HAS_CPP),)
@@ -143,6 +144,11 @@ mlapronidl/META: mlapronidl/META.in mlapronidl/META.ppl.in
 	$(SED) -e "s!@VERSION@!$(VERSION_STR)!g;" $< > $@;
   ifneq ($(HAS_PPL),)
 	cat mlapronidl/META.ppl.in >> $@;
+  endif
+	$(SED) -e '/^\s*archive(byte)/ { p; s ) ,plugin) ;}' -i $@;
+  ifneq ($(HAS_NATIVE_PLUGINS),)
+	$(SED) -e '/^\s*archive(native)/ { p; s ) ,plugin) ;'\
+	'            s \.cmxa\" .cmxs\" ;}' -i $@;
   endif
 endif
 
