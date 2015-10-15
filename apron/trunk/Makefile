@@ -145,11 +145,12 @@ mlapronidl/META: mlapronidl/META.in mlapronidl/META.ppl.in
   ifneq ($(HAS_PPL),)
 	cat mlapronidl/META.ppl.in >> $@;
   endif
-	$(SED) -e '/^\s*archive(byte)/ { p; s ) ,plugin) ;}' -i $@;
+	$(SED) -e '/^\s*archive(byte)/ { p; s ) ,plugin) ;}' -i.bak $@;
   ifneq ($(HAS_NATIVE_PLUGINS),)
 	$(SED) -e '/^\s*archive(native)/ { p; s ) ,plugin) ;'\
-	'            s \.cmxa\" .cmxs\" ;}' -i $@;
+	'            s \.cmxa\" .cmxs\" ;}' -i.bak $@;
   endif
+	test -f $@.bak && rm -f $@.bak
 endif
 
 clean:
