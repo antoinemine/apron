@@ -7,6 +7,7 @@ include ../vars.mk
 
 ICFLAGS = $(APRON_ICFLAGS) $(MP_ICFLAGS) $(ML_ICFLAGS)
 LDFLAGS += $(APRON_LIFLAGS) $(MP_LIFLAGS)
+CMXSINC = $(APRON_CMXSINC) -I .
 
 #---------------------------------------
 # Files
@@ -215,7 +216,7 @@ rebuild:
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -for-pack Apron -c $<
 
 %.cmxs: %.cmxa
-	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
+	$(OCAMLOPT_CMXS) $(CMXSINC) -o $@ $<
 
 #---------------------------------------
 # Dependencies
