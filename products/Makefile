@@ -17,6 +17,7 @@ LDFLAGS += $(BASE_LIFLAGS) $(PPL_LIFLAGS) -L../ppl
 
 # Caml
 OCAMLINC += -I ../newpolka -I ../ppl
+CMXSINC = $(APRON_CMXSINC) $(OCAMLINC) -I .
 
 #---------------------------------------
 # Files
@@ -178,7 +179,7 @@ rebuild:
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
 
 %.cmxs: %.cmxa
-	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) $(OCAMLINC) -I . -o $@ $<
+	$(OCAMLOPT_CMXS) $(CMXSINC) -o $@ $<
 
 #---------------------------------------
 # C generic rules

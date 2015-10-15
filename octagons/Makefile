@@ -23,6 +23,7 @@ include ../vars.mk
 
 ICFLAGS = $(BASE_ICFLAGS) $(ML_ICFLAGS)
 LDFLAGS += $(BASE_LIFLAGS)
+CMXSINC = $(APRON_CMXSINC) -I .
 
 #---------------------------------------
 # Files
@@ -306,7 +307,7 @@ rebuild:
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
 
 %.cmxs: %.cmxa
-	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
+	$(OCAMLOPT_CMXS) $(CMXSINC) -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES

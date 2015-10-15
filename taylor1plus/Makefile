@@ -18,7 +18,8 @@ CFLAGS := $(CSDP_CFLAGS) $(CFLAGS)
 CFLAGS_DEBUG := $(CSDP_CFLAGS) $(CFLAGS_DEBUG) -D_GET_CPU_TIME -D_T1P_DEBUG #-D_T1P_DEBUG_FUN #-pg -D_CALL_DEBUG
 
 ICFLAGS = $(BASE_ICFLAGS) $(ML_ICFLAGS)
-LDFLAGS += $(BASE_LIFLAGS)
+LDFLAGS += $(BASE_LIFLAGS) -L../box -L../newpolka
+CMXSINC = $(APRON_CMXSINC) -I ../box -I ../newpolka -I .
 
 #---------------------------------------
 # Files
@@ -54,7 +55,6 @@ CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMP
 endif
 endif
 
-LDFLAGS += -L../box -L../newpolka
 LIBS = -lapron -lgmpxx -lgmp -lmpfr -lm
 LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lm
 
@@ -249,7 +249,7 @@ rebuild:
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -c $<
 
 %.cmxs: %.cmxa
-	$(OCAMLOPT_CMXS) $(APRON_OCAMLINC) -I . -o $@ $<
+	$(OCAMLOPT_CMXS) $(CMXSINC) -o $@ $<
 
 #-----------------------------------
 # DEPENDENCIES
