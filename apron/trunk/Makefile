@@ -137,6 +137,9 @@ endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; $(MAKE) install)
 endif
+ifneq ($(HAS_JAVA),)
+	(cd japron; $(MAKE) install)
+endif
 
 ifneq ($(OCAMLFIND),)
 install: mlapronidl/META
@@ -187,6 +190,7 @@ uninstall:
 	(cd ppl; $(MAKE) uninstall)
 	(cd products; $(MAKE) uninstall)
 	(cd apronxx; $(MAKE) uninstall)
+	(cd japron; $(MAKE) uninstall)
 	(cd $(APRON_BIN); rm -f apron*)
 ifneq ($(OCAMLFIND),)
 	$(OCAMLFIND) remove apron
