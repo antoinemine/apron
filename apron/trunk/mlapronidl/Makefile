@@ -54,7 +54,7 @@ LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 # Rules
 #---------------------------------------
 
-all: apron.cmi apron.cma libapron_caml.a libapron_caml_debug.a
+all: apron.cma libapron_caml.a libapron_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
 all: $(call OCAMLOPT_TARGETS, apron apron.d)
@@ -133,7 +133,7 @@ libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
 # CAML rules
 #---------------------------------------
 
-apron.cmo apron.cmi: $(MLOBJ) $(MLINT)
+apron.cmo: $(MLOBJ) $(MLINT)
 	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -pack -o $@ $(MLOBJ)
 
 apron.cmx apron.o: $(MLOBJx)
