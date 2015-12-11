@@ -38,23 +38,23 @@ typedef mpfr_t numflt_t;
 static inline void numflt_set(numflt_t a, numflt_t b)
 { mpfr_set(a,b,GMP_RNDU); }
 static inline void numflt_set_array(numflt_t* a, numflt_t* b, size_t size)
-{ 
+{
   size_t i;
   for (i=0; i<size; i++) mpfr_set(a[i],b[i],GMP_RNDU);
 }
 static inline void numflt_set_int(numflt_t a, long int i)
 { mpfr_set_si(a,i,GMP_RNDU); }
- 
+
 /* ====================================================================== */
 /* Constructors and Destructors */
 /* ====================================================================== */
 
 static inline void numflt_init(numflt_t a)
-{ mpfr_init_set_ui(a,0,MPFR_RNDN); }
+{ mpfr_init_set_ui(a,0,GMP_RNDN); }
 static inline void numflt_init_array(numflt_t* a, size_t size)
 {
-  size_t i; 
-  for (i=0; i<size; i++) mpfr_init_set_ui(a[i],0,MPFR_RNDN);
+  size_t i;
+  for (i=0; i<size; i++) mpfr_init_set_ui(a[i],0,GMP_RNDN);
 }
 static inline void numflt_init_set(numflt_t a, numflt_t b)
 { mpfr_init_set(a,b,GMP_RNDU); }
@@ -65,7 +65,7 @@ static inline void numflt_clear(numflt_t a)
 { mpfr_clear(a); }
 static inline void numflt_clear_array(numflt_t* a, size_t size)
 {
-  size_t i; 
+  size_t i;
   for (i=0; i<size; i++) mpfr_clear(a[i]);
 }
 
@@ -109,7 +109,7 @@ static inline void numflt_ceil(numflt_t a, numflt_t b)
 static inline void numflt_trunc(numflt_t a, numflt_t b)
 { mpfr_rint_trunc(a,b,GMP_RNDU); }
 static inline void numflt_sqrt(numflt_t up, numflt_t down, numflt_t b)
-{ 
+{
   mpfr_sqrt(up,b,GMP_RNDU);
   mpfr_sqrt(down,b,GMP_RNDD);
 }
@@ -149,7 +149,7 @@ static inline bool numflt_integer(numflt_t a)
 /* ====================================================================== */
 
 static inline int numflt_snprint(char* s, size_t size, numflt_t a)
-{ 
+{
   double d;
   /* special cases */
   if (mpfr_nan_p(a)) return snprintf(s,size,"NaN");
@@ -173,7 +173,7 @@ static inline int numflt_snprint(char* s, size_t size, numflt_t a)
   }
 }
 static inline void numflt_fprint(FILE* stream, numflt_t a)
-{ 
+{
   char buf[256];
   numflt_snprint(buf,sizeof(buf)-10,a);
   fputs(buf,stream);
@@ -187,7 +187,7 @@ static inline void numflt_print(numflt_t a)
 
 /* int2 -> numflt */
 static inline bool numflt_set_int2(numflt_t a, long int i, long int j)
-{ 
+{
   int r1,r2;
   assert(j>0);
   r1=mpfr_set_si(a,i,GMP_RNDU);
@@ -224,14 +224,14 @@ static inline bool int_set_numflt(long int* a, numflt_t b)
 }
 /* numflt -> mpz */
 static inline bool mpz_set_numflt(mpz_t a, numflt_t b)
-{ 
+{
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; mpz_set_si(a,0); return false; }
   mpfr_get_z(a,b,GMP_RNDU);
   return mpfr_integer_p(b);
 }
 /* numflt -> mpq */
 static inline bool mpq_set_numflt(mpq_t a, numflt_t b)
-{ 
+{
   mp_exp_t e;
   if (!mpfr_number_p(b)) { DEBUG_SPECIAL; mpq_set_si(a,0,1); return false; }
   /* XXX might fail if scaled exponent not representable in mp_exp_t */
@@ -332,14 +332,14 @@ static inline size_t numflt_deserialize(numflt_t dst, const void* src)
     if (*((const char*)src)==4) mpfr_neg(dst,dst,GMP_RNDU);
     mpz_clear(z);
     return count+9;
-  default: 
+  default:
     assert(0);
     return 1;
   }
 }
 
 /* not the exact size of serialized data, but a sound overapproximation */
-static inline size_t numflt_serialized_size(numflt_t a) 
+static inline size_t numflt_serialized_size(numflt_t a)
 { return mpfr_get_prec(a)/8+9+sizeof(mp_limb_t); }
 
 
