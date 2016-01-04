@@ -143,8 +143,8 @@ static bool env_is_leq(env_t* env1,
   size_t i,j;
   int sgn = 0;
   if (env1->size<=env2->size){
-    j = 0;
     for (i=0;i<env1->size; i++){
+      j = 0;
       while (j<env2->size){
 	sgn = ap_var_operations->compare(env1->var_of_dim[i],env2->var_of_dim[j]);
 	j++;
