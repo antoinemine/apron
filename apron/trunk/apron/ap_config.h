@@ -26,17 +26,6 @@ static const bool false = 0;
 static const bool true  = 1;
 #endif
 
-#if !(defined __USE_SVID || defined __USE_BSD || defined __unix__ || defined __USE_XOPEN_EXTENDED || defined __APPLE__ || defined __CYGWIN__ || defined __MINGW32__)
-
-static inline char* strdup(const char* s){
-  char* s2;
-
-  s2 = malloc(strlen(s)+1);
-  strcpy(s2,s);
-  return s2;
-}
-#endif
-
 #ifdef __cplusplus
 }
 #endif
