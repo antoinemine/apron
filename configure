@@ -457,7 +457,7 @@ if test $has_java -eq 1; then searchbin "jar"; has_java=$?; jar="$path"; fi
 # check jni includes
 if test $has_java -eq 1
 then
-    checkinc "$cc $cflags -I$JAVA_HOME/include" jni.h
+    checkinc "$cc $cflags -I$JAVA_HOME/include -I$JAVA_HOME/include/linux" jni.h
     if test $? -eq 0; then echo "JNI not found, please set JAVA_HOME"; has_java=0; fi
 fi
 
