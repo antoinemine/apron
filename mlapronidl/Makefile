@@ -5,7 +5,7 @@ include ../vars.mk
 # C part
 #---------------------------------------
 
-ICFLAGS = $(APRON_ICFLAGS) $(MP_ICFLAGS) $(ML_ICFLAGS)
+ICFLAGS += $(APRON_ICFLAGS) $(MP_ICFLAGS) $(ML_ICFLAGS)
 LDFLAGS += $(APRON_LIFLAGS) $(MP_LIFLAGS)
 CMXSINC = $(APRON_CMXSINC) -I .
 

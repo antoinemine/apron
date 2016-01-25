@@ -37,7 +37,7 @@ clean:
 
 distclean: clean
 
-ICFLAGS = $(APRON_ICFLAGS) $(MP_ICFLAGS)
+ICFLAGS += $(APRON_ICFLAGS) $(MP_ICFLAGS)
 LDFLAGS += $(APRON_LIFLAGS) $(MP_LIFLAGS) -lapron -lmpfr -lgmp -lm
 
 tests: testli testlli testlr testllr testmpz testmpq testdbl testldbl testmpfr

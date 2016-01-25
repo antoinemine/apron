@@ -20,7 +20,7 @@ include ../vars.mk
 #---------------------------------------
 
 # Machine-independent compilation flags.
-ICXXFLAGS = $(BASE_ICFLAGS) \
+ICXXFLAGS = $(ICFLAGS) $(BASE_ICFLAGS) \
 	-I../box -I../newpolka -I../octagons -I../taylor1plus
 LDFLAGS += $(BASE_LIFLAGS)
 

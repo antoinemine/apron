@@ -1,7 +1,7 @@
 include ../Makefile.config
 include ../vars.mk
 
-ICFLAGS = \
+ICFLAGS += \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(APRON_PREFIX)/include \

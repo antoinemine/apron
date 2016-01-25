@@ -12,7 +12,7 @@ OCAMLMKLIB := $(OCAMLMKLIB) -dllpath $(PPL_PREFIX)/lib
 # Flags
 #---------------------------------------
 
-ICFLAGS = $(BASE_ICFLAGS)  $(ML_ICFLAGS) $(PPL_ICFLAGS) -I../ppl -I../newpolka
+ICFLAGS += $(BASE_ICFLAGS)  $(ML_ICFLAGS) $(PPL_ICFLAGS) -I../ppl -I../newpolka
 LDFLAGS += $(BASE_LIFLAGS) $(PPL_LIFLAGS) -L../ppl
 
 # Caml

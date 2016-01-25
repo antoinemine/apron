@@ -5,7 +5,7 @@ include ../vars.mk
 # C part
 #---------------------------------------
 
-ICFLAGS = $(NUM_ICFLAGS) $(ITV_ICFLAGS) $(MP_ICFLAGS)
+ICFLAGS += $(NUM_ICFLAGS) $(ITV_ICFLAGS) $(MP_ICFLAGS)
 OCAMLINC = -I $(MLGMPIDL)
 
 #---------------------------------------
