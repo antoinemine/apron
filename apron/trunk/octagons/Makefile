@@ -21,7 +21,7 @@ include ../vars.mk
 # Flags
 #---------------------------------------
 
-ICFLAGS = $(BASE_ICFLAGS) $(ML_ICFLAGS)
+ICFLAGS += $(BASE_ICFLAGS) $(ML_ICFLAGS)
 LDFLAGS += $(BASE_LIFLAGS)
 CMXSINC = $(APRON_CMXSINC) -I .
 

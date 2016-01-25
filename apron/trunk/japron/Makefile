@@ -15,7 +15,7 @@ include ../vars.mk
 
 ############################
 
-IFLAGS = \
+IFLAGS = $(ICFLAGS) \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
@@ -27,7 +27,7 @@ IFLAGS = \
 -I../products \
 $(JNIINC) 
 
-LFLAGS = \
+LFLAGS = $(LDFLAGS) \
 -L$(GMP_PREFIX)/lib \
 -L$(MPFR_PREFIX)/lib \
 -L$(PPL_PREFIX)/lib \
