@@ -754,7 +754,7 @@ bool ap_abstract0_is_leq(ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* 
     return true;
   }
   else if (ap_abstract0_checkman2(AP_FUNID_IS_LEQ,man,a1,a2) &&
-	   ap_abstract0_check_abstract2(AP_FUNID_IS_EQ,man,a1,a2)){
+	   ap_abstract0_check_abstract2(AP_FUNID_IS_LEQ,man,a1,a2)){
     if (a1->value==a2->value) return true;
     bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_LEQ];
     return ptr(man,a1->value,a2->value);

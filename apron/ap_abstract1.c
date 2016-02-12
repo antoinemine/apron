@@ -297,7 +297,7 @@ void ap_abstract1_fdump(FILE* stream, ap_manager_t* man, ap_abstract1_t* a)
 /* I.4 Serialization */
 /* ============================================================ */
 
-/* DOIT-ON SÉRIALISER L'ENVIRONNEMENT ? */
+/* DOIT-ON SERIALISER L'ENVIRONNEMENT ? */
 
 /* Allocate a memory buffer (with malloc), output the abstract value in raw
    binary format to it and return a pointer on the memory buffer and the size
