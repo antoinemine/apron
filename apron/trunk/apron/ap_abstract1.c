@@ -122,8 +122,8 @@ bool ap_abstract1_check_env_array(ap_funid_t funid,ap_manager_t* man,
     ap_environment_t* env0 = tab[0].env;
     for (i=1;i<size; i++){
       if (!ap_environment_is_eq(env0,tab[i].env)){
-	res = false;
-	break;
+	//res = false;
+	//break;
 
 	char str[160];
 	snprintf(str,159,"The %luth abstract value of the array has not \
