@@ -342,7 +342,6 @@ public class MpqScalar
 
     /** Returns a copy of this. */
     public MpqScalar clone()
-        throws CloneNotSupportedException
     {
         return copy();
     }

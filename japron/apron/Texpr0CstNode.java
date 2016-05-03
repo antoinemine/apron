@@ -61,7 +61,7 @@ public class Texpr0CstNode
         return new Texpr1CstNode(cst.copy());
     }
 
-    public String toString(String[] names)
+    public String toString(Var[] names)
     { 
         return cst.toString();
     }

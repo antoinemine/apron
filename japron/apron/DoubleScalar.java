@@ -259,7 +259,6 @@ public class DoubleScalar
 
     /** Returns a copy of this. */
     public DoubleScalar clone()
-        throws CloneNotSupportedException
     {
         return copy();
     }

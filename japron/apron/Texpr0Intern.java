@@ -176,7 +176,7 @@ public class Texpr0Intern
      **/
     public String toString()
     {
-        return toString(null); 
+        return toString((Var[])null); 
     }
 
     /**
@@ -184,14 +184,19 @@ public class Texpr0Intern
      * 
      * <p> Dimension i is denoted by names[i].
      */
-    public String toString(String[] names)
+    public String toString(Var[] names)
     {
         return toTexpr0Node().toString(names);
     }
 
+    public String toString(String[] names)
+    {
+        return toString(StringVar.arrayOfStrings(names));
+    }
+
+
     /** Returns a deep copy of this. */
     public Texpr0Intern clone()
-        throws CloneNotSupportedException
     {
         return new Texpr0Intern(this);
     }

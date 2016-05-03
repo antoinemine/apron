@@ -152,27 +152,32 @@ public class Texpr1Intern
     {
         return expr.getSize();
     }
-    
+
     /** Whether the variable var is present. */
-    public boolean hasVar(String var)
+    public boolean hasVar(Var var)
     {
         return env.hasVar(var) && expr.hasDim(env.dimOfVar(var));
     }
 
+    public boolean hasVar(String var)
+    {
+        return this.hasVar(new StringVar(var));
+    }
+    
     /**
      * Returns the list of all occurring variables. 
      *
      * <p> The ordering is that of dimensions.
      */
-    public String[] getVars()
+    public Var[] getVars()
     {
         int[] d = expr.getDims();
-        String[] s = new String[d.length];
+        Var[] s = new Var[d.length];
         for (int i=0; i<d.length; i++)
             s[i] = env.varOfDim(d[i]);
         return s;
     }
-
+    
     /** Whether the expression is constant. */
     public boolean isIntervalCst()
     {
@@ -236,17 +241,30 @@ public class Texpr1Intern
     // Operations
     /////////////
 
+    public void substitute(String var, Texpr1Intern t)
+    {
+        Var vn = new StringVar(var);
+
+        this.substitute(vn, t);
+    }
     /** 
      * Substitutes all occurrences of the variable var with 
      * the expression tree t. 
      *
      * <p> this and t must be defined on the same environment.
      */
-    public void substitute(String var, Texpr1Intern t)
+    public void substitute(Var var, Texpr1Intern t)
     {
         if (!env.isEqual(t.env))
             throw new IllegalArgumentException("incompatible environments");
         expr.substitute(env.dimOfVar(var), t.expr);
+    }
+
+    public Texpr0Intern substituteCopy(String var, Texpr1Intern t)
+    {
+        Var vn = new StringVar(var);
+
+        return this.substituteCopy(vn, t);
     }
 
     /**
@@ -256,7 +274,7 @@ public class Texpr1Intern
      * <p> this and t must be defined on the same environment.
      * <p> this is not modified.
      */
-    public Texpr0Intern substituteCopy(String var, Texpr1Intern t)
+    public Texpr0Intern substituteCopy(Var var, Texpr1Intern t)
     {
         if (!env.isEqual(t.env))
             throw new IllegalArgumentException("incompatible environments");
@@ -287,7 +305,6 @@ public class Texpr1Intern
 
     /** Returns a deep copy of this. */
     public Texpr1Intern clone()
-        throws CloneNotSupportedException
     {
         return new Texpr1Intern(this);
     }

@@ -22,17 +22,21 @@ public class Linterm1
     implements Cloneable, Serializable
 {
     /** Variable name. */
-    public String var;
+    public Var var;
 
     /** Variable coefficient. */
     public Coeff coeff;
 
+    public Linterm1(String v, Coeff c)
+    {
+        this(new StringVar(v), c);
+    }
     /** 
      * Creates a new linear term.
      *
      * <p> The coefficient is referenced, not copied.
      */
-    public Linterm1(String v, Coeff c)
+    public Linterm1(Var v, Coeff c)
     { 
         var = v;
         coeff = c; 
@@ -59,7 +63,6 @@ public class Linterm1
 
     /** Returns a copy of this. */
     public Linterm1 clone()
-        throws CloneNotSupportedException
     {
         return new Linterm1(var, coeff);
     }
@@ -76,7 +79,7 @@ public class Linterm1
         return (x instanceof Linterm1) && (isEqual((Linterm1)x));
     }
 
-    public String getVariable()
+    public Var getVariable()
     {
         return var;
     }
@@ -86,7 +89,12 @@ public class Linterm1
         return coeff;
     }
 
-    public void setVariable(String s)
+    public void setVariable(String s) 
+    {
+        var = new StringVar(s);
+    }
+
+    public void setVariable(Var s)
     {
         var = s;
     }

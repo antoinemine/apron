@@ -148,12 +148,12 @@ public class Texpr1UnNode
         return arg.getSize() + 1;
     }
 
-    public boolean hasVar(String var)
+    public boolean hasVar(Var var)
     {
         return arg.hasVar(var);
     }
 
-    protected void fillVars(HashSet<String> set)
+    protected void fillVars(HashSet<Var> set)
     {
         arg.fillVars(set);
     }
@@ -203,8 +203,8 @@ public class Texpr1UnNode
     {
         return arg.isScalar();
     }
-
-    public Texpr1Node substitute(String var, Texpr1Node t)
+    
+    public Texpr1Node substitute(Var var, Texpr1Node t)
     {
         arg = arg.substitute(var, t);
         return this;

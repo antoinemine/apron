@@ -91,7 +91,7 @@ public class Generator0
      */
     public String toString()
     { 
-        return toString(null); 
+        return toString((Var[])null); 
     }
 
     /** 
@@ -99,7 +99,7 @@ public class Generator0
      *
      * <p> Dimension i is denoted by names[i].
      */
-    public String toString(String[] names)
+    public String toString(Var[] names)
     {
         StringBuffer buf = new StringBuffer();
         boolean first = true;
@@ -119,11 +119,16 @@ public class Generator0
             else buf.append(" ");
             buf.append(c.toString());
             if (names==null) { buf.append('x'); buf.append(x[i].dim); }
-            else buf.append(names[x[i].dim]);
+            else buf.append(names[x[i].dim].toString());
             first = false;
         }
         if (first) buf.append("0");
         return buf.toString();        
+    }
+
+    public String toString(String[] names)
+    {
+        return toString(StringVar.arrayOfStrings(names));
     }
 
     /** Returns a hash of the generator. */
@@ -170,7 +175,6 @@ public class Generator0
 
     /** Returns a copy of this. */
     public Generator0 clone()
-        throws CloneNotSupportedException
     {
         return new Generator0(this);
     }

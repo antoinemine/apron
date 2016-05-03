@@ -21,11 +21,10 @@ STATUS
 ######
 
 Status: Beta
-All functions have been implemented but only very few have 
-been tested so far.
+All functions have been implemented but few have been tested so far.
 
 Requirements: 
-Only tested on Sun's Java 1.6.0_17, on x86_64 Linux
+Tested on Sun/Oracle's Java 1.6 to 1.8 on x86_64 Linux
 
 
 INSTALLATION
@@ -44,16 +43,28 @@ the -I to include jni.h.
 
 "make doc" builds some Javadoc documentation 
 
-To run some tests, type
-  java -ae gmp.Test
-  java -ae apron.Test
-after checking that your CLASSPATH contains the proper directories.
-
 The PPL binding is optional. It is built only if HAS_PPL is 1.
 Currently, 
 
 Currently, whether to compile a double, MPQ, or MPFR of boxes and
 octagons is hardcoded in the Makefile.
+
+
+RUNNING
+#######
+
+Make sure to update your CLASSPATH to contain the path with the
+.class / .jar files
+and your LD_LIBRARY_PATH to contain the path with the .so files
+
+To run some tests, type
+  java -ea gmp.Test
+  java -ea apron.Test
+
+On Eclipse, make sure, in the Project menu, to:
+- add the apron.jar and gmp.jar files in the "Add External Jars" dialog
+- add the path of the .so files in the "Native Library Location" dialog
+
 
 
 DOCUMENTATION

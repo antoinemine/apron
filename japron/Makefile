@@ -58,7 +58,7 @@ APRONLIBS = -ljgmp -lboxD -loctD -lpolkaMPQ -lapron $(GMPLIBS)
 
 # .java / .c pairs
 APRONMODS = Dimchange Dimperm Linexpr0 Lincons0 \
-            Texpr0Intern Manager Abstract0 Environment \
+            Texpr0Intern Manager Abstract0 Environment Var \
 	    Octagon Polka PolkaEq Box
 
 ifneq ($(HAS_PPL),)
@@ -67,7 +67,7 @@ APRONLIBS := $(APRONLIBS) -lap_pkgrid -lap_ppl -lppl
 endif
 
 # long .java
-APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff \
+APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
             Linterm0 Dimension Texpr0Node Texpr0BinNode Texpr0UnNode \
             Texpr0DimNode Texpr0CstNode Tcons0 Generator0 Linterm1 Linexpr1 \
             Lincons1 Texpr1Intern Texpr1Node Texpr1BinNode Texpr1UnNode \

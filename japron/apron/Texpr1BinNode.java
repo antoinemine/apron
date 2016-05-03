@@ -177,12 +177,12 @@ public class Texpr1BinNode
         return lArg.getSize() + rArg.getSize() + 1;
     }
 
-    public boolean hasVar(String var)
+    public boolean hasVar(Var var)
     {
         return lArg.hasVar(var) || rArg.hasVar(var);
     }
 
-    protected void fillVars(HashSet<String> set)
+    protected void fillVars(HashSet<Var> set)
     {
         lArg.fillVars(set);
         rArg.fillVars(set);
@@ -247,8 +247,8 @@ public class Texpr1BinNode
     {
         return lArg.isScalar() && rArg.isScalar();
     }
-
-    public Texpr1Node substitute(String var, Texpr1Node t)
+    
+    public Texpr1Node substitute(Var var, Texpr1Node t)
     {
         lArg = lArg.substitute(var, t);
         rArg = rArg.substitute(var, t);

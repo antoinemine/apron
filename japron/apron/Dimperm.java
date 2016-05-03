@@ -120,7 +120,6 @@ public class Dimperm
 
     /** Returns a copy of this. */
     public Dimperm clone()
-        throws CloneNotSupportedException
     {
         return new Dimperm(this);
     }

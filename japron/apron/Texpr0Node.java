@@ -76,7 +76,7 @@ public abstract class Texpr0Node
      */
     public String toString()
     { 
-        return toString(null); 
+        return toString((Var[])null); 
     }
 
     /** 
@@ -84,7 +84,12 @@ public abstract class Texpr0Node
      * 
      * <p> Dimension i is denoted by names[i].
      */
-    public abstract String toString(String[] names);
+    public abstract String toString(Var[] names);
+
+    public String toString(String[] names)
+    {
+        return toString(StringVar.arrayOfStrings(names));
+    }
 
     /** Returns the depth of the expression tree. */
     public abstract int getDepth();
@@ -285,7 +290,6 @@ public abstract class Texpr0Node
 
     /** Returns a deep copy of this. */
     public Texpr0Node clone()
-        throws CloneNotSupportedException
     {
         return deepCopy();
     }

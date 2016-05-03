@@ -15,6 +15,8 @@
 /* =========================== */
 
 jclass japron_string;
+jclass japron_object;
+jclass japron_var;
 jclass japron_mpqscalar;
 jclass japron_mpfrscalar;
 jclass japron_doublescalar;
@@ -81,6 +83,36 @@ jmethodID japron_linexpr0_init;
 jmethodID japron_manager_init;
 jmethodID japron_texpr0intern_init;
 
+JavaVM          *g_vm;
+__thread JNIEnv *t_env;
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *r) 
+{
+  assert(jvm != NULL);
+
+  g_vm = jvm;
+  var_init();
+
+  return JNI_VERSION_1_6;
+}
+
+//check if t_env is null, if null, call through g_vm to get
+//JNIEnv, cache in t_env, return to caller. if not null, return to caller
+JNIEnv *get_env(void) 
+{
+  if(t_env) return t_env;
+
+  assert(g_vm != NULL);
+
+  JNIEnv  *env = NULL;
+  jint res = (*g_vm)->GetEnv(g_vm, (void **)&env, JNI_VERSION_1_6);
+  assert(env != NULL && res != 0);
+
+  t_env = env;
+
+  return env;
+}
+
 static int japron_cached = 0;
 
 void japron_cache(JNIEnv *env) 
@@ -88,6 +120,8 @@ void japron_cache(JNIEnv *env)
   if (japron_cached) return;
   jgmp_cache(env);
   cache_class(japron_string,       "java/lang/String");
+  cache_class(japron_object,       "java/lang/Object");
+  cache_class(japron_var,          "apron/Var");
   cache_class(japron_mpqscalar,    "apron/MpqScalar");
   cache_class(japron_mpfrscalar,   "apron/MpfrScalar");
   cache_class(japron_doublescalar, "apron/DoubleScalar");
@@ -862,6 +896,19 @@ void japron_string_array_free(char** r, size_t nb)
   free(r);
 }
 
+void japron_object_array_free(void** r, size_t nb)
+{
+  for(size_t i = 0; i < nb; i++) {
+    if(r[i]) {
+      JNIEnv  *env = get_env();
+      jobject j = (jobject) r[i];
+      (*env)->DeleteGlobalRef(env, j);
+    }
+  }
+
+  free(r);
+}
+
 /* String[] -> char** */
 char** japron_string_array_alloc_set(JNIEnv *env, jintArray ar, size_t* pnb)
 {
@@ -899,6 +946,61 @@ jobjectArray japron_string_array_get(JNIEnv *env, char** x, size_t nb)
   return o;
 }
 
+/* Object[] -> void ** */
+void** japron_object_array_alloc_set(JNIEnv *env, jobjectArray ar, size_t *pnb)
+{
+  check_nonnull(ar,NULL);
+  size_t nb = (*env)->GetArrayLength(env, ar);
+  *pnb = nb;
+  
+  void**  r = (void**) malloc(nb*sizeof(void*));
+  assert(r != NULL);
+  memset(r, 0, nb*sizeof(void*));
+  for(size_t i = 0; i < nb; i++) {
+    jobject o = (*env)->GetObjectArrayElement(env, ar, i);
+    if(!o) {
+      null_pointer_exception("element of array is null");
+
+      return NULL;
+    }
+
+    r[i] = (*env)->NewGlobalRef(env, o);
+  }
+
+  return r;
+}
+
+/* void ** -> Object[] */
+jobjectArray japron_object_array_get(JNIEnv *env, void **x, size_t nb)
+{
+  check_nonnull(x, NULL);
+
+  jobjectArray o = (*env)->NewObjectArray(env, nb, japron_object, NULL);
+  if(!o) return NULL;
+  
+  for(size_t i = 0; i < nb; i++) {
+    jobject ref = (*env)->NewGlobalRef(env, x[i]);
+    (*env)->SetObjectArrayElement(env, o, i, ref);
+  }
+
+  return (*env)->NewGlobalRef(env, o);
+}
+
+/* void ** -> Var[] */
+jobjectArray japron_var_array_get(JNIEnv *env, void **x, size_t nb)
+{
+  check_nonnull(x, NULL);
+
+  jobjectArray o = (*env)->NewObjectArray(env, nb, japron_var, NULL);
+  if(!o) return NULL;
+  
+  for(size_t i = 0; i < nb; i++) {
+    jobject ref = (*env)->NewGlobalRef(env, x[i]);
+    (*env)->SetObjectArrayElement(env, o, i, ref);
+  }
+
+  return (*env)->NewGlobalRef(env, o);
+}
 
 /* Apron utilities */
 /* =============== */

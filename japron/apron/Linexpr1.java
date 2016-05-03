@@ -143,10 +143,14 @@ public class Linexpr1
         expr.setCst(c);
     }
 
+    public void setCoeff(String var, Coeff c)
+    {
+        setCoeff(new StringVar(var), c);
+    }
     /** 
      * Sets the coefficient of variable var to c. 
      */
-    public void setCoeff(String var, Coeff c)
+    public void setCoeff(Var var, Coeff c)
     { 
         expr.setCoeff(env.dimOfVar(var), c); 
     }
@@ -203,10 +207,14 @@ public class Linexpr1
         return expr.getCst();
     }
 
+    public Coeff getCoeff(String var)
+    {
+        return getCoeff(new StringVar(var));
+    }
     /**
      * Returns a copy of the coefficient of variable var. 
      */
-    public Coeff getCoeff(String var)
+    public Coeff getCoeff(Var var)
     {
         return expr.getCoeff(env.dimOfVar(var));
     }
@@ -356,7 +364,6 @@ public class Linexpr1
 
     /** Returns a copy of this. */
     public Linexpr1 clone()
-        throws CloneNotSupportedException
     {
         return new Linexpr1(this);
     }
