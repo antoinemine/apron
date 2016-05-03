@@ -173,7 +173,6 @@ public class Generator1
 
     /** Returns a copy of this. */
     public Generator1 clone()
-        throws CloneNotSupportedException
     {
         return new Generator1(this);
     }

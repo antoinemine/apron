@@ -90,7 +90,8 @@ extern jmethodID japron_texpr0intern_init;
 /* fills cache, once */
 void japron_cache(JNIEnv *env);
 
-
+JNIEnv *get_env(void);
+void var_init(void);
 
 /* Field access */
 /* ------------ */
@@ -199,6 +200,11 @@ ap_dim_t* japron_dim_array_alloc_set(JNIEnv *env, jintArray ar, size_t* pnb);
 void         japron_string_array_free(char** r, size_t nb);
 char**       japron_string_array_alloc_set(JNIEnv *env, jintArray ar, size_t* pnb);
 jobjectArray japron_string_array_get(JNIEnv *env, char** x, size_t nb);
+
+void japron_object_array_free(void** r, size_t nb);
+void** japron_object_array_alloc_set(JNIEnv *env, jobjectArray ar, size_t *pnb);
+jobjectArray japron_object_array_get(JNIEnv *env, void **x, size_t nb);
+jobjectArray japron_var_array_get(JNIEnv *env, void **x, size_t nb);
 
 
 /* Apron utilities */

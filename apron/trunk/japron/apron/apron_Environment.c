@@ -28,22 +28,23 @@ JNIEXPORT void JNICALL Java_apron_Environment_init__
 /*
  * Class:     apron_Environment
  * Method:    init
- * Signature: ([Ljava/lang/String;[Ljava/lang/String;)V
+ * Signature: ([Lapron/Var;[Lapron/Var;)V
  */
-JNIEXPORT void JNICALL Java_apron_Environment_init___3Ljava_lang_String_2_3Ljava_lang_String_2
+JNIEXPORT void JNICALL Java_apron_Environment_init___3Lapron_Var_2_3Lapron_Var_2
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2)
 {
   check_nonnull(o,);
   check_nonnull(ar1,);
   check_nonnull(ar2,);
+
   size_t nb1, nb2;
-  char** x1 = japron_string_array_alloc_set(env, ar1, &nb1);
+  void** x1 = japron_object_array_alloc_set(env, ar1, &nb1);
   if (!x1) return;
-  char** x2 = japron_string_array_alloc_set(env, ar2, &nb2);
-  if (!x2) { japron_string_array_free(x1, nb1); return; }
-  ap_environment_t* r = ap_environment_alloc((void*)x1, nb1, (void*)x2, nb2);
-  japron_string_array_free(x1, nb1);
-  japron_string_array_free(x2, nb2);
+  void** x2 = japron_object_array_alloc_set(env, ar2, &nb2);
+  if (!x2) { japron_object_array_free(x1, nb1); return; }
+  ap_environment_t* r = ap_environment_alloc(x1, nb1, x2, nb2);
+  japron_object_array_free(x1, nb1);
+  japron_object_array_free(x2, nb2);
   if (!r) { illegal_argument("environment has duplicate names"); return; }
   set_environment(o, r);
 }
@@ -75,7 +76,7 @@ JNIEXPORT void JNICALL Java_apron_Environment_class_1init
 /*
  * Class:     apron_Environment
  * Method:    add
- * Signature: ([Ljava/lang/String;[Ljava/lang/String;)Lapron/Environment;
+ * Signature: ([Lapron/Var;[Lapron/Var;)Lapron/Environment;
  */
 JNIEXPORT jobject JNICALL Java_apron_Environment_add
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2)
@@ -84,19 +85,19 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_add
   jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1 = 0, nb2 = 0;
-  char** x1 = NULL, **x2 = NULL;
+  void** x1 = NULL, **x2 = NULL;
   if (ar1) {
-    x1 = japron_string_array_alloc_set(env, ar1, &nb1);
+    x1 = japron_object_array_alloc_set(env, ar1, &nb1);
     if (!x1) return NULL;
   }
   if (ar2) {
-    x2 = japron_string_array_alloc_set(env, ar2, &nb2);
-    if (!x2) { if (x1) japron_string_array_free(x1, nb1); return NULL; }
+    x2 = japron_object_array_alloc_set(env, ar2, &nb2);
+    if (!x2) { if (x1) japron_object_array_free(x1, nb1); return NULL; }
   }
   ap_environment_t* r = 
-    ap_environment_add(as_environment(o),(void*)x1, nb1, (void*)x2, nb2);
-  if (x1) japron_string_array_free(x1, nb1);
-  if (x2) japron_string_array_free(x2, nb2);
+    ap_environment_add(as_environment(o), x1, nb1, x2, nb2);
+  if (x1) japron_object_array_free(x1, nb1);
+  if (x2) japron_object_array_free(x2, nb2);
   if (!r) { illegal_argument("environment has duplicate names"); return NULL; }
   ap_environment_free(as_environment(rr));
   set_environment(rr, r);
@@ -106,7 +107,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_add
 /*
  * Class:     apron_Environment
  * Method:    addPerm
- * Signature: ([Ljava/lang/String;[Ljava/lang/String;[Lapron/Dimperm;)Lapron/Environment;
+ * Signature: ([Lapron/Var;[Lapron/Var;[Lapron/Dimperm;)Lapron/Environment;
  */
 JNIEXPORT jobject JNICALL Java_apron_Environment_addPerm
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2, jobjectArray pr)
@@ -115,20 +116,20 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_addPerm
   jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1 = 0, nb2 = 0;
-  char** x1 = NULL, **x2 = NULL;
+  void** x1 = NULL, **x2 = NULL;
   if (ar1) {
-    x1 = japron_string_array_alloc_set(env, ar1, &nb1);
+    x1 = japron_object_array_alloc_set(env, ar1, &nb1);
     if (!x1) return NULL;
   }
   if (ar2) {
-    x2 = japron_string_array_alloc_set(env, ar2, &nb2);
-    if (!x2) { if (x1) japron_string_array_free(x1, nb1); return NULL; }
+    x2 = japron_object_array_alloc_set(env, ar2, &nb2);
+    if (!x2) { if (x1) japron_object_array_free(x1, nb1); return NULL; }
   }
   ap_dimperm_t p = { NULL, 0 };
   ap_environment_t* r = 
-    ap_environment_add_perm(as_environment(o),(void*)x1, nb1, (void*)x2, nb2, &p);
-  if (x1) japron_string_array_free(x1, nb1);
-  if (x2) japron_string_array_free(x2, nb2);
+    ap_environment_add_perm(as_environment(o), x1, nb1, x2, nb2, &p);
+  if (x1) japron_object_array_free(x1, nb1);
+  if (x2) japron_object_array_free(x2, nb2);
   if (!r) {
     if (p.dim) free(p.dim); 
     illegal_argument("environment has duplicate names"); 
@@ -148,7 +149,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_addPerm
 /*
  * Class:     apron_Environment
  * Method:    remove
- * Signature: ([Ljava/lang/String;)Lapron/Environment;
+ * Signature: ([Lapron/Var;)Lapron/Environment;
  */
 JNIEXPORT jobject JNICALL Java_apron_Environment_remove
   (JNIEnv *env, jobject o, jobjectArray ar)
@@ -158,10 +159,10 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_remove
   jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb;
-  char** x = japron_string_array_alloc_set(env, ar, &nb);
+  void** x = japron_object_array_alloc_set(env, ar, &nb);
   if (!x) return NULL;
-  ap_environment_t* r = ap_environment_remove(as_environment(o),(void*)x, nb);
-  japron_string_array_free(x, nb);
+  ap_environment_t* r = ap_environment_remove(as_environment(o), x, nb);
+  japron_object_array_free(x, nb);
   if (!r) { illegal_argument("removing nonexistent names"); return NULL; }
   ap_environment_free(as_environment(rr));
   set_environment(rr, r);
@@ -234,7 +235,7 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_lce___3Lapron_Environment_2
 /*
  * Class:     apron_Environment
  * Method:    rename
- * Signature: ([Ljava/lang/String;[Ljava/lang/String;[Lapron/Dimperm;)Lapron/Environment;
+ * Signature: ([Lapron/Var;[Lapron/Var;[Lapron/Dimperm;)Lapron/Environment;
  */
 JNIEXPORT jobject JNICALL Java_apron_Environment_rename
   (JNIEnv *env, jobject o, jobjectArray ar1, jobjectArray ar2, jobjectArray pr)
@@ -245,25 +246,25 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_rename
   jobject rr = (*env)->NewObject(env, japron_environment, japron_environment_init);
   if (!rr) return NULL;
   size_t nb1, nb2;
-  char** x1, **x2;
-  x1 = japron_string_array_alloc_set(env, ar1, &nb1);
+  void** x1, **x2;
+  x1 = japron_object_array_alloc_set(env, ar1, &nb1);
   if (!x1) return NULL;
-  x2 = japron_string_array_alloc_set(env, ar2, &nb2);
+  x2 = japron_object_array_alloc_set(env, ar2, &nb2);
   if (!x2) { 
-    japron_string_array_free(x1, nb1); 
+    japron_object_array_free(x1, nb1); 
     return NULL;
   }
   if (nb1!=nb2) { 
     illegal_argument("incompatible array sizes");
-    japron_string_array_free(x1, nb1);
-    japron_string_array_free(x2, nb2);
+    japron_object_array_free(x1, nb1);
+    japron_object_array_free(x2, nb2);
     return NULL;
   }
   ap_dimperm_t p = { NULL, 0 };
   ap_environment_t* r = 
-    ap_environment_rename(as_environment(o),(void*)x1, (void*)x2, nb1, &p);
-  japron_string_array_free(x1, nb1);
-  japron_string_array_free(x2, nb2);
+    ap_environment_rename(as_environment(o), x1, x2, nb1, &p);
+  japron_object_array_free(x1, nb1);
+  japron_object_array_free(x2, nb2);
   if (!r) { illegal_argument("environment has duplicate names"); return NULL; }
   if (pr) {
     jobject pp = (*env)->NewObject(env, japron_dimperm, japron_dimperm_init);
@@ -296,32 +297,28 @@ JNIEXPORT jobject JNICALL Java_apron_Environment_getDimension
 /*
  * Class:     apron_Environment
  * Method:    hasVar
- * Signature: (Ljava/lang/String;)Z
+ * Signature: (Lapron/Var;)Z
  */
 JNIEXPORT jboolean JNICALL Java_apron_Environment_hasVar
-  (JNIEnv *env, jobject o, jstring s)
+  (JNIEnv *env, jobject o, jobject v)
 {
   check_nonnull(o,0);
-  check_nonnull(s,0);
-  const char* str = (const char*)(*env)->GetStringUTFChars(env, s, NULL);
-  bool r = ap_environment_mem_var(as_environment(o), (ap_var_t)str);
-  (*env)->ReleaseStringUTFChars(env, s, str);
+  check_nonnull(v,0);
+  bool r = ap_environment_mem_var(as_environment(o), v);
   return r;
 }
 
 /*
  * Class:     apron_Environment
  * Method:    dimOfVar
- * Signature: (Ljava/lang/String;)I
+ * Signature: (Lapron/Var;)I
  */
 JNIEXPORT jint JNICALL Java_apron_Environment_dimOfVar
-  (JNIEnv *env, jobject o, jstring s)
+  (JNIEnv *env, jobject o, jobject v)
 {
   check_nonnull(o,0);
-  check_nonnull(s,0);
-  const char* str = (const char*)(*env)->GetStringUTFChars(env, s, NULL);
-  ap_dim_t d = ap_environment_dim_of_var(as_environment(o), (ap_var_t)str);
-  (*env)->ReleaseStringUTFChars(env, s, str);
+  check_nonnull(v,0);
+  ap_dim_t d = ap_environment_dim_of_var(as_environment(o), v);
   if (d==AP_DIM_MAX) {
     illegal_argument("no such variable"); 
     return 0;
@@ -332,9 +329,9 @@ JNIEXPORT jint JNICALL Java_apron_Environment_dimOfVar
 /*
  * Class:     apron_Environment
  * Method:    varOfDim
- * Signature: (I)Ljava/lang/String;
+ * Signature: (I)Lapron/Var;
  */
-JNIEXPORT jstring JNICALL Java_apron_Environment_varOfDim
+JNIEXPORT jobject JNICALL Java_apron_Environment_varOfDim
   (JNIEnv *env, jobject o, jint d)
 {
   check_nonnull(o,NULL);
@@ -343,48 +340,46 @@ JNIEXPORT jstring JNICALL Java_apron_Environment_varOfDim
     out_of_bounds("no such dimension");
     return NULL;
   }
-  return (*env)->NewStringUTF(env, e->var_of_dim[d]);
+  return (*env)->NewGlobalRef(env, e->var_of_dim[d]);
 }
 
 /*
  * Class:     apron_Environment
  * Method:    getIntVars
- * Signature: ()[Ljava/lang/String;
+ * Signature: ()[Lapron/Var;
  */
 JNIEXPORT jobjectArray JNICALL Java_apron_Environment_getIntVars
   (JNIEnv *env, jobject o)
 {
   check_nonnull(o,NULL);
   ap_environment_t* e = as_environment(o);
-  return japron_string_array_get(env, (char**)e->var_of_dim, e->intdim);
+  return japron_var_array_get(env, e->var_of_dim, e->intdim);
 }
 
 /*
  * Class:     apron_Environment
  * Method:    getRealVars
- * Signature: ()[Ljava/lang/String;
+ * Signature: ()[Lapron/Var;
  */
 JNIEXPORT jobjectArray JNICALL Java_apron_Environment_getRealVars
   (JNIEnv *env, jobject o)
 {
   check_nonnull(o,NULL);
   ap_environment_t* e = as_environment(o);
-  return japron_string_array_get(env, ((char**)e->var_of_dim)+e->intdim, 
-                                 e->realdim);
+  return japron_var_array_get(env, (e->var_of_dim)+e->intdim, e->realdim);
 }
 
 /*
  * Class:     apron_Environment
  * Method:    getVars
- * Signature: ()[Ljava/lang/String;
+ * Signature: ()[Lapron/Var;
  */
 JNIEXPORT jobjectArray JNICALL Java_apron_Environment_getVars
   (JNIEnv *env, jobject o)
 {
   check_nonnull(o,NULL);
   ap_environment_t* e = as_environment(o);
-  return japron_string_array_get(env, (char**)e->var_of_dim,
-                                 e->intdim + e->realdim);
+  return japron_var_array_get(env, e->var_of_dim, e->intdim + e->realdim);
 }
 
 /*

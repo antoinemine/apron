@@ -31,12 +31,12 @@ public class Test
             ObjectOutputStream jout = new ObjectOutputStream(out);
             jout.writeObject(o);
             jout.close();
+            System.out.println("OUT: "+o);
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
             ObjectInputStream jin = new ObjectInputStream(in);
             Object oo = jin.readObject();
-            jin.close();
-            System.out.println("OUT: "+o);
             System.out.println("IN : "+oo);
+            jin.close();
             return oo;
         }
         catch (Exception e) {
@@ -574,9 +574,9 @@ public class Test
         String[] n2 = { "zzz", "cz", "a0" };
         String[] n3 = { "kk", "ll" };
         Environment env2 = new Environment( n1, n2 );
-        env1.add(n2,n1);
-        env2.add(null,null);
-        env2.remove(n1); env2.remove(n2);
+        //env1.add(n2,n1);
+        //env2.add(new String[0],new String[0]);
+        //env2.remove(n1); env2.remove(n2);
         System.out.println("empty: " + env1);
         System.out.println("env: " + env2);
         System.out.println("env: " + Arrays.toString(env2.getVars()));
@@ -586,13 +586,13 @@ public class Test
         System.out.println("isint: " + env2.isInt("zz") + ", " + env2.isInt("a0"));
         System.out.println("var 1: " + env2.varOfDim(1));
         System.out.println("hash: " + env2.hashCode());
-        System.out.println("add:  " + env2.add(null, n3));
+        System.out.println("add:  " + env2.add(new String[0], n3));
         Dimperm[] ren = new Dimperm[1];
-        System.out.println("add:  " + env2.addPerm(null, n3, ren));
+        System.out.println("add:  " + env2.addPerm(new String[0], n3, ren));
         System.out.println("perm: " + ren[0]);
-        Environment env3 = env2.add(null, n3);
+        Environment env3 = env2.add(new String[0], n3);
         System.out.println("rem: " + env3.remove(n2));
-        assert env3.isEqual(env2.add(null, n3));
+        assert env3.isEqual(env2.add(new String[0], n3));
         assert !env3.isEqual(env2);
         assert env2.isIncluded(env3);
         assert !env3.isIncluded(env2);

@@ -27,8 +27,9 @@
  * Cartesian space Z^n * R^m, and all data-structures (expressions,
  * constraints, etc.) consider variables as dimensions, indexed from 0.
  * In level 1 operations, abstract elements are sets of points in
- * an {@link apron.Environment} (i.e., set of variable names) and variables 
- * are named (using strings). The main advantage of level 1 is that you do not
+ * an {@link apron.Environment} (i.e., set of variables) and variables 
+ * are abstract {@link apron.Var} (possibly simple strings, using
+ * {@link apron.StringVar}). The main advantage of level 1 is that you do not
  * need to bother with the mapping from program variables to dimensions in your
  * static analysis (which could be tricky if variables are not created and
  * destroyed in a last in / first out manner): the library does it for you.

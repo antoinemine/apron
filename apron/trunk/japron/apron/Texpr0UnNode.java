@@ -111,7 +111,7 @@ public class Texpr0UnNode
         return new Texpr1UnNode(op, rtype, rdir, arg.toTexpr1Node(e));
     }
 
-    public String toString(String[] names)
+    public String toString(Var[] names)
     { 
         String o = opName(op);
         String suf = (rtype==RTYPE_REAL) ? "" : ("_" + suffixRType(rtype) + "," +suffixRDir(rdir));

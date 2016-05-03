@@ -129,8 +129,8 @@ public class Abstract1
         return r;
     }
 
-    /** String[] variable names -> int[] dimensions */
-    private int[] makeDimArray(String[] ar)
+    /** Var[] variable names -> int[] dimensions */
+    private int[] makeDimArray(Var[] ar)
     {
         int[] r = new int[ar.length];
         for (int i=0; i<ar.length; i++)
@@ -182,7 +182,7 @@ public class Abstract1
      * <p> All variables from vars must be exist in the environment e.
      * <p> vars and box must have the same length.
      */
-    public Abstract1(Manager man, Environment e, String[] vars, Interval[] box)
+    public Abstract1(Manager man, Environment e, Var[] vars, Interval[] box)
         throws ApronException
     {
         if (vars.length!=box.length)
@@ -198,6 +198,13 @@ public class Abstract1
         abs = new Abstract0(man, d.intDim, d.realDim, itv);
         env = e;
     }
+
+    public Abstract1(Manager man, Environment e, String[] vars, Interval[] box)
+        throws ApronException
+    {
+        this(man, e, StringVar.arrayOfStrings(vars), box);
+    }
+
 
    /**
      * Creates a new abstract element from a set of constraints.
@@ -332,12 +339,18 @@ public class Abstract1
         checkEnv(e.getEnvironment());
         return abs.getBound(man, e.getTexpr0InternRef());
     }
+
+    public Interval getBound(Manager man, String var)
+        throws ApronException
+    {
+        return getBound(man, new StringVar(var));
+    }
   
     /**
      * Returns (an over-approximation of) the set of values the
      * variable var can take on this.
      */
-    public Interval getBound(Manager man, String var)
+    public Interval getBound(Manager man, Var var)
         throws ApronException
     {
         return abs.getBound(man, env.dimOfVar(var));
@@ -494,6 +507,12 @@ public class Abstract1
         return abs.satisfy(man, c.getTcons0Ref());
     }
 
+    public boolean satisfy(Manager man, String var, Interval i)
+        throws ApronException
+    {
+        return satisfy(man, new StringVar(var), i);
+    }
+
     /**
      * Whether the projection of this on variable var is definitely
      * included in the interval i (true) or maybe is not included
@@ -503,10 +522,16 @@ public class Abstract1
      * then false indicates that it is definitely
      * not included.
      */
-    public boolean satisfy(Manager man, String var, Interval i)
+    public boolean satisfy(Manager man, Var var, Interval i)
         throws ApronException
     {
         return abs.satisfy(man, env.dimOfVar(var), i);
+    }
+
+    public boolean isDimensionUnconstrained(Manager man, String var)
+        throws ApronException
+    {
+        return isDimensionUnconstrained(man, new StringVar(var));
     }
 
     /**
@@ -517,7 +542,7 @@ public class Abstract1
      * then false indicates that the dimension is
      * definitely bounded.
      */
-    public boolean isDimensionUnconstrained(Manager man, String var)
+    public boolean isDimensionUnconstrained(Manager man, Var var)
         throws ApronException
     {
         return abs.isDimensionUnconstrained(man, env.dimOfVar(var));
@@ -820,7 +845,12 @@ public class Abstract1
     // Assignment and substitution
     //////////////////////////////
 
-
+    public void assign(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+        throws ApronException
+    {
+        assign(man, StringVar.arrayOfStrings(var), ar, dest);
+    }
+    
     /**
      * Replaces this with (an over-approximation of) this after
      * assigning ar[i] to  var[i], in parallel.
@@ -828,7 +858,7 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public void assign(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+    public void assign(Manager man, Var[] var, Linexpr1[] ar, Abstract1 dest)
         throws ApronException
     {
         abs.assign(man, makeDimArray(var), makeLinexpr0Array(ar), 
@@ -843,12 +873,16 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public Abstract1 assignCopy(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+    public Abstract1 assignCopy(Manager man, Var[] var, Linexpr1[] ar, Abstract1 dest)
         throws ApronException
     {
         return new Abstract1(env, abs.assignCopy(man, makeDimArray(var), makeLinexpr0Array(ar), makeAbstract0Opt(dest)));
     }
-
+    public void assign(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+        throws ApronException
+    {
+        assign(man, StringVar.arrayOfStrings(var), ar, dest);
+    }
     /**
      * Replaces this with (an over-approximation of) this after
      * assigning ar[i] to var[i], in parallel.
@@ -856,13 +890,19 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public void assign(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+    public void assign(Manager man, Var[] var, Texpr1Intern[] ar, Abstract1 dest)
         throws ApronException
     {
         abs.assign(man, makeDimArray(var), makeTexpr0InternArray(ar), 
                    makeAbstract0Opt(dest));
     }
     
+    public Abstract1 assignCopy(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+        throws ApronException
+    {   
+        return assignCopy(man, StringVar.arrayOfStrings(var), ar, dest);
+    }
+
     /**
      * Returns a new element containing (an over-approximation of) this after
      * assigning ar[i] to var[i], in parallel.
@@ -871,12 +911,17 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public Abstract1 assignCopy(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+    public Abstract1 assignCopy(Manager man, Var[] var, Texpr1Intern[] ar, Abstract1 dest)
         throws ApronException
     {
         return new Abstract1(env, abs.assignCopy(man, makeDimArray(var), makeTexpr0InternArray(ar), makeAbstract0Opt(dest)));
     }
 
+    public void substitute(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+        throws ApronException
+    {
+        substitute(man, StringVar.arrayOfStrings(var), ar, dest);
+    }
 
     /**
      * Replaces this with (an over-approximation of) this after
@@ -885,7 +930,7 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
     */
-    public void substitute(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+    public void substitute(Manager man, Var[] var, Linexpr1[] ar, Abstract1 dest)
         throws ApronException
     {
         abs.substitute(man, makeDimArray(var), makeLinexpr0Array(ar), 
@@ -901,12 +946,17 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public Abstract1 substituteCopy(Manager man, String[] var, Linexpr1[] ar, Abstract1 dest)
+    public Abstract1 substituteCopy(Manager man, Var[] var, Linexpr1[] ar, Abstract1 dest)
         throws ApronException
     {
         return new Abstract1(env, abs.substituteCopy(man, makeDimArray(var), makeLinexpr0Array(ar), makeAbstract0Opt(dest)));
     }
-
+    
+    public void substitute(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+        throws ApronException
+    {
+        substitute(man, StringVar.arrayOfStrings(var), ar, dest);
+    }
     /**
      * Replaces this with (an over-approximation of) this after
      * substituting var[i] with ar[i], in parallel.
@@ -914,11 +964,16 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public void substitute(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+    public void substitute(Manager man, Var[] var, Texpr1Intern[] ar, Abstract1 dest)
         throws ApronException
     {
         abs.substitute(man, makeDimArray(var), makeTexpr0InternArray(ar), 
                        makeAbstract0Opt(dest));
+    }
+    public Abstract1 substituteCopy(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+        throws ApronException
+    {
+        return substituteCopy(man, StringVar.arrayOfStrings(var), ar, dest);
     }
     
     /**
@@ -929,12 +984,17 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and the array must have the same environment.
      */
-    public Abstract1 substituteCopy(Manager man, String[] var, Texpr1Intern[] ar, Abstract1 dest)
+    public Abstract1 substituteCopy(Manager man, Var[] var, Texpr1Intern[] ar, Abstract1 dest)
         throws ApronException
     {
         return new Abstract1(env, abs.substituteCopy(man, makeDimArray(var), makeTexpr0InternArray(ar), makeAbstract0Opt(dest)));
     }
 
+    public void assign(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+        throws ApronException
+    {
+        assign(man, new StringVar(var), expr, dest);
+    }
     /**
      * Replaces this with (an over-approximation of) this after
      * assigning expr to var.
@@ -942,13 +1002,18 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public void assign(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+    public void assign(Manager man, Var var, Linexpr1 expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
         abs.assign(man, env.dimOfVar(var), expr.getLinexpr0Ref(), makeAbstract0Opt(dest));
     }
 
+    public Abstract1 assignCopy(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+        throws ApronException
+    {
+        return assignCopy(man, new StringVar(var), expr, dest);
+    }
     /**
      * Returns a new element containing (an over-approximation of) this after
      * assigning expr to var.
@@ -957,11 +1022,17 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public Abstract1 assignCopy(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+    public Abstract1 assignCopy(Manager man, Var var, Linexpr1 expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
         return new Abstract1(env, abs.assignCopy(man, env.dimOfVar(var), expr.getLinexpr0Ref(), makeAbstract0Opt(dest)));
+    }
+
+    public void assign(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+        throws ApronException
+    {
+        assign(man, new StringVar(var), expr, dest);
     }
 
     /**
@@ -971,13 +1042,18 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public void assign(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+    public void assign(Manager man, Var var, Texpr1Intern expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
         abs.assign(man, env.dimOfVar(var), expr.getTexpr0InternRef(), makeAbstract0Opt(dest));
     }
 
+    public Abstract1 assignCopy(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+        throws ApronException
+    {
+        return assignCopy(man, new StringVar(var), expr, dest);
+    }
     /**
      * Returns a new element containing (an over-approximation of) this after
      * assigning expr to var.
@@ -986,7 +1062,7 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public Abstract1 assignCopy(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+    public Abstract1 assignCopy(Manager man, Var var, Texpr1Intern expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
@@ -994,6 +1070,11 @@ public class Abstract1
     }
 
 
+    public void substitute(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+        throws ApronException
+    {
+        substitute(man, new StringVar(var), expr, dest);
+    }
     /**
      * Replaces this with (an over-approximation of) this after
      * substituting var with expr.
@@ -1001,7 +1082,7 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public void substitute(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+    public void substitute(Manager man, Var var, Linexpr1 expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
@@ -1009,6 +1090,11 @@ public class Abstract1
     }
 
 
+    public Abstract1 substituteCopy(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+        throws ApronException
+    { 
+        return substituteCopy(man, new StringVar(var), expr, dest);
+    }
     /**
      * Returns a new element containing (an over-approximation of) this after
      * substituting var with expr.
@@ -1017,13 +1103,18 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public Abstract1 substituteCopy(Manager man, String var, Linexpr1 expr, Abstract1 dest)
+    public Abstract1 substituteCopy(Manager man, Var var, Linexpr1 expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
         return new Abstract1(env, abs.substituteCopy(man, env.dimOfVar(var), expr.getLinexpr0Ref(), makeAbstract0Opt(dest)));
     }
 
+    public void substitute(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+        throws ApronException
+    {
+        substitute(man, new StringVar(var), expr, dest);
+    }
     /**
      * Replaces this with (an over-approximation of) this after
      * substituting var with expr.
@@ -1031,13 +1122,18 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public void substitute(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+    public void substitute(Manager man, Var var, Texpr1Intern expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
         abs.substitute(man, env.dimOfVar(var), expr.getTexpr0InternRef(), makeAbstract0Opt(dest));
     }
 
+    public Abstract1 substituteCopy(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+        throws ApronException
+    {
+        return substituteCopy(man, new StringVar(var), expr, dest);
+    }
     /**
      * Returns a new element containing (an over-approximation of) this after
      * substituting var with expr.
@@ -1046,7 +1142,7 @@ public class Abstract1
      * <p> The result is intersected with dest, if dest is not null.
      * <p> this, dest, and expr must have the same environment.
      */
-    public Abstract1 substituteCopy(Manager man, String var, Texpr1Intern expr, Abstract1 dest)
+    public Abstract1 substituteCopy(Manager man, Var var, Texpr1Intern expr, Abstract1 dest)
         throws ApronException
     {
         checkEnv(expr.getEnvironment());
@@ -1056,6 +1152,12 @@ public class Abstract1
 
     // Projection
     /////////////
+    public Abstract1 forgetCopy(Manager man, String [] var, boolean project)
+        throws ApronException
+    {
+        return forgetCopy(man, StringVar.arrayOfStrings(var), project);
+    }
+
 
     /**
      * Returns a new element containing (an over-approximation of) this after
@@ -1065,10 +1167,16 @@ public class Abstract1
      * <p> If project is true, the variables are set to 0. 
      * Otherwise, they are set to [-oo,+oo].
      */
-    public Abstract1 forgetCopy(Manager man, String[] var, boolean project)
+    public Abstract1 forgetCopy(Manager man, Var[] var, boolean project)
         throws ApronException
     {
         return new Abstract1(env, abs.forgetCopy(man, makeDimArray(var), project));
+    }
+
+    public void forget(Manager man, String[] var, boolean project)
+        throws ApronException
+    {
+        forget(man, StringVar.arrayOfStrings(var), project);
     }
 
     /**
@@ -1078,10 +1186,16 @@ public class Abstract1
      * <p> If project is true, the variables are set to 0. 
      * Otherwise, they are set to [-oo,+oo].
      */
-    public void forget(Manager man, String[] var, boolean project)
+    public void forget(Manager man, Var[] var, boolean project)
         throws ApronException
     {
         abs.forget(man, makeDimArray(var), project);
+    }
+    
+    public  Abstract1 forgetCopy(Manager man, String var, boolean project)
+        throws ApronException
+    { 
+        return forgetCopy(man, new StringVar(var), project);
     }
 
     /**
@@ -1090,17 +1204,23 @@ public class Abstract1
      *
      * <p> this is not modified.
      */
-    public  Abstract1 forgetCopy(Manager man, String var, boolean project)
+    public  Abstract1 forgetCopy(Manager man, Var var, boolean project)
         throws ApronException
     { 
         return new Abstract1(env, abs.forgetCopy(man, env.dimOfVar(var), project));
+    }
+
+    public void forget(Manager man, String var, boolean project)
+        throws ApronException
+    { 
+        forget(man, new StringVar(var), project);
     }
 
     /**
      * Replaces this with (an over-approximation of) this after
      * forgetting the value of the variable  var.
      */
-    public void forget(Manager man, String var, boolean project)
+    public void forget(Manager man, Var var, boolean project)
         throws ApronException
     { 
         abs.forget(man, env.dimOfVar(var), project);
@@ -1158,7 +1278,7 @@ public class Abstract1
         int nb = 0;
         for (int i=0; i<total; i++)
             if (uncons[i]) nb++;
-        String[] vars = new String[nb];
+        Var[] vars = new Var[nb];
         for (int i=0, j=0; i<total; i++)
             if (uncons[i]) { vars[j] = env.varOfDim(i); j++; }
         return env.remove(vars);
@@ -1184,13 +1304,19 @@ public class Abstract1
         changeEnvironment(man, withoutUnconstrained(man), false);
     }
 
+    public Abstract1 renameCopy(Manager man, String[] org, String[] dst)
+        throws ApronException
+    {
+        return renameCopy(man, StringVar.arrayOfStrings(org), StringVar.arrayOfStrings(dst));
+    }
+
     /**
      * Returns a copy of this with variable org[i] renamed as dst[i].
      *
      * <p> org and dst must have the same size.
      * <p> this is not modified.
      */
-    public Abstract1 renameCopy(Manager man, String[] org, String[] dst)
+    public Abstract1 renameCopy(Manager man, Var[] org, Var[] dst)
         throws ApronException
     {
         Dimperm[] p = new Dimperm[1];
@@ -1198,12 +1324,18 @@ public class Abstract1
         return new Abstract1(e, abs.permuteDimensionsCopy(man, p[0]));
     }
 
+    public void rename(Manager man, String[] org, String[] dst)
+        throws ApronException
+    {
+        rename(man, StringVar.arrayOfStrings(org), StringVar.arrayOfStrings(dst));
+    }
+
     /**
      * Renames variable org[i] as dst[i].
      *
      * <p> org and dst must have the same size.
      */
-    public void rename(Manager man, String[] org, String[] dst)
+    public void rename(Manager man, Var[] org, Var[] dst)
         throws ApronException
     {
         Dimperm[] p = new Dimperm[1];
@@ -1238,6 +1370,11 @@ public class Abstract1
 
     // Expansion and folding
     ////////////////////////
+     public Abstract1 expandCopy(Manager man, String org, String[] dst)
+        throws ApronException
+    {
+        return expandCopy(man, new StringVar(org), StringVar.arrayOfStrings(dst));
+    }
     
     /**
      * Returns a new element where variable org is duplicated as
@@ -1245,7 +1382,7 @@ public class Abstract1
      *
      * <p> this is not modified.
      */
-    public Abstract1 expandCopy(Manager man, String org, String[] dst)
+    public Abstract1 expandCopy(Manager man, Var org, Var[] dst)
         throws ApronException
     {
         /* expand */
@@ -1258,11 +1395,16 @@ public class Abstract1
         r.permuteDimensions(man, p[0]);
         return new Abstract1(e, r);
     }
-
+    public void expand(Manager man, String org, String[] dst)
+        throws ApronException
+    {
+        expand(man, new StringVar(org), StringVar.arrayOfStrings(dst)); 
+    }
+ 
     /**
      * Duplicates the variable org as dst[0] ... dst[dst.length-1].
      */
-    public void expand(Manager man, String org, String[] dst)
+    public void expand(Manager man, Var org, Var[] dst)
         throws ApronException
     {
         /* expand */
@@ -1274,7 +1416,11 @@ public class Abstract1
         abs.permuteDimensions(man, p[0]);
     }
 
-
+    public Abstract1 foldCopy(Manager man, String[] var)
+        throws ApronException
+    {
+        return foldCopy(man, StringVar.arrayOfStrings(var));
+    } 
     /**
      * Returns a new element where all the variables var[i]
      * are folded into the variable var[0].
@@ -1283,13 +1429,13 @@ public class Abstract1
      * variables.
      * <p> this is not modified.
      */
-    public Abstract1 foldCopy(Manager man, String[] var)
+    public Abstract1 foldCopy(Manager man, Var[] var)
         throws ApronException
     {
         int[] dim = makeDimArray(var);
         Arrays.sort(dim);
-        String[] var0 = { env.varOfDim(dim[0]) };
-        String[] var1 = { var[0] };
+        Var[] var0 = { env.varOfDim(dim[0]) };
+        Var[] var1 = { var[0] };
         Environment e = env.remove(var);
         if (env.isInt(var0[0])) e = e.add(var0, null);
         else e = e.add(null, var0);
@@ -1298,20 +1444,24 @@ public class Abstract1
         return r;
     }
 
-    
+     public void fold(Manager man, String[] var)
+        throws ApronException
+    {
+        fold(man, StringVar.arrayOfStrings(var));
+    }   
     /**
      * Folds all variables var[i] into variable var[0].
      *
      * <p> The array must contain either only integer-valued or real-valued
      * variables.
      */
-    public void fold(Manager man, String[] var)
+    public void fold(Manager man, Var[] var)
         throws ApronException
     {
         int[] dim = makeDimArray(var);
         Arrays.sort(dim);
-        String[] var0 = { env.varOfDim(dim[0]) };
-        String[] var1 = { var[0] };
+        Var[] var0 = { env.varOfDim(dim[0]) };
+        Var[] var1 = { var[0] };
         if (env.isInt(var0[0])) env = env.remove(var).add(var0, null);
         else env = env.remove(var).add(null, var0);
         abs.fold(man, dim);

@@ -217,14 +217,14 @@ public class Lincons0
      *
      * <p> Dimension i is denoted as xi.
      */
-    public String toString() { return toString(null); }
+    public String toString() { return toString((Var[])null); }
 
     /** 
      * Returns a string representation of the constraint.
      *
      * <p> Dimension i is denoted by names[i].
      */
-    public String toString(String[] names)
+    public String toString(Var[] names)
     { 
         String s = expr.toString(names);
         switch (kind) {
@@ -237,6 +237,11 @@ public class Lincons0
         }
     }
 
+    public String toString(String[] names)
+    {
+        return toString(StringVar.arrayOfStrings(names));
+    }
+ 
     /** Returns a hash of the constraint. */
     public int hashCode()
     {
@@ -371,7 +376,6 @@ public class Lincons0
 
     /** Returns a copy of this. */
     public Lincons0 clone()
-        throws CloneNotSupportedException
     {
         return new Lincons0(this);
     }

@@ -50,10 +50,10 @@ public class Texpr0DimNode
         return new Texpr1VarNode(e.varOfDim(dim));
     }
 
-    public String toString(String[] names)
+    public String toString(Var[] names)
     { 
         if (names==null) return "x" + dim;
-        else return names[dim];
+        else return names[dim].toString();
     }
 
     public int getDimension()

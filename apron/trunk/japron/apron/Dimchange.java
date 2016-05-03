@@ -133,7 +133,6 @@ public class Dimchange
 
     /** Returns a copy of this. */
     public Dimchange clone()
-        throws CloneNotSupportedException
     {
         Dimension d = getDimension();
         return new Dimchange(d.intDim, d.realDim, getContents());

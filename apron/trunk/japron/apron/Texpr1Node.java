@@ -82,22 +82,27 @@ public abstract class Texpr1Node
     public abstract int getSize();
 
     /** Whether the variable var occurs in the tree. */
-    public abstract boolean hasVar(String var);
+    public abstract boolean hasVar(Var var);
+
+    public boolean hasVar(String var)
+    {
+        return hasVar(new StringVar(var));
+    }
 
     /** Used internally for getVars. */
-    protected abstract void fillVars(HashSet<String> set);
+    protected abstract void fillVars(HashSet<Var> set);
 
     /**
      * Returns the list of all occurring variables. 
      *
      * <p> The ordering is unspecified.
      **/
-    public String[] getVars()
+    public Var[] getVars()
     {
-        HashSet<String> set = new HashSet<String>();
+        HashSet<Var> set = new HashSet<Var>();
         fillVars(set);
-        String[] s = new String[set.size()];
-        Iterator<String> i = set.iterator();
+        Var[] s = new Var[set.size()];
+        Iterator<Var> i = set.iterator();
         for (int nb=0; i.hasNext(); nb++)
             s[nb] = i.next();
         return s;
@@ -126,7 +131,7 @@ public abstract class Texpr1Node
 
     /** Whether all coefficients are scalar (non interval). */
     public abstract boolean isScalar();
-    
+   
     /** 
      * Substitutes all occurrences of the variable var with the tree t.
      *
@@ -134,16 +139,26 @@ public abstract class Texpr1Node
      * <p> As some nodes can change their kind (a node for a variable var
      * becomes the root of the tree t), a new root node is returned.
      */
-    public abstract Texpr1Node substitute(String var, Texpr1Node t);
+    public abstract Texpr1Node substitute(Var var, Texpr1Node t);
+
+    public Texpr1Node substitute(String var, Texpr1Node t)
+    {
+        return substitute(new StringVar(var), t);
+    }
 
     /**
      * Returns a copy of this where all occurrences of the variable var
      * are substituted with the expression tree t. 
      */
-    public Texpr1Node substituteCopy(String var, Texpr1Node t)
+    public Texpr1Node substituteCopy(Var var, Texpr1Node t)
     {
         Texpr1Node x = this.deepCopy();
         return x.substitute(var, t);
+    }
+
+    public Texpr1Node substituteCopy(String var, Texpr1Node t)
+    {
+        return substituteCopy(new StringVar(var), t);
     }
 
     /** Recursive hashing. */
@@ -201,7 +216,6 @@ public abstract class Texpr1Node
 
     /** Returns a deep copy of this. */
     public Texpr1Node clone()
-        throws CloneNotSupportedException
     {
         return deepCopy();
     }

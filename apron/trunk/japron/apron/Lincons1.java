@@ -150,10 +150,14 @@ public class Lincons1
         cons.setCst(c);
     }
 
+    public void setCoeff(String var, Coeff c)
+    {
+        setCoeff(new StringVar(var), c);
+    }
     /** 
      * Sets the coefficient of variable var to c. 
      */
-    public void setCoeff(String var, Coeff c)
+    public void setCoeff(Var var, Coeff c)
     { 
         cons.setCoeff(env.dimOfVar(var), c); 
     }
@@ -231,7 +235,7 @@ public class Lincons1
     }
 
     /** Returns a copy of the coefficient of variable var. */
-    public Coeff getCoeff(String var)
+    public Coeff getCoeff(Var var)
     {
         return cons.getCoeff(env.dimOfVar(var));
     }
@@ -372,7 +376,6 @@ public class Lincons1
 
     /** Returns a copy of this. */
     public Lincons1 clone()
-        throws CloneNotSupportedException
     {
         return new Lincons1(this);
     }

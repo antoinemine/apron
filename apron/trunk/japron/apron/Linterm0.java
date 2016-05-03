@@ -56,6 +56,12 @@ public class Linterm0
      * 
      * <p> Dimension i is denoted by names[i].
      */
+    public String toString(Var[] names)
+    {
+        if (names==null) return coeff.toString() + "x" + dim;
+        else return coeff.toString() + names[dim].toString();
+    }
+
     public String toString(String[] names)
     {
         if (names==null) return coeff.toString() + "x" + dim;
@@ -69,12 +75,11 @@ public class Linterm0
      */    
     public String toString()
     {
-        return toString(null);
+        return toString((Var[])null);
     }
 
     /** Returns a copy of this. */
     public Linterm0 clone()
-        throws CloneNotSupportedException
     {
         return new Linterm0(dim, coeff);
     }

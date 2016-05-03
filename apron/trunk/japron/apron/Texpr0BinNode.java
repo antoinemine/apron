@@ -130,7 +130,7 @@ public class Texpr0BinNode
         return new Texpr1BinNode(op, rtype, rdir, lArg.toTexpr1Node(e), rArg.toTexpr1Node(e));
     }
 
-    public String toString(String[] names)
+    public String toString(Var[] names)
     { 
         String o = opName(op);
         String suf = (rtype==RTYPE_REAL) ? "" : ("_" + suffixRType(rtype) + "," +suffixRDir(rdir));

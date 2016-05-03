@@ -299,7 +299,6 @@ public class MpfrScalar
 
     /** Returns a copy of this. */
     public MpfrScalar clone()
-        throws CloneNotSupportedException
     {
         return copy();
     }

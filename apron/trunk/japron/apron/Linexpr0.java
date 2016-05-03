@@ -191,14 +191,19 @@ public class Linexpr0
      *
      * <p> Dimension i is denoted as xi.
      */
-    public String toString() { return toString(null); }
+
+    public String toString() { return toString((Var[])null); }
+
+    public String toString(String[] names) {
+        return toString(StringVar.arrayOfStrings(names));
+    }
 
     /** 
      * Returns a string representation of the expression. 
      *
      * <p> Dimension i is denoted by names[i].
      */
-    public String toString(String[] names)
+    public String toString(Var[] names)
     {
         StringBuffer buf = new StringBuffer();
         boolean first = true;
@@ -210,7 +215,7 @@ public class Linexpr0
             else buf.append(" ");
             buf.append(c.toString());
             if (names==null) { buf.append('x'); buf.append(x[i].dim); }
-            else buf.append(names[x[i].dim]);
+            else buf.append(names[x[i].dim].toString());
             first = false;
         }
         Coeff c = getCst();
@@ -313,7 +318,6 @@ public class Linexpr0
 
     /** Returns a copy of this. */
     public Linexpr0 clone()
-        throws CloneNotSupportedException
     {
         return new Linexpr0(this);
     }

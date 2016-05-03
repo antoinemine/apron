@@ -15,7 +15,7 @@ import java.io.*;
  * Class of variable leaves in {@link apron.Texpr1Node} level 1
  * expression trees.
  *
- * <p> A variable is represented as a String name.
+ * <p> A variable is represented as a Var name.
  */
 public class Texpr1VarNode 
     extends Texpr1Node 
@@ -23,7 +23,7 @@ public class Texpr1VarNode
 {
 
     /** Variable name. */
-    public String var;
+    public Var var;
 
 
     // Operations
@@ -31,6 +31,10 @@ public class Texpr1VarNode
 
     /** Constructs a new variable leaf. */
     public Texpr1VarNode(String v)
+    {
+        this(new StringVar(v));
+    }
+    public Texpr1VarNode(Var v)
     {
         var = v; 
     }
@@ -52,15 +56,20 @@ public class Texpr1VarNode
 
     public String toString()
     { 
-        return var;
+        return var.toString();
     }
 
-    public String getVariable()
+    public Var getVariable()
     {
         return var;
     }
 
-    public void setVariable(String v)
+    public void setVariable(String v) 
+    {
+        var = new StringVar(v);
+    }
+
+    public void setVariable(Var v)
     {
         var = v;
     }
@@ -75,12 +84,12 @@ public class Texpr1VarNode
         return 0;
     }
 
-    public boolean hasVar(String v)
+    public boolean hasVar(Var v)
     {
         return var==v;
     }
 
-    protected void fillVars(HashSet<String> set)
+    protected void fillVars(HashSet<Var> set)
     {
         set.add(var);
     }
@@ -111,6 +120,11 @@ public class Texpr1VarNode
     }
 
     public Texpr1Node substitute(String v, Texpr1Node t)
+    {
+        return this.substitute(new StringVar(v), t);
+    }
+
+    public Texpr1Node substitute(Var v, Texpr1Node t)
     {
         if (var.equals(v)) return t;
         else return this;

@@ -203,9 +203,14 @@ public class Tcons1
     {
         return cons.getSize();
     }
+
+    public boolean hasVar(String var)
+    {
+        return this.hasVar(new StringVar(var));
+    }
     
     /** Whether the variable var is present. */
-    public boolean hasVar(String var)
+    public boolean hasVar(Var var)
     {
         return env.hasVar(var) && cons.hasDim(env.dimOfVar(var));
     }
@@ -215,10 +220,10 @@ public class Tcons1
      *
      * <p> The ordering is that of dimensions.
      */
-    public String[] getVars()
+    public Var[] getVars()
     {
         int[] d = cons.getDims();
-        String[] s = new String[d.length];
+        Var[] s = new Var[d.length];
         for (int i=0; i<d.length; i++)
             s[i] = env.varOfDim(d[i]);
         return s;
@@ -298,19 +303,29 @@ public class Tcons1
     // Operations
     /////////////
 
+    public void substitute(String var, Texpr1Intern t)
+    {
+        substitute(new StringVar(var), t);
+    }
+
     /** 
      * Substitutes all occurrences of the variable var with 
      * the expression tree t. 
      *
      * <p> this and t must be defined on the same environment.
      */
-    public void substitute(String var, Texpr1Intern t)
+    public void substitute(Var var, Texpr1Intern t)
     {
         if (!env.isEqual(t.env))
             throw new IllegalArgumentException("incompatible environments");
         cons.substitute(env.dimOfVar(var), t.getTexpr0InternRef());
     }
 
+    public Tcons1 substituteCopy(String var, Texpr1Intern t)
+    {
+         return substituteCopy(new StringVar(var), t);
+    }
+    
     /**
      * Returns a copy of this where all occurrences of the variable var
      * are substituted with the expression tree t. 
@@ -318,7 +333,7 @@ public class Tcons1
      * <p> this and t must be defined on the same environment.
      * <p> this is not modified.
      */
-    public Tcons1 substituteCopy(String var, Texpr1Intern t)
+    public Tcons1 substituteCopy(Var var, Texpr1Intern t)
     {
         Tcons1 x = new Tcons1(this);
         x.substitute(var, t);
@@ -349,7 +364,6 @@ public class Tcons1
 
     /** Returns a copy of this. */
     public Tcons1 clone()
-        throws CloneNotSupportedException
     {
         return new Tcons1(this);
     }

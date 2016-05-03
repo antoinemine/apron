@@ -162,9 +162,9 @@ public class Abstract0
      *
      * <p> This method uses the Manager that was used to create this.
      */
-   public String toString() 
+    public String toString() 
     {
-        return toString(getCreationManager(), null);
+        return toString(getCreationManager());
     }
     
     /**
@@ -175,7 +175,12 @@ public class Abstract0
      */
     public String toString(Manager man) 
     {
-        return toString(man, null);
+        return toString(man, (Var[])null);
+    }
+
+    public String toString(Manager man, String[] names)
+    {
+        return toString(man, StringVar.arrayOfStrings(names));
     }
 
     /**
@@ -184,7 +189,7 @@ public class Abstract0
      *
      * <p> Dimension i as denoted by names[i].
      */
-    public String toString(Manager man, String[] names) 
+    public String toString(Manager man, Var[] names) 
     {
         try {
             if (isBottom(man)) return "<empty>";

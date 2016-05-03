@@ -48,7 +48,7 @@ public class Environment
     private long ptr;
  
     private native void init();
-    private native void init(String[] intVars, String[] realVars);
+    private native void init(Var[] intVars, Var[] realVars);
 
     /** Deallocates the underlying Apron object. */
     protected native void finalize();
@@ -69,13 +69,17 @@ public class Environment
         init(); 
     }
 
+    public Environment(String[] intVars, String[] realVars)
+    {
+        this(StringVar.arrayOfStrings(intVars), StringVar.arrayOfStrings(realVars));
+    }
     /**
      * Constructs an environment containing some integer-valued and
      * some real-valued variables.
      *
      * <p> All variable names must be distinct.
      */
-    public Environment(String[] intVars, String[] realVars)
+    public Environment(Var[] intVars, Var[] realVars)
     { 
         init(intVars, realVars); 
     }
@@ -83,7 +87,11 @@ public class Environment
 
     // Operations
     /////////////
-
+    
+    public Environment add(String[] intVars, String[] realVars)
+    {
+        return add(StringVar.arrayOfStrings(intVars), StringVar.arrayOfStrings(realVars));
+    }
     /**
      * Returns a new environment with some integer-valued and/or 
      * real-valued variables added.
@@ -92,26 +100,34 @@ public class Environment
      * <p> One or both array(s) can be null.
      * <p> Added variables must not already exist.
      */
-    public native Environment add(String[] intVars, String[] realVars);
+    public native Environment add(Var[] intVars, Var[] realVars);
 
     
+    public Environment addPerm(String[] intVars, String[] realVars, Dimperm[] p)
+    {
+        return this.addPerm(StringVar.arrayOfStrings(intVars), StringVar.arrayOfStrings(realVars), p);
+    }
     /**
      * Returns a new environment with some integer-valued and/or 
      * real-valued variables added.
      *
-     * <p> Similar to {@link #add(String[], String[])}, but also returns
+     * <p> Similar to {@link #add(Var[], Var[])}, but also returns
      * in p[0] the level 0 dimension permutation induced by the variable 
      * addition in order to keep them sorted.
      */
-    public native Environment addPerm(String[] intVars, String[] realVars, Dimperm[] p);
+    public native Environment addPerm(Var[] intVars, Var[] realVars, Dimperm[] p);
 
+    public Environment remove(String[] vars)
+    {
+        return remove(StringVar.arrayOfStrings(vars));
+    }
     /**
      * Returns a new environment with some variables removed.
      *
      * <p> this is not modified.
      * <p> Removed variables must exist in this.
      */
-    public native Environment remove(String[] vars);
+    public native Environment remove(Var[] vars);
 
 
     /**
@@ -128,27 +144,35 @@ public class Environment
      */
     static public native Environment lce(Environment[] ar);
 
+    public Environment rename(String[] org, String[] dst)
+    {
+        return this.rename(StringVar.arrayOfStrings(org), StringVar.arrayOfStrings(dst));
+    }
     /**
      * Returns the environment obtained by mapping each variable
      * named org[i] to dst[i].
      *
      * <p> org[] and dst[] must have the same size.
      */
-    public Environment rename(String[] org, String[] dst)
+    public Environment rename(Var[] org, Var[] dst)
     {
         Dimperm[] p = null;
         return rename(org, dst, p);
     }
 
+    public Environment rename(String[] org, String[] dst, Dimperm[] p)
+    {
+        return this.rename(StringVar.arrayOfStrings(org), StringVar.arrayOfStrings(dst), p);
+    }
     /**
      * Returns the environment obtained by mapping each variable
      * named org[i] to dst[i].
      *
-     * <p> Similar to {@link #rename(String[], String[])}, but also returns
+     * <p> Similar to {@link #rename(Var[], Var[])}, but also returns
      * in p[0] the level 0 dimension permutation to switch from the original
      * to the renamed environment.
      */
-    public native Environment rename(String[] org, String[] dst, Dimperm[] p);
+    public native Environment rename(Var[] org, Var[] dst, Dimperm[] p);
 
 
 
@@ -170,22 +194,34 @@ public class Environment
         return d.intDim + d.realDim;
     }
 
+    public boolean hasVar(String var)
+    {
+        return hasVar(new StringVar(var));
+    }
     /**
      * Whether a variable named var exists in the environment.
      */
-    public native boolean hasVar(String var);
+    public native boolean hasVar(Var var);
 
+    public int dimOfVar(String var)
+    {
+        return this.dimOfVar(new StringVar(var));
+    }
     /**
      * Returns the index associated to the variable in the environment.
      *
      * <p> Throws an IllegalArgumentException if no such variable exists.
      */
-    public native int dimOfVar(String var);
+    public native int dimOfVar(Var var);
 
+    public boolean isInt(String var)
+    {
+        return isInt(new StringVar(var));
+    }
     /**
      * Whether the given variable is integer-valued.
      */
-    public boolean isInt(String var)
+    public boolean isInt(Var var)
     {
         return dimOfVar(var) < getDimension().intDim; 
     }
@@ -201,19 +237,19 @@ public class Environment
     /**
      * Returns the name of the variable at dimension dim.
      */
-    public native String varOfDim(int dim);
+    public native Var varOfDim(int dim);
 
     /**
      * Returns the set of integer-valued variable names,
      * ordered in lexical order.
      */
-    public native String[] getIntVars();
+    public native Var[] getIntVars();
 
     /**
      * Returns the set of real-valued variable names,
      * ordered in lexical order.
      */
-    public native String[] getRealVars();
+    public native Var[] getRealVars();
 
     /**
      * Returns the set of all variables, ordered by dimension.
@@ -221,7 +257,7 @@ public class Environment
      * <p> Integer-valued variables appear first, in lexicographic order,
      * then real-valued variables, also in lexicographic order.
      */
-    public native String[] getVars();
+    public native Var[] getVars();
 
     /**
      * Returns the list of variable names in the environment,
@@ -229,14 +265,14 @@ public class Environment
      */ 
     public String toString()
     {
-        String[] a = getIntVars();
-        String[] b = getRealVars();
+        Var[] a = getIntVars();
+        Var[] b = getRealVars();
         StringBuffer buf = new StringBuffer();
         boolean first = true;
         buf.append("( i: {");
         for (int i=0; i<a.length; i++) {
             if (first) buf.append(" "); else buf.append(", ");
-            buf.append(a[i]);
+            buf.append(a[i].toString());
             first = false;
         }
         first = true;
@@ -310,7 +346,6 @@ public class Environment
 
     /** Returns this (as Environment are immutable). */
     public Environment clone()
-        throws CloneNotSupportedException
     {
         return this;
     }
@@ -333,8 +368,8 @@ public class Environment
     private void readObject(ObjectInputStream in)
         throws IOException, ClassNotFoundException
     { 
-        String[] i = (String[])in.readObject();
-        String[] r= (String[])in.readObject();
+        Var[] i = (Var[])in.readObject();
+        Var[] r = (Var[])in.readObject();
         init(i,r);
     }
 

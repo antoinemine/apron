@@ -308,7 +308,6 @@ public class Interval
 
     /** Returns a copy of this. */
     public Interval clone()
-        throws CloneNotSupportedException
     {
         return copy();
     }
