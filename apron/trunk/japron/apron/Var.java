@@ -17,7 +17,7 @@ import java.io.*;
  *     a total ordering in the envirnment, and all 
  *     labels in an environment are of type Var
  */
-interface Var extends Comparable<Var>, Cloneable, Serializable
+public interface Var extends Comparable<Var>, Cloneable, Serializable
 { 
     public Var clone();
     public int compareTo(Var var);
