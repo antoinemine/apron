@@ -43,7 +43,7 @@ type typ = Lincons0.typ =\n\
 quote(MLI,"\n\
 (** Make a tree expression constraint. Modifying later the linear expression ({e not\n\
   advisable}) modifies correspondingly the tree expression constraint and conversely,\n\
-  except for changes of environements *)\n\
+  except for changes of environments *)\n\
 val make: Texpr1.t -> typ -> t\n\
 \n\
 (** Copy (deep copy) *)\n\
@@ -63,7 +63,7 @@ val set_typ: t -> typ -> unit\n\
 \n\
 ")
 
-quote(MLI,"(** Change the environement of the constraint for a super-environement. Raise [Failure] if it is not the case *)")
+quote(MLI,"(** Change the environment of the constraint for a super-environment. Raise [Failure] if it is not the case *)")
 struct ap_tcons1_t ap_tcons1_extend_environment(const struct ap_tcons1_t tcons,
 					        ap_environment_ptr env)
      quote(call,"\n\
@@ -93,17 +93,17 @@ void ap_tcons1_extend_environment_with(struct ap_tcons1_t tcons,
 ;
 
 quote(MLI,"\n\
-(** Get the environement of the tree expression constraint *)\n\
+(** Get the environment of the tree expression constraint *)\n\
 val get_env: t -> Environment.t\n\
 \n\
 (** Get the underlying linear expression. Modifying the linear expression ({e\n\
   not advisable}) modifies correspondingly the tree expression constraint and\n\
-  conversely, except for changes of environements *)\n\
+  conversely, except for changes of environments *)\n\
 val get_texpr1: t -> Texpr1.t\n\
 \n\
 (** Get the underlying tree expression constraint of level 0. Modifying the constraint\n\
    of level 0 ({e not advisable}) modifies correspondingly the tree expression constraint\n\
-   and conversely, except for changes of environements*)\n\
+   and conversely, except for changes of environments*)\n\
 val get_tcons0: t -> Tcons0.t\n\
 \n\
 ")
@@ -140,7 +140,7 @@ quote(MLMLI,"(** {2 Type array} *)")
 quote(MLMLI,"(* ====================================================================== *)")
 quote(MLI,"\n\
 (** Make an array of tree expression constraints with the given size and defined on the\n\
-  given environement. The elements are initialized with the constraint 0=0. *)\n\
+  given environment. The elements are initialized with the constraint 0=0. *)\n\
 val array_make : Environment.t -> int -> earray\n\
 \n\
 (** Print an array of constraints *)\n\
@@ -160,12 +160,12 @@ val array_get_env : earray -> Environment.t\n\
 val array_get : earray -> int -> t\n\
 \n\
 (** Set the element of the given index (without any copy). The array and the\n\
-  constraint should be defined on the same environement; otherwise a [Failure]\n\
+  constraint should be defined on the same environment; otherwise a [Failure]\n\
   exception is raised.*)\n\
 val array_set : earray -> int -> t -> unit\n\
 ")
 
-quote(MLI,"(** Change the environement of the array of constraints for a super-environement. Raise [Failure] if it is not the case*)")
+quote(MLI,"(** Change the environment of the array of constraints for a super-environment. Raise [Failure] if it is not the case*)")
 struct ap_tcons1_array_t ap_tcons1_array_extend_environment(const struct ap_tcons1_array_t array,
 							    ap_environment_ptr env)
      quote(call,"\n\
