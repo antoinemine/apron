@@ -127,7 +127,7 @@ bool ap_abstract1_check_env_array(ap_funid_t funid,ap_manager_t* man,
 
 	char str[160];
 	snprintf(str,159,"The %luth abstract value of the array has not \
-the same environement as the 0th abstract value\
+the same environment as the 0th abstract value\
 ",(unsigned long)i);
 	ap_manager_raise_exception(man,
 				   AP_EXC_INVALID_ARGUMENT,
@@ -275,7 +275,7 @@ void ap_abstract1_fprintdiff(FILE* stream,
   ap_environment_name_of_dim_t* name_of_dim;
   if (!ap_environment_is_eq(a1->env,a2->env)){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_FPRINTDIFF,
-			       "the 2 abstract values are not defined on the same environement");
+			       "the 2 abstract values are not defined on the same environment");
     fprintf(stream,"unknown diff\n");
   }
   name_of_dim = ap_environment_name_of_dim_alloc(a1->env);
@@ -346,7 +346,7 @@ ap_abstract1_t ap_abstract1_top(ap_manager_t* man, ap_environment_t* env)
 /* Abstract an hypercube defined by the arrays tvar and tinterval,
    satisfying: forall i, tvar[i] in tinterval[i].
 
-   If no inclusion is specified for a variable in the environement, its value
+   If no inclusion is specified for a variable in the environment, its value
    is no constrained in the resulting abstract value.
 */
 ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
@@ -1184,7 +1184,7 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
   nenv = ap_environment_remove(a->env, &tvar[1], size-1);
   if (nenv==NULL){
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,AP_FUNID_FOLD,
-			       "some variables to fold are unkown in the environment");
+			       "some variables to fold are unknown in the environment");
     goto ap_abstract1_fold_exit;
   }
   /* Translate variables to dimensions */

@@ -473,7 +473,7 @@ quote(MLMLI,"(* ============================================================ *)"
 quote(MLMLI,"(** {3 Change and permutation of dimensions} *)\n")
 quote(MLMLI,"(* ============================================================ *)")
 
-quote(MLI,"(** Change the environement of the abstract values.\n\nVariables that are removed are first existentially quantified, and variables that are introduced are unconstrained. The Boolean, if true, adds a projection onto 0-plane for these ones. *)")
+quote(MLI,"(** Change the environment of the abstract values.\n\nVariables that are removed are first existentially quantified, and variables that are introduced are unconstrained. The Boolean, if true, adds a projection onto 0-plane for these ones. *)")
 struct ap_abstract1_t ap_abstract1_change_environment(ap_manager_ptr man,
 						 [ref]struct ap_abstract1_t* a,
 						 ap_environment_ptr v1,
@@ -577,7 +577,7 @@ quote(MLI,"(** \
     It results in (n+1) unrelated variables having\n			\
     same relations with other variables. The additional variables are added to the environment of \n\
     the argument for making the environment of the result, so they should\n\
-    not belong to the initial environement.\n\
+    not belong to the initial environment.\n\
 *)")
 struct ap_abstract1_t ap_abstract1_expand(ap_manager_ptr man, [ref]struct ap_abstract1_t* a,
 				    ap_var_t v1,

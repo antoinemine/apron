@@ -213,7 +213,7 @@ boolean ap_environment_equal(ap_environment_ptr env1,
 _res = ap_environment_is_eq(env1,env2);\n\
 ");
 
-quote(MLI,"\n(** Compare two environment. [compare env1 env2] return [-2] if the environements are not compatible (a variable has different types in the 2 environements), [-1] if [env1] is a subset of env2, [0] if equality,  [+1] if env1 is a superset of env2, and [+2] otherwise (the lce exists and is a strict superset of both) *)")
+quote(MLI,"\n(** Compare two environment. [compare env1 env2] return [-2] if the environments are not compatible (a variable has different types in the 2 environments), [-1] if [env1] is a subset of env2, [0] if equality,  [+1] if env1 is a superset of env2, and [+2] otherwise (the lce exists and is a strict superset of both) *)")
 int ap_environment_compare(ap_environment_ptr env1,
 			   ap_environment_ptr env2);
 

@@ -353,7 +353,7 @@ let is_scalar x = Texpr0.is_scalar x.texpr0 \n\
 ")
 
 quote(MLMLI,"\n(** {2 Operations} *)\n")
-quote(MLI,"(** Change the environment of the expression for a super-environement. Raise [Failure] if it is not the case *)")
+quote(MLI,"(** Change the environment of the expression for a super-environment. Raise [Failure] if it is not the case *)")
 [ref]struct ap_texpr1_t* ap_texpr1_extend_environment([ref]struct ap_texpr1_t* texpr,
 						      ap_environment_ptr env)
      quote(call,"\n\
@@ -388,7 +388,7 @@ quote(MLI,"\n\
 (** Get the underlying expression of level 0 (which is not a copy). *)\n\
 val get_texpr0: t -> Texpr0.t\n\
 \n\
-(** Get the environement of the expression *)\n\
+(** Get the environment of the expression *)\n\
 val get_env: t -> Environment.t\n\
 \n\
 ")

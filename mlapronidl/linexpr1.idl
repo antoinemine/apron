@@ -90,7 +90,7 @@ void ap_linexpr1_set_coeff([ref]struct ap_linexpr1_t* a, ap_var_t var,
 }\n\
 ");
 
-quote(MLI,"(** Change the environment of the expression for a super-environement. Raise [Failure] if it is not the case *)")
+quote(MLI,"(** Change the environment of the expression for a super-environment. Raise [Failure] if it is not the case *)")
 struct ap_linexpr1_t ap_linexpr1_extend_environment(const struct ap_linexpr1_t linexpr,
 						    ap_environment_ptr env)
      quote(call,"\n\
@@ -132,7 +132,7 @@ quote(MLI,"\n\
 (** Get the underlying expression of level 0 (which is not a copy). *)\n\
 val get_linexpr0: t -> Linexpr0.t\n\
 \n\
-(** Get the environement of the expression *)\n\
+(** Get the environment of the expression *)\n\
 val get_env: t -> Environment.t\n\
 \n\
 ")

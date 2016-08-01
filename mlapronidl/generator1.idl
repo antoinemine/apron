@@ -43,7 +43,7 @@ type typ = Generator0.typ = \n\
 quote(MLI,"\n\
 (** Make a generator. Modifying later the linear expression ({e not\n\
   advisable}) modifies correspondingly the generator and conversely,\n\
-  except for changes of environements *)\n\
+  except for changes of environments *)\n\
 val make: Linexpr1.t -> Generator0.typ -> t\n\
 \n\
 (** Copy (deep copy) *)\n\
@@ -110,7 +110,7 @@ void ap_generator1_set_coeff([ref]struct ap_generator1_t* a, ap_var_t var,
   }\n\
 }");
 
-quote(MLI,"(** Change the environement of the generator for a super-environement. Raise [Failure] if it is not the case *)")
+quote(MLI,"(** Change the environment of the generator for a super-environment. Raise [Failure] if it is not the case *)")
 struct ap_generator1_t ap_generator1_extend_environment(const struct ap_generator1_t generator,
 					      ap_environment_ptr env)
      quote(call,"\n\
@@ -189,7 +189,7 @@ quote(MLMLI,"(* ================================================================
 
 quote(MLI,"\n\
 (** Make an array of generators with the given size and defined on the\n\
-  given environement. The elements are initialized with the line 0. *)\n\
+  given environment. The elements are initialized with the line 0. *)\n\
 val array_make : Environment.t -> int -> earray\n\
 \n\
 (** Print an array of generators *)\n\
@@ -206,12 +206,12 @@ val array_length : earray -> int\n\
 val array_get : earray -> int -> t\n\
 \n\
 (** Set the element of the given index (without any copy). The array and the\n\
-  generator should be defined on the same environement; otherwise a [Failure]\n\
+  generator should be defined on the same environment; otherwise a [Failure]\n\
   exception is raised.*)\n\
 val array_set : earray -> int -> t -> unit\n\
 ")
 
-quote(MLI,"(** Change the environement of the array of generators for a super-environement. Raise [Failure] if it is not the case*)")
+quote(MLI,"(** Change the environment of the array of generators for a super-environment. Raise [Failure] if it is not the case*)")
 struct ap_generator1_array_t ap_generator1_array_extend_environment(const struct ap_generator1_array_t array,
 					      ap_environment_ptr env)
      quote(call,"\n\
@@ -243,17 +243,17 @@ void ap_generator1_array_extend_environment_with(struct ap_generator1_array_t ar
 ;
 
 quote(MLI,"\n\
-(** Get the environement of the generator *)\n\
+(** Get the environment of the generator *)\n\
 val get_env: t -> Environment.t\n\
 \n\
 (** Get the underlying linear expression. Modifying the linear expression ({e\n\
   not advisable}) modifies correspondingly the generator and\n\
-  conversely, except for changes of environements *)\n\
+  conversely, except for changes of environments *)\n\
 val get_linexpr1: t -> Linexpr1.t\n\
 \n\
 (** Get the underlying generator of level 0. Modifying the generator\n\
   of level 0 ({e not advisable}) modifies correspondingly the generator\n\
-  and conversely, except for changes of environements*)\n\
+  and conversely, except for changes of environments*)\n\
 val get_generator0: t -> Generator0.t\n\
 ")
 
