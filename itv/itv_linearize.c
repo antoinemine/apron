@@ -1175,7 +1175,7 @@ ap_texpr0_round(itv_internal_t* intern,
     itv_linexpr_round_float_lin(intern,l,&intern->cst_double);
     break;
   case AP_RTYPE_EXTENDED:
-    if (org==AP_RTYPE_SINGLE && org==AP_RTYPE_DOUBLE && org==AP_RTYPE_EXTENDED)
+    if (org==AP_RTYPE_SINGLE || org==AP_RTYPE_DOUBLE || org==AP_RTYPE_EXTENDED)
       return org;
     itv_linexpr_round_float_lin(intern,l,&intern->cst_extended);
     break;
