@@ -46,7 +46,6 @@ t1p_t* t1p_forget_array(ap_manager_t* man,
 	}
     }
     return res;
-    //not_implemented();
 }
 
 t1p_t t1p_expand(ap_manager_t* man,
