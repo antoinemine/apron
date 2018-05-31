@@ -53,118 +53,120 @@ t1p_t* t1p_meet(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
     man->result.flag_exact = tbool_true;
     if (t1p_is_eq(man, a1, a2)) res = t1p_copy(man, a1);
     else if (tbool_or(t1p_is_bottom(man, a1), t1p_is_bottom(man, a2)) == tbool_true) {
-	res = t1p_bottom(man, intdim, realdim);
+        res = t1p_bottom(man, intdim, realdim);
     } else if (t1p_is_top(man, a1) == tbool_true) {
-	res = t1p_copy(man, a2);
+        res = t1p_copy(man, a2);
     } else if (t1p_is_top(man, a2) == tbool_true) {
-	res = t1p_copy(man, a1);
+        res = t1p_copy(man, a1);
     } else {
-	res = t1p_alloc(man, intdim, realdim);
-	//ap_abstract0_free(pr->manNS, res->abs);
-	size_t k = 0;
-	ap_dim_t j = 0;
-	size_t dims1 = t1p_nsymcons_get_dimension(pr, a1);
-	size_t dims2 = t1p_nsymcons_get_dimension(pr, a2);
-	if (dims1 && dims2) {
-	    size_t dim2 = 0;
-	    /* au pire il y a toute la liste de l'un a rajouter dans l'autre */
-	    ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
-		if (dims1 > res->size) {
-		    res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
-		    res->gamma = (ap_interval_t**)realloc(res->gamma, (dims1)*sizeof(ap_interval_t*));
-		    for (k=res->size;k<dims1;k++) res->gamma[k] = NULL;
-		    res->size = dims1;
-		}
-	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
-	    for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
-	    ap_abstract0_free(pr->manNS, res->abs);
-	    res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
-	    for (k=0; k<dims1; k++) {
-		if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
-		    dimchange2->dim[dim2] = j;
-		    dim2++;
-		}
-	    }
-	    dimchange2->realdim = dim2;
-	    size_t dim1 = 0;
-	    for (k=0; k<dims2; k++) t1p_insert_constrained_nsym(pr, &j, a2->nsymcons[k], res);
+        res = t1p_alloc(man, intdim, realdim);
+        //ap_abstract0_free(pr->manNS, res->abs);
+        size_t k = 0;
+        ap_dim_t j = 0;
+        size_t dims1 = t1p_nsymcons_get_dimension(pr, a1);
+        size_t dims2 = t1p_nsymcons_get_dimension(pr, a2);
+        if (dims1 && dims2) {
+            size_t dim2 = 0;
+            /* au pire il y a toute la liste de l'un a rajouter dans l'autre */
+            ap_dimchange_t* dimchange2 = ap_dimchange_alloc(0, dims2);
+            if (dims1 > res->size) {
+                res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
+                res->gamma = (ap_interval_t**)realloc(res->gamma, (dims1)*sizeof(ap_interval_t*));
+                for (k=res->size;k<dims1;k++) res->gamma[k] = NULL;
+                res->size = dims1;
+            }
+            res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
+            for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
+            ap_abstract0_free(pr->manNS, res->abs);
+            res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
+            for (k=0; k<dims1; k++) {
+                if (!t1p_nsymcons_get_dimpos(pr, &j, a1->nsymcons[k], a2)) {
+                    dimchange2->dim[dim2] = j;
+                    dim2++;
+                }
+            }
+            dimchange2->realdim = dim2;
+            size_t dim1 = 0;
+            for (k=0; k<dims2; k++) t1p_insert_constrained_nsym(pr, &j, a2->nsymcons[k], res);
 
-	    /* destructive, without projection (new dimension set to top) */
-	    ap_abstract0_add_dimensions(pr->manNS, true, a2->abs, dimchange2, false);
+            /* destructive, without projection (new dimension set to top) */
+            ap_abstract0_add_dimensions(pr->manNS, true, a2->abs, dimchange2, false);
 
-	    ap_abstract0_meet(pr->manNS, true, res->abs, a2->abs);
+            ap_abstract0_meet(pr->manNS, true, res->abs, a2->abs);
 
-	    /* update res->gamma */
-	    t1p_update_nsymcons_gamma(pr, res);
+            /* update res->gamma */
+            t1p_update_nsymcons_gamma(pr, res);
 
-	    ap_dimchange_add_invert(dimchange2);
-	    ap_abstract0_remove_dimensions(pr->manNS, true, a2->abs, dimchange2);
+            ap_dimchange_add_invert(dimchange2);
+            ap_abstract0_remove_dimensions(pr->manNS, true, a2->abs, dimchange2);
 
-	    dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
-	} else if (dims1) {
-		if (dims1 > res->size) {
-		    res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
-		    res->gamma = (ap_interval_t**)realloc(res->gamma, (dims1)*sizeof(ap_interval_t*));
-		    for (k=res->size;k<dims1;k++) res->gamma[k] = NULL;
-		    res->size = dims1;
-		}
-	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
-	    for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
-	    res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
-	} else if (dims2) {
-		if (dims2 > res->size) {
-		    res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims2)*sizeof(ap_dim_t));
-		    res->gamma = (ap_interval_t**)realloc(res->gamma, (dims2)*sizeof(ap_interval_t*));
-		    for (k=res->size;k<dims2;k++) res->gamma[k] = NULL;
-		    res->size = dims2;
-		}
-	    res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a2->nsymcons, dims2*sizeof(ap_dim_t));
-	    for (i=0; i<dims2; i++) res->gamma[i] = ap_interval_alloc_set(a2->gamma[i]);
-	    res->abs = ap_abstract0_copy(pr->manNS, a2->abs);
-	} else {
-	    /* non constrained abstract objects */
-	}
+            dimchange2->realdim = dims2; ap_dimchange_free(dimchange2);
+        } else if (dims1) {
+            if (dims1 > res->size) {
+                res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims1)*sizeof(ap_dim_t));
+                res->gamma = (ap_interval_t**)realloc(res->gamma, (dims1)*sizeof(ap_interval_t*));
+                for (k=res->size;k<dims1;k++) res->gamma[k] = NULL;
+                res->size = dims1;
+            }
+            res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a1->nsymcons, dims1*sizeof(ap_dim_t));
+            for (i=0; i<dims1; i++) res->gamma[i] = ap_interval_alloc_set(a1->gamma[i]);
+            res->abs = ap_abstract0_copy(pr->manNS, a1->abs);
+        } else if (dims2) {
+            if (dims2 > res->size) {
+                res->nsymcons = (ap_dim_t*)realloc(res->nsymcons, (dims2)*sizeof(ap_dim_t));
+                res->gamma = (ap_interval_t**)realloc(res->gamma, (dims2)*sizeof(ap_interval_t*));
+                for (k=res->size;k<dims2;k++) res->gamma[k] = NULL;
+                res->size = dims2;
+            }
+            res->nsymcons = memcpy((void *)res->nsymcons, (const void *)a2->nsymcons, dims2*sizeof(ap_dim_t));
+            for (i=0; i<dims2; i++) res->gamma[i] = ap_interval_alloc_set(a2->gamma[i]);
+            res->abs = ap_abstract0_copy(pr->manNS, a2->abs);
+        } else {
+            /* non constrained abstract objects */
+        }
 
-	//res->abs = ap_abstract0_meet(pr->manNS, false, a1->abs, a2->abs);
-	/* update res->gamma */
-	//t1p_update_nsymcons_gamma(pr, res);
-	itv_t tmp; itv_init(tmp);
-	for (i=0; i<intdim+realdim; i++) {
-	    /* update res->box */
-	    itv_meet(pr->itv, res->box[i], a1->box[i], a2->box[i]);
-	    if ((a1->paf[i]->q == NULL) && (a2->paf[i]->q == NULL)) {
-		itv_meet(pr->itv, tmp, a1->paf[i]->c, a2->paf[i]->c);
-		if (itv_is_bottom(pr->itv, tmp)) {
-		    t1p_free(man, res);
-		    res = t1p_bottom(man, intdim, realdim);
-		    break;
-		} else if (itv_is_top(tmp)) res->paf[i] = pr->top;
-		else if (itv_has_finite_bound(tmp)) {
-		    res->paf[i] = t1p_aff_alloc_init(pr);
-		    t1p_aff_add_itv(pr, res->paf[i], tmp, IN);
-		} else {
-		    res->paf[i] = t1p_aff_alloc_init(pr);
-		    itv_set(res->paf[i]->c, tmp);
-		}
-		res->paf[i]->pby++;
-	    } else if (t1p_aff_is_eq(pr, a1->paf[i], a2->paf[i])) {
-		res->paf[i] = a1->paf[i];
-		res->paf[i]->pby++;
-	    } else if (itv_is_point(pr->itv, res->box[i])) {
-		res->paf[i] = t1p_aff_alloc_init(pr);
-		itv_set(res->paf[i]->c, res->box[i]);
-	    } else {
-		fprintf(stdout, "destructive ? %d\n",destructive);
-		t1p_fprint(stdout, man, a1, 0x0);
-		t1p_fprint(stdout, man, a2, 0x0);
-		//not_implemented();
-		/* return a top instead */
-		res->paf[i] = pr->top;
-		res->paf[i]->pby++;
-		itv_set_top(res->box[i]);
-	    }
-	}
-	itv_clear(tmp);
+        //res->abs = ap_abstract0_meet(pr->manNS, false, a1->abs, a2->abs);
+        /* update res->gamma */
+        //t1p_update_nsymcons_gamma(pr, res);
+        itv_t tmp; itv_init(tmp);
+        for (i=0; i<intdim+realdim; i++) {
+            /* update res->box */
+            itv_meet(pr->itv, res->box[i], a1->box[i], a2->box[i]);
+            if ((a1->paf[i]->q == NULL) && (a2->paf[i]->q == NULL)) {
+                itv_meet(pr->itv, tmp, a1->paf[i]->c, a2->paf[i]->c);
+                if (itv_is_bottom(pr->itv, tmp)) {
+                    t1p_free(man, res);
+                    res = t1p_bottom(man, intdim, realdim);
+                    break;
+                } else if (itv_is_top(tmp)) res->paf[i] = pr->top;
+                else if (itv_has_finite_bound(tmp)) {
+                    res->paf[i] = t1p_aff_alloc_init(pr);
+                    t1p_aff_add_itv(pr, res->paf[i], tmp, IN);
+                } else {
+                    res->paf[i] = t1p_aff_alloc_init(pr);
+                    itv_set(res->paf[i]->c, tmp);
+                }
+                res->paf[i]->pby++;
+            } else if (t1p_aff_is_eq(pr, a1->paf[i], a2->paf[i])) {
+                res->paf[i] = a1->paf[i];
+                res->paf[i]->pby++;
+            } else if (itv_is_point(pr->itv, res->box[i])) {
+                res->paf[i] = t1p_aff_alloc_init(pr);
+                itv_set(res->paf[i]->c, res->box[i]);
+                // The following line was missing which caused a double free bug. Detected and fixed by Alexandra-Olimpia Bugariu on May 31st 2018 
+                res->paf[i]->pby++;
+            } else {
+                fprintf(stdout, "destructive ? %d\n",destructive);
+                t1p_fprint(stdout, man, a1, 0x0);
+                t1p_fprint(stdout, man, a2, 0x0);
+                //not_implemented();
+                /* return a top instead */
+                res->paf[i] = pr->top;
+                res->paf[i]->pby++;
+                itv_set_top(res->box[i]);
+            }
+        }
+        itv_clear(tmp);
     }
 #ifdef _T1P_DEBUG
     fprintf(stdout, "### RESULT of MEET ###\n");
