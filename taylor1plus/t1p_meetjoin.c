@@ -1,6 +1,7 @@
 /*
    APRON Library / Taylor1+ Domain (beta version)
-   Copyright (C) 2009-2011 Khalil Ghorbal
+   Copyright (C) 2009-2018 Khalil Ghorbal
+   khalil.ghorbal@inria.fr
 
 */
 

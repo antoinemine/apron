@@ -147,63 +147,66 @@ int ap_manager_t1p_get_nsym(ap_manager_t* man)
 }
 
 
-int get_clk_tck (void)
-{
-#ifdef CLOCKS_PER_SEC
-	return CLOCKS_PER_SEC;
-#else
-	int value = sysconf (_SC_CLK_TCK);
-	if (value < 0) {
-		fprintf(stderr,"sysconf: %s\n", strerror (errno));
-		abort();
-	}
-	return value;
-#endif
-}
-
-/* TODO: Actually, these are called when allocating the internal structure of Taylor1+ domain .
- * If we have a multithreaded library, we should share these logging info between all threads ! */
-void log_init(void* addr, uint_t length, int fd)
-{
-
-#if (defined __CYGWIN__ || defined __MINGW32__)
-	uint_t page_size = 4096;
-#else
-	uint_t page_size = (uint_t) sysconf(_SC_PAGESIZE);
-#endif
-	char * path = getcwd(NULL, (uint_t)0);
-	if (!(path)) {
-		fprintf(stderr,"getcwd: %s\n",strerror(errno));
-		abort();
-	}
-	char * logfile = "/taylor1plus.log";
-	uint_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
-	char * logpath = (char*)malloc(l*sizeof(char));
-	strcpy(logpath,path);
-	strcat(logpath,logfile);
-	fd = open(logpath, O_RDWR | O_CREAT, S_IRWXU);
-	if (fd == -1) {
-		fprintf(stderr,"open: %s\n",strerror(errno));
-		abort();
-	}
-	length = (uint_t)(1*page_size);
-	addr = mmap (NULL, length, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, (off_t)(0*page_size));
-	if (addr == MAP_FAILED) {
-		fprintf(stderr,"mmap: %s\n",strerror(errno));
-		abort();
-	}
-	free(path);
-	free(logpath);
-}
-
-void log_sync(void* addr, uint_t length, int fd)
-{
-	if (munmap(addr, length) == -1) {
-		fprintf(stderr,"munmap: %s\n",strerror(errno));
-		abort();
-	}
-	close(fd);
-}
+// KG: The current three functions were removed as no longer needed for T1+ to work properly on CYGWI 
+// 
+//
+//int get_clk_tck (void)
+//{
+//#ifdef CLOCKS_PER_SEC
+//	return CLOCKS_PER_SEC;
+//#else
+//	int value = sysconf (_SC_CLK_TCK);
+//	if (value < 0) {
+//		fprintf(stderr,"sysconf: %s\n", strerror (errno));
+//		abort();
+//	}
+//	return value;
+//#endif
+//}
+//
+///* TODO: Actually, these are called when allocating the internal structure of Taylor1+ domain .
+// * If we have a multithreaded library, we should share these logging info between all threads ! */
+//void log_init(void* addr, uint_t length, int fd)
+//{
+//
+//#if (defined __CYGWIN__ || defined __MINGW32__)
+//	uint_t page_size = 4096;
+//#else
+//	uint_t page_size = (uint_t) sysconf(_SC_PAGESIZE);
+//#endif
+//	char * path = getcwd(NULL, (uint_t)0);
+//	if (!(path)) {
+//		fprintf(stderr,"getcwd: %s\n",strerror(errno));
+//		abort();
+//	}
+//	char * logfile = "/taylor1plus.log";
+//	uint_t l = strlen(path) + strlen(logfile) + 1; /* +1 for the terminating null byte */
+//	char * logpath = (char*)malloc(l*sizeof(char));
+//	strcpy(logpath,path);
+//	strcat(logpath,logfile);
+//	fd = open(logpath, O_RDWR | O_CREAT, S_IRWXU);
+//	if (fd == -1) {
+//		fprintf(stderr,"open: %s\n",strerror(errno));
+//		abort();
+//	}
+//	length = (uint_t)(1*page_size);
+//	addr = mmap (NULL, length, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, (off_t)(0*page_size));
+//	if (addr == MAP_FAILED) {
+//		fprintf(stderr,"mmap: %s\n",strerror(errno));
+//		abort();
+//	}
+//	free(path);
+//	free(logpath);
+//}
+//
+//void log_sync(void* addr, uint_t length, int fd)
+//{
+//	if (munmap(addr, length) == -1) {
+//		fprintf(stderr,"munmap: %s\n",strerror(errno));
+//		abort();
+//	}
+//	close(fd);
+//}
 
 /*
 static inline ap_interval_t* t1p_nsymcons_get_gamma(t1p_internal_t * pr, uint_t nsymIndex, t1p_t* a)
