@@ -134,18 +134,15 @@ tbool_t t1p_is_eq(ap_manager_t* man, t1p_t* a, t1p_t* b)
     else if (!ap_abstract0_is_eq(pr->manNS, a->abs, b->abs)) return tbool_of_bool(false);
     else if (a == b) return tbool_of_bool(true);
     else {
-	size_t i = 0;
-	bool res = true;
-	for (i=0; i<a->dims; i++) {
-	    if (a->paf[i] != b->paf[i] && itv_is_eq(a->box[i], b->box[i])) {
-		res = t1p_aff_is_eq(pr, a->paf[i], b->paf[i]);
-		if (!res) break;
-	    } else {
-		res = false;
-		break;
-	    }
-	}
-	return tbool_of_bool(res);
+        size_t i = 0;
+        bool res = true;
+        for (i=0; i<a->dims; i++) {
+            // Previous implementation was over conservative. 
+            // Detected by Alexandra-Olimpia Bugariu on June 7th 2018 
+            res = t1p_aff_is_eq(pr, a->paf[i], b->paf[i]) && itv_is_eq(a->box[i], b->box[i]);
+            if (!res) break;
+        }
+        return tbool_of_bool(res);
     }
 }
 

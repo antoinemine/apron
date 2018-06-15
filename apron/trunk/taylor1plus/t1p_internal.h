@@ -1,6 +1,7 @@
 /*
    APRON Library / Taylor1+ Domain (beta version)
-   Copyright (C) 2009-2011 Khalil Ghorbal
+   Copyright (C) 2009-2018 Khalil Ghorbal
+   khalil.ghorbal@inria.fr 
 
 */
 
@@ -34,7 +35,7 @@ typedef unsigned int uint_t;
 /* INTERNAL DATA TYPE */
 /**************************************************************************************************/
 
-/*****************/
+/****************/
 /* Noise symbol */
 /****************/
 typedef enum nsym_t {
@@ -46,8 +47,6 @@ typedef enum nsym_t {
 typedef struct t1p_nsym_t {
     nsym_t	type;		/* type of noise symbol */	/* obsolete */
     uint_t	index;		/* global index, noise symbols of the same index are shared */
-//    bool	constrained;	/* true if the noise symbol is constrained */
-    //ap_dim_t	absdim;		/* the abstract dimension of the epsilon */
 } t1p_nsym_t;
 
 /*****************/
@@ -55,22 +54,22 @@ typedef struct t1p_nsym_t {
 /*****************/
 /* Taylor1+ affine arithmetic term */
 typedef struct _t1p_aaterm_t {
-    struct _t1p_aaterm_t*	n;	/* next element */
-    t1p_nsym_t*		pnsym;	/* index of the noise symbol */
-    itv_t			coeff;	/* coeff, encoded as interval */
+    struct _t1p_aaterm_t*	n;          /* next element */
+    t1p_nsym_t*		        pnsym;	    /* index of the noise symbol */
+    itv_t			        coeff;	    /* coeff, encoded as interval */
 } t1p_aaterm_t;
 
 /************************/
 /* Taylor1+ affine form */
 /************************/
 struct _t1p_aff_t {
-    itv_t		c;	/* center */
-    t1p_aaterm_t*	q;	/* first center term (epsilons) aaterm */
+    itv_t		    c;	    /* center */
+    t1p_aaterm_t*	q;	    /* first center term (epsilons) aaterm */
     t1p_aaterm_t*	end;	/* quick jump to the last center term : to add a new term for instance */
     t1p_aaterm_t*	lastu;	/* obsolete */
-    uint_t		l;	/* number of noise symbols */
-    uint_t		pby;	/* # pointers to this affine form */
-    itv_t		itv;	/* best known interval concretisation */
+    uint_t		    l;	    /* number of noise symbols */
+    uint_t		    pby;	/* pointers to this affine form */
+    itv_t		    itv;	/* best known interval concretisation */
 };
 typedef struct _t1p_aff_t t1p_aff_t;
 
@@ -134,44 +133,44 @@ typedef struct _Tobj2 {
 } Tobj2;
 
 typedef struct _t1p_internal_t {
-    itv_internal_t*	itv;		/* interval internal representation */
-    uint_t		dim;		/* nb of noise symbol used */
-    t1p_nsym_t**	epsilon;	/* array of size index of epsilons */
-    ap_funid_t		funid;		/* current function */
-    ap_manager_t *	man;		/* back-pointer */
-    ap_manager_t *	manNS;		/* abstract domain of noise symbols */
-    ap_manager_t *	box;		/* box abstract domain used to compute constraints meet with an hypercube */
+    itv_internal_t*	    itv;		/* interval internal representation */
+    uint_t		        dim;		/* nb of noise symbol used */
+    t1p_nsym_t**	    epsilon;	/* array of size index of epsilons */
+    ap_funid_t		    funid;		/* current function */
+    ap_manager_t*	    man;		/* back-pointer */
+    ap_manager_t*	    manNS;		/* abstract domain of noise symbols */
+    ap_manager_t*	    box;		/* box abstract domain used to compute constraints meet with an hypercube */
     ap_lincons0_array_t	moo;		/* array of constraints -1 <= eps_i <= 1; size = 2index */
-    itv_t		muu;		/* [-1,1] (itv_t) */
-    ap_interval_t*	ap_muu;		/* [-1,1] (type ap_interval) */
-    t1p_aff_t	*top;		/* top interval */
-    t1p_aff_t	*bot;		/* bottom interval */
-    ap_dim_t	*dimtoremove;	/* array to store dimensions to remove after a join */
-    ap_dimchange_t*	dimchange;
-    ap_abstract0_t*	nsymhypercube;
-    clock_t	start;
-    optpr_problem_t* optpr;
-    Tobj2 mubGlobal;
-    uint_t* inputns;
-    uint_t epssize;
-    uint_t it;	/* compteur d'iterations à la Kleene */
+    itv_t		        muu;		/* [-1,1] (itv_t) */
+    ap_interval_t*	    ap_muu;		/* [-1,1] (type ap_interval) */
+    t1p_aff_t*          top;		/* top interval */
+    t1p_aff_t*          bot;		/* bottom interval */
+    ap_dim_t*           dimtoremove;/* array to store dimensions to remove after a join */
+    ap_dimchange_t*	    dimchange;
+    ap_abstract0_t*	    nsymhypercube;
+    clock_t	            start;
+    optpr_problem_t*    optpr;
+    Tobj2               mubGlobal;
+    uint_t*             inputns;
+    uint_t              epssize;
+    uint_t              it;	        /* compteur d'iterations à la Kleene */
 } t1p_internal_t;
 
 /***********/
 /*** T1+ ***/
 /***********/
 typedef struct _t1p_t {
-    t1p_aff_t**		paf;            /* array of pointers to Taylor1+ expressions of size dims */
-    itv_t*		box;		/* reduced product with boxes */
-    uint_t		intdim;         /* nb of integer variables */
-    uint_t		dims;           /* intdim + realdim */
-    ap_abstract0_t* 	abs;        	/* nsym abstract object (=contraints over noise symbols)*/
-    ap_dim_t*		nsymcons;       /* array of index of constrained noise symbols */
+    t1p_aff_t**		paf;        /* array of pointers to Taylor1+ expressions of size dims */
+    itv_t*		    box;		/* reduced product with boxes */
+    uint_t		    intdim;     /* nb of integer variables */
+    uint_t		    dims;       /* intdim + realdim */
+    ap_abstract0_t* abs;        /* nsym abstract object (=contraints over noise symbols)*/
+    ap_dim_t*		nsymcons;   /* array of index of constrained noise symbols */
     ap_interval_t**	gamma;		/* pointer to an array which contains the concretisations of constrained noise symbols if any */
-    uint_t		size;		/* size of nsymcons and gamma */
-    bool		hypercube;	/* true if no constrained nsym */
-    itv_t**		g;	/* array of the generators of the zonotope - a oublier */
-    uint_t		gn;		/* size of generators - a oublier */
+    uint_t		    size;		/* size of nsymcons and gamma */
+    bool		    hypercube;	/* true if no constrained nsym */
+    itv_t**		    g;	        /* array of the generators of the zonotope - a oublier */
+    uint_t		    gn;		    /* size of generators - a oublier */
 } t1p_t;
 
 /* special object to store and compute meet with lincons */
