@@ -172,10 +172,15 @@ libt1p%.a: $(subst .c,%.o,$(CCMODULES:%=%.c))
 libt1p%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
+##
+## NOTE: $(LIBS) and $(LIBS_DEBUG) are pushed to the end of the two following rules as 
+## mingw-w64 linker is not very smart and is sensitive to the library order
+## should work across all archs
+##
 libt1p%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
-	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -lbox$* -lpolkaMPQ
+	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lbox$* -lpolkaMPQ $(LIBS)
 libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
-	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG) -lbox$*_debug -lpolkaMPQ_debug
+	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) -lbox$*_debug -lpolkaMPQ_debug $(LIBS_DEBUG)
 
 %MPQ.o: %.c
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
