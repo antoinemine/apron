@@ -1,6 +1,6 @@
 /*
    APRON Library / Taylor1+ Domain (beta version)
-   Copyright (C) 2009-2011 Khalil Ghorbal
+   Copyright (C) 2009-2018 Khalil Ghorbal
 
 */
 
@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/mman.h>
+//#include <sys/mman.h>
 
 #include "ap_generic.h"
 
