@@ -939,133 +939,133 @@ static inline bool t1p_aff_is_leq_constrained(t1p_internal_t* pr, t1p_aff_t *a, 
     uint_t i = 0;
 
     /* b = [] either cst or has infinite bounds */
-    if (!b->q) res = itv_is_leq(a->itv, b->c);
-    /* b is a form and a = [] ... [] should be a point otherwise the test returns false */
-    else if (!a->q)
-	if (itv_is_point(pr->itv,a->c)) res = itv_is_leq(a->c, b->itv);
-	else res = false;
-    else
-      {
-	itv_t mid; itv_init(mid);
-	itv_t dev; itv_init(dev);
-	itv_t c; itv_init(c);
-	itv_t d; itv_init(d);
-	itv_t c1; itv_init(c1);
-	itv_t d1; itv_init(d1);
-	itv_t c2; itv_init(c2);
-	itv_t d2; itv_init(d2);
-	itv_t betaA; itv_init(betaA);
-	itv_t betaB; itv_init(betaB);
-	itv_t tmp; itv_init(tmp);
-	t1p_aaterm_t *p, *q, *ptr;
-	/* we do not compute here the difference (a->c - b->c)
-	   to mime exactly the operations of computing the join.
-	   This ensures a <= a U b and b <= a U b when using doubles (non deterministic).
-	 */
-	itv_set(c,a->c);
-	if (a->q || b->q) {
-	    ptr = t1p_aaterm_alloc_init();
-	    for(p = a->q, q = b->q; p || q;) {
-		if (p && q) {
-		    if (p->pnsym->index == q->pnsym->index) {
-			if (!itv_is_eq(p->coeff, q->coeff)) {itv_sub(ptr->coeff, p->coeff, q->coeff);}
-			ptr->pnsym = p->pnsym;
-			if (ptr->pnsym->type == UN) {
-			    t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			    itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
-			    itv_add(betaA, betaA, ptr->coeff);
-			    itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
-			    itv_add(betaB, betaB, ptr->coeff);
-			}
-			p = p->n ;
-			q = q->n ;
-		    } else if (p->pnsym->index < q->pnsym->index) {
-			itv_set(ptr->coeff, p->coeff);
-			ptr->pnsym = p->pnsym;
-			if (ptr->pnsym->type == UN) {
-			    t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			    itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
-			    itv_add(betaA, betaA, ptr->coeff);
-			}
-			p = p->n ;
-		    } else {
-			itv_neg(ptr->coeff, q->coeff);
-			ptr->pnsym = q->pnsym;
-			if (ptr->pnsym->type == UN) {
-			    t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			    itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
-			    itv_add(betaB, betaB, ptr->coeff);
-			}
-			q = q->n ;
-		    }
-		} else if (p) {
-		    itv_set(ptr->coeff, p->coeff);
-		    ptr->pnsym = p->pnsym;
-		    if (ptr->pnsym->type == UN) {
-			t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
-			itv_add(betaA, betaA, ptr->coeff);
-		    }
-		    p = p->n ;
-		} else {
-		    itv_neg(ptr->coeff, q->coeff);
-		    ptr->pnsym = q->pnsym;
-		    if (ptr->pnsym->type == UN) {
-			t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
-			itv_add(betaB, betaB, ptr->coeff);
-		    }
-		    q = q->n ;
-		}
-		if (!itv_is_zero(ptr->coeff)) {
-		    if (ptr->pnsym->type == IN) {
-			t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
-			itv_mul(pr->itv, tmp, tmp, ptr->coeff);
-			itv_add(c, c, tmp);
-			itv_set_int(ptr->coeff,0);
-		    }
-		}
-	    }
-	    t1p_aaterm_free(pr, ptr);
-	}
-	itv_middev(pr->itv, c1, d1, betaA);
-	itv_middev(pr->itv, c2, d2, betaB);
-	itv_sub(tmp,c1,c2);
-	itv_add(c,c,tmp);
-	itv_sub(c,c,b->c);
-	itv_abs(c,c);
-	itv_add(d1,c,d1);
-	/* [d1] <= ? [d2] */
+    if (b->q == NULL) res = itv_is_leq(a->itv, b->c);
+    /* b is a form and a = [] ... [] should be a point (or bottom) otherwise the test returns false */
+    else if (a->q == NULL) 
+        if (itv_is_bottom(pr->itv,a->c)) res = true;
+        else if (itv_is_point(pr->itv,a->c)) res = itv_is_leq(a->c, b->itv);
+        else res = false;
+    else {
+        itv_t mid; itv_init(mid);
+        itv_t dev; itv_init(dev);
+        itv_t c; itv_init(c);
+        itv_t d; itv_init(d);
+        itv_t c1; itv_init(c1);
+        itv_t d1; itv_init(d1);
+        itv_t c2; itv_init(c2);
+        itv_t d2; itv_init(d2);
+        itv_t betaA; itv_init(betaA);
+        itv_t betaB; itv_init(betaB);
+        itv_t tmp; itv_init(tmp);
+        t1p_aaterm_t *p, *q, *ptr;
+        /* we do not compute here the difference (a->c - b->c)
+           to mime exactly the operations of computing the join.
+           This ensures a <= a U b and b <= a U b when using doubles (non deterministic).
+           */
+        itv_set(c,a->c);
+        if (a->q || b->q) {
+            ptr = t1p_aaterm_alloc_init();
+            for(p = a->q, q = b->q; p || q;) {
+                if (p && q) {
+                    if (p->pnsym->index == q->pnsym->index) {
+                        if (!itv_is_eq(p->coeff, q->coeff)) {itv_sub(ptr->coeff, p->coeff, q->coeff);}
+                        ptr->pnsym = p->pnsym;
+                        if (ptr->pnsym->type == UN) {
+                            t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                            itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
+                            itv_add(betaA, betaA, ptr->coeff);
+                            itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
+                            itv_add(betaB, betaB, ptr->coeff);
+                        }
+                        p = p->n ;
+                        q = q->n ;
+                    } else if (p->pnsym->index < q->pnsym->index) {
+                        itv_set(ptr->coeff, p->coeff);
+                        ptr->pnsym = p->pnsym;
+                        if (ptr->pnsym->type == UN) {
+                            t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                            itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
+                            itv_add(betaA, betaA, ptr->coeff);
+                        }
+                        p = p->n ;
+                    } else {
+                        itv_neg(ptr->coeff, q->coeff);
+                        ptr->pnsym = q->pnsym;
+                        if (ptr->pnsym->type == UN) {
+                            t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                            itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
+                            itv_add(betaB, betaB, ptr->coeff);
+                        }
+                        q = q->n ;
+                    }
+                } else if (p) {
+                    itv_set(ptr->coeff, p->coeff);
+                    ptr->pnsym = p->pnsym;
+                    if (ptr->pnsym->type == UN) {
+                        t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                        itv_mul(pr->itv, ptr->coeff, tmp, p->coeff);
+                        itv_add(betaA, betaA, ptr->coeff);
+                    }
+                    p = p->n ;
+                } else {
+                    itv_neg(ptr->coeff, q->coeff);
+                    ptr->pnsym = q->pnsym;
+                    if (ptr->pnsym->type == UN) {
+                        t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                        itv_mul(pr->itv, ptr->coeff, tmp, q->coeff);
+                        itv_add(betaB, betaB, ptr->coeff);
+                    }
+                    q = q->n ;
+                }
+                if (!itv_is_zero(ptr->coeff)) {
+                    if (ptr->pnsym->type == IN) {
+                        t1p_nsymcons_get_gamma(pr, tmp, ptr->pnsym->index, enva);
+                        itv_mul(pr->itv, tmp, tmp, ptr->coeff);
+                        itv_add(c, c, tmp);
+                        itv_set_int(ptr->coeff,0);
+                    }
+                }
+            }
+            t1p_aaterm_free(pr, ptr);
+        }
+        itv_middev(pr->itv, c1, d1, betaA);
+        itv_middev(pr->itv, c2, d2, betaB);
+        itv_sub(tmp,c1,c2);
+        itv_add(c,c,tmp);
+        itv_sub(c,c,b->c);
+        itv_abs(c,c);
+        itv_add(d1,c,d1);
+        /* [d1] <= ? [d2] */
 #ifdef _T1P_DEBUG
-	printf("##########################################\n");
-	double ddebug;
-	double_set_num(&ddebug,bound_numref(d1->inf));
-	printf("[%.20f,",-1*ddebug);
-	double_set_num(&ddebug,bound_numref(d1->sup));
-	printf("%.20f]\n",ddebug);
-	//itv_print(d1);
-	//printf("\n");
-	//itv_print(d2);
-	double_set_num(&ddebug,bound_numref(d2->inf));
-	printf("[%.20f,",-1*ddebug);
-	double_set_num(&ddebug,bound_numref(d2->sup));
-	printf("%.20f]\n",ddebug);
-	printf("\n########################################\n");
+        printf("##########################################\n");
+        double ddebug;
+        double_set_num(&ddebug,bound_numref(d1->inf));
+        printf("[%.20f,",-1*ddebug);
+        double_set_num(&ddebug,bound_numref(d1->sup));
+        printf("%.20f]\n",ddebug);
+        //itv_print(d1);
+        //printf("\n");
+        //itv_print(d2);
+        double_set_num(&ddebug,bound_numref(d2->inf));
+        printf("[%.20f,",-1*ddebug);
+        double_set_num(&ddebug,bound_numref(d2->sup));
+        printf("%.20f]\n",ddebug);
+        printf("\n########################################\n");
 #endif
-	res = itv_cmp(d1,d2);
+        res = itv_cmp(d1,d2);
 
-	itv_clear(tmp);
-	itv_clear(c);
-	itv_clear(d);
-	itv_clear(c1);
-	itv_clear(d1);
-	itv_clear(c2);
-	itv_clear(d2);
-	itv_clear(mid);
-	itv_clear(dev);
-	itv_clear(betaA);
-	itv_clear(betaB);
-      }
+        itv_clear(tmp);
+        itv_clear(c);
+        itv_clear(d);
+        itv_clear(c1);
+        itv_clear(d1);
+        itv_clear(c2);
+        itv_clear(d2);
+        itv_clear(mid);
+        itv_clear(dev);
+        itv_clear(betaA);
+        itv_clear(betaB);
+    }
     return res;
 }
 
