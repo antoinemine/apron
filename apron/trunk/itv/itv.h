@@ -115,6 +115,8 @@ static inline bool itv_canonicalize(itv_internal_t* intern, itv_t a, bool intege
 static inline bool itv_is_top(itv_t a);
 static inline bool itv_is_bottom(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
+static inline bool itv_is_canonnical_bottom(itv_t a);
+  /* Return true iff the interval is the canonical bottom element [1,-1] */
 static inline bool itv_is_point(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is a single point */
 static inline bool itv_is_zero(itv_t a);
@@ -424,6 +426,10 @@ static inline bool itv_is_bottom(itv_internal_t* intern, itv_t a)
 {
   return itv_canonicalize(intern, a, false);
 }
+static inline bool itv_is_canonical_bottom(itv_t a)
+{
+  return !bound_cmp_int(a->inf,-1) && !bound_cmp_int(a->sup,-1);
+}
 static inline bool itv_is_point(itv_internal_t* intern, itv_t a)
 {
   if (!bound_infty(a->inf) && !bound_infty(a->sup)){
@@ -439,7 +445,15 @@ static inline bool itv_is_zero(itv_t a)
 }
 static inline bool itv_is_leq(itv_t a, itv_t b)
 {
-  return bound_cmp(a->sup,b->sup)<=0 && bound_cmp(a->inf,b->inf)<=0;
+  if (itv_is_canonical_bottom(a)) {
+    return true;
+  }
+  else if (itv_is_canonical_bottom(b)) {
+    return false;
+  }
+  else {
+    return bound_cmp(a->sup,b->sup)<=0 && bound_cmp(a->inf,b->inf)<=0;
+  }
 }
 static inline bool itv_is_eq(itv_t a, itv_t b)
 {
@@ -457,8 +471,16 @@ static inline bool itv_meet(itv_internal_t* intern, itv_t a, itv_t b, itv_t c)
 }
 static inline void itv_join(itv_t a, itv_t b, itv_t c)
 {
-  bound_max(a->sup,b->sup,c->sup);
-  bound_max(a->inf,b->inf,c->inf);
+  if (itv_is_canonical_bottom(b)) {
+    itv_set(a,c);
+  }
+  else if (itv_is_canonical_bottom(c)) {
+    itv_set(a,b);
+  }
+  else {
+    bound_max(a->sup,b->sup,c->sup);
+    bound_max(a->inf,b->inf,c->inf);
+  }
 }
 static inline void bound_widening(bound_t a, bound_t b, bound_t c)
 {
@@ -471,8 +493,16 @@ static inline void bound_widening(bound_t a, bound_t b, bound_t c)
 }
 static inline void itv_widening(itv_t a, itv_t b, itv_t c)
 {
-  bound_widening(a->sup,b->sup,c->sup);
-  bound_widening(a->inf,b->inf,c->inf);
+  if (itv_is_canonical_bottom(b)) {
+    itv_set(a,c);
+  }
+  else if (itv_is_canonical_bottom(c)) {
+    itv_set(a,b);
+  }
+  else {
+    bound_widening(a->sup,b->sup,c->sup);
+    bound_widening(a->inf,b->inf,c->inf);
+  }
 }
 static inline void itv_add(itv_t a, itv_t b, itv_t c)
 {
