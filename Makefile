@@ -240,3 +240,11 @@ pkg_%:
 	rm -rf $*.tgz
 
 .NOTPARALLEL:
+
+Makefile.config:
+	@echo
+	@echo "***"
+	@echo "*** Run ./configure first to generate a Makefile.config"
+	@echo "***"
+	@echo
+	@exit 1
