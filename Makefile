@@ -35,7 +35,7 @@ java:
 	(cd japron; $(MAKE))
 
 ml:
-	(cd mlapronidl; $(MAKE) all)
+	(cd mlapronidl; $(MAKE) INCLUDE_DEPEND=no depend; $(MAKE) all)
 	(cd newpolka; $(MAKE) ml)
 	(cd box; $(MAKE) ml)
 	(cd octagons; $(MAKE) mlMPQ mlD)

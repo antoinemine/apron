@@ -222,10 +222,13 @@ rebuild:
 # Dependencies
 #---------------------------------------
 
-depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
+INCLUDE_DEPEND ?= yes
+ifneq ($(INCLUDE_DEPEND),yes)
+  depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
 	$(OCAMLDEP) $^ > $@
-
-# Hack to avoid rebuilding depends on cleanup
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
-  -include depend
+else
+  # Hack to avoid rebuilding depends on cleanup
+  ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    -include depend
+  endif
 endif
