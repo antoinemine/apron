@@ -406,7 +406,7 @@ int ap_scalar_sgn(ap_scalar_t* a)
     switch (a->discr){
     case AP_SCALAR_MPQ:    res = mpq_sgn(a->val.mpq); break;
     case AP_SCALAR_DOUBLE: res = a->val.dbl > 0.0 ? 1 : (a->val.dbl == 0.0 ? 0 : (-1)); break;
-    case AP_SCALAR_MPFR:   res = mpfr_sgn(a->val.mpfr) > 0 ? 1 : -1; break;
+    case AP_SCALAR_MPFR:   res = mpfr_sgn(a->val.mpfr) > 0 ? 1 : (mpfr_sgn(a->val.mpfr) == 0.0 ? 0 : (-1)); break;
     default:               abort();
     }
   }
