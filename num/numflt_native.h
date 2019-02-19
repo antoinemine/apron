@@ -188,18 +188,34 @@ static inline void numflt_root(numflt_t up, numflt_t down, numflt_t b, unsigned 
 #if defined(NUMFLT_DOUBLE)
   mpfr_init_set_d(arg, *b, GMP_RNDU);
   mpfr_init(res);
+#if (MPFR_VERSION_MAJOR < 4)
   mpfr_root(res, arg, n, GMP_RNDU);
+#else
+  mpfr_rootn_ui(res, arg, n, GMP_RNDU);
+#endif
   *up = mpfr_get_d(res, GMP_RNDU);
   mpfr_set_d(arg, *b, GMP_RNDD);
+#if (MPFR_VERSION_MAJOR < 4)
   mpfr_root(res, arg, n, GMP_RNDD);
+#else
+  mpfr_rootn_ui(res, arg, n, GMP_RNDD);
+#endif
   *down = mpfr_get_d(res, GMP_RNDD);
 #else
   mpfr_init_set_ld(arg, *b, GMP_RNDU);
   mpfr_init(res);
+#if (MPFR_VERSION_MAJOR < 4)
   mpfr_root(res, arg, n, GMP_RNDU);
+#else
+  mpfr_rootn_ui(res, arg, n, GMP_RNDU);
+#endif
   *up = mpfr_get_ld(res, GMP_RNDU);
   mpfr_set_ld(arg, *b, GMP_RNDD);
+#if (MPFR_VERSION_MAJOR < 4)
   mpfr_root(res, arg, n, GMP_RNDD);
+#else
+  mpfr_rootn_ui(res, arg, n, GMP_RNDD);
+#endif
   *down = mpfr_get_ld(res, GMP_RNDD);
 #endif
   mpfr_clear(arg);
