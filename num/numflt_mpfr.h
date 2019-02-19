@@ -123,8 +123,13 @@ static inline void numflt_root(numflt_t up, numflt_t down, numflt_t b, unsigned 
 {
   assert(n > 0);
   assert((n & 1) || (mpfr_sgn(b) >= 0));
+#if (MPFR_VERSION_MAJOR < 4)
   mpfr_root(up, b, n, GMP_RNDU);
   mpfr_root(down, b, n, GMP_RNDD);
+#else
+  mpfr_rootn_ui(up, b, n, GMP_RNDU);
+  mpfr_rootn_ui(down, b, n, GMP_RNDD);
+#endif
 }
 static inline void numflt_mul_2exp(numflt_t a, numflt_t b, int c)
 { mpfr_mul_2si(a,b,c,GMP_RNDU); }
