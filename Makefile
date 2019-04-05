@@ -59,7 +59,7 @@ rebuild:
 OCAMLFIND_PROTO = xxx.cma $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a	\
 		  libxxx_caml_debug.a
 ifneq ($(HAS_SHARED),)
-OCAMLFIND_PROTO += dllxxx_caml.so
+OCAMLFIND_PROTO += dllxxx_caml.$(EXT_DLL)
 endif
 OCAMLFIND_FILES = \
 	$(patsubst %,mlapronidl/%, apron.cmi apron.cmx) \
@@ -86,7 +86,7 @@ disjunction) \
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
-	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.so) \
+	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.$(EXT_DLL)) \
 	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
 endif

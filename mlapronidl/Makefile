@@ -43,7 +43,7 @@ CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
 CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a
 ifneq ($(HAS_SHARED),)
-MLLIB_TOINSTALL += dllapron_caml.so
+MLLIB_TOINSTALL += dllapron_caml.$(EXT_DLL)
 endif
 CCINC_TOINSTALL = apron_caml.h
 
@@ -61,7 +61,7 @@ all: $(call OCAMLOPT_TARGETS, apron apron.d)
 endif
 
 ifneq ($(HAS_SHARED),)
-all: dllapron_caml.so
+all: dllapron_caml.$(EXT_DLL)
 endif
 
 ifneq ($(OCAMLPACK),)
@@ -82,7 +82,7 @@ dist: $(IDLMODULES:%=%.idl) $(MLSRC) $(CCSRC) macros.pl apron_caml.c apron_caml.
 clean:
 	/bin/rm -f $(IDLMODULEStex) Apron_lexer.tex Apron_parser.tex Parser.tex
 	/bin/rm -f mlapronidl.out mlapronidl.aux mlapronidl.idx mlapronidl.ilg mlapronidl.ind mlapronidl.bbl mlapronidl.blg mlapronidl.dvi mlapronidl.log mlapronidl.toc mlapronidl.ps mlapronidl.pdf
-	/bin/rm -f *.o *.a *.so *.annot *.cmi *.cmo *.cmx *.cmx[as] *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
+	/bin/rm -f *.o *.a *.$(EXT_DLL) *.annot *.cmi *.cmo *.cmx *.cmx[as] *.cma apron_parser.ml apron_parser.mli apron_lexer.ml
 	/bin/rm -fr tmp html
 	/bin/rm -f ocamldoc.[cefkimoptv]* ocamldoc.sty apron_ocamldoc.mli
 	/bin/rm -f $(IDLMODULES:%=%.ml) $(IDLMODULES:%=%.mli) $(IDLMODULES:%=%_caml.c)
@@ -93,7 +93,7 @@ distclean: clean
 uninstall:
 ifeq ($(OCAMLFIND),)
 	/bin/rm -f $(MLLIB_TOINSTALL:%=$(APRON_LIB)/%)
-	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_LIB)/%) libapron*.so
+	/bin/rm -f $(CCLIB_TOINSTALL:%=$(APRON_LIB)/%) libapron*.$(EXT_DLL)
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_INCLUDE)/%)
 endif
 
@@ -121,7 +121,7 @@ apron.d.cmxa: apron.d.a
 apron.d.a: apron.cmx libapron_caml_debug.a
 	$(OCAMLMKLIB) -o apron.d -oc apron_caml_debug apron.cmx $(LIBS_DEBUG)
 
-dllapron_caml.so: libapron_caml.a
+dllapron_caml.$(EXT_DLL): libapron_caml.a
 
 libapron_caml.a: $(CCMODULES:%=%.o)
 	$(OCAMLMKLIB) $(CCMODULES:%=%.o) $(LDFLAGS) $(LIBS) -o apron_caml

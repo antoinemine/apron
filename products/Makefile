@@ -30,7 +30,7 @@ CCINC_TO_INSTALL = ap_pkgrid.h
 CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = libap_pkgrid.a libap_pkgrid_debug.a
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so
+CCLIB_TO_INSTALL += libap_pkgrid.$(EXT_DLL) libap_pkgrid_debug.$(EXT_DLL)
 endif
 
 ifneq ($(HAS_OCAML),)
@@ -43,8 +43,8 @@ ifneq ($(HAS_OCAML),)
     endif
   endif
   ifneq ($(HAS_SHARED),)
-    CAML_TO_INSTALL += libap_pkgrid.so libap_pkgrid_debug.so	\
-    dllpolkaGrid_caml.so
+    CAML_TO_INSTALL += libap_pkgrid.$(EXT_DLL) libap_pkgrid_debug.$(EXT_DLL)	\
+    dllpolkaGrid_caml.$(EXT_DLL)
   endif
 endif
 
@@ -57,7 +57,7 @@ LIBS_DEBUG = -lap_ppl_debug -lppl -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
 all: libap_pkgrid.a libap_pkgrid_debug.a 
 ifneq ($(HAS_SHARED),)
-all: libap_pkgrid.so libap_pkgrid_debug.so 
+all: libap_pkgrid.$(EXT_DLL) libap_pkgrid_debug.$(EXT_DLL) 
 endif
 
 ml: polkaGrid.mli polkaGrid.ml polkaGrid.cmi polkaGrid.cma libpolkaGrid_caml.a libpolkaGrid_caml_debug.a 
@@ -65,7 +65,7 @@ ifneq ($(HAS_OCAMLOPT),)
 ml: $(call OCAMLOPT_TARGETS, polkaGrid)
 endif
 ifneq ($(HAS_SHARED),)
-ml: dllpolkaGrid_caml.so dllpolkaGrid_caml_debug.so
+ml: dllpolkaGrid_caml.$(EXT_DLL) dllpolkaGrid_caml_debug.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml $(APRON_LIB)/polka%.cma $(APRON_LIB)/ppl.cma polkaGrid.cma
@@ -75,7 +75,7 @@ mlexample%.opt: mlexample.ml $(APRON_LIB)/polka%.cmxa $(APRON_LIB)/ppl.cmxa polk
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa polka%.cmxa ppl.cmxa polkaGrid.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.annot *.cm[xiao] *.cmx[as]
+	/bin/rm -f *.[ao] *.$(EXT_DLL) *.annot *.cm[xiao] *.cmx[as]
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr tmp
 	/bin/rm -f polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile.depend
@@ -97,7 +97,7 @@ endif
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
 	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(APRON_LIB)/$$i; done
-	for i in dllpolkaGrid_caml*.so; do /bin/rm -f $(APRON_LIB)/$$i; done
+	for i in dllpolkaGrid_caml*.$(EXT_DLL); do /bin/rm -f $(APRON_LIB)/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(APRON_BIN)/$$i; done
 
 dist: $(CCSRC) ap_pkgrid.texi perlscript_caml.pl polkaGrid.idl polkaGrid.ml polkaGrid.mli polkaGrid_caml.c Makefile COPYING README
@@ -119,9 +119,9 @@ libap_pkgrid.a: ap_pkgrid.o
 libap_pkgrid_debug.a: ap_pkgrid_debug.o
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libap_pkgrid.so: ap_pkgrid.o
+libap_pkgrid.$(EXT_DLL): ap_pkgrid.o
 	$(CXX_APRON_DYLIB) $(CXXFLAGS) -o $@ $^ -L../newpolka -lpolkaMPQ $(LDFLAGS) $(LIBS)
-libap_pkgrid_debug.so: ap_pkgrid_debug.o
+libap_pkgrid_debug.$(EXT_DLL): ap_pkgrid_debug.o
 	$(CXX_APRON_DYLIB) $(CXXFLAGS_DEBUG) -o $@ $^ -L../newpolka -lpolkaMPQ_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 #---------------------------------------
@@ -130,11 +130,11 @@ libap_pkgrid_debug.so: ap_pkgrid_debug.o
 
 OCAMLMKLIB := $(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)" -ocamlopt "$(OCAMLOPT) -cc $(CXX)"
 
-dllpolkaGrid_caml.so: libpolkaGrid_caml.a
+dllpolkaGrid_caml.$(EXT_DLL): libpolkaGrid_caml.a
 libpolkaGrid_caml.a: polkaGrid_caml.o libap_pkgrid.a
 	$(OCAMLMKLIB) -o polkaGrid_caml $< -L. -lap_pkgrid -L../newpolka -lpolkaMPQ $(LDFLAGS) $(LIBS)
 
-dllpolkaGrid_caml_debug.so: libpolkaGrid_caml_debug.a
+dllpolkaGrid_caml_debug.$(EXT_DLL): libpolkaGrid_caml_debug.a
 libpolkaGrid_caml_debug.a: polkaGrid_caml_debug.o libap_pkgrid_debug.a
 	$(OCAMLMKLIB) -o polkaGrid_caml_debug $< -L. -lap_pkgrid_debug -L../newpolka -lpolkaMPQ_debug $(LDFLAGS) $(LIBS_DEBUG)
 

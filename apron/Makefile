@@ -52,7 +52,7 @@ LDFLAGS += $(MP_LIFLAGS) -lm -lmpfr -lgmp
 
 LIB_FILES = libapron.a libapron_debug.a
 ifneq ($(HAS_SHARED),)
-LIB_FILES += libapron.so libapron_debug.so
+LIB_FILES += libapron.$(EXT_DLL) libapron_debug.$(EXT_DLL)
 endif
 
 all: $(LIB_FILES)
@@ -69,7 +69,7 @@ dist: $(H_FILES) $(C_FILES) $(CH_FILES_AUX) apron.texi Makefile COPYING README a
 
 clean:
 	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info*
-	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmx[as] *.cma *.so
+	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmx[as] *.cma *.$(EXT_DLL)
 	/bin/rm -fr html
 	/bin/rm -f apron.pdf rationale.pdf
 
@@ -85,8 +85,8 @@ uninstall:
 	/bin/rm -f $(H_FILES:%=$(APRON_INCLUDE)/%)
 	/bin/rm -f $(APRON_LIB)/libapron.a
 	/bin/rm -f $(APRON_LIB)/libapron_debug.a
-	/bin/rm -f $(APRON_LIB)/libapron.so
-	/bin/rm -f $(APRON_LIB)/libapron_debug.so
+	/bin/rm -f $(APRON_LIB)/libapron.$(EXT_DLL)
+	/bin/rm -f $(APRON_LIB)/libapron_debug.$(EXT_DLL)
 
 #---------------------------------------
 # Latex rules
@@ -140,12 +140,12 @@ libapron_debug.a: $(O_FILES_DEBUG) ../itv/libitv_debug.a
 	$(AR) rs $@ $(O_FILES_DEBUG)
 	$(RANLIB) $@
 
-libapron.so: $(O_FILES) ../itv/libitv.a
+libapron.$(EXT_DLL): $(O_FILES) ../itv/libitv.a
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $(O_FILES) $(patsubst	\
 		%,../itv/%,$(filter %.o, $(shell $(AR) t	\
 		../itv/libitv.a))) $(LDFLAGS)
 
-libapron_debug.so: $(O_FILES_DEBUG) ../itv/libitv_debug.a
+libapron_debug.$(EXT_DLL): $(O_FILES_DEBUG) ../itv/libitv_debug.a
 	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $(O_FILES_DEBUG)	\
 		$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t	\
 		../itv/libitv_debug.a))) $(LDFLAGS)

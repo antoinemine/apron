@@ -65,11 +65,11 @@ endif
 
 all: libapronxx.a libapronxx_debug.a apronxx_test
 ifneq ($(HAS_SHARED),)
-all: libapronxx.so libapronxx_debug.so
+all: libapronxx.$(EXT_DLL) libapronxx_debug.$(EXT_DLL)
 endif
 
 clean:
-	/bin/rm -f *.[ao] *.so apronxx_test
+	/bin/rm -f *.[ao] *.$(EXT_DLL) apronxx_test
 	/bin/rm -fr *~ \#*\# tmp
 
 distclean: clean
@@ -92,7 +92,7 @@ dist: $(CCINC) $(CXXSOURCES) apronxx_test.cc apronxx_test_result.txt Makefile CO
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-.SUFFIXES: .tex .cc .hh .a .o .so
+.SUFFIXES: .tex .cc .hh .a .o .$(EXT_DLL)
 
 #-----------------------------------
 # C++ part
@@ -106,10 +106,10 @@ libapronxx_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-libapronxx.so: $(subst .cc,.o,$(CXXSOURCES))
+libapronxx.$(EXT_DLL): $(subst .cc,.o,$(CXXSOURCES))
 	$(CXX) $(CFLAGS) -shared -o $@ $^ $(LIBS)
 
-libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
+libapronxx_debug.$(EXT_DLL): $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CXX) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o

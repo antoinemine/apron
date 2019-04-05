@@ -81,15 +81,15 @@ D: liboctD.a liboctD_debug.a octtestD
 Dl: liboctDl.a liboctDl_debug.a octtestDl
 MPFR: liboctMPFR.a liboctMPFR_debug.a octtestMPFR
 ifneq ($(HAS_SHARED),)
-Il: liboctIl.so liboctIl_debug.so
-Ill: liboctIll.so liboctIll_debug.so
-MPZ: liboctMPZ.so liboctMPZ_debug.so
-Ri: liboctRi.so liboctRi_debug.so
-Rll: liboctRll.so liboctRll_debug.so
-MPQ: liboctMPQ.so liboctMPQ_debug.so
-D: liboctD.so liboctD_debug.so
-Dl: liboctDl.so liboctDl_debug.so
-MPFR: liboctMPFR.so liboctMPFR_debug.so
+Il: liboctIl.$(EXT_DLL) liboctIl_debug.$(EXT_DLL)
+Ill: liboctIll.$(EXT_DLL) liboctIll_debug.$(EXT_DLL)
+MPZ: liboctMPZ.$(EXT_DLL) liboctMPZ_debug.$(EXT_DLL)
+Ri: liboctRi.$(EXT_DLL) liboctRi_debug.$(EXT_DLL)
+Rll: liboctRll.$(EXT_DLL) liboctRll_debug.$(EXT_DLL)
+MPQ: liboctMPQ.$(EXT_DLL) liboctMPQ_debug.$(EXT_DLL)
+D: liboctD.$(EXT_DLL) liboctD_debug.$(EXT_DLL)
+Dl: liboctDl.$(EXT_DLL) liboctDl_debug.$(EXT_DLL)
+MPFR: liboctMPFR.$(EXT_DLL) liboctMPFR_debug.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml oct%.cma
@@ -99,7 +99,7 @@ mlexample%.opt: mlexample.ml oct%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa oct$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so octtest*
+	/bin/rm -f *.[ao] *.$(EXT_DLL) octtest*
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr *.annot *.cm[ioax] *.cmx[as]
 	/bin/rm -fr octtop* octrun* tmp
@@ -120,7 +120,7 @@ install:
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in liboct*_caml.* dlloct*_caml.so; do \
+	for i in liboct*_caml.* dlloct*_caml.$(EXT_DLL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
@@ -133,7 +133,7 @@ uninstall:
 	/bin/rm -fr $(APRON_INCLUDE)/oct
 	/bin/rm -f $(APRON_BIN)/octtest* $(APRON_BIN)/octtop* $(APRON_BIN)/octrun*
 	/bin/rm -f $(APRON_LIB)/liboct*.* $(APRON_LIB)/liboct*_debug.*
-	/bin/rm -f $(APRON_LIB)/dlloct*.so $(APRON_LIB)/dlloct*_debug.so
+	/bin/rm -f $(APRON_LIB)/dlloct*.$(EXT_DLL) $(APRON_LIB)/dlloct*_debug.$(EXT_DLL)
 	/bin/rm -f $(APRON_LIB)/oct.mli $(APRON_LIB)/oct.cm[ix] $(APRON_LIB)/oct.idl $(APRON_LIB)/oct*.cma $(APRON_LIB)/oct*.cmx[as] $(APRON_LIB)/oct*.a
 
 dist: Makefile COPYING README oct_doc.html perlscript_caml.pl perlscript_c.pl $(CCSOURCES) $(CCINC) oct.h oct_test.c oct.idl oct.mli oct.ml oct_caml.c
@@ -143,7 +143,7 @@ dist: Makefile COPYING README oct_doc.html perlscript_caml.pl perlscript_c.pl $(
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-.SUFFIXES: .tex .c .h .a .o .so
+.SUFFIXES: .tex .c .h .a .o .$(EXT_DLL)
 
 #-----------------------------------
 # C part
@@ -157,14 +157,14 @@ liboct%_debug.a: $(subst .c,%_debug.o,$(CCSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-liboct%.so: $(subst .c,%.o,$(CCSOURCES))
+liboct%.$(EXT_DLL): $(subst .c,%.o,$(CCSOURCES))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
 
-liboct%_debug.so: $(subst .c,%_debug.o,$(CCSOURCES))
+liboct%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCSOURCES))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 ifneq ($(HAS_SHARED),)
-octtest%: oct_test%.o liboct%_debug.a liboct%_debug.so
+octtest%: oct_test%.o liboct%_debug.a liboct%_debug.$(EXT_DLL)
 else
 octtest%: oct_test%.o liboct%_debug.a
 endif
@@ -219,8 +219,8 @@ endif
 
 # TODO: mpfr ?
 
-.PRECIOUS: liboct%.a liboct%_debug.a liboct%.so liboct%_debug.so
-.PRECIOUS: liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.so
+.PRECIOUS: liboct%.a liboct%_debug.a liboct%.$(EXT_DLL) liboct%_debug.$(EXT_DLL)
+.PRECIOUS: liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.$(EXT_DLL)
 .PRECIOUS: %Il.o %Ill.o %MPZ.o %Ri.o %Rll.o %MPQ.o %D.o %Dl.o %MPFR.o
 .PRECIOUS: %Il_debug.o %Ill_debug.o %MPZ_debug.o %Ri_debug.o %Rll_debug.o %MPQ_debug.o %D_debug.o %Dl_debug.o %MPFR_debug.o
 
@@ -252,14 +252,14 @@ mlDl: $(call OCAMLOPT_TARGETS, octDl)
 mlMPFR: $(call OCAMLOPT_TARGETS, octMPFR)
 endif
 ifneq ($(HAS_SHARED),)
-mlIl: dlloctIl_caml.so 
-mlIll:dlloctIll_caml.so
-mlMPZ:dlloctMPZ_caml.so 
-mlRll:dlloctRll_caml.so
-mlMPQ:dlloctMPQ_caml.so
-mlD:dlloctD_caml.so
-mlDl:dlloctDl_caml.so
-mlMPFR:dlloctMPFR_caml.so
+mlIl: dlloctIl_caml.$(EXT_DLL) 
+mlIll:dlloctIll_caml.$(EXT_DLL)
+mlMPZ:dlloctMPZ_caml.$(EXT_DLL) 
+mlRll:dlloctRll_caml.$(EXT_DLL)
+mlMPQ:dlloctMPQ_caml.$(EXT_DLL)
+mlD:dlloctD_caml.$(EXT_DLL)
+mlDl:dlloctDl_caml.$(EXT_DLL)
+mlMPFR:dlloctMPFR_caml.$(EXT_DLL)
 endif
 
 #octtop%: oct.cma liboct_caml.a liboct%.a
@@ -274,10 +274,10 @@ oct%.cma: oct.cmo liboct%_caml.a liboct%.a
 oct%.cmxa oct%.a: oct.cmx liboct%_caml.a liboct%.a
 	$(OCAMLMKLIB) -o oct$* -oc oct$*_caml oct.cmx -loct$* $(LIBS)
 
-dlloct%_caml.so liboct%_caml.a: oct_caml.o liboct%.a
+dlloct%_caml.$(EXT_DLL) liboct%_caml.a: oct_caml.o liboct%.a
 	$(OCAMLMKLIB) -o oct$*_caml $< -L. -loct$* $(LDFLAGS) $(LIBS)
 
-dlloct%_caml_debug.so liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
+dlloct%_caml_debug.$(EXT_DLL) liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
 	$(OCAMLMKLIB) -o oct$*_caml_debug $< -L. -loct$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 %.ml %.mli %_caml.c: %.idl perlscript_c.pl perlscript_caml.pl ../mlapronidl/*.idl
@@ -291,7 +291,7 @@ dlloct%_caml_debug.so liboct%_caml_debug.a: oct_caml_debug.o liboct%_debug.a
 rebuild:
 	@echo "make rebuild is no longer necessary"
 
-.PRECIOUS: %_caml.c %.ml %.mli %.cmi liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.so oct.cmx oct.cmo
+.PRECIOUS: %_caml.c %.ml %.mli %.cmi liboct%_caml.a liboct%_caml_debug.a dlloct%_caml.$(EXT_DLL) oct.cmx oct.cmo
 
 #---------------------------------------
 # ML generic rules
