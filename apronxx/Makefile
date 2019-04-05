@@ -49,8 +49,8 @@ CCINC = \
  apxx_generator0_inline.hh   apxx_polka.hh              apxx_var_inline.hh		\
  apxx_t1p.hh apxx_t1p_inline.hh	
 
-LIBS = $(LDFLAGS) -lapron -lgmp -lgmpxx -lmpfr -lm
-LIBS_DEBUG = $(LDFLAGS) -lapron_debug -lgmp -lgmpxx -lmpfr -lm
+LIBS = $(LDFLAGS) -lapron  -lmpfr -lgmpxx -lgmp -lm
+LIBS_DEBUG = $(LDFLAGS) -lapron_debug -lmpfr -lgmpxx -lgmp -lm
 
 ifneq ($(HAS_PPL),)
   DEFS := $(DEFS) -DHAS_PPL
@@ -113,7 +113,7 @@ libapronxx_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CXX) $(CFLAGS_DEBUG) -shared -o $@ $^ $(LIBS_DEBUG)
 
 apronxx_test: libapronxx_debug.a apronxx_test_debug.o
-	$(CXX) $(CFLAGS_DEBUG) -o $@ apronxx_test_debug.o $(LIBS_DEBUG) -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ_debug libapronxx_debug.a
+	$(CXX) $(CFLAGS_DEBUG) -o $@ apronxx_test_debug.o -L../newpolka -lpolkaMPQ_debug -L../octagons -loctMPQ_debug -L../box -lboxMPQ_debug -L../taylor1plus -lt1pMPQ_debug libapronxx_debug.a $(LIBS_DEBUG)
 
 %.o: %.cc $(CCINC)
 	$(CXX) $(CXXFLAGS) $(ICXXFLAGS) $(DEFS) -c -o $@ $<

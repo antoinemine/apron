@@ -55,8 +55,8 @@ CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMP
 endif
 endif
 
-LIBS = -lapron -lgmpxx -lgmp -lmpfr -lm
-LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lm
+LIBS = -lapron -lgmpxx -lmpfr -lgmp -lm
+LIBS_DEBUG = -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules

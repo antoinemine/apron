@@ -48,8 +48,8 @@ ifneq ($(HAS_OCAML),)
   endif
 endif
 
-LIBS = -lap_ppl -lppl -lapron -lgmpxx -lgmp -lmpfr -lm
-LIBS_DEBUG = -lap_ppl_debug -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lm
+LIBS = -lap_ppl -lppl -lapron -lgmpxx -lmpfr -lgmp -lm
+LIBS_DEBUG = -lap_ppl_debug -lppl -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules

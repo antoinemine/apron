@@ -44,7 +44,7 @@ C_FILES_AUX = ap_linearize_aux.c
 H_FILES_AUX = ap_linearize_aux.h
 CH_FILES_AUX = $(H_FILES_AUX) $(C_FILES_AUX)
 
-LDFLAGS += $(MP_LIFLAGS) -lm -lgmp -lmpfr
+LDFLAGS += $(MP_LIFLAGS) -lm -lmpfr -lgmp
 
 #---------------------------------------
 # Rules
