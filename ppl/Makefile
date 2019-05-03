@@ -35,8 +35,8 @@ CXXSOURCES = ppl_user.cc ppl_poly.cc ppl_grid.cc
 CSOURCES = ppl_test.c
 CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 
-LIBS = -lppl -lapron -lgmpxx -lgmp -lmpfr -lm
-LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lm
+LIBS = -lppl -lapron -lgmpxx -lmpfr -lgmp -lm
+LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -44,7 +44,7 @@ LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lgmp -lmpfr -lm
 
 all: libap_ppl.a libap_ppl_debug.a ap_ppl_test
 ifneq ($(HAS_SHARED),)
-all: libap_ppl.so libap_ppl_debug.so
+all: libap_ppl.$(EXT_DLL) libap_ppl_debug.$(EXT_DLL)
 endif
 
 mlexample.byte: mlexample.ml ppl.cma
@@ -54,7 +54,7 @@ mlexample.opt: mlexample.ml ppl.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -I ../apron -o $@ bigarray.cmxa gmp.cmxa apron.cmxa ppl.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so ap_ppl_test
+	/bin/rm -f *.[ao] *.$(EXT_DLL) ap_ppl_test
 	/bin/rm -f *.annot *.cm[ioax] *.cmx[as] pplrun ppltop
 	/bin/rm -fr *~ \#*\# tmp
 	/bin/rm -f ap_ppl_caml.c ppl.ml ppl.mli
@@ -64,11 +64,11 @@ distclean: clean
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB) $(APRON_BIN)
 	$(INSTALL) ap_ppl.h $(APRON_INCLUDE)
-	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.so libap_ppl_debug.so; do \
+	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.$(EXT_DLL) libap_ppl_debug.$(EXT_DLL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in libap_ppl_caml*.a dllap_ppl_caml*.so ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
+	for i in libap_ppl_caml*.a dllap_ppl_caml*.$(EXT_DLL) ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 	for i in ap_ppl_test pplrun ppltop; do \
@@ -92,7 +92,7 @@ dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) ppl.idl perlscr
 # IMPLICIT RULES AND DEPENDENCIES
 #---------------------------------------
 
-.SUFFIXES: .tex .cc .h .a .o .so
+.SUFFIXES: .tex .cc .h .a .o .$(EXT_DLL)
 
 #-----------------------------------
 # C / C++ part
@@ -104,15 +104,15 @@ libap_ppl.a: $(subst .cc,.o,$(CXXSOURCES))
 libap_ppl_debug.a: $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libap_ppl.so: $(subst .cc,.o,$(CXXSOURCES))
+libap_ppl.$(EXT_DLL): $(subst .cc,.o,$(CXXSOURCES))
 	$(CXX_APRON_DYLIB) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
-libap_ppl_debug.so: $(subst .cc,_debug.o,$(CXXSOURCES))
+libap_ppl_debug.$(EXT_DLL): $(subst .cc,_debug.o,$(CXXSOURCES))
 	$(CXX_APRON_DYLIB) $(CXXFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 ifneq ($(HAS_SHARED),)
-ap_ppl_test: libap_ppl_debug.so
+ap_ppl_test: libap_ppl_debug.$(EXT_DLL)
 endif
-ap_ppl_test: libap_ppl_debug.a libap_ppl_debug.so ppl_test_debug.o
+ap_ppl_test: libap_ppl_debug.a libap_ppl_debug.$(EXT_DLL) ppl_test_debug.o
 	$(CXX) $(CXXFLAGS) -o $@ ppl_test_debug.o \
 		-L. -lap_ppl_debug -L../newpolka -lpolkaMPQ_debug \
 		$(LDFLAGS) $(LIBS_DEBUG)
@@ -140,7 +140,7 @@ ml: $(call OCAMLOPT_TARGETS, ppl)
 endif
 
 ifneq ($(HAS_SHARED),)
-ml: dllap_ppl_caml.so
+ml: dllap_ppl_caml.$(EXT_DLL)
 endif
 
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a
@@ -153,11 +153,11 @@ endif
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
 #	-ccopt "-L.  -L../apron -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
-dllap_ppl_caml.so: libap_ppl_caml.a
+dllap_ppl_caml.$(EXT_DLL): libap_ppl_caml.a
 libap_ppl_caml.a: ap_ppl_caml.o libap_ppl.a
 	$(OCAMLMKLIB) -o ap_ppl_caml $< -L. -lap_ppl $(LDFLAGS) $(LIBS)
 
-dllap_ppl_caml_debug.so: libap_ppl_caml_debug.a
+dllap_ppl_caml_debug.$(EXT_DLL): libap_ppl_caml_debug.a
 libap_ppl_caml_debug.a: ap_ppl_caml_debug.o libap_ppl_debug.a
 	$(OCAMLMKLIB) -o ap_ppl_caml_debug $< -L. -lap_ppl_debug $(LDFLAGS) $(LIBS_DEBUG)
 
@@ -185,7 +185,7 @@ rebuild:
 	@echo "make rebuild is no longer necessary"
 
 
-.PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a dllap_ppl_caml.so ppl.cmx ppl.cmo
+.PRECIOUS: %_caml.c %.ml %.mli %.cmi libap_ppl_caml.a dllap_ppl_caml.$(EXT_DLL) ppl.cmx ppl.cmo
 
 
 #---------------------------------------

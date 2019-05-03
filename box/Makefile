@@ -26,9 +26,9 @@ CCBIN_TO_INSTALL =
 CCLIB_TO_INSTALL = libboxMPQ.a libboxD.a libboxMPFR.a	\
 libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
 ifneq ($(HAS_SHARED),)
-  CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libboxMPQ.so libboxD.so	\
-  libboxMPFR.so libboxMPQ_debug.so libboxD_debug.so			\
-  libboxMPFR_debug.so
+  CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libboxMPQ.$(EXT_DLL) libboxD.$(EXT_DLL)	\
+  libboxMPFR.$(EXT_DLL) libboxMPQ_debug.$(EXT_DLL) libboxD_debug.$(EXT_DLL)			\
+  libboxMPFR_debug.$(EXT_DLL)
 endif
 
 ifneq ($(HAS_OCAML),)
@@ -40,8 +40,8 @@ ifneq ($(HAS_OCAML),)
     CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, boxMPQ boxD boxMPFR)
   endif
   ifneq ($(HAS_SHARED),)
-    CAML_TO_INSTALL += dllboxMPQ_caml.so dllboxD_caml.so	\
-    dllboxMPFR_caml.so
+    CAML_TO_INSTALL += dllboxMPQ_caml.$(EXT_DLL) dllboxD_caml.$(EXT_DLL)	\
+    dllboxMPFR_caml.$(EXT_DLL)
   endif
 endif
 
@@ -62,9 +62,9 @@ allMPQ: libboxMPQ.a libboxMPQ_debug.a
 allD: libboxD.a libboxD_debug.a
 allMPFR: libboxMPFR.a libboxMPFR_debug.a
 ifneq ($(HAS_SHARED),)
-  allMPQ: libboxMPQ.so libboxMPQ_debug.so
-  allD: libboxD.so libboxD_debug.so
-  allMPFR: libboxMPFR.so libboxMPFR_debug.so
+  allMPQ: libboxMPQ.$(EXT_DLL) libboxMPQ_debug.$(EXT_DLL)
+  allD: libboxD.$(EXT_DLL) libboxD_debug.$(EXT_DLL)
+  allMPFR: libboxMPFR.$(EXT_DLL) libboxMPFR_debug.$(EXT_DLL)
 endif
 
 ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR
@@ -78,9 +78,9 @@ ifneq ($(HAS_OCAMLOPT),)
   mlMPFR: $(call OCAMLOPT_TARGETS, boxMPFR)
 endif
 ifneq ($(HAS_SHARED),)
-  mlMPQ: dllboxMPQ_caml.so 
-  mlD: dllboxD_caml.so
-  mlMPFR: dllboxMPFR_caml.so
+  mlMPQ: dllboxMPQ_caml.$(EXT_DLL) 
+  mlD: dllboxD_caml.$(EXT_DLL)
+  mlMPFR: dllboxMPFR_caml.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml box%.cma
@@ -90,7 +90,7 @@ mlexample%.opt: mlexample.ml box%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa box$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.annot *.cm[ioax] *.cmx[as] *.byte *.opt
+	/bin/rm -f *.[ao] *.$(EXT_DLL) *.annot *.cm[ioax] *.cmx[as] *.byte *.opt
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr boxpolkarung boxpolkatopg tmp
 	/bin/rm -f box.ml box.mli box_caml.c
@@ -114,7 +114,7 @@ endif
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
 	/bin/rm -f $(APRON_LIB)/libbox*.* $(APRON_LIB)/liboct*_debug.*
-	/bin/rm -f $(APRON_LIB)/dllbox*.so $(APRON_LIB)/dlloct*_debug.so
+	/bin/rm -f $(APRON_LIB)/dllbox*.$(EXT_DLL) $(APRON_LIB)/dlloct*_debug.$(EXT_DLL)
 	/bin/rm -f $(APRON_LIB)/box.mli $(APRON_LIB)/box.ml		\
 	           $(APRON_LIB)/box.cm[ix] $(APRON_LIB)/box.idl		\
 	           $(APRON_LIB)/box*.cma $(APRON_LIB)/box*.cmx[as]	\
@@ -130,8 +130,8 @@ dist: $(CCSRC) Makefile perlscript_caml.pl box.texi box.idl box.ml box.mli box_c
 
 .SUFFIXES: .tex .c .h .a .o
 
-.PRECIOUS: libbox%.a libbox%_debug.a libbox%.so libbox%_debug.so
-.PRECIOUS: libbox%_caml.a libbox%_caml_debug.a dllbox%_caml.so
+.PRECIOUS: libbox%.a libbox%_debug.a libbox%.$(EXT_DLL) libbox%_debug.$(EXT_DLL)
+.PRECIOUS: libbox%_caml.a libbox%_caml_debug.a dllbox%_caml.$(EXT_DLL)
 .PRECIOUS: %MPQ.o %D.o %MPFR.o
 .PRECIOUS: %MPQ_debug.o %D_debug.o %MPFR_debug.o
 .PRECIOUS: %.cmo %.cmx
@@ -146,9 +146,9 @@ libbox%.a: $(subst .c,%.o,$(CCMODULES:%=%.c))
 libbox%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
-libbox%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
+libbox%.$(EXT_DLL):  $(subst .c,%.o,$(CCMODULES:%=%.c))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
-libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
+libbox%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
 %MPQ.o: %.c
@@ -172,10 +172,10 @@ libbox%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 # OCaml binding
 #---------------------------------------
 
-dllbox%_caml.so libbox%_caml.a: box_caml.o libbox%.a
+dllbox%_caml.$(EXT_DLL) libbox%_caml.a: box_caml.o libbox%.a
 	$(OCAMLMKLIB) -o box$*_caml $< -L. -lbox$* $(LDFLAGS) $(LIBS)
 
-dllbox%_caml_debug.so libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
+dllbox%_caml_debug.$(EXT_DLL) libbox%_caml_debug.a: box_caml_debug.o libbox%_debug.a
 	$(OCAMLMKLIB) -o box$*_caml_debug $< -L. -lbox$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 box_caml.o: box_caml.c

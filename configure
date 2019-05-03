@@ -57,6 +57,7 @@ has_ocamlfind=1
 has_ocaml_plugins=1
 has_java=1
 force_absolute_dylib_install_names=0;
+ext_dll=so
 while : ; do
     case "$1" in
         "") 
@@ -76,6 +77,9 @@ while : ; do
         -java-prefix|--java-prefix)
             java_prefix="$2"
             shift;;
+	-ext-dll|--ext-dll)
+	    ext_dll="$2"
+	    shift;;
         -no-cxx|--no-cxx)
             has_cxx=0
             has_ppl=0;;
@@ -518,6 +522,7 @@ detected configuration:
    optional PPL support         $has_ppl
 
    installation path            $apron_prefix
+   dynamic libraries extension  $ext_dll
 
 EOF
 
@@ -572,6 +577,8 @@ CFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cflags
 CXX = $cxx
 CXXFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cxxflags
 CXXFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cxxflags
+
+EXT_DLL = $ext_dll
 
 AR = $ar
 RANLIB = $ranlib

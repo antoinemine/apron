@@ -2,7 +2,7 @@ include ../Makefile.config
 include ../vars.mk
 
 ICFLAGS += $(NUM_ICFLAGS) $(APRON_ICFLAGS) $(MP_ICFLAGS)
-LDFLAGS += $(NUM_LIFLAGS) $(APRON_LIFLAGS) $(MP_LIFLAGS) -lapron_debug -lgmp -lmpfr -lm
+LDFLAGS += $(NUM_LIFLAGS) $(APRON_LIFLAGS) $(MP_LIFLAGS) -lapron_debug -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Files

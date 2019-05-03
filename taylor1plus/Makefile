@@ -35,8 +35,8 @@ libt1pMPQ.a libt1pD.a libt1pMPFR.a \
 libt1pMPQ_debug.a libt1pD_debug.a libt1pMPFR_debug.a
 ifneq ($(HAS_SHARED),)
 CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
-libt1pMPQ.so libt1pD.so libt1pMPFR.so \
-libt1pMPQ_debug.so libt1pD_debug.so libt1pMPFR_debug.so
+libt1pMPQ.$(EXT_DLL) libt1pD.$(EXT_DLL) libt1pMPFR.$(EXT_DLL) \
+libt1pMPQ_debug.$(EXT_DLL) libt1pD_debug.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
 endif
 
 ifneq ($(HAS_OCAML),)
@@ -51,12 +51,12 @@ ifneq ($(HAS_OCAMLOPT),)
   CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR)
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllt1pMPQ_caml.so dllt1pD_caml.so dllt1pMPFR_caml.so dllt1pMPQ_caml_debug.so dllt1pD_caml_debug.so dllt1pMPFR_caml_debug.so
+CAML_TO_INSTALL += dllt1pMPQ_caml.$(EXT_DLL) dllt1pD_caml.$(EXT_DLL) dllt1pMPFR_caml.$(EXT_DLL) dllt1pMPQ_caml_debug.$(EXT_DLL) dllt1pD_caml_debug.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
 endif
 endif
 
-LIBS = -lapron -lgmpxx -lgmp -lmpfr -lm
-LIBS_DEBUG = -lapron_debug -lgmpxx -lgmp -lmpfr -lm
+LIBS = -lapron -lgmpxx -lmpfr -lgmp -lm
+LIBS_DEBUG = -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules
@@ -74,9 +74,9 @@ allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
 allD: libt1pD.a libt1pD_debug.a
 allMPFR: libt1pMPFR.a libt1pMPFR_debug.a
 ifneq ($(HAS_SHARED),)
-allMPQ: libt1pMPQ.so libt1pMPQ_debug.so
-allD: libt1pD.so libt1pD_debug.so
-allMPFR: libt1pMPFR.so libt1pMPFR_debug.so
+allMPQ: libt1pMPQ.$(EXT_DLL) libt1pMPQ_debug.$(EXT_DLL)
+allD: libt1pD.$(EXT_DLL) libt1pD_debug.$(EXT_DLL)
+allMPFR: libt1pMPFR.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
 endif
 
 exemple1%_debug: exemple1%_debug.o
@@ -107,9 +107,9 @@ mlD: $(call OCAMLOPT_TARGETS, t1pD)
 mlMPFR: $(call OCAMLOPT_TARGETS, t1pMPFR)
 endif
 ifneq ($(HAS_SHARED),)
-mlMPQ: dllt1pMPQ_caml.so dllt1pMPQ_caml_debug.so
-mlD: dllt1pD_caml.so  dllt1pD_caml_debug.so 
-mlMPFR: dllt1pMPFR_caml.so dllt1pMPFR_caml_debug.so
+mlMPQ: dllt1pMPQ_caml.$(EXT_DLL) dllt1pMPQ_caml_debug.$(EXT_DLL)
+mlD: dllt1pD_caml.$(EXT_DLL)  dllt1pD_caml_debug.$(EXT_DLL) 
+mlMPFR: dllt1pMPFR_caml.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
@@ -119,7 +119,7 @@ mlexample%.opt: mlexample.ml t1p%.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -o $@ bigarray.cmxa gmp.cmxa apron.cmxa t1p$*.cmxa $<
 
 clean:
-	/bin/rm -f *.[ao] *.so *.cm[ioax] *.cmx[as] *.byte *.opt *.annot
+	/bin/rm -f *.[ao] *.$(EXT_DLL) *.cm[ioax] *.cmx[as] *.byte *.opt *.annot
 	/bin/rm -f *.?.tex *.log *.aux *.bbl *.blg *.toc *.dvi *.ps *.pstex*
 	/bin/rm -fr t1ppolkarung t1ppolkatopg tmp
 	/bin/rm -fr test*
@@ -143,7 +143,7 @@ endif
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
 	/bin/rm -f $(APRON_LIB)/libt1p*.* $(APRON_LIB)/libt1p*_debug.*
-	/bin/rm -f $(APRON_LIB)/dllt1p*.so $(APRON_LIB)/dllt1p*_debug.so
+	/bin/rm -f $(APRON_LIB)/dllt1p*.$(EXT_DLL) $(APRON_LIB)/dllt1p*_debug.$(EXT_DLL)
 	/bin/rm -f $(APRON_LIB)/t1p.mli $(APRON_LIB)/t1p.ml $(APRON_LIB)/t1p.cm[ix] $(APRON_LIB)/t1p.idl $(APRON_LIB)/t1p*.cma $(APRON_LIB)/t1p*.cmx[as] $(APRON_LIB)/t1p*.a
 
 
@@ -156,8 +156,8 @@ dist: $(CCSRC) Makefile perlscript_caml.pl t1p.idl t1p.ml t1p.mli t1p_caml.c
 
 .SUFFIXES: .tex .c .h .a .o
 
-.PRECIOUS: libt1p%.a libt1p%_debug.a libt1p%.so libt1p%_debug.so
-.PRECIOUS: libt1p%_caml.a libt1p%_caml_debug.a dllt1p%_caml.so
+.PRECIOUS: libt1p%.a libt1p%_debug.a libt1p%.$(EXT_DLL) libt1p%_debug.$(EXT_DLL)
+.PRECIOUS: libt1p%_caml.a libt1p%_caml_debug.a dllt1p%_caml.$(EXT_DLL)
 .PRECIOUS: %MPQ.o %D.o %MPFR.o
 .PRECIOUS: %MPQ_debug.o %D_debug.o %MPFR_debug.o
 .PRECIOUS: %.cmo %.cmx
@@ -177,9 +177,9 @@ libt1p%_debug.a: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 ## mingw-w64 linker is not very smart and is sensitive to the library order
 ## should work across all archs
 ##
-libt1p%.so:  $(subst .c,%.o,$(CCMODULES:%=%.c))
+libt1p%.$(EXT_DLL):  $(subst .c,%.o,$(CCMODULES:%=%.c))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lbox$* -lpolkaMPQ $(LIBS)
-libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
+libt1p%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 	$(CC_APRON_DYLIB) $(CFLAGS_DEBUG) -o $@ $^ $(LDFLAGS) -lbox$*_debug -lpolkaMPQ_debug $(LIBS_DEBUG)
 
 %MPQ.o: %.c
@@ -203,10 +203,10 @@ libt1p%_debug.so: $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 # OCaml binding
 #---------------------------------------
 
-dllt1p%_caml.so libt1p%_caml.a: t1p_caml.o libt1p%.a
+dllt1p%_caml.$(EXT_DLL) libt1p%_caml.a: t1p_caml.o libt1p%.a
 	$(OCAMLMKLIB) -o t1p$*_caml t1p_caml.o -L. -lt1p$* $(LDFLAGS) $(LIBS)
 
-dllt1p%_caml_debug.so libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
+dllt1p%_caml_debug.$(EXT_DLL) libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
 	$(OCAMLMKLIB) -o t1p$*_caml_debug t1p_caml_debug.o -L. -lt1p$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 t1p_caml.o: t1p_caml.c

@@ -92,15 +92,15 @@ APRONC     = $(addprefix apron/apron_,$(addsuffix .c,$(APRONMODS)))
 APRONO     = $(addprefix apron/apron_,$(addsuffix .o,$(APRONMODS)))
 APRONH     = $(addprefix apron/apron_,$(addsuffix .h,$(APRONMODS)))
 
-GMPALL     = $(GMPCLASS) $(GMPH) libjgmp.so
-APRONALL   = $(APRONCLASS) $(APRONH) $(APRONO) libjapron.so
+GMPALL     = $(GMPCLASS) $(GMPH) libjgmp.$(EXT_DLL)
+APRONALL   = $(APRONCLASS) $(APRONH) $(APRONO) libjapron.$(EXT_DLL)
 
 
 # built and installed in JAVA_PREFIX
 JAVAINST   = gmp.jar apron.jar
 
 # built and installed in APRON_LIB
-SOINST     = libjgmp.so libjapron.so
+SOINST     = libjgmp.$(EXT_DLL) libjapron.$(EXT_DLL)
 
 ############################
 #TARGETS
@@ -114,7 +114,7 @@ $(GMPCLASS): $(GMPJ)
 gmp/%.o: gmp/%.c $(GMPH) gmp/jgmp.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) $< -o $@
 
-libjgmp.so: gmp/jgmp.o $(GMPO)
+libjgmp.$(EXT_DLL): gmp/jgmp.o $(GMPO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(GMPLIBS)
 
 gmp/gmp_%.h: gmp/%.java
@@ -132,7 +132,7 @@ $(APRONCLASS): $(APRONJ)
 apron/%.o: apron/%.c $(APRONH)  gmp/jgmp.h apron/japron.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) -Igmp $< -o $@
 
-libjapron.so: apron/japron.o $(APRONO)
+libjapron.$(EXT_DLL): apron/japron.o $(APRONO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(APRONLIBS)
 
 apron/apron_%.h: apron/%.java
@@ -175,7 +175,7 @@ dist: $(GMPJ) $(APRONJ) $(GMPC) $(APRONC) apron/japron.c apron/japron.h gmp/jgmp
 
 
 clean:
-	rm -f *~ \#* */*~ *.o *.class *.so *.jar */\#* */*.o */*.class */*.so $(GMPH) $(APRONH)
+	rm -f *~ \#* */*~ *.o *.class *.$(EXT_DLL) *.jar */\#* */*.o */*.class */*.$(EXT_DLL) $(GMPH) $(APRONH)
 	rm -rf doc
 
 .PHONY: clean doc install unsintall distclean dist
