@@ -59,7 +59,8 @@ t1p_t* t1p_of_box(ap_manager_t* man, size_t intdim, size_t realdim, ap_interval_
 {
     CALL();
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_OF_BOX);
-    itv_t* itv_array = itv_array_alloc(intdim+realdim);
+    //itv_t* itv_array = itv_array_alloc(intdim+realdim);
+    itv_t* itv_array;
     itv_array_set_ap_interval_array(pr->itv, &itv_array, tinterval, intdim+realdim);
     t1p_t* res = t1p_alloc(man,intdim,realdim);
     size_t i = 0;
