@@ -1,0 +1,44 @@
+opam-version: "2.0"
+synopsis: "APRON numerical abstract domain library"
+authors: [
+  "Bertrand Jeannet"
+  "Antoine Miné"
+  "https://github.com/antoinemine/apron/graphs/contributors"
+]
+license: "LGPL-2.1 with linking exception"
+homepage: "http://apron.cri.ensmp.fr/library/"
+maintainer: "Nicolas Berthier <m@nberth.space>"
+dev-repo: "git+https://github.com/antoinemine/apron.git"
+bug-reports: "https://github.com/antoinemine/apron/issues"
+build: [
+  [
+    "sh"
+    "./configure"
+    "--prefix"
+    "%{share}%/apron"
+    "--no-ppl" {!conf-ppl:installed}
+    "--no-java"
+    "--no-ocaml-plugins" {os = "freebsd"}
+    "--absolute-dylibs" {os = "macos"}
+  ]
+  [make "-j%{jobs}%"]
+]
+install: [
+  [make "install"]
+]
+remove: [
+  ["ocamlfind" "remove" "apron"]
+  ["rm" "-r" "-f" "%{share}%/apron"]
+]
+depends: [
+  "ocaml"
+  "ocamlfind"
+  "camlidl"
+  "mlgmpidl"
+  "ocamlbuild" {build}
+  "conf-perl"
+]
+depopts: [
+  "conf-ppl"
+]
+flags: light-uninstall
