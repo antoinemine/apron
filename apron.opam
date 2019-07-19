@@ -17,7 +17,6 @@ build: [
     "--prefix"
     "%{share}%/apron"
     "--no-ppl" {!conf-ppl:installed}
-    "--no-java"
     "--no-ocaml-plugins" {os = "freebsd"}
     "--absolute-dylibs" {os = "macos"}
   ]
