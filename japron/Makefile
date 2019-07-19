@@ -54,7 +54,7 @@ GMPMODS = Mpz MpzRef Mpq Mpfr RandState
 # lone .java
 GMPJAVA = Test
 
-APRONLIBS = -ljgmp -lboxD -loctD -lpolkaMPQ -lapron $(GMPLIBS)
+APRONLIBS = -lboxD -loctD -lpolkaMPQ -lapron -ljgmp $(GMPLIBS)
 
 # .java / .c pairs
 APRONMODS = Dimchange Dimperm Linexpr0 Lincons0 \
