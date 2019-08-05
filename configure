@@ -567,8 +567,8 @@ JAVAC     = $javac -Xlint:unchecked
 JAVAH     = $javah
 JAVADOC   = $javadoc
 JAR       = $jar
-JAVA_HOME = $java_home
-JNIINC    = -I$java_home/include
+java_home = ${JAVA_HOME}
+jniinc    = -I${JAVA_HOME}/INCLUDE
 
 CC = $cc
 CFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cflags
