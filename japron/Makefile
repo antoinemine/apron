@@ -19,6 +19,7 @@ IFLAGS = $(ICFLAGS) \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
+-I${JAVA_HOME}/include \
 -I../apron \
 -I../box \
 -I../newpolka \
