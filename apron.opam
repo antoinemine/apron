@@ -19,6 +19,7 @@ build: [
     "--no-ppl" {!conf-ppl:installed}
     "--no-ocaml-plugins" {os = "freebsd"}
     "--absolute-dylibs" {os = "macos"}
+    "--ext-dll" {os = "win32"} "dll" {os = "win32"}
   ]
   [make "-j%{jobs}%"]
 ]
