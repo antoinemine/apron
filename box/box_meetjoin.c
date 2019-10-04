@@ -173,6 +173,7 @@ box_t* box_meet_lincons_array(ap_manager_t* man,
 			      box_t* a,
 			      ap_lincons0_array_t* array)
 {
+  bool empty = false;
   box_t* res;
   size_t kmax;
   itv_lincons_array_t tlincons;
@@ -196,8 +197,8 @@ box_t* box_meet_lincons_array(ap_manager_t* man,
     }
     itv_boxize_lincons_array(intern->itv,
 			     res->p,NULL,
-			     &tlincons,res->p,a->intdim,kmax,false);
-    if (itv_is_bottom(intern->itv,res->p[0])){
+			     &tlincons,res->p,a->intdim,kmax,false,&empty);
+    if (empty){
     _box_meet_lincons_array_bottom:
       box_set_bottom(res);
     }
@@ -212,6 +213,7 @@ box_t* box_meet_tcons_array(ap_manager_t* man,
 			    box_t* a,
 			    ap_tcons0_array_t* array)
 {
+  bool empty = false;
   box_t* res;
   int kmax;
   box_internal_t* intern = (box_internal_t*)man->internal;
@@ -240,8 +242,8 @@ box_t* box_meet_tcons_array(ap_manager_t* man,
       }
       itv_boxize_lincons_array(intern->itv,
                                res->p,NULL,
-                               &tlincons,res->p,a->intdim,kmax,false);
-      if (itv_is_bottom(intern->itv,res->p[0])){
+                               &tlincons,res->p,a->intdim,kmax,false,&empty);
+      if (empty){
       _box_meet_tcons_array_bottom:
         box_set_bottom(res);
       }
