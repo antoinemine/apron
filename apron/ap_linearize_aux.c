@@ -431,6 +431,7 @@ ITVFUN(ap_intlinearize_tcons0_array)(ap_manager_t* man,
   ap_lincons0_array_t res;
   size_t i;
   bool change = false;
+  bool empty = false;
   bool* tchange = NULL;
 
   if (pexact) *pexact = false;
@@ -446,7 +447,7 @@ ITVFUN(ap_intlinearize_tcons0_array)(ap_manager_t* man,
       (intervalonly ? !itv_lincons_array_is_quasilinear(&tlincons) : true)){
     tchange = malloc((dim.intdim+dim.realdim)*2);
     for (i=0;i<(dim.intdim+dim.realdim)*2;i++) tchange[i]=false;
-    change = itv_boxize_lincons_array(&intern,env,tchange,&tlincons,env,dim.intdim,kmax,intervalonly);
+    change = itv_boxize_lincons_array(&intern,env,tchange,&tlincons,env,dim.intdim,kmax,intervalonly,&empty);
   }
   switch(linearize){
   case AP_LINEXPR_INTLINEAR:
@@ -465,7 +466,7 @@ ITVFUN(ap_intlinearize_tcons0_array)(ap_manager_t* man,
     goto ap_intlinearize_tcons0_array_exit;
   
   if (change){
-    if (itv_is_bottom(&intern,env[0])){
+    if (empty){
       itv_lincons_array_reinit(&tlincons,1);
       itv_lincons_set_bool(&tlincons.p[0],false);
       goto ap_intlinearize_tcons0_array_exit;

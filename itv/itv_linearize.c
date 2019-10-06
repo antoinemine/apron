@@ -95,7 +95,8 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
 			       itv_lincons_t* cons,
 			       itv_t* env,
 			       size_t intdim,
-			       bool intervalonly)
+			       bool intervalonly,
+                               bool* empty)
 {
   size_t i;
   itv_linexpr_t* expr;
@@ -108,6 +109,7 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
 
   expr = &cons->linexpr;
   globalchange = false;
+  *empty = false;
 
   /* Iterates on coefficients */
   itv_set_int(intern->boxize_lincons_itv,0);
@@ -352,7 +354,7 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
   }
   if (expr->size==0 &&
       itv_eval_cstlincons(intern,cons)==tbool_false){
-    itv_set_bottom(res[0]);
+    *empty = true;
     globalchange = true;
   }
   return globalchange;
@@ -378,7 +380,8 @@ bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern,
 				      itv_lincons_array_t* array,
 				      itv_t* env,size_t intdim,
 				      size_t kmax,
-				      bool intervalonly)
+				      bool intervalonly,
+                                      bool *empty)
 {
   size_t i,k;
   bool change,globalchange;
@@ -395,12 +398,12 @@ bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern,
 	  array->p[i].constyp==AP_CONS_SUPEQ ||
 	  array->p[i].constyp==AP_CONS_SUP){
 	change =
-	  itv_boxize_lincons(intern,res,tchange,&array->p[i],env,intdim,intervalonly)
+	  itv_boxize_lincons(intern,res,tchange,&array->p[i],env,intdim,intervalonly,empty)
 	  ||
 	  change
 	  ;
 	globalchange = globalchange || change;
-	if (itv_is_bottom(intern,res[0])){
+	if (*empty){
 	  return true;
 	}
       }

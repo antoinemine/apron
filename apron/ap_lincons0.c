@@ -75,6 +75,8 @@ bool ap_lincons0_is_unsat(ap_lincons0_t* cons)
 	return (sgn<0);
       case AP_CONS_SUP:
 	return (sgn<=0);
+      default:
+        abort();
       }
     case AP_COEFF_INTERVAL:
       sgn = ap_scalar_sgn(expr->cst.val.interval->sup);
@@ -92,6 +94,8 @@ bool ap_lincons0_is_unsat(ap_lincons0_t* cons)
 	return sgn<0;
       case AP_CONS_SUP:
 	return (sgn<=0);
+      default:
+        abort();
       }
     default:
       abort();
@@ -128,6 +132,8 @@ bool ap_lincons0_is_sat(ap_lincons0_t* cons)
 	return ap_scalar_sgn(expr->cst.val.scalar)>=0;
       case AP_CONS_SUP:
 	return ap_scalar_sgn(expr->cst.val.scalar)>0;
+      default:
+        abort();
       }
     case AP_COEFF_INTERVAL:
       if (ap_interval_is_bottom(expr->cst.val.interval)) 
@@ -148,6 +154,8 @@ bool ap_lincons0_is_sat(ap_lincons0_t* cons)
       case AP_CONS_SUP:
 	return 
           ap_scalar_sgn(expr->cst.val.interval->inf)>0;
+      default:
+        abort();
       }
     default:
       abort();

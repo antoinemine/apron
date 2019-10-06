@@ -354,6 +354,7 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
     size_t kmax = 2; /* specifies the maximum number of iterations */
 
     bool* tchange = (bool*)calloc(2*a->dims, sizeof(bool));
+    bool empty = false;
     itv_t box; itv_init(box);
     itv_lincons_array_t itv_lincons_array;
     itv_lincons_array.size = 0;
@@ -361,7 +362,7 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
     if (!itv_intlinearize_ap_tcons0_array(pr->itv, &itv_lincons_array, array, res->box, res->intdim)) {
 	size_t kmax = 2; /* specifies the maximum number of iterations */
 	/* intervalonly is set to false which means try to improve all dimensions, not only the ones with an interval coefficient */
-	if (itv_boxize_lincons_array(pr->itv, res->box, tchange, &itv_lincons_array, res->box, res->intdim, kmax, false)) {
+	if (itv_boxize_lincons_array(pr->itv, res->box, tchange, &itv_lincons_array, res->box, res->intdim, kmax, false, &empty)) {
 	    /* there is some inferred bounds */
 	    for (i=0; i<res->dims; i++) {
 		if (tchange[2*i] || tchange[2*i + 1]) {

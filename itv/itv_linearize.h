@@ -43,7 +43,8 @@ static inline bool itv_boxize_lincons_array(itv_internal_t* intern,
 					    itv_lincons_array_t* array,
 					    itv_t* env,size_t intdim,
 					    size_t kmax,
-					    bool intervalonly);
+					    bool intervalonly,
+                                            bool* empty);
   /* Deduce interval constraints from a set of interval linear constraints.
 
      Return true if some bounds have been inferred.
@@ -140,7 +141,7 @@ void ITVFUN(itv_eval_linexpr)(itv_internal_t* intern, itv_t itv, itv_linexpr_t* 
 bool ITVFUN(itv_eval_ap_linexpr0)(itv_internal_t* intern, itv_t itv, ap_linexpr0_t* expr, itv_t* env);
 
 /* II. Boxization of interval linear expressions */
-bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern, itv_t* res, bool* change, itv_lincons_array_t* array, itv_t* env, size_t intdim, size_t kmax, bool intervalonly);
+bool ITVFUN(itv_boxize_lincons_array)(itv_internal_t* intern, itv_t* res, bool* change, itv_lincons_array_t* array, itv_t* env, size_t intdim, size_t kmax, bool intervalonly, bool* empty);
 
 /* III. (Quasi)linearisation of interval linear expressions and constraints */
 bool ITVFUN(itv_quasilinearize_linexpr)(itv_internal_t* intern, itv_linexpr_t* linexpr, itv_t* env, bool for_meet_inequality);
@@ -175,8 +176,8 @@ static inline bool itv_eval_ap_linexpr0(itv_internal_t* intern, itv_t itv, ap_li
 { return ITVFUN(itv_eval_ap_linexpr0)(intern,itv,expr,env); }
 
 /* II. Boxization of interval linear expressions */
-static inline bool itv_boxize_lincons_array(itv_internal_t* intern, itv_t* res, bool* tchange, itv_lincons_array_t* array, itv_t* env, size_t intdim, size_t kmax, bool intervalonly)
-{ return ITVFUN(itv_boxize_lincons_array)(intern,res,tchange,array,env,intdim,kmax,intervalonly); }
+static inline bool itv_boxize_lincons_array(itv_internal_t* intern, itv_t* res, bool* tchange, itv_lincons_array_t* array, itv_t* env, size_t intdim, size_t kmax, bool intervalonly, bool* empty)
+{ return ITVFUN(itv_boxize_lincons_array)(intern,res,tchange,array,env,intdim,kmax,intervalonly,empty); }
 
 /* III. (Quasi)linearisation of interval linear expressions and constraints */
 static inline bool itv_quasilinearize_linexpr(itv_internal_t* intern, itv_linexpr_t* linexpr, itv_t* env, bool for_ineq)
