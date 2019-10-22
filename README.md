@@ -100,7 +100,5 @@ The README.mac file is not up to date.
 
 ### Installation on Windows
 
-**Help needed for this section.**
-
-The README.windows file is not up to date.
+See the [Windows README](README.windows.md).
 
