@@ -364,7 +364,7 @@ fi
 searchbinreq "ar"; ar="$path"
 searchbinreq "ranlib"; ranlib="$path"
 searchbinreq "sed"; sed="$path"
-searchbinreq "perl"; perl="$path"
+#searchbinreq "perl"; perl="$path"
 searchbinreq "install"; install="$path"
 
 
@@ -583,7 +583,7 @@ EXT_DLL = $ext_dll
 AR = $ar
 RANLIB = $ranlib
 SED = $sed
-PERL = $perl
+PERL = perl
 INSTALL = $install
 INSTALLd = $install -d
 
