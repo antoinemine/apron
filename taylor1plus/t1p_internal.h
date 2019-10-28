@@ -600,6 +600,9 @@ static inline t1p_nsym_t* t1p_nsym_add(t1p_internal_t *pr, nsym_t type)
     /* resize epsilon array */
     if ((dim+1) % 1024 == 0) pr->epsilon = (t1p_nsym_t**)realloc(pr->epsilon, (dim+1024)*sizeof(t1p_nsym_t*));
     res = pr->epsilon[dim] = (t1p_nsym_t*)malloc(sizeof(t1p_nsym_t));
+    if ((pr->epssize+1) % 1024 == 0) {
+      pr->inputns = (uint_t*) realloc(pr->inputns, (pr->epssize+1024) * sizeof(uint_t));
+    }
     if (type == IN) {pr->inputns[pr->epssize] = dim; pr->epssize++;}
     res->index = dim;
     res->type = type;

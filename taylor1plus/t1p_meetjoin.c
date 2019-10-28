@@ -322,6 +322,7 @@ t1p_t* t1p_meet_lincons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_
     t1p_fprint(stdout, man, res, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
+    ap_tcons0_array_clear(&tcons0_array);
     return res;
 }
 
@@ -392,10 +393,12 @@ t1p_t* t1p_meet_tcons_array(ap_manager_t* man, bool destructive, t1p_t* a, ap_tc
 	} else {
 	    /* nothing change */
 	}
-	itv_lincons_array_clear(&itv_lincons_array);
     } else {
 	/* bottom */
 	is_bottom = true;
+    }
+    if (array->p != NULL) {
+      itv_lincons_array_clear(&itv_lincons_array);
     }
     if (!is_bottom) {
 	/* texpr -> aff forme */
