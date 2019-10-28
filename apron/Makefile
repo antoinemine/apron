@@ -1,5 +1,7 @@
 include ../Makefile.config
 include ../vars.mk
+include ../version.mk
+include depend
 
 #---------------------------------------
 # C part
@@ -25,7 +27,8 @@ ap_abstract1.h \
 ap_global0.h ap_global1.h \
 ap_linearize.h ap_linearize_aux.h \
 ap_reducedproduct.h \
-ap_disjunction.h 
+ap_disjunction.h \
+ap_version.h
 
 C_FILES = \
 ap_scalar.c ap_interval.c ap_coeff.c ap_dimension.c \
@@ -68,7 +71,7 @@ dist: $(H_FILES) $(C_FILES) $(CH_FILES_AUX) apron.texi Makefile COPYING README a
 	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
 
 clean:
-	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info*
+	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info* depend ap_version.h
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmx[as] *.cma *.$(EXT_DLL)
 	/bin/rm -fr html
 	/bin/rm -f apron.pdf rationale.pdf
@@ -150,12 +153,16 @@ libapron_debug.$(EXT_DLL): $(O_FILES_DEBUG) ../itv/libitv_debug.a
 		$(patsubst %,../itv/%,$(filter %.o, $(shell $(AR) t	\
 		../itv/libitv_debug.a))) $(LDFLAGS)
 
-.PHONY : dep
+ap_version.h: ../version.mk
+	echo "// APRON version, automatically generated from version.mk" > $@
+	echo "#ifndef AP_VERSION" >> $@
+	echo "#define AP_VERSION_MAJOR ${VERSION_MAJOR}" >> $@
+	echo "#define AP_VERSION_MINOR ${VERSION_MINOR}" >> $@
+	echo "#define AP_VERSION_MICRO ${VERSION_MICRO}" >> $@
+	echo "#define AP_VERSION       \"${VERSION_STR}\"" >> $@
+	echo "#endif" >> $@
 
-dep: $(H_FILES)
-	for i in $(C_FILES); do		\
-		cpp $(ICFLAGS) -MM $$i;	\
-	done
+.PHONY : dep depend
 
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
@@ -196,223 +203,4 @@ dep: $(H_FILES)
 #---------------------------------------
 
 depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES)
-
-
-ap_scalar.o: ap_scalar.c ap_scalar.h ap_config.h
-ap_interval.o: ap_interval.c ap_interval.h \
-  ap_config.h \
-  ap_scalar.h
-ap_coeff.o: ap_coeff.c ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h
-ap_dimension.o: ap_dimension.c ap_dimension.h
-ap_linexpr0.o: ap_linexpr0.c ap_linexpr0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_dimension.h
-ap_lincons0.o: ap_lincons0.c ap_lincons0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_dimension.h
-ap_generator0.o: ap_generator0.c ap_generator0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_dimension.h
-ap_texpr0.o: ap_texpr0.c ap_texpr0.h ap_dimension.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_linearize.h ap_manager.h ap_expr0.h \
-  ap_lincons0.h ap_generator0.h ap_tcons0.h ap_abstract0.h
-ap_tcons0.o: ap_tcons0.c ap_tcons0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_texpr0.h ap_dimension.h ap_linexpr0.h ap_lincons0.h
-ap_manager.o: ap_manager.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h
-ap_abstract0.o: ap_abstract0.c ap_abstract0.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h
-ap_generic.o: ap_generic.c ap_generic.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract0.h
-ap_var.o: ap_var.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_var.h
-ap_environment.o: ap_environment.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h
-ap_linexpr1.o: ap_linexpr1.c ap_linexpr1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_linexpr0.h
-ap_lincons1.o: ap_lincons1.c ap_lincons1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_lincons0.h \
-  ap_linexpr0.h ap_linexpr1.h
-ap_generator1.o: ap_generator1.c ap_generator1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_generator0.h \
-  ap_linexpr0.h ap_linexpr1.h
-ap_texpr1.o: ap_texpr1.c ap_texpr1.h ap_dimension.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_texpr0.h ap_linexpr0.h ap_environment.h ap_var.h \
-  ap_linexpr1.h
-ap_tcons1.o: ap_tcons1.c ap_tcons1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_tcons0.h ap_texpr0.h ap_dimension.h ap_linexpr0.h \
-  ap_lincons0.h ap_environment.h ap_var.h ap_texpr1.h ap_linexpr1.h
-ap_abstract1.o: ap_abstract1.c ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_manager.h ap_abstract0.h ap_expr0.h ap_linexpr0.h \
-  ap_dimension.h ap_lincons0.h ap_generator0.h ap_texpr0.h ap_tcons0.h \
-  ap_linearize.h ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h \
-  ap_lincons1.h ap_generator1.h ap_texpr1.h ap_tcons1.h ap_abstract1.h
-ap_linearize.o: ap_linearize.c ap_linearize.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_abstract0.h \
-  ap_linearize_aux.h ../itv/itv_fun.h
-ap_reducedproduct.o: ap_reducedproduct.c ap_global0.h ap_config.h \
-  ap_scalar.h \
-  ap_interval.h \
-  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
-  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
-  ap_linearize.h ap_reducedproduct.h
-ap_disjunction.o: ap_disjunction.c ap_global0.h ap_config.h \
-  ap_scalar.h \
-  ap_interval.h \
-  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
-  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
-  ap_linearize.h ap_disjunction.h
-ap_policy.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
-  ap_scalar.h ap_interval.h \
-  ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract1.h \
-  ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h ap_lincons1.h \
-  ap_generator1.h ap_texpr1.h ap_tcons1.h
-
-ap_scalar_debug.o: ap_scalar.c ap_scalar.h ap_config.h
-ap_interval_debug.o: ap_interval.c ap_interval.h \
-  ap_config.h \
-  ap_scalar.h
-ap_coeff_debug.o: ap_coeff.c ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h
-ap_dimension_debug.o: ap_dimension.c ap_dimension.h
-ap_linexpr0_debug.o: ap_linexpr0.c ap_linexpr0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_dimension.h
-ap_lincons0_debug.o: ap_lincons0.c ap_lincons0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_dimension.h
-ap_generator0_debug.o: ap_generator0.c ap_generator0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_dimension.h
-ap_texpr0_debug.o: ap_texpr0.c ap_texpr0.h ap_dimension.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_linexpr0.h ap_linearize.h ap_manager.h ap_expr0.h \
-  ap_lincons0.h ap_generator0.h ap_tcons0.h ap_abstract0.h
-ap_tcons0_debug.o: ap_tcons0.c ap_tcons0.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_texpr0.h ap_dimension.h ap_linexpr0.h ap_lincons0.h
-ap_manager_debug.o: ap_manager.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h
-ap_abstract0_debug.o: ap_abstract0.c ap_abstract0.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h
-ap_generic_debug.o: ap_generic.c ap_generic.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract0.h
-ap_var_debug.o: ap_var.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_var.h
-ap_environment_debug.o: ap_environment.c ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h
-ap_linexpr1_debug.o: ap_linexpr1.c ap_linexpr1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_linexpr0.h
-ap_lincons1_debug.o: ap_lincons1.c ap_lincons1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_lincons0.h \
-  ap_linexpr0.h ap_linexpr1.h
-ap_generator1_debug.o: ap_generator1.c ap_generator1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_environment.h ap_dimension.h ap_var.h ap_generator0.h \
-  ap_linexpr0.h ap_linexpr1.h
-ap_texpr1_debug.o: ap_texpr1.c ap_texpr1.h ap_dimension.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_texpr0.h ap_linexpr0.h ap_environment.h ap_var.h \
-  ap_linexpr1.h
-ap_tcons1_debug.o: ap_tcons1.c ap_tcons1.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_tcons0.h ap_texpr0.h ap_dimension.h ap_linexpr0.h \
-  ap_lincons0.h ap_environment.h ap_var.h ap_texpr1.h ap_linexpr1.h
-ap_abstract1_debug.o: ap_abstract1.c ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_manager.h ap_abstract0.h ap_expr0.h ap_linexpr0.h \
-  ap_dimension.h ap_lincons0.h ap_generator0.h ap_texpr0.h ap_tcons0.h \
-  ap_linearize.h ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h \
-  ap_lincons1.h ap_generator1.h ap_texpr1.h ap_tcons1.h ap_abstract1.h
-ap_linearize_debug.o: ap_linearize.c ap_linearize.h ap_manager.h ap_coeff.h \
-  ap_config.h \
-  ap_scalar.h \
-  ap_interval.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_abstract0.h \
-  ap_linearize_aux.h ../itv/itv_fun.h
-ap_reducedproduct_debug.o: ap_reducedproduct.c ap_global0.h ap_config.h \
-  ap_scalar.h \
-  ap_interval.h \
-  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
-  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
-  ap_linearize.h ap_reducedproduct.h
-ap_disjunction_debug.o: ap_disjunction.c ap_global0.h ap_config.h \
-  ap_scalar.h \
-  ap_interval.h \
-  ap_coeff.h ap_dimension.h ap_linexpr0.h ap_lincons0.h ap_generator0.h \
-  ap_texpr0.h ap_tcons0.h ap_manager.h ap_abstract0.h ap_expr0.h \
-  ap_linearize.h ap_disjunction.h
-
-ap_policy_debug.o: ap_policy.c ap_policy.h ap_manager.h ap_coeff.h ap_config.h \
-  ap_scalar.h ap_interval.h \
-  ap_abstract0.h ap_expr0.h ap_linexpr0.h ap_dimension.h ap_lincons0.h \
-  ap_generator0.h ap_texpr0.h ap_tcons0.h ap_linearize.h ap_abstract1.h \
-  ap_expr1.h ap_linexpr1.h ap_environment.h ap_var.h ap_lincons1.h \
-  ap_generator1.h ap_texpr1.h ap_tcons1.h
-
+	$(CC) $(ICFLAGS) -E -MM $(C_FILES) > depend

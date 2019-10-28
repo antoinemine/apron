@@ -17,7 +17,7 @@ IDLMODULES = \
 scalar interval coeff \
 dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy \
-disjunction
+disjunction version
 
 IDLMODULEStex = Introduction.tex \
 Scalar.tex Interval.tex Coeff.tex \

@@ -1,0 +1,26 @@
+/* -*- mode: c -*- */
+
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution  */
+
+quote(MLI,"(** APRON version *)")
+
+quote(C, "\n\
+#include \"ap_version.h\"\n\
+\n\
+")
+
+[string]char* version()
+  quote(call,"_res = AP_VERSION;");
+
+int version_major()
+  quote(call,"_res = AP_VERSION_MAJOR;");
+
+int version_minor()
+  quote(call,"_res = AP_VERSION_MINOR;");
+
+int version_micro()
+  quote(call,"_res = AP_VERSION_MICRO;");
