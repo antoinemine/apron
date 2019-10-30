@@ -1,8 +1,8 @@
 include Makefile.config
 SRCROOT = .
 include vars.mk
+include version.mk
 PKGNAME = apron
-VERSION_STR = 20150916
 
 all: c
 ifneq ($(HAS_OCAML),)

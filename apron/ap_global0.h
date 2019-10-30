@@ -23,5 +23,6 @@
 #include "ap_tcons0.h"
 #include "ap_manager.h"
 #include "ap_abstract0.h"
+#include "ap_version.h"
 
 #endif
