@@ -203,7 +203,7 @@ public class Mpz
     /**
      * Converts the integer to a mantissa and exponent.
      * 
-     * <p> The mantissa m returned is such that 0.5 <= |m| < 1,
+     * <p> The mantissa m returned is such that 0.5 &lt;= |m| &lt; 1,
      * truncated to fit double.
      * <p> The exponent is stored into r[0].
      */
@@ -675,7 +675,7 @@ public class Mpz
     /**
      * Stores b^e mod m into this.
      *
-     * <p> Throws an ArithmeticException if e<0 and b has no inverse modulo m.
+     * <p> Throws an ArithmeticException if e &lt; 0 and b has no inverse modulo m.
      */
     public native void pow(Mpz b, Mpz e, Mpz m) throws ArithmeticException;
 
@@ -760,7 +760,7 @@ public class Mpz
 
 
     /**
-     * Returns true if this has the form a^b for some a and b>1. 
+     * Returns true if this has the form a^b for some a and b &gt; 1. 
      *
      * <p> 0 and 1 are perfect powers. 
      */
@@ -815,7 +815,7 @@ public class Mpz
      * Stores the greatest common divisor of op1 and op2 into this.
      *
      * <p> Sets s and t to values such that s*op1+t*op2 = gcd and 
-     * |s|<=|op2|, |t|<=|op1|.
+     * |s| &lt;= |op2|, |t| &lt;= |op1|.
      */
     public native void gcd(Mpz s, Mpz t, Mpz op1, Mpz op2);
 

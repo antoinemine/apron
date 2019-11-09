@@ -16,7 +16,7 @@ import java.io.*;
  * <p> A Lincons0 represents a linear constraint over variables denoted
  * by dimension (i.e., integer starting from 0).
  * It has a left member (which is a {@link apron.Linexpr0} level 0 linear
- * expression), a constraint operator (=, >=, >, <>, or = modulo), 
+ * expression), a constraint operator (=, &gt;=, &gt;, &lt;&gt;, or = modulo), 
  * a right member which is always 0, and  an optional constant modulo 
  * factor (for = modulo constraints only).
  */
@@ -46,10 +46,10 @@ public class Lincons0
     /** Equality constraint: expr = 0. */
     static public final int EQ = 0;
 
-    /** Inequality constraint: expr >= 0.  */
+    /** Inequality constraint: expr &gt;= 0.  */
     static public final int SUPEQ = 1;
 
-    /** Strict inequality constraint: expr > 0. */
+    /** Strict inequality constraint: expr &gt; 0. */
     static public final int SUP = 2;
 
     /**
@@ -58,19 +58,19 @@ public class Lincons0
      */
     static public final int EQMOD = 3;
 
-    /** Disquality constraint: expr <> 0. */
+    /** Disquality constraint: expr &lt;&gt; 0. */
     static public final int DISEQ = 4;
 
 
-    /** Constructs an universal constraint 0 >= 0. */
+    /** Constructs an universal constraint 0 &gt;= 0. */
     public Lincons0()
     { 
         this(SUPEQ, new Linexpr0(), null);
     }
 
      /**
-      * Constructs a constraint that is either universal (0 >= 0), or 
-      * unsatisfiable (-1 >= 0).
+      * Constructs a constraint that is either universal (0 &gt;= 0), or 
+      * unsatisfiable (-1 &gt;= 0).
       */
     public Lincons0(boolean sat)
     { 
@@ -294,7 +294,7 @@ public class Lincons0
     /** 
      * Whether the constraint is trivially unsatisfiable.
      *
-     * <p> Returns true if the constraint has the form b>=0 or [a,b]>=0
+     * <p> Returns true if the constraint has the form b &gt;= 0 or [a,b] &gt;= 0
      * with b negative.
      */
     public native boolean isUnsat();
@@ -330,7 +330,7 @@ public class Lincons0
     /**
      * Simplifies the representation.
      *
-     * @see apron.Linexpr0#minimize().
+     * @see apron.Linexpr0#minimize
      */
     public void minimize()
     {

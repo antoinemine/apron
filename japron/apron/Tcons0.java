@@ -16,7 +16,7 @@ import java.io.*;
  * <p> A Tcons0 represents a constraint over variables denoted
  * by dimension (i.e., integer starting from 0).
  * It has a left member (which is a {@link apron.Texpr0Intern} level 0
- * opaque expression), a constraint operator (=, >=, >, <>, or = modulo), 
+ * opaque expression), a constraint operator (=, &gt;=, &gt;, &lt;&gt;, or = modulo), 
  * a right member which is always 0, and  an optional constant modulo 
  * factor (for = modulo constraints only).
  */
@@ -46,10 +46,10 @@ public class Tcons0
     /** Equality constraint: expr = 0. */
     static public final int EQ = 0;
 
-    /** Inequality constraint: expr >= 0.  */
+    /** Inequality constraint: expr &gt;= 0.  */
     static public final int SUPEQ = 1;
 
-    /** Strict inequality constraint: expr > 0. */
+    /** Strict inequality constraint: expr &gt; 0. */
     static public final int SUP = 2;
 
     /**
@@ -58,7 +58,7 @@ public class Tcons0
      */
     static public final int EQMOD = 3;
 
-    /** Disquality constraint: expr <> 0. */
+    /** Disquality constraint: expr &lt;&gt; 0. */
     static public final int DISEQ = 4;
 
 

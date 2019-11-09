@@ -175,6 +175,7 @@ OCAMLMKLIB = ocamlmklib
 CAMLIDL = camlidl
 
 LATEX=latex
+PDFLATEX=pdflatex
 DVIPDF=dvipdf
 MAKEINDEX=makeindex
 TEXI2DVI=texi2dvi

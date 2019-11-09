@@ -16,8 +16,6 @@
 
 @c Please read the COPYING file packaged in the distribution
 
-@setcontentsaftertitlepage
-
 @tex
 \global\parskip=0.5ex
 \global\baselineskip=3ex

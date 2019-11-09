@@ -1,10 +1,14 @@
 # The Apron Numerical Abstract Domain Library
 
+
 ## Introduction
 
 Apron is a library to represent properties of numeric variables, such as variable bounds or linear relations between variables, and to manipulate these properties through semantic operations, such as variable assignments, tests, conjunctions, entailment.
 
 Apron is intended to be used in static program analyzers, in order to infer invariants of numeric variables, i.e., properties that hold for all executions of a program. It is based on the theory of Abstract Interpretation.
+
+
+The API documentation is available on the [GitHub page for Apron](https://antoinemine.github.io/Apron/doc/).
 
 
 ## Overview
@@ -59,12 +63,14 @@ Additional language wrappers require additional components:
   * mlgmpidl
 
 
-### Documentation
-
-**Help needed to explain how to generate Apron's API documentation.**
-
-
 ## Installation instructions
+
+### Installation with Opam
+
+If you are using OCaml and the [Opam package manager](https://opam.ocaml.org/), then you could install the latest version of Apron in Opam with just `opam install apron`.
+Only Opam 2.x is supported.
+
+To compile from this source tree, you can install the dependencies with `opam install --deps-only .` and follow the instructions below.
 
 
 ### Installation on Linux
@@ -94,7 +100,7 @@ See `./configure -help` for more options.
 
 **Help needed for this section.**
 
-The README.mac file is not up to date.
+The [README.mac](README.mac) file is not up to date.
 
 
 
@@ -102,3 +108,17 @@ The README.mac file is not up to date.
 
 See the [Windows README](README.windows.md).
 
+
+### Documentation compilation
+
+You can build the documentation with `make doc`.
+You will need the following tools:
+* `pdflatex`
+* `texi2html` for the C API
+* `ocamldoc` for the OCaml API
+* `doxygen` for the the C++ API
+* `javadoc` for the Java API
+
+Note that some generated documentation may not be up-to-date.
+
+A generated copy of the documentation is available on-line on the [GitHub page for Apron](https://antoinemine.github.io/Apron/doc/).

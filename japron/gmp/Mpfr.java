@@ -282,7 +282,7 @@ public class Mpfr
     /**
      * Converts the integer to a mantissa and exponent.
      * 
-     * <p> The mantissa m returned is such that 0.5 <= |m| < 1,
+     * <p> The mantissa m returned is such that 0.5 &lt;= |m| &lt; 1,
      * rounded to fit double.
      * <p> The exponent is stored into r[0].
      */
@@ -726,31 +726,31 @@ public class Mpfr
 
 
     /**
-     * Whether this > op. 
+     * Whether this &gt; op. 
      *
      * <p> false if any operand is NaN. 
      */
     public native boolean isGreater(Mpfr op);
 
-    /** Whether this >= op. 
+    /** Whether this &gt;= op. 
      *
      * <p> false if any operand is NaN. 
      */
     public native boolean isGreaterEqual(Mpfr op);
 
-    /** Whether this < op. 
+    /** Whether this &lt; op. 
      *
      * <p> false if any operand is NaN. 
      */
     public native boolean isLess(Mpfr op);
 
-    /** Whether this <= op. 
+    /** Whether this &lt;= op. 
      *
      * <p> false if any operand is NaN. 
      */
     public native boolean isLessEqual(Mpfr op);
 
-    /** Whether this < op or this > op. 
+    /** Whether this &lt; op or this &gt; op. 
      *
      * <p> false if any operand is NaN. 
      */

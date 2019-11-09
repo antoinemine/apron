@@ -38,7 +38,7 @@ public class Generator1
     /** Line: { lambda * coord | lambda in R }. */
     static public final int LINE = 0;
 
-    /** Ray: { lambda * coord | lambda>=0 in R }. */
+    /** Ray: { lambda * coord | lambda &gt;= 0 in R }. */
     static public final int RAY = 1;
 
     /** Vertex: { coord }. */

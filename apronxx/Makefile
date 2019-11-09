@@ -128,6 +128,5 @@ apronxx_test: libapronxx_debug.a apronxx_test_debug.o
 
 doc: $(CCINC) doc/Doxyfile
 	cd doc && doxygen
-	cd doc/latex && $(MAKE)
 
 .PHONY: doc

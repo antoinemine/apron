@@ -153,18 +153,15 @@ apron_ocamldoc.mli: introduction.odoc $(MLMODULES:%=%.mli)
 	sh $(OCAMLPACK) -o $@ -title "APRON Library" -intro introduction.odoc $(MLMODULES)
 	$(SED) -i -e 's/{5/{6/g;s/{4/{5/g;s/{3/{4/g;s/{2/{3/g;s/{1/{2/g' $@
 
-mlapronidl.pdf: mlapronidl.dvi
-	$(DVIPDF) mlapronidl.dvi
-
-mlapronidl.dvi: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
+mlapronidl.pdf: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli
 	$(OCAMLDOC) $(OCAMLINC) -I ../newpolka -I ../ppl \
 	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
-	$(LATEX) mlapronidl
+	$(PDFLATEX) mlapronidl
 	$(MAKEINDEX) mlapronidl
-	$(LATEX) mlapronidl
-	$(LATEX) mlapronidl
+	$(PDFLATEX) mlapronidl
+	$(PDFLATEX) mlapronidl
 
-html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
+html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli
 	mkdir -p html
 	$(OCAMLDOC) $(OCAMLINC)  -I ../newpolka -I ../ppl \
 -html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli

@@ -38,10 +38,10 @@ public class Tcons1
     /** Equality constraint: expr = 0. */
     static public final int EQ = 0;
 
-    /** Inequality constraint: expr >= 0.  */
+    /** Inequality constraint: expr &gt;= 0.  */
     static public final int SUPEQ = 1;
 
-    /** Strict inequality constraint: expr > 0. */
+    /** Strict inequality constraint: expr &gt; 0. */
     static public final int SUP = 2;
 
     /** 
@@ -49,7 +49,7 @@ public class Tcons1
      */
     static public final int EQMOD = 3;
 
-    /** Disquality constraint: expr <> 0. */
+    /** Disquality constraint: expr &lt;&gt; 0. */
     static public final int DISEQ = 4;
 
     /** Initialization-less constructor, used by make. */

@@ -604,6 +604,7 @@ OCAMLFIND = $ocamlfind
 
 # TODO: to be configured
 LATEX = latex
+PDFLATEX = pdflatex
 DVIPDF = dvipdf
 MAKEINDEX = makeindex
 TEXI2DVI = texi2dvi

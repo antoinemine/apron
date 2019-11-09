@@ -199,10 +199,13 @@ endif
 doc:
 	(cd apron; $(MAKE) html apron.pdf)
 ifneq ($(HAS_OCAML),)
-	(cd mlapronidl; $(MAKE) html mlapronidl.pdf)
+	(cd mlapronidl; $(MAKE) html)
 endif
 ifneq ($(HAS_CPP),)
 	(cd apronxx; $(MAKE) doc)
+endif
+ifneq ($(HAS_JAVA),)
+	(cd japron; $(MAKE) doc)
 endif
 
 # make distribution, update to reflect current version

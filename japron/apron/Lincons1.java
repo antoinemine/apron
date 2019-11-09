@@ -38,10 +38,10 @@ public class Lincons1
     /** Equality constraint: expr = 0. */
     static public final int EQ = 0;
 
-    /** Inequality constraint: expr >= 0.  */
+    /** Inequality constraint: expr &gt;= 0.  */
     static public final int SUPEQ = 1;
 
-    /** Strict inequality constraint: expr > 0. */
+    /** Strict inequality constraint: expr &gt; 0. */
     static public final int SUP = 2;
 
     /**
@@ -50,7 +50,7 @@ public class Lincons1
      */
     static public final int EQMOD = 3;
 
-    /** Disquality constraint: expr <> 0. */
+    /** Disquality constraint: expr &lt;&gt; 0. */
     static public final int DISEQ = 4;
 
 
@@ -71,7 +71,7 @@ public class Lincons1
         return r;
     }
 
-    /** Constructs a universal constraint 0 >= 0. */
+    /** Constructs a universal constraint 0 &gt;= 0. */
     public Lincons1(Environment v)
     { 
         cons = new Lincons0();
@@ -79,8 +79,8 @@ public class Lincons1
     }
 
     /**
-      * Constructs a constraint that is either universal (0 >= 0), or 
-      * unsatisfiable (-1 >= 0).
+      * Constructs a constraint that is either universal (0 &gt;= 0), or 
+      * unsatisfiable (-1 &gt;= 0).
       */
     public Lincons1(Environment v, boolean sat)
     { 
@@ -322,7 +322,7 @@ public class Lincons1
     /** 
      * Whether the constraint is trivially unsatisfiable.
      *
-     * <p> Returns true if the constraint has the form b>=0 or [a,b]>=0
+     * <p> Returns true if the constraint has the form b &gt;= 0 or [a,b] &gt;= 0
      * with b negative.
      */
     public boolean isUnsat()
@@ -345,7 +345,7 @@ public class Lincons1
     /**
      * Simplifies the representation.
      *
-     * @see apron.Linexpr0#minimize().
+     * @see apron.Linexpr0#minimize
      */
     public void minimize()
     {
