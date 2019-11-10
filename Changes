@@ -1,11 +1,20 @@
+Version 0.9.12
+
+- GitHub hosting
+
+- Documentation hosted on GitHub Pages
+
+- New installation instructions for Windows
+
+- Opam package (ocaml)
+
+- Added a function to get the version number
+
+- Several bugs corrected
+
 Version 0.9.11
 
 - New domain: Taylor1plus (aka zonotopes), provided by CEA LIST
-
-- Distribution/Packaging
-  * OCaml version uses now FINDLIB/ocamlfind tool
-  
-- Bugs corrected: several
 
 Version 0.9.10
 
