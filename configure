@@ -455,9 +455,22 @@ if test "x$java_prefix" != "x"; then JAVA_HOME="$java_prefix"; fi
 if test "x$JAVA_HOME" != "x"; then PATH=$JAVA_HOME/bin:$PATH; fi
 if test $has_java -eq 1; then searchbin "java"; has_java=$?; java="$path"; fi
 if test $has_java -eq 1; then searchbin "javac"; has_java=$?; javac="$path"; fi
-if test $has_java -eq 1; then searchbin "javah"; has_java=$?; javah="$path"; fi
 if test $has_java -eq 1; then searchbin "javadoc"; has_java=$?; javadoc="$path"; fi
 if test $has_java -eq 1; then searchbin "jar"; has_java=$?; jar="$path"; fi
+
+# check Java version
+if test $has_java -eq 1
+then
+    java_version=`$java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1`
+    if test $java_version -ge 11
+    then
+        # new Java use javac -h
+        javac_has_h=1
+    else
+        # old Java, use javah
+        if test $has_java -eq 1; then searchbin "javah"; has_java=$?; javah="$path"; fi
+    fi
+fi
 
 # check jni includes
 if test $has_java -eq 1
@@ -518,7 +531,7 @@ detected configuration:
    optional OCamlFind support   $has_ocamlfind
    optional plugins support     $has_ocaml_plugins
    optional C++ support         $has_cxx
-   optional Java support        $has_java
+   optional Java support        $has_java ($java_version)
    optional PPL support         $has_ppl
 
    installation path            $apron_prefix
@@ -565,6 +578,7 @@ JAVA_PREFIX = $apron_prefix/lib
 JAVA      = $java
 JAVAC     = $javac -Xlint:unchecked
 JAVAH     = $javah
+JAVAC_HAS_H = $javac_has_h
 JAVADOC   = $javadoc
 JAR       = $jar
 java_home = ${JAVA_HOME}

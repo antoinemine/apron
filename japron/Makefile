@@ -110,8 +110,21 @@ SOINST     = libjgmp.$(EXT_DLL) libjapron.$(EXT_DLL)
 
 all: $(GMPALL) $(APRONALL) $(JAVAINST) $(SOINST)
 
+ifneq ($(JAVAC_HAS_H),)
+
+$(GMPCLASS): $(GMPJ)
+	$(JAVAC) -h gmp $+
+
+else
+
 $(GMPCLASS): $(GMPJ)
 	$(JAVAC) $+
+
+gmp/gmp_%.h: gmp/%.java
+	$(JAVAH) -o $@ gmp.$*
+	touch $@
+
+endif
 
 gmp/%.o: gmp/%.c $(GMPH) gmp/jgmp.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) $< -o $@
@@ -119,27 +132,35 @@ gmp/%.o: gmp/%.c $(GMPH) gmp/jgmp.h
 libjgmp.$(EXT_DLL): gmp/jgmp.o $(GMPO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(GMPLIBS)
 
-gmp/gmp_%.h: gmp/%.java
-	$(JAVAH) -o $@ gmp.$* 
-	touch $@
-
 gmp.jar: $(GMPCLASS)
 	$(JAR) cf $@ $+
 	$(JAR) i $@
 
 
+ifneq ($(JAVAC_HAS_H),)
+
+$(APRONCLASS): $(APRONJ)
+	$(JAVAC) -h apron $+
+
+# javac -h does not generate an apron_Var.h
+apron/apron_Var.h:
+	touch $@
+
+else
+
 $(APRONCLASS): $(APRONJ)
 	$(JAVAC) $+
+
+apron/apron_%.h: apron/%.java
+	$(JAVAH) -o $@ apron.$*
+	touch $@
+endif
 
 apron/%.o: apron/%.c $(APRONH)  gmp/jgmp.h apron/japron.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) -Igmp $< -o $@
 
 libjapron.$(EXT_DLL): apron/japron.o $(APRONO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(APRONLIBS)
-
-apron/apron_%.h: apron/%.java
-	$(JAVAH) -o $@ apron.$* 
-	touch $@
 
 apron.jar: $(APRONCLASS)
 	$(JAR) cf $@ $+
