@@ -115,7 +115,7 @@ static inline bool itv_canonicalize(itv_internal_t* intern, itv_t a, bool intege
 static inline bool itv_is_top(itv_t a);
 static inline bool itv_is_bottom(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is resp. [-oo,+oo] or empty */
-static inline bool itv_is_canonnical_bottom(itv_t a);
+static inline bool itv_is_canonical_bottom(itv_t a);
   /* Return true iff the interval is the canonical bottom element [1,-1] */
 static inline bool itv_is_point(itv_internal_t* intern, itv_t a);
   /* Return true iff the interval is a single point */
