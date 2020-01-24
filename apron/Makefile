@@ -106,15 +106,15 @@ newpolka.texi: ../newpolka/newpolka.texi
 box.texi: ../box/box.texi
 	ln -sf $< $@
 
-apron.pdf: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
-	$(TEXI2DVI) --pdf -o $@ $<
+apron.pdf: apron.texi rationale.texi ../products/ap_pkgrid.texi ../ppl/ap_ppl.texi ../newpolka/newpolka.texi ../box/box.texi 
+	$(TEXI2ANY) --pdf -o $@ $<
 
 apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi
 	$(MAKEINFO) -o $@ $<
 
 
 html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
-	$(TEXI2HTML) -split=section -nonumber-sections -menu -subdir=html $<
+	$(TEXI2ANY) --html --split=section --no-number-sections $<
 	cp -f ../octagons/oct_doc.html html
 
 #---------------------------------------
