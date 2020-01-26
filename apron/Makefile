@@ -114,8 +114,9 @@ apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi b
 
 
 html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
-	$(TEXI2ANY) --html --split=section --no-number-sections $<
+	$(TEXI2ANY) -o html --html --split=section --no-number-sections $<
 	cp -f ../octagons/oct_doc.html html
+	cp -f ../examples/*.c ../examples/*.ml html
 
 #---------------------------------------
 # C rules

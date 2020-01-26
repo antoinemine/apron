@@ -50,7 +50,7 @@ numerical variables.
 
 @title APRON
 @subtitle The APRON library
-@subtitle Edition 0.9.8, October 2007
+@subtitle Version 0.9.12
 
 @author by Bertrand Jeannet and the APRON team
 @c Include the Distribution inside the titlepage so
@@ -79,7 +79,6 @@ numerical variables.
 * Level 0 of the interface::
 * Functions for implementors::
 * Examples::
-* Appendices::
 @end menu
 @end ifnottex
 
@@ -89,7 +88,7 @@ numerical variables.
 @c *******************************************************************
 
 The APRON library is copyright @copyright{} by the
-@uref{http://www.cri.ensmp.fr/apron/,APRON project}, and its partners.
+APRON project, and its partners.
 
 This license applies to all files distributed in the APRON library,
 including all source code, libraries, binaries, and documentation.
@@ -4390,14 +4389,15 @@ the underlying library: they are not yet boxed with the manager in
 the type @code{ap_abstract0_t}.
 
 @c *******************************************************************
-@node Examples, Appendices, Functions for implementors, Top
+@node Examples, Functions for implementors, Top
 @chapter Examples
 @c *******************************************************************
+
+@ifhtml
 
 Look at the examples in the @samp{example} subdirectoy of the full
 distribution, or click on the links below:
 
-@ifhtml
 @uref{example1.c}
 
 @uref{mlexample1.ml}
@@ -4405,35 +4405,5 @@ distribution, or click on the links below:
 @uref{mlexample3.ml}
 @end ifhtml
 
-@c *******************************************************************
-@node Appendices,  , Examples, Top
-@appendix Appendices
-@c *******************************************************************
-
-@menu
-* C Datatype Index::
-* C Variable Index::
-* C Function Index::
-@end menu
-
-@c ===================================================================
-@node C Datatype Index, C Variable Index, Appendices, Appendices
-@appendixsec C Datatype Index
-@printindex tp
-@c ===================================================================
-@page
-@c ===================================================================
-@node C Variable Index, C Function Index, C Datatype Index, Appendices
-@appendixsec C Variable Index
-@c ===================================================================
-@printindex vr
-@page
-
-@c ===================================================================
-@node C Function Index,  , C Variable Index, Appendices
-@appendixsec C Function Index
-@c ===================================================================
-@printindex fn
-@page
 
 @bye
