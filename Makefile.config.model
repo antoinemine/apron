@@ -178,7 +178,6 @@ LATEX=latex
 PDFLATEX=pdflatex
 DVIPDF=dvipdf
 MAKEINDEX=makeindex
-TEXI2DVI=texi2dvi
-TEXI2HTML=texi2html
+TEXI2ANY=texi2any
 
 OCAMLPACK = $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/ocamlpack

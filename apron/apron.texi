@@ -67,6 +67,7 @@ numerical variables.
 @contents
 @end ifnothtml
 
+@ifnottex
 @menu
 * Copying::
 * Introduction to APRON::
@@ -80,6 +81,7 @@ numerical variables.
 * Examples::
 * Appendices::
 @end menu
+@end ifnottex
 
 @c *******************************************************************
 @node Copying, Introduction to APRON, Top, Top
@@ -2470,7 +2472,8 @@ Polynomial fraction with possibly interval coefficients, no rounding
 @end deftypefun
 
 @deftypefun bool ap_texpr1_is_scalar (ap_texpr1_t* @var{e})
-All coefficients are scalar (non-interval)@end deftypefun
+All coefficients are scalar (non-interval)
+@end deftypefun
 
 @c -------------------------------------------------------------------
 @node Operations on tree expressions of level 1,  , Tests on tree expressions of level 1, Tree expressions of level 1
