@@ -29,6 +29,7 @@
 bool oct_is_bottom(ap_manager_t* man, oct_t* a)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_IS_BOTTOM,0);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (a->closed) {
     /* definitively non empty on Q */
@@ -50,6 +51,7 @@ bool oct_is_top(ap_manager_t* man, oct_t* a)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_IS_TOP,0);
   size_t i,j;
   bound_t* m = a->m ? a->m : a->closed;
+  flag_init;
   if (!m) return false;
   for (i=0;i<2*a->dim;i++)
     for (j=0;j<=(i|1);j++,m++)
@@ -62,6 +64,7 @@ bool oct_is_leq(ap_manager_t* man, oct_t* a1, oct_t* a2)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_IS_LEQ,0);
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return false;);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a1);
   if (!a1->closed && !a1->m) {
     /* a1 definitively empty */
@@ -100,6 +103,7 @@ bool oct_is_eq(ap_manager_t* man, oct_t* a1, oct_t* a2)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_IS_EQ,0);
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return false;);
+  flag_init;
   if (pr->funopt->algorithm>=0) {
     oct_cache_closure(pr,a1);
     oct_cache_closure(pr,a2);
@@ -150,6 +154,7 @@ bool oct_sat_interval(ap_manager_t* man, oct_t* a,
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_SAT_INTERVAL,0);
   arg_assert(dim<a->dim,return false;);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* really empty */
@@ -182,6 +187,7 @@ bool oct_is_dimension_unconstrained(ap_manager_t* man, oct_t* a,
   oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_IS_DIMENSION_UNCONSTRAINED,0);
   arg_assert(dim<a->dim,return false;);
+  flag_init;
   if (!a->closed && !a->m)
     /* definitively empty */
     return false;
@@ -207,6 +213,7 @@ bool oct_sat_lincons(ap_manager_t* man, oct_t* a,
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_SAT_LINCONS,
 					     2*(a->dim+1));
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* really empty */
@@ -334,6 +341,7 @@ ap_interval_t* oct_bound_linexpr(ap_manager_t* man,
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_BOUND_LINEXPR,
 					     2*(a->dim+5));
   ap_interval_t* r = ap_interval_alloc();
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* really empty */
@@ -406,6 +414,7 @@ ap_interval_t* oct_bound_linexpr(ap_manager_t* man,
 ap_interval_t* oct_bound_texpr(ap_manager_t* man,
 			       oct_t* a, ap_texpr0_t* expr)
 {
+  flag_incomplete;
   return ap_generic_bound_texpr(man,a,expr,NUM_AP_SCALAR,false);
 }
 
@@ -415,6 +424,7 @@ ap_interval_t* oct_bound_dimension(ap_manager_t* man,
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_BOUND_DIMENSION,0);
   ap_interval_t* r = ap_interval_alloc();
   arg_assert(dim<a->dim,ap_interval_free(r);return NULL;);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* really empty */
@@ -442,6 +452,7 @@ ap_lincons0_array_t oct_to_lincons_array(ap_manager_t* man, oct_t* a)
 {
   ap_lincons0_array_t ar;
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_TO_LINCONS_ARRAY,0);
+  flag_init;
   if (!a->closed && !a->m) {
     /* definitively empty */
     ar = ap_lincons0_array_make(1);
@@ -466,6 +477,7 @@ ap_lincons0_array_t oct_to_lincons_array(ap_manager_t* man, oct_t* a)
 
 ap_tcons0_array_t oct_to_tcons_array(ap_manager_t* man, oct_t* a)
 {
+  flag_incomplete;
   return ap_generic_to_tcons_array(man,a);
 }
 
@@ -474,6 +486,7 @@ ap_interval_t** oct_to_box(ap_manager_t* man, oct_t* a)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_TO_BOX,0);
   ap_interval_t** in = ap_interval_array_alloc(a->dim);
   size_t i;
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* definitively empty */
@@ -498,6 +511,7 @@ ap_interval_t** oct_to_box(ap_manager_t* man, oct_t* a)
 ap_generator0_array_t oct_to_generator_array(ap_manager_t* man, oct_t* a)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY,0);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* definitively empty */

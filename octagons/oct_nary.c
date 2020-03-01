@@ -28,6 +28,7 @@ oct_t* oct_meet(ap_manager_t* man, bool destructive, oct_t* a1, oct_t* a2)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_MEET,0);
   bound_t* m;
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+  flag_init;
   if ((!a1->closed && !a1->m) || (!a2->closed && !a2->m))
     /* one argument is empty */
     return oct_set_mat(pr,a1,NULL,NULL,destructive);
@@ -47,6 +48,7 @@ oct_t* oct_join(ap_manager_t* man, bool destructive, oct_t* a1, oct_t* a2)
 {
  oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_JOIN,0);
  arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+ flag_init;
  if (pr->funopt->algorithm>=0) {
    oct_cache_closure(pr,a1);
    oct_cache_closure(pr,a2);
@@ -91,6 +93,7 @@ oct_t* oct_meet_array(ap_manager_t* man, oct_t** tab, size_t size)
   oct_t* r;
   size_t i,k;
   arg_assert(size>0,return NULL;);
+  flag_init;
   r = oct_alloc_internal(pr,tab[0]->dim,tab[0]->intdim);
   /* check whether there is an empty element */
   for (k=0;k<size;k++)
@@ -116,6 +119,7 @@ oct_t* oct_join_array(ap_manager_t* man, oct_t** tab, size_t size)
   bound_t* m = NULL;
   size_t i,k;
   arg_assert(size>0,return NULL;);
+  flag_init;
   r = oct_alloc_internal(pr,tab[0]->dim,tab[0]->intdim);
   for (k=0;k<size;k++) {
     arg_assert(tab[k]->dim==r->dim && tab[k]->intdim==r->intdim,
@@ -164,6 +168,7 @@ oct_t* oct_widening(ap_manager_t* man, oct_t* a1, oct_t* a2)
   int algo = pr->funopt->algorithm;
   oct_t* r;
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+  flag_incomplete;
   if (algo>=0) oct_cache_closure(pr,a2);
   if (!a1->closed && !a1->m)
     /* a1 definitively closed */
@@ -202,6 +207,7 @@ oct_t* oct_widening_thresholds(ap_manager_t* man,
   int algo = pr->funopt->algorithm;
   oct_t* r;
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+  flag_incomplete;
   if (algo>=0) oct_cache_closure(pr,a2);
   if (!a1->closed && !a1->m)
     /* a1 definitively closed */
@@ -251,6 +257,7 @@ oct_t* oct_narrowing(ap_manager_t* man, oct_t* a1, oct_t* a2)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_WIDENING,0);
   oct_t* r;
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+  flag_incomplete;
   if (pr->funopt->algorithm>=0) {
     oct_cache_closure(pr,a1);
     oct_cache_closure(pr,a2);
@@ -310,6 +317,7 @@ oct_t* oct_add_epsilon(ap_manager_t* man, oct_t* a, ap_scalar_t* epsilon)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_WIDENING,2);
   oct_t* r = oct_alloc_internal(pr,a->dim,a->intdim);
   bound_t* m;
+  flag_incomplete;
   m = a->m ? a->m : a->closed;
   if (m) {
     size_t i;
@@ -354,6 +362,7 @@ oct_t* oct_add_epsilon_bin(ap_manager_t* man, oct_t* a1, oct_t* a2,
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_WIDENING,2);
   oct_t* r;
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
+  flag_incomplete;
   if (!a1->closed && !a1->m)
     /* a1 definitely empty */
     r = oct_copy_internal(pr,a2);

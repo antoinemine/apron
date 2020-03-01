@@ -61,7 +61,6 @@ oct_init_from_manager(ap_manager_t* man, ap_funid_t id, size_t size)
   oct_internal_t* pr = (oct_internal_t*) man->internal;
   pr->funid = id;
   pr->funopt = man->option.funopt+id;
-  man->result.flag_exact = man->result.flag_best = true;
   pr->conv = false;
   if (pr->tmp_size<size) {
     bound_clear_array(pr->tmp,pr->tmp_size);
@@ -88,6 +87,9 @@ oct_init_from_manager(ap_manager_t* man, ap_funid_t id, size_t size)
    3) approximation in the conversion from / to user type
       => use another user type
  */
+
+#define flag_init                                               \
+   man->result.flag_exact = man->result.flag_best = true
 
 #define flag_incomplete						\
   man->result.flag_exact = man->result.flag_best = false

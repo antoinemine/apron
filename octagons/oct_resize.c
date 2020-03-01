@@ -30,6 +30,7 @@ oct_t* oct_forget_array(ap_manager_t* man,
 			bool project)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_FORGET_ARRAY,0);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m)
     /* definitively empty */
@@ -135,6 +136,7 @@ oct_t* oct_add_dimensions(ap_manager_t* man,
   bound_t* mm;
   size_t i, nb = dimchange->intdim+dimchange->realdim;
   oct_t* r;
+  flag_init;
   if (!m) mm = NULL;
   else {
     /* check */
@@ -173,6 +175,7 @@ oct_t* oct_remove_dimensions(ap_manager_t* man,
   bound_t *m, *mm;
   size_t i, nb = dimchange->intdim+dimchange->realdim;
   oct_t* r;
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   m = a->closed ? a->closed : a->m;
   if (!m) mm = NULL;
@@ -233,6 +236,7 @@ oct_t* oct_permute_dimensions(ap_manager_t* man,
   bound_t* m = a->closed ? a->closed : a->m;
   bound_t* mm;
   arg_assert(permutation->size==a->dim,return NULL;);
+  flag_init;
   if (!m) mm = NULL;
   else {
     /* check (only bounds, not injectivity) */
@@ -266,6 +270,7 @@ oct_t* oct_expand(ap_manager_t* man,
   bound_t* mm;
   oct_t* r;
   arg_assert(dim<a->dim,return NULL;);
+  flag_init;
   if (!m) mm = NULL;
   else {
     /* insert n variables at pos */
@@ -307,6 +312,7 @@ oct_t* oct_fold(ap_manager_t* man,
   bound_t* m;
   bound_t* mm;
   oct_t* r;
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   m = a->closed ? a->closed : a->m;
   if (!m) mm = NULL;

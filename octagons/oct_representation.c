@@ -117,6 +117,7 @@ oct_t* oct_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_BOTTOM,0);
   oct_t* r = oct_alloc_internal(pr,intdim+realdim,intdim);
+  flag_init;
   return r;
 }
 
@@ -124,6 +125,7 @@ oct_t* oct_top(ap_manager_t* man, size_t intdim, size_t realdim)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_TOP,0);
   oct_t* r = oct_alloc_internal(pr,intdim+realdim,intdim);
+  flag_init;
   r->closed = hmat_alloc_top(pr,r->dim);
   return r;
 }
@@ -134,6 +136,7 @@ oct_t* oct_of_box(ap_manager_t* man, size_t intdim, size_t realdim,
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_OF_BOX,0);
   oct_t* r = oct_alloc_internal(pr,intdim+realdim,intdim);
   size_t i,j,n2;
+  flag_init;
   if (!t) return r; /* empty */
   for (i=0;i<r->dim;i++)
     if (ap_scalar_cmp(t[i]->inf,t[i]->sup)>0) return r; /* empty */
@@ -169,6 +172,7 @@ oct_t* oct_of_generator_array(ap_manager_t* man,
 					     2*(dim+1));
   oct_t* r = oct_alloc_internal(pr,intdim+realdim,intdim);
   size_t i,j,k;
+  flag_init;
 
   /* find one vertex */
   for (i=0;i<ar->size;i++) {
@@ -278,10 +282,10 @@ void oct_canonicalize(ap_manager_t* man, oct_t* a)
 			     "not implemented");
 }
 
-/* NOT IMPLEMENTED: do nothing */
 int oct_hash(ap_manager_t* man, oct_t* a)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_HASH,0);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (a->closed || a->m) {
     int r = 0;
@@ -311,6 +315,7 @@ void oct_approximate(ap_manager_t* man, oct_t* a, int algorithm)
 oct_t* oct_closure(ap_manager_t* man, bool destructive, oct_t* a)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_CLOSURE,0);
+  flag_init;
   if (destructive) return a;
   else return oct_copy_internal(pr,a);
 }

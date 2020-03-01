@@ -44,6 +44,7 @@ static inline void oct_print_bounds(FILE*stream, oct_internal_t* pr,
 void oct_fprint(FILE* stream, ap_manager_t* man, oct_t* a, char** name_of_dim)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_FPRINT,0);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     fprintf(stream,"empty octagon of dim (%lu,%lu)\n",
@@ -64,6 +65,7 @@ void oct_fprintdiff(FILE* stream, ap_manager_t* man,
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_FPRINTDIFF,0);
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,);
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a1);
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a2);
   if (!a1->closed && !a1->m) {
@@ -111,6 +113,7 @@ void oct_fprintdiff(FILE* stream, ap_manager_t* man,
 void oct_fdump(FILE* stream, ap_manager_t* man, oct_t* a)
 {
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_FDUMP,0);
+  flag_init;
   fprintf(stream,"octagon of dim (%lu,%lu)\n",
 	  (unsigned long)a->intdim,(unsigned long)(a->dim-a->intdim));
   if (a->m) {
@@ -144,6 +147,7 @@ ap_membuf_t oct_serialize_raw(ap_manager_t* man, oct_t* a)
   oct_internal_t* pr = oct_init_from_manager(man,AP_FUNID_SERIALIZE_RAW,0);
   ap_membuf_t buf;
   size_t n = 10;
+  flag_init;
   if (a->m) 
     n += bound_serialized_size_array(a->m,matsize(a->dim));
   else if (a->closed) 
@@ -182,6 +186,7 @@ oct_t* oct_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
   oct_t* r = oct_alloc_internal(pr,dim,intdim);
   arg_assert(id==num_serialize_id(),oct_free_internal(pr,r);return NULL;);
   arg_assert(state<3,oct_free_internal(pr,r);return NULL;);
+  flag_init;
   if (!size) size = &dummy;
   switch (state) {
   case 0:

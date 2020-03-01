@@ -477,6 +477,7 @@ oct_t* oct_meet_lincons_array(ap_manager_t* man,
 {
   oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_MEET_LINCONS_ARRAY,2*(a->dim+8));
+  flag_init;
   if (!a->closed && !a->m)
     /* definitively empty */
     return oct_set_mat(pr,a,NULL,NULL,destructive);
@@ -532,6 +533,7 @@ oct_t* oct_add_ray_array(ap_manager_t* man,
   oct_internal_t* pr =
     oct_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY,2*(a->dim+2));
   bound_t *m;
+  flag_init;
   if (pr->funopt->algorithm>=0) oct_cache_closure(pr,a);
   m = a->closed ? a->closed : a->m;
   if (!m)
@@ -880,6 +882,7 @@ oct_t* oct_assign_linexpr(ap_manager_t* man,
   bound_t* m;
   bool respect_closure;
   arg_assert(d<a->dim,return NULL;);
+  flag_init;
 
   if (dest && !dest->closed && !dest->m)
     /* definitively empty due to dest*/
@@ -932,6 +935,7 @@ oct_t* oct_substitute_linexpr(ap_manager_t* man,
   bound_t * m, *m2;
   bool respect_closure;
   arg_assert(d<a->dim,return NULL;);
+  flag_init;
 
   m2 = dest ? (dest->closed ? dest->closed : dest->m) : NULL;
 
@@ -1004,6 +1008,7 @@ oct_t* oct_assign_linexpr_array(ap_manager_t* man,
     arg_assert(!d[tdim[i]],return NULL;); /* tdim has duplicate */
     d[tdim[i]] = 1;
   }
+  flag_init;
 
   if (dest && !dest->closed && !dest->m)
     /* definitively empty due to dest*/
@@ -1096,6 +1101,7 @@ oct_t* oct_substitute_linexpr_array(ap_manager_t* man,
     arg_assert(!d[tdim[i]],return NULL;); /* tdim has duplicate */
     d[tdim[i]] = 1;
   }
+  flag_init;
 
   m2 = dest ? (dest->closed ? dest->closed : dest->m) : NULL;
   if (dest && !m2)
