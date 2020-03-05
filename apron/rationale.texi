@@ -84,7 +84,7 @@ numerical variables are programmed in C or C++.
 
 An @sc{OCaml} version is already available. The interface between
 OCaml and C is even generic and any libraries can benefit from it by
-providing the glue for just one function (see XX).
+just providing the glue for the function creating a manager.
 
 @c -------------------------------------------------------------------
 @node Compatibility with threads, Interruptions, Programming language, General choices
@@ -111,7 +111,7 @@ interface) (@code{not_implemented}, @code{invalid_argument},
 @node Interruptions, Memory management, Compatibility with threads, General choices
 @subsubheading Interruptions
 
-Interruptions mechanism is have possible for different cases:
+Interruption mechanisms can have different causes:
 @table @code
 @item timeout
 if the execution time for an operation exceeds some bound;
@@ -398,7 +398,7 @@ $${\it abs}(\vec{x}) \models {\it cons}(\vec{x}) ~~ {\tt or} ~~ {\it abs}(\vec{x
 @node Property extraction, Lattice operations, Tests, Functionalities of the interface at level 0
 @subsubheading Property extraction
 
-Some properties may be inferred given an abstract values:
+Some properties may be inferred given an abstract value:
 
 @itemize
 @item Interval of variation of a dimension in an abstract value;

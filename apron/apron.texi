@@ -241,12 +241,12 @@ with their corresponding include files @file{ap_dimension.h},
 @file{stdlib.h} and @file{<stdarg.h>} will be required.
 
 Then, you should also include the header files of the underlying
-libraries you want to use it via APRON (for instance, @file{box.h},
+libraries you want to use via APRON (for instance, @file{box.h},
 @file{pk.h}, @file{ap_ppl.h}).
 
 All programs using APRON must link against the @file{libapron},
 @file{libmpfr} and @file{libgmp} libraries, and the underlying
-libraries you want to use it via APRON:
+libraries you want to use via APRON:
 @enumerate
 @item
 If some file @file{test.c} uses the POLKA library via APRON, the
@@ -564,7 +564,7 @@ The function @code{manager_alloc} sets the options of the
 common interface to their default value (see documentation).
 @item Initialization of the ``virtual'' table: we need to connect
   the generic functions of the interface (eg, @code{abstract_meet},
-  \ldots) to the actual functions of the library.
+  @enddots{}) to the actual functions of the library.
 @example
   funptr = man->funptr;
 
@@ -661,7 +661,7 @@ APRON managers (opaque type).
 @end deftp
 
 @deftp datatype ap_funid_t
-For identifying functions in excpetions, and when reading/setting
+For identifying functions in exceptions, and when reading/setting
 options attached to them.
 @example
 typedef enum ap_funid_t @{
