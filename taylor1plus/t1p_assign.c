@@ -12,6 +12,7 @@
 #include "t1p_representation.h"
 #include "t1p_fun.h"
 #include "t1p_itv_utils.h"
+#include "t1p_meetjoin.h"
 
 #include "itv_linearize.h"
 
@@ -59,7 +60,7 @@ t1p_t* t1p_substitute_linexpr_array(ap_manager_t* man,
 }
 
 /* evaluate an apron tree expression */
-/* TODO: dest and destructive are not used */
+/* TODO: destructive not used */
 t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
 			      bool destructive,
 			      t1p_t* a,
@@ -108,7 +109,10 @@ t1p_t* t1p_assign_texpr_array(ap_manager_t* man,
     t1p_fprint(stdout, man, res, NULL);
     fprintf(stdout, "### ### ###\n");
 #endif
-    return res;
+    /* intersect the result with dest */ 
+    t1p_t* ress = t1p_meet(man, false, res, dest);
+    free(res);
+    return ress;
 }
 
 t1p_t* t1p_substitute_texpr_array(ap_manager_t* man,
