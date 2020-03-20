@@ -62,60 +62,9 @@ t1p_t* t1p_add_dimensions(ap_manager_t* man, bool destructive, t1p_t* a, ap_dimc
 #endif
     return res;
 }
-/*
-{
-	t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_ADD_DIMENSIONS);
-	t1p_t* res;
-	size_t i,j;
-	size_t intdim, realdim, nbdims;
 
-	intdim = a->intdim + dimchange->intdim;
-	realdim = (a->dims -  a->intdim) + dimchange->realdim;
-	res = t1p_copy(man, a);
-	nbdims = intdim + realdim;
-	arg_assert(!(((dimchange->intdim + dimchange->realdim) != 1) && (dimchange->dim[0] > a->dims)),abort(););
-	for (i=0; i<(dimchange->intdim + dimchange->realdim); i++) {
-		arg_assert(!((dimchange->dim[i] > dimchange->dim[i+1]) || (dimchange->dim[i] > a->dims)), abort(););
-	}
-	size_t* index = (size_t*)malloc((a->dims)*sizeof(size_t));
-	for (i=0; i<a->dims; i++) {
-		index[i] = i;
-	}
-	for (i=0; i<(dimchange->intdim + dimchange->realdim); i++) {
-		dimchange->dim[i+1] ++;
-		for(j=0; j<a->dims; j++) {
-			if (index[j] >= dimchange->dim[i]) index[j]++ ;
-		}
-	}
-	for (j=0; j<a->dims; j++) {
-		t1p_aaexpr_set(&res->aa[index[j]], &a->aa[j]);
-		itv_set(res->itv[index[j]], a->itv[j]);
-	}
-	free(index);
-	arg_assert(project, abort(););
-	for (i=0; i<(dimchange->intdim + dimchange->realdim); i++) {
-		itv_set_top(res->itv[dimchange->dim[i]]);
-		t1p_aaexpr_set_top(&res->aa[dimchange->dim[i]]);
-	}
-	res->intdim = intdim ;
-	res->dims = nbdims ;
-
-	man->result.flag_best = tbool_true;
-	man->result.flag_exact = tbool_true;
-	return res;
-}
-*/
-
-bool is_in(size_t i, ap_dimchange_t* dimchange) 
-{
-	size_t j = 0;
-	while (j<(dimchange->intdim + dimchange->realdim)) {
-		if (dimchange->dim[j] != i) j++; 
-		else return true;
-	}
-	return false;
-}
- 
+/* mimics box_remove_dimensions() */
+/* fixing a bug reported by gavlegoat on Jun 11, 2019 */
 t1p_t* t1p_remove_dimensions(ap_manager_t* man, bool destructive, t1p_t* a, ap_dimchange_t* dimchange)
 {
     CALL();
@@ -126,21 +75,40 @@ t1p_t* t1p_remove_dimensions(ap_manager_t* man, bool destructive, t1p_t* a, ap_d
     ap_dimchange_fprint(stdout, dimchange);
     fprintf(stdout, "### ### ###\n");
 #endif
-    t1p_t* res = destructive ? a : t1p_copy(man, a);
-    size_t i = 0;
-    size_t j = 0;
-    for (i=0; i<dimchange->intdim + dimchange->realdim; i++) {
-	t1p_aff_check_free(pr,res->paf[dimchange->dim[i]]);
-	res->paf[dimchange->dim[i]] = NULL;
-	for (j=dimchange->dim[i];j<-1+res->dims;j++) {
-	    res->paf[j] = res->paf[j+1];
-	    itv_set(res->box[j],res->box[j+1]);
-	}
+    t1p_t* res;
+    size_t size;
+    size_t dimsup;
+    size_t i,k;
+    t1p_aff_t* tmp;
+    man->result.flag_best = true;
+    man->result.flag_exact = true;
+    res = destructive ? a : t1p_copy(man, a);
+
+    if (a->paf==NULL){
+        goto t1p_remove_dimensions_exit;
     }
+    size = res->dims;
+    dimsup = dimchange->intdim+dimchange->realdim;
+    k=0;
+    for (i=0; i<size-dimsup; i++){
+        while (k<dimsup && dimchange->dim[k]==i+k){
+            k++;
+        }
+        tmp = res->paf[i]; 
+        res->paf[i] = res->paf[i+k];
+        res->paf[i+k] = tmp;
+        itv_set(res->box[i],res->box[i+k]);
+    }
+    //??itv_set_int(res->p[size-dimsup],0);
+    for (i=size-dimsup;i<size;i++){
+        t1p_aff_check_free(pr,res->paf[i]);
+        res->paf[i] = NULL;
+    }
+    res->box = realloc(res->box,(size-dimsup)*sizeof(itv_t));
+    res->paf = realloc(res->paf,(size-dimsup)*sizeof(t1p_aff_t*));
+t1p_remove_dimensions_exit:
     res->intdim = a->intdim - dimchange->intdim;
     res->dims = a->dims - (dimchange->intdim + dimchange->realdim);
-    res->box = realloc(res->box,res->dims*sizeof(itv_t));
-    res->paf = realloc(res->paf,res->dims*sizeof(t1p_aff_t*));
 #ifdef _T1P_DEBUG
     fprintf(stdout, "### RESULT of REMOVE DiMENSIONS ###\n");
     t1p_fprint(stdout, man, res, 0x0);
