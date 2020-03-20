@@ -23,7 +23,7 @@ IDLMODULEStex = Introduction.tex \
 Scalar.tex Interval.tex Coeff.tex \
 Dim.tex Linexpr0.tex Lincons0.tex Generator0.tex  Texpr0.tex Tcons0.tex Texpr1.tex Tcons1.tex Manager.tex Abstract0.tex \
 Var.tex Environment.tex Linexpr1.tex Lincons1.tex Generator1.tex Texpr1.tex Tcons1.tex Abstract1.tex Policy.tex Disjunction.tex \
-Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex
+Mpz.tex Mpq.tex Mpzf.tex Mpqf.tex Mpf.tex Gmp_random.tex Mpfr.tex Mpfrf.tex Box.tex Oct.tex Polka.tex Ppl.tex PolkaGrid.tex T1p.tex
 
 MLMODULES = $(IDLMODULES) apron_parser apron_lexer parser
 
@@ -153,18 +153,18 @@ apron_ocamldoc.mli: introduction.odoc $(MLMODULES:%=%.mli)
 	sh $(OCAMLPACK) -o $@ -title "APRON Library" -intro introduction.odoc $(MLMODULES)
 	$(SED) -i -e 's/{5/{6/g;s/{4/{5/g;s/{3/{4/g;s/{2/{3/g;s/{1/{2/g' $@
 
-mlapronidl.pdf: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli
+mlapronidl.pdf: mlapronidl.tex introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli  ../products/polkaGrid.mli ../taylor1plus/t1p.mli
 	$(OCAMLDOC) $(OCAMLINC) -I ../newpolka -I ../ppl \
-	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
+	-latextitle 1,chapter -latextitle 2,section -latextitle 3,subsection -latextitle 4,subsubsection -latextitle 5,paragraph -latextitle 6,subparagraph -noheader -notrailer -latex -sepfiles introduction.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli ../taylor1plus/t1p.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 	$(PDFLATEX) mlapronidl
 	$(MAKEINDEX) mlapronidl
 	$(PDFLATEX) mlapronidl
 	$(PDFLATEX) mlapronidl
 
-html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli
+html: mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli $(MLMODULES:%=%.mli) ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli ../taylor1plus/t1p.mli
 	mkdir -p html
 	$(OCAMLDOC) $(OCAMLINC)  -I ../newpolka -I ../ppl \
--html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
+-html -d html -colorize-code -intro mlapronidl.odoc introduction.mli $(IDLMODULES:%=%.mli) parser.mli ../box/box.mli ../octagons/oct.mli ../newpolka/polka.mli ../ppl/ppl.mli ../products/polkaGrid.mli ../taylor1plus/t1p.mli $(MLGMPIDL_LIB)/mpz.mli $(MLGMPIDL_LIB)/mpq.mli $(MLGMPIDL_LIB)/gmp_random.mli $(MLGMPIDL_LIB)/mpf.mli $(MLGMPIDL_LIB)/mpfr.mli $(MLGMPIDL_LIB)/mpzf.mli $(MLGMPIDL_LIB)/mpqf.mli $(MLGMPIDL_LIB)/mpfrf.mli
 
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES

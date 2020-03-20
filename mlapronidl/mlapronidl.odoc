@@ -8,7 +8,7 @@
 {!modules: Scalar Interval Coeff}
 
 {2 Managers and Abstract Domains}
-{!modules: Manager Box Oct Polka Ppl PolkaGrid}
+{!modules: Manager Box Oct Polka Ppl PolkaGrid T1p}
 
 {2 Level 1 of the interface (user-level)}
 {!modules: Var Environment Linexpr1 Lincons1 Generator1 Texpr1 Tcons1 Abstract1 Parser}

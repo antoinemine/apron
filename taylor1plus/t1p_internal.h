@@ -4819,7 +4819,7 @@ static inline t1p_aff_t * t1p_aff_join_constrained1(t1p_internal_t* pr, t1p_aff_
 		    res->lastu = res->end;
 		}
 	    } else {
-		fatal("aïe, aïe, aïe, le beta est négatif !\n");
+		fatal("aie, aie, aie, le beta est negatif !\n");
 	    }
 	    itv_array_free(hypercube,exp1->l+exp2->l);
 	    ap_lincons0_array_clear(&hyperplane);
