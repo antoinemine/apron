@@ -276,13 +276,8 @@ ap_interval_t* t1p_bound_dimension(ap_manager_t* man, t1p_t* a, ap_dim_t dim)
 {
     CALL();
     t1p_internal_t* pr = t1p_init_from_manager(man, AP_FUNID_BOUND_DIMENSION);
-    //itv_t tmp; itv_init(tmp);
     ap_interval_t* ap_itv = ap_interval_alloc();
-    //t1p_aff_boxize(pr, tmp, a->paf[dim], a);
-    //ap_interval_set_itv(pr->itv, ap_itv, tmp);
     ap_interval_set_itv(pr->itv, ap_itv, a->box[dim]);
-    //itv_clear(tmp);
-    ap_interval_free(ap_itv);
     return ap_itv;
 }
 
