@@ -131,7 +131,8 @@ else
 	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)	\
 		$(call OCAMLOPT_TARGETS, mlapronidl/apron.d		\
 					 newpolka/polkaMPQ.d		\
-					 newpolka/polkaRll.d)
+					 newpolka/polkaRll.d		\
+					 taylor1plus/t1pMPQ.d taylor1plus/t1pD.d taylor1plus/t1pMPFR.d)
 endif
 endif
 ifneq ($(HAS_CPP),)

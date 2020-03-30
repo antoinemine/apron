@@ -46,16 +46,19 @@ archive(native) = "polkaRll.cmxa"
 )
 package "t1pD" (
 requires = "apron.apron"
+archive(native,debug) = "t1pD.d.cmxa"
 archive(byte) = "t1pD.cma"
 archive(native) = "t1pD.cmxa"
 )
 package "t1pMPQ" (
 requires = "apron.apron"
+archive(native,debug) = "t1pMPQ.d.cmxa"
 archive(byte) = "t1pMPQ.cma"
 archive(native) = "t1pMPQ.cmxa"
 )
 package "t1pMPFR" (
 requires = "apron.apron"
+archive(native,debug) = "t1pMPFR.d.cmxa"
 archive(byte) = "t1pMPFR.cma"
 archive(native) = "t1pMPFR.cmxa"
 )
