@@ -73,7 +73,7 @@ ifneq ($(HAS_SHARED),)
     CXX_APRON_DYLIB += -install_name $(APRON_LIB)/$@
   endif
   ifneq ($(HAS_NATIVE_PLUGINS),)
-    OCAMLOPT_CMXS = $(OCAMLOPT) $(OCAMLOPTFLAGS) -linkall -shared
+    OCAMLOPT_CMXS = $(OCAMLOPT) $(OCAMLOPTFLAGS) -linkall -shared $(patsubst %,-cclib %,$(MP_LIFLAGS))
     OCAMLOPT_TARGETS = $(call OCAMLOPT_TARGETS0,$(1)) $(addsuffix .cmxs, $(1))
   else
     OCAMLOPT_TARGETS = $(call OCAMLOPT_TARGETS0,$(1))
