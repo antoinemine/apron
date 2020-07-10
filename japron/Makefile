@@ -68,7 +68,7 @@ APRONMODS := $(APRONMODS) PplPoly PplGrid PolkaGrid
 APRONLIBS := $(APRONLIBS) -lap_pkgrid -lap_ppl -lppl
 endif
 
-# long .java
+# lone .java
 APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
             Linterm0 Dimension Texpr0Node Texpr0BinNode Texpr0UnNode \
             Texpr0DimNode Texpr0CstNode Tcons0 Generator0 Linterm1 Linexpr1 \
@@ -84,12 +84,14 @@ APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
 
 GMPJ       = $(addprefix gmp/,$(addsuffix .java,$(GMPMODS) $(GMPJAVA)))
 GMPCLASS   = $(subst .java,.class,$(GMPJ))
+GMPCNAME   = $(addprefix gmp.,$(GMPMODS))
 GMPC       = $(addprefix gmp/gmp_,$(addsuffix .c,$(GMPMODS)))
 GMPO       = $(addprefix gmp/gmp_,$(addsuffix .o,$(GMPMODS)))
 GMPH       = $(addprefix gmp/gmp_,$(addsuffix .h,$(GMPMODS)))
 
 APRONJ     = $(addprefix apron/,$(addsuffix .java,$(APRONMODS) $(APRONJAVA)))
 APRONCLASS = $(subst .java,.class,$(APRONJ))
+APRONCNAME = $(addprefix apron.,$(APRONMODS))
 APRONC     = $(addprefix apron/apron_,$(addsuffix .c,$(APRONMODS)))
 APRONO     = $(addprefix apron/apron_,$(addsuffix .o,$(APRONMODS)))
 APRONH     = $(addprefix apron/apron_,$(addsuffix .h,$(APRONMODS)))
@@ -108,63 +110,54 @@ SOINST     = libjgmp.$(EXT_DLL) libjapron.$(EXT_DLL)
 #TARGETS
 ########
 
-all: $(GMPALL) $(APRONALL) $(JAVAINST) $(SOINST)
+all: $(JAVAINST) $(SOINST)
 
 ifneq ($(JAVAC_HAS_H),)
 
-$(GMPCLASS): $(GMPJ)
+gmp.jar: $(GMPJ)
 	$(JAVAC) -h gmp $+
+	$(JAR) cf $@ $+
+	$(JAR) i $@
 
 else
 
-$(GMPCLASS): $(GMPJ)
+gmp.jar: $(GMPJ)
 	$(JAVAC) $+
-
-gmp/gmp_%.h: gmp/%.java
-	$(JAVAH) -o $@ gmp.$*
-	touch $@
+	$(JAVAH) -d gmp $(GMPCNAME)
+	$(JAR) cf $@ $+
+	$(JAR) i $@
 
 endif
 
-gmp/%.o: gmp/%.c $(GMPH) gmp/jgmp.h
+gmp/%.o: gmp/%.c gmp.jar gmp/jgmp.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) $< -o $@
 
 libjgmp.$(EXT_DLL): gmp/jgmp.o $(GMPO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(GMPLIBS)
 
-gmp.jar: $(GMPCLASS)
-	$(JAR) cf $@ $+
-	$(JAR) i $@
-
 
 ifneq ($(JAVAC_HAS_H),)
 
-$(APRONCLASS): $(APRONJ)
+apron.jar: $(APRONJ)
 	$(JAVAC) -h apron $+
-
-# javac -h does not generate an apron_Var.h
-apron/apron_Var.h:
-	touch $@
+	$(JAR) cf $@ $+
+	$(JAR) i $@
 
 else
 
-$(APRONCLASS): $(APRONJ)
+apron.jar: $(APRONJ)
 	$(JAVAC) $+
+	$(JAVAH) -d apron $(APRONCNAME)
+	$(JAR) cf $@ $+
+	$(JAR) i $@
 
-apron/apron_%.h: apron/%.java
-	$(JAVAH) -o $@ apron.$*
-	touch $@
 endif
 
-apron/%.o: apron/%.c $(APRONH)  gmp/jgmp.h apron/japron.h
+apron/%.o: apron/%.c gmp.jar apron.jar gmp/jgmp.h apron/japron.h
 	$(CC) $(CFLAGSN) -c $(IFLAGS) -Igmp $< -o $@
 
 libjapron.$(EXT_DLL): apron/japron.o $(APRONO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(APRONLIBS)
-
-apron.jar: $(APRONCLASS)
-	$(JAR) cf $@ $+
-	$(JAR) i $@
 
 doc:
 	$(JAVADOC) -d doc gmp apron
