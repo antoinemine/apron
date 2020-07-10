@@ -94,7 +94,7 @@ APRONCLASS = $(subst .java,.class,$(APRONJ))
 APRONCNAME = $(addprefix apron.,$(APRONMODS))
 APRONC     = $(addprefix apron/apron_,$(addsuffix .c,$(APRONMODS)))
 APRONO     = $(addprefix apron/apron_,$(addsuffix .o,$(APRONMODS)))
-APRONH     = $(addprefix apron/apron_,$(addsuffix .h,$(APRONMODS)))
+APRONH     = $(addprefix apron/apron_,$(addsuffix .h,$(APRONMODS))) $(addprefix apron/gmp_,$(addsuffix .h,$(GMPMODS)))
 
 GMPALL     = $(GMPCLASS) $(GMPH) libjgmp.$(EXT_DLL)
 APRONALL   = $(APRONCLASS) $(APRONH) $(APRONO) libjapron.$(EXT_DLL)
