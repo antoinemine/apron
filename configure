@@ -461,8 +461,8 @@ if test $has_java -eq 1; then searchbin "jar"; has_java=$?; jar="$path"; fi
 # check Java version
 if test $has_java -eq 1
 then
-    java_version=`$java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1`
-    if test $java_version -ge 11
+    java_version=`$java -version 2>&1 | grep version | cut -d'"' -f2 | sed 's/\(1\.\)\{0,1\}\([0-9]*\).*/\2/'`
+    if test $java_version -ge 8
     then
         # new Java use javac -h
         javac_has_h=1
