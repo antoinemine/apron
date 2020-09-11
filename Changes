@@ -1,3 +1,12 @@
+Version 0.9.13
+- Fix Java version detection & compilation (#30)
+- Minor grammar and spelling fixes (#22), (#26)
+- Use texi2any instead of (dead) texi2html (#23)
+- Fix best and exact flags in octagons (#25)
+- Fix linking under MaxOS X (#28)
+- Taylor1+ fixes
+
+
 Version 0.9.12
 
 - GitHub hosting
