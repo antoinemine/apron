@@ -1,0 +1,65 @@
+# README
+#
+# Installation documentation
+#
+# APRON Library / Fppol Domain V1.0
+#
+# Copyright (C) Liqian CHEN' 2008
+#
+# Technique details see: 
+#   [Liqian Chen, Antoine Miné and Patrick Cousot. A Sound Floating-Point Polyhedra Abstract Domain. In APLAS 2008.]
+#
+# This file is part of the APRON Library, released under LGPL license.
+# Please read the COPYING file packaged in the distribution
+
+This package is a implementation of the fppol abstract domain that
+conforms to the APRON interface.
+It includes both a C and a OCaml interface.
+
+REQUIREMENTS
+============
+For the C interface:
+
+APRON library
+glpk 4.65
+
+For the OCaml interface, in addition:
+OCaml 4.0 or up (tested with 4.01)
+Camlidl (tested with 1.05)
+MLGMPIDL package
+MLAPRONIDL package
+
+INSTALLATION
+============
+
+Set the file Makefile.config to your own setting.
+You might also have to modify the Makefile for executables
+
+1. C Library
+----------
+
+type 'make all', and then 'make install' 
+
+The library is named libfppD.a, libfppDl.a (and
+libfppD_debug.a, libfppDl_debug.a, ...).
+
+D, Dl, stands for double, long double, which
+indicates the underlying representation of floating point number.
+
+For use via APRON, the include files to consider is fpp.h
+
+When linking, requires libraries required by APRON.
+
+2. OCaml Library
+----------------
+
+type 'make ml', and then 'make install' 
+
+The C part of the library is named libfppXX_caml.a or
+libfppXX_caml.so/dllfppXX_caml.so (and libfppXX_caml_debug.a or ...).
+
+The OCaml part is named fppXX.cma (fppXX.cmxa)
+
+3. Miscellaneous
+----------------
+'make clean' and 'make distclean' have the usual behaviour.
