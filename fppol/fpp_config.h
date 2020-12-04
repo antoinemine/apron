@@ -99,11 +99,11 @@ typedef double numdbl_t;   /* floating point type: float or double (only double 
 #define FSCFDOUBLE2 " %lf%n"
 
 #define LP_BASIS_RESTORE 0
+#define DISABLE_LP_OUTPUT 1
 
 #define DEBUG_RLP 1
 #define DEBUG_RLP1 1
 #define PRINT_RLP 1
-#define PRINT_LP 0
 #define PRINT_SLP_FAIL 1
 
 #define DEBUG_JOIN 0

@@ -1620,13 +1620,13 @@ fflush(stdout);
 				 memcpy(l1,l2,(fpp3->dim+1)*sizeof(numdbl_t));
 				 res=fppol_entailment(pr,fpp3,l0,true);
 				 if(res==true){
-			   /* put l2 in the widening results */
-			   memcpy(p2,l2,(fpp3->dim+1)*sizeof(numdbl_t));
-			   p2=p2+(fpp3->dim+1);
-			   nEnv2++;
-			   /* restore fpp3 */
-			   memcpy(l1,l0,(fpp3->dim+1)*sizeof(numdbl_t));
-			   break;
+				   /* put l2 in the widening results */
+				   memcpy(p2,l2,(fpp3->dim+1)*sizeof(numdbl_t));
+				   p2=p2+(fpp3->dim+1);
+				   nEnv2++;
+				   /* restore fpp3 */
+				   memcpy(l1,l0,(fpp3->dim+1)*sizeof(numdbl_t));
+				   break;
 				 }
 					 /* restore fpp3 */
 				 memcpy(l1,l0,(fpp3->dim+1)*sizeof(numdbl_t));
@@ -1649,7 +1649,7 @@ fflush(stdout);
     else if(nEnv2>0){
 		env=env2=realloc(env2,nEnv2*(fpp2->dim+1)*sizeof(numdbl_t));
 		if(nCbnd>0){
-		  memcpy(env+nEnv2*(fpp2->dim+1),cbnd,nCbnd*(fpp2->dim+1)*sizeof(numdbl_t));
+		    memcpy(env+nEnv2*(fpp2->dim+1),cbnd,nCbnd*(fpp2->dim+1)*sizeof(numdbl_t));
 		}
     }
     else if(nCbnd>0){
@@ -1677,11 +1677,11 @@ fflush(stdout);
 		for(j=1;j<=wdfpp->dim;j++){
 		   aj=*(pb+j);
 		   if(aj==1.0){ /* upper bound */
-				  *(wdfpp->bnds+2*j-1)=bi;
+			  *(wdfpp->bnds+2*j-1)=bi;
 			  break;
 		   }
 		   else if(aj==-1.0){ /* lower bound */
-				  if(bi==0) *(wdfpp->bnds+2*j-2)=0.0;
+			  if(bi==0) *(wdfpp->bnds+2*j-2)=0.0;
 			  else *(wdfpp->bnds+2*j-2)=-bi;
 			  break;
 		   }

@@ -272,7 +272,7 @@ ap_manager_t* fpp_manager_alloc(void)
   }
 #endif
 
-#if PRINT_LP==0
+#if DISABLE_LP_OUTPUT==1
   glp_term_hook(printme,NULL); /*disable output*/
 #endif
 

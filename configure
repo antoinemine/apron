@@ -19,7 +19,7 @@ where options include:
   -gmp-prefix dir      where to find the GMP library
   -mpfr-prefix dir     where to find the MPFR library
   -ppl-prefix dir      where to find the PPL library
-  -glpk-prefix dir      where to find the GLPK library  
+  -glpk-prefix dir     where to find the GLPK library  
   -java-prefix dir     where to find Java
   -no-cxx              disable C++ support
   -no-ocaml            disable OCaml support
@@ -40,7 +40,7 @@ Environment variables that affect configuration:
   GMP_PREFIX           where to find the GMP library
   MPFR_PREFIX          where to find the MPFR library
   PPL_PREFIX           where to find tye PPL library
-  GLPK_PREFIX           where to find tye GLPK library  
+  GLPK_PREFIX          where to find tye GLPK library  
   JAVA_HOME            where to find Java
 
 EOF
@@ -393,7 +393,7 @@ if test $has_cxx -eq 1 -a $has_ppl -eq 1
 then
     if test "x$ppl_prefix" != "x"; then PPL_PREFIX="$ppl_prefix"; fi
     checkprefix "$cxx $cxxflags" ppl.hh ppl "$PPL_PREFIX"
-    if test $? -eq 1; then has_ppl=1; fi
+    if test $? -eq 0; then has_ppl=0; fi
     ppl_prefix="$prefix"
 fi
 
@@ -401,7 +401,7 @@ if test $has_glpk -eq 1
 then
     if test "x$glpk_prefix" != "x"; then GLPK_PREFIX="$glpk_prefix"; fi
 	checkprefix "$cc $cflags" glpk.h glpk "$GLPK_PREFIX"
-	if test $? -eq 0; then echo "GLPK not found, set GLPK_PREFIX"; exit 1; fi
+	if test $? -eq 0; then has_glpk=0; fi
 	glpk_prefix="$prefix"
 fi
 
