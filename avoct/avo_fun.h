@@ -6,7 +6,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -45,7 +45,7 @@ extern "C" {
 
 struct _avo_t;
 typedef struct _avo_t avo_t;
-  /* Abstract data type of avoagons (defined in avo_private.h). */
+  /* Abstract data type of avOctagons (defined in avo_private.h). */
 
 avo_t* avo_copy(ap_manager_t* man, avo_t* a);
   /* Return a copy of an abstract value, on
@@ -313,7 +313,7 @@ avo_t* avo_substitute_texpr_array(ap_manager_t* man,
      dest is an optional argument. If not NULL, semantically speaking,
      the result of the transformation is intersected with dest. This is
      useful for precise backward transformations in lattices like intervals or
-     avoagons. */
+     avOctagons. */
 
 /* ============================================================ */
 /* III.3 Projections */
@@ -388,7 +388,7 @@ avo_t* avo_narrowing(ap_manager_t* man, avo_t* a1, avo_t* a2);
 
 avo_t* avo_add_epsilon(ap_manager_t* man, avo_t* a, ap_scalar_t* epsilon);
   /* Enlarge each bound by epsilon times the maximum finite bound in
-     the avoagon */
+     the avOctagon */
 
 avo_t* avo_add_epsilon_bin(ap_manager_t* man, avo_t* a1, avo_t* a2,
 			   ap_scalar_t* epsilon);
@@ -401,7 +401,7 @@ avo_t* avo_add_epsilon_bin(ap_manager_t* man, avo_t* a1, avo_t* a2,
 /* ============================================================ */
 
 avo_t* avo_closure(ap_manager_t* man, bool destructive, avo_t* a);
-  /* Returns the topological closure of a possibly opened abstract value */
+  /* Returns the topological closure of a not-necessarily closed abstract value (allowing strict inequalities)  */
 
 
 #ifdef __cplusplus

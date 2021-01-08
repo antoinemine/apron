@@ -6,7 +6,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -26,13 +26,9 @@ void srand48(long int seedval);
 #include "avo_fun.h"
 #include "avo_internal.h"
 
-#include "pk.h"
-
-ap_manager_t* mo; /* avoagon */
-ap_manager_t* mp; /* polyhedron */
+ap_manager_t* mo; /* avOctagon */
 
 avo_internal_t* pr;
-pk_internal_t* pk;
 
 #define MAXN 50000
 int N = 70;
@@ -85,7 +81,7 @@ char check(avo_t* o)
     size_t i;
     if (num_incomplete || o->intdim) return '.'; /* incomplete */
     /* check that o->closed is really closed */
-    if (!avo_hmat_check_closed(o->closed,o->dim)) {
+    if (!avo_hmat_check_closed(o->closed,o->nsc,o->dim)) {
       ERROR("invalid closure");
       return '!';
     }
@@ -96,8 +92,8 @@ char check(avo_t* o)
     avo_hmat_close(cl,dl,o->dim);
     for (i=0;i<avo_matsize(o->dim);i++)
       if (bound_cmp(cl[i],o->closed[i])) {
-	avo_hmat_free(pr,cl,o->dim);
-	return '#';
+		avo_hmat_free(pr,cl,o->dim);
+		return '#';
       }
     avo_hmat_free(pr,cl,o->dim);
     return 'C';
@@ -121,9 +117,10 @@ avo_t* random_avo(int dim,float frac)
   int i,j,x,y;
   num_t n;
   o->m = avo_hmat_alloc_top(pr,dim);
+  o->nsc = avo_hmat_alloc_top_nsc(pr,dim);
   b = o->m;
   num_init(n);
-  for (i=0;i<2*dim;i++)
+  for (i=0;i<4*dim;i++)
     for (j=0;j<=(i|1);j++,b++) {
       if (i==j) continue;
       if (lrand48()%100>frac*100) continue;
@@ -134,48 +131,6 @@ avo_t* random_avo(int dim,float frac)
     }
   num_clear(n);
   return o;
-}
-
-/* build polyhedron & avoagon at the same time, from same constraints */
-void random_poly_avo(int dim,float frac, avo_t**o, ap_abstract0_t** p)
-{
-  bound_t* b;
-  int i,j,x,y;
-  num_t n;
-  *o = avo_alloc_internal(pr,dim,0);
-  (*o)->m = avo_hmat_alloc_top(pr,dim);
-  *p = ap_abstract0_top(mp,0,dim);
-  b = (*o)->m;
-  num_init(n);
-  for (i=0;i<2*dim;i++)
-    for (j=0;j<=(i|1);j++,b++) {
-      if (i==j) continue;
-      if (lrand48()%100>frac*100) continue;
-      {
-	ap_linexpr0_t* l;
-	ap_lincons0_array_t c = ap_lincons0_array_make(1);
-	y = lrand48()%4+1;
-	x = lrand48()%20-2;      
-	if (!num_set_int2(n,x,y)) flag = none;
-	bound_set_num(*b,n);
-	l = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 2);
-	if (i/2!=j/2)
-	  ap_linexpr0_set_list(l,
-			       AP_CST_S_FRAC, x, y,
-			       AP_COEFF_S_INT, (j%2) ?  1 : -1, j/2,
-			       AP_COEFF_S_INT, (i%2) ? -1 :  1, i/2,
-			       AP_END);
-	else
-	  ap_linexpr0_set_list(l,
-			       AP_CST_S_FRAC, x, y,
-			       AP_COEFF_S_INT, (j%2) ? 2 : -2, j/2,
-			       AP_END);
-	c.p[0] = ap_lincons0_make(AP_CONS_SUPEQ, l, NULL);
-	*p = ap_abstract0_meet_lincons_array(mp,true,*p,&c);
-	ap_lincons0_array_clear(&c);
-      }
-    }
-  num_clear(n);
 }
 
 typedef enum  {
@@ -296,70 +251,11 @@ ap_texpr0_t* random_texpr(int dim, int depth)
 			   lrand48()%AP_RTYPE_SIZE, lrand48()%AP_RDIR_SIZE);
 }
 
-
-ap_abstract0_t* random_poly(int dim)
-{
-  ap_abstract0_t* p;
-  int i;
-  ap_interval_t** t = ap_interval_array_alloc(dim);
-  ap_generator0_array_t ar = ap_generator0_array_make(dim);
-  for (i=0;i<dim;i++) {
-    int l = (lrand48()%15) - 10;
-    int h = l + (lrand48()%5);
-    ap_interval_set_int(t[i],l,h);
-  }
-  for (i=0;i<dim;i++)
-    ar.p[i] = random_generator(dim,AP_GEN_RAY);
-  p = ap_abstract0_of_box(mp,0,dim,t);
-  ap_abstract0_add_ray_array(mp,true,p,&ar);
-  /*ap_generator0_array_fprint(stderr,&ar,NULL);*/
-  ap_generator0_array_clear(&ar);
-  ap_interval_array_free(t,dim);
-  return p;
-}
-
-avo_t* avo_of_poly(ap_abstract0_t* p)
-{
-  ap_generator0_array_t ar;
-  ap_dimension_t d = ap_abstract0_dimension(mp,p);
-  avo_t* o;
-  ar = ap_abstract0_to_generator_array(mp,p);
-  FLAG(mp);
-  o = avo_of_generator_array(mo,d.intdim,d.realdim,&ar);
-  FLAG(mo);
-  /*ap_generator0_array_fprint(stderr,&ar,NULL);*/
-  ap_generator0_array_clear(&ar);
-  return o;
-}
-
-/* may not be exact (e.g., long double avoagons and mpq polyhedra) */
-ap_abstract0_t* poly_of_avo(avo_t* o)
-{
-  ap_lincons0_array_t ar;
-  ap_dimension_t d = avo_dimension(mo,o);
-  ap_abstract0_t* p;
-  ar = avo_to_lincons_array(mo,o);
-  FLAG(mo);
-  p = ap_abstract0_of_lincons_array(mp,d.intdim,d.realdim,&ar);
-  FLAG(mp);
-  /*ap_lincons0_array_fprint(stderr,&ar,NULL);*/
-  ap_lincons0_array_clear(&ar);
-  return p;
-}
-
 void print_avo(const char* msg, avo_t* o)
 {
   fprintf(stderr,"%s = ",msg);
   avo_fprint(stderr,mo,o,NULL);
   avo_fdump(stderr,mo,o);
-  fprintf(stderr,"\n");
-}
-
-void print_poly(const char* msg, ap_abstract0_t* p)
-{
-  fprintf(stderr,"%s = ",msg);
-  ap_abstract0_fprint(stderr,mp,p,NULL);
-  ap_abstract0_fdump(stderr,mp,p);
   fprintf(stderr,"\n");
 }
 
@@ -381,23 +277,17 @@ bool avo_is_neq(ap_manager_t* man, avo_t* a1, avo_t* a2)
   return !avo_is_eq(man,a1,a2) && man->result.flag_exact;
 }
 
-
 /* ********************************* */
 /*             infos                 */
 /* ********************************* */
 
-
-
 void info(void)
 {
-  printf("avoagons:  %s (%s)\n",mo->library,mo->version);
-  printf("polyhedra: %s (%s)\n",mp->library,mp->version);
+  printf("avOctagons:  %s (%s)\n",mo->library,mo->version);
   printf("nums:      %s (%s wto overflow,%s)\n",num_name,
 	 num_safe ? "sound" : "unsound",
 	 num_incomplete ? "incomplete" : "complete");
 }
-
-
 
 /* ********************************* */
 /*           various tests           */
@@ -409,11 +299,9 @@ void test_misc(void)
   int i;
   avo_t* bot = avo_bottom(mo,0,D);
   avo_t* top = avo_top(mo,0,D);
-  ap_abstract0_t* bot2 = poly_of_avo(bot);
-  ap_abstract0_t* top2 = poly_of_avo(top);
   ap_dimension_t d1 = avo_dimension(mo,bot);
   ap_dimension_t d2 = avo_dimension(mo,top);
-  printf("\nperforming various tests\n");
+  printf("\nperforming various tests\n"); fflush(stdout);
   check(bot); check(top);
   if (d1.intdim || d1.realdim!=D) printf("avo_dimension failed #1\n");
   if (d2.intdim || d2.realdim!=D) printf("avo_dimension failed #2\n");
@@ -430,10 +318,8 @@ void test_misc(void)
     printf("avo_is_dimension_unconstrained #12\n");
   if (!avo_is_dimension_unconstrained(mo,top,0))
     printf("avo_is_dimension_unconstrained #13\n");
-  if (!ap_abstract0_is_bottom(mp,bot2) && mp->result.flag_exact) printf("poly_is_bottom failed\n");
-  if (!ap_abstract0_is_top(mp,top2) && mp->result.flag_exact) printf("poly_is_top failed\n");
   for (i=0;i<N;i++) {
-    avo_t* o = random_avo(D,.1);
+    avo_t* o = random_avo(D,0.1);
     avo_t* c = avo_copy(mo,o);
     avo_t* l = avo_closure(mo,false,o);
     ap_dimension_t d = avo_dimension(mo,o);
@@ -444,31 +330,117 @@ void test_misc(void)
     if (avo_is_neq(mo,o,l))     printf("avo_is_eq failed #18\n");
     avo_size(mo,o);
     avo_close(pr,o);
-    // not implemented
-    //avo_minimize(mo,o);
-    //avo_canonicalize(mo,o);
-    //avo_approximate(mo,o,0);
-    //avo_is_minimal(mo,o);
-    //avo_is_canonical(mo,o);
     avo_free(mo,o); avo_free(mo,c); avo_free(mo,l);
   }
   avo_free(mo,bot); avo_free(mo,top);
-  ap_abstract0_free(mp,bot2); ap_abstract0_free(mp,top2);
 }
-
-
 
 /* ********************************* */
 /*           closure                 */
 /* ********************************* */
 
-
 void test_closure(void)
 {
   printf("\nclosure %s\n",num_incomplete?"":"(c,o expected)");
+  avo_t* o;
+  bound_t* b;
+  int dim;
+  num_t n;
+
+  /*
+   * {y-x <= 24, -z-|x| <= 6,  x - z <= 16, y - |z| <= 10, y-z <= 50 }
+   * StrongCloViaAllSigns(): {y-z <= 32, ...}
+   * WeakCloVia3Sign():      {y-z <= 32, ...}
+   * WeakCloVia1Sign():      {y-z <= 40, ...}
+   * */
+  dim =3;
+  o = avo_alloc_internal(pr,dim,0);
+  o->m = avo_hmat_alloc_top(pr,dim);
+  o->nsc = avo_hmat_alloc_top_nsc(pr,dim);
+  //avo_fdump(stdout, mo, o);
+  b = o->m;
+
+  num_init(n);
+  for (int i=0;i<4*dim;i++)
+    for (int j=0;j<=(i|1);j++,b++) {
+      if (i==3 && j==1)        {num_set_int(n,24);   bound_set_num(*b,n);}
+      else if (i==4 && j==0)   {num_set_int(n,16);   bound_set_num(*b,n);}
+      else if (i==4 && j==2)   {num_set_int(n,50);   bound_set_num(*b,n);}
+      else if (i==6 && j==5)   {num_set_int(n,6);    bound_set_num(*b,n);}
+      else if (i==10 && j==2)  {num_set_int(n,10);   bound_set_num(*b,n);}
+    }
+  num_clear(n);
+  //avo_fdump(stdout, mo, o);
+  avo_close(pr,o);
+  RESULT(check(o));
+  //avo_fdump(stdout, mo, o);
+  avo_free(mo,o);
+
+  /*
+   * {y-x <= 24, -z-|x| <= 6,  x - z <= 16, y - |z| <= 10, y-z <= 50, x<=-1 }
+   * StrongCloViaAllSigns(): {y-z <= 30, z-|y|<=30, x+y<=22, y<=23, x-|y|<=-1, x-|z|<=-1, ...}
+   * WeakCloVia3Sign():      {y-z <= 30, z-|y|<=30, x+y<=22, y<=23, x-|y|<=-1, x-|z|<=-1, ...}
+   * WeakCloVia1Sign():      {y-z <= 40, z-|y|<=40, x+y<=22, y<=23, x-|y|<=-1, x-|z|<=-1, ...}
+   * */
+
+  dim =3;
+  o = avo_alloc_internal(pr,dim,0);
+  o->m = avo_hmat_alloc_top(pr,dim);
+  o->nsc = avo_hmat_alloc_top_nsc(pr,dim);
+  //avo_fdump(stdout, mo, o);
+  b = o->m;
+  num_init(n);
+  for (int i=0;i<4*dim;i++)
+    for (int j=0;j<=(i|1);j++,b++) {
+      if (i==1 && j==0)        {num_set_int(n,-2);   bound_set_num(*b,n);}
+      else if (i==3 && j==1)   {num_set_int(n,24);   bound_set_num(*b,n);}
+      else if (i==4 && j==0)   {num_set_int(n,16);   bound_set_num(*b,n);}
+      else if (i==4 && j==2)   {num_set_int(n,50);   bound_set_num(*b,n);}
+      else if (i==6 && j==5)   {num_set_int(n,6);    bound_set_num(*b,n);}
+      else if (i==10 && j==2)  {num_set_int(n,10);   bound_set_num(*b,n);}
+  }
+  num_clear(n);
+  //avo_fdump(stdout, mo, o);
+  avo_close(pr,o);
+  RESULT(check(o));
+  //avo_fdump(stdout, mo, o);
+  avo_free(mo,o);
+
+  /*
+   * {x-|y|<=10, y<=24, y+s<=80, -y-z<=84, -z-|s|<=8, -s-|x|<=36}
+   * Common constraints in the 3 closure algs: {y-z<=132,-z<=108,s-z<=164}
+   * StrongCloViaAllSigns(): {x-z <= 112,x-|z|<=94, -|x|-z<=86, x+y<=58, ...}
+   * WeakCloVia3Sign():      {x-z <= 142,x-|z|<=94, -|x|-z<=86, x+y<=58}
+   * WeakCloVia1Sign():      {x-z <= +oo,x-|z|<=+oo, -|x|-z<=108, x+y<=+oo}
+   * */
+  dim =4;
+  o = avo_alloc_internal(pr,dim,0);
+  o->m = avo_hmat_alloc_top(pr,dim);
+  o->nsc = avo_hmat_alloc_top_nsc(pr,dim);
+  //avo_fdump(stdout, mo, o);
+  b = o->m;
+  num_init(n);
+  for (int i=0;i<4*dim;i++)
+    for (int j=0;j<=(i|1);j++,b++) {
+      if (j==0 && i==2*dim+2)      {num_set_int(n,10);   bound_set_num(*b,n);}
+      else if (j==2 && i==3)       {num_set_int(n,48);   bound_set_num(*b,n);}
+      else if (j==2 && i==7)       {num_set_int(n,80);   bound_set_num(*b,n);}
+      else if (j==3 && i==4)       {num_set_int(n,84);   bound_set_num(*b,n);}
+      else if (j==5 && i==2*dim+6) {num_set_int(n,8);    bound_set_num(*b,n);}
+      else if (j==7 && i==2*dim)   {num_set_int(n,36);   bound_set_num(*b,n);}
+    }
+  num_clear(n);
+  //avo_fdump(stdout, mo, o);
+  avo_close(pr,o);
+  RESULT(check(o));
+  //avo_fdump(stdout, mo, o);
+  avo_free(mo,o);
+
   LOOP {
-    avo_t* o = random_avo(14,.01);
+    o = random_avo(8,.01);//14,.01);
+    //avo_fdump(stdout, mo, o);
     avo_close(pr,o);
+    //avo_fdump(stdout, mo, o);
     RESULT(check(o));
     avo_free(mo,o);
   } ENDLOOP;
@@ -478,14 +450,14 @@ void test_incremental_closure(void)
 {
   printf("\nincremental closure %s\n",num_incomplete?"":"(C,o expected)");
   LOOP {
-    size_t dim = 14;
+    size_t dim = 8;
     avo_t* o = random_avo(dim,.005);
     size_t i, v = lrand48() % dim;
     avo_close(pr,o);
     if (o->closed) {
       for (i=0;2*i<dim;i++) {
-	if (lrand48()%10>8) random_bound(o->closed[avo_matpos2(i,2*v)]);
-	if (lrand48()%10>8) random_bound(o->closed[avo_matpos2(i,2*v+1)]);
+		if (lrand48()%10>8) random_bound(o->closed[avo_matpos2(i,2*v)]);
+		if (lrand48()%10>8) random_bound(o->closed[avo_matpos2(i,2*v+1)]);
       }
       o->m = avo_hmat_copy(pr,o->closed,dim);
       if (avo_hmat_close_incremental(o->closed,o->nsc,dim,v)) RESULT('o');
@@ -496,187 +468,49 @@ void test_incremental_closure(void)
   } ENDLOOP;
 }
 
-
-
 /* ********************************* */
 /*            conversions            */
 /* ********************************* */
-
-void test_polyhedra_conversion(void)
-{
-  printf("\nconversion to polyhedra %s\n",num_incomplete ? "" : "(* expected)");
-  LOOP {
-    avo_t *o, *o2;
-    ap_abstract0_t *p, *p2;
-    o = random_avo(2,.1);
-    p = poly_of_avo(o);
-    o2 = avo_of_poly(p);
-    p2 = poly_of_avo(o2);
-    RESULT(check(o)); check(o2);
-    if (avo_is_nleq(mo,o,o2)) {
-      ERROR("avo not included in");
-      print_avo("o",o);
-      print_poly("p",p); 
-      print_avo("o2",o2);
-    }
-    if (!ap_abstract0_is_leq(mp,p,p2)) {
-      ERROR("poly not included in");
-      print_avo("o",o);
-      print_poly("p",p); 
-      print_avo("o2",o2);
-      print_poly("p2",p2);
-    }
-    if (avo_is_eq(mo,o,o2) && ap_abstract0_is_eq(mp,p,p2)) RESULT('*');
-    if (flag>=best && (avo_is_neq(mo,o,o2) || !ap_abstract0_is_eq(mp,p,p2))) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o2); ap_abstract0_free(mp,p); ap_abstract0_free(mp,p2);
-  } ENDLOOP;
-  {
-    avo_t *o;
-    ap_abstract0_t *p;
-    bool r;
-    flag = exact;
-    o = avo_bottom(mo,0,7);
-    p = poly_of_avo(o);
-    r = ap_abstract0_is_bottom(mp,p); FLAG(mp);
-    if (flag>=best && !r) printf("poly_is_bottom failed\n");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-  }
-  {
-    avo_t *o;
-    ap_abstract0_t *p;
-    o = avo_top(mo,0,7);
-    p = poly_of_avo(o);
-    if (!ap_abstract0_is_top(mp,p) && mp->result.flag_exact) printf("poly_is_top failed\n");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-  }
-}
-
-void test_polyhedra_conversion2(void)
-{
-  printf("\nconversion from polyhedra (=from generator) %s\n",num_incomplete?"":"(* expected)");
-  LOOP {
-    ap_abstract0_t *p, *p2;
-    avo_t *o, *o2;
-    p = random_poly(5);
-    o = avo_of_poly(p);
-    p2 = poly_of_avo(o);
-    o2 = avo_of_poly(p2);
-    RESULT(check(o)); check(o2);
-    if (avo_is_nleq(mo,o,o2) || !ap_abstract0_is_leq(mp,p,p2)) {
-      ERROR("not included in"); 
-      print_poly("p",p); 
-      print_avo("o",o);
-      print_poly("p2",p2); 
-      print_avo("o2",o2);
-    }
-    if (avo_is_eq(mo,o,o2)) RESULT('*');
-    if (flag>=best && avo_is_neq(mo,o,o2)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o2); ap_abstract0_free(mp,p); ap_abstract0_free(mp,p2);
-  } ENDLOOP;
-  {
-    ap_abstract0_t *p;
-    avo_t *o;
-    flag = exact;
-    p = ap_abstract0_bottom(mp,0,7);
-    o = avo_of_poly(p);
-    if (flag>=best && !avo_is_bottom(mo,o)) printf("avo_is_bottom failed\n");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-  }
-  {
-    ap_abstract0_t *p;
-    avo_t *o;
-    flag = exact;
-    p = ap_abstract0_top(mp,0,7);
-    o = avo_of_poly(p);
-    if (flag>=best && !avo_is_top(mo,o)) printf("avo_is_top failed\n");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-  }
-}
-
-void test_lincons_conversion(exprmode mode)
-{
-  printf("\nconversion from %slincons %s\n",exprname[mode],
-	 num_incomplete?"":(mode<=expr_avo)?"(* expected)":"(*,x,. expected)");
-  LOOP {
-    int dim = 6, nb = 10, i;
-    ap_abstract0_t *p, *p2;
-    avo_t *o, *oo;
-    ap_lincons0_array_t t = ap_lincons0_array_make(nb);
-    ap_lincons0_array_t tt = ap_lincons0_array_make(nb);
-    for (i=0;i<nb;i++) {
-      t.p[i] = ap_lincons0_make((lrand48()%100>=90)?AP_CONS_EQ:
-				(lrand48()%100>=90)?AP_CONS_SUP:
-				AP_CONS_SUPEQ,
-				random_linexpr(mode,dim),
-				NULL);
-      tt.p[i] = random_from_lincons(t.p[i]);
-    }
-    p  = ap_abstract0_of_lincons_array(mp,0,dim,&tt);
-    o  = avo_top(mo,0,dim);
-    o  = avo_meet_lincons_array(mo,true,o,&t); FLAG(mo);
-    p2 = poly_of_avo(o);
-    oo = avo_of_poly(p);
-    RESULT(check(o));
-    if (!ap_abstract0_is_leq(mp,p,p2)) {
-      ERROR("not included in"); 
-      print_poly("p",p); 
-      fprintf(stderr,"t = "); ap_lincons0_array_fprint(stderr,&t,NULL);
-      print_avo("o",o);
-      print_poly("p2",p2); 
-    }
-    if (ap_abstract0_is_eq(mp,p,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o,oo)) RESULT('x');
-    if (flag>=best && avo_is_neq(mo,o,oo)) ERROR("best flag");
-    if (flag==exact && !ap_abstract0_is_eq(mp,p,p2)) ERROR("exact flag");
-    avo_free(mo,o); avo_free(mo,oo);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p2);
-    ap_lincons0_array_clear(&t); ap_lincons0_array_clear(&tt);
-  } ENDLOOP;
-}
-
-void test_generator_conversion(void)
-{
-  printf("\nconversion to generators %s\n",num_incomplete?"":"(.,* expected)");
-  LOOP {
-    size_t dim = 6;
-    avo_t *o, *o2;
-    ap_generator0_array_t t;
-    o  = random_avo(dim,.1);
-    t  = avo_to_generator_array(mo,o); FLAG(mo);
-    o2 = avo_of_generator_array(mo,0,dim,&t); FLAG(mo);
-    RESULT(check(o2));
-    if (avo_is_nleq(mo,o,o2)) {
-      ERROR("not included in"); 
-      print_avo("o",o);
-      fprintf(stderr,"t = "); ap_generator0_array_fprint(stderr,&t,NULL);
-      print_avo("o2",o2);
-    }
-    if (avo_is_eq(mo,o,o2)) RESULT('*');
-    if (flag==exact && avo_is_neq(mo,o,o2)) ERROR("exact flag");
-    avo_free(mo,o); avo_free(mo,o2); ap_generator0_array_clear(&t);
-  } ENDLOOP;
-}
 
 void test_box_conversion(void)
 {
   printf("\nconversion to box %s\n",num_incomplete?"":"(* expected)");
   LOOP {
-    size_t dim = 6;
+    size_t dim = 2; //8;
     int i;
     avo_t *o,*o2,*o3;
     ap_interval_t **b,**b2;
     o = random_avo(dim,.1);
+/*
+    printf("\n original o\n");
+    avo_fdump(stdout,mo,o); */
+
     b = avo_to_box(mo,o); FLAG(mo);
     o2 = avo_of_box(mo,0,dim,b); FLAG(mo);
     b2 = avo_to_box(mo,o2); FLAG(mo);
     o3 = avo_of_box(mo,0,dim,b2); FLAG(mo);
-    RESULT(check(o)); check(o2);
+    RESULT(check(o));    check(o2);
+/*
+    printf("\n o\n");
+    avo_fdump(stdout,mo,o);
+    printf("\n o2\n");
+    avo_fdump(stdout,mo,o2);
+    printf("\n o3\n");
+    avo_fdump(stdout,mo,o3); */
+
     if (avo_is_nleq(mo,o,o2) || avo_is_nleq(mo,o2,o3)) {
       ERROR("not included in"); 
       print_avo("o",o);
       print_avo("o2",o2);
-      print_avo("o3",o3);
+      print_avo("o3",o3);  /*
+      printf("\n o\n");
+      avo_fdump(stdout,mo,o);
+      printf("\n o2\n");
+      avo_fdump(stdout,mo,o2);
+      printf("\n o3\n");
+      avo_fdump(stdout,mo,o3); */
     }
+
     if (avo_is_eq(mo,o2,o3)) RESULT('*');
     if (flag==exact && avo_is_neq(mo,o2,o3)) ERROR("exact flag");
     ap_interval_array_free(b,dim);
@@ -690,7 +524,6 @@ void test_box_conversion(void)
 /*            serialization          */
 /* ********************************* */
 
-
 void test_serialize(void)
 {
   printf("\nserialization %s\n","(* expected)");
@@ -698,7 +531,7 @@ void test_serialize(void)
     size_t sz;
     avo_t *o, *o2;
     ap_membuf_t b;
-    o  = random_avo(10,.1);
+    o  = random_avo(6,.1);//(10,.1);
     b  = avo_serialize_raw(mo,o); FLAG(mo);
     o2 = avo_deserialize_raw(mo,b.ptr,&sz); FLAG(mo);
     RESULT(check(o)); check(o2);
@@ -714,441 +547,6 @@ void test_serialize(void)
   } ENDLOOP;
 }
 
-
-/* ********************************* */
-/*                bound              */
-/* ********************************* */
-
-
-void test_bound_dim(void)
-{
-  printf("\nbound dimension %s\n",num_incomplete?"":"(* expected)");
-  LOOP {
-    int dim = 6;
-    int v = lrand48() % dim;
-    avo_t *o;
-    ap_abstract0_t *p;
-    ap_interval_t *io, *ip;
-    random_poly_avo(dim, .2, &o, &p);
-    io = avo_bound_dimension(mo,o,v); FLAG(mo);
-    ip = ap_abstract0_bound_dimension(mp,p,v); FLAG(mp);
-    RESULT(check(o));
-    if (!avo_sat_interval(mo,o,v,io)) ERROR("not sat avo");
-    FLAG(mo);
-    if (!ap_abstract0_sat_interval(mp,p,v,io)) {
-      ERROR("not sat poly");
-      print_avo("o",o);
-      print_poly("p",p);
-      fprintf(stderr,"dim=%i\n",v);
-      print_interval("io",io);
-      print_interval("ip",ip);
-    }
-    FLAG(mp);
-    if (!ap_interval_cmp(ip,io) &&
-	avo_sat_interval(mo,o,v,ip)) RESULT('*');
-    else if (ap_interval_cmp(ip,io)==-1) RESULT('.');
-    else ERROR("not included in");
-    if (flag==exact && ap_interval_cmp(ip,io)) ERROR("exact flag");
-    if (!avo_is_dimension_unconstrained(mo,o,v) &&
-	ap_abstract0_is_dimension_unconstrained(mp,p,v))
-      ERROR("not unconstrained");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-    ap_interval_free(io); ap_interval_free(ip);
-   } ENDLOOP;
-}
-
-void test_bound_linexpr(exprmode mode)
-{
-  printf("\nbound %slinexpr %s\n",exprname[mode],
-	 num_incomplete?"":(mode<=expr_avo)?"(* expected)":"(*,. expected)");
-  LOOP {
-    int dim = 6;
-    avo_t *o;
-    ap_abstract0_t *p;
-    ap_linexpr0_t *e, *ee;
-    ap_interval_t *io, *ip;
-    random_poly_avo(dim, .2, &o, &p);
-    e  = random_linexpr(mode,dim);
-    ee = random_from_linexpr(e);
-    io = avo_bound_linexpr(mo,o,e); FLAG(mo);
-    ip = ap_abstract0_bound_linexpr(mp,p,ee); FLAG(mp);
-    if (!ap_interval_cmp(ip,io)) RESULT('*');
-    else if (ap_interval_cmp(ip,io)==-1) RESULT('.');
-    else ERROR("not included in");
-    if (flag==exact && ap_interval_cmp(ip,io)) ERROR("exact flag");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-    ap_linexpr0_free(e); ap_linexpr0_free(ee);
-    ap_interval_free(io); ap_interval_free(ip);
-   } ENDLOOP;
-}
-
-void test_bound_texpr(void)
-{
-  printf("\nbound texpr\n");
-  LOOP {
-    int dim = 6;
-    avo_t *o;
-    ap_abstract0_t *p;
-    ap_texpr0_t *e;
-    ap_interval_t *io, *ip;
-    random_poly_avo(dim, .2, &o, &p);
-    e  = random_texpr(dim,3);
-    io = avo_bound_texpr(mo,o,e); FLAG(mo);
-    ip = ap_abstract0_bound_texpr(mp,p,e); FLAG(mp);
-    if (!ap_interval_cmp(ip,io)) RESULT('*');
-    else RESULT('.');
-    if (flag==exact && ap_interval_cmp(ip,io)) ERROR("exact flag");
-    avo_free(mo,o); ap_abstract0_free(mp,p);
-    ap_texpr0_free(e);
-    ap_interval_free(io); ap_interval_free(ip);
-   } ENDLOOP;
-}
-
-
-/* ********************************* */
-/*               meet                */
-/* ********************************* */
-
-void test_meet(void)
-{
-  printf("\nmeet %s\n",num_incomplete ? "" : "(* expected)");
-  LOOP {
-    int dim = 6;
-    avo_t *o1, *o2, *o;
-    ap_abstract0_t *p1, *p2, *p, *pp;
-    random_poly_avo(dim, .2, &o1, &p1);
-    random_poly_avo(dim, .2, &o2, &p2);
-    o  = avo_meet(mo,false,o1,o2); FLAG(mo);
-    p  = ap_abstract0_meet(mp,false,p1,p2); FLAG(mp);
-    pp = poly_of_avo(o);
-    RESULT(check(o)); check(o1); check(o2);
-    if (avo_is_nleq(mo,o,o1) || avo_is_nleq(mo,o,o2)) {
-      ERROR("not lower bound");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
-      print_poly("p",p);
-    }
-    if (!ap_abstract0_is_leq(mp,p,pp)) {
-      ERROR("not poly approx");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
-      print_poly("p",p);
-    }
-    if (ap_abstract0_is_eq(mp,p,pp)) RESULT('*');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p,pp)) ERROR("exact flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,pp); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-  } ENDLOOP;
-  printf("\nmeet top %s\n","(* expected)");
-  LOOP {
-    int dim = 8;
-    avo_t *o1, *o2, *o, *oo;
-    o1 = random_avo(dim,.2);
-    o2 = avo_top(mo,0,dim);
-    o  = avo_meet(mo,false,o1,o2);
-    oo = avo_meet(mo,false,o,o1);
-    check(o1); check(o2); check(o);
-    if (avo_is_neq(mo,o,o1)) {
-      ERROR("not eq #1");
-      print_avo("o1",o1); print_avo("o",o);
-    }
-    else if (avo_is_neq(mo,o,oo)) {
-      ERROR("not eq #2");
-      print_avo("o1",o1); print_avo("o",o); print_avo("oo",oo);
-    }
-    else RESULT('*');
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,oo);
-  } ENDLOOP;
-  printf("\nmeet bot %s\n","(* expected)");
-  LOOP {
-    int dim = 8;
-    avo_t *o1, *o2, *o;
-    o1 = random_avo(dim,.2);
-    o2 = avo_bottom(mo,0,dim);
-    o  = avo_meet(mo,false,o1,o2);
-    check(o1); check(o2); check(o);
-    if (!avo_is_bottom(mo,o)) {
-      ERROR("not bottom");
-      print_avo("o1",o1); print_avo("o",o);
-    }
-    else RESULT('*');
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-  } ENDLOOP;
-}
-
-#define NB_MEET 5
-void test_meet_array(void)
-{
-  printf("\nmeet array %s\n",num_incomplete ? "" : "(* expected)");
-  LOOP {
-    int i, dim = 6;
-    avo_t* o[NB_MEET], *oo;
-    ap_abstract0_t* p[NB_MEET], *pp, *ppp;
-    for (i=0;i<NB_MEET;i++) 
-      random_poly_avo(dim, .2, &o[i], &p[i]);
-    oo = avo_meet_array(mo,o,NB_MEET); FLAG(mo);
-    pp = poly_of_avo(oo);
-    ppp = ap_abstract0_meet_array(mp,p,NB_MEET); 
-    FLAG(mp);
-    RESULT(check(oo));
-    for (i=0;i<NB_MEET;i++)
-      if (avo_is_nleq(mo,oo,o[i])) ERROR("not lower bound");
-    if (!ap_abstract0_is_leq(mp,ppp,pp)) ERROR("not poly approx");
-    if (ap_abstract0_is_eq(mp,ppp,pp)) RESULT('*');
-    if (flag==exact && !ap_abstract0_is_eq(mp,ppp,pp)) ERROR("exact flag");
-    for (i=0;i<NB_MEET;i++) { avo_free(mo,o[i]); ap_abstract0_free(mp,p[i]); }
-    avo_free(mo,oo); ap_abstract0_free(mp,pp); ap_abstract0_free(mp,ppp);
-  } ENDLOOP;
-}
-
-void test_add_lincons(exprmode mode)
-{
-  printf("\nadd %slincons %s\n",exprname[mode],
-	 num_incomplete?"":(mode<=expr_avo)?"(* expected)":"(*,x,. expected)");
-  LOOP {
-    size_t i, dim = 6, nb = 4;
-    avo_t *o, *o1, *o2;
-    ap_abstract0_t *p, *p1, *p2;
-    ap_lincons0_array_t ar = ap_lincons0_array_make(nb);
-    ap_lincons0_array_t arr = ap_lincons0_array_make(nb);
-    random_poly_avo(dim, .2, &o, &p);
-    if (lrand48()%10>=8) avo_close(pr,o);
-    for (i=0;i<nb;i++) {
-      ar.p[i] = ap_lincons0_make((lrand48()%100>=80)?AP_CONS_EQ:
-				 (lrand48()%100>=80)?AP_CONS_SUP:
-				 AP_CONS_SUPEQ,
-				 random_linexpr(mode,dim),
-				 NULL);
-      arr.p[i] = random_from_lincons(ar.p[i]);
-    }
-    o1 = avo_meet_lincons_array(mo,false,o,&ar); FLAG(mo);
-    p1 = ap_abstract0_meet_lincons_array(mp,false,p,&arr); FLAG(mp);
-    p2 = poly_of_avo(o1);
-    o2 = avo_of_poly(p1);
-    check(o); RESULT(check(o1));
-    if (!ap_abstract0_is_leq(mp,p1,p2)) {
-      ERROR("not included in");
-      ap_lincons0_array_fprint(stderr,&ar,NULL);
-      print_poly("p",p); print_poly("p1",p1); print_poly("p2",p2);
-      print_avo("o",o); print_avo("o1",o1); print_avo("o2",o2);
-    }
-    if (ap_abstract0_is_eq(mp,p1,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o1,o2)) RESULT('x');
-    if (flag>=best && !ap_abstract0_is_eq(mp,p1,p2)) ERROR("best flag");
-    if (flag==exact && avo_is_neq(mo,o1,o2)) ERROR("exact flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-    ap_lincons0_array_clear(&ar); ap_lincons0_array_clear(&arr);
-   } ENDLOOP;
-}
-
-
-/* ********************************* */
-/*          saturation               */
-/* ********************************* */
-
-void test_sat_lincons(exprmode mode)
-{
-  printf("\nsaturate %slincons %s\n",exprname[mode],
-	 num_incomplete?"":(mode<=expr_avo)?"(* expected)":"(*,. expected)");
-  LOOP {
-    size_t dim = 6;
-    avo_t *o, *o1;
-    ap_abstract0_t* p;
-    ap_lincons0_t l, ll;
-    ap_lincons0_array_t ar = ap_lincons0_array_make(1);
-    bool ro,ro1,rp;
-    random_poly_avo(dim, .1, &o, &p);
-    l = ap_lincons0_make((lrand48()%100>=90)?AP_CONS_EQ: AP_CONS_SUPEQ,
-			 random_linexpr(mode,dim),
-			 NULL);
-    ll = random_from_lincons(l);
-    ar.p[0] = l;
-    o1 = avo_meet_lincons_array(mo,false,o,&ar); FLAG(mo);
-    RESULT(check(o1));
-    ro  = avo_sat_lincons(mo,o,&l); FLAG(mo);
-    ro1 = avo_sat_lincons(mo,o1,&l); FLAG(mo);
-    rp  = ap_abstract0_sat_lincons(mp,p,&ll); FLAG(mp);   
-    if (!ro1 && flag==exact) {
-      ERROR("not sat #1");
-      ap_lincons0_fprint(stderr,&l,NULL);
-      fprintf(stderr,"\n");
-      print_avo("o1",o1);
-    }
-    else if (ro && !ro1) {
-      ERROR("not sat #2");
-      ap_lincons0_fprint(stderr,&l,NULL);
-      fprintf(stderr,"\n");
-      print_avo("o",o);
-      print_avo("o1",o1);
-    }
-    else if (ro && !rp) {
-      ERROR("sat avo =/=> sat poly");
-      ap_lincons0_fprint(stderr,&l,NULL);
-      fprintf(stderr,"\nsat avo = %s\nsat poly = %s\n",
-	      ro ? "T" : "F", rp ? "T" : "F" );
-      print_avo("o",o);
-    }
-    else if (ro==rp) RESULT('*');
-    else RESULT('.');
-    if (flag==exact && ro!=rp) ERROR("exact flag");
-    avo_free(mo,o); avo_free(mo,o1); ap_abstract0_free(mp,p);
-    ap_lincons0_array_clear(&ar); ap_lincons0_clear(&ll);
-  } ENDLOOP;
-}
-
-
-
-/* ********************************* */
-/*               join                */
-/* ********************************* */
-
-void test_join(void)
-{
-  printf("\njoin %s\n",num_incomplete?"":"(*,x expected)");
-  LOOP {
-    int dim = 6;
-    avo_t *o1, *o2, *o3, *o;
-    ap_abstract0_t *p1, *p2, *p, *pp;
-    random_poly_avo(dim, .1, &o1, &p1);
-    random_poly_avo(dim, .1, &o2, &p2);
-    o  = avo_join(mo,false,o1,o2); FLAG(mo);
-    p  = ap_abstract0_join(mp,false,p1,p2); FLAG(mp);
-    pp = poly_of_avo(o);
-    o3 = avo_of_poly(p);
-    RESULT(check(o)); check(o1); check(o2);
-    if (avo_is_nleq(mo,o1,o) || avo_is_nleq(mo,o2,o)) {
-      ERROR("not upper bound");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
-      print_poly("p",p);
-    }
-    if (!ap_abstract0_is_leq(mp,p,pp)) {
-      ERROR("not poly approx");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
-      print_poly("p1",p1); print_poly("p2",p2); print_poly("p",p);
-    }
-    if (ap_abstract0_is_eq(mp,p,pp)) RESULT('*');
-    else if (avo_is_eq(mo,o,o3)) RESULT('x');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p,pp)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,o,o3)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,pp); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-  } ENDLOOP;
-  printf("\njoin bot %s\n",num_incomplete?"":"(* expected)");
-  LOOP {
-    int dim = 8;
-    avo_t *o1, *o2, *o, *oo;
-    o1 = random_avo(dim,.2);
-    o2 = avo_bottom(mo,0,dim);
-    o  = avo_join(mo,false,o1,o2);
-    oo = avo_join(mo,false,o,o1);
-    RESULT(check(o1)); check(o2); check(o);
-    if (avo_is_neq(mo,o,o1)) {
-      ERROR("not eq #1");
-      print_avo("o1",o1); print_avo("o",o);
-    }
-    else if (avo_is_neq(mo,o,oo)) {
-      ERROR("not eq #2");
-      print_avo("o1",o1); print_avo("o",o); print_avo("oo",oo);
-    }
-    else RESULT('*');
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,oo);
-  } ENDLOOP;
-  printf("\njoin top %s\n",num_incomplete?"":"(* expected)");
-  LOOP {
-    int dim = 8;
-    avo_t *o1, *o2, *o;
-    o1 = random_avo(dim,.2);
-    o2 = avo_top(mo,0,dim);
-    o  = avo_join(mo,false,o1,o2);
-    RESULT(check(o1)); check(o2); check(o);
-    if (!avo_is_top(mo,o)) {
-      ERROR("not top");
-      print_avo("o1",o1); print_avo("o",o);
-    }
-    else RESULT('*');
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-  } ENDLOOP;
-}
-
-#define NB_JOIN 7
-void test_join_array(void)
-{
-  printf("\njoin array %s\n",num_incomplete?"":"(x,* expected)");
-  LOOP {
-    int i, dim = 6;
-    avo_t* o[NB_JOIN], *oo, *ooo;
-    ap_abstract0_t* p[NB_JOIN], *pp, *ppp, *ps;
-    for (i=0;i<NB_JOIN;i++) 
-      random_poly_avo(dim, .1, &o[i], &p[i]);
-    oo = avo_join_array(mo,o,NB_JOIN); FLAG(mo);
-    pp = poly_of_avo(oo);
-    ppp = ap_abstract0_join_array(mp,p,NB_JOIN); 
-    FLAG(mp);
-    ps = ap_abstract0_join(mp,false,p[0],p[1]);
-    for (i=2;i<NB_JOIN;i++) ps = ap_abstract0_join(mp,true,ps,p[i]);
-    ooo = avo_of_poly(ps);
-    RESULT(check(oo));
-    for (i=0;i<NB_JOIN;i++)
-      if (avo_is_nleq(mo,o[i],oo)) ERROR("not upper bound");
-    if (!ap_abstract0_is_leq(mp,ppp,pp)) {
-      ERROR("not poly approx");
-      for (i=0;i<NB_JOIN;i++) 
-	{ char n[3] = { 'o', '0'+i, 0 }; print_avo(n,o[i]); }
-      for (i=0;i<NB_JOIN;i++) 
-	{ char n[3] = { 'p', '0'+i, 0 }; print_poly(n,p[i]); }
-      print_poly("pp",pp);
-      print_poly("ppp",ppp);
-    }
-    if (ap_abstract0_is_eq(mp,ppp,pp)) RESULT('*');
-    else if (avo_is_eq(mo,oo,ooo)) RESULT('x');
-    if (flag==exact && !ap_abstract0_is_eq(mp,ppp,pp)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,oo,ooo)) ERROR("best flag");
-    if (!ap_abstract0_is_eq(mp,ppp,ps)) {
-      ERROR("poly_join_array not equivalent to poly_join");
-      for (i=0;i<NB_JOIN;i++) 
-	{ char n[3] = { 'p', '0'+i, 0 }; print_poly(n,p[i]); }
-      print_poly("ppp",ppp);
-      print_poly("ps",ps);
-    }
-    for (i=0;i<NB_JOIN;i++) { avo_free(mo,o[i]); ap_abstract0_free(mp,p[i]); }
-    avo_free(mo,oo); avo_free(mo,ooo);
-    ap_abstract0_free(mp,pp); ap_abstract0_free(mp,ppp); ap_abstract0_free(mp,ps);
-  } ENDLOOP;
-}
-
-void test_add_ray(void)
-{
-  printf("\nadd rays %s\n",num_incomplete?"":"(*,x expected)");
-  LOOP {
-    size_t i, dim = 2, nb = 1;
-    avo_t *o, *o1, *o2;
-    ap_abstract0_t *p, *p1, *p2;
-    ap_generator0_array_t ar = ap_generator0_array_make(nb);
-    random_poly_avo(dim, .1, &o, &p);
-    if (lrand48()%10>=8) avo_close(pr,o);
-    for (i=0;i<nb;i++)
-      ar.p[i] = random_generator(dim,
-				 (lrand48()%100>=80)?AP_GEN_LINE:AP_GEN_RAY);
-    o1 = avo_add_ray_array(mo,false,o,&ar); FLAG(mo);
-    p1 = ap_abstract0_add_ray_array(mp,false,p,&ar); FLAG(mp);
-    p2 = poly_of_avo(o1);
-    o2 = avo_of_poly(p1);
-    check(o); RESULT(check(o1));
-    if (!ap_abstract0_is_leq(mp,p1,p2)) {
-      ERROR("not included in");
-      ap_generator0_array_fprint(stderr,&ar,NULL);
-      print_poly("p",p); print_poly("p1",p1); print_poly("p2",p2);
-    }
-    if (ap_abstract0_is_eq(mp,p1,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o1,o2)) RESULT('x');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p1,p2)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,o1,o2)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-    ap_generator0_array_clear(&ar);
-   } ENDLOOP;
-}
-
-
 /* ********************************* */
 /*     dimension manipulation        */
 /* ********************************* */
@@ -1163,6 +561,7 @@ void test_dimadd(void)
     ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
     o1 = random_avo(dim,.1);
     if (lrand48()%10>=8) avo_close(pr,o1);
+    if(!o1->m && !o1->closed) { RESULT('o'); continue; } /* empty avo after avo_close() */
     for (i=0;i<a->realdim;i++) {
       a->dim[i] = lrand48()%3;
       if (i) a->dim[i] += a->dim[i-1];
@@ -1184,6 +583,35 @@ void test_dimadd(void)
 void test_dimrem(void)
 {
   printf("\nremove dimensions, forget\n");
+
+  /*
+  size_t i, dim = 4;
+   avo_t *o1, *o2, *o3 ,*o4;
+   ap_dimchange_t* a = ap_dimchange_alloc(0,1);
+   ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
+   o1 = random_avo(dim,.01);
+   if (true) avo_close(pr,o1);
+   if(!o1->m && !o1->closed) { RESULT('o'); return; } // empty avo after avo_close()
+   for (i=0;i<r->realdim;i++) {
+     r->dim[i] = lrand48()%3 + 1;
+     //if (i) r->dim[i] += r->dim[i-1];
+     a->dim[i] = r->dim[i]-i;
+   }
+   o2 = avo_remove_dimensions(mo,false,o1,r);
+   o3 = avo_add_dimensions(mo,false,o2,a,false);
+   o4 = avo_forget_array(mo,false,o1,r->dim,r->realdim,false);
+   RESULT(check(o1)); check(o2); check(o3); check(o4);
+
+
+   if (avo_is_neq(mo,o3,o4)) {
+     ERROR("not eq");
+     ap_dimchange_fprint(stderr,r); ap_dimchange_fprint(stderr,a);
+     print_avo("o1",o1); print_avo("o2",o2);
+     print_avo("o3",o3); print_avo("o4",o4);
+   }
+   avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3); avo_free(mo,o4);
+   ap_dimchange_free(a); ap_dimchange_free(r); */
+
   LOOP {
     size_t i, dim = 15;
     avo_t *o1, *o2, *o3 ,*o4;
@@ -1191,6 +619,7 @@ void test_dimrem(void)
     ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
     o1 = random_avo(dim,.01);
     if (lrand48()%10>=8) avo_close(pr,o1);
+    if(!o1->m && !o1->closed) { RESULT('o'); continue; } // empty avo after avo_close()
     for (i=0;i<r->realdim;i++) {
       r->dim[i] = lrand48()%3 + 1;
       if (i) r->dim[i] += r->dim[i-1];
@@ -1222,6 +651,7 @@ void test_permute(void)
     ap_dimperm_t* q = ap_dimperm_alloc(dim);
     o1 = random_avo(dim,.1);
     if (lrand48()%10>=8) avo_close(pr,o1);
+    if(!o1->m && !o1->closed) { RESULT('o'); continue; } /* empty avo after avo_close() */
 
     /* random permutation */
     ap_dimperm_set_id(p);
@@ -1245,70 +675,6 @@ void test_permute(void)
   } ENDLOOP;
 }
 
-void test_expand(void)
-{
-  printf("\nexpand dimensions\n");
-  LOOP {
-    size_t dim = 5;
-    ap_dim_t d = lrand48() % dim;
-    ap_dim_t dd[] = { d, dim, dim+1 };
-    size_t n = (lrand48() % 2) + 1;
-    avo_t *o1, *o2, *o3;
-    ap_abstract0_t *p1, *p2, *p3;
-    random_poly_avo(dim, .1, &o1, &p1);
-    o2 = avo_expand(mo,false,o1,d,n); FLAG(mo);
-    o3 = avo_fold(mo,false,o2,dd,n+1); FLAG(mo);
-    p2 = ap_abstract0_expand(mp,false,p1,d,n); FLAG(mp);
-    p3 = poly_of_avo(o2);
-    RESULT(check(o1)); check(o2); check(o3); check(o3);
-    if (flag>=best && avo_is_neq(mo,o1,o3)) {
-      ERROR("not eq");
-      fprintf(stderr,"dim %i expanded %i times\n",(int)d,(int)n);
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o3",o3);
-    }
-    if (!ap_abstract0_is_leq(mp,p2,p3)) {
-      ERROR("not leq");
-      fprintf(stderr,"dim %i expanded %i times\n",(int)d,(int)n);
-      print_avo("o1",o1); print_avo("o2",o2);
-      print_poly("p1",p1); print_poly("p2",p2); print_poly("p3",p3);
-    }
-    if (ap_abstract0_is_eq(mp,p2,p3)) RESULT('*');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p2,p3)) ERROR("exact flag");
-    avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3);
-    ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2); ap_abstract0_free(mp,p3);
-  } ENDLOOP;
-}
-
-void test_fold(void)
-{
-  printf("\nfold dimensions\n");
-  LOOP {
-    size_t dim = 6, i;
-    ap_dim_t dd[3];
-    avo_t *o1, *o2;
-    ap_abstract0_t *p1, *p2, *p3;
-    random_poly_avo(dim, .1, &o1, &p1);
-    dd[0] = lrand48() % (dim-3);
-    dd[1] = dd[0] + 1 + (lrand48() % (dim-2-dd[0]));
-    dd[2] = dd[1] + 1 + (lrand48() % (dim-1-dd[1]));
-    o2 = avo_fold(mo,false,o1,dd,3); FLAG(mo);
-    p2 = ap_abstract0_fold(mp,false,p1,dd,3); FLAG(mp);
-    p3 = poly_of_avo(o2);
-    RESULT(check(o1)); check(o2);
-    if (!ap_abstract0_is_leq(mp,p2,p3)) {
-      ERROR("not leq");
-      fprintf(stderr,"fold %i,%i,%i\n",(int)dd[0],(int)dd[1],(int)dd[2]);
-      print_avo("o1",o1); print_avo("o2",o2);
-      print_poly("p1",p1); print_poly("p2",p2); print_poly("p3",p3);
-    }
-    if (ap_abstract0_is_eq(mp,p2,p3)) RESULT('*');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p2,p3)) ERROR("exact flag");
-    avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2); ap_abstract0_free(mp,p3);
-  } ENDLOOP;
-}
-
-
 /* ********************************* */
 /*             widening              */
 /* ********************************* */
@@ -1331,7 +697,7 @@ void test_widening(void)
   } ENDLOOP;
   printf("\nwidening convergence\n");
   LOOP {
-    int dim = 5, nb = 4*dim*dim;
+    int dim = 5, nb = (4*dim)*(4*dim);
     avo_t *o1 = random_avo(dim,.1);
     for (;nb>0;nb--) {
       avo_t* o2 = random_avo(dim,.1);
@@ -1393,6 +759,28 @@ void test_widening_thrs(void)
 void test_narrowing(void)
 {
   printf("\nnarrowing\n");
+/*
+  int dim = 2;//8;
+  avo_t *o1, *o2, *o, *oo;
+  o1 = random_avo(dim,.01);
+  o2 = random_avo(dim,.01);
+  o  = avo_narrowing(mo,o1,o2);
+  oo = avo_meet(mo,false,o1,o2);
+  RESULT(check(o));
+  if (avo_is_nleq(mo,o,o1)  ) {
+    ERROR("not decreasing 1");
+    print_avo("o1",o1); print_avo("o2",o2);
+    print_avo("o",o); print_avo("oo",oo);
+  }
+  if (  avo_is_nleq(mo,oo,o)) {
+    ERROR("not decreasing 2");
+    print_avo("o1",o1); print_avo("o2",o2);
+    print_avo("o",o); print_avo("oo",oo);
+  }
+
+  avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o); avo_free(mo,oo);
+*/
+
   LOOP {
     int dim = 8;
     avo_t *o1, *o2, *o, *oo;
@@ -1410,7 +798,7 @@ void test_narrowing(void)
   } ENDLOOP;
   printf("\nwidening narrowing\n");
   LOOP {
-    int dim = 5, nb = 4*dim*dim;
+    int dim = 5, nb = (4*dim)*(4*dim);
     avo_t *o1 = random_avo(dim,.03);
     for (;nb>0;nb--) {
       avo_t* o2 = random_avo(dim,.03);
@@ -1425,106 +813,9 @@ void test_narrowing(void)
   } ENDLOOP;
 }
 
-
 /* ********************************* */
 /*     assignments / substitutions   */
 /* ********************************* */
-
-void test_assign(int subst, exprmode mode)
-{
-  printf("\n%s %slinexpr %s\n", subst ? "subst" : "assign", exprname[mode],
-	 num_incomplete?"":mode==expr_unary ? "(* expected)" : "");
-  LOOP {
-    size_t dim = 6;
-    ap_dim_t d = lrand48()%dim;
-    avo_t *o, *o1, *o2;
-    ap_abstract0_t *p, *p1, *p2;
-    ap_linexpr0_t* l = random_linexpr(mode,dim);
-    ap_linexpr0_t* ll = random_from_linexpr(l);
-    random_poly_avo(dim, .1, &o, &p);
-    if (lrand48()%10>=5) avo_close(pr,o);
-    o1 = subst ? avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) : avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);
-    FLAG(mo);
-    p1 = subst ? ap_abstract0_substitute_linexpr(mp,false,p,d,ll,NULL) : ap_abstract0_assign_linexpr(mp,false,p,d,ll,NULL);;
-    FLAG(mp);
-    p2 = poly_of_avo(o1);
-    o2 = avo_of_poly(p1);
-    RESULT(check(o1));
-    if (!ap_abstract0_is_leq(mp,p1,p2)) {
-      ERROR("not included in");
-      fprintf(stderr,"x%i %s ",(int)d,subst?"->":"<-");
-      ap_linexpr0_fprint(stderr,l,NULL);
-      fprintf(stderr," / ");
-      ap_linexpr0_fprint(stderr,ll,NULL);
-      fprintf(stderr,"\n");
-      print_poly("p",p);
-      print_poly("p1",p1);
-      print_poly("p2",p2);
-    }
-    if (ap_abstract0_is_eq(mp,p1,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o1,o2)) RESULT('x');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p1,p2)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,o1,o2)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-    ap_linexpr0_free(l); ap_linexpr0_free(ll);
-  } ENDLOOP;
-}
-
-#define NB_ASSIGN 3
-
-void test_par_assign(int subst, exprmode mode)
-{
-  printf("\nparallel %s %slinexpr %s\n",subst ? "subst" : "assign",
-	 num_incomplete?"":exprname[mode],mode==expr_unary ? "(* expected)" : "");
-  LOOP {
-    size_t dim = 6, i, j, k;
-    ap_dim_t d[NB_ASSIGN];
-    avo_t *o, *o1, *o2;
-    ap_abstract0_t *p, *p1, *p2;
-    ap_linexpr0_t *l[NB_ASSIGN], *ll[NB_ASSIGN];
-    random_poly_avo(dim, .1, &o, &p);
-    for (i=0;i<NB_ASSIGN;i++) {
-      l[i]  = random_linexpr(mode,dim);
-      ll[i] = random_from_linexpr(l[i]);
-      if (!i) d[i] = lrand48()%(dim-NB_ASSIGN);
-      else d[i] = d[i-1] + 1 + (lrand48()%(dim-NB_ASSIGN+i-d[i-1]));
-    }
-    if (lrand48()%10>=8) avo_close(pr,o);
-    o1 = subst ? 
-      avo_substitute_linexpr_array(mo,false,o,d,l,NB_ASSIGN,NULL) :
-      avo_assign_linexpr_array(mo,false,o,d,l,NB_ASSIGN,NULL);
-    FLAG(mo);
-    p1 = subst ? 
-      ap_abstract0_substitute_linexpr_array(mp,false,p,d,ll,NB_ASSIGN,NULL) : 
-      ap_abstract0_assign_linexpr_array(mp,false,p,d,ll,NB_ASSIGN,NULL);
-    FLAG(mp);
-    p2 = poly_of_avo(o1);
-    o2 = avo_of_poly(p1);
-    RESULT(check(o1));
-    if (!ap_abstract0_is_leq(mp,p1,p2)) {
-      ERROR("not included in");
-      for (i=0;i<NB_ASSIGN;i++) {
-	fprintf(stderr,"x%i %s ",(int)d[i],subst?"->":"<-");
-	ap_linexpr0_fprint(stderr,l[i],NULL);
-	fprintf(stderr," / ");
-	ap_linexpr0_fprint(stderr,ll[i],NULL);
-	fprintf(stderr,"\n");
-      }
-      print_poly("p",p);
-      print_poly("p1",p1);
-      print_poly("p2",p2);
-    }
-    else if (ap_abstract0_is_eq(mp,p1,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o1,o2)) RESULT('x');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p1,p2)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,o1,o2)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-    for (i=0;i<NB_ASSIGN;i++) 
-      { ap_linexpr0_free(l[i]); ap_linexpr0_free(ll[i]); }
-  } ENDLOOP;
-}
 
 void test_par_assign2(int subst, exprmode mode)
 {
@@ -1537,11 +828,14 @@ void test_par_assign2(int subst, exprmode mode)
     ap_linexpr0_t* l = random_linexpr(mode,dim);
     o = random_avo(dim,.1);
     if (lrand48()%10>=8) avo_close(pr,o);
-    o1 = subst ? avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) : avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);
+    if(!o->m && !o->closed) { RESULT('o'); continue; } /* empty avo after avo_close() */
+    o1 = subst ?
+    		avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) :
+    		avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);
     FLAG(mo);
     o2 = subst ? 
-      avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) :
-      avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);
+    		avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) :
+    		avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);
     FLAG(mo);
     check(o1); check(o2);
     if (avo_is_eq(mo,o1,o2)) RESULT('=');
@@ -1554,37 +848,6 @@ void test_par_assign2(int subst, exprmode mode)
   } ENDLOOP;
 }
 
-
-void test_assign_texpr(int subst)
-{
-  printf("\n%s texpr\n", subst ? "subst" : "assign");
-  LOOP {
-    size_t dim = 5;
-    ap_dim_t d = lrand48()%dim;
-    avo_t *o, *o1, *o2;
-    ap_abstract0_t *p, *p1, *p2;
-    ap_texpr0_t* e = random_texpr(dim,3);
-    random_poly_avo(dim, .1, &o, &p);
-    if (lrand48()%10>=5) avo_close(pr,o);
-    o1 = subst ? avo_substitute_texpr_array(mo,false,o,&d,&e,1,NULL) : avo_assign_texpr_array(mo,false,o,&d,&e,1,NULL);
-    FLAG(mo);
-    p1 = subst ? ap_abstract0_substitute_texpr_array(mp,false,p,&d,&e,1,NULL) : ap_abstract0_assign_texpr_array(mp,false,p,&d,&e,1,NULL);;
-    FLAG(mp);
-    p2 = poly_of_avo(o1);
-    o2 = avo_of_poly(p1);
-    RESULT(check(o1));
-    if (ap_abstract0_is_eq(mp,p1,p2)) RESULT('*');
-    else if (avo_is_eq(mo,o1,o2)) RESULT('x');
-    else RESULT('.');
-    if (flag==exact && !ap_abstract0_is_eq(mp,p1,p2)) ERROR("exact flag");
-    if (flag>=best && avo_is_neq(mo,o1,o2)) ERROR("best flag");
-    avo_free(mo,o); avo_free(mo,o1); avo_free(mo,o2);
-    ap_abstract0_free(mp,p); ap_abstract0_free(mp,p1); ap_abstract0_free(mp,p2);
-    ap_texpr0_free(e);
-  } ENDLOOP;
-}
-
-
 /* ********************************* */
 /*           main                    */
 /* ********************************* */
@@ -1594,7 +857,6 @@ void tests(int algo)
   int i;
   for (i=0;i<AP_FUNID_SIZE;i++) {
     mo->option.funopt[i].algorithm = algo;
-    mp->option.funopt[i].algorithm = algo;
   }
   printf("\nstarting tests with algo=%i\n",algo);
   /* tests */
@@ -1602,57 +864,19 @@ void tests(int algo)
   test_serialize();
   test_closure();
   test_incremental_closure();
-  test_polyhedra_conversion();
-  test_polyhedra_conversion2(); /* poly_check: F not normalized */
-  test_lincons_conversion(expr_avo);
-  test_lincons_conversion(expr_lin);
-  test_lincons_conversion(expr_interv);
-  test_generator_conversion();
   test_box_conversion();
-  test_bound_dim();
-  test_bound_linexpr(expr_avo);
-  test_bound_linexpr(expr_lin);
-  test_bound_linexpr(expr_interv);
-  test_bound_texpr();
-  test_meet();
-  test_meet_array();
-  test_join();
-  test_join_array();
-  test_add_ray();
-  test_add_lincons(expr_avo);
-  test_add_lincons(expr_lin);
-  test_add_lincons(expr_interv);
-  test_sat_lincons(expr_avo);
-  test_sat_lincons(expr_lin);
-  test_sat_lincons(expr_interv);
   test_dimadd();
   test_dimrem();
   test_permute();
-  test_expand();
-  test_fold();
   test_widening();
   test_widening_thrs();
   test_narrowing();
-  test_assign(0,expr_unary);
-  test_assign(0,expr_lin);
-  test_assign(0,expr_interv);
-  test_par_assign(0,expr_unary);
-  test_par_assign(0,expr_lin);
-  test_par_assign(0,expr_interv);
   test_par_assign2(0,expr_unary);
   test_par_assign2(0,expr_lin);
   test_par_assign2(0,expr_interv);
-  test_assign(1,expr_unary);
-  test_assign(1,expr_lin);
-  test_assign(1,expr_interv);
-  test_par_assign(1,expr_unary);
-  test_par_assign(1,expr_lin);
-  test_par_assign(1,expr_interv);
   test_par_assign2(1,expr_unary);
   test_par_assign2(1,expr_lin);
   test_par_assign2(1,expr_interv);
-  test_assign_texpr(0);
-  test_assign_texpr(1);
 }
 
 int main(int argc, const char** argv)
@@ -1672,23 +896,15 @@ int main(int argc, const char** argv)
   /* init */
   srand48(seed);
   mo = avo_manager_alloc();
-  mp = pk_manager_alloc(false);
-  if (!mo || !mp) return 1;
-  assert(mp);
+  if (!mo) return 1;
   for (i=0;i<AP_FUNID_SIZE;i++) {
     mo->option.funopt[i].flag_exact_wanted = true;
     mo->option.funopt[i].flag_best_wanted = true;
-    mp->option.funopt[i].flag_exact_wanted = true;
-    mp->option.funopt[i].flag_best_wanted = true;
   }
   for (i=0;i<AP_EXC_SIZE;i++){
     mo->option.abort_if_exception[i] = true;
-    mp->option.abort_if_exception[i] = true;
   }
   pr = avo_init_from_manager(mo,0,0);
-  pk = pk_manager_get_internal(mp);
-  pk_set_max_coeff_size(pk,0);
-  pk_set_approximate_max_coeff_size(pk,0);
   info();
 
   tests(0);
@@ -1696,7 +912,6 @@ int main(int argc, const char** argv)
 
   /* quit */
   ap_manager_free(mo);
-  ap_manager_free(mp);
   if (error_) printf("\n%i error(s)!\n",error_);
   else printf("\nall tests passed\n");
   return 0;

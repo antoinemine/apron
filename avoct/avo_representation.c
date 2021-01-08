@@ -6,7 +6,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -18,12 +18,13 @@
 #include "avo_internal.h"
 #include "ap_generic.h"
 
+extern tighten_nsc(bound_t* m, bound_t* nsc, size_t dim);
 
 /* ============================================================ */
 /* Memory Related */
 /* ============================================================ */
 
-/* generic allocation routine, returns a bottom avoagon */
+/* generic allocation routine, returns a bottom avOctagon */
 inline avo_t* avo_alloc_internal(avo_internal_t* pr, size_t dim, size_t intdim)
 {
   avo_t* r;
@@ -61,88 +62,52 @@ inline avo_t* avo_copy_internal(avo_internal_t* pr, avo_t* a)
 
 avo_t* avo_copy(ap_manager_t* man, avo_t* a)
 {
-//	fprintf(stdout, "AP_FUNID_COPY\n"); fflush(stdout);
+  //fprintf(stdout, "AP_FUNID_COPY\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_COPY,0);
   return avo_copy_internal(pr,a);
 }
 
 void avo_free(ap_manager_t* man, avo_t* a)
 {
-//	fprintf(stdout, "AP_FUNID_FREE\n"); fflush(stdout);
-
+  //fprintf(stdout, "AP_FUNID_FREE\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_FREE,0);
   avo_free_internal(pr,a);
 }
 
 size_t avo_size(ap_manager_t* man, avo_t* a)
 {
-//	fprintf(stdout, "AP_FUNID_ASIZE\n"); fflush(stdout);
+  //fprintf(stdout, "AP_FUNID_ASIZE\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_ASIZE,0);
   if (!a->m) return 1;
   return avo_matsize(a->dim);
 }
 
-/* If destructive, returns a with fields m and closed updated
-   (former fields of a, if not reused in m or closed, are destroyed).
-   If not destructive, returns a new avoagon with same dimensions as a
-   and m and closed as half-matrices.
-   m and closed can safely alias fields in a
- */
-avo_t* avo_set_mat(avo_internal_t* pr, avo_t* a, bound_t* m, bound_t* closed,
-		   bool destructive)
-{
-  avo_t* r;
-  if (destructive) {
-
-    /* free non-aliased matrices */
-    if (a->m && a->m!=m && a->m!=closed)
-      avo_hmat_free(pr,a->m,a->dim);
-    if (a->closed && a->closed!=m && a->closed!=closed)
-      avo_hmat_free(pr,a->closed,a->dim);
-      r = a;
-  }
-  else {
-    /* copy aliased matrices */
-
-    r = avo_alloc_internal(pr,a->dim,a->intdim);
-    if (m && (a->m==m || a->closed==m)) m = avo_hmat_copy(pr,m,a->dim);
-    if (closed && (a->m==closed || a->closed==closed))
-      closed = avo_hmat_copy(pr,closed,a->dim);
-  }
-  r->m = m;
-  r->closed = closed;
-
-  return r;
-}
 avo_t* avo_set_mat_nsc(avo_internal_t* pr, avo_t* a, bound_t* m, bound_t* closed,bound_t * nsc,
 		   bool destructive)
 {
   avo_t* r;
   if (destructive) {
-
     /* free non-aliased matrices */
     if (a->m && a->m!=m && a->m!=closed)
       avo_hmat_free(pr,a->m,a->dim);
     if (a->closed && a->closed!=m && a->closed!=closed)
       avo_hmat_free(pr,a->closed,a->dim);
-    if(a->nsc && a->nsc!=m && a->nsc!= closed && a->nsc != nsc)
+    if(a->nsc && a->nsc != nsc)
     	 avo_hmat_free(pr,a->nsc,a->dim);
     r = a;
   }
   else {
     /* copy aliased matrices */
-
     r = avo_alloc_internal(pr,a->dim,a->intdim);
     if (m && (a->m==m || a->closed==m)) m = avo_hmat_copy(pr,m,a->dim);
     if (closed && (a->m==closed || a->closed==closed))
-      closed = avo_hmat_copy(pr,closed,a->dim);
-    if (nsc && (a->nsc==closed || a->nsc==closed||a->nsc == nsc))
+        closed = avo_hmat_copy(pr,closed,a->dim);
+    if (nsc && (a->nsc == nsc))
         nsc = avo_hmat_copy(pr,nsc,a->dim);
   }
   r->nsc = nsc;
   r->m = m;
   r->closed = closed;
-
   return r;
 }
 
@@ -154,7 +119,6 @@ avo_t* avo_set_mat_nsc(avo_internal_t* pr, avo_t* a, bound_t* m, bound_t* closed
 avo_t* avo_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 {
 	// fprintf(stdout, "AP_FUNID_BOTTOM\n"); fflush(stdout);
-
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_BOTTOM,0);
   avo_t* r = avo_alloc_internal(pr,intdim+realdim,intdim);
   return r;
@@ -163,7 +127,6 @@ avo_t* avo_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 avo_t* avo_top(ap_manager_t* man, size_t intdim, size_t realdim)
 {
 	//fprintf(stdout, "AP_FUNID_TOP\n"); fflush(stdout);
-
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TOP,0);
   avo_t* r = avo_alloc_internal(pr,intdim+realdim,intdim);
   r->closed = avo_hmat_alloc_top(pr,r->dim);
@@ -175,7 +138,6 @@ avo_t* avo_of_box(ap_manager_t* man, size_t intdim, size_t realdim,
 		  ap_interval_t ** t)
 {
 	//fprintf(stdout, "AP_FUNID_OF_BOX\n"); fflush(stdout);
-
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_OF_BOX,0);
   avo_t* r = avo_alloc_internal(pr,intdim+realdim,intdim);
   size_t i,j,n2;
@@ -183,6 +145,8 @@ avo_t* avo_of_box(ap_manager_t* man, size_t intdim, size_t realdim,
   for (i=0;i<r->dim;i++)
     if (ap_scalar_cmp(t[i]->inf,t[i]->sup)>0) return r; /* empty */
   r->closed = avo_hmat_alloc_top(pr,r->dim);
+  r->nsc = avo_hmat_alloc_top_nsc(pr,r->dim);
+
   for (i=0;i<r->dim;i++)
     if (avo_bounds_of_interval(pr,
 			   r->closed[avo_matpos(2*i,2*i+1)],
@@ -190,18 +154,24 @@ avo_t* avo_of_box(ap_manager_t* man, size_t intdim, size_t realdim,
 			   t[i],true)) {
       /* one interval is empty -> the result is empty */
       avo_hmat_free(pr,r->closed,r->dim);
+      avo_hmat_free(pr,r->nsc,r->dim);
       r->closed = NULL;
+      r->nsc = NULL;
       return r;
     }
-  /* a S step is sufficient to ensure clsoure */
-  if (avo_hmat_s_step(r->closed,r->dim)){
+  /* tighten + a S step is sufficient to ensure clsoure */
+  tighten_nsc(r->closed,r->nsc,r->dim);
+  if (avo_hmat_s_step(r->closed,r->nsc,r->dim)){
     /* definitively empty */
     avo_hmat_free(pr,r->closed,r->dim);
+    avo_hmat_free(pr,r->nsc,r->dim);
     r->closed = NULL;
+    r->nsc = NULL;
   }
 
   /* exact, except for conversion errors */
   if (pr->conv) flag_conv;
+
   return r;
 }
 
@@ -209,8 +179,7 @@ avo_t* avo_of_generator_array(ap_manager_t* man,
 			      size_t intdim, size_t realdim,
 			      ap_generator0_array_t* ar)
 {
-//	fprintf(stdout, "AP_FUNID_ADD_RAY_ARRAY\n"); fflush(stdout);
-
+  // fprintf(stdout, "AP_FUNID_ADD_RAY_ARRAY\n"); fflush(stdout);
   size_t dim = intdim+realdim;
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_ADD_RAY_ARRAY,
 					     2*(dim+1));
@@ -253,12 +222,12 @@ ap_abstract0_avo_of_generator_array(ap_manager_t* man,
 
 ap_dimension_t avo_dimension(ap_manager_t* man, avo_t* a)
 {
- //fprintf(stdout, "AP_FUNID_DIMENSION\n"); fflush(stdout);
-avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_DIMENSION,0);
-ap_dimension_t r;
-r.intdim = a->intdim;
-r.realdim = a->dim-a->intdim;
-return r;
+	 //fprintf(stdout, "AP_FUNID_DIMENSION\n"); fflush(stdout);
+	avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_DIMENSION,0);
+	ap_dimension_t r;
+	r.intdim = a->intdim;
+	r.realdim = a->dim-a->intdim;
+	return r;
 }
 
 
@@ -267,14 +236,13 @@ return r;
 /* ============================================================ */
 
 /* Make sure the closed version of the matrix a->closed is available.
-   If a->closed when it returns, this means the avoagon is empty.
-   If the avoagon is not empty, a->m is not modified.
+   If a->closed when it returns, this means the avOctagon is empty.
+   If the avOctagon is not empty, a->m is not modified.
    => this DOES NOT affect the semantics of functions that rely on a->m
    (e.g., widening)
  */
 void avo_cache_closure(avo_internal_t* pr, avo_t* a)
 {
-
   if (a->closed || !a->m) return;
   a->closed = avo_hmat_copy(pr,a->m,a->dim);
   if (avo_hmat_close(a->closed,a->nsc,a->dim)) {
@@ -354,7 +322,6 @@ void avo_approximate(ap_manager_t* man, avo_t* a, int algorithm)
 avo_t* avo_closure(ap_manager_t* man, bool destructive, avo_t* a)
 {
 	//fprintf(stdout, "AP_FUNID_CLOSURE\n"); fflush(stdout);
-
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_CLOSURE,0);
   if (destructive) return a;
   else return avo_copy_internal(pr,a);

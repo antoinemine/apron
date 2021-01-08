@@ -6,7 +6,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -28,8 +28,7 @@ int abs_print_hint_flag = 0;
 
 bool avo_is_bottom(ap_manager_t* man, avo_t* a)
 {
-
-  //fprintf(stdout, "AP_FUNID_IS_BOTTOM\n"); fflush(stdout);
+   //fprintf(stdout, "AP_FUNID_IS_BOTTOM\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_IS_BOTTOM,0);
   if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a);
   if (a->closed) {
@@ -64,7 +63,7 @@ bool avo_is_top(ap_manager_t* man, avo_t* a)
 
 bool avo_is_leq(ap_manager_t* man, avo_t* a1, avo_t* a2)
 {
-	//  fprintf(stdout, "AP_FUNID_IS_LEQ\n"); fflush(stdout);
+  //fprintf(stdout, "AP_FUNID_IS_LEQ\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_IS_LEQ,0);
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return false;);
   if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a1);
@@ -79,8 +78,7 @@ bool avo_is_leq(ap_manager_t* man, avo_t* a1, avo_t* a2)
       if (num_incomplete || a1->intdim) { flag_incomplete; }
       return false;
     }
-    else { flag_algo;
-    return false; }
+    else { flag_algo;    return false; }
   }
   else {
     size_t i,j;
@@ -103,17 +101,17 @@ bool avo_is_leq(ap_manager_t* man, avo_t* a1, avo_t* a2)
     	  	continue;
     	  if(j > 2 * dim &&( bound_cmp_int(sy[avo_matpos2( j - 2 * dim  + 1, j - 2 * dim )],0)>= 0||bound_cmp_int(sy[avo_matpos2( j - 2 * dim  , j - 2 * dim + 1)],0)<= 0))
     	  	continue;
-	  if (bound_cmp(*x,*y)>0 || (bound_cmp(*x,*y)==0 && bound_cmp(*nx,*ny)>0)) {
-	    if (a1->closed) {
-	      /* not included on Q */
-		if (num_incomplete || a1->intdim) { flag_incomplete; }
-		return false;
-	    }
-	    else { 
-		flag_algo;
-	  	return false; 
-	    }
-	  }
+		  if (bound_cmp(*x,*y)>0 || (bound_cmp(*x,*y)==0 && bound_cmp(*nx,*ny)>0)) {
+			if (a1->closed) {
+				  /* not included on Q */
+				if (num_incomplete || a1->intdim) { flag_incomplete; }
+				return false;
+			}
+			else {
+				flag_algo;
+				return false;
+			}
+		  }
       }
     return true;
   }
@@ -169,14 +167,14 @@ bool avo_is_eq(ap_manager_t* man, avo_t* a1, avo_t* a2)
     	    	  continue;
     	  if(j > 2 * dim &&( bound_cmp_int(sy[avo_matpos2( j - 2 * dim  + 1, j - 2 * dim )],0)>= 0||bound_cmp_int(sy[avo_matpos2( j - 2 * dim  , j - 2 * dim + 1)],0)<= 0))
     	    	  continue;
-	  if (bound_cmp(*x,*y)||bound_cmp(*nx,*ny)!=0) {
-	    if (a1->closed) {
-	      /* not equal on Q */
-	      if (num_incomplete || a1->intdim)  { flag_incomplete; }
-	      return false;
-	    }
-	    else { flag_algo; return false; }
-	  }
+		  if (bound_cmp(*x,*y)||bound_cmp(*nx,*ny)!=0) {
+			if (a1->closed) {
+			  /* not equal on Q */
+			  if (num_incomplete || a1->intdim)  { flag_incomplete; }
+			  return false;
+			}
+			else { flag_algo; return false; }
+		  }
       }
     /* definitively equal */
     return true;
@@ -187,8 +185,7 @@ bool avo_is_eq(ap_manager_t* man, avo_t* a1, avo_t* a2)
 bool avo_sat_interval(ap_manager_t* man, avo_t* a,
 		      ap_dim_t dim, ap_interval_t* i)
 {
-//	 fprintf(stdout, "AP_FUNID_SAT_INTERVAL\n"); fflush(stdout);
-
+     //	 fprintf(stdout, "AP_FUNID_SAT_INTERVAL\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_SAT_INTERVAL,0);
   arg_assert(dim<a->dim,return false;);
   if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a);
@@ -220,8 +217,7 @@ bool avo_sat_interval(ap_manager_t* man, avo_t* a,
 bool avo_is_dimension_unconstrained(ap_manager_t* man, avo_t* a,
 				    ap_dim_t dim)
 {
-//	 fprintf(stdout, "AP_FUNID_IS_DIMENSION_UNCONSTRAINED\n"); fflush(stdout);
-
+  //fprintf(stdout, "AP_FUNID_IS_DIMENSION_UNCONSTRAINED\n"); fflush(stdout);
   avo_internal_t* pr =
     avo_init_from_manager(man,AP_FUNID_IS_DIMENSION_UNCONSTRAINED,0);
   arg_assert(dim<a->dim,return false;);
@@ -248,8 +244,7 @@ bool avo_is_dimension_unconstrained(ap_manager_t* man, avo_t* a,
 bool avo_sat_lincons(ap_manager_t* man, avo_t* a,
 		     ap_lincons0_t* lincons)
 {
-//	fprintf(stdout, "AP_FUNID_SAT_LINCONS\n"); fflush(stdout);
-
+  //fprintf(stdout, "AP_FUNID_SAT_LINCONS\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_SAT_LINCONS,
 					     2*(a->dim+1));
   if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a);
@@ -263,27 +258,23 @@ bool avo_sat_lincons(ap_manager_t* man, avo_t* a,
     ap_constyp_t c = lincons->constyp;
     uexpr u;
     bool r;
+	switch (c) {
+		  /* skipped */
+		case AP_CONS_EQMOD:
+		case AP_CONS_DISEQ:
+		  return false;
 
-    switch (c) {
+		  /* handled */
+		case AP_CONS_EQ:
+		case AP_CONS_SUPEQ:
+		case AP_CONS_SUP:
+		  break;
 
-      /* skipped */
-    case AP_CONS_EQMOD:
-    case AP_CONS_DISEQ:
-      return false;
-
-      /* handled */
-    case AP_CONS_EQ:
-    case AP_CONS_SUPEQ:
-    case AP_CONS_SUP:
-      break;
-
-      /* error */
-    default:
-      assert(0);
+		  /* error */
+		default:
+		  assert(0);
     }
-
     u = avo_uexpr_of_linexpr(pr,pr->tmp,lincons->linexpr0,a->dim);
-
     switch (u.type) {      
 
     case EMPTY:
@@ -298,13 +289,13 @@ bool avo_sat_lincons(ap_manager_t* man, avo_t* a,
 	  (c==AP_CONS_EQ && !bound_sgn(pr->tmp[0]) && !bound_sgn(pr->tmp[1]))
   	  /* [-a,b] = 0 <=> a=b=0 */
 	  )
-	return true; /* always saturates */
+    	return true; /* always saturates */
       else {
-	/* does not always saturate on Q, if closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
-	else if (!a->closed) { flag_algo; return false; }
-	else if (pr->conv) { flag_conv; return false; }
-	return false;
+		/* does not always saturate on Q, if closed and no conv error */
+		if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+		else if (!a->closed) { flag_algo; return false; }
+		else if (pr->conv) { flag_conv; return false; }
+		return false;
       }
       
    case UNARY:
@@ -320,13 +311,13 @@ bool avo_sat_lincons(ap_manager_t* man, avo_t* a,
 	  (c!=AP_CONS_EQ || bound_sgn(pr->tmp[1])<=0)
 	  /* c_i X_i + [-a,b] <= 0 <=>  c_i X_i + b <= 0 */
 	  ) 
-	return true; /* always saturates */
+    	  return true; /* always saturates */
       else {
-	/* does not always saturate on Q, if closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
-	else if (!a->closed) { flag_algo; return false; }
-	else if (pr->conv) { flag_conv; return false; }
-	return false;
+		/* does not always saturate on Q, if closed and no conv error */
+		if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+		else if (!a->closed) { flag_algo; return false; }
+		else if (pr->conv) { flag_conv; return false; }
+		return false;
       }
       
     case BINARY:
@@ -341,13 +332,13 @@ bool avo_sat_lincons(ap_manager_t* man, avo_t* a,
 	  (c!=AP_CONS_EQ || bound_sgn(pr->tmp[1])<=0)
 	  /* c_i X_i + c_j X_j + [-a,b] <= 0 <=>  c_i X_i + c_j X_j + b <= 0 */
 	  )
-	return true;
+    	return true;
       else {
-	/* does not saturate on Q, when closed and no conv error */
- 	if (num_incomplete || a->intdim) { flag_incomplete; return false; }
-	else if (!a->closed) { flag_algo; return false; }
-	else if (pr->conv) { flag_conv; return false; }
-	return false;
+		/* does not saturate on Q, when closed and no conv error */
+		if (num_incomplete || a->intdim) { flag_incomplete; return false; }
+		else if (!a->closed) { flag_algo; return false; }
+		else if (pr->conv) { flag_conv; return false; }
+		return false;
       }
 
     case OTHER:
@@ -383,7 +374,7 @@ bool avo_sat_tcons(ap_manager_t* man, avo_t* a,
 ap_interval_t* avo_bound_linexpr(ap_manager_t* man,
 				 avo_t* a, ap_linexpr0_t* expr)
 {
-//	fprintf(stdout, "AP_FUNID_BOUND_LINEXPR\n"); fflush(stdout);
+  //fprintf(stdout, "AP_FUNID_BOUND_LINEXPR\n"); fflush(stdout);
 
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_BOUND_LINEXPR,
 					     2*(a->dim+5));
@@ -438,13 +429,13 @@ ap_interval_t* avo_bound_linexpr(ap_manager_t* man,
      case OTHER:
       /* interval approximation */
       for (i=0;i<a->dim;i++) {
-	bound_div_2(pr->tmp[2*i+2],pr->tmp[2*i+2]);
-	bound_div_2(pr->tmp[2*i+3],pr->tmp[2*i+3]);
-	bounds_mul(pr->tmp[2*i+2],pr->tmp[2*i+3],
-		   b[avo_matpos(2*i,2*i+1)],b[avo_matpos(2*i+1,2*i)],
-		   pr->tmp[2*i+2],pr->tmp[2*i+3],pr->tmp+2*(a->dim+1));
-	bound_badd(pr->tmp[0],pr->tmp[2*i+2]);
-	bound_badd(pr->tmp[1],pr->tmp[2*i+3]);
+		bound_div_2(pr->tmp[2*i+2],pr->tmp[2*i+2]);
+		bound_div_2(pr->tmp[2*i+3],pr->tmp[2*i+3]);
+		bounds_mul(pr->tmp[2*i+2],pr->tmp[2*i+3],
+			   b[avo_matpos(2*i,2*i+1)],b[avo_matpos(2*i+1,2*i)],
+			   pr->tmp[2*i+2],pr->tmp[2*i+3],pr->tmp+2*(a->dim+1));
+		bound_badd(pr->tmp[0],pr->tmp[2*i+2]);
+		bound_badd(pr->tmp[1],pr->tmp[2*i+3]);
       }
       avo_interval_of_bounds(pr,r,pr->tmp[0],pr->tmp[1],false);
       /* not optimal, even when closing a */
@@ -473,7 +464,7 @@ ap_interval_t* avo_bound_texpr(ap_manager_t* man,
 ap_interval_t* avo_bound_dimension(ap_manager_t* man,
 				   avo_t* a, ap_dim_t dim)
 {
-//	fprintf(stdout, "AP_FUNID_BOUND_DIMENSION\n"); fflush(stdout);
+  //fprintf(stdout, "AP_FUNID_BOUND_DIMENSION\n"); fflush(stdout);
 
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_BOUND_DIMENSION,0);
   ap_interval_t* r = ap_interval_alloc();
@@ -504,7 +495,6 @@ ap_interval_t* avo_bound_dimension(ap_manager_t* man,
 ap_lincons0_array_t avo_to_lincons_array(ap_manager_t* man, avo_t* a)
 {
 	//fprintf(stdout, "AP_FUNID_TO_LINCONS_ARRAY\n"); fflush(stdout);
-
   ap_lincons0_array_t ar;
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_LINCONS_ARRAY,0);
   if (!a->closed && !a->m) {
@@ -514,42 +504,36 @@ ap_lincons0_array_t avo_to_lincons_array(ap_manager_t* man, avo_t* a)
   }
   else {
     /* put non-oo constraint bounds only */
-    bound_t* ljc;
-    bound_t* lll;
     bound_t* m = a->closed ? a->closed : a->m;
-    bound_t *m1 = a->nsc;
-    ljc = m;
-    lll = m1;
+    bound_t* nsc = a->nsc;
+    bound_t* m1 = m;
+    bound_t* nsc1 = nsc;
     size_t i,j,n=0;
     ar = ap_lincons0_array_make(avo_matsize(a->dim*2));
 
     for (i=0;i<4*a->dim;i++)
-      for (j=0;j<=(i|1);j++,m++,m1++) {
-		if (i==j || bound_infty(*m) || ( j >= a->dim *2 && j%2==0 ) ||( i >= a->dim *2 && i%2 ))
+      for (j=0;j<=(i|1);j++,m1++,nsc1++) {
+		if (i==j || bound_infty(*m1)  || ( j>=a->dim*2 && j%2==0 ) ||( i>=a->dim *2 && i%2!=0 ))
 			continue;
 
-		if(i > 2 * a->dim &&( bound_cmp_int(ljc[avo_matpos2( i -i%2- 2 * a->dim  + 1, i -i%2- 2 * a->dim )],0)<= 0||bound_cmp_int(ljc[avo_matpos2( i -i%2- 2 * a->dim  , i -i%2- 2 * a->dim + 1)],0)<= 0))
+			/* no terms between -|Vi| and Vi */
+		if (i>=2*a->dim && (i == j+2*a->dim || i == j+2*a->dim-1))
 			continue;
 
-		if(j > 2 * a->dim &&( bound_cmp_int(ljc[avo_matpos2( j - j% 2- 2 * a->dim  + 1, j - j%2 - 2 * a->dim )],0)<= 0||bound_cmp_int(ljc[avo_matpos2( j -j%2- 2 * a->dim  , j -j%2- 2 * a->dim + 1)],0)<= 0))
+			/* no |Vi| terms if postive or negative */
+		if(i>2*a->dim &&( bound_cmp_int(m[avo_matpos2( i-i%2-2*a->dim+1, i-i%2-2*a->dim )],0)<= 0||bound_cmp_int(m[avo_matpos2( i-i%2-2*a->dim, i-i%2-2*a->dim+1)],0)<= 0))
+			continue;
+		if(j>2*a->dim &&( bound_cmp_int(m[avo_matpos2( j-j%2-2*a->dim+1, j-j%2-2*a->dim )],0)<= 0||bound_cmp_int(m[avo_matpos2( j-j%2-2*a->dim, j-j%2-2*a->dim+1)],0)<= 0))
 			continue;
 
-		if (i>=2*a->dim && i % 2 == 0 && (bound_cmp(ljc[avo_matpos2(i,j)],ljc[avo_matpos2(i-2*a->dim,j)])>=0)&&(bound_cmp(lll[avo_matpos2(i,j)],lll[avo_matpos2(i-2*a->dim,j)])>=0))
-			continue;
 
-		if (i>=2*a->dim && i % 2 == 0 &&(bound_cmp(ljc[avo_matpos2(i,j)],ljc[avo_matpos2(i-2*a->dim+1,j)])>=0) &&(bound_cmp(lll[avo_matpos2(i,j)],lll[avo_matpos2(i-2*a->dim+1,j)])>=0))
-			continue;
-
-		if (j>=2*a->dim && j % 2 == 1 && (bound_cmp(ljc[avo_matpos2(i,j)],ljc[avo_matpos2(i,j-2*a->dim)])>=0)&&(bound_cmp(lll[avo_matpos2(i,j)],lll[avo_matpos2(i,j-2*a->dim)])>=0))
-			continue;
-
-		if (j>=2*a->dim && j % 2 == 1 && (bound_cmp(ljc[avo_matpos2(i,j)],ljc[avo_matpos2(i,j-2*a->dim-1)])>=0)&&(bound_cmp(lll[avo_matpos2(i,j)],lll[avo_matpos2(i,j-2*a->dim-1)])>=0))
-			continue;
-
-		if( ( (i>=2*a->dim) && (i % 2 == 0) && (j>=2*a->dim) && (j % 2 == 1) && (bound_cmp_int(*m,0)>0) ) || ( (bound_cmp_int(*m,0)==0) && (bound_cmp_int(*m1,1)>0) ) )
-			continue;
-
-		ar.p[n] = avo_lincons_of_bound(pr,i,j,*m,*m1,a->dim);
+			/*  -|Vi|, -|Vj|, -|Vi| -|Vj| <=0 */
+		if (i>=2*a->dim && i % 2 == 0 && j>=2*a->dim && j % 2 == 1){
+			int order = bound_cmp_int(*m1,0);
+			if((order>0)||(order==0 && bound_cmp_int(*nsc1,1)>=0))
+				continue;
+		}
+		ar.p[n] = avo_lincons_of_bound(pr,i,j,*m1,*nsc1,a->dim);
 		n++;
       }
 
@@ -566,11 +550,12 @@ ap_tcons0_array_t avo_to_tcons_array(ap_manager_t* man, avo_t* a)
 
 ap_interval_t** avo_to_box(ap_manager_t* man, avo_t* a)
 {
- // fprintf(stdout, "AP_FUNID_TO_BOX\n"); fflush(stdout);
+   //fprintf(stdout, "AP_FUNID_TO_BOX\n"); fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_BOX,0);
   ap_interval_t** in = ap_interval_array_alloc(a->dim);
   size_t i;
-  if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a);
+  //if (pr->funopt->algorithm>=0)
+  avo_cache_closure(pr,a);
   if (!a->closed && !a->m) {
     /* definitively empty */
     for (i=0;i<a->dim;i++)
@@ -593,29 +578,8 @@ ap_interval_t** avo_to_box(ap_manager_t* man, avo_t* a)
 /* not really implemented (returns either top or bottom) */
 ap_generator0_array_t avo_to_generator_array(ap_manager_t* man, avo_t* a)
 {
-	//fprintf(stdout, "AP_FUNID_TO_GENERATOR_ARRAY\n"); fflush(stdout);
-
-  avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY,0);
-  if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a);
-  if (!a->closed && !a->m) {
-    /* definitively empty */
-    return ap_generator0_array_make(0);
-  }
-  else {
-    /* not empty => full universe */
-    ap_generator0_array_t ar = ap_generator0_array_make(a->dim+1);
-    size_t i;
-    /* origin vertex */
-    ar.p[0] = ap_generator0_make(AP_GEN_VERTEX,
-				 ap_linexpr0_alloc(AP_LINEXPR_SPARSE,0));
-    /* one line for each dimension */
-    for (i=0;i<a->dim;i++) {
-      ap_linexpr0_t* e = ap_linexpr0_alloc(AP_LINEXPR_SPARSE,1);
-      e->p.linterm[0].dim = i;
-      ap_coeff_set_scalar_int(&e->p.linterm[0].coeff,1);
-      ar.p[i+1] = ap_generator0_make(AP_GEN_LINE,e);
-    }
-    flag_incomplete;
+	ap_generator0_array_t ar;
+	avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY,0);
+    ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,pr->funid, "not implemented");
     return ar;
-  }
 }

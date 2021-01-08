@@ -169,7 +169,7 @@ else
 avotest%: avo_test%.o libavo%_debug.a
 endif
 	$(CC) -o $@ avo_test$*.o \
-		-L. -lavo$*_debug -L../newpolka -lpolkaMPQ_debug \
+		-L. -lavo$*_debug \
 		$(LDFLAGS) $(LIBS_DEBUG) $(CFLAGS_DEBUG)
 
 %_caml.o: %_caml.c $(CCINC) $(DEPS)

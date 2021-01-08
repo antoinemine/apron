@@ -7,7 +7,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -28,12 +28,16 @@ extern "C" {
 
 extern int abs_print_hint_flag; 
   /* print 11x to denote abs(x), i.e., |x| */
+extern int avo_closure_alg;
+/* 0 (default): WeakCloVia1Sign(i.e., enumerating the signs of 1 variables each time) */
+/* 1: WeakCloVia3Sign(i.e., enumerating the signs of 3 variables each time)           */
+/* 2: StrongCloViaAllSigns(i.e., enumerating the signs of all variables each time)    */
 
 /* ********************************************************************** */
 /* I. Manager */
 /* ********************************************************************** */
 
-/* manager-local data specific to avoagons */
+/* manager-local data specific to avOctagons */
 struct _avo_internal_t {
 
   /* current function */
@@ -144,8 +148,7 @@ bound_t* avo_hmat_alloc_zero  (avo_internal_t* pr, size_t dim);
 bound_t* avo_hmat_alloc_top   (avo_internal_t* pr, size_t dim);
 bound_t* avo_hmat_alloc_top_nsc   (avo_internal_t* pr, size_t dim);
 bound_t* avo_hmat_copy        (avo_internal_t* pr, bound_t* m, size_t dim);
-void     avo_hmat_fdump       (FILE* stream, avo_internal_t* pr,
-			   bound_t* m, size_t dim);
+void     avo_hmat_fdump       (FILE* stream, bound_t* m, size_t dim);
 
 
 
@@ -155,11 +158,11 @@ void     avo_hmat_fdump       (FILE* stream, avo_internal_t* pr,
 
 static inline size_t avo_matsize(size_t dim)
 {
-  return 8 * dim * (dim+1);
+  return 2 * dim * (4*dim+2);
 }
-static inline size_t avo_orgmatsize(size_t dim)
+static inline size_t avo_octmatsize(size_t dim)
 {
-  return 2 * dim * (dim+1);
+  return dim * (2*dim+2);
 }
 /* position of (i,j) element, assuming j/2 <= i/2 */
 static inline size_t avo_matpos(size_t i, size_t j)
@@ -180,11 +183,10 @@ static inline size_t avo_matpos2(size_t i, size_t j)
 /* ============================================================ */
 
 /* see avo_closure.c */
-
-bool avo_hmat_s_step(bound_t* m, size_t dim);
-bool avo_hmat_close(bound_t* m,bound_t * nsc, size_t dim);
-bool avo_hmat_close_incremental(bound_t* m,bound_t * nsc, size_t dim, size_t v);
-bool avo_hmat_check_closed(bound_t* m, size_t dim);
+bool avo_hmat_s_step(bound_t* m, bound_t* nsc, size_t dim);
+bool avo_hmat_close(bound_t* m, bound_t* nsc, size_t dim);
+bool avo_hmat_close_incremental(bound_t* m, bound_t* nsc, size_t dim, size_t v);
+bool avo_hmat_check_closed(bound_t* m,bound_t* nsc, size_t dim);
 
 
 /* ============================================================ */
@@ -549,7 +551,7 @@ static inline ap_lincons0_t avo_lincons_of_bound(avo_internal_t* pr,
     e = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 1);
 
     if(i < 2 * dim )
-    ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(i&1) ? -1 : 1);
+    	ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(i&1) ? -1 : 1);
     else
     {
     	ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(i&1) ? -11 : 11); /* 11x to denote abs(x)*/
@@ -581,65 +583,10 @@ static inline ap_lincons0_t avo_lincons_of_bound(avo_internal_t* pr,
        e->p.linterm[1].dim = i/2;
     avo_scalar_of_upper_bound(pr,e->cst.val.scalar,m,false);
   }
-  if(bound_cmp_int(m1,1) > 0)
-  return ap_lincons0_make(AP_CONS_SUPEQ,e,NULL);
-  else
-	  return ap_lincons0_make(AP_CONS_SUP,e,NULL);
+  if(bound_cmp_int(m1,1) > 0)  return ap_lincons0_make(AP_CONS_SUPEQ,e,NULL);
+  else	  return ap_lincons0_make(AP_CONS_SUP,e,NULL);
 }
 
-static inline ap_lincons0_t avo_lincons_of_bound_nsc(avo_internal_t* pr,
-					     size_t i, size_t j,
-					     bound_t m,size_t dim)
-{
-  if (abs_print_hint_flag==0){
-	fprintf(stdout, "/* Note that we use 11x to denote abs(x), i.e., |x| */\n");  
-	abs_print_hint_flag=1;
-  }
-  ap_linexpr0_t* e;
-  if (i==j) {
-    /* zeroary constraint */
-    e = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 0);
-    avo_scalar_of_upper_bound(pr,e->cst.val.scalar,m,true);
-  }
-  else if (i==(j^1)) {
-    /* unary constraint */
-    e = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 1);
-
-    if(i < 2 * dim )
-    	ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(i&1) ? -1 : 1);
-    else
-    {
-    	ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(i&1) ? -11 : 11);  /* 11x to denote abs(x)*/
-    	i = i - 2 * dim;
-    }
-
-    e->p.linterm[0].dim = i/2;
-    avo_scalar_of_upper_bound(pr,e->cst.val.scalar,m,true);
-  }
-  else {
-    /* binary constraint */
-    e = ap_linexpr0_alloc(AP_LINEXPR_SPARSE, 2);
-
-    if(j < 2 * dim)
-    	  ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(j&1) ?  1 : -1);
-    else
-    {
-    	ap_scalar_set_int(e->p.linterm[0].coeff.val.scalar,(j&1) ?  11 : -11);  /* 11x to denote abs(x)*/
-    	j = j - 2 * dim;
-    }
-    if(i < 2 * dim)
-    	ap_scalar_set_int(e->p.linterm[1].coeff.val.scalar,(i&1) ? -1 :  1);
-    else
-    {
-    	ap_scalar_set_int(e->p.linterm[1].coeff.val.scalar,(i&1) ? -11 :  11);  /* 11x to denote abs(x)*/
-    	i = i - 2 * dim;
-    }
-    e->p.linterm[0].dim = j/2;
-       e->p.linterm[1].dim = i/2;
-    avo_scalar_of_upper_bound(pr,e->cst.val.scalar,m,false);
-  }
-  return ap_lincons0_make(AP_CONS_SUP,e,NULL);
-}
 /* ============================================================ */
 /* III.5 Expression classification */
 /* ============================================================ */
@@ -667,7 +614,7 @@ uexpr avo_uexpr_of_linexpr(avo_internal_t* pr, bound_t* dst,
 
 
 /* ********************************************************************** */
-/* IV. avoagons */
+/* IV. avOctagons */
 /* ********************************************************************** */
 
 
@@ -676,7 +623,7 @@ uexpr avo_uexpr_of_linexpr(avo_internal_t* pr, bound_t* dst,
 /* ============================================================ */
 
 struct _avo_t {
-  bound_t* nsc; //not strict closure
+  bound_t* nsc;    /* half-matrix describing not necessarily strictness (closeness), e.g., x -y < c */
   bound_t* m;      /* contraint half-matrix (or NULL) */
   bound_t* closed; /* closed version of m (or NULL for not available) */
   size_t dim;      /* total number of variables */
@@ -684,9 +631,9 @@ struct _avo_t {
 };
 
 /* several cases are possible
-   m==NULL closed==NULL -- definitively empty avoagon
-   m!=NULL closed==NULL -- empty or non-empty avoagon, closure not available
-   m==NULL closed!=NULL \_ definitively non-empty avoagon, closure available
+   m==NULL closed==NULL -- definitively empty avOctagon
+   m!=NULL closed==NULL -- empty or non-empty avOctagon, closure not available
+   m==NULL closed!=NULL \_ definitively non-empty avOctagon, closure available
    m!=NULL closed!=NULL /
 */
 
@@ -700,13 +647,9 @@ void   avo_free_internal  (avo_internal_t* pr, avo_t* o);
 avo_t* avo_copy_internal  (avo_internal_t* pr, avo_t* o);
 void   avo_cache_closure  (avo_internal_t* pr, avo_t* a);
 void   avo_close          (avo_internal_t* pr, avo_t* a);
-avo_t* avo_set_mat        (avo_internal_t* pr, avo_t* a, bound_t* m,
-			   bound_t* closed, bool destructive);
 avo_t* avo_set_mat_nsc        (avo_internal_t* pr, avo_t* a, bound_t* m,
 			   bound_t* closed,bound_t * nsc, bool destructive);
 avo_t* avo_alloc_top      (avo_internal_t* pr, size_t dim, size_t intdim);
-void ljc_print3(avo_t *a);
-void ljc_print2(avo_t *a);
 
 #ifdef __cplusplus
 }

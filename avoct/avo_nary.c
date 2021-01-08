@@ -6,7 +6,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -17,19 +17,20 @@
 #include "avo.h"
 #include "avo_internal.h"
 
+extern void bound_bmin_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1);
+extern void bound_bmax_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1);
+
 /* ============================================================ */
 /* Meet and Join */
 /* ============================================================ */
-extern int nsc_min(bound_t a,bound_t b,int a1,int b1);
-
-
-extern int nsc_max(bound_t a, bound_t b,int a1 ,int b1);
 
 avo_t* avo_meet(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
 {
+	//printf("AP_FUNID_MEET \n");fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_MEET,0);
   bound_t* m;
   bound_t* mm;
+
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
   if ((!a1->closed && !a1->m) || (!a2->closed && !a2->m))
     /* one argument is empty */
@@ -41,27 +42,25 @@ avo_t* avo_meet(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
     m = destructive ? m1 : avo_hmat_alloc(pr,a1->dim);
     bound_t* mm1 = a1->nsc;
     bound_t* mm2 = a2->nsc;
-         mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
+    mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
     for (i=0;i<avo_matsize(a1->dim);i++)
     {
-      bound_min(m[i],m1[i],m2[i]);
-      if( nsc_min(m1[i],m2[i],bound_cmp_int(mm1[i],1),bound_cmp_int(mm2[i],1))< 0)
-   					bound_set_int(mm[i],0);
-   					else
-   					bound_set_infty(mm[i],1);
-
+    	bound_set(m[i],m1[i]); bound_set(mm[i],mm1[i]);
+    	bound_bmin_nsc(m+i,mm+i,m2[i],mm2[i]);
     }
     ///////////////////////////////////////
-
+    avo_hmat_s_step(m,mm,a1->dim);
+    avo_t* a12=avo_set_mat_nsc(pr,a1,m,NULL,mm,destructive);
 
     /* optimal, but not closed */
-    return avo_set_mat_nsc(pr,a1,m,NULL,mm,destructive);
+    return a12;
   }
 }
 
 avo_t* avo_join(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
 {
  avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_JOIN,0);
+
  arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
  if (pr->funopt->algorithm>=0) {
    avo_cache_closure(pr,a1);
@@ -86,20 +85,16 @@ avo_t* avo_join(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
    bound_t* m = destructive ? m1 : avo_hmat_alloc(pr,a1->dim);
    size_t i;
    bound_t* mm1 = a1->nsc;
-       bound_t* mm2 = a2->nsc;
-       bound_t* mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
+   bound_t* mm2 = a2->nsc;
+   bound_t* mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
    man->result.flag_exact = false;
    for (i=0;i<avo_matsize(a1->dim);i++)
    {
-     bound_max(m[i],m1[i],m2[i]);
- 	if(nsc_max(m1[i],m2[i],bound_cmp_int(mm1[i],1),bound_cmp_int(mm2[i],1))< 0)
- 			bound_set_int(mm[i],0);
- 			else
- 			bound_set_infty(mm[i],1);
+	   bound_set(m[i],m1[i]); bound_set(mm[i],mm1[i]);
+	   bound_bmax_nsc(m+i,mm+i,m2[i],mm2[i]);
    }
-   /////////////////////////////////
 
-
+   avo_hmat_s_step(m, mm, a1->dim);
 
    if (a1->closed && a2->closed) {
      /* result is closed and optimal on Q */
@@ -116,6 +111,7 @@ avo_t* avo_join(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
 
 avo_t* avo_meet_array(ap_manager_t* man, avo_t** tab, size_t size)
 {
+	//printf("AP_FUNID_MEET_ARRAY \n");fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_MEET_ARRAY,0);
   avo_t* r;
   size_t i,k;
@@ -138,14 +134,14 @@ avo_t* avo_meet_array(ap_manager_t* man, avo_t** tab, size_t size)
 
 avo_t* avo_join_array(ap_manager_t* man, avo_t** tab, size_t size)
 {
-  // fprintf(stdout, "AP_FUNID_JOIN_ARRAY\n"); fflush(stdout);
+   //fprintf(stdout, "AP_FUNID_JOIN_ARRAY\n"); fflush(stdout);
 
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_JOIN_ARRAY,0);
   int algo = pr->funopt->algorithm;
   bool closed = true;
   avo_t* r;
   bound_t* m = NULL;
-  bound_t* m1 = NULL;
+  bound_t* nsc = NULL;
   size_t i,k;
   arg_assert(size>0,return NULL;);
   r = avo_alloc_internal(pr,tab[0]->dim,tab[0]->intdim);
@@ -159,18 +155,17 @@ avo_t* avo_join_array(ap_manager_t* man, avo_t** tab, size_t size)
       /* first non-empty */
     {
       m = avo_hmat_copy(pr,tab[k]->closed ? tab[k]->closed : tab[k]->m,r->dim);
-      m1 = avo_hmat_copy(pr,tab[k]->nsc,r->dim);
+      nsc = avo_hmat_copy(pr,tab[k]->nsc,r->dim);
     }
     else {
       /* not first non-empty */
-      bound_t* x1 = tab[k]->nsc;
+      bound_t* nsc_x = tab[k]->nsc;
       bound_t* x = tab[k]->closed ? tab[k]->closed : tab[k]->m;
       for (i=0;i<avo_matsize(r->dim);i++)
       {
-		bound_max(m[i],m[i],x[i]);
-		bound_max(m1[i],m1[i],x1[i]);
+    	  bound_bmax_nsc(m+i,nsc+i,x[i],nsc_x[i]);
       }
-      }
+    }
     if (!tab[k]->closed) closed = false;
   }
 
@@ -181,13 +176,13 @@ avo_t* avo_join_array(ap_manager_t* man, avo_t** tab, size_t size)
     /* closed, optimal result, in Q */
     man->result.flag_exact = false;
     r->closed = m; 
-    r->nsc = m1;
+    r->nsc = nsc;
     if (num_incomplete || r->intdim) flag_incomplete;
   }
   else {
     /* non closed, non optimal result */
     r->m = m;
-    r->nsc = m1;
+    r->nsc = nsc;
     flag_algo; 
   }
   return r;
@@ -232,10 +227,15 @@ avo_t* avo_widening(ap_manager_t* man, avo_t* a1, avo_t* a2)
     else {
       /* standard widening */
       for (i=0;i<avo_matsize(r->dim);i++)
-		if (bound_cmp(m1[i],m2[i])>=0)
+		if (bound_cmp(m1[i],m2[i])>0)
 		{
 			bound_set(r->m[i],m1[i]);
 			bound_set(r->nsc[i],n1[i]);
+		}
+		else if (bound_cmp(m1[i],m2[i])==0)
+		{
+			bound_set(r->m[i],m1[i]);
+			bound_max(r->nsc[i],n1[i],n2[i]);
 		}
 		else
 		{
@@ -270,18 +270,31 @@ avo_t* avo_widening_thresholds(ap_manager_t* man,
     size_t i;
     r = avo_alloc_internal(pr,a1->dim,a1->intdim);
     r->m = avo_hmat_alloc(pr,r->dim);
+    r->nsc = avo_hmat_alloc(pr,r->dim);
+
     /* convert array to bounds */
     for (i=0;i<nb;i++)
       avo_bound_of_scalar(pr,pr->tmp[i],array[i],false,false);
     bound_set_infty(pr->tmp[nb],1);
     /* point-wise loop */
     for (i=0;i<avo_matsize(r->dim);i++)
-      if (bound_cmp(m1[i],m2[i])>=0) bound_set(r->m[i],m1[i]);
+      if (bound_cmp(m1[i],m2[i])>0){
+    	  bound_set(r->m[i],m1[i]);
+    	  bound_set(r->nsc[i],a1->nsc[i]);
+      }
+      else if (bound_cmp(m1[i],m2[i])==0){
+    	  bound_set(r->m[i],m1[i]);
+    	  if(bound_cmp(a1->nsc[i],a2->nsc[i])>=0)
+    		  bound_set(r->nsc[i],a1->nsc[i]);
+    	  else
+    		  bound_set(r->nsc[i],a2->nsc[i]);
+      }
       else {
 		size_t j;
 		for (j=0;j<nb;j++)
 		  if (bound_cmp(m2[i],pr->tmp[j])<=0) break;
 		bound_set(r->m[i],pr->tmp[j]);
+		bound_set_infty(r->nsc[i],1);
       }
     /* warn user for conv errors in thresolds */
     if (pr->conv) flag_conv;
@@ -307,8 +320,17 @@ avo_t* avo_narrowing(ap_manager_t* man, avo_t* a1, avo_t* a2)
     bound_t* m2 = a2->closed ? a2->closed : a2->m;
     size_t i;
     r->m = avo_hmat_alloc(pr,r->dim);
-    for (i=0;i<avo_matsize(r->dim);i++)
-      bound_set(r->m[i], bound_infty(m1[i]) ? m2[i] : m1[i]);
+    r->nsc = avo_hmat_alloc_top_nsc(pr,r->dim);
+    for (i=0;i<avo_matsize(r->dim);i++){
+    	if(bound_infty(m1[i])){
+    		bound_set(r->m[i], m2[i]);
+    		bound_set(r->nsc[i], a2->nsc[i]);
+    	}
+    	else{
+    		bound_set(r->m[i], m1[i]);
+    		bound_set(r->nsc[i], a1->nsc[i]);
+    	}
+    }
   }
   return r;
 }
@@ -372,6 +394,7 @@ avo_t* avo_add_epsilon(ap_manager_t* man, avo_t* a, ap_scalar_t* epsilon)
     bound_mul(pr->tmp[0],pr->tmp[0],pr->tmp[1]);
     /* enlarge bounds */
     r->m = avo_hmat_alloc(pr,r->dim);
+    r->nsc = avo_hmat_alloc_top_nsc(pr,r->dim);
     for (i=0;i<avo_matsize(r->dim);i++)
       bound_add(r->m[i],m[i],pr->tmp[0]);
   }
@@ -409,6 +432,7 @@ avo_t* avo_add_epsilon_bin(ap_manager_t* man, avo_t* a1, avo_t* a2,
     size_t i;
     r = avo_alloc_internal(pr,a1->dim,a1->intdim);
     r->m = avo_hmat_alloc(pr,r->dim);
+    r->nsc = avo_hmat_alloc_top_nsc(pr,r->dim);
     /* get max abs of non +oo coefs in m2, times epsilon */
     bound_set_int(pr->tmp[0],0);
     for (i=0;i<avo_matsize(a1->dim);i++) {

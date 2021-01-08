@@ -7,7 +7,7 @@
  *
  * APRON Library / Absolute Value Octagonal (AVO) Domain
  *
- * Copyright (C) Liqian Chen & Jiangchao Liu' 2014
+ * Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
  *
  */
 
@@ -84,7 +84,7 @@ ap_abstract0_avo_add_epsilon(ap_manager_t* man,
 			     ap_abstract0_t* a, 
 			     ap_scalar_t* epsilon);
   /* Enlarge each bound by epsilon times the maximum finite bound in 
-     the avoagon */
+     the avOctagon */
 
 ap_abstract0_t* 
 ap_abstract0_avo_add_epsilon_bin(ap_manager_t* man,
