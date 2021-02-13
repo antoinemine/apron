@@ -353,7 +353,7 @@ numdbl_t *quasi_linearisation(int dim, numdbl_t *coeffs, numdbl_t *bounds, int *
      if(bounds==NULL) boundVk=MAX_VARBND;
      else boundVk=fmax( -*(bounds+2*k-2), *(bounds+2*k-1) ); /* |Vk|=max{-\lowerline{Vk}, \overline{Vk}}*/
      if(boundVk==MAX_VARBND && ak!=bk){ /*can not pose quasi_linearisation() */
-	*sat=1;
+    	 *sat=1;
         checked_free(res);
         return NULL;
      }

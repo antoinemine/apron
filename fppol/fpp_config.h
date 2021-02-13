@@ -66,7 +66,7 @@ typedef double numdbl_t;   /* floating point type: float or double (only double 
 #if defined ( NUM_DOUBLE )
 #define MAX_VARBND  NUMFLT_MAX
 #else
-#define MAX_VARBND  1.0E38
+#define MAX_VARBND  1.0/0.0
 #endif
 
 #define MAXEXP_DIFF 20 /*20*/
