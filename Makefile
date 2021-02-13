@@ -29,8 +29,7 @@ ifneq ($(HAS_PPL),)
 endif
 	(cd avoct; $(MAKE) MPQ D)
 ifneq ($(HAS_GLPK),)
-	(cd fppol; $(MAKE) all)
-	(cd itvpol; $(MAKE) all)
+	(cd fppol; $(MAKE) all) 
 endif
 
 cxx:
@@ -51,8 +50,7 @@ ifneq ($(HAS_PPL),)
 endif
 	(cd avoct; $(MAKE) mlMPQ mlD)
 ifneq ($(HAS_GLPK),)
-	(cd fppol; $(MAKE) allml)
-	(cd itvpol; $(MAKE) allml)
+	(cd fppol; $(MAKE) allml) 
 endif
 
 aprontop:
@@ -65,7 +63,7 @@ apronppltop:
 
 apronglpktop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma avoMPQ.cma fppMPQ.cma itvpMPQ.cma
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma avoMPQ.cma fppMPQ.cma
 
 rebuild:
 	@echo "$(MAKE) rebuild is no longer necessary"
@@ -110,9 +108,7 @@ endif
 ifneq ($(HAS_GLPK),)
 OCAMLFIND_FILES += \
 	$(patsubst %,fppol/%, fpp.mli fpp.cmi fpp.cmx) \
-	$(patsubst %,fppol/%, $(subst xxx,fppD, $(OCAMLFIND_PROTO))) \
-	$(patsubst %,itvpol/%, itvp.mli itvp.cmi itvp.cmx) \
-	$(patsubst %,itvpol/%, $(subst xxx,itvpD, $(OCAMLFIND_PROTO))) 
+	$(patsubst %,fppol/%, $(subst xxx,fppD, $(OCAMLFIND_PROTO)))  
 endif
 ifneq ($(OCAMLPACK),)
 OCAMLFIND_FILES += mlapronidl/apron_ocamldoc.mli
@@ -131,8 +127,7 @@ endif
 	$(patsubst %,avoct/%, avo.cmti avo.cmt)
 ifneq ($(HAS_GLPK),)
 OCAMLFIND_FILES += \
-	$(patsubst %,fppol/%, fpp.cmti fpp.cmt)
-	$(patsubst %,itvpol/%, itvp.cmti itvp.cmt)
+	$(patsubst %,fppol/%, fpp.cmti fpp.cmt) 
 endif
 endif
 
@@ -150,8 +145,7 @@ ifneq ($(HAS_PPL),)
 endif
 	(cd avoct; $(MAKE) install)
 ifneq ($(HAS_GLPK),)
-	(cd fppol; $(MAKE) install)
-	(cd itvpol; $(MAKE) install)
+	(cd fppol; $(MAKE) install) 
 endif
 ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
@@ -207,8 +201,7 @@ clean:
 	(cd ppl; $(MAKE) clean)
 	(cd products; $(MAKE) clean)
 	(cd avoct; $(MAKE) clean)
-	(cd fppol; $(MAKE) clean)
-	(cd itvpol; $(MAKE) clean)
+	(cd fppol; $(MAKE) clean) 
 	(cd apronxx; $(MAKE) clean)
 	(cd examples; $(MAKE) clean)
 	(cd test; $(MAKE) clean)
@@ -232,8 +225,7 @@ uninstall:
 	(cd ppl; $(MAKE) uninstall)
 	(cd products; $(MAKE) uninstall)
 	(cd avoct; $(MAKE) uninstall)
-	(cd fppol; $(MAKE) uninstall)
-	(cd itvpol; $(MAKE) uninstall)
+	(cd fppol; $(MAKE) uninstall) 
 	(cd apronxx; $(MAKE) uninstall)
 	(cd japron; $(MAKE) uninstall)
 	(cd $(APRON_BIN); rm -f apron*)
@@ -257,7 +249,7 @@ endif
 
 PKG  = $(PKGNAME)-$(VERSION_STR)
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure vars.mk ocamlpack
-PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products avoct fppol itvpol  mlapronidl examples test apronxx japron
+PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products avoct fppol mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all

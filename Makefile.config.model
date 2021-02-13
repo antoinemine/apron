@@ -21,8 +21,8 @@ HAS_OCAMLOPT = 1
 
 # HAS_PPL = 1
 
-# If defined to non-empty value, compiles the fppol and itvpol domains
-# (The fppol and itvpol domains require GLPK)
+# If defined to non-empty value, compiles the fppol domain
+# (The fppol domain requires GLPK)
 
 # HAS_GLPK = 1
 
