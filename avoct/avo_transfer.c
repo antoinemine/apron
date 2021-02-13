@@ -18,7 +18,6 @@
 #include "avo_internal.h"
 #include "ap_generic.h"
 
-
 /* ============================================================ */
 /* Expression classification */
 /* ============================================================ */
@@ -511,25 +510,25 @@ avo_t* avo_meet_lincons_array(ap_manager_t* man,
     bool exact, respect_closure;
     size_t i;
     bound_t* m = a->closed ? a->closed : a->m;
-    bound_t * m1 = a->nsc;
+    bound_t * nsc = a->nsc;
     /* can / should we try to respect closure */
     respect_closure = (m==a->closed) && (pr->funopt->algorithm>=0);
 
     if (!destructive) m = avo_hmat_copy(pr,m,a->dim);
-    if (!destructive) m1 = avo_hmat_copy(pr,m1,a->dim);
+    if (!destructive) nsc = avo_hmat_copy(pr,nsc,a->dim);
     /* go */
-    if (avo_hmat_add_lincons(pr,m,m1,a->dim,array,&exact,&respect_closure)) {
+    if (avo_hmat_add_lincons(pr,m,nsc,a->dim,array,&exact,&respect_closure)) {
       /* empty */
       if (!destructive) avo_hmat_free(pr,m,a->dim);
-      if (!destructive) avo_hmat_free(pr,m1,a->dim);
+      if (!destructive) avo_hmat_free(pr,nsc,a->dim);
       return avo_set_mat_nsc(pr,a,NULL,NULL,NULL,destructive);
     }
     else {
       /* exact if avOctagonal constraints & no conversion error */
       if (num_incomplete || !exact) flag_incomplete;
       else if (pr->conv) flag_conv;
-      if (respect_closure) return avo_set_mat_nsc(pr,a,NULL,m,m1,destructive);
-      else return avo_set_mat_nsc(pr,a,m,NULL,m1,destructive);
+      if (respect_closure) return avo_set_mat_nsc(pr,a,NULL,m,nsc,destructive);
+      else return avo_set_mat_nsc(pr,a,m,NULL,nsc,destructive);
     }
   }
 }
@@ -961,7 +960,7 @@ avo_t* avo_assign_linexpr_d_fixed_sign(avo_internal_t* pr,
 			  avo_t* dest)
 {
   bound_t* m;
-  bound_t* m1;
+  bound_t* nsc;
   bool respect_closure;
   avo_t* a1;
   ap_manager_t* man=pr->man;
@@ -974,24 +973,24 @@ avo_t* avo_assign_linexpr_d_fixed_sign(avo_internal_t* pr,
 
   if (dest && !dest->closed && !dest->m)
     /* definitively empty due to dest*/
-    return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,destructive);
+    return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
 
   if (u.type==EMPTY)
     /* definitively empty due to empty expression */
-    return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,destructive);
+    return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
 
   /* useful to close only for non-invertible assignments */
   if ((u.type!=UNARY || u.i!=d) && pr->funopt->algorithm>=0)
     avo_cache_closure(pr,a1);
   m = a1->closed ? a1->closed : a1->m;
-  m1 = a1->nsc;
-  if (!m) return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,destructive); /* empty */
+  nsc = a1->nsc;
+  if (!m) return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true); /* empty */
 
   /* can / should we try to respect the closure */
   respect_closure = (m==a1->closed) && (pr->funopt->algorithm>=0) && (!dest);
 
   /* go */
-  avo_hmat_assign(pr,u,m,m1,a1->dim,d,&respect_closure);
+  avo_hmat_assign(pr,u,m,nsc,a1->dim,d,&respect_closure);
 
   /* exact on Q if zeroary or unary, closed arg and no conv error */
   if (u.type==BINARY || u.type==OTHER) flag_incomplete;
@@ -1001,18 +1000,15 @@ avo_t* avo_assign_linexpr_d_fixed_sign(avo_internal_t* pr,
 
   /* intersect with dest */
   if (dest) {
-    bound_t* m2 = dest->closed ? dest->closed : dest->m;
-    bound_t* m3 = dest->nsc;
-    size_t i;
-    for (i=0;i<avo_matsize(a1->dim);i++)
+    bound_t* m_d = dest->closed ? dest->closed : dest->m;
+    bound_t* nsc_d = dest->nsc;
+    for (size_t i=0;i<avo_matsize(a1->dim);i++)
     {
-      bound_min(m[i],m[i],m2[i]);
-      if(bound_cmp(m[i],m2[i])==0&&bound_cmp_int(m1[i],1)>0)
-    	  bound_set(m1[i],m3[i]);
+    	bound_bmin_nsc(&(m[i]), &(nsc[i]), m_d[i], nsc_d[i]);
     }
   }
 
- return avo_set_mat_nsc(pr,a1,m,NULL,m1,destructive);
+ return avo_set_mat_nsc(pr,a1,m,NULL,nsc,true);
 }
 
 /* destructive: false (not changing a) */
@@ -1025,44 +1021,60 @@ avo_t* avo_assign_linexpr(ap_manager_t* man,
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY,2*(2*a->dim+1+5));
   bound_t *m = a->closed ? a->closed : a->m;
   bound_t *nsc = a->nsc;
-  size_t dim = a->dim;
+  avo_t *res;
 
   if (bound_cmp_int(m[avo_matpos2(2*d+1,2*d)], 0)<=0 || bound_cmp_int(m[avo_matpos2(2*d,2*d+1)],0)<=0)
   {   /* variable d is definitely positive or negative */
-	  avo_t *re = avo_assign_linexpr_d_fixed_sign(pr,destructive,a,d,expr,dest);
-	  return re;
+	  res = avo_assign_linexpr_d_fixed_sign(pr,destructive,a,d,expr,dest);
+	  return res;
   }
   else
   {
-	  avo_t *a1,*a2;
-	  bound_t* r1 = avo_hmat_alloc(pr,dim);
-	  bound_set_array(r1,m,avo_matsize(dim));
+	  avo_t *a1,*a2,*a12;
+	  bound_t* m1 = avo_hmat_alloc(pr,a->dim);
+	  bound_t* m2 = avo_hmat_alloc(pr,a->dim);
+	  bound_t* nsc1=avo_hmat_alloc(pr,a->dim);
+	  bound_t* nsc2=avo_hmat_alloc(pr,a->dim);
 
-	  bound_t* r2 = avo_hmat_alloc(pr,dim);
-	  bound_set_array(r2,m,avo_matsize(dim));
-
-	  bound_t* rnsc1=avo_hmat_alloc(pr,dim);
-	  bound_set_array(rnsc1,nsc,avo_matsize(dim));
-	  bound_t* rnsc2=avo_hmat_alloc(pr,dim);
-	  bound_set_array(rnsc2,nsc,avo_matsize(dim));
-
-	  bound_set_int(r1[avo_matpos2(2*d+1,2*d)],0);
-	  bound_set_int(r2[avo_matpos2(2*d,2*d+1)],0);
+	  bound_set_array(m1,m,avo_matsize(a->dim));
+	  bound_set_array(m2,m,avo_matsize(a->dim));
+	  bound_set_array(nsc1,nsc,avo_matsize(a->dim));
+	  bound_set_array(nsc2,nsc,avo_matsize(a->dim));
+	  bound_set_int(m1[avo_matpos2(2*d+1,2*d)],0);
+	  bound_set_infty(nsc1[avo_matpos2(2*d+1,2*d)],1);
+	  bound_set_int(m2[avo_matpos2(2*d,2*d+1)],0);
+	  bound_set_infty(nsc2[avo_matpos2(2*d+1,2*d)],1);
 
 	  a1 = avo_alloc_internal(pr,a->dim,a->intdim);
-	  a1->closed = r1;
-	  a1->nsc = rnsc1;
+	  a1->closed = m1;
+	  a1->nsc = nsc1;
 	  a1->m = NULL;
 	  a2 = avo_alloc_internal(pr,a->dim,a->intdim);
-	  a2->closed = r2;
-	  a2->nsc = rnsc2;
+	  a2->closed = m2;
+	  a2->nsc = nsc2;
 	  a2->m = NULL;
-	  avo_hmat_close_incremental(r1,rnsc1,dim, d);
-	  avo_hmat_close_incremental(r2,rnsc2,dim, d);
+	  avo_hmat_close_incremental(m1,nsc1,a->dim, d);
+	  avo_hmat_close_incremental(m2,nsc2,a->dim, d);
 	  a1 = avo_assign_linexpr_d_fixed_sign(pr,true,a1,d,expr,NULL);
 	  a2 = avo_assign_linexpr_d_fixed_sign(pr,true,a2,d,expr,NULL);
-	  avo_t* result = avo_join(man,true,a1,a2);
-	  return result;
+	  a12 = avo_join(man,false,a1,a2);
+	  /* intersect with dest */
+	  if (dest) {
+	    bound_t* m_d = dest->closed ? dest->closed : dest->m;
+	    bound_t* nsc_d = dest->nsc;
+	    for (size_t i=0;i<avo_matsize(a->dim);i++)
+	    {
+	    	bound_bmin_nsc(&(a12->m[i]), &(a12->nsc[i]), m_d[i], nsc_d[i]);
+	    }
+	  }
+	  if (!destructive)	  res = a12;
+	  else{
+		  avo_set_mat_nsc(pr,a,a12->m,a12->closed,a12->nsc,true);
+		  res = a;
+		  free(a12);
+	  }
+	  avo_free_internal(pr,a1);	  avo_free_internal(pr,a2);
+	  return res;
   }
 }
 
@@ -1142,8 +1154,8 @@ avo_t* avo_assign_linexpr_array(ap_manager_t* man,
     avo_init_from_manager(man,AP_FUNID_ASSIGN_LINEXPR_ARRAY,2*(2*a->dim+size+5));
   avo_t* a1;
   ap_dim_t* d = (ap_dim_t*) pr->tmp2;
-  bound_t *m, *mm;
-  bound_t *m1,*mm1;
+  bound_t *m, *m1;
+  bound_t *nsc,*nsc1;
   size_t i;
   ap_dim_t p = a->dim;
   int inexact = 0;
@@ -1166,14 +1178,14 @@ avo_t* avo_assign_linexpr_array(ap_manager_t* man,
     return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
   if (pr->funopt->algorithm>=0) avo_cache_closure(pr,a1);
   m = a1->closed ? a1->closed : a1->m;
-  m1 = a1->nsc;
+  nsc = a1->nsc;
   if (!m) return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true); /* empty */
 
   /* add temporary dimensions to hold destination variables */
-  mm = avo_hmat_alloc_top(pr,a1->dim+size);
-  mm1 = avo_hmat_alloc_top(pr,a1->dim+size);
-  bound_set_array(mm,m,avo_matsize(a1->dim));
-  bound_set_array(mm1,m1,avo_matsize(a1->dim));
+  m1 = avo_hmat_alloc_top(pr,a1->dim+size);
+  nsc1 = avo_hmat_alloc_top(pr,a1->dim+size);
+  bound_set_array(m1,m,avo_matsize(a1->dim));
+  bound_set_array(nsc1,nsc,avo_matsize(a1->dim));
   /* coefs in expr for temporary dimensions are set to 0 */
   for (i=0;i<2*size;i++)
     bound_set_int(pr->tmp[2*a1->dim+i+2],0);
@@ -1181,22 +1193,22 @@ avo_t* avo_assign_linexpr_array(ap_manager_t* man,
   for (i=0;i<size;i++) {
     uexpr u = avo_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a1->dim);
     if (u.type==EMPTY) {
-      avo_hmat_free(pr,mm,a1->dim+size);
-      avo_hmat_free(pr,mm1,a1->dim+size);
+      avo_hmat_free(pr,m1,a1->dim+size);
+      avo_hmat_free(pr,nsc1,a1->dim+size);
       return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
     }
 
     if (u.type==BINARY || u.type==OTHER) inexact = 1;
 
-    avo_hmat_assign(pr,u,mm,mm1,a1->dim+size,a1->dim+i,&respect_closure);
+    avo_hmat_assign(pr,u,m1,nsc1,a1->dim+size,a1->dim+i,&respect_closure);
   }
 
   /* now close & remove temporary variables */
   if (pr->funopt->algorithm>=0) {
-    if (avo_hmat_close(mm,mm1,a1->dim+size)) {
+    if (avo_hmat_close(m1,nsc1,a1->dim+size)) {
       /* empty */
-      avo_hmat_free(pr,mm,a1->dim+size);
-      avo_hmat_free(pr,mm1,a1->dim+size);
+      avo_hmat_free(pr,m1,a1->dim+size);
+      avo_hmat_free(pr,nsc1,a1->dim+size);
       return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
     }
   }
@@ -1207,21 +1219,21 @@ avo_t* avo_assign_linexpr_array(ap_manager_t* man,
     d[a1->dim+i] = tdim[i];
     d[tdim[i]] = a1->dim;
   }
-  avo_hmat_permute(m,mm,a1->dim,a1->dim+size,d);
-  avo_hmat_permute(m1,mm1,a1->dim,a1->dim+size,d);
-  avo_hmat_free(pr,mm,a1->dim+size);
-  avo_hmat_free(pr,mm1,a1->dim+size);
+  avo_hmat_permute(m,m1,a1->dim,a1->dim+size,d);
+  avo_hmat_permute(nsc,nsc1,a1->dim,a1->dim+size,d);
+  avo_hmat_free(pr,m1,a1->dim+size);
+  avo_hmat_free(pr,nsc1,a1->dim+size);
 
   /* intersect with dest */
   if (dest) {
     bound_t* m2 = dest->closed ? dest->closed : dest->m;
-    bound_t* m3 = dest->nsc;
+    bound_t* nsc2 = dest->nsc;
     size_t i;
     for (i=0;i<avo_matsize(a1->dim);i++)
     {
       bound_min(m[i],m[i],m2[i]);
-      if(bound_cmp(m[i],m2[i])==0&&bound_cmp_int(m1[i],1)>0)
-    	  bound_set(m1[i],m3[i]);
+      if(bound_cmp(m[i],m2[i])==0&&bound_cmp_int(nsc[i],1)>0)
+    	  bound_set(nsc[i],nsc2[i]);
     }
   }
 
@@ -1229,7 +1241,7 @@ avo_t* avo_assign_linexpr_array(ap_manager_t* man,
   else if (!a1->closed) flag_algo;
   else if (pr->conv) flag_conv;
 
-  return avo_set_mat_nsc(pr,a1,m,NULL,m1,true);
+  return avo_set_mat_nsc(pr,a1,m,NULL,nsc,true);
 }
 
 avo_t* avo_substitute_linexpr_array(ap_manager_t* man,
@@ -1248,7 +1260,7 @@ avo_t* avo_substitute_linexpr_array(ap_manager_t* man,
     avo_init_from_manager(man,AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY,
 			  2*(2*a->dim+size+5));
   ap_dim_t* d = (ap_dim_t*) pr->tmp2;
-  bound_t *m, *mm, *m2;
+  bound_t *m, *m1, *m2;
   avo_t* a1;
   size_t i,j;
   ap_dim_t p = a->dim;
@@ -1276,23 +1288,23 @@ avo_t* avo_substitute_linexpr_array(ap_manager_t* man,
   if (!m) return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true); /* empty */
 
   /* add temporary dimensions to hold destination variables */
-  mm = avo_hmat_alloc_top(pr,a1->dim+size);
-  bound_set_array(mm,m,avo_matsize(a1->dim));
+  m1 = avo_hmat_alloc_top(pr,a1->dim+size);
+  bound_set_array(m1,m,avo_matsize(a1->dim));
 
   /* susbstitute org with temp variables */
   for (i=0;i<size;i++) {
     size_t dst = 2*(a1->dim+i), src = 2*tdim[i];
     for (j=0;j<src;j++) {
-      bound_bmin(mm[avo_matpos(dst+1,j)],mm[avo_matpos(src+1,j)]);
-      bound_bmin(mm[avo_matpos(dst,j)],mm[avo_matpos(src,j)]);
+      bound_bmin(m1[avo_matpos(dst+1,j)],m1[avo_matpos(src+1,j)]);
+      bound_bmin(m1[avo_matpos(dst,j)],m1[avo_matpos(src,j)]);
     }
     for (j=src+2;j<2*a1->dim+2*size;j++) {
-      bound_bmin(mm[avo_matpos2(dst+1,j)],mm[avo_matpos(j^1,src)]);
-      bound_bmin(mm[avo_matpos2(dst,j)],mm[avo_matpos(j^1,src+1)]);
+      bound_bmin(m1[avo_matpos2(dst+1,j)],m1[avo_matpos(j^1,src)]);
+      bound_bmin(m1[avo_matpos2(dst,j)],m1[avo_matpos(j^1,src+1)]);
     }
-    bound_bmin(mm[avo_matpos(dst+1,dst)],mm[avo_matpos(src+1,src)]);
-    bound_bmin(mm[avo_matpos(dst,dst+1)],mm[avo_matpos(src,src+1)]);
-    avo_hmat_forget_var(mm,a1->dim+size,tdim[i]);
+    bound_bmin(m1[avo_matpos(dst+1,dst)],m1[avo_matpos(src+1,src)]);
+    bound_bmin(m1[avo_matpos(dst,dst+1)],m1[avo_matpos(src,src+1)]);
+    avo_hmat_forget_var(m1,a1->dim+size,tdim[i]);
   }
 
   /* coefs in expr for temporary dimensions are set to 0 */
@@ -1304,33 +1316,33 @@ avo_t* avo_substitute_linexpr_array(ap_manager_t* man,
     uexpr u = avo_uexpr_of_linexpr(pr,pr->tmp,texpr[i],a1->dim);
 
     if (u.type==EMPTY) {
-      avo_hmat_free(pr,mm,a1->dim+size);
+      avo_hmat_free(pr,m1,a1->dim+size);
       return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
     }
 
     if (u.type==BINARY || u.type==OTHER) inexact = 1;
 
-    if (avo_hmat_subst(pr,u,mm,a1->nsc,a1->dim+size,a1->dim+i,m2,
+    if (avo_hmat_subst(pr,u,m1,a1->nsc,a1->dim+size,a1->dim+i,m2,
 		   &respect_closure)) {
       /* empty */
-      avo_hmat_free(pr,mm,a1->dim+size);
+      avo_hmat_free(pr,m1,a1->dim+size);
       return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
     }
   }
 
   /* now close */
   if (pr->funopt->algorithm>=0) {
-    if (avo_hmat_close(mm,a1->nsc,a1->dim+size)) {
+    if (avo_hmat_close(m1,a1->nsc,a1->dim+size)) {
       /* empty */
-      avo_hmat_free(pr,mm,a1->dim+size);
+      avo_hmat_free(pr,m1,a1->dim+size);
       return avo_set_mat_nsc(pr,a1,NULL,NULL,NULL,true);
     }
   }
   else flag_algo;
 
   /* remove temp */
-  bound_set_array(m,mm,avo_matsize(a1->dim));
-  avo_hmat_free(pr,mm,a1->dim+size);
+  bound_set_array(m,m1,avo_matsize(a1->dim));
+  avo_hmat_free(pr,m1,a1->dim+size);
 
   /* intersect with dest */
   if (m2) {

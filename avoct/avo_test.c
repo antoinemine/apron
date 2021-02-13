@@ -82,7 +82,9 @@ char check(avo_t* o)
     if (num_incomplete || o->intdim) return '.'; /* incomplete */
     /* check that o->closed is really closed */
     if (!avo_hmat_check_closed(o->closed,o->nsc,o->dim)) {
-      ERROR("invalid closure");
+      if(avo_closure_alg<=1)
+    	   ERROR("invalid closure: due to weak join");
+      else ERROR("invalid closure: due to strong join");
       return '!';
     }
     if (!o->m) return 'c'; /* ok */
@@ -90,12 +92,16 @@ char check(avo_t* o)
     cl = avo_hmat_copy(pr,o->m,o->dim);
     dl = avo_hmat_copy(pr,o->nsc,o->dim);
     avo_hmat_close(cl,dl,o->dim);
-    for (i=0;i<avo_matsize(o->dim);i++)
-      if (bound_cmp(cl[i],o->closed[i])) {
+    for (i=0;i<avo_matsize(o->dim);i++){
+      int order=bound_cmp(cl[i],o->closed[i]);
+      if (order!=0 || (order==0 && bound_cmp(dl[i],o->nsc[i])<0)) {
 		avo_hmat_free(pr,cl,o->dim);
+		avo_hmat_free(pr,dl,o->dim);
 		return '#';
       }
+    }
     avo_hmat_free(pr,cl,o->dim);
+    avo_hmat_free(pr,dl,o->dim);
     return 'C';
   }
   return '.'; /* regular matrix */
@@ -191,9 +197,9 @@ ap_linexpr0_t* random_from_linexpr(ap_linexpr0_t* a)
       break;
     case AP_COEFF_INTERVAL:
       if (lrand48()%2)
-	ap_coeff_set_scalar(l->p.coeff+i,a->p.coeff[i].val.interval->inf);
+    	  ap_coeff_set_scalar(l->p.coeff+i,a->p.coeff[i].val.interval->inf);
       else 
-	ap_coeff_set_scalar(l->p.coeff+i,a->p.coeff[i].val.interval->sup);
+    	  ap_coeff_set_scalar(l->p.coeff+i,a->p.coeff[i].val.interval->sup);
       break;
       
     }
@@ -481,34 +487,16 @@ void test_box_conversion(void)
     avo_t *o,*o2,*o3;
     ap_interval_t **b,**b2;
     o = random_avo(dim,.1);
-/*
-    printf("\n original o\n");
-    avo_fdump(stdout,mo,o); */
-
     b = avo_to_box(mo,o); FLAG(mo);
     o2 = avo_of_box(mo,0,dim,b); FLAG(mo);
     b2 = avo_to_box(mo,o2); FLAG(mo);
     o3 = avo_of_box(mo,0,dim,b2); FLAG(mo);
     RESULT(check(o));    check(o2);
-/*
-    printf("\n o\n");
-    avo_fdump(stdout,mo,o);
-    printf("\n o2\n");
-    avo_fdump(stdout,mo,o2);
-    printf("\n o3\n");
-    avo_fdump(stdout,mo,o3); */
-
     if (avo_is_nleq(mo,o,o2) || avo_is_nleq(mo,o2,o3)) {
-      ERROR("not included in"); 
+      ERROR("not included in"); /*
       print_avo("o",o);
       print_avo("o2",o2);
-      print_avo("o3",o3);  /*
-      printf("\n o\n");
-      avo_fdump(stdout,mo,o);
-      printf("\n o2\n");
-      avo_fdump(stdout,mo,o2);
-      printf("\n o3\n");
-      avo_fdump(stdout,mo,o3); */
+      print_avo("o3",o3); */
     }
 
     if (avo_is_eq(mo,o2,o3)) RESULT('*');
@@ -536,9 +524,9 @@ void test_serialize(void)
     o2 = avo_deserialize_raw(mo,b.ptr,&sz); FLAG(mo);
     RESULT(check(o)); check(o2);
     if (avo_is_nleq(mo,o,o2)) {
-      ERROR("not included in");
+      ERROR("not included in"); /*
       print_avo("o",o);
-      print_avo("o2",o2);
+      print_avo("o2",o2); */
     }
     if (avo_is_eq(mo,o,o2)) RESULT('*');
     if (flag==exact && avo_is_neq(mo,o,o2)) ERROR("exact flag");
@@ -560,7 +548,8 @@ void test_dimadd(void)
     ap_dimchange_t* a = ap_dimchange_alloc(0,3);
     ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
     o1 = random_avo(dim,.1);
-    if (lrand48()%10>=8) avo_close(pr,o1);
+    //if (lrand48()%10>=8)
+    avo_close(pr,o1);
     if(!o1->m && !o1->closed) { RESULT('o'); continue; } /* empty avo after avo_close() */
     for (i=0;i<a->realdim;i++) {
       a->dim[i] = lrand48()%3;
@@ -583,35 +572,6 @@ void test_dimadd(void)
 void test_dimrem(void)
 {
   printf("\nremove dimensions, forget\n");
-
-  /*
-  size_t i, dim = 4;
-   avo_t *o1, *o2, *o3 ,*o4;
-   ap_dimchange_t* a = ap_dimchange_alloc(0,1);
-   ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
-   o1 = random_avo(dim,.01);
-   if (true) avo_close(pr,o1);
-   if(!o1->m && !o1->closed) { RESULT('o'); return; } // empty avo after avo_close()
-   for (i=0;i<r->realdim;i++) {
-     r->dim[i] = lrand48()%3 + 1;
-     //if (i) r->dim[i] += r->dim[i-1];
-     a->dim[i] = r->dim[i]-i;
-   }
-   o2 = avo_remove_dimensions(mo,false,o1,r);
-   o3 = avo_add_dimensions(mo,false,o2,a,false);
-   o4 = avo_forget_array(mo,false,o1,r->dim,r->realdim,false);
-   RESULT(check(o1)); check(o2); check(o3); check(o4);
-
-
-   if (avo_is_neq(mo,o3,o4)) {
-     ERROR("not eq");
-     ap_dimchange_fprint(stderr,r); ap_dimchange_fprint(stderr,a);
-     print_avo("o1",o1); print_avo("o2",o2);
-     print_avo("o3",o3); print_avo("o4",o4);
-   }
-   avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3); avo_free(mo,o4);
-   ap_dimchange_free(a); ap_dimchange_free(r); */
-
   LOOP {
     size_t i, dim = 15;
     avo_t *o1, *o2, *o3 ,*o4;
@@ -631,9 +591,9 @@ void test_dimrem(void)
     RESULT(check(o1)); check(o2); check(o3); check(o4);
     if (avo_is_neq(mo,o3,o4)) {
       ERROR("not eq");
-      ap_dimchange_fprint(stderr,r); ap_dimchange_fprint(stderr,a);
+      ap_dimchange_fprint(stderr,r); ap_dimchange_fprint(stderr,a);/*
       print_avo("o1",o1); print_avo("o2",o2);
-      print_avo("o3",o3); print_avo("o4",o4);
+      print_avo("o3",o3); print_avo("o4",o4); */
     }
     avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3); avo_free(mo,o4);
     ap_dimchange_free(a); ap_dimchange_free(r);
@@ -668,7 +628,7 @@ void test_permute(void)
     if (avo_is_neq(mo,o1,o3)) {
       ERROR("not eq");
       ap_dimperm_fprint(stderr,p); ap_dimperm_fprint(stderr,q);
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o3",o3);
+      //print_avo("o1",o1); print_avo("o2",o2); print_avo("o3",o3);
     }
     avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o3);
     ap_dimperm_free(p); ap_dimperm_free(q);
@@ -691,7 +651,7 @@ void test_widening(void)
     RESULT(check(o));
     if (avo_is_nleq(mo,o1,o) || avo_is_nleq(mo,o2,o)) {
       ERROR("not upper bound");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
+      //print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
     }
     avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o);
   } ENDLOOP;
@@ -726,7 +686,7 @@ void test_widening_thrs(void)
     RESULT(check(o));
     if (avo_is_nleq(mo,o1,o) || avo_is_nleq(mo,o2,o)) {
       ERROR("not upper bound");
-      print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
+      //print_avo("o1",o1); print_avo("o2",o2); print_avo("o",o);
     }
     avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o);
     for (n=0;n<10;n++) ap_scalar_free(t[n]);
@@ -759,28 +719,6 @@ void test_widening_thrs(void)
 void test_narrowing(void)
 {
   printf("\nnarrowing\n");
-/*
-  int dim = 2;//8;
-  avo_t *o1, *o2, *o, *oo;
-  o1 = random_avo(dim,.01);
-  o2 = random_avo(dim,.01);
-  o  = avo_narrowing(mo,o1,o2);
-  oo = avo_meet(mo,false,o1,o2);
-  RESULT(check(o));
-  if (avo_is_nleq(mo,o,o1)  ) {
-    ERROR("not decreasing 1");
-    print_avo("o1",o1); print_avo("o2",o2);
-    print_avo("o",o); print_avo("oo",oo);
-  }
-  if (  avo_is_nleq(mo,oo,o)) {
-    ERROR("not decreasing 2");
-    print_avo("o1",o1); print_avo("o2",o2);
-    print_avo("o",o); print_avo("oo",oo);
-  }
-
-  avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o); avo_free(mo,oo);
-*/
-
   LOOP {
     int dim = 8;
     avo_t *o1, *o2, *o, *oo;
@@ -790,9 +728,9 @@ void test_narrowing(void)
     oo = avo_meet(mo,false,o1,o2);
     RESULT(check(o));
     if (avo_is_nleq(mo,o,o1) || avo_is_nleq(mo,oo,o)) {
-      ERROR("not decreasing");
+      ERROR("not decreasing");/*
       print_avo("o1",o1); print_avo("o2",o2);
-      print_avo("o",o); print_avo("oo",oo);
+      print_avo("o",o); print_avo("oo",oo);*/
     }
     avo_free(mo,o1); avo_free(mo,o2); avo_free(mo,o); avo_free(mo,oo);
   } ENDLOOP;
@@ -828,7 +766,7 @@ void test_par_assign2(int subst, exprmode mode)
     ap_linexpr0_t* l = random_linexpr(mode,dim);
     o = random_avo(dim,.1);
     if (lrand48()%10>=8) avo_close(pr,o);
-    if(!o->m && !o->closed) { RESULT('o'); continue; } /* empty avo after avo_close() */
+    if(!o->m && !o->closed) { RESULT('o'); avo_free(mo,o); continue; } /* empty avo after avo_close() */
     o1 = subst ?
     		avo_substitute_linexpr_array(mo,false,o,&d,&l,1,NULL) :
     		avo_assign_linexpr_array(mo,false,o,&d,&l,1,NULL);

@@ -18,7 +18,7 @@
 #include "avo_internal.h"
 #include "ap_generic.h"
 
-extern tighten_nsc(bound_t* m, bound_t* nsc, size_t dim);
+extern void tighten_nsc(bound_t* m, bound_t* nsc, size_t dim);
 
 /* ============================================================ */
 /* Memory Related */
@@ -47,7 +47,8 @@ inline void avo_free_internal(avo_internal_t* pr, avo_t* a)
 {
   if (a->m) avo_hmat_free(pr,a->m,a->dim);
   if (a->closed) avo_hmat_free(pr,a->closed,a->dim);
-  a->closed = a->m = NULL;
+  if (a->nsc) avo_hmat_free(pr,a->nsc,a->dim);
+  a->closed = a->m = a->nsc = NULL;
   free(a);
 }
 

@@ -526,6 +526,47 @@ static inline void bounds_mul(bound_t r_inf, bound_t r_sup,
   bound_max(r_inf,r_inf,tmp[7]);
 }
 
+/* ========================================================================== */
+/* Operations on nsc (not neccesarily closed, i.e., possibly <= or < ) bounds */
+/* ========================================================================== */
+
+static inline void bound_add_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t m2, bound_t nsc1, bound_t nsc2)
+{
+	bound_t temp, nsc_temp;
+	bound_init(temp); bound_init(nsc_temp);
+
+	bound_add(temp,m1,m2);
+	if(bound_infty(temp)==true)
+		 bound_set_infty(nsc_temp,1);
+	else bound_min(nsc_temp,nsc1,nsc2);
+
+    int order = bound_cmp(temp,*des_m);
+	if(order<0 || (order==0 && bound_cmp(nsc_temp,*des_nsc)<0)){
+		 bound_set(*des_m,temp);
+		 bound_set(*des_nsc,nsc_temp);
+	}
+
+	bound_clear(temp); bound_clear(nsc_temp);
+}
+
+static inline void bound_bmin_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1)
+{
+	if(bound_infty(m1)==true) return;
+	int order =  bound_cmp(m1,*des_m);
+	if(order < 0 || (order==0 && bound_cmp(nsc1,*des_nsc)<0)){
+		bound_set(*des_m,m1);
+		bound_set(*des_nsc,nsc1);
+	}
+}
+
+static inline void bound_bmax_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1)
+{
+	int order =  bound_cmp(*des_m,m1);
+	if(order < 0 || (order==0 && bound_cmp(*des_nsc,nsc1)<0)){
+		bound_set(*des_m,m1);
+		bound_set(*des_nsc,nsc1);
+	}
+}
 
 /* ============================================================ */
 /* III.5 Conversion to constraints */
@@ -623,9 +664,10 @@ uexpr avo_uexpr_of_linexpr(avo_internal_t* pr, bound_t* dst,
 /* ============================================================ */
 
 struct _avo_t {
-  bound_t* nsc;    /* half-matrix describing not necessarily strictness (closeness), e.g., x -y < c */
   bound_t* m;      /* contraint half-matrix (or NULL) */
   bound_t* closed; /* closed version of m (or NULL for not available) */
+  bound_t* nsc;    /* half-matrix describing not necessarily strictness (closeness), e.g., x -y < c */
+  	  	  	  	   /* TODO: replaced as (char* nsc)  */
   size_t dim;      /* total number of variables */
   size_t intdim;   /* the first intdim variables are integer ones */
 };

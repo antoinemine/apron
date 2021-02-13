@@ -17,9 +17,6 @@
 #include "avo.h"
 #include "avo_internal.h"
 
-extern void bound_bmin_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1);
-extern void bound_bmax_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1);
-
 /* ============================================================ */
 /* Meet and Join */
 /* ============================================================ */
@@ -29,7 +26,7 @@ avo_t* avo_meet(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
 	//printf("AP_FUNID_MEET \n");fflush(stdout);
   avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_MEET,0);
   bound_t* m;
-  bound_t* mm;
+  bound_t* nsc;
 
   arg_assert(a1->dim==a2->dim && a1->intdim==a2->intdim,return NULL;);
   if ((!a1->closed && !a1->m) || (!a2->closed && !a2->m))
@@ -40,17 +37,17 @@ avo_t* avo_meet(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
     bound_t* m2 = a2->closed ? a2->closed : a2->m;
     size_t i;
     m = destructive ? m1 : avo_hmat_alloc(pr,a1->dim);
-    bound_t* mm1 = a1->nsc;
-    bound_t* mm2 = a2->nsc;
-    mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
+    bound_t* nsc1 = a1->nsc;
+    bound_t* nsc2 = a2->nsc;
+    nsc = destructive ? nsc1 : avo_hmat_alloc(pr,a1->dim);
     for (i=0;i<avo_matsize(a1->dim);i++)
     {
-    	bound_set(m[i],m1[i]); bound_set(mm[i],mm1[i]);
-    	bound_bmin_nsc(m+i,mm+i,m2[i],mm2[i]);
+    	bound_set(m[i],m1[i]); bound_set(nsc[i],nsc1[i]);
+    	bound_bmin_nsc(m+i,nsc+i,m2[i],nsc2[i]);
     }
     ///////////////////////////////////////
-    avo_hmat_s_step(m,mm,a1->dim);
-    avo_t* a12=avo_set_mat_nsc(pr,a1,m,NULL,mm,destructive);
+    avo_hmat_s_step(m,nsc,a1->dim);
+    avo_t* a12=avo_set_mat_nsc(pr,a1,m,NULL,nsc,destructive);
 
     /* optimal, but not closed */
     return a12;
@@ -84,27 +81,27 @@ avo_t* avo_join(ap_manager_t* man, bool destructive, avo_t* a1, avo_t* a2)
    bound_t* m2 = a2->closed ? a2->closed : a2->m;
    bound_t* m = destructive ? m1 : avo_hmat_alloc(pr,a1->dim);
    size_t i;
-   bound_t* mm1 = a1->nsc;
-   bound_t* mm2 = a2->nsc;
-   bound_t* mm = destructive ? mm1 : avo_hmat_alloc(pr,a1->dim);
+   bound_t* nsc1 = a1->nsc;
+   bound_t* nsc2 = a2->nsc;
+   bound_t* nsc = destructive ? nsc1 : avo_hmat_alloc(pr,a1->dim);
    man->result.flag_exact = false;
    for (i=0;i<avo_matsize(a1->dim);i++)
    {
-	   bound_set(m[i],m1[i]); bound_set(mm[i],mm1[i]);
-	   bound_bmax_nsc(m+i,mm+i,m2[i],mm2[i]);
+	   bound_set(m[i],m1[i]); bound_set(nsc[i],nsc1[i]);
+	   bound_bmax_nsc(m+i,nsc+i,m2[i],nsc2[i]);
    }
 
-   avo_hmat_s_step(m, mm, a1->dim);
+   avo_hmat_s_step(m, nsc, a1->dim);
 
    if (a1->closed && a2->closed) {
      /* result is closed and optimal on Q */
      if (num_incomplete || a1->intdim) flag_incomplete;
-     return avo_set_mat_nsc(pr,a1,NULL,m,mm,destructive);
+     return avo_set_mat_nsc(pr,a1,NULL,m,nsc,destructive);
    }
    else {
      /* not optimal, not closed */
      flag_algo;
-     return avo_set_mat_nsc(pr,a1,m,NULL,mm,destructive);
+     return avo_set_mat_nsc(pr,a1,m,NULL,nsc,destructive);
    }
  }
 }

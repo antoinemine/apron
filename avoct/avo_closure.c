@@ -18,6 +18,7 @@
 
 /* All closures are in-place. */
 int avo_closure_alg=1;
+
 /* *
  * 0: WeakCloVia1Sign(i.e., enumerating the signs of 1 variables each time)
  * 1(default): WeakCloVia3Sign(i.e., enumerating the signs of 3 variables each time)
@@ -52,48 +53,6 @@ void orthant_encoding_nd(size_t * flag, size_t r,size_t dim)
 		flag[i] = r % 2;
 		i++;
 		r = r / 2;
-	}
-}
-
-/* =================================================================== */
-/* Operations on nsc (not neccesarily closed, i.e., possibly <= or < ) */
-/* =================================================================== */
-
-void bound_add_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t m2, bound_t nsc1, bound_t nsc2)
-{
-	bound_t temp, nsc_temp;
-	bound_init(temp); bound_init(nsc_temp);
-
-	bound_add(temp,m1,m2);
-	if(bound_infty(temp)==true)
-		 bound_set_infty(nsc_temp,1);
-	else bound_min(nsc_temp,nsc1,nsc2);
-
-    int order = bound_cmp(temp,*des_m);
-	if(order<0 || (order==0 && bound_cmp(nsc_temp,*des_nsc)<0)){
-		 bound_set(*des_m,temp);
-		 bound_set(*des_nsc,nsc_temp);
-	}
-
-	bound_clear(temp); bound_clear(nsc_temp);
-}
-
-void bound_bmin_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1)
-{
-	if(bound_infty(m1)==true) return;
-	int order =  bound_cmp(m1,*des_m);
-	if(order < 0 || (order==0 && bound_cmp(nsc1,*des_nsc)<0)){
-		bound_set(*des_m,m1);
-		bound_set(*des_nsc,nsc1);
-	}
-}
-
-void bound_bmax_nsc(bound_t *des_m, bound_t *des_nsc, bound_t m1, bound_t nsc1)
-{
-	int order =  bound_cmp(*des_m,m1);
-	if(order < 0 || (order==0 && bound_cmp(*des_nsc,nsc1)<0)){
-		bound_set(*des_m,m1);
-		bound_set(*des_nsc,nsc1);
 	}
 }
 
@@ -539,10 +498,11 @@ bool avo_hmat_s_step(bound_t* m, bound_t* nsc, size_t dim)
   // emptiness checking
   for (i=0;i<4*dim;i++) {
 	 c = m+avo_matpos2(i,i);
-	 if (bound_sgn(*c)<0) return true;
-	 else if (bound_sgn(*c)==0) { // <0
-	    c1 = nsc+avo_matpos2(i,i);
-	    if (bound_sgn(*c1)<0) return true;
+	 c1 = nsc+avo_matpos2(i,i);
+	 if (bound_sgn(*c)<0 || (bound_sgn(*c)==0 && bound_sgn(*c1)<0 ) ){
+		bound_clear(ij); bound_clear(ij2); bound_clear(ii); bound_clear(ii2); bound_clear(jj2);
+		bound_clear(ii_nsc); bound_clear(ij2_nsc);  bound_clear(ij_nsc); bound_clear(ii2_nsc); bound_clear(jj2_nsc);
+		return true;
 	 }
 	 bound_set_int(*c,0);
   }
@@ -556,8 +516,19 @@ bool avo_hmat_s_step(bound_t* m, bound_t* nsc, size_t dim)
 		bound_min(ij_nsc,nsc[avo_matpos2(i,k)],nsc[avo_matpos2(k,j)]);
 		bound_bmin_nsc(m+avo_matpos2(i,j), nsc+avo_matpos2(i,j), ij, ij_nsc);
   }
+
   bound_clear(ij); bound_clear(ij2); bound_clear(ii); bound_clear(ii2); bound_clear(jj2);
   bound_clear(ii_nsc); bound_clear(ij2_nsc);  bound_clear(ij_nsc); bound_clear(ii2_nsc); bound_clear(jj2_nsc);
+
+  // emptiness checking again
+  for (i=0;i<4*dim;i++) {
+	 c = m+avo_matpos2(i,i);
+	 c1 = nsc+avo_matpos2(i,i);
+	 if (bound_sgn(*c)<0 || (bound_sgn(*c)==0 && bound_sgn(*c1)<0 ) ){
+	    return true;
+	 }
+	 bound_set_int(*c,0);
+  }
   return false;
 }
 
@@ -619,29 +590,30 @@ bool tighten_nsc_via_nvars(bound_t* m, bound_t* nsc, size_t dim, size_t *hash, s
 		   ti_time++;
 		}
  	}
-	if(ti_time == 1)  return true; // infeasible
-
-	ha_i = malloc(sizeof(size_t) * 4 * n);
-	ha_j = malloc(sizeof(size_t) * 4 * n);
-	for(i = 0 ; i < 2*n ;i++)
-		ha_i[i] = hash[i/2] * 2 + i % 2;
-	for(j = 0 ; j < 2*n ;j++)
-		ha_j[j] = hash[j/2] * 2 + j % 2;
-	for(i = 2*n ; i < 4*n ;i++)
-		ha_i[i] = hash[(i-2*n)/2] * 2 + 2 * dim + i % 2;
-	for(j = 2*n ; j < 4*n ;j++)
-		ha_j[j] = hash[(j-2*n)/2] * 2 + 2 * dim + j % 2;
-	for(i = 0 ; i < 4*n ;i++)
-	for(j = 0 ; j <= (i|1) ;j++)
-	{    //using avond to tighten avo(m,nsc)
-		bound_bmin_nsc(m+avo_matpos2(ha_i[i],ha_j[j]),nsc+avo_matpos2(ha_i[i],ha_j[j]),avond[avo_matpos2(i,j)],avond_nsc[avo_matpos2(i,j)]);
+	if(ti_time > 1) { // feasible
+		ha_i = malloc(sizeof(size_t) * 4 * n);
+		ha_j = malloc(sizeof(size_t) * 4 * n);
+		for(i = 0 ; i < 2*n ;i++)
+			ha_i[i] = hash[i/2] * 2 + i % 2;
+		for(j = 0 ; j < 2*n ;j++)
+			ha_j[j] = hash[j/2] * 2 + j % 2;
+		for(i = 2*n ; i < 4*n ;i++)
+			ha_i[i] = hash[(i-2*n)/2] * 2 + 2 * dim + i % 2;
+		for(j = 2*n ; j < 4*n ;j++)
+			ha_j[j] = hash[(j-2*n)/2] * 2 + 2 * dim + j % 2;
+		for(i = 0 ; i < 4*n ;i++)
+		for(j = 0 ; j <= (i|1) ;j++)
+		{    //using avond to tighten avo(m,nsc)
+			bound_bmin_nsc(m+avo_matpos2(ha_i[i],ha_j[j]),nsc+avo_matpos2(ha_i[i],ha_j[j]),avond[avo_matpos2(i,j)],avond_nsc[avo_matpos2(i,j)]);
+		}
+		free(ha_i);  free(ha_j);
 	}
  	bound_clear_array(octnd,avo_matsize(n));
 	bound_clear_array(octnd_nsc,avo_matsize(n));
 	bound_clear_array(avond,avo_matsize(n));
 	bound_clear_array(avond_nsc,avo_matsize(n));
 	free(octnd); free(octnd_nsc); free(avond); free(avond_nsc);
-	free(flag); free(ha_i);  free(ha_j);
+	free(flag);
 	return false;
 }
 
