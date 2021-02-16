@@ -77,8 +77,3 @@ requires = "apron.apron"
 archive(byte) = "fppD.cma"
 archive(native) = "fppD.cmxa"
 )
-package "itvpD" (
-requires = "apron.apron"
-archive(byte) = "itvpD.cma"
-archive(native) = "itvpD.cmxa"
-)

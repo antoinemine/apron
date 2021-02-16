@@ -1148,8 +1148,8 @@ int fppol_inclusion_byBound(fpp_t *fpp1, fpp_t *fpp2)
         lbnd2=*(fpp2->bnds+2*i);
         ubnd1=*(fpp1->bnds+2*i+1);
         ubnd2=*(fpp2->bnds+2*i+1);
-	if(lbnd1 < lbnd2 || ubnd1 > ubnd2)
-	  return false;
+        if(lbnd1 < lbnd2 || ubnd1 > ubnd2)
+        	return false;
     }
     return flag;
 }
