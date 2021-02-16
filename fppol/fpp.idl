@@ -1,0 +1,177 @@
+/* -*- mode: c -*- */
+
+/*
+ * fpp.idl
+ *
+ * OCaml interface specification for camlidl
+ *
+ * APRON Library / Fppol Domain
+ *
+ * Copyright (C) Liqian CHEN' 2008
+ *
+ */
+
+/* This file is part of the APRON Library, released under LGPL license
+   with an exception allowing the redistribution of statically linked
+   executables.
+
+   Please read the COPYING file packaged in the distribution.
+*/
+
+quote(C,"/*\n This file is part of the APRON Library, released under LGPL license.\n Please read the COPYING file packaged in the distribution.\n*/")
+quote(MLMLI,"(*\n This file is part of the APRON Library, released under LGPL license.\n Please read the COPYING file packaged in the distribution.\n*)")
+
+quote(MLI,"\n \n(** Fppol abstract domain. *)\n \n")
+
+quote(C,"#include \"fpp.h\"")
+quote(C,"#include \"apron_caml.h\"")
+
+quote(C,"#define I0_CHECK_EXC(man) if (man->result.exn!=AP_EXC_NONE){ value v = camlidl_c2ml_manager_struct_ap_exclog_t(man->result.exclog,_ctx); caml_raise_with_arg(*caml_named_value(\"apron exception\"),v); } ")
+
+
+quote(C,"typedef struct fpp_internal_t* internal_ptr;")
+
+import "generator0.idl";
+import "abstract0.idl";
+import "scalar.idl";
+import "manager.idl";
+
+typedef [abstract] struct fpp_internal_t* internal_ptr;
+
+quote(MLMLI,"\n \n\
+type t\n\
+  (** Type of fppols.\n\n\
+      Fppols are defined by conjunctions of inequalities of the form\n\
+      [+/-x_i +/- x_j >= 0].\n\n\
+    Abstract values which are fppols have the type [t Apron.AbstractX.t].\n\n\
+    Managers allocated for fppols have the type [t Apron.manager.t].\n\
+  *)\n\n \
+")
+
+quote(MLI,"(** Allocate a new manager to manipulate fppols. *)")
+ap_manager_ptr fpp_manager_alloc(void);
+
+quote(MLI,"(** No internal parameters for now... *)")
+internal_ptr manager_get_internal(ap_manager_ptr man)
+  quote(call,"_res = (internal_ptr)man->internal;");
+
+quote(MLI,"(** Approximate a set of generators to an abstract value, with best precision. *)")
+ap_abstract0_ptr ap_abstract0_fpp_of_generator_array(ap_manager_ptr man, int v1, int v2, [ref]struct ap_generator0_array_t* v3)
+     quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Widening with scalar thresholds. *)")
+ap_abstract0_ptr ap_abstract0_fpp_widening_thresholds(ap_manager_ptr man,ap_abstract0_ptr a1,ap_abstract0_ptr a2,struct ap_scalar_array_t array)
+     quote(call,"_res = ap_abstract0_fpp_widening_thresholds(man,a1,a2,(ap_scalar_t**)array.p,array.size);")
+     quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Standard narrowing. *)")
+ap_abstract0_ptr ap_abstract0_fpp_narrowing(ap_manager_ptr man, ap_abstract0_ptr a1,ap_abstract0_ptr a2)
+     quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Perturbation. *)")
+ap_abstract0_ptr ap_abstract0_fpp_add_epsilon(ap_manager_ptr man,ap_abstract0_ptr a,ap_scalar_ptr epsilon)
+     quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Perturbation. *)")
+ap_abstract0_ptr ap_abstract0_fpp_add_epsilon_bin(ap_manager_ptr man,ap_abstract0_ptr a1,ap_abstract0_ptr a2,ap_scalar_ptr epsilon)
+     quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Algorithms. *)")
+const int pre_widening = 99;
+
+quote(MLI,"\n(** {2 Type conversions} *)
+
+val manager_is_fpp : 'a Apron.Manager.t -> bool
+  (** Return [true] iff the argument manager is a fppol manager *)
+val manager_of_fpp : t Apron.Manager.t -> 'a Apron.Manager.t
+  (** Make a fppol manager generic *)
+val manager_to_fpp : 'a Apron.Manager.t -> t Apron.Manager.t
+  (** Instanciate the type of a fppol manager.
+      Raises [Failure] if the argument manager is not a fppol manager *)
+module Abstract0 : sig
+  val is_fpp : 'a Apron.Abstract0.t -> bool
+    (** Return [true] iff the argument value is a fpp value *)
+  val of_fpp : t Apron.Abstract0.t -> 'a Apron.Abstract0.t
+    (** Make an a fpp value generic *)
+  val to_fpp : 'a Apron.Abstract0.t -> t Apron.Abstract0.t
+    (** Instanciate the type of a fpp value.
+	Raises [Failure] if the argument value is not a fpp value *)
+end
+module Abstract1 : sig
+  val is_fpp : 'a Apron.Abstract1.t -> bool
+    (** Return [true] iff the argument value is a fpp value *)
+  val of_fpp : t Apron.Abstract1.t -> 'a Apron.Abstract1.t
+    (** Make a fpp value generic *)
+  val to_fpp : 'a Apron.Abstract1.t -> t Apron.Abstract1.t
+    (** Instanciate the type of a fpp value.
+	Raises [Failure] if the argument value is not a fpp value *)
+end
+")
+
+quote(ML,"
+let manager_is_fpp man =
+  let str = Apron.Manager.get_library man in
+  (String.compare str \"fpp\")==0
+let manager_of_fpp (man:t Apron.Manager.t) : 'a Apron.Manager.t = Obj.magic man
+let manager_to_fpp (man:'a Apron.Manager.t) : t Apron.Manager.t =
+  if manager_is_fpp man then
+    Obj.magic man
+  else
+    failwith \"Fpp.manager_to_fpp: the argument manager is not a Fpp manager\"
+module Abstract0 = struct
+  let is_fpp abs =
+    manager_is_fpp (Apron.Abstract0.manager abs)
+  let of_fpp (abs: t Apron.Abstract0.t) : 'a Apron.Abstract0.t = Obj.magic abs
+  let to_fpp (abs:'a Apron.Abstract0.t) : t Apron.Abstract0.t =
+  if is_fpp abs then
+    Obj.magic abs
+  else
+    failwith \"Fpp.Abstract0.to_fpp: the argument value is not a fpp value\"
+end
+module Abstract1 = struct
+  let is_fpp abs =
+    manager_is_fpp (Apron.Abstract1.manager abs)
+  let of_fpp (abs: t Apron.Abstract1.t) : 'a Apron.Abstract1.t = Obj.magic abs
+  let to_fpp (abs:'a Apron.Abstract1.t) : t Apron.Abstract1.t =
+  if is_fpp abs then
+    Obj.magic abs
+  else
+    failwith \"Fpp.Abstract1.to_fpp: the argument value is not a fpp value\"
+end
+")
+
+quote(MLI,"\n(**
+{2 Compilation information}
+
+See {!Introduction.compilation} for complete explanations.
+We just show examples with the file [mlexample.ml].
+
+{3 Bytecode compilation}
+
+{[ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma fppD.cma mlexample.ml]}
+
+{[ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -make-runtime -o myrun \\
+  bigarray.cma gmp.cma apron.cma fppD.cma
+
+ocamlc -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myrun -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma fppD.cma mlexample.ml ]}
+
+{3 Native-code compilation}
+
+{[ocamlopt -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa fppD.cmxa mlexample.ml ]}
+
+{3 Without auto-linking feature}
+
+{[ocamlopt -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -noautolink -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa fppD.cmxa mlexample.ml \\
+  -cclib \"-L$MLGMPIDL_PREFIX/lib -L$APRON_PREFIX/lib \\
+	  -lfppD_caml_debug -lfppD_debug \\
+	  -lapron_caml_debug -lapron_debug \\
+	  -lgmp_caml -L$MPFR_PREFIX/lib -lmpfr -L$GMP_PREFIX/lib -lgmp \\
+	  -lglpk -L$GLPK_PREFIX/lib \\	  
+	  -L$CAMLIDL_PREFIX/lib/ocaml -lcamlidl \\
+	  -lbigarray\" ]}
+
+*)")

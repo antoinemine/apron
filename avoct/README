@@ -1,0 +1,155 @@
+# README
+#
+# Installation documentation
+#
+# APRON Library / Absolute Value Octagonal (AVO) Domain
+#
+# Copyright (C) Liqian Chen & Jiangchao Liu' 2014-
+#
+# Technique details see: 
+#   [Liqian Chen, Jiangchao Liu, Antoine Miné, Deepak Kapur and Ji Wang. 
+#    An Abstract Domain to Infer Octagonal Constraints with Absolute Value. In SAS 2014.]
+#
+# This file is part of the APRON Library, released under LGPL license.
+# Please read the COPYING file packaged in the distribution
+
+This package is a implementation of the AV octagon abstract domain that
+conforms to the APRON interface.
+It includes both a C and a OCaml interface.
+
+
+EASY START
+==========
+
+The main APRON makefile (likely ../Makefile)  should automatically build
+and install the AV octagon library.
+Actually, it only builds the most useful parts: the C libraries using GMP
+integers (libavoZg.a) and using doubles (libavoFd.a) as well as the OCaml
+wrapper (avo.cm(x)a) (provided HAS_OCAML has been defined in Makefile.config).
+
+The rest documents some extra things you can do by calling directly the
+Makefile in the AV octagon directory.
+
+
+C LIBRARY
+=========
+
+Requirements:
+ * the APRON library 
+ * the ITV and NUM libraries 
+ * the MPFR and GMP libraries
+
+Provided libraries.
+Several versions of the AV octagon domain are provided, based on different 
+internal representation for numbers. 
+They are distinguished by a two-letter "numeric suffix":
+ * Il  : integers with a plain "long int" representation
+ * Ill : integers with a "long long int" representation
+ * MPZ : arbitrary precision integers using GMP
+ * Rl  : rationals with a "long int" representation
+ * Rll : rationals with a "long long int" representation
+ * MPQ : arbitrary precision rationals using GMP
+ * D   : reals with a "double" representation
+ * Dl    reals with a "long double" representation
+
+Given the numeric suffix Xx, the library is named libavoXx.a.
+
+How to compile (given a numeric suffix Xx):
+
+ 1) the parent directory must contain a Makefile.config file
+
+ 2) make sure the Makefile.config has the following variables defined:
+    APRON_PREFIX  where the apron module from APRON is installed
+    NUM_PREFIX    where the num module from APRON is installed
+    GMP_PREFIX    where the GMP library is installed
+
+ 3) if you just check-out the SVN distribution, you need to
+    "make rebuild"
+    if you use a stable tarball distribution, this is not necessary
+
+ 4) "make Xx"
+
+ 5) "make install" will install the compiled C library(ies) in
+     APRON_PREFIX/lib, and the headers in APRON_PREFIX/include/avo
+
+
+Note that "make all" is a shortcut for "make Il Ill ... Dl", that is,
+it builds all C libraries.
+
+
+SELF-TEST
+=========
+
+The distribution contains a self-testing utility.
+Given the numeric suffix Xx, the utility is names avotestXx
+
+Requirements:
+ * All of the above
+ * the newpolka module for APRON
+
+How to use (given a numeric suffix Xx):
+
+ 1) make sure the Makefile.config file has the POLKA_PREFIX variable defined
+
+ 2) type "make avotestXx" 
+
+ 3) run with "./avotestXx"
+
+The test should not produce any error. Please report any error encountered!
+
+
+
+OCAML LIBRARY
+=============
+
+Requirements:
+ * OCaml 4.01 (or upper version)
+ * the GMP and MPFR libraries
+ * the APRON library (including the apron, num, itv, mlgmpidl, and mlapronidl
+   modules)
+
+How to compile the library:
+
+ 1) make sure the Makefile.config has the following variables defined:
+    CAML_PREFIX        where the standard OCaml distribution is installed
+                       (without the /bin/ocaml suffix)
+    MLAPRONIDL_PREFIX  where the OCaml binding for APRON is installed
+    MLGMPIDL_PREFIX    where the OCaml binding for GMP from APRON is installed
+
+ 2) "make ml"
+
+ 3) "make install" will install the OCaml module(s) in APRON_PREFIX/lib
+
+"make rebuild" will generate some .ml, .mli, .c source files from the .idl
+files (and some sed scripts). This is only needed if you check-out from SVN as
+the generated files are provided in tarballs (to ease installation).
+
+The library to link with is called avo.cma, for byte-code, and avo.cmxa 
+for native code. The corresponding module is called Avo.
+There is no numeric suffix here: the OCaml wrapper is independent from the
+number representation chosen.
+
+When building OCaml programs, you must link with both:
+- the generic OCaml library avo.cma or avo.cmxa
+- the C AV octagon library with the desired suffix.
+and all the apron & gmp libraries.
+See mltest.ml for an example.
+
+Top-level & byte-code runtime can be compiling using "make mlXx".
+Here, you must tell with numeric suffix "Xx" you wish to use.
+"make install" will install them in APRON_PREFIX/bin.
+
+
+CLEANING
+========
+
+"make clean" will delete all object files, but not auto-generated sources.
+
+"make mostlyclean" will also delete sources generated from idl files
+(only relevant for the OCaml library).
+After mostlyclean-ing, you will need to rebuild them manually with
+"make rebuild".
+This requires CAMLIDL_PREFIX to be setup properly in ../Makefile.config.
+
+"make distclean" will clean all objects (not auto-generated sources) and
+uninstall them.

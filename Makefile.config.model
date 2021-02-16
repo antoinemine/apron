@@ -21,6 +21,11 @@ HAS_OCAMLOPT = 1
 
 # HAS_PPL = 1
 
+# If defined to non-empty value, compiles the fppol domain
+# (The fppol domain requires GLPK)
+
+# HAS_GLPK = 1
+
 # If defined to non-empty value, support for "long double" is enabled
 
 # HAS_LONG_DOUBLE = 1
@@ -62,6 +67,10 @@ MPFR_PREFIX = /usr
 # Where to find PPL ($(PPL_PREFIX)/include, $(PPL_PREFIX)/lib
 #
 PPL_PREFIX = /usr
+
+# Where to find GLPK ($(GLPK_PREFIX)/include, $(GLPK_PREFIX)/lib
+#
+GLPK_PREFIX = /usr
 
 # Where to find OCAML ($(CAML_PREFIX)/bin, $(CAML_PREFIX)/lib/ocaml, ...)
 #

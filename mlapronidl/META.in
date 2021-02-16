@@ -62,3 +62,18 @@ archive(native,debug) = "t1pMPFR.d.cmxa"
 archive(byte) = "t1pMPFR.cma"
 archive(native) = "t1pMPFR.cmxa"
 )
+package "avoD" (
+requires = "apron.apron"
+archive(byte) = "avoD.cma"
+archive(native) = "avoD.cmxa"
+)
+package "avoMPQ" (
+requires = "apron.apron"
+archive(byte) = "avoMPQ.cma"
+archive(native) = "avoMPQ.cmxa"
+)
+package "fppD" (
+requires = "apron.apron"
+archive(byte) = "fppD.cma"
+archive(native) = "fppD.cmxa"
+)

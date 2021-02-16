@@ -27,6 +27,10 @@ ifneq ($(HAS_PPL),)
 	(cd ppl; $(MAKE))
 	(cd products; $(MAKE))
 endif
+	(cd avoct; $(MAKE) MPQ D)
+ifneq ($(HAS_GLPK),)
+	(cd fppol; $(MAKE) all) 
+endif
 
 cxx:
 	(cd apronxx; $(MAKE))
@@ -44,14 +48,22 @@ ifneq ($(HAS_PPL),)
 	(cd ppl; $(MAKE) ml)
 	(cd products; $(MAKE) ml)
 endif
+	(cd avoct; $(MAKE) mlMPQ mlD)
+ifneq ($(HAS_GLPK),)
+	(cd fppol; $(MAKE) allml) 
+endif
 
 aprontop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma avoMPQ.cma
 
 apronppltop:
 	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
-	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma ppl.cma polkaGrid.cma t1pMPQ.cmxa avoMPQ.cma
+
+apronglpktop:
+	$(OCAMLMKTOP) -I $(MLGMPIDL_LIB) -I $(APRON_LIB) -verbose -o $@ \
+	bigarray.cma gmp.cma apron.cma boxMPQ.cma octMPQ.cma polkaMPQ.cma t1pMPQ.cma avoMPQ.cma fppMPQ.cma
 
 rebuild:
 	@echo "$(MAKE) rebuild is no longer necessary"
@@ -78,6 +90,9 @@ OCAMLFIND_FILES = \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pD, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPQ, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,taylor1plus/%, $(subst xxx,t1pMPFR, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,avoct/%, avo.mli avo.cmi avo.cmx) \
+	$(patsubst %,avoct/%, $(subst xxx,avoD, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,avoct/%, $(subst xxx,avoMPQ, $(OCAMLFIND_PROTO))) \
 	$(patsubst %,mlapronidl/%.idl, scalar interval coeff \
 dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy \
@@ -89,6 +104,11 @@ OCAMLFIND_FILES += \
 	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.$(EXT_DLL)) \
 	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
+endif
+ifneq ($(HAS_GLPK),)
+OCAMLFIND_FILES += \
+	$(patsubst %,fppol/%, fpp.mli fpp.cmi fpp.cmx) \
+	$(patsubst %,fppol/%, $(subst xxx,fppD, $(OCAMLFIND_PROTO)))  
 endif
 ifneq ($(OCAMLPACK),)
 OCAMLFIND_FILES += mlapronidl/apron_ocamldoc.mli
@@ -104,6 +124,11 @@ OCAMLFIND_FILES += \
 	$(patsubst %,ppl/%, ppl.cmti ppl.cmt) \
 	$(patsubst %,products/%, polkaGrid.cmti polkaGrid.cmt)
 endif
+	$(patsubst %,avoct/%, avo.cmti avo.cmt)
+ifneq ($(HAS_GLPK),)
+OCAMLFIND_FILES += \
+	$(patsubst %,fppol/%, fpp.cmti fpp.cmt) 
+endif
 endif
 
 install: all
@@ -118,6 +143,10 @@ ifneq ($(HAS_PPL),)
 	(cd ppl; $(MAKE) install)
 	(cd products; $(MAKE) install)
 endif
+	(cd avoct; $(MAKE) install)
+ifneq ($(HAS_GLPK),)
+	(cd fppol; $(MAKE) install) 
+endif
 ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
 	(cd mlapronidl; $(MAKE) install)
@@ -125,6 +154,9 @@ ifeq ($(OCAMLFIND),)
 	if test -f aprontop; then $(INSTALL) aprontop $(APRON_BIN); fi
 ifneq ($(HAS_PPL),)
 	if test -f apronppltop; then $(INSTALL) apronppltop $(APRON_BIN); fi
+endif
+ifneq ($(HAS_GLPK),)
+		if test -f apronglpktop; then $(INSTALL) apronglpktop $(APRON_BIN); fi
 endif
 else
 	$(OCAMLFIND) remove apron
@@ -168,11 +200,13 @@ clean:
 	(cd taylor1plus; $(MAKE) clean)
 	(cd ppl; $(MAKE) clean)
 	(cd products; $(MAKE) clean)
+	(cd avoct; $(MAKE) clean)
+	(cd fppol; $(MAKE) clean) 
 	(cd apronxx; $(MAKE) clean)
 	(cd examples; $(MAKE) clean)
 	(cd test; $(MAKE) clean)
 	(cd japron; $(MAKE) clean)
-	rm -fr online tmp apron*run aprontop apronppltop
+	rm -fr online tmp apron*run aprontop apronppltop apronglpktop
 	rm -f mlapronidl/META
 
 distclean: clean
@@ -190,6 +224,8 @@ uninstall:
 	(cd examples; $(MAKE) uninstall)
 	(cd ppl; $(MAKE) uninstall)
 	(cd products; $(MAKE) uninstall)
+	(cd avoct; $(MAKE) uninstall)
+	(cd fppol; $(MAKE) uninstall) 
 	(cd apronxx; $(MAKE) uninstall)
 	(cd japron; $(MAKE) uninstall)
 	(cd $(APRON_BIN); rm -f apron*)
@@ -213,7 +249,7 @@ endif
 
 PKG  = $(PKGNAME)-$(VERSION_STR)
 PKGFILES = Makefile README README.windows README.mac AUTHORS COPYING Makefile.config.model Changes configure vars.mk ocamlpack
-PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products mlapronidl examples test apronxx japron
+PKGDIRS  = apron num itv octagons box newpolka taylor1plus ppl products avoct fppol mlapronidl examples test apronxx japron
 
 dist:
 	$(MAKE) all
