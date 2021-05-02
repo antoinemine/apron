@@ -261,7 +261,7 @@ ap_interval_t** fpp_to_box(ap_manager_t* man,
 ap_generator0_array_t fpp_to_generator_array(ap_manager_t* man,
 					    fpp_t* a)
 {
-   ap_generator0_array_t array;
+  ap_generator0_array_t array = ap_generator0_array_make(0);
    /*box_to_generator_array();*/
    return array;
 }

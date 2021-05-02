@@ -34,6 +34,8 @@
 
 ap_manager_t* mp; /* polyhedron */
 fpp_internal_t* pr;
+struct timeval tpstart,tpend;
+double timeuse;
 
 
 /* *********************************** */

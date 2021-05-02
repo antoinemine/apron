@@ -164,8 +164,12 @@ libfpp%.$(EXT_DLL): $(subst .c,%.o,$(CCSOURCES))
 
 libfpp%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCSOURCES))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
-		
-fpptest%: libfpp%_debug.a fpp_example%.o
+
+ifneq ($(HAS_SHARED),)
+fpptest%: fpp_example%.o libfpp%_debug.a libfpp%_debug.$(EXT_DLL)
+else
+fpptest%: fpp_example%.o libfpp%_debug.a
+endif
 	$(CC) $(LDFLAGS) $(CFLAGS_DEBUG) $(ICFLAGS) -o $@ fpp_example$*.o \
 	-L. -lfpp$*_debug \
 	-L../apron -lapron_debug \

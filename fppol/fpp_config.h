@@ -34,8 +34,7 @@ extern int rump_max_iterations;
 /*-----------------------------------------------*/
 /*                 time                         */
 /*-----------------------------------------------*/
-struct timeval tpstart,tpend;
-double timeuse,lptime;
+extern double lptime;
 
 /*-----------------------------------------------*/
 /*                 types                         */
