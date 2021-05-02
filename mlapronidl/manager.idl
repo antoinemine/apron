@@ -282,6 +282,10 @@ let print_exclog fmt x =\n\
 let print_funopt fmt x =\n\
   Format.fprintf fmt \"{ @[ algorithm = %i;@ timeout = %i;@ max_object_size = %i;@ flag_exact_wanted = %b;@ flag_best_wanted = %b;@] }\"
     x.algorithm x.timeout x.max_object_size x.flag_exact_wanted x.flag_best_wanted\n\
+let () = Printexc.register_printer (function\n\
+    | Error e ->\n\
+        Some (Format.asprintf \"%a\" print_exclog e)\n\
+    | _ -> None )\n\
 ")
 
 quote(MLI,"(** Set / get the global manager used for deserialization *)")
