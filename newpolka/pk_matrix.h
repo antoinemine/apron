@@ -111,6 +111,11 @@ bool matrix_is_row_dummy_constraint(pk_internal_t* pk,
 /* Functions meant to be internal */
 matrix_t* _matrix_alloc_int(size_t nr, size_t nc, bool s);
 
+/* Serialization */
+size_t matrix_serialized_size(matrix_t* m);
+size_t matrix_serialize(matrix_t* m, void* ptr);
+matrix_t* matrix_deserialize(void* ptr, size_t* size);
+
 #ifdef __cplusplus
 }
 #endif

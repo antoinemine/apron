@@ -562,3 +562,80 @@ void matrix_merge_sort_with(pk_internal_t* pk,
   mata->_sorted = true;
   free(numintpp);
 }
+
+
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+/* Byte-size of serialized matrix; m can be NULL! */
+size_t matrix_serialized_size(matrix_t* m)
+{
+  size_t r, i, j;
+  if (!m) return 1;
+  r = /*null?*/1 + /*nbrows*/4 + /*nbcolumns*/4 + /*sorted*/1;
+  for (i=0; i<m->nbrows; i++)
+    for (j=0; j<m->nbcolumns; j++)
+      r += numint_serialized_size(m->p[i][j]);
+  return r;
+}
+
+/* Serialize m into ptr, returns the serialized byte-size; can serialize NULL */
+size_t matrix_serialize(matrix_t* m, void* ptr)
+{
+  size_t i, j;
+  unsigned char* pos = (unsigned char*)ptr;
+  if (!m) {
+    *pos = 0;
+    return 1;
+  }
+  /* check that sizes fit in 32 bits */
+  assert(m->nbrows == (uint32_t)(m->nbrows));
+  assert(m->nbcolumns == (uint32_t)(m->nbcolumns));
+  /* store header */
+  *pos = 1;
+  pos++;
+  *pos = m->_sorted;
+  pos++;
+  num_dump_word32(pos, m->nbrows);
+  pos += 4;
+  num_dump_word32(pos, m->nbcolumns);
+  pos += 4;
+  /* store data */
+  for (i=0; i<m->nbrows; i++)
+    for (j=0; j<m->nbcolumns; j++)
+      pos += numint_serialize(pos, m->p[i][j]);
+  /* compute stored size */
+  return pos - (unsigned char*)ptr;
+}
+
+/* Deserialize from ptr; returns the serialized byte-size; can deserialize NULL */
+matrix_t* matrix_deserialize(void* ptr, size_t* size)
+{
+  unsigned char* pos = (unsigned char*)ptr;
+  size_t nbrows, nbcolumns;
+  bool sorted;
+  matrix_t* m;
+  size_t i, j;
+  if (*pos == 0) {
+    *size = 1;
+    return NULL;
+  }
+  /* load header */
+  pos++;
+  sorted = *pos;
+  pos++;
+  nbrows = num_undump_word32(pos);
+  pos += 4;
+  nbcolumns = num_undump_word32(pos);
+  pos += 4;
+  /* allocate */
+  m = matrix_alloc(nbrows, nbcolumns, sorted);
+  /* load data */
+  for (i=0; i<m->nbrows; i++)
+    for (j=0; j<m->nbcolumns; j++)
+      pos += numint_deserialize(m->p[i][j], pos);
+  /* compute loaded size */
+  *size = pos - (unsigned char*)ptr;
+  return m;
+}

@@ -532,17 +532,81 @@ void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
 ap_membuf_t pk_serialize_raw(ap_manager_t* man, pk_t* a)
 {
   ap_membuf_t membuf;
+  unsigned char* buf;
+  size_t size;
   pk_init_from_manager(man,AP_FUNID_SERIALIZE_RAW);
-  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_SERIALIZE_RAW,NULL);
-  membuf.ptr = NULL;
-  membuf.size = 0;
+
+  /* check that sizes fit in 32 bits */
+  assert(a->intdim == (uint32_t)(a->intdim));
+  assert(a->realdim == (uint32_t)(a->realdim));
+  assert(a->nbeq == (uint32_t)(a->nbeq));
+  assert(a->nbline == (uint32_t)(a->nbline));
+
+  /* compute size */
+  size = /*intdim*/4 + /*realdim*/4 + /*nbeq*/4 + /*nbline*/4 + /*status*/4;
+  size += matrix_serialized_size(a->C);
+  size += matrix_serialized_size(a->F);
+  size += satmat_serialized_size(a->satC);
+  size += satmat_serialized_size(a->satF);
+
+  /* allocate */
+  membuf.ptr = malloc(size);
+  membuf.size = size;
+  buf = (unsigned char*)membuf.ptr;
+
+  /* store */
+  num_dump_word32(buf, (uint32_t)a->intdim);
+  buf +=4;
+  num_dump_word32(buf, (uint32_t)a->realdim);
+  buf +=4;
+  num_dump_word32(buf, (uint32_t)a->nbeq);
+  buf +=4;
+  num_dump_word32(buf, (uint32_t)a->nbline);
+  buf +=4;
+  num_dump_word32(buf, (uint32_t)a->status);
+  buf +=4;
+  buf += matrix_serialize(a->C, buf);
+  buf += matrix_serialize(a->F, buf);
+  buf += satmat_serialize(a->satC, buf);
+  buf += satmat_serialize(a->satF, buf);
+
+  /* real size */
+  size = buf - (unsigned char*)membuf.ptr;
+  assert(size <= membuf.size);
+  membuf.size = size;
+
   return membuf;
 }
+
 pk_t* pk_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 {
+  pk_t* a;
+  size_t sz;
+  unsigned char* buf = (unsigned char*)ptr;
   pk_init_from_manager(man,AP_FUNID_DESERIALIZE_RAW);
-  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,AP_FUNID_DESERIALIZE_RAW,NULL);
-  return NULL;
+
+  a = (pk_t*)malloc(sizeof(pk_t));
+  a->intdim = num_undump_word32(buf);
+  buf += 4;
+  a->realdim = num_undump_word32(buf);
+  buf += 4;
+  a->nbeq = num_undump_word32(buf);
+  buf += 4;
+  a->nbline = num_undump_word32(buf);
+  buf += 4;
+  a->status = num_undump_word32(buf);
+  buf += 4;
+  a->C = matrix_deserialize(buf, &sz);
+  buf += sz;
+  a->F = matrix_deserialize(buf, &sz);
+  buf += sz;
+  a->satC = satmat_deserialize(buf, &sz);
+  buf += sz;
+  a->satF = satmat_deserialize(buf, &sz);
+  buf += sz;
+
+  *size = buf - (unsigned char*)ptr;
+  return a;
 }
 
 /* ********************************************************************** */

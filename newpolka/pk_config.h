@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "num.h"
 #include "numint.h"

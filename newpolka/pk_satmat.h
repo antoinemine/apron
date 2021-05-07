@@ -19,6 +19,7 @@
 #define __PK_SATMAT_H__
 
 #include <stdlib.h>
+#include "pk_config.h"
 #include "pk_bit.h"
 
 #ifdef __cplusplus
@@ -52,6 +53,12 @@ satmat_t* satmat_transpose(satmat_t* org, size_t nbcols);
 
 void satmat_exch_rows(satmat_t* sat, size_t l1, size_t l2);
 void satmat_move_rows(satmat_t* sat, size_t destrow, size_t orgrow, size_t size);
+
+// Serialization
+// XXX: only works for 32-bit bitstring_t
+size_t satmat_serialized_size(satmat_t* m);
+size_t satmat_serialize(satmat_t* m, void* ptr);
+satmat_t* satmat_deserialize(void* ptr, size_t* size);
 
 #ifdef __cplusplus
 }

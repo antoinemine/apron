@@ -210,3 +210,78 @@ void satmat_move_rows(satmat_t* sat, size_t destrow, size_t orgrow, size_t size)
     }
   }
 }
+
+/* ====================================================================== */
+/* Serialization */
+/* ====================================================================== */
+
+/*
+  XXX: only works for 32-bit bitstring_t
+ */
+
+/* Byte-size of serialized matrix; m can be NULL! */
+size_t satmat_serialized_size(satmat_t* m)
+{
+  size_t r, i, j;
+  if (!m) return 1;
+  r = /*null?*/1 + /*nbrows*/4 + /*nbcolumns*/4;
+  r += sizeof(bitstring_t)*m->nbrows*m->nbcolumns;
+  return r;
+}
+
+/* Serialize m into ptr, returns the serialized byte-size; can serialize NULL */
+size_t satmat_serialize(satmat_t* m, void* ptr)
+{
+  size_t i, j;
+  unsigned char* pos = (unsigned char*)ptr;
+  if (!m) {
+    *pos = 0;
+    return 1;
+  }
+  /* check that sizes fit in 32 bits */
+  assert(m->nbrows == (uint32_t)(m->nbrows));
+  assert(m->nbcolumns == (uint32_t)(m->nbcolumns));
+  assert(sizeof(bitstring_t) == 4);
+  /* store header */
+  *pos = 1;
+  pos++;
+  num_dump_word32(pos, m->nbrows);
+  pos += 4;
+  num_dump_word32(pos, m->nbcolumns);
+  pos += 4;
+  /* store data */
+  for (i=0; i<m->nbrows; i++)
+    for (j=0; j<m->nbcolumns; j++, pos+=4)
+      num_dump_word32(pos, m->p[i][j]);
+  /* compute stored size */
+  return pos - (unsigned char*)ptr;
+}
+
+/* Deserialize from ptr; returns the serialized byte-size; can deserialize NULL */
+satmat_t* satmat_deserialize(void* ptr, size_t* size)
+{
+  unsigned char* pos = (unsigned char*)ptr;
+  size_t nbrows, nbcolumns;
+  satmat_t* m;
+  size_t i, j;
+  assert(sizeof(bitstring_t) == 4);
+  if (*pos == 0) {
+    *size = 1;
+    return NULL;
+  }
+  /* load header */
+  pos++;
+  nbrows = num_undump_word32(pos);
+  pos += 4;
+  nbcolumns = num_undump_word32(pos);
+  pos += 4;
+  /* allocate */
+  m = satmat_alloc(nbrows, nbcolumns);
+  /* load data */
+  for (i=0; i<m->nbrows; i++)
+    for (j=0; j<m->nbcolumns; j++, pos+=4)
+      m->p[i][j] = num_undump_word32(pos);
+  /* compute loaded size */
+  *size = pos - (unsigned char*)ptr;
+  return m;
+}
