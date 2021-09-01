@@ -159,6 +159,8 @@ apron/%.o: apron/%.c gmp.jar apron.jar gmp/jgmp.h apron/japron.h
 libjapron.$(EXT_DLL): apron/japron.o $(APRONO)
 	$(CC) $(CFLAGSN) -shared $+ -o $@ $(LFLAGS) $(APRONLIBS)
 
+libjapron.$(EXT_DLL): libjgmp.$(EXT_DLL)
+
 doc:
 	$(JAVADOC) -d doc gmp apron
 
