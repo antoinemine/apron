@@ -71,25 +71,48 @@ allD: D mlD
 allDl: Dl mlDl
 allMPFR: MPFR mlMPFR
 
-Il: libavoIl.a libavoIl_debug.a avotestIl
-Ill: libavoIll.a libavoIll_debug.a avotestIll
-MPZ: libavoMPZ.a libavoMPZ_debug.a avotestMPZ
-Ri: libavoRi.a libavoRi_debug.a avotestRi
-Rll: libavoRll.a libavoRll_debug.a avotestRll
-MPQ: libavoMPQ.a libavoMPQ_debug.a avotestMPQ
-D: libavoD.a libavoD_debug.a avotestD
-Dl: libavoDl.a libavoDl_debug.a avotestDl
-MPFR: libavoMPFR.a libavoMPFR_debug.a avotestMPFR
+Il: libavoIl.a
+Ill: libavoIll.a
+MPZ: libavoMPZ.a
+Ri: libavoRi.a
+Rll: libavoRll.a
+MPQ: libavoMPQ.a
+D: libavoD.a
+Dl: libavoDl.a
+MPFR: libavoMPFR.a
+ifneq ($(HAS_DEBUG),)
+Il: libavoIl_debug.a avotestIl
+Ill: libavoIll_debug.a avotestIll
+MPZ: libavoMPZ_debug.a avotestMPZ
+Ri: libavoRi_debug.a avotestRi
+Rll: libavoRll_debug.a avotestRll
+MPQ: libavoMPQ_debug.a avotestMPQ
+D: libavoD_debug.a avotestD
+Dl: libavoDl_debug.a avotestDl
+MPFR: libavoMPFR_debug.a avotestMPFR
+endif
+
 ifneq ($(HAS_SHARED),)
-Il: libavoIl.$(EXT_DLL) libavoIl_debug.$(EXT_DLL)
-Ill: libavoIll.$(EXT_DLL) libavoIll_debug.$(EXT_DLL)
-MPZ: libavoMPZ.$(EXT_DLL) libavoMPZ_debug.$(EXT_DLL)
-Ri: libavoRi.$(EXT_DLL) libavoRi_debug.$(EXT_DLL)
-Rll: libavoRll.$(EXT_DLL) libavoRll_debug.$(EXT_DLL)
-MPQ: libavoMPQ.$(EXT_DLL) libavoMPQ_debug.$(EXT_DLL)
-D: libavoD.$(EXT_DLL) libavoD_debug.$(EXT_DLL)
-Dl: libavoDl.$(EXT_DLL) libavoDl_debug.$(EXT_DLL)
-MPFR: libavoMPFR.$(EXT_DLL) libavoMPFR_debug.$(EXT_DLL)
+Il: libavoIl.$(EXT_DLL)
+Ill: libavoIll.$(EXT_DLL)
+MPZ: libavoMPZ.$(EXT_DLL)
+Ri: libavoRi.$(EXT_DLL)
+Rll: libavoRll.$(EXT_DLL)
+MPQ: libavoMPQ.$(EXT_DLL)
+D: libavoD.$(EXT_DLL)
+Dl: libavoDl.$(EXT_DLL)
+MPFR: libavoMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+Il: libavoIl_debug.$(EXT_DLL)
+Ill: libavoIll_debug.$(EXT_DLL)
+MPZ: libavoMPZ_debug.$(EXT_DLL)
+Ri: libavoRi_debug.$(EXT_DLL)
+Rll: libavoRll_debug.$(EXT_DLL)
+MPQ: libavoMPQ_debug.$(EXT_DLL)
+D: libavoD_debug.$(EXT_DLL)
+Dl: libavoDl_debug.$(EXT_DLL)
+MPFR: libavoMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 mlexample%.byte: mlexample.ml avo%.cma
@@ -111,12 +134,12 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/avo $(APRON_LIB) $(APRON_BIN)
-	$(INSTALL) avo.h $(APRON_INCLUDE)
-	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/avo
+	$(INSTALL) -m 644 avo.h $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC) $(APRON_INCLUDE)/avo
 	for i in avotest* avotop* avorun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 	done
-	for i in libavo*.* libavo*_debug.*; do \
+	for i in libavoIl.* libavoIll.*  libavoMPZ.* libavoRi.* libavoRll.* libavoMPQ.* libavoD.* libavoDl.* libavoMPFR.* libavoIl_debug.* libavoIll_debug.*  libavoMPZ_debug.* libavoRi_debug.* libavoRll_debug.* libavoMPQ_debug.* libavoD_debug.* libavoDl_debug.* libavoMPFR_debug.*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
@@ -231,15 +254,17 @@ endif
 .INTERMEDIATE: mlIl
 
 ml: avo.mli avo.cmi
-mlIl: ml avoIl.cma libavoIl_caml.a libavoIl_caml_debug.a
-mlIll: ml avoIll.cma libavoIll_caml.a libavoIll_caml_debug.a 
-mlMPZ: ml avoMPZ.cma libavoMPZ_caml.a libavoMPZ_caml_debug.a
-mlRi: ml avoRi.cma libavoRi_caml.a libavoRi_caml_debug.a
-mlRll: ml avoRll.cma libavoRll_caml.a libavoRll_caml_debug.a
-mlMPQ: ml avoMPQ.cma libavoMPQ_caml.a libavoMPQ_caml_debug.a 
-mlD: ml avoD.cma libavoD_caml.a libavoD_caml_debug.a
-mlDl: ml avoDl.cma libavoDl_caml.a libavoDl_caml_debug.a
-mlMPFR: ml avoMPFR.cma libavoMPFR_caml.a libavoMPFR_caml_debug.a
+
+mlIl: ml avoIl.cma libavoIl_caml.a
+mlIll: ml avoIll.cma libavoIll_caml.a
+mlMPZ: ml avoMPZ.cma libavoMPZ_caml.a
+mlRi: ml avoRi.cma libavoRi_caml.a
+mlRll: ml avoRll.cma libavoRll_caml.a
+mlMPQ: ml avoMPQ.cma libavoMPQ_caml.a
+mlD: ml avoD.cma libavoD_caml.a
+mlDl: ml avoDl.cma libavoDl_caml.a
+mlMPFR: ml avoMPFR.cma libavoMPFR_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
 mlIl: $(call OCAMLOPT_TARGETS, avoIl)
 mlIll: $(call OCAMLOPT_TARGETS, avoIll)
@@ -250,16 +275,17 @@ mlMPQ: $(call OCAMLOPT_TARGETS, avoMPQ)
 mlD: $(call OCAMLOPT_TARGETS, avoD)
 mlDl: $(call OCAMLOPT_TARGETS, avoDl)
 mlMPFR: $(call OCAMLOPT_TARGETS, avoMPFR)
+ifneq ($(HAS_DEBUG),)
+mlIl: libavoIl_caml_debug.a $(call OCAMLOPT_TARGETS, avoIl.d)
+mlIll: libavoIll_caml_debug.a $(call OCAMLOPT_TARGETS, avoIll.d)
+mlMPZ: libavoMPZ_caml_debug.a $(call OCAMLOPT_TARGETS, avoMPZ.d)
+mlRi: libavoRi_caml_debug.a $(call OCAMLOPT_TARGETS, avoRi.d)
+mlRll: libavoRll_caml_debug.a $(call OCAMLOPT_TARGETS, avoRll.d)
+mlMPQ: libavoMPQ_caml_debug.a $(call OCAMLOPT_TARGETS, avoMPQ.d)
+mlD: libavoD_caml_debug.a $(call OCAMLOPT_TARGETS, avoD.d)
+mlDl: libavoDl_caml_debug.a $(call OCAMLOPT_TARGETS, avoDl.d)
+mlMPFR: libavoMPFR_caml_debug.a $(call OCAMLOPT_TARGETS, avoMPFR.d)
 endif
-ifneq ($(HAS_SHARED),)
-mlIl: dllavoIl_caml.$(EXT_DLL) 
-mlIll:dllavoIll_caml.$(EXT_DLL)
-mlMPZ:dllavoMPZ_caml.$(EXT_DLL) 
-mlRll:dllavoRll_caml.$(EXT_DLL)
-mlMPQ:dllavoMPQ_caml.$(EXT_DLL)
-mlD:dllavoD_caml.$(EXT_DLL)
-mlDl:dllavoDl_caml.$(EXT_DLL)
-mlMPFR:dllavoMPFR_caml.$(EXT_DLL)
 endif
 
 #avotop%: avo.cma libavo_caml.a libavo%.a
@@ -268,11 +294,14 @@ endif
 #avorun%: avo.cma libavo_caml.a
 #	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma avo.cma -ccopt "-L. -L../mlapronidl $(LDFLAGS)" -cclib "-lavo_caml -lavo$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
 
-avo%.cma: avo.cmo libavo%_caml.a libavo%.a
+avo%.cma: avo.cmo libavo%.a libavo%_caml.a
 	$(OCAMLMKLIB) -o avo$* -oc avo$*_caml avo.cmo -lavo$* $(LIBS)
 
-avo%.cmxa avo%.a: avo.cmx libavo%_caml.a libavo%.a
+avo%.cmxa avo%.a: avo.cmx libavo%.a libavo%_caml.a
 	$(OCAMLMKLIB) -o avo$* -oc avo$*_caml avo.cmx -lavo$* $(LIBS)
+
+avo%.d.cmxa avo%.d.a: avo.cmx libavo%_debug.a libavo%_caml_debug.a
+	$(OCAMLMKLIB) -o avo$*.d -oc avo$*_caml_debug avo.cmx -lavo$*_debug $(LIBS_DEBUG)
 
 dllavo%_caml.$(EXT_DLL) libavo%_caml.a: avo_caml.o libavo%.a
 	$(OCAMLMKLIB) -o avo$*_caml $< -L. -lavo$* $(LDFLAGS) $(LIBS)

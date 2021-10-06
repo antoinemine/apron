@@ -68,10 +68,15 @@ apronglpktop:
 rebuild:
 	@echo "$(MAKE) rebuild is no longer necessary"
 
-OCAMLFIND_PROTO = xxx.cma $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a	\
-		  libxxx_caml_debug.a
+OCAMLFIND_PROTO = xxx.cma xxx.a $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a
+ifneq ($(HAS_DEBUG),)
+OCAMLFIND_PROTO += xxx.d.a $(call OCAMLOPT_TARGETS, xxx.d) libxxx_caml_debug.a
+endif
 ifneq ($(HAS_SHARED),)
 OCAMLFIND_PROTO += dllxxx_caml.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+OCAMLFIND_PROTO += dllxxx_caml_debug.$(EXT_DLL)
+endif
 endif
 OCAMLFIND_FILES = \
 	$(patsubst %,mlapronidl/%, apron.cmi apron.cmx) \
@@ -96,19 +101,21 @@ OCAMLFIND_FILES = \
 	$(patsubst %,mlapronidl/%.idl, scalar interval coeff \
 dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 \
 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy \
-disjunction) \
+disjunction version) \
 	mlapronidl/apron_caml.h
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
-	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.$(EXT_DLL)) \
+	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cmx) \
+	$(patsubst %,ppl/%, $(subst ppl_,ap_ppl_, $(subst xxx,ppl, $(OCAMLFIND_PROTO)))) \
 	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
 endif
 ifneq ($(HAS_GLPK),)
 OCAMLFIND_FILES += \
 	$(patsubst %,fppol/%, fpp.mli fpp.cmi fpp.cmx) \
-	$(patsubst %,fppol/%, $(subst xxx,fppD, $(OCAMLFIND_PROTO)))  
+	$(patsubst %,fppol/%, $(subst xxx,fppD, $(OCAMLFIND_PROTO))) \
+	$(patsubst %,fppol/%, $(subst xxx,fppDl, $(OCAMLFIND_PROTO)))
 endif
 ifneq ($(OCAMLPACK),)
 OCAMLFIND_FILES += mlapronidl/apron_ocamldoc.mli
@@ -160,11 +167,7 @@ ifneq ($(HAS_GLPK),)
 endif
 else
 	$(OCAMLFIND) remove apron
-	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)	\
-		$(call OCAMLOPT_TARGETS, mlapronidl/apron.d		\
-					 newpolka/polkaMPQ.d		\
-					 newpolka/polkaRll.d		\
-					 taylor1plus/t1pMPQ.d taylor1plus/t1pD.d taylor1plus/t1pMPFR.d)
+	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)
 endif
 endif
 ifneq ($(HAS_CPP),)
@@ -175,7 +178,7 @@ ifneq ($(HAS_JAVA),)
 endif
 
 ifneq ($(OCAMLFIND),)
-install: mlapronidl/META
+ml: mlapronidl/META
 mlapronidl/META: mlapronidl/META.in mlapronidl/META.ppl.in
 	$(SED) -e "s!@VERSION@!$(VERSION_STR)!g;" $< > $@;
   ifneq ($(HAS_PPL),)
@@ -193,7 +196,9 @@ clean:
 	(cd num; $(MAKE) clean)
 	(cd itv; $(MAKE) clean)
 	(cd apron; $(MAKE) clean)
+ifneq ($(HAS_OCAML),)
 	(cd mlapronidl; $(MAKE) clean)
+endif
 	(cd box; $(MAKE) clean)
 	(cd newpolka; $(MAKE) clean)
 	(cd octagons; $(MAKE) clean)
@@ -216,7 +221,9 @@ uninstall:
 	(cd num; $(MAKE) uninstall)
 	(cd itv; $(MAKE) uninstall)
 	(cd apron; $(MAKE) uninstall)
+ifneq ($(HAS_OCAML),)
 	(cd mlapronidl; $(MAKE) uninstall)
+endif
 	(cd box; $(MAKE) uninstall)
 	(cd newpolka; $(MAKE) uninstall)
 	(cd octagons; $(MAKE) uninstall)
@@ -228,7 +235,7 @@ uninstall:
 	(cd fppol; $(MAKE) uninstall) 
 	(cd apronxx; $(MAKE) uninstall)
 	(cd japron; $(MAKE) uninstall)
-	(cd $(APRON_BIN); rm -f apron*)
+	(rm -f $(APRON_BIN)/apron*)
 ifneq ($(OCAMLFIND),)
 	$(OCAMLFIND) remove apron
 endif

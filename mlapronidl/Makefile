@@ -31,9 +31,12 @@ MLSRC = $(MLMODULES:%=%.mli) $(MLMODULES:%=%.ml) apron_lexer.mll apron_parser.ml
 MLINT = $(MLMODULES:%=%.cmi)
 MLOBJ = $(MLMODULES:%=%.cmo)
 MLOBJx = $(MLMODULES:%=%.cmx)
-MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) apron.cmi apron.cma
+MLLIB_TOINSTALL = $(IDLMODULES:%=%.idl) $(MLMODULES:%=%.mli) apron.cmi apron.cma
 ifneq ($(HAS_OCAMLOPT),)
 MLLIB_TOINSTALL += $(call OCAMLOPT_TARGETS, apron)
+ifneq ($(HAS_DEBUG),)
+MLLIB_TOINSTALL += $(call OCAMLOPT_TARGETS, apron.d)
+endif
 endif
 ifneq ($(OCAMLPACK),)
 MLLIB_TOINSTALL += apron_ocamldoc.mli
@@ -41,9 +44,15 @@ endif
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
-CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a
+CCLIB_TOINSTALL = libapron_caml.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TOINSTALL += libapron_caml_debug.a
+endif
 ifneq ($(HAS_SHARED),)
 MLLIB_TOINSTALL += dllapron_caml.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+MLLIB_TOINSTALL += dllapron_caml_debug.$(EXT_DLL)
+endif
 endif
 CCINC_TOINSTALL = apron_caml.h
 
@@ -54,14 +63,13 @@ LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 # Rules
 #---------------------------------------
 
-all: apron.cma libapron_caml.a libapron_caml_debug.a
+all: apron.cma libapron_caml.a
 
 ifneq ($(HAS_OCAMLOPT),)
-all: $(call OCAMLOPT_TARGETS, apron apron.d)
+all: $(call OCAMLOPT_TARGETS, apron)
+ifneq ($(HAS_DEBUG),)
+all: $(call OCAMLOPT_TARGETS, apron.d) libapron_caml_debug.a
 endif
-
-ifneq ($(HAS_SHARED),)
-all: dllapron_caml.$(EXT_DLL)
 endif
 
 ifneq ($(OCAMLPACK),)
@@ -97,13 +105,13 @@ ifeq ($(OCAMLFIND),)
 	/bin/rm -f $(CCINC_TOINSTALL:%=$(APRON_INCLUDE)/%)
 endif
 
-install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
+install:
 ifeq ($(OCAMLFIND),)
-	mkdir -p $(APRON_LIB)
-	mkdir -p $(APRON_INCLUDE)
-	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
-	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_INCLUDE)
-	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
+	$(INSTALLd) $(APRON_LIB)
+	$(INSTALLd) $(APRON_INCLUDE)
+	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
+	$(INSTALL) -m 644 $(CCINC_TOINSTALL) $(APRON_INCLUDE)
+	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 endif
 
 #---------------------------------------
@@ -113,20 +121,16 @@ endif
 apron.cma: apron.cmo libapron_caml.a
 	$(OCAMLMKLIB) -o apron -oc apron_caml apron.cmo $(LIBS)
 
-apron.cmxa: apron.a
-apron.a: apron.cmx libapron_caml.a
+apron.a apron.cmxa: apron.cmx libapron_caml.a
 	$(OCAMLMKLIB) -o apron -oc apron_caml apron.cmx $(LIBS)
 
-apron.d.cmxa: apron.d.a
-apron.d.a: apron.cmx libapron_caml_debug.a
+apron.d.a apron.d.cmxa: apron.cmx libapron_caml_debug.a
 	$(OCAMLMKLIB) -o apron.d -oc apron_caml_debug apron.cmx $(LIBS_DEBUG)
 
-dllapron_caml.$(EXT_DLL): libapron_caml.a
-
-libapron_caml.a: $(CCMODULES:%=%.o)
+libapron_caml.a dllapron_caml.$(EXT_DLL): $(CCMODULES:%=%.o)
 	$(OCAMLMKLIB) $(CCMODULES:%=%.o) $(LDFLAGS) $(LIBS) -o apron_caml
 
-libapron_caml_debug.a: $(CCMODULES:%=%_debug.o)
+libapron_caml_debug.a dllapron_caml_debug.$(EXT_DLL): $(CCMODULES:%=%_debug.o)
 	$(OCAMLMKLIB) $(CCMODULES:%=%_debug.o) $(LDFLAGS) $(LIBS_DEBUG) -o apron_caml_debug
 
 #---------------------------------------
@@ -219,13 +223,7 @@ rebuild:
 # Dependencies
 #---------------------------------------
 
-INCLUDE_DEPEND ?= yes
-ifneq ($(INCLUDE_DEPEND),yes)
-  depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
+depend: $(MLMODULES:%=%.ml) $(MLMODULES:%=%.mli)
 	$(OCAMLDEP) $^ > $@
-else
-  # Hack to avoid rebuilding depends on cleanup
-  ifeq ($(filter %clean,$(MAKECMDGOALS)),)
-    -include depend
-  endif
-endif
+
+include depend

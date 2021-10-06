@@ -71,25 +71,48 @@ allD: D mlD
 allDl: Dl mlDl
 allMPFR: MPFR mlMPFR
 
-Il: liboctIl.a liboctIl_debug.a octtestIl
-Ill: liboctIll.a liboctIll_debug.a octtestIll
-MPZ: liboctMPZ.a liboctMPZ_debug.a octtestMPZ
-Ri: liboctRi.a liboctRi_debug.a octtestRi
-Rll: liboctRll.a liboctRll_debug.a octtestRll
-MPQ: liboctMPQ.a liboctMPQ_debug.a octtestMPQ
-D: liboctD.a liboctD_debug.a octtestD
-Dl: liboctDl.a liboctDl_debug.a octtestDl
-MPFR: liboctMPFR.a liboctMPFR_debug.a octtestMPFR
+Il: liboctIl.a
+Ill: liboctIll.a
+MPZ: liboctMPZ.a
+Ri: liboctRi.a
+Rll: liboctRll.a
+MPQ: liboctMPQ.a
+D: liboctD.a
+Dl: liboctDl.a
+MPFR: liboctMPFR.a
+ifneq ($(HAS_DEBUG),)
+Il: liboctIl_debug.a octtestIl
+Ill: liboctIll_debug.a octtestIll
+MPZ: liboctMPZ_debug.a octtestMPZ
+Ri: liboctRi_debug.a octtestRi
+Rll: liboctRll_debug.a octtestRll
+MPQ: liboctMPQ_debug.a octtestMPQ
+D: liboctD_debug.a octtestD
+Dl: liboctDl_debug.a octtestDl
+MPFR: liboctMPFR_debug.a octtestMPFR
+endif
+
 ifneq ($(HAS_SHARED),)
-Il: liboctIl.$(EXT_DLL) liboctIl_debug.$(EXT_DLL)
-Ill: liboctIll.$(EXT_DLL) liboctIll_debug.$(EXT_DLL)
-MPZ: liboctMPZ.$(EXT_DLL) liboctMPZ_debug.$(EXT_DLL)
-Ri: liboctRi.$(EXT_DLL) liboctRi_debug.$(EXT_DLL)
-Rll: liboctRll.$(EXT_DLL) liboctRll_debug.$(EXT_DLL)
-MPQ: liboctMPQ.$(EXT_DLL) liboctMPQ_debug.$(EXT_DLL)
-D: liboctD.$(EXT_DLL) liboctD_debug.$(EXT_DLL)
-Dl: liboctDl.$(EXT_DLL) liboctDl_debug.$(EXT_DLL)
-MPFR: liboctMPFR.$(EXT_DLL) liboctMPFR_debug.$(EXT_DLL)
+Il: liboctIl.$(EXT_DLL)
+Ill: liboctIll.$(EXT_DLL)
+MPZ: liboctMPZ.$(EXT_DLL)
+Ri: liboctRi.$(EXT_DLL)
+Rll: liboctRll.$(EXT_DLL)
+MPQ: liboctMPQ.$(EXT_DLL)
+D: liboctD.$(EXT_DLL)
+Dl: liboctDl.$(EXT_DLL)
+MPFR: liboctMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+Il: liboctIl_debug.$(EXT_DLL)
+Ill: liboctIll_debug.$(EXT_DLL)
+MPZ: liboctMPZ_debug.$(EXT_DLL)
+Ri: liboctRi_debug.$(EXT_DLL)
+Rll: liboctRll_debug.$(EXT_DLL)
+MPQ: liboctMPQ_debug.$(EXT_DLL)
+D: liboctD_debug.$(EXT_DLL)
+Dl: liboctDl_debug.$(EXT_DLL)
+MPFR: liboctMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 mlexample%.byte: mlexample.ml oct%.cma
@@ -111,16 +134,16 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/oct $(APRON_LIB) $(APRON_BIN)
-	$(INSTALL) oct.h $(APRON_INCLUDE)
-	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/oct
+	$(INSTALL) -m 644 oct.h $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC) $(APRON_INCLUDE)/oct
 	for i in octtest* octtop* octrun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 	done
-	for i in liboct*.* liboct*_debug.*; do \
+	for i in liboctIl.* liboctIll.* liboctMPZ.* liboctRi.* liboctRll.* liboctMPQ.* liboctD.* liboctDl.* liboctMPFR.* liboctIl_debug.* liboctIll_debug.* liboctMPZ_debug.* liboctRi_debug.* liboctRll_debug.* liboctMPQ_debug.* liboctD_debug.* liboctDl_debug.* liboctMPFR_debug.*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in liboct*_caml.* dlloct*_caml.$(EXT_DLL); do \
+	for i in liboct*_caml.*  liboct*_caml_debug.* dlloct*_caml.$(EXT_DLL) dlloct*_caml_debug.$(EXT_DLL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
@@ -163,11 +186,7 @@ liboct%.$(EXT_DLL): $(subst .c,%.o,$(CCSOURCES))
 liboct%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCSOURCES))
 	$(CC_APRON_DYLIB) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS_DEBUG)
 
-ifneq ($(HAS_SHARED),)
-octtest%: oct_test%.o liboct%_debug.a liboct%_debug.$(EXT_DLL)
-else
 octtest%: oct_test%.o liboct%_debug.a
-endif
 	$(CC) -o $@ oct_test$*.o \
 		-L. -loct$*_debug -L../newpolka -lpolkaMPQ_debug \
 		$(LDFLAGS) $(LIBS_DEBUG) $(CFLAGS_DEBUG)
@@ -231,15 +250,17 @@ endif
 .INTERMEDIATE: mlIl
 
 ml: oct.mli oct.cmi
-mlIl: ml octIl.cma liboctIl_caml.a liboctIl_caml_debug.a
-mlIll: ml octIll.cma liboctIll_caml.a liboctIll_caml_debug.a 
-mlMPZ: ml octMPZ.cma liboctMPZ_caml.a liboctMPZ_caml_debug.a
-mlRi: ml octRi.cma liboctRi_caml.a liboctRi_caml_debug.a
-mlRll: ml octRll.cma liboctRll_caml.a liboctRll_caml_debug.a
-mlMPQ: ml octMPQ.cma liboctMPQ_caml.a liboctMPQ_caml_debug.a 
-mlD: ml octD.cma liboctD_caml.a liboctD_caml_debug.a
-mlDl: ml octDl.cma liboctDl_caml.a liboctDl_caml_debug.a
-mlMPFR: ml octMPFR.cma liboctMPFR_caml.a liboctMPFR_caml_debug.a
+
+mlIl: ml octIl.cma liboctIl_caml.a
+mlIll: ml octIll.cma liboctIll_caml.a
+mlMPZ: ml octMPZ.cma liboctMPZ_caml.a
+mlRi: ml octRi.cma liboctRi_caml.a
+mlRll: ml octRll.cma liboctRll_caml.a
+mlMPQ: ml octMPQ.cma liboctMPQ_caml.a
+mlD: ml octD.cma liboctD_caml.a
+mlDl: ml octDl.cma liboctDl_caml.a
+mlMPFR: ml octMPFR.cma liboctMPFR_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
 mlIl: $(call OCAMLOPT_TARGETS, octIl)
 mlIll: $(call OCAMLOPT_TARGETS, octIll)
@@ -250,16 +271,17 @@ mlMPQ: $(call OCAMLOPT_TARGETS, octMPQ)
 mlD: $(call OCAMLOPT_TARGETS, octD)
 mlDl: $(call OCAMLOPT_TARGETS, octDl)
 mlMPFR: $(call OCAMLOPT_TARGETS, octMPFR)
+ifneq ($(HAS_DEBUG),)
+mlIl: liboctIl_caml_debug.a $(call OCAMLOPT_TARGETS, octIl.d)
+mlIll: liboctIll_caml_debug.a $(call OCAMLOPT_TARGETS, octIll.d)
+mlMPZ: liboctMPZ_caml_debug.a $(call OCAMLOPT_TARGETS, octMPZ.d)
+mlRi: liboctRi_caml_debug.a $(call OCAMLOPT_TARGETS, octRi.d)
+mlRll: liboctRll_caml_debug.a $(call OCAMLOPT_TARGETS, octRll.d)
+mlMPQ: liboctMPQ_caml_debug.a $(call OCAMLOPT_TARGETS, octMPQ.d)
+mlD: liboctD_caml_debug.a $(call OCAMLOPT_TARGETS, octD.d)
+mlDl: liboctDl_caml_debug.a $(call OCAMLOPT_TARGETS, octDl.d)
+mlMPFR: liboctMPFR_caml_debug.a $(call OCAMLOPT_TARGETS, octMPFR.d)
 endif
-ifneq ($(HAS_SHARED),)
-mlIl: dlloctIl_caml.$(EXT_DLL) 
-mlIll:dlloctIll_caml.$(EXT_DLL)
-mlMPZ:dlloctMPZ_caml.$(EXT_DLL) 
-mlRll:dlloctRll_caml.$(EXT_DLL)
-mlMPQ:dlloctMPQ_caml.$(EXT_DLL)
-mlD:dlloctD_caml.$(EXT_DLL)
-mlDl:dlloctDl_caml.$(EXT_DLL)
-mlMPFR:dlloctMPFR_caml.$(EXT_DLL)
 endif
 
 #octtop%: oct.cma liboct_caml.a liboct%.a
@@ -268,11 +290,14 @@ endif
 #octrun%: oct.cma liboct_caml.a
 #	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma oct.cma -ccopt "-L. -L../mlapronidl $(LDFLAGS)" -cclib "-loct_caml -loct$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lbigarray -lcamlidl"
 
-oct%.cma: oct.cmo liboct%_caml.a liboct%.a
+oct%.cma: oct.cmo liboct%.a liboct%_caml.a
 	$(OCAMLMKLIB) -o oct$* -oc oct$*_caml oct.cmo -loct$* $(LIBS)
 
-oct%.cmxa oct%.a: oct.cmx liboct%_caml.a liboct%.a
+oct%.cmxa oct%.a: oct.cmx liboct%.a liboct%_caml.a
 	$(OCAMLMKLIB) -o oct$* -oc oct$*_caml oct.cmx -loct$* $(LIBS)
+
+oct%.d.cmxa oct%.d.a: oct.cmx liboct%_debug.a liboct%_caml_debug.a
+	$(OCAMLMKLIB) -o oct$*.d -oc oct$*_caml_debug oct.cmx -loct$*_debug $(LIBS_DEBUG)
 
 dlloct%_caml.$(EXT_DLL) liboct%_caml.a: oct_caml.o liboct%.a
 	$(OCAMLMKLIB) -o oct$*_caml $< -L. -loct$* $(LDFLAGS) $(LIBS)

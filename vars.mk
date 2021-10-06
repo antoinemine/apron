@@ -59,7 +59,7 @@ endif
 
 # ---
 
-OCAMLOPT_TARGETS0 = $(addsuffix .cmxa, $(1)) $(addsuffix .a, $(1))
+OCAMLOPT_TARGETS0 = $(addsuffix .cmxa, $(1))
 
 ifneq ($(HAS_SHARED),)
   CC_APRON_DYLIB = $(CC) -shared

@@ -30,28 +30,37 @@ CCSRC = t1p.h t1p_macro_def.h t1p_test.c t1p_test_eval_texp.c $(CCMODULES:%=%.h)
 
 CCINC_TO_INSTALL = t1p.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libt1pMPQ.a libt1pD.a libt1pMPFR.a \
-libt1pMPQ_debug.a libt1pD_debug.a libt1pMPFR_debug.a
+CCLIB_TO_INSTALL = libt1pMPQ.a libt1pD.a libt1pMPFR.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libt1pMPQ_debug.a libt1pD_debug.a libt1pMPFR_debug.a
+endif
+
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
-libt1pMPQ.$(EXT_DLL) libt1pD.$(EXT_DLL) libt1pMPFR.$(EXT_DLL) \
-libt1pMPQ_debug.$(EXT_DLL) libt1pD_debug.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
+CCLIB_TO_INSTALL += libt1pMPQ.$(EXT_DLL) libt1pD.$(EXT_DLL) libt1pMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libt1pMPQ_debug.$(EXT_DLL) libt1pD_debug.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 ifneq ($(HAS_OCAML),)
 CAML_TO_INSTALL = \
 t1p.idl t1p.ml t1p.mli t1p.cmi \
-t1pMPQ.cma \
-t1pD.cma \
-t1pMPFR.cma \
-libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a \
-libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
+t1pMPQ.cma t1pD.cma t1pMPFR.cma \
+libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
+endif
 ifneq ($(HAS_OCAMLOPT),)
-  CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR t1pMPQ.d t1pD.d t1pMPFR.d)
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR)
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ.d t1pD.d t1pMPFR.d)
+endif
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllt1pMPQ_caml.$(EXT_DLL) dllt1pD_caml.$(EXT_DLL) dllt1pMPFR_caml.$(EXT_DLL) dllt1pMPQ_caml_debug.$(EXT_DLL) dllt1pD_caml_debug.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
+CAML_TO_INSTALL += dllt1pMPQ_caml.$(EXT_DLL) dllt1pD_caml.$(EXT_DLL) dllt1pMPFR_caml.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += dllt1pMPQ_caml_debug.$(EXT_DLL) dllt1pD_caml_debug.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
+endif
 endif
 endif
 
@@ -70,13 +79,24 @@ all: allMPQ allD allMPFR
 # testD testMPQ testMPFR testD_debug testMPQ_debug testMPFR_debug test_joinD_debug test_joinMPQ_debug test_joinMPFR_debug 
 
 
-allMPQ: libt1pMPQ.a libt1pMPQ_debug.a
-allD: libt1pD.a libt1pD_debug.a
-allMPFR: libt1pMPFR.a libt1pMPFR_debug.a
+allMPQ: libt1pMPQ.a
+allD: libt1pD.a
+allMPFR: libt1pMPFR.a
+ifneq ($(HAS_DEBUG),)
+allMPQ: libt1pMPQ_debug.a
+allD: libt1pD_debug.a
+allMPFR: libt1pMPFR_debug.a
+endif
+
 ifneq ($(HAS_SHARED),)
-allMPQ: libt1pMPQ.$(EXT_DLL) libt1pMPQ_debug.$(EXT_DLL)
-allD: libt1pD.$(EXT_DLL) libt1pD_debug.$(EXT_DLL)
-allMPFR: libt1pMPFR.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
+allMPQ: libt1pMPQ.$(EXT_DLL)
+allD: libt1pD.$(EXT_DLL)
+allMPFR: libt1pMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+allMPQ: libt1pMPQ_debug.$(EXT_DLL)
+allD: libt1pD_debug.$(EXT_DLL)
+allMPFR: libt1pMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 exemple1%_debug: exemple1%_debug.o
@@ -98,18 +118,19 @@ exemple1%_debug: exemple1%_debug.o
 
 ml: t1p.mli t1p.ml t1p.cmi mlMPQ mlD mlMPFR
 
-mlMPQ: t1pMPQ.cma libt1pMPQ_caml.a libt1pMPQ_caml_debug.a 
-mlD: t1pD.cma libt1pD_caml.a libt1pD_caml_debug.a
-mlMPFR: t1pMPFR.cma libt1pMPFR_caml.a libt1pMPFR_caml_debug.a
+mlMPQ: t1pMPQ.cma libt1pMPQ_caml.a
+mlD: t1pD.cma libt1pD_caml.a
+mlMPFR: t1pMPFR.cma libt1pMPFR_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: $(call OCAMLOPT_TARGETS, t1pMPQ t1pMPQ.d)
-mlD: $(call OCAMLOPT_TARGETS, t1pD t1pD.d)
-mlMPFR: $(call OCAMLOPT_TARGETS, t1pMPFR t1pMPFR.d)
+mlMPQ: $(call OCAMLOPT_TARGETS, t1pMPQ)
+mlD: $(call OCAMLOPT_TARGETS, t1pD)
+mlMPFR: $(call OCAMLOPT_TARGETS, t1pMPFR)
+ifneq ($(HAS_DEBUG),)
+mlMPQ: libt1pMPQ_caml_debug.a $(call OCAMLOPT_TARGETS, t1pMPQ.d)
+mlD: libt1pD_caml_debug.a $(call OCAMLOPT_TARGETS, t1pD.d)
+mlMPFR: libt1pMPFR_caml_debug.a $(call OCAMLOPT_TARGETS, t1pMPFR.d)
 endif
-ifneq ($(HAS_SHARED),)
-mlMPQ: dllt1pMPQ_caml.$(EXT_DLL) dllt1pMPQ_caml_debug.$(EXT_DLL)
-mlD: dllt1pD_caml.$(EXT_DLL)  dllt1pD_caml_debug.$(EXT_DLL) 
-mlMPFR: dllt1pMPFR_caml.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml t1p%.cma
@@ -130,7 +151,7 @@ distclean: clean
 
 install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
-	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
@@ -203,10 +224,10 @@ libt1p%_debug.$(EXT_DLL): $(subst .c,%_debug.o,$(CCMODULES:%=%.c))
 # OCaml binding
 #---------------------------------------
 
-dllt1p%_caml.$(EXT_DLL) libt1p%_caml.a: t1p_caml.o libt1p%.a
+libt1p%_caml.a dllt1p%_caml.$(EXT_DLL): t1p_caml.o libt1p%.a
 	$(OCAMLMKLIB) -o t1p$*_caml t1p_caml.o -L. -lt1p$* $(LDFLAGS) $(LIBS)
 
-dllt1p%_caml_debug.$(EXT_DLL) libt1p%_caml_debug.a: t1p_caml_debug.o libt1p%_debug.a
+libt1p%_caml_debug.a dllt1p%_caml_debug.$(EXT_DLL): t1p_caml_debug.o libt1p%_debug.a
 	$(OCAMLMKLIB) -o t1p$*_caml_debug t1p_caml_debug.o -L. -lt1p$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 t1p_caml.o: t1p_caml.c
@@ -219,13 +240,13 @@ t1p_caml_debug.o: t1p_caml.c
 # OCaml rules
 #---------------------------------------
 
-t1p%.cma: t1p.cmo libt1p%_caml.a libt1p%.a
+t1p%.cma: t1p.cmo libt1p%.a libt1p%_caml.a
 	$(OCAMLMKLIB) -o t1p$* -oc t1p$*_caml t1p.cmo -lt1p$* $(LIBS)
 
-t1p%.cmxa t1p%.a: t1p.cmx libt1p%_caml.a libt1p%.a
+t1p%.cmxa t1p%.a: t1p.cmx libt1p%.a libt1p%_caml.a
 	$(OCAMLMKLIB) -o t1p$* -oc t1p$*_caml t1p.cmx -lt1p$* $(LIBS)
 
-t1p%.d.cmxa t1p%.d.a: t1p.cmx libt1p%_caml_debug.a libt1p%_debug.a
+t1p%.d.cmxa t1p%.d.a: t1p.cmx libt1p%_debug.a libt1p%_caml_debug.a
 	$(OCAMLMKLIB) -o t1p$*.d -oc t1p$*_caml_debug t1p.cmx -lt1p$*_debug $(LIBS_DEBUG)
 
 #---------------------------------------

@@ -1,7 +1,6 @@
 include ../Makefile.config
 include ../vars.mk
 include ../version.mk
-include depend
 
 #---------------------------------------
 # C part
@@ -53,9 +52,16 @@ LDFLAGS += $(MP_LIFLAGS) -lm -lmpfr -lgmp
 # Rules
 #---------------------------------------
 
-LIB_FILES = libapron.a libapron_debug.a
+LIB_FILES = libapron.a
 ifneq ($(HAS_SHARED),)
-LIB_FILES += libapron.$(EXT_DLL) libapron_debug.$(EXT_DLL)
+LIB_FILES += libapron.$(EXT_DLL)
+endif
+
+ifneq ($(HAS_DEBUG),)
+LIB_FILES += libapron_debug.a
+ifneq ($(HAS_SHARED),)
+LIB_FILES += libapron_debug.$(EXT_DLL)
+endif
 endif
 
 all: $(LIB_FILES)
@@ -78,10 +84,10 @@ clean:
 
 distclean: clean
 
-install: all
-	mkdir -p $(APRON_INCLUDE)
-	cp $(H_FILES) $(APRON_INCLUDE)
-	mkdir -p $(APRON_LIB)
+install:
+	$(INSTALLd) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(H_FILES) $(APRON_INCLUDE)
+	$(INSTALLd) $(APRON_LIB)
 	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 
 uninstall:
@@ -163,7 +169,7 @@ ap_version.h: ../version.mk
 	echo "#define AP_VERSION       \"${VERSION_STR}\"" >> $@
 	echo "#endif" >> $@
 
-.PHONY : dep depend
+.PHONY : dep
 
 #--------------------------------------------------------------
 # IMPLICIT RULES AND DEPENDENCIES
@@ -204,4 +210,6 @@ ap_version.h: ../version.mk
 #---------------------------------------
 
 depend: $(C_FILES) $(H_FILES)
-	$(CC) $(ICFLAGS) -E -MM $(C_FILES) > depend
+	$(CC) $(ICFLAGS) -MM $(C_FILES) > depend
+
+include depend

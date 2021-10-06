@@ -63,9 +63,15 @@ endif
 # Rules
 #---------------------------------------
 
-all: libapronxx.a libapronxx_debug.a apronxx_test
+all: libapronxx.a
+ifneq ($(HAS_DEBUG),)
+all: libapronxx_debug.a apronxx_test
+endif
 ifneq ($(HAS_SHARED),)
-all: libapronxx.$(EXT_DLL) libapronxx_debug.$(EXT_DLL)
+all: libapronxx.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+all: libapronxx_debug.$(EXT_DLL)
+endif
 endif
 
 clean:
@@ -76,8 +82,13 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/apronxx $(APRON_LIB)
-	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/apronxx
-	$(INSTALL) libapronxx.* libapronxx_debug.* $(APRON_LIB)
+	$(INSTALL) -m 644 $(CCINC) $(APRON_INCLUDE)/apronxx
+	$(INSTALL) libapronxx.* $(APRON_LIB)
+
+ifneq ($(HAS_DEBUG),)
+install:
+	$(INSTALL) libapronxx_debug.* $(APRON_LIB)
+endif
 
 uninstall:
 	/bin/rm -rf $(APRON_INCLUDE)/apronxx

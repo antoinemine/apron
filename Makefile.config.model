@@ -4,9 +4,13 @@
 # HAS Flags
 ######################################################################
 
+# If defined to non-empty value, build debug librarires as well
+# HAS_DEBUG = 1
+
 # If defined to non-empty value, generates dynamic libraries.
 # Do not forget to add -fPIC to CFLAGS and CFLAGS_DEBUG
 HAS_SHARED=1
+HAS_NATIVE_PLUGINS = 1
 
 # If defined to non-empty value, compiles the OCaml interface (bytecode)
 HAS_OCAML = 1
@@ -92,6 +96,7 @@ JAVAC     = javac -Xlint:unchecked
 
 # Java header compiler
 JAVAH     = javah
+JAVAC_HAS_H = 1
 
 # Java documentation generator
 JAVADOC   = javadoc
@@ -101,6 +106,8 @@ JAR       = jar
 
 # preprocessing directives to find JNI headers
 JNIINC    = -I/java/include
+
+JAVA_PREFIX = /usr/local/lib
 
 ######################################################################
 # Tools and Flags
@@ -158,6 +165,8 @@ CXXFLAGS_DEBUG = \
 -Wall -Wextra -Wundef -Wcast-align \
 -Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -fPIC -g -O0 -UNDEBUG
+
+EXT_DLL = so
 
 AR = ar
 RANLIB = ranlib

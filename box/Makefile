@@ -23,26 +23,34 @@ CCSRC = box_config.h box.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = box.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = libboxMPQ.a libboxD.a libboxMPFR.a	\
-libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
+CCLIB_TO_INSTALL = libboxMPQ.a libboxD.a libboxMPFR.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libboxMPQ_debug.a libboxD_debug.a libboxMPFR_debug.a
+endif
 ifneq ($(HAS_SHARED),)
-  CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libboxMPQ.$(EXT_DLL) libboxD.$(EXT_DLL)	\
-  libboxMPFR.$(EXT_DLL) libboxMPQ_debug.$(EXT_DLL) libboxD_debug.$(EXT_DLL)			\
-  libboxMPFR_debug.$(EXT_DLL)
+CCLIB_TO_INSTALL += libboxMPQ.$(EXT_DLL) libboxD.$(EXT_DLL) libboxMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libboxMPQ_debug.$(EXT_DLL) libboxD_debug.$(EXT_DLL)	libboxMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 ifneq ($(HAS_OCAML),)
-  CAML_TO_INSTALL = box.idl box.ml box.mli box.cmi boxMPQ.cma	\
-  boxD.cma boxMPFR.cma libboxMPQ_caml.a libboxD_caml.a		\
-  libboxMPFR_caml.a libboxMPQ_caml_debug.a libboxD_caml_debug.a	\
-  libboxMPFR_caml_debug.a
-  ifneq ($(HAS_OCAMLOPT),)
-    CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, boxMPQ boxD boxMPFR)
-  endif
-  ifneq ($(HAS_SHARED),)
-    CAML_TO_INSTALL += dllboxMPQ_caml.$(EXT_DLL) dllboxD_caml.$(EXT_DLL)	\
-    dllboxMPFR_caml.$(EXT_DLL)
-  endif
+CAML_TO_INSTALL = box.idl box.ml box.mli box.cmi boxMPQ.cma boxD.cma boxMPFR.cma libboxMPQ_caml.a libboxD_caml.a libboxMPFR_caml.a
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += libboxMPQ_caml_debug.a libboxD_caml_debug.a libboxMPFR_caml_debug.a
+endif
+ifneq ($(HAS_OCAMLOPT),)
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, boxMPQ boxD boxMPFR)
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, boxMPQ.d boxD.d boxMPFR.d)
+endif
+endif
+ifneq ($(HAS_SHARED),)
+CAML_TO_INSTALL += dllboxMPQ_caml.$(EXT_DLL) dllboxD_caml.$(EXT_DLL) dllboxMPFR_caml.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += dllboxMPQ_caml_debug.$(EXT_DLL) dllboxD_caml_debug.$(EXT_DLL) dllboxMPFR_caml_debug.$(EXT_DLL)
+endif
+endif
 endif
 
 LIBS = -lapron -lmpfr -lgmp -lm
@@ -58,29 +66,41 @@ LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 
 all: allMPQ allD allMPFR
 
-allMPQ: libboxMPQ.a libboxMPQ_debug.a
-allD: libboxD.a libboxD_debug.a
-allMPFR: libboxMPFR.a libboxMPFR_debug.a
+allMPQ: libboxMPQ.a
+allD: libboxD.a
+allMPFR: libboxMPFR.a
+ifneq ($(HAS_DEBUG),)
+allMPQ: libboxMPQ_debug.a
+allD: libboxD_debug.a
+allMPFR: libboxMPFR_debug.a
+endif
+
 ifneq ($(HAS_SHARED),)
-  allMPQ: libboxMPQ.$(EXT_DLL) libboxMPQ_debug.$(EXT_DLL)
-  allD: libboxD.$(EXT_DLL) libboxD_debug.$(EXT_DLL)
-  allMPFR: libboxMPFR.$(EXT_DLL) libboxMPFR_debug.$(EXT_DLL)
+allMPQ: libboxMPQ.$(EXT_DLL)
+allD: libboxD.$(EXT_DLL)
+allMPFR: libboxMPFR.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+allMPQ: libboxMPQ_debug.$(EXT_DLL)
+allD: libboxD_debug.$(EXT_DLL)
+allMPFR: libboxMPFR_debug.$(EXT_DLL)
+endif
 endif
 
 ml: box.mli box.ml box.cmi mlMPQ mlD mlMPFR
 
-mlMPQ: boxMPQ.cma libboxMPQ_caml.a libboxMPQ_caml_debug.a 
-mlD: boxD.cma libboxD_caml.a libboxD_caml_debug.a
-mlMPFR: boxMPFR.cma libboxMPFR_caml.a libboxMPFR_caml_debug.a
+mlMPQ: boxMPQ.cma libboxMPQ_caml.a
+mlD: boxD.cma libboxD_caml.a
+mlMPFR: boxMPFR.cma libboxMPFR_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
-  mlMPQ: $(call OCAMLOPT_TARGETS, boxMPQ)
-  mlD: $(call OCAMLOPT_TARGETS, boxD)
-  mlMPFR: $(call OCAMLOPT_TARGETS, boxMPFR)
+mlMPQ: $(call OCAMLOPT_TARGETS, boxMPQ)
+mlD: $(call OCAMLOPT_TARGETS, boxD)
+mlMPFR: $(call OCAMLOPT_TARGETS, boxMPFR)
+ifneq ($(HAS_DEBUG),)
+mlMPQ: libboxMPQ_caml_debug.a $(call OCAMLOPT_TARGETS, boxMPQ.d)
+mlD: libboxD_caml_debug.a $(call OCAMLOPT_TARGETS, boxD.d)
+mlMPFR: libboxMPFR_caml_debug.a $(call OCAMLOPT_TARGETS, boxMPFR.d)
 endif
-ifneq ($(HAS_SHARED),)
-  mlMPQ: dllboxMPQ_caml.$(EXT_DLL) 
-  mlD: dllboxD_caml.$(EXT_DLL)
-  mlMPFR: dllboxMPFR_caml.$(EXT_DLL)
 endif
 
 mlexample%.byte: mlexample.ml box%.cma
@@ -99,9 +119,9 @@ clean:
 mostlyclean: clean
 distclean: clean
 
-install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
+install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
-	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
@@ -187,11 +207,14 @@ box_caml_debug.o: box_caml.c
 # OCaml rules
 #---------------------------------------
 
-box%.cma: box.cmo libbox%_caml.a libbox%.a
-	$(OCAMLMKLIB) -o box$* -oc box$*_caml box.cmo -lbox$* $(LIBS)
+box%.cma: box.cmo libbox%.a libbox%_caml.a
+	$(OCAMLMKLIB) -o box$* -oc box$*_caml_ box.cmo -lbox$* $(LIBS)
 
-box%.cmxa box%.a: box.cmx libbox%_caml.a libbox%.a
+box%.cmxa box%.a: box.cmx libbox%.a libbox%_caml.a
 	$(OCAMLMKLIB) -o box$* -oc box$*_caml box.cmx -lbox$* $(LIBS)
+
+box%.d.cmxa box%.d.a: box.cmx libbox%_debug.a libbox%_caml_debug.a
+	$(OCAMLMKLIB) -o box$*.d -oc box$*_caml_debug box.cmx -lbox$*_debug $(LIBS_DEBUG)
 
 #---------------------------------------
 # IDL rules

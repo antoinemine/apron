@@ -42,9 +42,16 @@ LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 # Rules
 #---------------------------------------
 
-all: libap_ppl.a libap_ppl_debug.a ap_ppl_test
+all: libap_ppl.a
+ifneq ($(HAS_DEBUG),)
+all: libap_ppl_debug.a ap_ppl_test
+endif
+
 ifneq ($(HAS_SHARED),)
-all: libap_ppl.$(EXT_DLL) libap_ppl_debug.$(EXT_DLL)
+all: libap_ppl.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+all: libap_ppl_debug.$(EXT_DLL)
+endif
 endif
 
 mlexample.byte: mlexample.ml ppl.cma
@@ -63,7 +70,7 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB) $(APRON_BIN)
-	$(INSTALL) ap_ppl.h $(APRON_INCLUDE)
+	$(INSTALL) -m 644 ap_ppl.h $(APRON_INCLUDE)
 	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.$(EXT_DLL) libap_ppl_debug.$(EXT_DLL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
@@ -133,14 +140,13 @@ ap_ppl_test: libap_ppl_debug.a libap_ppl_debug.$(EXT_DLL) ppl_test_debug.o
 # Caml part
 #-----------------------------------
 
-ml: ppl.cma libap_ppl_caml.a libap_ppl_caml_debug.a
+ml: ppl.cma libap_ppl_caml.a
 
 ifneq ($(HAS_OCAMLOPT),)
 ml: $(call OCAMLOPT_TARGETS, ppl)
+ifneq ($(HAS_DEBUG),)
+ml: libap_ppl_caml_debug.a $(call OCAMLOPT_TARGETS, ppl.d)
 endif
-
-ifneq ($(HAS_SHARED),)
-ml: dllap_ppl_caml.$(EXT_DLL)
 endif
 
 #ppltop: ppl.cma libap_ppl_caml.a libap_ppl.a
@@ -153,20 +159,20 @@ endif
 #	bigarray.cma gmp.cma apron.cma ppl.cma \
 #	-ccopt "-L.  -L../apron -L../itv -L$(MLGMPIDL_PREFIX)/lib -L../mlapronidl"
 
-dllap_ppl_caml.$(EXT_DLL): libap_ppl_caml.a
-libap_ppl_caml.a: ap_ppl_caml.o libap_ppl.a
+dllap_ppl_caml.$(EXT_DLL) libap_ppl_caml.a: ap_ppl_caml.o libap_ppl.a
 	$(OCAMLMKLIB) -o ap_ppl_caml $< -L. -lap_ppl $(LDFLAGS) $(LIBS)
 
-dllap_ppl_caml_debug.$(EXT_DLL): libap_ppl_caml_debug.a
-libap_ppl_caml_debug.a: ap_ppl_caml_debug.o libap_ppl_debug.a
+dllap_ppl_caml_debug.$(EXT_DLL) libap_ppl_caml_debug.a: ap_ppl_caml_debug.o libap_ppl_debug.a
 	$(OCAMLMKLIB) -o ap_ppl_caml_debug $< -L. -lap_ppl_debug $(LDFLAGS) $(LIBS_DEBUG)
 
-ppl.cma: ppl.cmo libap_ppl_caml.a libap_ppl.a
+ppl.cma: ppl.cmo libap_ppl.a libap_ppl_caml.a
 	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmo -lap_ppl $(LIBS)
 
-ppl.cmxa: ppl.a
-ppl.a: ppl.cmx libap_ppl_caml.a libap_ppl.a
+ppl.cmxa ppl.a: ppl.cmx libap_ppl.a libap_ppl_caml.a
 	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmx -lap_ppl $(LIBS)
+
+ppl.d.cmxa ppl.d.a: ppl.cmx libap_ppl_debug.a libap_ppl_caml_debug.a
+	$(OCAMLMKLIB) -o ppl.d -oc ap_ppl_caml_debug ppl.cmx -lap_ppl_debug $(LIBS_DEBUG)
 
 
 #---------------------------------------

@@ -13,19 +13,15 @@ CCSRC = itv_config.h itv_fun.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = itv.h itv_fun.h itv_config.h itv_linexpr.h itv_linearize.h
 CCBIN_TO_INSTALL = 
-CCLIB_TO_INSTALL = \
-libitvIl.a libitvIl_debug.a \
-libitvIll.a libitvIll_debug.a \
-libitvRl.a libitvRl_debug.a \
-libitvRll.a libitvRll_debug.a \
-libitvMPZ.a libitvMPZ_debug.a \
-libitvMPQ.a libitvMPQ_debug.a \
-libitvD.a libitvD_debug.a \
-libitvMPFR.a libitvMPFR_debug.a \
-libitv.a libitv_debug.a
-
+CCLIB_TO_INSTALL = libitvIl.a libitvIll.a libitvRl.a libitvRll.a libitvMPZ.a libitvMPQ.a libitvD.a libitvMPFR.a  libitv.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libitvIl_debug.a libitvIll_debug.a libitvRl_debug.a libitvRll_debug.a libitvMPZ_debug.a libitvMPQ_debug.a libitvD_debug.a libitvMPFR_debug.a libitv_debug.a
+endif
 ifneq ($(HAS_LONG_DOUBLE),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libitvDl.a libitvDl_debug.a
+CCLIB_TO_INSTALL += libitvDl.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libitvDl_debug.a
+endif
 endif
 
 OFILES = $(CCMODULES:%=%Il.o) $(CCMODULES:%=%Ill.o) $(CCMODULES:%=%Rl.o) $(CCMODULES:%=%Rll.o) $(CCMODULES:%=%MPZ.o) $(CCMODULES:%=%MPQ.o) $(CCMODULES:%=%D.o) $(CCMODULES:%=%MPFR.o)
@@ -43,15 +39,32 @@ endif
 # depend doc install
 # and the following one
 
-all: allMPQ allRll allD allMPFR libitv.a libitv_debug.a
+all: allIl allIll allMPZ allMPQ allRl allRll allD allDl allMPFR libitv.a
 
-allMPQ: libitvMPQ.a libitvMPQ_debug.a
+ifneq ($(HAS_DEBUG),)
+all: libitv_debug.a
+endif
 
-allRll: libitvRll.a libitvRll_debug.a
-
-allD: libitvD.a libitvD_debug.a
-
-allMPFR: libitvMPFR.a libitvMPFR_debug.a
+allIl: libitvIl.a
+allIll: libitvIll.a
+allMPZ: libitvMPZ.a
+allMPQ: libitvMPQ.a
+allRl: libitvRl.a
+allRll: libitvRll.a
+allD: libitvD.a
+allDl: libitvDl.a
+allMPFR: libitvMPFR.a
+ifneq ($(HAS_DEBUG),)
+allIl: libitvIl_debug.a
+allIll: libitvIll_debug.a
+allMPZ: libitvMPZ_debug.a
+allMPQ: libitvMPQ_debug.a
+allRl: libitvRl_debug.a
+allRll: libitvRll_debug.a
+allD: libitvD_debug.a
+allDl: libitvDl_debug.a
+allMPFR: libitvMPFR_debug.a
+endif
 
 tests: testMPQ testRll testD testMPFR test2MPQ test2Rll test2D test2MPFR
 
@@ -61,9 +74,9 @@ clean:
 
 distclean: clean
 
-install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
+install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
-	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done

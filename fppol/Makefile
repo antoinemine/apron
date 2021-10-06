@@ -48,10 +48,10 @@ root:
 	@echo
 	@echo "Please choose a target from:"
 	@echo
-	@echo " Il Ill MPZ Rl Rll MPQ D Dl MPFR: single C library"
+	@echo " D Dl: single C library"
 	@echo " all                     : all C libraries"
 	@echo " ml                      : OCaml library"
-	@echo " mlIl mlIll ...          : OCaml toplevel & byte-code"
+	@echo " mlD mlD     ..          : OCaml toplevel & byte-code"
 	@echo " allml                   : everything"
 	@echo " clean                   : remove objects"
 	@echo " install                 : to install what has been compiled"
@@ -59,39 +59,25 @@ root:
 	@echo
 
 all: D Dl 
-#all: Il Ill MPZ Ri Rll MPQ D Dl MPFR
 allml: allD allDl 
-#allml: allIl allIll allMPZ allRi allRll allMPQ allD allDl allMPFR
 
-allIl: Il mlIl
-allIll: Ill mlIll
-allMPZ: MPZ mlMPZ
-allRi: Ri mlRi
-allRll: Rll mlRll
-allMPQ: MPQ mlMPQ
 allD: D mlD
 allDl: Dl mlDl
-allMPFR: MPFR mlMPFR
 
-Il: libfppIl.a libfppIl_debug.a fpptestIl
-Ill: libfppIll.a libfppIll_debug.a fpptestIll
-MPZ: libfppMPZ.a libfppMPZ_debug.a fpptestMPZ
-Ri: libfppRi.a libfppRi_debug.a fpptestRi
-Rll: libfppRll.a libfppRll_debug.a fpptestRll
-MPQ: libfppMPQ.a libfppMPQ_debug.a fpptestMPQ
-D: libfppD.a libfppD_debug.a fpptestD
-Dl: libfppDl.a libfppDl_debug.a fpptestDl
-MPFR: libfppMPFR.a libfppMPFR_debug.a fpptestMPFR
+D: libfppD.a
+Dl: libfppDl.a
+ifneq ($(HAS_DEBUG),)
+D: libfppD_debug.a fpptestD
+Dl: libfppDl_debug.a fpptestDl
+endif
+
 ifneq ($(HAS_SHARED),)
-Il: libfppIl.$(EXT_DLL) libfppIl_debug.$(EXT_DLL)
-Ill: libfppIll.$(EXT_DLL) libfppIll_debug.$(EXT_DLL)
-MPZ: libfppMPZ.$(EXT_DLL) libfppMPZ_debug.$(EXT_DLL)
-Ri: libfppRi.$(EXT_DLL) libfppRi_debug.$(EXT_DLL)
-Rll: libfppRll.$(EXT_DLL) libfppRll_debug.$(EXT_DLL)
-MPQ: libfppMPQ.$(EXT_DLL) libfppMPQ_debug.$(EXT_DLL)
-D: libfppD.$(EXT_DLL) libfppD_debug.$(EXT_DLL)
-Dl: libfppDl.$(EXT_DLL) libfppDl_debug.$(EXT_DLL)
-MPFR: libfppMPFR.$(EXT_DLL) libfppMPFR_debug.$(EXT_DLL)
+D: libfppD.$(EXT_DLL)
+Dl: libfppDl.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+D: libfppD_debug.$(EXT_DLL)
+Dl: libfppDl_debug.$(EXT_DLL)
+endif
 endif
 
 mlexample%.byte: mlexample.ml fpp%.cma
@@ -113,19 +99,19 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/fpp $(APRON_LIB) $(APRON_BIN)
-	$(INSTALL) fpp.h $(APRON_INCLUDE)
-	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/fpp
+	$(INSTALL) -m 644 fpp.h $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC) $(APRON_INCLUDE)/fpp
 	for i in fpptest* fpptop* fpprun*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 	done
-	for i in libfpp*.* libfpp*_debug.*; do \
+	for i in libfppD.* libfppDl.* libfppD_debug.* libfppDl_debug.*; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in libfpp*_caml.* dllfpp*_caml.$(EXT_DLL); do \
+	for i in libfpp*_caml.* dllfpp*_caml.$(EXT_DLL) libfpp*_caml_debug.* dllfpp*_caml_debug.$(EXT_DLL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
-	for i in fpp.idl fpp.mli fpp.cmi fpp.cmx fpp*.cma fpp*.cmxa fpp*.a; do \
+	for i in fpp.idl fpp.mli fpp.cmi fpp.cmx fpp*.cma fpp*.cmxa fpp*.a fpp*.d.cmxa fpp*.d.a; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
@@ -184,32 +170,6 @@ endif
 %_caml_debug.o: %_caml.c $(CCINC) $(DEPS)
 	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
 
-%Il.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGINT -c -o $@ $<
-%Il_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGINT -c -o $@ $<
-%Ill.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGINT -c -o $@ $<
-%Ill_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGLONGINT -c -o $@ $<
-%MPZ.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPZ -c -o $@ $<
-%MPZ_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPZ -c -o $@ $<
-
-%Ri.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGRAT -c -o $@ $<
-%Ri_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGRAT -c -o $@ $<
-%Rll.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGLONGRAT -c -o $@ $<
-%Rll_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_LONGLONGRAT -c -o $@ $<
-%MPQ.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
-%MPQ_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -DNUM_MPQ -c -o $@ $<
-
 %D.o: %.c $(CCINC) $(DEPS)
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_DOUBLE -c -o $@ $<
 %D_debug.o: %.c $(CCINC) $(DEPS)
@@ -218,10 +178,6 @@ endif
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
 %Dl_debug.o: %.c $(CCINC) $(DEPS)
 	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_LONGDOUBLE -c -o $@ $<
-%MPFR.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -c -o $@ $<
-%MPFR_debug.o: %.c $(CCINC) $(DEPS)
-	$(CC) $(CFLAGS) $(ICFLAGS) -DNUM_MPFR -c -o $@ $<
 
 # TODO: mpfr ?
 
@@ -237,36 +193,19 @@ endif
 .INTERMEDIATE: mlIl
 
 ml: fpp.mli fpp.cmi
-mlIl: ml fppIl.cma libfppIl_caml.a libfppIl_caml_debug.a
-mlIll: ml fppIll.cma libfppIll_caml.a libfppIll_caml_debug.a 
-mlMPZ: ml fppMPZ.cma libfppMPZ_caml.a libfppMPZ_caml_debug.a
-mlRi: ml fppRi.cma libfppRi_caml.a libfppRi_caml_debug.a
-mlRll: ml fppRll.cma libfppRll_caml.a libfppRll_caml_debug.a
-mlMPQ: ml fppMPQ.cma libfppMPQ_caml.a libfppMPQ_caml_debug.a 
-mlD: ml fppD.cma libfppD_caml.a libfppD_caml_debug.a
-mlDl: ml fppDl.cma libfppDl_caml.a libfppDl_caml_debug.a
-mlMPFR: ml fppMPFR.cma libfppMPFR_caml.a libfppMPFR_caml_debug.a
+
+mlD: ml fppD.cma libfppD_caml.a
+mlDl: ml fppDl.cma libfppDl_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
-mlIl: $(call OCAMLOPT_TARGETS, fppIl)
-mlIll: $(call OCAMLOPT_TARGETS, fppIll)
-mlMPZ: $(call OCAMLOPT_TARGETS, fppMPZ)
-mlRi: $(call OCAMLOPT_TARGETS, fppRi)
-mlRll: $(call OCAMLOPT_TARGETS, fppRll)
-mlMPQ: $(call OCAMLOPT_TARGETS, fppMPQ)
 mlD: $(call OCAMLOPT_TARGETS, fppD)
 mlDl: $(call OCAMLOPT_TARGETS, fppDl)
-mlMPFR: $(call OCAMLOPT_TARGETS, fppMPFR)
+ifneq ($(HAS_DEBUG),)
+mlD: libfppD_caml_debug.a $(call OCAMLOPT_TARGETS, fppD.d)
+mlDl: libfppDl_caml_debug.a $(call OCAMLOPT_TARGETS, fppDl.d)
 endif
-ifneq ($(HAS_SHARED),)
-mlIl: dllfppIl_caml.$(EXT_DLL) 
-mlIll:dllfppIll_caml.$(EXT_DLL)
-mlMPZ:dllfppMPZ_caml.$(EXT_DLL) 
-mlRll:dllfppRll_caml.$(EXT_DLL)
-mlMPQ:dllfppMPQ_caml.$(EXT_DLL)
-mlD:dllfppD_caml.$(EXT_DLL)
-mlDl:dllfppDl_caml.$(EXT_DLL)
-mlMPFR:dllfppMPFR_caml.$(EXT_DLL)
 endif
+
 
 #fpptop%: fpp.cma libfpp_caml.a libfpp%.a
 #	$(OCAMLMKTOP) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -custom bigarray.cma gmp.cma apron.cma fpp.cma -ccopt "-L. -L../mlapronidl $(LDFLAGS)" -cclib "-lfpp_caml -lfpp$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp  -lglpk -lbigarray -lcamlidl"
@@ -274,11 +213,14 @@ endif
 #fpprun%: fpp.cma libfpp_caml.a
 #	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma fpp.cma -ccopt "-L. -L../mlapronidl $(LDFLAGS)" -cclib "-lfpp_caml -lfpp$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lglpk -lbigarray -lcamlidl"
 
-fpp%.cma: fpp.cmo libfpp%_caml.a libfpp%.a
+fpp%.cma: fpp.cmo libfpp%.a libfpp%_caml.a
 	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmo -lfpp$* $(LIBS)
 
-fpp%.cmxa fpp%.a: fpp.cmx libfpp%_caml.a libfpp%.a
+fpp%.cmxa fpp%.a: fpp.cmx libfpp%.a libfpp%_caml.a
 	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmx -lfpp$* $(LIBS)
+
+fpp%.d.cmxa fpp%.d.a: fpp.cmx libfpp%_debug.a libfpp%_caml_debug.a
+	$(OCAMLMKLIB) -o fpp$*.d -oc fpp$*_caml_debug fpp.cmx -lfpp$*_debug $(LIBS_DEBUG)
 
 dllfpp%_caml.$(EXT_DLL) libfpp%_caml.a: fpp_caml.o libfpp%.a
 	$(OCAMLMKLIB) -o fpp$*_caml $< -L. -lfpp$* $(LDFLAGS) $(LIBS)

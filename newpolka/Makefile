@@ -36,27 +36,38 @@ CCSRC = $(CCINC) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = pk.h pkeq.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libpolkaMPQ.a libpolkaMPQ_debug.a \
-libpolkaRll.a libpolkaRll_debug.a
-ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += \
-libpolkaMPQ.$(EXT_DLL) libpolkaMPQ_debug.$(EXT_DLL) \
-libpolkaRll.$(EXT_DLL) libpolkaRll_debug.$(EXT_DLL)
+CCLIB_TO_INSTALL = libpolkaMPQ.a libpolkaRll.a
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libpolkaMPQ_debug.a libpolkaMPQ_debug.a
 endif
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libpolkaMPQ.$(EXT_DLL) libpolkaRll.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CCLIB_TO_INSTALL += libpolkaMPQ_debug.$(EXT_DLL) libpolkaRll_debug.$(EXT_DLL)
+endif
+endif
+
 
 CAML_TO_INSTALL = \
 polka.idl polka.mli polka.ml polka.cmi \
 polkaMPQ.cma \
 polkaRll.cma \
-libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a \
-libpolkaRll_caml.a libpolkaRll_caml_debug.a
+libpolkaMPQ_caml.a \
+libpolkaRll_caml.a
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += libpolkaMPQ_caml_debug.a libpolkaRll_caml_debug.a
+endif
 ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL += 							\
-	$(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ Rll MPQ.d Rll.d))
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ Rll))
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ.d Rll.d))
+endif
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllpolkaMPQ_caml.$(EXT_DLL) dllpolkaRll_caml.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+CAML_TO_INSTALL += dllpolkaMPQ_caml_debug.$(EXT_DLL) dllpolkaRll_caml_debug.$(EXT_DLL)
+endif
 endif
 
 LIBS = -lapron -lmpfr -lgmp -lm
@@ -72,24 +83,35 @@ LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 
 all: allMPQ allRll
 
-allMPQ: libpolkaMPQ.a libpolkaMPQ_debug.a
-allRll: libpolkaRll.a libpolkaRll_debug.a
-ifneq ($(HAS_SHARED),)
-allMPQ: libpolkaMPQ.$(EXT_DLL) libpolkaMPQ_debug.$(EXT_DLL)
-allRll: libpolkaRll.$(EXT_DLL) libpolkaRll_debug.$(EXT_DLL)
+allMPQ: libpolkaMPQ.a
+allRll: libpolkaRll.a
+ifneq ($(HAS_DEBUG),)
+allMPQ: libpolkaMPQ_debug.a
+allRll: libpolkaRll_debug.a
 endif
+
+ifneq ($(HAS_SHARED),)
+allMPQ: libpolkaMPQ.$(EXT_DLL)
+allRll: libpolkaRll.$(EXT_DLL)
+ifneq ($(HAS_DEBUG),)
+allMPQ: libpolkaMPQ_debug.$(EXT_DLL)
+allRll: libpolkaRll_debug.$(EXT_DLL)
+endif
+endif
+
 
 ml: polka.mli polka.ml polka.cmi mlMPQ mlRll
 
-mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a
-mlRll: polkaRll.cma libpolkaRll_caml.a libpolkaRll_caml_debug.a
+mlMPQ: polkaMPQ.cma libpolkaMPQ_caml.a
+mlRll: polkaRll.cma libpolkaRll_caml.a
+
 ifneq ($(HAS_OCAMLOPT),)
-mlMPQ: $(call OCAMLOPT_TARGETS, polkaMPQ polkaMPQ.d)
-mlRll: $(call OCAMLOPT_TARGETS, polkaRll polkaRll.d)
+mlMPQ: $(call OCAMLOPT_TARGETS, polkaMPQ)
+mlRll: $(call OCAMLOPT_TARGETS, polkaRll)
+ifneq ($(HAS_DEBUG),)
+mlMPQ: libpolkaMPQ_caml_debug.a $(call OCAMLOPT_TARGETS, polkaMPQ.d)
+mlRll: libpolkaRll_caml_debug.a $(call OCAMLOPT_TARGETS, polkaRll.d)
 endif
-ifneq ($(HAS_SHARED),)
-mlMPQ: dllpolkaMPQ_caml.$(EXT_DLL)
-mlRll: dllpolkaRll_caml.$(EXT_DLL)
 endif
 
 test0%: test0%_debug.o libpolka%_debug.a
@@ -117,7 +139,7 @@ distclean: clean
 
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
-	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
@@ -200,20 +222,20 @@ test.cmo: test.ml
 dllpolka%_caml.$(EXT_DLL) libpolka%_caml.a: polka_caml.o libpolka%.a
 	$(OCAMLMKLIB) -o polka$*_caml $< -L. -lpolka$* $(LDFLAGS) $(LIBS)
 
-libpolka%_caml_debug.a: polka_caml_debug.o libpolka%_debug.a
+dllpolka%_caml_debug.$(EXT_DLL) libpolka%_caml_debug.a: polka_caml.o libpolka%_debug.a
 	$(OCAMLMKLIB) -o polka$*_caml_debug $< -L. -lpolka$*_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 #---------------------------------------
 # OCaml rules
 #---------------------------------------
 
-polka%.cma: polka.cmo libpolka%_caml.a libpolka%.a
+polka%.cma: polka.cmo libpolka%.a libpolka%_caml.a
 	$(OCAMLMKLIB) -o polka$* -oc polka$*_caml polka.cmo -lpolka$* $(LIBS)
 
-polka%.cmxa polka%.a: polka.cmx libpolka%_caml.a libpolka%.a
+polka%.cmxa polka%.a: polka.cmx libpolka%.a libpolka%_caml.a
 	$(OCAMLMKLIB) -o polka$* -oc polka$*_caml polka.cmx -lpolka$* $(LIBS)
 
-polka%.d.cmxa polka%.d.a: polka.cmx libpolka%_caml_debug.a libpolka%_debug.a
+polka%.d.cmxa polka%.d.a: polka.cmx libpolka%_debug.a libpolka%_caml_debug.a
 	$(OCAMLMKLIB) -o polka$*.d -oc polka$*_caml_debug polka.cmx -lpolka$*_debug $(LIBS_DEBUG)
 
 #---------------------------------------

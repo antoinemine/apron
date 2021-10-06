@@ -23,8 +23,8 @@ bound_def.h
 all:
 
 install:
-	mkdir -p $(APRON_INCLUDE)
-	cp $(H_FILES) $(APRON_INCLUDE)
+	$(INSTALLd) $(APRON_INCLUDE)
+	$(INSTALL) -m 644 $(H_FILES) $(APRON_INCLUDE)
 
 uninstall:
 	(cd $(APRON_INCLUDE) && /bin/rm -f $(H_FILES) || exit 0)
