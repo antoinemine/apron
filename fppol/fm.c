@@ -90,11 +90,10 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
     }
   }
   if(posI*negI+zeroI==0){
-  	if(destructive==false)
-  		    fpp1=fpp_copy_internal(pr, fpp);
-  	else	fpp1=fpp;
+        if(destructive==false) fpp1=fpp_copy_internal(pr, fpp);
+        else fpp1=fpp;
   	checked_free(fpp1->cons);
-    checked_free(fpp1->bnds);
+        checked_free(fpp1->bnds);
   	checked_free(posIndex);
   	checked_free(negIndex);
   	checked_free(zeroIndex);
@@ -145,7 +144,7 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
       		dealFlag=false;
       		a2i=*(fpp->cons+negIndex[j]*(fpp->dim+1)+varIndex); /* a_2i of row negIndex[j] */
       		   /* positive row + negative row */
-            memset(itvIneq,0,(2*fpp->dim+1)*sizeof(numdbl_t));
+                memset(itvIneq,0,(2*fpp->dim+1)*sizeof(numdbl_t));
       		intvp=itvIneq;
       		   /* see if t=a_1i/(-a_2i) is an integer, and a1i==t *_{f,+\infty} (-a_2i)==t *_{f,-\infty} (-a_2i) */
       		if(a1i == -a2i){
@@ -163,7 +162,7 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
       			       memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
       			   }
       			   intvp=intvp+2;
-                }
+                        }
       		}
       		else if(a1i > -a2i){
       		  t=a1i/(-a2i);  /* no matter which rounding mode */
@@ -187,8 +186,7 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
                 				    }
                 				    b3kIntv=numitv_mul_number(t,a2k);
             			       }
-            			       else if(a2k==0.0 || a2k==-0.0 )
-                                    b3kIntv=numitv_singleton(a1k);
+                                       else if(a2k==0.0 || a2k==-0.0 )b3kIntv=numitv_singleton(a1k);
             			       else b3kIntv=numitv_add( numitv_singleton(a1k),numitv_mul_number(t,a2k) );
             			       memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
             			   }
@@ -219,8 +217,7 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
                 				    }
                 				    b3kIntv=numitv_singleton(a2k);
             			       }
-            			       else if(a2k==0.0 || a2k==-0.0 )
-            				          b3kIntv=numitv_mul_number(t,a1k);
+                                       else if(a2k==0.0 || a2k==-0.0 ) b3kIntv=numitv_mul_number(t,a1k);
             			       else b3kIntv=numitv_add( numitv_mul_number(t,a1k),numitv_singleton(a2k) );
             			       memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
             			   }
@@ -253,10 +250,9 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
                 				    }
                 				    b3kIntv=numitv_mul_number(a2k,a1i);
             			      }
-            			      else if(a2k==0.0 || a2k==-0.0 )
-            				        b3kIntv=numitv_mul_number(a1k,-a2i);
-            		          else b3kIntv=numitv_add( numitv_mul_number(a1k,-a2i),numitv_mul_number(a2k,a1i) );
-            			            memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
+                                      else if(a2k==0.0 || a2k==-0.0 ) b3kIntv=numitv_mul_number(a1k,-a2i);
+                                      else b3kIntv=numitv_add( numitv_mul_number(a1k,-a2i),numitv_mul_number(a2k,a1i) );
+                                      memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
             		  }
         	 	    }
       		        intvp=intvp+2;
@@ -279,10 +275,9 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
             				    }
             				    b3kIntv=numitv_div_number(a2k,-a2i);
             			   }
-            			   else if(a2k==0.0 || a2k==-0.0 )
-            				    b3kIntv=numitv_div_number(a1k,a1i);
-            		       else b3kIntv=numitv_add( numitv_div_number(a1k,a1i),numitv_div_number(a2k,-a2i) );
-            			        memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
+                                   else if(a2k==0.0 || a2k==-0.0 ) b3kIntv=numitv_div_number(a1k,a1i);
+                                   else b3kIntv=numitv_add( numitv_div_number(a1k,a1i),numitv_div_number(a2k,-a2i) );
+                                   memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
       		        }
       		        intvp=intvp+2;
       		      }
@@ -290,15 +285,15 @@ fpp_t *fm_elimination(fpp_internal_t* pr, bool destructive, fpp_t *fpp, unsigned
       		    }
           		aCons=quasi_linearisation(fpp->dim,itvIneq,fpp->bnds,&sat);
           		if(aCons==NULL){
-          		   if(sat==0){/* unsatifiable */
-          		      checked_free(itvIneq);
-             		  checked_free(resCons);
-                      if(bv!=NULL) bv_free(bv1);
-                      fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
-                      if(destructive==true)  fpp_free_internal(pr, fpp);
-             		  return fpp1;
-                   }
-                }
+                          if(sat==0){/* unsatifiable */
+                            checked_free(itvIneq);
+                            checked_free(resCons);
+                            if(bv!=NULL) bv_free(bv1);
+                            fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
+                            if(destructive==true)  fpp_free_internal(pr, fpp);
+                            return fpp1;
+                          }
+                        }
           		else{
           		   memcpy(resq,aCons,(fpp->dim+1)*sizeof(numdbl_t));
           		   checked_free(aCons);
@@ -435,11 +430,10 @@ fpp_t *fm_elimination_lazy(fpp_internal_t* pr, bool destructive, fpp_t *fpp, uns
     }
   }
   if(posI*negI+zeroI==0){
-	if(destructive==false)
-		    fpp1=fpp_copy_internal(pr, fpp);
-	else	fpp1=fpp;
+	if(destructive==false) fpp1=fpp_copy_internal(pr, fpp);
+	else fpp1=fpp;
 	checked_free(fpp1->cons);
-    checked_free(fpp1->bnds);
+        checked_free(fpp1->bnds);
 	checked_free(posIndex);
 	checked_free(negIndex);
 	checked_free(zeroIndex);
@@ -463,7 +457,7 @@ fpp_t *fm_elimination_lazy(fpp_internal_t* pr, bool destructive, fpp_t *fpp, uns
      {
 	    memcpy(resq,fpp->cons+zeroIndex[i]*(fpp->dim+1),(fpp->dim+1)*sizeof(numdbl_t));
 	    resq=resq+fpp->dim+1;
-        bv_set(bv1,i,bv->bits+zeroIndex[i]*bv->vchars);
+            bv_set(bv1,i,bv->bits+zeroIndex[i]*bv->vchars);
      }
      if(destructive==false)	fpp1=fpp_copy_internal(pr, fpp);
      else	                fpp1=fpp;
@@ -524,14 +518,14 @@ fpp_t *fm_elimination_lazy(fpp_internal_t* pr, bool destructive, fpp_t *fpp, uns
 	   if(sat==0){/* unsatifiable */
 	   	checked_free(sigcons);
 		checked_free(itvcons);
-        bv_free(bv1);
+                bv_free(bv1);
 		checked_free(posIndex);
 		checked_free(negIndex);
 		checked_free(zeroIndex);
-        fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
-        if(destructive==true)  fpp_free_internal(pr, fpp);
+                fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
+                if(destructive==true)  fpp_free_internal(pr, fpp);
    		return fpp1;
-       }
+           }
 	   else{
 	      j=bv1->nvecs-(nitvcons-i);
 	      if(bv1->nvecs-j-1>0)
@@ -539,7 +533,7 @@ fpp_t *fm_elimination_lazy(fpp_internal_t* pr, bool destructive, fpp_t *fpp, uns
 	      else bv->bits=(char *)realloc(bv->bits,(bv->nvecs-1)*bv->vchars*sizeof(char));
 	      bv1->nvecs--;
 	   }
-    }
+        }
 	else{
 	   memcpy(resq,aCons,(fpp->dim+1)*sizeof(numdbl_t));
 	   checked_free(aCons);
@@ -612,17 +606,17 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
      nsig=0;
      checked_malloc(pr,itvIneq,numdbl_t,2*fpp->dim+1, return ;);
      fmp_p=fmp;
-	 for(i=0;i<ncons1;i++){
+     for(i=0;i<ncons1;i++){
 		if(fmp_p->posI==fmp_p->negI){ /*zero row*/
 		   memcpy(sigp,fpp->cons+fmp_p->posI*(fpp->dim+1),(fpp->dim+1)*sizeof(numdbl_t));
 		   sigp=sigp+fpp->dim+1;
-			   nsig++;
-			}
+                   nsig++;
+                }
 		else{  /* positive row + negative row */
 		   a1i=*(fpp->cons+fmp_p->posI*(fpp->dim+1)+varIndex); /* a_1i of row posIndex[i] */
 		   c1=*(fpp->cons+fmp_p->posI*(fpp->dim+1)); /* 0-th(constant) of row posIndex[i] */
 		   a2i=*(fpp->cons+fmp_p->negI*(fpp->dim+1)+varIndex); /* a_2i of row negIndex[j] */
-			   memset(itvIneq,0,(2*fpp->dim+1)*sizeof(numdbl_t));
+                   memset(itvIneq,0,(2*fpp->dim+1)*sizeof(numdbl_t));
 		   intvp=itvIneq;
 		   dealFlag=false;
 		   /* see if t=a_1i/(-a_2i) is an integer, and a1i==t *_{f,+\infty} (-a_2i)==t *_{f,-\infty} (-a_2i) */
@@ -647,7 +641,7 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 			t=a1i/(-a2i);  /* no matter which rounding mode */
 			tInt=trunc(t);
 			if(tInt==t){ /* t is an integer */
-				 if((t*(-a2i) == a1i) && (t*(-a2i)==num_mul_downward(t,-a2i))){/*row_posIndex[i]+t*row_negIndex[j]*/
+				if((t*(-a2i) == a1i) && (t*(-a2i)==num_mul_downward(t,-a2i))){/*row_posIndex[i]+t*row_negIndex[j]*/
 				dealFlag=true;
 				c2=*(fpp->cons+fmp_p->negI*(fpp->dim+1)); /* 0-th(constant) of row negIndex[j] */
 				c=c1+c2*t;
@@ -672,11 +666,11 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 					   memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
 				  }
 				  intvp=intvp+2;
-						}
-				 }
+                                }
+                                }
 			}
-			}
-			else{ /* a1i < -a2i */
+                   }
+                   else{ /* a1i < -a2i */
 			  t=(-a2i)/a1i;  /* no matter which rounding mode */
 			  tInt=trunc(t);
 			  if(tInt==t){ /* t is an integer */
@@ -704,11 +698,11 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 					   memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
 				  }
 				  intvp=intvp+2;
-						}
+                                }
 				 }
 			  }
-			}
-			if(dealFlag==false){
+                   }
+                   if(dealFlag==false){
 			   /* see if a_1i *_{f,-\infity} (-a_2i)==a_1i *_{f,+\infity} (-a_2i) */
 			   a1x2idown=num_mul_downward(a1i,-a2i);
 			   a1x2iup=a1i*(-a2i);
@@ -721,22 +715,22 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 				 for(k=1; k<=fpp->dim; k++){ /* negative row: negIndex[j] */
 					if(k!=varIndex){
 					   a1k=*(fpp->cons+fmp_p->posI*(fpp->dim+1)+k); /* a_1k of row posIndex[i] */
-				   a2k=*(fpp->cons+fmp_p->negI*(fpp->dim+1)+k); /* a_2k of row negIndex[j] */
-				   if( (a1k==a1i && a2k==a2i) || (a1k==-a1i && a2k==-a2i) ){ /* crossing */
-				   }
-				   else{  /* b3k=a1k*(-a2i)+a2k*a1i;   */
-					  if(a1k==0.0 || a1k==-0.0 ){
-					if(a2k==0.0 || a2k==-0.0 ){
-						intvp=intvp+2;
-						continue;
-					}
-						 b3kIntv=numitv_mul_number(a2k,a1i);
-								  }
-					  else if(a2k==0.0 || a2k==-0.0 )
-						 b3kIntv=numitv_mul_number(a1k,-a2i);
-						  else b3kIntv=numitv_add( numitv_mul_number(a1k,-a2i),numitv_mul_number(a2k,a1i) );
-					  memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
-				   }
+                                           a2k=*(fpp->cons+fmp_p->negI*(fpp->dim+1)+k); /* a_2k of row negIndex[j] */
+                                           if( (a1k==a1i && a2k==a2i) || (a1k==-a1i && a2k==-a2i) ){ /* crossing */
+                                           }
+                                           else{  /* b3k=a1k*(-a2i)+a2k*a1i;   */
+                                             if(a1k==0.0 || a1k==-0.0 ){
+                                               if(a2k==0.0 || a2k==-0.0 ){
+                                                 intvp=intvp+2;
+                                                 continue;
+                                               }
+                                               b3kIntv=numitv_mul_number(a2k,a1i);
+                                             }
+                                             else if(a2k==0.0 || a2k==-0.0 )
+                                               b3kIntv=numitv_mul_number(a1k,-a2i);
+                                             else b3kIntv=numitv_add( numitv_mul_number(a1k,-a2i),numitv_mul_number(a2k,a1i) );
+                                             memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
+                                           }
 					}
 					intvp=intvp+2;
 				 }
@@ -748,28 +742,28 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 				  intvp++;
 				  for(k=1; k<=fpp->dim; k++){ /* negative row: negIndex[j] */
 					if(k!=varIndex){
-				   a1k=*(fpp->cons+fmp_p->posI*(fpp->dim+1)+k); /* a_1k of row posIndex[i] */
-				   a2k=*(fpp->cons+fmp_p->negI*(fpp->dim+1)+k); /* a_2k of row negIndex[j] */
-					 /* b3k=a1k/a1i+a2k/(-a2i);    */
-				   if(a1k==0.0 || a1k==-0.0 ){
-					if(a2k==0.0 || a2k==-0.0 ){
-						intvp=intvp+2;
-						continue;
-					}
-						b3kIntv=numitv_div_number(a2k,-a2i);
-				   }
-				   else if(a2k==0.0 || a2k==-0.0 )
-						 b3kIntv=numitv_div_number(a1k,a1i);
-					   else  b3kIntv=numitv_add( numitv_div_number(a1k,a1i),numitv_div_number(a2k,-a2i) );
-				   memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
+                                          a1k=*(fpp->cons+fmp_p->posI*(fpp->dim+1)+k); /* a_1k of row posIndex[i] */
+                                          a2k=*(fpp->cons+fmp_p->negI*(fpp->dim+1)+k); /* a_2k of row negIndex[j] */
+                                          /* b3k=a1k/a1i+a2k/(-a2i);    */
+                                          if(a1k==0.0 || a1k==-0.0 ){
+                                            if(a2k==0.0 || a2k==-0.0 ){
+                                              intvp=intvp+2;
+                                              continue;
+                                            }
+                                            b3kIntv=numitv_div_number(a2k,-a2i);
+                                          }
+                                          else if(a2k==0.0 || a2k==-0.0 )
+                                            b3kIntv=numitv_div_number(a1k,a1i);
+                                          else  b3kIntv=numitv_add( numitv_div_number(a1k,a1i),numitv_div_number(a2k,-a2i) );
+                                          memcpy(intvp,&b3kIntv,2*sizeof(numdbl_t));
 					}
 					intvp=intvp+2;
 				  }
 			   }
-			}
-			memcpy(itvp,itvIneq,(2*fpp->dim+1)*sizeof(numdbl_t));
-			itvp=itvp+2*fpp->dim+1;
-			nitv++;
+                   }
+                   memcpy(itvp,itvIneq,(2*fpp->dim+1)*sizeof(numdbl_t));
+                   itvp=itvp+2*fpp->dim+1;
+                   nitv++;
 		}
 		fmp_p++;
      }
@@ -799,8 +793,8 @@ int quasi_syntactic_cmp(numdbl_t *l1,numdbl_t *l2,unsigned dim, bool itv)
            }
     	   a2=*(l2+i+1);
     	   if(a2==-0.0){
-              *(l2+i+1)=0.0;
-    	      a2=0.0;
+             *(l2+i+1)=0.0;
+             a2=0.0;
            }
     	   if(a1==a2) continue;
     	   dm=fabs(a2-a1);
@@ -983,15 +977,15 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
   	if(*coeffi>0.0){
   		posIndex[posI]=i;
   		posI++;
-    }
+        }
   	else if(*coeffi<-0.0){
   		negIndex[negI]=i;
   		negI++;
-    }
-    else {
+        }
+        else {
   		zeroIndex[zeroI]=i;
   		zeroI++;
-    }
+        }
   }
 
   if(posI*negI+zeroI==0){
@@ -999,7 +993,7 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
 		    fpp1=fpp_copy_internal(pr, fpp);
 	else	fpp1=fpp;
 	checked_free(fpp1->cons);
-    checked_free(fpp1->bnds);
+        checked_free(fpp1->bnds);
 	fpp1->ncons=0;
 	fpp1->flag=UNIVERSE_POL;
         /* if(bv!=NULL)  bv_free(bv); */
@@ -1035,14 +1029,14 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
       		v1=bv->bits+posIndex[i]*bv->vchars;
       		v2=bv->bits+negIndex[j]*bv->vchars;
       		v12=bv_or(bv,v1,v2);
-            if( (bv_andTest(bv,v12,nenv1bv)==false /* && bv_andTest(bv,v12,sigmabv)==false*/ )
-                ||(bv_andTest(bv,v12,nenv2bv)==false /* && bv_andTest(bv,v12,sigmabv)==false*/) ){
-      		       checked_free(v12);
+                if( (bv_andTest(bv,v12,nenv1bv)==false /* && bv_andTest(bv,v12,sigmabv)==false*/ )
+                    ||(bv_andTest(bv,v12,nenv2bv)==false /* && bv_andTest(bv,v12,sigmabv)==false*/) ){
+                  checked_free(v12);
       		}
-      	    checked_free(v12);
+                checked_free(v12);
 
       		   /* positive row + negative row */
-            checked_malloc(pr,itvIneq,numdbl_t,2*fpp->dim+1, return NULL;);
+                checked_malloc(pr,itvIneq,numdbl_t,2*fpp->dim+1, return NULL;);
       		intvp=itvIneq;
       		   /* see if t=a_1i/(-a_2i) is an integer, and a1i==t *_{f,+\infty} (-a_2i)==t *_{f,-\infty} (-a_2i) */
       		if(a1i == -a2i){
@@ -1066,14 +1060,14 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
       				*intvp=0;  /* ) for V_varIndex */
       				intvp++;
       			   }
-              	}
+                        }
       		}
       		else if(a1i > -a2i){
       		  t=a1i/(-a2i);  /* no matter which rounding mode */
       		  tInt=trunc(t);
       		  if(tInt==t){ /* t is an integer */
       		     if((t*(-a2i) == a1i) && (t*(-a2i)==num_mul_downward(t,-a2i))){/*row_posIndex[i]+t*row_negIndex[j]*/
-      			    dealFlag=true;
+                                dealFlag=true;
         	 		c2=*(fpp->cons+negIndex[j]*(fpp->dim+1)); /* 0-th(constant) of row negIndex[j] */
       				c=c1+c2*t;
       				*intvp=c;
@@ -1093,7 +1087,7 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
 						  *intvp=0;  /* ) for V_varIndex */
 						  intvp++;
 					   }
-              	    }
+                                }
       		     }
       		  }
       		}
@@ -1122,7 +1116,7 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
 						*intvp=0;  /* ) for V_varIndex */
 						intvp++;
 					  }
-              	    }
+                                        }
       		     }
       		  }
       		}
@@ -1184,13 +1178,13 @@ fpp_t *fm_elimination_withNenv(fpp_internal_t* pr, bool destructive, fpp_t *fpp,
       		if(aCons==NULL){
       		   if(sat==0){/* unsatifiable */
       		      checked_free(itvIneq);
-         		  checked_free(resCons);
-                  if(bv!=NULL) bv_free(bv1);
-                  fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
-                  if(destructive==true)  fpp_free_internal(pr, fpp);
-         		  return fpp1;
-               }
-            }
+                      checked_free(resCons);
+                      if(bv!=NULL) bv_free(bv1);
+                      fpp1=fpp_alloc_internal(pr, fpp->dim,fpp->intdim);
+                      if(destructive==true)  fpp_free_internal(pr, fpp);
+                      return fpp1;
+                   }
+                }
       		else{
       		   memcpy(resq,aCons,(fpp->dim+1)*sizeof(numdbl_t));
       		   checked_free(aCons);
@@ -1692,9 +1686,9 @@ fpp_t *redundancy_removal_RLP_lastKs(fpp_internal_t* pr,bool destructive, fpp_t 
 			i++;
 		   }
 		 }
-	   }
+            }
 	  }
-     }
+        }
     }
     return fpp1;
 }

@@ -202,8 +202,8 @@ bool ap_abstract0_check_dim_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<size;i++){
     ap_dim_t dim = tdim[i];
     if (dim>=dimension.intdim+dimension.realdim){
-      char str[80];
-      sprintf(str,"incompatible %luth dimension in the array for the abstract value",(unsigned long)i);
+      char str[90];
+      snprintf(str,sizeof(str),"incompatible %luth dimension in the array for the abstract value",(unsigned long)i);
       ap_abstract0_check_dim_raise(funid,man,dimension,dim,str);
       return false;
     }
@@ -327,7 +327,7 @@ bool ap_abstract0_check_linexpr_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<size; i++){
     if (texpr[i]==NULL){
       char str[80];
-      sprintf(str,"null pointer in the %luth expression of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"null pointer in the %luth expression of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,str);
@@ -336,7 +336,7 @@ bool ap_abstract0_check_linexpr_array(ap_funid_t funid, ap_manager_t* man,
     ap_dim_t dim = ap_abstract0_check_linexpr_check(dimension,texpr[i]);
     if (dim!=AP_DIM_MAX){
       char str[80];
-      sprintf(str,"incompatible dimension in the %luth expression of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"incompatible dimension in the %luth expression of the array",(unsigned long)i);
       ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
       return false;
     }
@@ -353,7 +353,7 @@ bool ap_abstract0_check_lincons_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<array->size; i++){
     if (array->p[i].linexpr0==NULL){
       char str[80];
-      sprintf(str,"null pointer in the %luth constraint of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"null pointer in the %luth constraint of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,str);
@@ -362,7 +362,7 @@ bool ap_abstract0_check_lincons_array(ap_funid_t funid, ap_manager_t* man,
     ap_dim_t dim = ap_abstract0_check_linexpr_check(dimension,array->p[i].linexpr0);
     if (dim!=AP_DIM_MAX){
       char str[80];
-      sprintf(str,"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
       ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
       return false;
     }
@@ -379,7 +379,7 @@ bool ap_abstract0_check_generator_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<array->size; i++){
     if (array->p[i].linexpr0==NULL){
       char str[80];
-      sprintf(str,"null pointer in the %luth generator of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"null pointer in the %luth generator of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,str);
@@ -388,7 +388,7 @@ bool ap_abstract0_check_generator_array(ap_funid_t funid, ap_manager_t* man,
     ap_dim_t dim = ap_abstract0_check_linexpr_check(dimension,array->p[i].linexpr0);
     if (dim!=AP_DIM_MAX){
       char str[80];
-      sprintf(str,"incompatible dimension in the %luth generator of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"incompatible dimension in the %luth generator of the array",(unsigned long)i);
       ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
       return false;
     }
@@ -406,7 +406,7 @@ bool ap_abstract0_check_texpr_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<size; i++){
     if (texpr[i]==NULL){
       char str[80];
-      sprintf(str,"null pointer in the %luth expression of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"null pointer in the %luth expression of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,str);
@@ -415,7 +415,7 @@ bool ap_abstract0_check_texpr_array(ap_funid_t funid, ap_manager_t* man,
     ap_dim_t dim = ap_abstract0_check_texpr_check(dimension,texpr[i]);
     if (dim!=AP_DIM_MAX){
       char str[80];
-      sprintf(str,"incompatible dimension in the %luth expression of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"incompatible dimension in the %luth expression of the array",(unsigned long)i);
       ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
       return false;
     }
@@ -432,7 +432,7 @@ bool ap_abstract0_check_tcons_array(ap_funid_t funid, ap_manager_t* man,
   for (i=0;i<array->size; i++){
     if (array->p[i].texpr0==NULL){
       char str[80];
-      sprintf(str,"null pointer in the %luth constraint of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"null pointer in the %luth constraint of the array",(unsigned long)i);
       ap_manager_raise_exception(man,
 				 AP_EXC_INVALID_ARGUMENT,
 				 funid,str);
@@ -441,7 +441,7 @@ bool ap_abstract0_check_tcons_array(ap_funid_t funid, ap_manager_t* man,
     ap_dim_t dim = ap_abstract0_check_texpr_check(dimension,array->p[i].texpr0);
     if (dim!=AP_DIM_MAX){
       char str[80];
-      sprintf(str,"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
+      snprintf(str,sizeof(str),"incompatible dimension in the %luth constraint of the array",(unsigned long)i);
       ap_abstract0_check_expr_raise(funid,man,dimension,dim,str);
       return false;
     }

@@ -61,7 +61,7 @@ PPL_Poly::PPL_Poly(ap_manager_t* man,
       (Polyhedron*)new NNC_Polyhedron(intdim+realdim,kind) :
       (Polyhedron*)new C_Polyhedron(intdim+realdim,kind);
   }
-  catch (std::logic_error e) {
+  catch (std::logic_error &e) {
     intdim = 0;
     if (ppl->strict) p = new NNC_Polyhedron(1,kind);
     else p = new C_Polyhedron(1,kind);
@@ -76,12 +76,12 @@ PPL_Poly::~PPL_Poly() { delete p; }
 
 /* returns a polyhedron, of specified size if possible */
 #define CATCH_WITH_DIM(funid,intdim,realdim)				\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert &w) {						\
     /* bailing out, not an error */					\
     man->result.flag_exact = man->result.flag_best = false;		\
     return new PPL_Poly(man,intdim,realdim,UNIVERSE);		\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error &e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     return new PPL_Poly(man,intdim,realdim,UNIVERSE);		\
@@ -93,12 +93,12 @@ PPL_Poly::~PPL_Poly() { delete p; }
 
 /* returns v */
 #define CATCH_WITH_VAL(funid,v)						\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert &w) {						\
     /* bailing out, not an error */					\
     man->result.flag_exact = man->result.flag_best = false;		\
     return v;								\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error &e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     return v;								\
@@ -109,11 +109,11 @@ PPL_Poly::~PPL_Poly() { delete p; }
 
 /* prints message */
 #define CATCH_WITH_MSG(funid)						\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert &w) {						\
     /* bailing out, not an error */					\
     fprintf(stream,"!exception!");					\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error &e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     fprintf(stream,"!exception!");					\
@@ -455,12 +455,15 @@ bool ap_ppl_poly_sat_lincons(ap_manager_t* man, PPL_Poly* a,
       switch (lincons0->constyp) {
       case AP_CONS_EQ:
       case AP_CONS_EQMOD:
-	if (!ap_linexpr0_is_linear(lincons0->linexpr0)){
-	  man->result.flag_exact = man->result.flag_best = false;
-	  return false;
-	}
       case AP_CONS_SUPEQ:
       case AP_CONS_SUP:
+        if (lincons0->constyp == AP_CONS_EQ ||
+            lincons0->constyp == AP_CONS_EQMOD) {
+          if (!ap_linexpr0_is_linear(lincons0->linexpr0)){
+            man->result.flag_exact = man->result.flag_best = false;
+            return false;
+          }
+        }
 	itv_lincons_init(&lincons);
 	exact = itv_lincons_set_ap_lincons0(intern->itv,&lincons,lincons0) && exact;
 	if (itv_sat_lincons_is_false(intern->itv,&lincons)){
@@ -491,8 +494,9 @@ bool ap_ppl_poly_sat_lincons(ap_manager_t* man, PPL_Poly* a,
           else { exact = false; r = (l>=0); }
 	  break;
 	case AP_CONS_EQMOD:
-	  exact = exact && (num_sgn(lincons.num)==0);
 	case AP_CONS_EQ:
+          if (lincons.constyp == AP_CONS_EQMOD)
+            exact = exact && (num_sgn(lincons.num)==0);
 	  r = (l == 0);
 	  break;
 	default:

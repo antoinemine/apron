@@ -84,9 +84,7 @@ install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/apronxx $(APRON_LIB)
 	$(INSTALL) -m 644 $(CCINC) $(APRON_INCLUDE)/apronxx
 	$(INSTALL) libapronxx.* $(APRON_LIB)
-
 ifneq ($(HAS_DEBUG),)
-install:
 	$(INSTALL) libapronxx_debug.* $(APRON_LIB)
 endif
 

@@ -121,7 +121,9 @@ numdbl_t* fpp_vector_of_lincons0(ap_lincons0_t p, unsigned dimension,unsigned in
        *n=2;
        return q;
      case AP_CONS_SUP:
-		if(ap_linexpr0_is_integer(p.linexpr0,intdim)==true){
+     case AP_CONS_SUPEQ:
+       if (p.constyp == AP_CONS_SUP) {
+		if(p.constyp == AP_CONS_SUP && ap_linexpr0_is_integer(p.linexpr0,intdim)==true){
 		   /* ap_lincons0_t: expr(\sum ai*vi + c) > 0  while vector [c-1] >= \sum ai*vi */
 		   q=(numdbl_t *)malloc((dimension+1)*sizeof(numdbl_t));
 		   memset(q,0,(dimension+1)*sizeof(numdbl_t));
@@ -172,8 +174,8 @@ numdbl_t* fpp_vector_of_lincons0(ap_lincons0_t p, unsigned dimension,unsigned in
 		   *n=1;
 		   return q;
 		}
-	/*else overapproximation to AP_CONS_SUPEQ */
-     case AP_CONS_SUPEQ:
+                /*else overapproximation to AP_CONS_SUPEQ */
+       }
        /* ap_lincons0_t: expr(\sum ai*vi + c) >= 0  while vector c >= \sum ai*vi */
        q=(numdbl_t *)malloc((dimension+1)*sizeof(numdbl_t));
        memset(q,0,(dimension+1)*sizeof(numdbl_t));

@@ -18,7 +18,7 @@ struct apron_var_ptr ap_var_t;
 quote(MLMLI,"(** APRON Variables *)\n")
 
 quote(MLI,"(** Constructor *)")
-ap_var_t ap_var_of_string([string]char* name);
+ap_var_t ap_var_of_string([string]const char* name);
 
 quote(MLI,"(** Comparison function *)")
 int ap_var_compare(ap_var_t var1, ap_var_t var2);
