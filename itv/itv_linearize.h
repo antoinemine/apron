@@ -48,6 +48,7 @@ static inline bool itv_boxize_lincons_array(itv_internal_t* intern,
   /* Deduce interval constraints from a set of interval linear constraints.
 
      Return true if some bounds have been inferred.
+     Sets *empty to true if the result is empty, to false otherwise.
 
      - The inferred bounds are stored in res (which may be equal to env)
      - If tchange!=NULL, tchange[2dim] (resp. 2dim+1) set to true indicates
