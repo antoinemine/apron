@@ -347,7 +347,7 @@ static bool itv_boxize_lincons(itv_internal_t* intern,
       globalchange = true;
       exc = itv_canonicalize(intern,res[dim],dim<intdim);
       if (exc){
-	itv_set_bottom(res[0]);
+        *empty = true;
 	return true;
       }
     }
