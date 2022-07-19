@@ -13,6 +13,9 @@
 #include <string.h>
 #include <math.h>
 #include "ap_manager.h"
+#if defined(__FreeBSD__)
+#  include <ieeefp.h> // for fpsetround
+#endif
 
 const char* ap_name_of_funid[AP_FUNID_SIZE2] = {
   "unknown",
