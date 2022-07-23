@@ -33,7 +33,7 @@ static void ap_disjunction_clear(ap_disjunction_internal_t* intern,
 {
   size_t i;
   ap_manager_t* man = intern->manager;
-  void (*absfree)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
+  void (*absfree)(ap_manager_t*, void*) = man->funptr[AP_FUNID_FREE];
   for (i=0; i < a->size; i++) {
     if (a->p[i]!=NULL){
       absfree(man, a->p[i]);
@@ -106,9 +106,9 @@ static void ap_disjunction_null_bottom_top(
     bool* const notbottom)
 {
   ap_manager_t* man = intern->manager;
-  void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
-  bool (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
-  bool (*is_top)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_TOP];
+  void (*free)(ap_manager_t*, void*) = man->funptr[AP_FUNID_FREE];
+  bool (*is_bottom)(ap_manager_t*, void*) = man->funptr[AP_FUNID_IS_BOTTOM];
+  bool (*is_top)(ap_manager_t*, void*) = man->funptr[AP_FUNID_IS_TOP];
 
   int bottom = -1;
   *top = -1;
@@ -142,8 +142,8 @@ static void ap_disjunction_elim_redundant(ap_disjunction_internal_t* intern,
 					  ap_disjunction_t* a)
 {
   ap_manager_t* man = intern->manager;
-  void (*free)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FREE];
-  bool (*is_eq)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_EQ];
+  void (*free)(ap_manager_t*, void*) = man->funptr[AP_FUNID_FREE];
+  bool (*is_eq)(ap_manager_t*,void*,void*) = man->funptr[AP_FUNID_IS_EQ];
   int top;
   bool notbottom;
 
@@ -187,7 +187,7 @@ ap_disjunction_t* ap_disjunction_copy(ap_manager_t* manager,
   size_t i;
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, void*) = man->funptr[AP_FUNID_COPY];
 
   ap_disjunction_t* res = ap_disjunction_alloc(a->size);
   for (i = 0; i < a->size; i++) {
@@ -202,7 +202,7 @@ size_t ap_disjunction_size(ap_manager_t* manager,
   size_t i,res;
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  size_t (*size)(ap_manager_t*, ...) = man->funptr[AP_FUNID_ASIZE];
+  size_t (*size)(ap_manager_t*, void*) = man->funptr[AP_FUNID_ASIZE];
 
   res = 0;
   for (i = 0; i < a->size; i++) {
@@ -217,7 +217,7 @@ void ap_disjunction_minimize(ap_manager_t* manager,
   size_t i;
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  void* (*minimize)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MINIMIZE];
+  void* (*minimize)(ap_manager_t*, void*) = man->funptr[AP_FUNID_MINIMIZE];
 
   ap_disjunction_elim_redundant(intern,a);
   for (i = 0; i < a->size; i++) {
@@ -230,7 +230,7 @@ void ap_disjunction_canonicalize(ap_manager_t* manager,
   size_t i;
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  void* (*canonicalize)(ap_manager_t*, ...) = man->funptr[AP_FUNID_CANONICALIZE];
+  void* (*canonicalize)(ap_manager_t*, void*) = man->funptr[AP_FUNID_CANONICALIZE];
   ap_disjunction_elim_redundant(intern,a);
   for (i = 0; i < a->size; i++) {
     canonicalize(man, a->p[i]);
@@ -264,7 +264,7 @@ void ap_disjunction_fprint(FILE* stream, ap_manager_t* manager,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINT];
+  void (*ptr)(FILE* stream, ap_manager_t*,void*,char**) = man->funptr[AP_FUNID_FPRINT];
 
   fprintf(stream,"disjunction of library %s\n",man->library);
 
@@ -289,7 +289,7 @@ void ap_disjunction_fdump(FILE* stream, ap_manager_t* manager,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FDUMP];
+  void (*ptr)(FILE* stream, ap_manager_t*,void*) = man->funptr[AP_FUNID_FDUMP];
 
   fprintf(stream,"disjunction of library %s\n",man->library);
 
@@ -318,7 +318,7 @@ static ap_disjunction_t* ap_disjunction_of_one(void* abs)
   {									\
     ap_disjunction_internal_t* intern = get_internal(manager);	\
     ap_manager_t* man = intern->manager;				\
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[FUNID];		\
+    void* (*ptr)(ap_manager_t*,size_t,size_t) = man->funptr[FUNID];		\
     void* abs = ptr(man,intdim,realdim);				\
 									\
     return ap_disjunction_of_one(abs);					\
@@ -335,7 +335,7 @@ ap_disjunction_t* ap_disjunction_of_box(ap_manager_t* manager,
   void* abs;
 
   ap_manager_t* man = intern->manager;
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_OF_BOX];
+  void* (*ptr)(ap_manager_t*, size_t,size_t,ap_interval_t**) = man->funptr[AP_FUNID_OF_BOX];
   abs = ptr(man, intdim, realdim, tinterval);
   return ap_disjunction_of_one(abs);
 }
@@ -345,7 +345,7 @@ ap_dimension_t ap_disjunction_dimension(ap_manager_t* manager,
 {
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  ap_dimension_t (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_DIMENSION];
+  ap_dimension_t (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_DIMENSION];
   return ptr(man, a->p[0]);
 }
 
@@ -358,7 +358,7 @@ bool ap_disjunction_is_bottom(ap_manager_t* manager, ap_disjunction_t* a)
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
+  bool (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_IS_BOTTOM];
 
   return a->size==1 && ptr(man,a->p[0]);
 }
@@ -368,7 +368,7 @@ bool ap_disjunction_is_top(ap_manager_t* manager, ap_disjunction_t* a)
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_TOP];
+  bool (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_IS_TOP];
 
   return a->size==1 && ptr(man,a->p[0]);
 }
@@ -454,7 +454,7 @@ bool ap_disjunction_sat_lincons(ap_manager_t* manager, ap_disjunction_t* a,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_LINCONS];
+  bool (*ptr)(ap_manager_t*, void*, ap_lincons0_t*) = man->funptr[AP_FUNID_SAT_LINCONS];
 
   size_t i;
   bool res = true;
@@ -472,7 +472,7 @@ bool ap_disjunction_sat_tcons(ap_manager_t* manager, ap_disjunction_t* a,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_TCONS];
+  bool (*ptr)(ap_manager_t*, void*, ap_tcons0_t*) = man->funptr[AP_FUNID_SAT_TCONS];
 
   size_t i;
   bool res = true;
@@ -490,7 +490,7 @@ bool ap_disjunction_sat_interval(ap_manager_t* manager, ap_disjunction_t* a,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  bool (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_SAT_INTERVAL];
+  bool (*ptr)(ap_manager_t*, void*, ap_dim_t, ap_interval_t*) = man->funptr[AP_FUNID_SAT_INTERVAL];
 
   size_t i;
   bool res = true;
@@ -521,7 +521,7 @@ ap_interval_t* ap_disjunction_bound_linexpr(
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  ap_interval_t* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+  ap_interval_t* (*ptr)(ap_manager_t*, void*, ap_linexpr0_t*) = man->funptr[AP_FUNID_BOUND_LINEXPR];
 
   ap_interval_t* gres = ap_interval_alloc();
   ap_interval_set_bottom(gres);
@@ -546,7 +546,7 @@ ap_interval_t* ap_disjunction_bound_texpr(
   ap_interval_t* gres = ap_interval_alloc();
   ap_interval_set_bottom(gres);
 
-  ap_interval_t* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_BOUND_TEXPR];
+  ap_interval_t* (*ptr)(ap_manager_t*, void*, ap_texpr0_t*) = man->funptr[AP_FUNID_BOUND_TEXPR];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -568,7 +568,7 @@ ap_interval_t* ap_disjunction_bound_dimension(ap_manager_t* manager,
   ap_interval_t* gres = ap_interval_alloc();
   ap_interval_set_bottom(gres);
 
-  ap_interval_t* (*ptr)(ap_manager_t*, ...) =	man->funptr[AP_FUNID_BOUND_DIMENSION];
+  ap_interval_t* (*ptr)(ap_manager_t*, void*, ap_dim_t) =	man->funptr[AP_FUNID_BOUND_DIMENSION];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -593,7 +593,7 @@ ap_lincons0_array_t ap_disjunction_to_lincons_array(ap_manager_t* manager,
   ap_lincons0_array_t garray;
 
   if (a->size==1){
-    ap_lincons0_array_t (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+    ap_lincons0_array_t (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
     garray = ptr(man,a->p[0]);
   }
   else {
@@ -626,7 +626,7 @@ ap_lincons0_array_t ap_disjunction_to_lincons0_set(ap_manager_t* manager,
   garray.p = NULL;
   garray.size = 0;
 
-  ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+  ap_lincons0_array_t (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
 
   size_t i,j;
   for (i=0;i<a->size;i++){
@@ -656,8 +656,8 @@ ap_interval_t** ap_disjunction_to_box(ap_manager_t* manager,
   ap_interval_t** gbox = NULL;
   size_t nbdims = 0;
 
-  ap_interval_t** (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_TO_BOX];
-  ap_dimension_t (*ptrdimension)(ap_manager_t*, ...) = man->funptr[AP_FUNID_DIMENSION];
+  ap_interval_t** (*ptr)(ap_manager_t*, void*) = man->funptr[AP_FUNID_TO_BOX];
+  ap_dimension_t (*ptrdimension)(ap_manager_t*, void*) = man->funptr[AP_FUNID_DIMENSION];
   ap_dimension_t dimension = ptrdimension(man, a->p[0]);
   nbdims = dimension.intdim + dimension.realdim;
 
@@ -727,7 +727,7 @@ ap_disjunction_t* ap_disjunction_join(ap_manager_t* manager,
 
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, void*) = man->funptr[AP_FUNID_COPY];
   ap_disjunction_t* res = ap_disjunction_alloc(a1->size+a2->size);
   size_t i,j;
   for (i=0; i<a1->size; i++){
@@ -766,7 +766,7 @@ ap_disjunction_t* ap_disjunction_join_array(ap_manager_t* manager,
   else {
     ap_disjunction_internal_t* intern = get_internal(manager);
     ap_manager_t* man = intern->manager;
-    void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+    void* (*copy)(ap_manager_t*, void*) = man->funptr[AP_FUNID_COPY];
 
     size_t length,i,j,l;
     ap_disjunction_t* res;
@@ -823,8 +823,8 @@ ap_disjunction_t* ap_disjunction_meet(ap_manager_t* manager, bool destructive,
 
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
-  void* (*meet)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MEET];
-  void* (*is_bottom)(ap_manager_t*, ...) = man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*meet)(ap_manager_t*, bool, void*, void*) = man->funptr[AP_FUNID_MEET];
+  void* (*is_bottom)(ap_manager_t*, void*) = man->funptr[AP_FUNID_IS_BOTTOM];
 
   ap_disjunction_elim_redundant(intern, a1);
   ap_disjunction_elim_redundant(intern, a2);
@@ -877,7 +877,7 @@ ap_disjunction_t* ap_disjunction_meet_lincons_array(ap_manager_t* manager,
 
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_lincons0_array_t*) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
 
   int top;
   bool notbottom;
@@ -898,7 +898,7 @@ ap_disjunction_t* ap_disjunction_meet_tcons_array(ap_manager_t* manager,bool des
 
   ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_tcons0_array_t*) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -923,7 +923,7 @@ ap_disjunction_t* ap_disjunction_add_ray_array(ap_manager_t* manager,
 
   ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_lincons0_array_t*) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -954,8 +954,8 @@ ap_disjunction_t* ap_disjunction_asssub_linexpr_array(
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[funid];
-  bool (*is_bottom)(ap_manager_t*, ...) =	man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dim_t*, ap_linexpr0_t**, size_t, void*) = man->funptr[funid];
+  bool (*is_bottom)(ap_manager_t*, void*) =	man->funptr[AP_FUNID_IS_BOTTOM];
 
   if (dest!=NULL){
     ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, funid, "assign or substitute supported only when dest==NULL");
@@ -997,8 +997,8 @@ ap_disjunction_t* ap_disjunction_asssub_texpr_array(
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[funid];
-  bool (*is_bottom)(ap_manager_t*, ...) =	man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dim_t*, ap_texpr0_t**, size_t, void*) = man->funptr[funid];
+  bool (*is_bottom)(ap_manager_t*, void*) =	man->funptr[AP_FUNID_IS_BOTTOM];
 
   if (dest!=NULL){
     ap_manager_raise_exception(manager, AP_EXC_NOT_IMPLEMENTED, funid, "assign or substitute supported only when dest==NULL");
@@ -1043,7 +1043,7 @@ ap_disjunction_t* ap_disjunction_forget_array(
 
   ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FORGET_ARRAY];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dim_t*, size_t, bool) = man->funptr[AP_FUNID_FORGET_ARRAY];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1071,7 +1071,7 @@ ap_disjunction_t* ap_disjunction_add_dimensions(
   ap_manager_t* man = intern->manager;
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dimchange_t*, bool) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1088,7 +1088,7 @@ ap_disjunction_t* ap_disjunction_remove_dimensions(ap_manager_t* manager,
 
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dimchange_t*) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1114,7 +1114,7 @@ ap_disjunction_t* ap_disjunction_permute_dimensions(ap_manager_t* manager,
 
   ap_disjunction_t* res= destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dimperm_t*) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1140,7 +1140,7 @@ ap_disjunction_t* ap_disjunction_expand(ap_manager_t* manager,
 
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_EXPAND];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dim_t, size_t) = man->funptr[AP_FUNID_EXPAND];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1162,7 +1162,7 @@ ap_disjunction_t* ap_disjunction_fold(ap_manager_t* manager,
 
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_FOLD];
+  void* (*ptr)(ap_manager_t*, bool, void*, ap_dim_t*, size_t) = man->funptr[AP_FUNID_FOLD];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1199,7 +1199,7 @@ ap_disjunction_t* ap_disjunction_closure(ap_manager_t* manager,
 
   ap_disjunction_t* res = destructive ? a : ap_disjunction_alloc(a->size);
 
-  void* (*ptr)(ap_manager_t*, ...) = man->funptr[AP_FUNID_CLOSURE];
+  void* (*ptr)(ap_manager_t*, bool, void*) = man->funptr[AP_FUNID_CLOSURE];
 
   size_t i;
   for (i = 0; i < a->size; i++) {
@@ -1346,7 +1346,7 @@ void** ap_disjunction_decompose(ap_manager_t* manager, bool destructive,
   ap_disjunction_internal_t* intern = get_internal(manager);
   ap_manager_t* man = intern->manager;
 
-  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, void*) = man->funptr[AP_FUNID_COPY];
 
   *psize = a->size;
 
@@ -1375,7 +1375,7 @@ ap_disjunction_t* ap_disjunction_compose(ap_manager_t* manager,
 
   ap_disjunction_t* res = ap_disjunction_alloc(size);
 
-  void* (*copy)(ap_manager_t*, ...) = man->funptr[AP_FUNID_COPY];
+  void* (*copy)(ap_manager_t*, void*) = man->funptr[AP_FUNID_COPY];
 
   size_t i;
   for (i = 0; i < size; i++) {

@@ -317,8 +317,8 @@ void camlidl_apron_abstract0_serialize(value v, unsigned long * w32, unsigned lo
   ap_abstract0_ptr* p = (ap_abstract0_ptr *) Data_custom_val(v);
   ap_abstract0_t* a = *p;
   ap_membuf_t buf = ap_abstract0_serialize_raw(a->man,a);
-  serialize_int_8(buf.size);
-  serialize_block_1(buf.ptr,buf.size);
+  caml_serialize_int_8(buf.size);
+  caml_serialize_block_1(buf.ptr,buf.size);
   *w32 = 4;
   *w64 = 8;
 }
@@ -327,11 +327,11 @@ static
 unsigned long camlidl_apron_abstract0_deserialize(void * dst)
 {
   if (deserialize_man) {
-    size_t size = deserialize_uint_8(), realsize;
+    size_t size = caml_deserialize_uint_8(), realsize;
     void* data;
     data = malloc(size);
     assert(data);
-    deserialize_block_1(data,size);
+    caml_deserialize_block_1(data,size);
     *((ap_abstract0_ptr*)dst) =
       ap_abstract0_deserialize_raw(deserialize_man,data,&realsize);
     free(data);
@@ -457,7 +457,7 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 {
   value v;
 
-   v = alloc_custom(&camlidl_apron_custom_environment_ptr, sizeof(ap_environment_ptr), 0,1);
+   v = caml_alloc_custom(&camlidl_apron_custom_environment_ptr, sizeof(ap_environment_ptr), 0,1);
   *((ap_environment_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
@@ -467,7 +467,7 @@ value camlidl_apron_environment_ptr_c2ml(ap_environment_ptr* p)
 /* ********************************************************************** */
 value camlidl_apron_init(value dummy)
 {
-  register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
+  caml_register_custom_operations(&camlidl_apron_custom_abstract0_ptr);
   return Val_unit;
 }
 /* ********************************************************************** */
@@ -484,7 +484,7 @@ value camlidl_apron_policy_optr_c2ml(ap_policy_optr* p)
     value v,v2=0;
     Begin_roots1(v2);
     v2 = camlidl_apron_policy_ptr_c2ml(p);
-    v = alloc_small(1,0);
+    v = caml_alloc_small(1,0);
     Field(v,0) = v2;
     End_roots();
     return v;

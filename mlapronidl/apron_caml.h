@@ -116,7 +116,7 @@ static inline
 value camlidl_apron_linexpr0_ptr_c2ml(ap_linexpr0_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_linexpr0_ptr, sizeof(ap_linexpr0_ptr), 0,1);
+  v = caml_alloc_custom(&camlidl_apron_custom_linexpr0_ptr, sizeof(ap_linexpr0_ptr), 0,1);
   *((ap_linexpr0_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
@@ -146,7 +146,7 @@ static inline
 value camlidl_apron_texpr0_ptr_c2ml(ap_texpr0_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_texpr0_ptr, sizeof(ap_texpr0_ptr), 0,1);
+  v = caml_alloc_custom(&camlidl_apron_custom_texpr0_ptr, sizeof(ap_texpr0_ptr), 0,1);
   *((ap_texpr0_ptr *) Data_custom_val(v)) = *p;
   return v;
 }
@@ -199,7 +199,7 @@ static inline
 value camlidl_apron_manager_ptr_c2ml(ap_manager_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_manager_ptr, sizeof(ap_manager_ptr),
+  v = caml_alloc_custom(&camlidl_apron_custom_manager_ptr, sizeof(ap_manager_ptr),
 		   0,1);
   *((ap_manager_ptr *) Data_custom_val(v)) = *p;
   return v;
@@ -230,7 +230,7 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 {
   value v;
   assert((*p)->man!=NULL);
-  v = alloc_custom(&camlidl_apron_custom_abstract0_ptr, sizeof(ap_abstract0_ptr),
+  v = caml_alloc_custom(&camlidl_apron_custom_abstract0_ptr, sizeof(ap_abstract0_ptr),
 		   ap_abstract0_size((*p)->man,(*p)),
 		   camlidl_apron_heap);
   *((ap_abstract0_ptr *) Data_custom_val(v)) = *p;
@@ -307,7 +307,7 @@ value camlidl_apron_var_ptr_c2ml(ap_var_t* p)
 {
   value v;
 
-  v = alloc_custom(&camlidl_apron_custom_var_ptr, sizeof(apron_var_ptr), 0,1);
+  v = caml_alloc_custom(&camlidl_apron_custom_var_ptr, sizeof(apron_var_ptr), 0,1);
   *((ap_var_t *) Data_custom_val(v)) = *p;
   return v;
 }
@@ -355,7 +355,7 @@ static inline
 value camlidl_apron_policy_manager_ptr_c2ml(ap_policy_manager_ptr* p)
 {
   value v;
-  v = alloc_custom(&camlidl_apron_custom_policy_manager_ptr, sizeof(ap_policy_manager_ptr),
+  v = caml_alloc_custom(&camlidl_apron_custom_policy_manager_ptr, sizeof(ap_policy_manager_ptr),
 		   0,1);
   *((ap_policy_manager_ptr *) Data_custom_val(v)) = *p;
   return v;
@@ -384,7 +384,7 @@ value camlidl_apron_policy_ptr_c2ml(ap_policy_ptr* p)
 {
   value v;
   assert((*p)->pman!=NULL);
-  v = alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr),
+  v = caml_alloc_custom(&camlidl_apron_custom_policy_ptr, sizeof(ap_policy_ptr),
 		   0,1);
   *((ap_policy_ptr *) Data_custom_val(v)) = *p;
   return v;

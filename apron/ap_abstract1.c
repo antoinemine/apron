@@ -669,7 +669,7 @@ ap_abstract1_t ap_abstract1_meetjoin_array(ap_funid_t funid, ap_manager_t* man, 
       ap_abstract1_check_env_array(funid,man,tab,size)){
     size_t i;
     ap_abstract0_t* res0;
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,void**,size_t) = man->funptr[funid];
     void** ntab = malloc(size*sizeof(void*));
     for (i=0;i<size;i++) ntab[i] = tab[i].abstract0->value;
     res0 = malloc(sizeof(ap_abstract0_t));

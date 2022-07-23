@@ -32,8 +32,8 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
 			     ap_scalar_discr_t discr,
 			     bool quasilinearize)
 {
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
-  bool (*sat_lincons)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_LINCONS];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
+  bool (*sat_lincons)(ap_manager_t*,void*,ap_lincons0_t*) = man->funptr[AP_FUNID_SAT_LINCONS];
   bool exact;
   ap_lincons0_t lincons0;
   bool res;
@@ -62,8 +62,8 @@ bool ap_generic_sat_tcons(ap_manager_t* man, void* abs, ap_tcons0_t* cons,
 ap_interval_t* ap_generic_bound_texpr(ap_manager_t* man, void* abs, ap_texpr0_t* expr,
 				      ap_scalar_discr_t discr, bool quasilinearize)
 {
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
-  ap_interval_t* (*bound_linexpr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
+  ap_interval_t* (*bound_linexpr)(ap_manager_t*,void*,ap_linexpr0_t*) = man->funptr[AP_FUNID_BOUND_LINEXPR];
   bool exact;
   ap_linexpr0_t* linexpr0;
   ap_interval_t* res;
@@ -89,7 +89,7 @@ ap_interval_t* ap_generic_bound_texpr(ap_manager_t* man, void* abs, ap_texpr0_t*
 ap_tcons0_array_t ap_generic_to_tcons_array(ap_manager_t* man,
 					    void* abs)
 {
-  ap_lincons0_array_t (*to_lincons_array)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+  ap_lincons0_array_t (*to_lincons_array)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
   ap_lincons0_array_t array = to_lincons_array(man,abs);
   ap_tcons0_array_t res = ap_tcons0_array_make(array.size);
   size_t i;
@@ -117,8 +117,8 @@ void* ap_generic_meetjoin_array(bool meet,
 				ap_manager_t* man,
 				void** tab, size_t size)
 {
-  void* (*copy)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
-  void* (*meetjoin)(ap_manager_t*,...) = man->funptr[meet ? AP_FUNID_MEET : AP_FUNID_JOIN];
+  void* (*copy)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
+  void* (*meetjoin)(ap_manager_t*,bool,void*,void*) = man->funptr[meet ? AP_FUNID_MEET : AP_FUNID_JOIN];
   size_t i;
   void* res;
   bool exact,best;
@@ -158,13 +158,13 @@ ap_generic_meet_quasilinearize_lincons_array(ap_manager_t* man,
   bool exact;
   ap_lincons0_array_t array2;
   void* res;
-  void* (*copy)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*copy)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
 
   man->result.flag_exact = man->result.flag_best = true;
 
   if (is_bottom(man,abs) || array->size==0){
-    res = destructive ? abs : copy(abs);
+    res = destructive ? abs : copy(man,abs);
   }
   else {
     array2 = ap_quasilinearize_lincons0_array(man,abs,array,&exact,
@@ -194,8 +194,8 @@ ap_generic_meet_intlinearize_tcons_array(ap_manager_t* man,
   bool exact;
   ap_lincons0_array_t array2;
   void* res;
-  void* (*copy)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*copy)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
   ap_abstract0_t a0;
 
   man->result.flag_exact = man->result.flag_best = true;
@@ -249,15 +249,15 @@ void* ap_generic_asssub_linexpr_array(bool assign,
 				      bool destructive, void* abs, ap_dim_t* tdim, ap_linexpr0_t** texpr, size_t size,
 				      void* dest)
 {
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
-  void* (*copy)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
-  void* (*add_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
-  void* (*permute_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
-  void* (*remove_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
-  void* (*meet_lincons_array)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
-  void* (*meet)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET];
-  void (*ap_free)(ap_manager_t*,...) = man->funptr[AP_FUNID_FREE];
-  ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*copy)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
+  void* (*add_dimensions)(ap_manager_t*,bool,void*,ap_dimchange_t*,bool) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
+  void* (*permute_dimensions)(ap_manager_t*,bool,void*,ap_dimperm_t*) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
+  void* (*remove_dimensions)(ap_manager_t*,bool,void*,ap_dimchange_t*) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
+  void* (*meet_lincons_array)(ap_manager_t*,bool,void*,ap_lincons0_array_t*) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
+  void* (*meet)(ap_manager_t*,bool,void*,void*) = man->funptr[AP_FUNID_MEET];
+  void (*ap_free)(ap_manager_t*,void*) = man->funptr[AP_FUNID_FREE];
+  ap_dimension_t (*dimension)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
   size_t i;
   ap_dimension_t d, dsup;
   ap_dimchange_t dimchange;
@@ -384,15 +384,15 @@ void* ap_generic_asssub_texpr_array(bool assign,
 				    bool destructive, void* abs, ap_dim_t* tdim, ap_texpr0_t** texpr, size_t size,
 				    void* dest)
 {
-  bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
-  void* (*copy)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
-  void* (*add_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
-  void* (*permute_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
-  void* (*remove_dimensions)(ap_manager_t*,...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
-  void* (*meet_tcons_array)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
-  void* (*meet)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET];
-  void (*ap_free)(ap_manager_t*,...) = man->funptr[AP_FUNID_FREE];
-  ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+  bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
+  void* (*copy)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
+  void* (*add_dimensions)(ap_manager_t*,bool,void*,ap_dimchange_t*,bool) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
+  void* (*permute_dimensions)(ap_manager_t*,bool,void*,ap_dimperm_t*) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
+  void* (*remove_dimensions)(ap_manager_t*,bool,void*,ap_dimchange_t*) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
+  void* (*meet_tcons_array)(ap_manager_t*,bool,void*,ap_tcons0_array_t*) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
+  void* (*meet)(ap_manager_t*,bool,void*,void*) = man->funptr[AP_FUNID_MEET];
+  void (*ap_free)(ap_manager_t*,void*) = man->funptr[AP_FUNID_FREE];
+  ap_dimension_t (*dimension)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
   size_t i;
   ap_dimension_t d, dsup;
   ap_dimchange_t dimchange;
