@@ -125,16 +125,16 @@ static void set_bottom(ap_reducedproduct_internal_t* intern,
   size_t i;
 
   ap_manager_t* man = intern->tmanagers[index];
-  ap_dimension_t (*dimension)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+  ap_dimension_t (*dimension)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
   ap_dimension_t dim = dimension(man,a->p[index]);
   for (i=0; i<intern->size; i++){
     if (i!=index){
       man = intern->tmanagers[i];
       if (i<index || destructive){
-	void (*free)(ap_manager_t*,...) = man->funptr[AP_FUNID_FREE];
+	void (*free)(ap_manager_t*,void*) = man->funptr[AP_FUNID_FREE];
 	free(man,a->p[i]);
       }
-      void* (*bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOTTOM];
+      void* (*bottom)(ap_manager_t*,int,int) = man->funptr[AP_FUNID_BOTTOM];
       a->p[i] = bottom(man, dim.intdim, dim.realdim);
     }
   }
@@ -153,7 +153,7 @@ void ap_reducedproduct_##NAME(ap_manager_t* manager, ap_reducedproduct_t* a) \
 									\
   for (i=0;i<intern->size;i++){						\
     ap_manager_t* man = intern->tmanagers[i];				\
-    void (*ptr)(ap_manager_t*,...) = man->funptr[FUNID];		\
+    void (*ptr)(ap_manager_t*,void*) = man->funptr[FUNID];		\
     ptr(man,a->p[i]);							\
   }									\
   collect_results1(manager,FUNID,a);					\
@@ -172,7 +172,7 @@ ap_reducedproduct_t* ap_reducedproduct_copy(ap_manager_t* manager, ap_reducedpro
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
+    void* (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
     res->p[i] = ptr(man,a->p[i]);
   }
   res->reduced = a->reduced;
@@ -188,7 +188,7 @@ void ap_reducedproduct_free(ap_manager_t* manager, ap_reducedproduct_t* a)
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_FREE];
+    void (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_FREE];
     ptr(man,a->p[i]);
   }
   free(a);
@@ -203,7 +203,7 @@ size_t ap_reducedproduct_size(ap_manager_t* manager, ap_reducedproduct_t* a)
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    size_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ASIZE];
+    size_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_ASIZE];
     res += ptr(man,a->p[i]);
   }
   collect_results0(manager);
@@ -224,7 +224,7 @@ int ap_reducedproduct_hash(ap_manager_t* manager, ap_reducedproduct_t* a)
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    size_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_HASH];
+    size_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_HASH];
     res += ptr(man,a->p[i]);
   }
   collect_results0(manager);
@@ -251,7 +251,7 @@ void ap_reducedproduct_fprint(FILE* stream, ap_manager_t* manager,
   fprintf(stream,"reduced product of library %s\n",manager->library);
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINT];
+    void (*ptr)(FILE* stream, ap_manager_t*,void*,char**) = man->funptr[AP_FUNID_FPRINT];
     ptr(stream,man,a->p[i],name_of_dim);
   }
   collect_results0(manager);
@@ -266,7 +266,7 @@ void ap_reducedproduct_fprintdiff(FILE* stream, ap_manager_t* manager,
   fprintf(stream,"reduced product of library %s\n",manager->library);
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINTDIFF];
+    void (*ptr)(FILE* stream, ap_manager_t*,void*,void*,char**) = man->funptr[AP_FUNID_FPRINTDIFF];
     ptr(stream,man,a->p[i],b->p[i],name_of_dim);
   }
   collect_results0(manager);
@@ -280,7 +280,7 @@ void ap_reducedproduct_fdump(FILE* stream, ap_manager_t* manager,
   fprintf(stream,"reduced product of library %s\n",manager->library);
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void (*ptr)(FILE* stream, ap_manager_t*,...) = man->funptr[AP_FUNID_FDUMP];
+    void (*ptr)(FILE* stream, ap_manager_t*,void*) = man->funptr[AP_FUNID_FDUMP];
     ptr(stream,man,a->p[i]);
   }
   collect_results0(manager);
@@ -300,7 +300,7 @@ ap_membuf_t ap_reducedproduct_serialize_raw(ap_manager_t* manager, ap_reducedpro
   gres.size = 0;
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_membuf_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SERIALIZE_RAW];
+    ap_membuf_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_SERIALIZE_RAW];
     ap_membuf_t res = ptr(man,a->p[i]);
     gres.ptr = realloc(gres.ptr, gres.size + res.size);
     memcpy(((char*)gres.ptr + gres.size), res.ptr, res.size);
@@ -320,7 +320,7 @@ ap_reducedproduct_t* ap_reducedproduct_deserialize_raw(ap_manager_t* manager, vo
   *size = 0;
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DESERIALIZE_RAW];
+    void* (*ptr)(ap_manager_t*,char*,size_t*) = man->funptr[AP_FUNID_DESERIALIZE_RAW];
     size_t nb;
     res->p[i] = ptr(man,((char*)p + *size), &nb);
     *size += nb;
@@ -345,7 +345,7 @@ ap_reducedproduct_t* ap_reducedproduct_##NAME(ap_manager_t* manager, size_t intd
 									\
   for (i=0;i<intern->size;i++){						\
     ap_manager_t* man = intern->tmanagers[i];				\
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[FUNID];		\
+    void* (*ptr)(ap_manager_t*,size_t,size_t) = man->funptr[FUNID];		\
     res->p[i] = ptr(man,intdim,realdim);				\
   }									\
   res->reduced = true;							\
@@ -366,9 +366,9 @@ ap_reducedproduct_t* ap_reducedproduct_of_box(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_OF_BOX];
+    void* (*ptr)(ap_manager_t*,size_t,size_t,ap_interval_t**) = man->funptr[AP_FUNID_OF_BOX];
     res->p[i] = ptr(man,intdim,realdim,tinterval);
-    bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+    bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
     if (is_bottom(man,res->p[i])){
       set_bottom(intern,false,res,i);
       break;
@@ -382,7 +382,7 @@ ap_dimension_t ap_reducedproduct_dimension(ap_manager_t* manager, ap_reducedprod
 {
   ap_reducedproduct_internal_t* intern = get_internal_init0(manager);
   ap_manager_t* man = intern->tmanagers[0];
-  ap_dimension_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+  ap_dimension_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
   return ptr(man,a->p[0]);
 }
 
@@ -398,7 +398,7 @@ bool ap_reducedproduct_is_bottom(ap_manager_t* manager, ap_reducedproduct_t* a)
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+    bool (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
     bool res = ptr(man,a->p[i]);
     gres = gres || res;
     if (gres) break;
@@ -414,7 +414,7 @@ bool ap_reducedproduct_is_top(ap_manager_t* manager, ap_reducedproduct_t* a)
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_TOP];
+    bool (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_TOP];
     bool res = ptr(man,a->p[i]);
     gres = gres && res;
     if (!gres) break;
@@ -433,7 +433,7 @@ bool ap_reducedproduct_##NAME(ap_manager_t* manager, ap_reducedproduct_t* a,  ap
 									\
   for (i=0;i<intern->size;i++){						\
     ap_manager_t* man = intern->tmanagers[i];				\
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[FUNID];		\
+    bool (*ptr)(ap_manager_t*,void*,void*) = man->funptr[FUNID];		\
     bool res = ptr(man,a->p[i],b->p[i]);			       	\
     gres = gres && res;							\
     if (!gres) break;							\
@@ -453,7 +453,7 @@ bool ap_reducedproduct_sat_lincons(ap_manager_t* manager, ap_reducedproduct_t* a
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_LINCONS];
+    bool (*ptr)(ap_manager_t*,void*,ap_lincons0_t*) = man->funptr[AP_FUNID_SAT_LINCONS];
     bool res = ptr(man,a->p[i],lincons);
     gres = gres || res;
     if (gres) break;
@@ -469,7 +469,7 @@ bool ap_reducedproduct_sat_tcons(ap_manager_t* manager, ap_reducedproduct_t* a, 
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_TCONS];
+    bool (*ptr)(ap_manager_t*,void*,ap_tcons0_t*) = man->funptr[AP_FUNID_SAT_TCONS];
     bool res = ptr(man,a->p[i],tcons);
     gres = gres || res;
     if (gres) break;
@@ -486,7 +486,7 @@ bool ap_reducedproduct_sat_interval(ap_manager_t* manager, ap_reducedproduct_t* 
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_INTERVAL];
+    bool (*ptr)(ap_manager_t*,void*,ap_dim_t,ap_interval_t*) = man->funptr[AP_FUNID_SAT_INTERVAL];
     bool res = ptr(man,a->p[i],dim,interval);
     gres = gres || res;
     if (gres) break;
@@ -504,7 +504,7 @@ bool ap_reducedproduct_is_dimension_unconstrained(ap_manager_t* manager, ap_redu
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_DIMENSION_UNCONSTRAINED];
+    bool (*ptr)(ap_manager_t*,void*,ap_dim_t) = man->funptr[AP_FUNID_IS_DIMENSION_UNCONSTRAINED];
     bool res = ptr(man,a->p[i],dim);
     gres = gres && res;
     if (!gres) break;
@@ -539,7 +539,7 @@ ap_interval_t* ap_reducedproduct_bound_linexpr(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_linexpr0_t*) = man->funptr[AP_FUNID_BOUND_LINEXPR];
     ap_interval_t* res = ptr(man,a->p[i],expr);
     ap_interval_meet_with(gres,res);
     ap_interval_free(res);
@@ -560,7 +560,7 @@ ap_interval_t* ap_reducedproduct_bound_texpr(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_TEXPR];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_texpr0_t*) = man->funptr[AP_FUNID_BOUND_TEXPR];
     ap_interval_t* res = ptr(man,a->p[i],expr);
     ap_interval_meet_with(gres,res);
     ap_interval_free(res);
@@ -581,7 +581,7 @@ ap_interval_t* ap_reducedproduct_bound_dimension(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_DIMENSION];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_dim_t) = man->funptr[AP_FUNID_BOUND_DIMENSION];
     ap_interval_t* res = ptr(man,a->p[i],dim);
     ap_interval_meet_with(gres,res);
     ap_interval_free(res);
@@ -602,7 +602,7 @@ ap_lincons0_array_t ap_reducedproduct_to_lincons_array(ap_manager_t* manager, ap
   garray.size = 0;
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+    ap_lincons0_array_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
     ap_lincons0_array_t array = ptr(man,a->p[i]);
     garray.p = realloc(garray.p, (garray.size + array.size) * sizeof(ap_lincons0_t));
     for (j=0;j<array.size;j++){
@@ -625,7 +625,7 @@ ap_tcons0_array_t ap_reducedproduct_to_tcons_array(ap_manager_t* manager, ap_red
   garray.size = 0;
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_tcons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
+    ap_tcons0_array_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
     ap_tcons0_array_t array = ptr(man,a->p[i]);
     garray.p = realloc(garray.p, (garray.size + array.size) * sizeof(ap_tcons0_t));
     for (j=0;j<array.size;j++){
@@ -647,11 +647,11 @@ ap_interval_t** ap_reducedproduct_to_box(ap_manager_t* manager, ap_reducedproduc
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    ap_interval_t** (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_BOX];
+    ap_interval_t** (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_BOX];
     ap_interval_t** box = ptr(man,a->p[i]);
     if (i==0){
       gbox = box;
-      ap_dimension_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+      ap_dimension_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
       ap_dimension_t dimension = ptr(man,a->p[i]);
       nbdims = dimension.intdim+dimension.realdim;
     }
@@ -705,10 +705,10 @@ ap_reducedproduct_t* ap_reducedproduct_meetjoin(ap_funid_t funid,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,bool,void*,void*) = man->funptr[funid];
     res->p[i] = ptr(man,destructive,a1->p[i],a2->p[i]);
     if (funid==AP_FUNID_MEET){
-      bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+      bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
       if (is_bottom(man,res->p[i])){
 	set_bottom(intern,destructive,res,i);
 	goto ap_reducedproduct_meetjoin_exit;
@@ -745,13 +745,13 @@ ap_reducedproduct_t* ap_reducedproduct_meetjoin_array(ap_funid_t funid,
   a = (void**)malloc(size*sizeof(void*));
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,void**,size_t) = man->funptr[funid];
     for (j=0;j<size;j++){
       a[j] = tab[j]->p[i];
     }
     res->p[i] = ptr(man,a,size);
     if (funid==AP_FUNID_MEET_ARRAY){
-      bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+      bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
       if (is_bottom(man,res->p[i])){
 	set_bottom(intern,false,res,i);
 	goto ap_reducedproduct_meetjoin_array_exit;
@@ -797,9 +797,9 @@ ap_reducedproduct_t* ap_reducedproduct_meet_lincons_array(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_lincons0_array_t*) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
     res->p[i] = ptr(man,destructive,a->p[i],array);
-    bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+    bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
     if (is_bottom(man,res->p[i])){
       set_bottom(intern,destructive,res,i);
       break;
@@ -822,9 +822,9 @@ ap_reducedproduct_t* ap_reducedproduct_meet_tcons_array(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_tcons0_array_t*) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
     res->p[i] = ptr(man,destructive,a->p[i],array);
-    bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+    bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
     if (is_bottom(man,res->p[i])){
       set_bottom(intern,destructive,res,i);
       break;
@@ -847,7 +847,7 @@ ap_reducedproduct_t* ap_reducedproduct_add_ray_array(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_lincons0_array_t*) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
     res->p[i] = ptr(man,destructive,a->p[i],array);
   }
   res->reduced = a->reduced;
@@ -876,10 +876,10 @@ ap_reducedproduct_asssub_linexpr_array(ap_funid_t funid,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,ap_linexpr0_t**,size_t,ap_reducedproduct_t*) = man->funptr[funid];
     res->p[i] = ptr(man,destructive,a->p[i],tdim,texpr,size, dest ? dest->p[i] : NULL);
     if (dest || funid==AP_FUNID_SUBSTITUTE_LINEXPR_ARRAY){
-      bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+      bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
       if (is_bottom(man,res->p[i])){
 	set_bottom(intern,destructive,res,i);
 	break;
@@ -930,10 +930,10 @@ ap_reducedproduct_asssub_texpr_array(ap_funid_t funid,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,ap_texpr0_t**,size_t,ap_reducedproduct_t*) = man->funptr[funid];
     res->p[i] = ptr(man,destructive,a->p[i],tdim,texpr,size, dest ? dest->p[i] : NULL);
     if (dest || funid==AP_FUNID_SUBSTITUTE_TEXPR_ARRAY){
-      bool (*is_bottom)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+      bool (*is_bottom)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
       if (is_bottom(man,res->p[i])){
 	set_bottom(intern,destructive,res,i);
 	break;
@@ -985,7 +985,7 @@ ap_reducedproduct_t* ap_reducedproduct_forget_array(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_FORGET_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,size_t,bool) = man->funptr[AP_FUNID_FORGET_ARRAY];
     res->p[i] = ptr(man,destructive,a->p[i],tdim,size,project);
   }
   res->reduced = a->reduced;
@@ -1007,7 +1007,7 @@ ap_reducedproduct_t* ap_reducedproduct_add_dimensions(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dimchange_t*,bool) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
     res->p[i] = ptr(man,destructive,a->p[i],dimchange,project);
   }
   res->reduced = a->reduced;
@@ -1027,7 +1027,7 @@ ap_reducedproduct_t* ap_reducedproduct_remove_dimensions(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dimchange_t*) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
     res->p[i] = ptr(man,destructive,a->p[i],dimchange);
   }
   res->reduced = false;
@@ -1048,7 +1048,7 @@ ap_reducedproduct_t* ap_reducedproduct_permute_dimensions(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dimperm_t*) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
     res->p[i] = ptr(man,destructive,a->p[i],perm);
   }
   res->reduced = a->reduced;
@@ -1074,7 +1074,7 @@ ap_reducedproduct_t* ap_reducedproduct_expand(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_EXPAND];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t,size_t) = man->funptr[AP_FUNID_EXPAND];
     res->p[i] = ptr(man,destructive,a->p[i],dim,n);
   }
   res->reduced = a->reduced;
@@ -1095,7 +1095,7 @@ ap_reducedproduct_t* ap_reducedproduct_fold(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_FOLD];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,size_t) = man->funptr[AP_FUNID_FOLD];
     res->p[i] = ptr(man,destructive,a->p[i],tdim,size);
   }
   res->reduced = false;
@@ -1118,7 +1118,7 @@ ap_reducedproduct_t* ap_reducedproduct_widening(ap_manager_t* manager,
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_WIDENING];
+    void* (*ptr)(ap_manager_t*,void*,void*) = man->funptr[AP_FUNID_WIDENING];
     res->p[i] = ptr(man,a1->p[i],a2->p[i]);
   }
   res->reduced = false;
@@ -1140,7 +1140,7 @@ ap_reducedproduct_t* ap_reducedproduct_closure(ap_manager_t* manager, bool destr
 
   for (i=0;i<intern->size;i++){
     ap_manager_t* man = intern->tmanagers[i];
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_CLOSURE];
+    void* (*ptr)(ap_manager_t*,bool,void*) = man->funptr[AP_FUNID_CLOSURE];
     res->p[i] = ptr(man,destructive,a->p[i]);
   }
   res->reduced = false;
@@ -1320,7 +1320,7 @@ void** ap_reducedproduct_decompose(ap_manager_t* manager, bool destructive, ap_r
     }
     else {
       ap_manager_t* man = intern->tmanagers[i];
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
+      void* (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
       res[i] = ptr(man,a->p[i]);
     }
   }
@@ -1341,7 +1341,7 @@ ap_reducedproduct_t* ap_reducedproduct_compose(ap_manager_t* manager, bool destr
     }
     else {
       ap_manager_t* man = intern->tmanagers[i];
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
+      void* (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
       res->p[i] = ptr(man,tabs[i]);
     }
   }

@@ -556,7 +556,7 @@ bool ap_abstract0_check_dimperm(ap_funid_t funid, ap_manager_t* man,
 ap_abstract0_t* ap_abstract0_copy(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_COPY,man,a)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
+    void* (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
     return ap_abstract0_cons(man,ptr(man,a->value));
   }
   else {
@@ -589,7 +589,7 @@ void ap_abstract0_free(ap_manager_t* man, ap_abstract0_t* a)
 size_t ap_abstract0_size(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_ASIZE,man,a)){
-    size_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ASIZE];
+    size_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_ASIZE];
     return ptr(man,a->value);
   }
   else {
@@ -603,21 +603,21 @@ size_t ap_abstract0_size(ap_manager_t* man, ap_abstract0_t* a)
 void ap_abstract0_minimize(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_MINIMIZE,man,a)){
-    void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_MINIMIZE];
+    void (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_MINIMIZE];
     ptr(man,a->value);
   }
 }
 void ap_abstract0_canonicalize(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_CANONICALIZE,man,a)){
-    void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_CANONICALIZE];
+    void (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_CANONICALIZE];
     ptr(man,a->value);
   }
 }
 int ap_abstract0_hash(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_CANONICALIZE,man,a)){
-    int (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_HASH];
+    int (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_HASH];
     return ptr(man,a->value);
   }
   else
@@ -626,7 +626,7 @@ int ap_abstract0_hash(ap_manager_t* man, ap_abstract0_t* a)
 void ap_abstract0_approximate(ap_manager_t* man, ap_abstract0_t* a, int n)
 {
   if (ap_abstract0_checkman1(AP_FUNID_APPROXIMATE,man,a)){
-    void (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_APPROXIMATE];
+    void (*ptr)(ap_manager_t*,void*,int) = man->funptr[AP_FUNID_APPROXIMATE];
     ptr(man,a->value,n);
   }
 }
@@ -639,7 +639,7 @@ void ap_abstract0_fprint(FILE* stream, ap_manager_t* man,
 			 char** name_of_dim)
 {
   if (ap_abstract0_checkman1(AP_FUNID_FPRINT,man,a)){
-    void (*ptr)(FILE*,ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINT];
+    void (*ptr)(FILE*,ap_manager_t*,void*,char**) = man->funptr[AP_FUNID_FPRINT];
     ptr(stream,man,a->value,name_of_dim);
   }
   else {
@@ -653,7 +653,7 @@ void ap_abstract0_fprintdiff(FILE* stream, ap_manager_t* man,
 {
   if (ap_abstract0_checkman2(AP_FUNID_FPRINTDIFF,man,a,b) &&
       ap_abstract0_check_abstract2(AP_FUNID_FPRINTDIFF,man,a,b) ){
-    void (*ptr)(FILE*,ap_manager_t*,...) = man->funptr[AP_FUNID_FPRINTDIFF];
+    void (*ptr)(FILE*,ap_manager_t*,void*,void*,char**) = man->funptr[AP_FUNID_FPRINTDIFF];
     ptr(stream,man,a->value,b->value,name_of_dim);
   }
   else {
@@ -663,7 +663,7 @@ void ap_abstract0_fprintdiff(FILE* stream, ap_manager_t* man,
 void ap_abstract0_fdump(FILE* stream, ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_FDUMP,man,a)){
-    void (*ptr)(FILE*,ap_manager_t*,...) = man->funptr[AP_FUNID_FDUMP];
+    void (*ptr)(FILE*,ap_manager_t*,void*) = man->funptr[AP_FUNID_FDUMP];
     ptr(stream,man,a->value);
   }
   else {
@@ -677,7 +677,7 @@ void ap_abstract0_fdump(FILE* stream, ap_manager_t* man, ap_abstract0_t* a)
 ap_membuf_t ap_abstract0_serialize_raw(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_SERIALIZE_RAW,man,a)){
-    ap_membuf_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SERIALIZE_RAW];
+    ap_membuf_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_SERIALIZE_RAW];
     return ptr(man,a->value);
   }
   else {
@@ -687,7 +687,7 @@ ap_membuf_t ap_abstract0_serialize_raw(ap_manager_t* man, ap_abstract0_t* a)
 }
 ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* p, size_t* size)
 {
-  void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DESERIALIZE_RAW];
+  void* (*ptr)(ap_manager_t*,void*,size_t*) = man->funptr[AP_FUNID_DESERIALIZE_RAW];
   return ap_abstract0_cons(man,ptr(man,p,size));
 }
 
@@ -699,17 +699,17 @@ ap_abstract0_t* ap_abstract0_deserialize_raw(ap_manager_t* man, void* p, size_t*
 /* ============================================================ */
 ap_abstract0_t* ap_abstract0_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 {
-  void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOTTOM];
+  void* (*ptr)(ap_manager_t*,size_t,size_t) = man->funptr[AP_FUNID_BOTTOM];
   return ap_abstract0_cons(man,ptr(man,intdim,realdim));
 }
 ap_abstract0_t* ap_abstract0_top(ap_manager_t* man, size_t intdim, size_t realdim){
-  void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TOP];
+  void* (*ptr)(ap_manager_t*,size_t,size_t) = man->funptr[AP_FUNID_TOP];
   return ap_abstract0_cons(man,ptr(man,intdim,realdim));
 }
 ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 				    size_t intdim, size_t realdim,
 				    ap_interval_t** tinterval){
-  void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_OF_BOX];
+  void* (*ptr)(ap_manager_t*,size_t,size_t,ap_interval_t**) = man->funptr[AP_FUNID_OF_BOX];
   return ap_abstract0_cons(man,ptr(man,intdim,realdim,tinterval));
 }
 
@@ -719,7 +719,7 @@ ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 ap_dimension_t ap_abstract0_dimension(ap_manager_t* man, ap_abstract0_t* a)
 {
   ap_abstract0_checkman1(AP_FUNID_DIMENSION,man,a);
-  ap_dimension_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_DIMENSION];
+  ap_dimension_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_DIMENSION];
   return ptr(a->man,a->value);
 }
 
@@ -729,7 +729,7 @@ ap_dimension_t ap_abstract0_dimension(ap_manager_t* man, ap_abstract0_t* a)
 bool ap_abstract0_is_bottom(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_IS_BOTTOM,man,a)){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_BOTTOM];
+    bool (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_BOTTOM];
     return ptr(man,a->value);
   }
   else {
@@ -740,7 +740,7 @@ bool ap_abstract0_is_bottom(ap_manager_t* man, ap_abstract0_t* a)
 bool ap_abstract0_is_top(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_IS_TOP,man,a)){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_TOP];
+    bool (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_IS_TOP];
     return ptr(man,a->value);
   }
   else {
@@ -756,7 +756,7 @@ bool ap_abstract0_is_leq(ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* 
   else if (ap_abstract0_checkman2(AP_FUNID_IS_LEQ,man,a1,a2) &&
 	   ap_abstract0_check_abstract2(AP_FUNID_IS_LEQ,man,a1,a2)){
     if (a1->value==a2->value) return true;
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_LEQ];
+    bool (*ptr)(ap_manager_t*,void*,void*) = man->funptr[AP_FUNID_IS_LEQ];
     return ptr(man,a1->value,a2->value);
   }
   else {
@@ -772,7 +772,7 @@ bool ap_abstract0_is_eq(ap_manager_t* man, ap_abstract0_t* a1, ap_abstract0_t* a
   if (ap_abstract0_checkman2(AP_FUNID_IS_EQ,man,a1,a2) &&
       ap_abstract0_check_abstract2(AP_FUNID_IS_EQ,man,a1,a2)){
     if (a1->value==a2->value) return true;
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_EQ];
+    bool (*ptr)(ap_manager_t*,void*,void*) = man->funptr[AP_FUNID_IS_EQ];
     return ptr(man,a1->value,a2->value);
   }
   else {
@@ -784,7 +784,7 @@ bool ap_abstract0_sat_lincons(ap_manager_t* man, ap_abstract0_t* a, ap_lincons0_
 {
   if (ap_abstract0_checkman1(AP_FUNID_SAT_LINCONS,man,a) &&
       ap_abstract0_check_linexpr(AP_FUNID_SAT_LINCONS,man,_ap_abstract0_dimension(a),lincons->linexpr0) ){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_LINCONS];
+    bool (*ptr)(ap_manager_t*,void*,ap_lincons0_t*) = man->funptr[AP_FUNID_SAT_LINCONS];
     return ptr(man,a->value,lincons);
   }
   else {
@@ -796,7 +796,7 @@ bool ap_abstract0_sat_tcons(ap_manager_t* man, ap_abstract0_t* a, ap_tcons0_t* t
 {
   if (ap_abstract0_checkman1(AP_FUNID_SAT_TCONS,man,a) &&
       ap_abstract0_check_texpr(AP_FUNID_SAT_TCONS,man,_ap_abstract0_dimension(a),tcons->texpr0) ){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_TCONS];
+    bool (*ptr)(ap_manager_t*,void*,ap_tcons0_t*) = man->funptr[AP_FUNID_SAT_TCONS];
     return ptr(man,a->value,tcons);
   }
   else {
@@ -809,7 +809,7 @@ bool ap_abstract0_sat_interval(ap_manager_t* man, ap_abstract0_t* a,
 {
   if (ap_abstract0_checkman1(AP_FUNID_SAT_INTERVAL,man,a) &&
       ap_abstract0_check_dim(AP_FUNID_SAT_INTERVAL,man,_ap_abstract0_dimension(a),dim)){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_SAT_INTERVAL];
+    bool (*ptr)(ap_manager_t*,void*,ap_dim_t,ap_interval_t*) = man->funptr[AP_FUNID_SAT_INTERVAL];
     return ptr(man,a->value,dim,interval);
   }
   else {
@@ -822,7 +822,7 @@ bool ap_abstract0_is_dimension_unconstrained(ap_manager_t* man, ap_abstract0_t* 
 {
   if (ap_abstract0_checkman1(AP_FUNID_IS_DIMENSION_UNCONSTRAINED,man,a) &&
       ap_abstract0_check_dim(AP_FUNID_IS_DIMENSION_UNCONSTRAINED,man,_ap_abstract0_dimension(a),dim)){
-    bool (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_IS_DIMENSION_UNCONSTRAINED];
+    bool (*ptr)(ap_manager_t*,void*,ap_dim_t) = man->funptr[AP_FUNID_IS_DIMENSION_UNCONSTRAINED];
     return ptr(man,a->value,dim);
   }
   else {
@@ -839,7 +839,7 @@ ap_interval_t* ap_abstract0_bound_linexpr(ap_manager_t* man,
 {
   if (ap_abstract0_checkman1(AP_FUNID_BOUND_LINEXPR,man,a) &&
       ap_abstract0_check_linexpr(AP_FUNID_BOUND_LINEXPR,man,_ap_abstract0_dimension(a),expr)){
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_LINEXPR];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_linexpr0_t*) = man->funptr[AP_FUNID_BOUND_LINEXPR];
     return ptr(man,a->value,expr);
   }
   else {
@@ -854,7 +854,7 @@ ap_interval_t* ap_abstract0_bound_texpr(ap_manager_t* man,
 {
   if (ap_abstract0_checkman1(AP_FUNID_BOUND_TEXPR,man,a) &&
       ap_abstract0_check_texpr(AP_FUNID_BOUND_TEXPR,man,_ap_abstract0_dimension(a),expr)){
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_TEXPR];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_texpr0_t*) = man->funptr[AP_FUNID_BOUND_TEXPR];
     return ptr(man,a->value,expr);
   }
   else {
@@ -869,7 +869,7 @@ ap_interval_t* ap_abstract0_bound_dimension(ap_manager_t* man,
 {
   if (ap_abstract0_checkman1(AP_FUNID_BOUND_DIMENSION,man,a) &&
       ap_abstract0_check_dim(AP_FUNID_BOUND_DIMENSION,man,_ap_abstract0_dimension(a),dim)){
-    ap_interval_t* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_BOUND_DIMENSION];
+    ap_interval_t* (*ptr)(ap_manager_t*,void*,ap_dim_t) = man->funptr[AP_FUNID_BOUND_DIMENSION];
     return ptr(man,a->value,dim);
   }
   else {
@@ -882,7 +882,7 @@ ap_interval_t* ap_abstract0_bound_dimension(ap_manager_t* man,
 ap_lincons0_array_t ap_abstract0_to_lincons_array(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_TO_LINCONS_ARRAY,man,a)){
-    ap_lincons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
+    ap_lincons0_array_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_LINCONS_ARRAY];
     return ptr(man,a->value);
   }
   else {
@@ -893,7 +893,7 @@ ap_lincons0_array_t ap_abstract0_to_lincons_array(ap_manager_t* man, ap_abstract
 ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_TO_TCONS_ARRAY,man,a)){
-    ap_tcons0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
+    ap_tcons0_array_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_TCONS_ARRAY];
     return ptr(man,a->value);
   }
   else {
@@ -904,7 +904,7 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
 ap_interval_t** ap_abstract0_to_box(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_TO_BOX,man,a)){
-    ap_interval_t** (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_BOX];
+    ap_interval_t** (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_BOX];
     return ptr(man,a->value);
   }
   else {
@@ -921,7 +921,7 @@ ap_interval_t** ap_abstract0_to_box(ap_manager_t* man, ap_abstract0_t* a)
 ap_generator0_array_t ap_abstract0_to_generator_array(ap_manager_t* man, ap_abstract0_t* a)
 {
   if (ap_abstract0_checkman1(AP_FUNID_TO_GENERATOR_ARRAY,man,a)){
-    ap_generator0_array_t (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_TO_GENERATOR_ARRAY];
+    ap_generator0_array_t (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_TO_GENERATOR_ARRAY];
     return ptr(man,a->value);
   }
   else {
@@ -942,7 +942,7 @@ ap_abstract0_t* ap_abstract0_meetjoin(ap_funid_t funid,
 {
   if (ap_abstract0_checkman2(funid,man,a1,a2) &&
       ap_abstract0_check_abstract2(funid,man,a1,a2)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,bool,void*,void*) = man->funptr[funid];
     void* value = ptr(man,destructive,a1->value,a2->value);
     return ap_abstract0_cons2(man,destructive,a1,value);
   }
@@ -967,7 +967,7 @@ ap_abstract0_t* ap_abstract0_meetjoin_array(ap_funid_t funid, ap_manager_t* man,
       ap_abstract0_check_abstract_array(funid,man,tab,size)){
     size_t i;
     ap_abstract0_t* res;
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+    void* (*ptr)(ap_manager_t*,void**,size_t) = man->funptr[funid];
     void** ntab = malloc(size*sizeof(void*));
     for (i=0;i<size;i++) ntab[i] = tab[i]->value;
     res = ap_abstract0_cons(man,ptr(man,ntab,size));
@@ -998,7 +998,7 @@ ap_abstract0_t* ap_abstract0_meet_lincons_array(ap_manager_t* man,
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_MEET_LINCONS_ARRAY,man,a) &&
       ap_abstract0_check_lincons_array(AP_FUNID_MEET_LINCONS_ARRAY,man,dimension,array) ){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_lincons0_array_t*) = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
     void* value = ptr(man,destructive,a->value,array);
     return ap_abstract0_cons2(man,destructive,a,value);
   }
@@ -1017,7 +1017,7 @@ ap_abstract0_t* ap_abstract0_meet_tcons_array(ap_manager_t* man,
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_MEET_TCONS_ARRAY,man,a) &&
       ap_abstract0_check_tcons_array(AP_FUNID_MEET_TCONS_ARRAY,man,dimension,array) ){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_tcons0_array_t*) = man->funptr[AP_FUNID_MEET_TCONS_ARRAY];
     void* value = ptr(man,destructive,a->value,array);
     return ap_abstract0_cons2(man,destructive,a,value);
   }
@@ -1036,7 +1036,7 @@ ap_abstract0_t* ap_abstract0_add_ray_array(ap_manager_t* man,
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_ADD_RAY_ARRAY,man,a) &&
       ap_abstract0_check_generator_array(AP_FUNID_ADD_RAY_ARRAY,man,dimension,array)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_generator0_array_t*) = man->funptr[AP_FUNID_ADD_RAY_ARRAY];
     void* value = ptr(man,destructive,a->value,array);
     return ap_abstract0_cons2(man,destructive,a,value);
   }
@@ -1078,7 +1078,7 @@ ap_abstract0_t* ap_abstract0_asssub_linexpr_array(ap_funid_t funid,
 	(dest!=NULL ? (ap_abstract0_checkman1(funid,man,dest) && ap_abstract0_check_abstract2(funid,man,a,dest)) : true) &&
 	ap_abstract0_check_dim_array(funid,man,dimension,tdim,size) &&
 	ap_abstract0_check_linexpr_array(funid,man,dimension,texpr,size) ){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,ap_linexpr0_t**,size_t,void*) = man->funptr[funid];
       void* value = ptr(man,destructive,a->value,tdim,texpr,size,dest ? dest->value : NULL);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1138,7 +1138,7 @@ ap_abstract0_t* ap_abstract0_asssub_texpr_array(ap_funid_t funid,
 	(dest!=NULL ? (ap_abstract0_checkman1(funid,man,dest) && ap_abstract0_check_abstract2(funid,man,a,dest)) : true) &&
 	ap_abstract0_check_dim_array(funid,man,dimension,tdim,size) &&
 	ap_abstract0_check_texpr_array(funid,man,dimension,texpr,size) ){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[funid];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,ap_texpr0_t**,size_t,void*) = man->funptr[funid];
       void* value = ptr(man,destructive,a->value,tdim,texpr,size,dest ? dest->value : NULL);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1195,7 +1195,7 @@ ap_abstract0_t* ap_abstract0_forget_array(ap_manager_t* man,
     ap_dimension_t dimension = _ap_abstract0_dimension(a);
     if (ap_abstract0_checkman1(AP_FUNID_FORGET_ARRAY,man,a) &&
 	ap_abstract0_check_dim_array(AP_FUNID_FORGET_ARRAY,man,dimension,tdim,size)){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_FORGET_ARRAY];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,size_t,bool) = man->funptr[AP_FUNID_FORGET_ARRAY];
       void* value = ptr(man,destructive,a->value,tdim,size,project);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1230,7 +1230,7 @@ ap_abstract0_t* ap_abstract0_add_dimensions(ap_manager_t* man,
     ap_dimension_t dimension = _ap_abstract0_dimension(a);
     if (ap_abstract0_checkman1(AP_FUNID_ADD_DIMENSIONS,man,a) &&
 	ap_abstract0_check_ap_dimchange_add(AP_FUNID_ADD_DIMENSIONS,man,dimension,dimchange)){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dimchange_t*,bool) = man->funptr[AP_FUNID_ADD_DIMENSIONS];
       void* value = ptr(man,destructive,a->value,dimchange,project);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1259,7 +1259,7 @@ ap_abstract0_t* ap_abstract0_remove_dimensions(ap_manager_t* man,
     ap_dimension_t dimension = _ap_abstract0_dimension(a);
     if (ap_abstract0_checkman1(AP_FUNID_REMOVE_DIMENSIONS,man,a) &&
 	ap_abstract0_check_ap_dimchange_remove(AP_FUNID_REMOVE_DIMENSIONS,man,dimension,dimchange)){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dimchange_t*) = man->funptr[AP_FUNID_REMOVE_DIMENSIONS];
       void* value = ptr(man,destructive,a->value,dimchange);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1279,7 +1279,7 @@ ap_abstract0_t* ap_abstract0_permute_dimensions(ap_manager_t* man,
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_PERMUTE_DIMENSIONS,man,a) &&
       ap_abstract0_check_dimperm(AP_FUNID_PERMUTE_DIMENSIONS,man,dimension,perm)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
+    void* (*ptr)(ap_manager_t*,bool,void*,ap_dimperm_t*) = man->funptr[AP_FUNID_PERMUTE_DIMENSIONS];
     void* value = ptr(man,destructive,a->value,perm);
     return ap_abstract0_cons2(man,destructive,a,value);
   }
@@ -1312,7 +1312,7 @@ ap_abstract0_t* ap_abstract0_expand(ap_manager_t* man,
     ap_dimension_t dimension = _ap_abstract0_dimension(a);
     if (ap_abstract0_checkman1(AP_FUNID_EXPAND,man,a) &&
 	ap_abstract0_check_dim(AP_FUNID_EXPAND,man,dimension,dim)){
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_EXPAND];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t,size_t) = man->funptr[AP_FUNID_EXPAND];
       void* value = ptr(man,destructive,a->value,dim,n);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1365,12 +1365,12 @@ ap_abstract0_t* ap_abstract0_fold(ap_manager_t* man,
 	return a;
       }
       else {
-	void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_COPY];
+	void* (*ptr)(ap_manager_t*,void*) = man->funptr[AP_FUNID_COPY];
 	return ap_abstract0_cons(man,ptr(man,a->value));
       }
     }
     else {
-      void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_FOLD];
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_dim_t*,size_t) = man->funptr[AP_FUNID_FOLD];
       void* value = ptr(man,destructive,a->value,tdim,size);
       return ap_abstract0_cons2(man,destructive,a,value);
     }
@@ -1391,7 +1391,7 @@ ap_abstract0_t* ap_abstract0_widening(ap_manager_t* man,
 {
   if (ap_abstract0_checkman2(AP_FUNID_WIDENING,man,a1,a2) &&
       ap_abstract0_check_abstract2(AP_FUNID_WIDENING,man,a1,a2)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_WIDENING];
+    void* (*ptr)(ap_manager_t*,void*,void*) = man->funptr[AP_FUNID_WIDENING];
     void* value = ptr(man,a1->value,a2->value);
     return ap_abstract0_cons(man,value);
   }
@@ -1410,7 +1410,7 @@ ap_abstract0_t* ap_abstract0_closure(ap_manager_t* man, bool destructive, ap_abs
 {
   ap_dimension_t dimension = _ap_abstract0_dimension(a);
   if (ap_abstract0_checkman1(AP_FUNID_CLOSURE,man,a)){
-    void* (*ptr)(ap_manager_t*,...) = man->funptr[AP_FUNID_CLOSURE];
+    void* (*ptr)(ap_manager_t*,bool,void*) = man->funptr[AP_FUNID_CLOSURE];
     void* value = ptr(man,destructive,a->value);
     return ap_abstract0_cons2(man,destructive,a,value);
   }
@@ -1523,8 +1523,8 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
 						ap_abstract0_t* a2,
 						ap_lincons0_array_t* array)
 {
-  void* (*ptr)(ap_manager_t*,...);
-  bool (*ptr2)(ap_manager_t*,...);
+  void* (*ptr)(ap_manager_t*,void*,void*);
+  bool (*ptr2)(ap_manager_t*,void*,ap_lincons0_t*);
   void* value;
   size_t i,j,size;
   ap_lincons0_t tmp;
@@ -1551,6 +1551,7 @@ ap_abstract0_t* ap_abstract0_widening_threshold(ap_manager_t* man,
       }
     }
     if (i>0){
+      void* (*ptr)(ap_manager_t*,bool,void*,ap_lincons0_array_t*);
       array->size = i;
       ptr = man->funptr[AP_FUNID_MEET_LINCONS_ARRAY];
       value = ptr(man,true,value,array);

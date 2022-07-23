@@ -516,7 +516,7 @@ bool ap_abstract0_checkman_array(ap_funid_t funid,
 static inline
 ap_dimension_t _ap_abstract0_dimension(ap_abstract0_t* a)
 {
-  ap_dimension_t (*ptr)(ap_manager_t*,...) = (ap_dimension_t (*) (ap_manager_t*,...))(a->man->funptr[AP_FUNID_DIMENSION]);
+  ap_dimension_t (*ptr)(ap_manager_t*, void*) = (ap_dimension_t (*) (ap_manager_t*, void*))(a->man->funptr[AP_FUNID_DIMENSION]);
   return ptr(a->man,a->value);
 }
 
