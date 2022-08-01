@@ -21,6 +21,7 @@ IFLAGS = $(ICFLAGS) \
 -I$(PPL_PREFIX)/include \
 -I${JAVA_HOME}/include \
 -I${JAVA_HOME}/include/linux \
+-I${JAVA_HOME}/include/darwin \
 -I../apron \
 -I../box \
 -I../newpolka \
