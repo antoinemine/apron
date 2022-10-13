@@ -534,6 +534,10 @@ else
     fi
 fi
 
+if test "x$(uname -s)" = "xLinux"
+then
+	  linux_install_soname=1
+fi
 
 ##############################################
 # log
@@ -645,6 +649,8 @@ TEXI2ANY = texi2any
 
 # OSX only:
 ABSOLUTE_DYLIB_INSTALL_NAMES = $absolute_dylib_install_names
+
+LINUX_INSTALL_SONAME = $linux_install_soname
 
 EOF
 

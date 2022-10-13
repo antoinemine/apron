@@ -68,6 +68,10 @@ ifneq ($(HAS_SHARED),)
     OCAMLMKLIB := $(OCAMLMKLIB) -dllpath $(APRON_LIB)
     OCAMLMKLIB := $(OCAMLMKLIB) -L$(APRON_LIB)
   endif
+  ifneq ($(LINUX_INSTALL_SONAME),)
+    CC_APRON_DYLIB += -Wl,-soname,$@
+    CXX_APRON_DYLIB += -Wl,-soname,$@
+  endif
   ifneq ($(ABSOLUTE_DYLIB_INSTALL_NAMES),)
     CC_APRON_DYLIB += -install_name $(APRON_LIB)/$@
     CXX_APRON_DYLIB += -install_name $(APRON_LIB)/$@
