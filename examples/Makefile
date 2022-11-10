@@ -13,8 +13,8 @@ LCFLAGS = \
 -L$(GMP_PREFIX)/lib \
 -L$(MPFR_PREFIX)/lib \
 -L$(APRON_PREFIX)/lib \
--L$(PPL_PREFIX)/lib \
--L$(CAMLIDL_PREFIX)
+-L$(PPL_PREFIX)/lib
+# -L$(CAMLIDL_PREFIX)
 
 OCAMLINC = \
 -I $(MLGMPIDL_LIB) \
@@ -25,15 +25,19 @@ OCAMLPACKAGES = -package "apron.boxMPQ,apron.octMPQ,apron.polkaMPQ,apron.ppl,apr
 
 all: C ml
 
+example1: example1.c
+	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) $< -o $@ -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -litvMPQ_debug -litvD_debug -lmpfr -lgmp
+
 # C examples
 
-C: example1g
+C: example1
 
 %g: %g.o
 	$(CXX) $(CXXFLAGS) $(ICFLAGS) $(LCFLAGS) -o $@  $< -lap_ppl_debug -lppl -lgmpxx -lpolkaMPQ_debug -loctMPQ_debug -lboxMPQ_debug -lapron_debug -litvMPQ_debug -litvD_debug -lmpfr -lgmp
 
-%g.o: %.c
-	$(CC) $(CFLAGS_DEBUG) $(ICFLAGS) -c -o $@ $<
+%g.o: %g.c
+	$(CC) $(CFLAGS) $(ICFLAGS) $(LCFLAGS) -c -o $@  $<
+
 
 # OCaml examples
 
@@ -57,7 +61,7 @@ test.opt: test.cmx
 #
 
 clean:
-	rm -f example1g *.cm[ioxa] *.o mlexample1 mlexample2 mlexample3 mlexample4 mlexample5 *.opt
+	rm -f example1 *.cm[ioxa] *.o mlexample1 mlexample2 mlexample3 mlexample4 mlexample5 *.opt
 
 distclean: clean
 
