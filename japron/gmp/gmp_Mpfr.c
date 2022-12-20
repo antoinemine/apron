@@ -1727,7 +1727,7 @@ JNIEXPORT jint JNICALL Java_gmp_Mpfr_j1
  * Signature: (I;Lgmp/Mpfr;I)I
  */
 JNIEXPORT jint JNICALL Java_gmp_Mpfr_jn
-  (JNIEnv *env, jobject o1, int i, jobject o2, jint p)
+  (JNIEnv *env, jobject o1, jint i, jobject o2, jint p)
 {
   check_nonnull(o1,0);
   check_nonnull(o2,0);
