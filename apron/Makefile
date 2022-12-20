@@ -1,7 +1,7 @@
 include ../Makefile.config
 include ../vars.mk
 include ../version.mk
-include depend
+-include depend
 
 #---------------------------------------
 # C part
