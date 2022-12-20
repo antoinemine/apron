@@ -605,8 +605,8 @@ JAVAH     = $javah
 JAVAC_HAS_H = $javac_has_h
 JAVADOC   = $javadoc -encoding UTF-8
 JAR       = $jar
-java_home = ${JAVA_HOME}
-jniinc    = -I${JAVA_HOME}/INCLUDE
+JAVA_HOME = ${JAVA_HOME}
+JNIINC    = -I${JAVA_HOME}/INCLUDE
 
 CC = $cc
 CFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cflags
