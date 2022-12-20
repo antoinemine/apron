@@ -294,7 +294,7 @@ bool ap_fpu_init(void)
   return test_fpu();
 }
 
-#elif defined(__linux) || defined (__APPLE__)
+#elif defined(__linux) || defined (__APPLE__) || defined(__FreeBSD__)
 #include <fenv.h>
 bool ap_fpu_init(void)
 {
@@ -303,7 +303,7 @@ bool ap_fpu_init(void)
   return false;
 }
 
-#elif defined(__FreeBSD__) || defined(sun)
+#elif defined(sun)
 #include <ieeefp.h>
 bool ap_fpu_init(void)
 {
