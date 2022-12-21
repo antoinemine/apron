@@ -175,7 +175,7 @@ ap_version.h: ../version.mk
 # C generic rules
 #---------------------------------------
 
-%.o: %.c %.h
+%.o: %.c %.h ap_version.h
 	$(CC) $(CFLAGS) $(ICFLAGS) -c $<
 
 %MPQ.o: %.c %.h
@@ -205,3 +205,5 @@ ap_version.h: ../version.mk
 
 depend: $(C_FILES) $(H_FILES)
 	$(CC) $(ICFLAGS) -E -MM $(C_FILES) > depend
+
+.precious: ap_version.h
