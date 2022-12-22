@@ -109,7 +109,7 @@ quote(MLI,"\n(** Create a top (universe) value with the given number of integer 
 ap_abstract0_ptr ap_abstract0_top(ap_manager_ptr man, int v1, int v2)
   quote(dealloc,"I0_CHECK_EXC(man)");
 
-quote(MLI,"\n(** Abstract an hypercube.\n\n[of_box man intdim realdim array] abstracts an hypercube defined by the array of intervals of size [intdim+realdim] *)")
+quote(MLI,"\n(** Abstract an hypercube.\n\n[of_box man intdim realdim array] abstracts an hypercube defined by the array of intervals of size [intdim+realdim]. If any interval is empty, the resulting abstract element is empty (bottom). In case of a 0-dimensional element ([intdim+realdim=0]), the abstract element is always top (not bottom). *)")
 ap_abstract0_ptr ap_abstract0_of_box(ap_manager_ptr man,
 			       int intdim, int realdim,
 			       struct ap_interval_array_t array)
@@ -182,7 +182,7 @@ quote(MLI,"\n(** Return the interval of variation of the tree expression in the 
 [ref]struct ap_interval_t* ap_abstract0_bound_texpr(ap_manager_ptr man, ap_abstract0_ptr a, ap_texpr0_ptr v)
      quote(dealloc,"ap_interval_free(_res); I0_CHECK_EXC(man)");
 
-quote(MLI,"\n(** Convert the abstract value to an hypercube *)")
+quote(MLI,"\n(** Convert the abstract value to an hypercube. In case of an empty (bottom) abstract element of size [n], the array contains [n] empty intervals. For 0-dimensional abstract elements, the array has size 0, and it is impossible to distinguish a 0-dimensional bottom element from a 0-dimensional non-bottom (i.e., top) element. Converting it back to an abstract element with [of_box] will then always construct a 0-dimensional top element. *)")
 struct ap_interval_array_t ap_abstract0_to_box(ap_manager_ptr man, ap_abstract0_ptr a)
      quote(call,"{\n\
   ap_dimension_t dim;

@@ -135,7 +135,10 @@ ap_abstract0_t* ap_abstract0_of_box(ap_manager_t* man,
 				    size_t intdim, size_t realdim,
 				    ap_interval_t** tinterval);
   /* Abstract an hypercube defined by the array of intervals
-     of size intdim+realdim */
+     of size intdim+realdim.
+     If any interval is empty, the resulting abstract element is empty (bottom).
+     In case of a 0-dimensional element (intdim+realdim=0), the abstract element is always top (not bottom).
+  */
 
 /* ============================================================ */
 /* II.2 Accessors */
@@ -211,8 +214,13 @@ ap_tcons0_array_t ap_abstract0_to_tcons_array(ap_manager_t* man, ap_abstract0_t*
 
 ap_interval_t** ap_abstract0_to_box(ap_manager_t* man, ap_abstract0_t* a);
   /* Converts an abstract value to an interval/hypercube.
-     The size of the resulting array is ap_abstract0_dimension(man,a).  This
-     function can be reimplemented by using ap_abstract0_bound_linexpr */
+     The size of the resulting array is ap_abstract0_dimension(man,a).
+
+     In case of an empty (bottom) abstract element of size n, the array contains n empty intervals.
+     For 0-dimensional abstract elements, the array has size 0, and it is impossible to distinguish a 0-dimensional bottom element from a 0-dimensional non-bottom (i.e., top) element. Converting it back to an abstract element with ap_abstract0_of_box will then always construct a 0-dimensional top element.
+
+     This function can be reimplemented by using ap_abstract0_bound_linexpr.
+  */
 
 
 ap_generator0_array_t ap_abstract0_to_generator_array(ap_manager_t* man, ap_abstract0_t* a);

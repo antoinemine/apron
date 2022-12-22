@@ -139,6 +139,9 @@ ap_abstract1_t ap_abstract1_of_box(ap_manager_t* man,
 
      If no inclusion is specified for a variable in the environment, its value
      is no constrained in the resulting abstract value.
+
+     If any interval is empty, the resulting abstract element is empty (bottom).
+     In case of a 0-dimensional element (empty environment), the abstract element is always top (not bottom).
   */
 
 
@@ -213,7 +216,10 @@ ap_tcons1_array_t ap_abstract1_to_tcons_array(ap_manager_t* man, ap_abstract1_t*
 
 
 ap_box1_t ap_abstract1_to_box(ap_manager_t* man, ap_abstract1_t* a);
-  /* Converts an abstract value to an interval/hypercube. */
+  /* Converts an abstract value to an interval/hypercube.
+     In case of an empty (bottom) abstract element, all the intervals in the returned box are empty.
+     For abstract elements with empty environments (no variable), it is impossible to distinguish a bottom element from a top element. Converting the box back to an abstract element with ap_abstract1_of_box will then always construct a top element.
+  */
 
 ap_generator1_array_t ap_abstract1_to_generator_array(ap_manager_t* man, ap_abstract1_t* a);
   /* Converts an abstract value to a system of generators.
