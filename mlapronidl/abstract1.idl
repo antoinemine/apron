@@ -121,7 +121,7 @@ quote(MLI,"\n(** Create a top (universe) value defined on the given environment 
 struct ap_abstract1_t ap_abstract1_top(ap_manager_ptr man, ap_environment_ptr env)
     quote(dealloc,"I0_CHECK_EXC(man)");
 
-quote(MLI,"\n(** Abstract an hypercube.\n\n[of_box man env tvar tinterval] abstracts an hypercube defined by the arrays [tvar] and [tinterval]. The result is defined on the environment [env], which should contain all the variables in [tvar] (and defines their type) *)")
+quote(MLI,"\n(** Abstract an hypercube.\n\n[of_box man env tvar tinterval] abstracts an hypercube defined by the arrays [tvar] and [tinterval]. The result is defined on the environment [env], which should contain all the variables in [tvar] (and defines their type). If any interval is empty, the resulting abstract element is empty (bottom). In case of a 0-dimensional element (empty environment), the abstract element is always top (not bottom). *)")
 struct ap_abstract1_t ap_abstract1_of_box(ap_manager_ptr man,
 				    ap_environment_ptr env,
 				    [size_is(size)]ap_var_t* tvar,
@@ -211,7 +211,7 @@ quote(MLI,"\n(** Return the interval of variation of the tree expression in the 
     quote(dealloc,"ap_interval_free(_res); I0_CHECK_EXC(man)");
 
 quote(MLI,"\n\
-(** Convert the abstract value to an hypercube *)
+(** Convert the abstract value to an hypercube . In case of an empty (bottom) abstract element, all the intervals in the returned box are empty. For abstract elements with empty environments (no variable), it is impossible to distinguish a bottom element from a top element. Converting the box back to an abstract element with [of_box] will then always construct a top element. *)
 val to_box : 'a Manager.t -> 'a t -> box1\n\
 \n\
 (** Convert the abstract value to a conjunction of linear constraints. *)

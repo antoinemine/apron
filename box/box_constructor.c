@@ -52,13 +52,11 @@ box_t* box_of_box(ap_manager_t* man,
   box_internal_t* intern = box_init_from_manager(man,AP_FUNID_OF_BOX);
 
   box_t* a = box_alloc(intdim,realdim);
-  if (intdim+realdim!=0){
-    box_init(a);
-    for(i=0;i<intdim+realdim; i++){
-      itv_set_ap_interval(intern->itv,a->p[i],tinterval[i]);
-      exc = itv_canonicalize(intern->itv,a->p[i],i<intdim);
-      if (exc) { box_set_bottom(a); break; }
-    }
+  box_init(a);
+  for(i=0;i<intdim+realdim; i++){
+    itv_set_ap_interval(intern->itv,a->p[i],tinterval[i]);
+    exc = itv_canonicalize(intern->itv,a->p[i],i<intdim);
+    if (exc) { box_set_bottom(a); break; }
   }
   man->result.flag_best = true;
   man->result.flag_exact = true;
@@ -507,18 +505,13 @@ ap_interval_t** box_to_box(ap_manager_t* man, box_t* a)
   man->result.flag_best = true;
   man->result.flag_exact = true;
   nbdims = a->intdim+a->realdim;
-  if (nbdims==0){
-    interval = NULL;
-  }
-  else {
-    interval = ap_interval_array_alloc(nbdims);
-     for (i=0; i<nbdims; i++){
-       if (a->p==NULL){
-	 ap_interval_set_bottom(interval[i]);
-       } else {
-	 ap_interval_set_itv(intern->itv,interval[i],a->p[i]);
-       }
-     }
+  interval = ap_interval_array_alloc(nbdims);
+  for (i=0; i<nbdims; i++){
+    if (a->p==NULL){
+      ap_interval_set_bottom(interval[i]);
+    } else {
+      ap_interval_set_itv(intern->itv,interval[i],a->p[i]);
+    }
   }
   return interval;
 }
