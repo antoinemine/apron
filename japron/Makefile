@@ -116,8 +116,8 @@ all: $(JAVAINST) $(SOINST)
 ifneq ($(JAVAC_HAS_H),)
 
 gmp.jar: $(GMPJ)
-	$(JAVAC) -h gmp $+
-	$(JAR) cf $@ $+
+	$(JAVAC) -Xlint:deprecation -h gmp $+
+	$(JAR) cf $@ $(GMPCLASS)
 	$(JAR) i $@
 
 else
@@ -140,8 +140,8 @@ libjgmp.$(EXT_DLL): gmp/jgmp.o $(GMPO)
 ifneq ($(JAVAC_HAS_H),)
 
 apron.jar: $(APRONJ)
-	$(JAVAC) -h apron $+
-	$(JAR) cf $@ $+
+	$(JAVAC) -Xlint:deprecation -h apron $+
+	$(JAR) cf $@ $(APRONCLASS)
 	$(JAR) i $@
 
 else
