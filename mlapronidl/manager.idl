@@ -26,7 +26,7 @@ value camlidl_apron_manager_funid_c2ml(enum ap_funid_t* arg)\n\
     if (n>AP_FUNID_SIZE) n--;\n\
   }\n\
   else {\n\
-    invalid_argument(\"enum ap_funid_t: bad enum value\");\n\
+    caml_invalid_argument(\"enum ap_funid_t: bad enum value\");\n\
   }\n\
   return Val_int(n);\n\
 }\n\
@@ -38,7 +38,7 @@ value camlidl_apron_manager_exc_c2ml(enum ap_exc_t* arg)\n\
 {\n\
     int n = *arg;\n\
   if (! (n>=AP_EXC_NONE && n<AP_EXC_SIZE)){\n\
-    invalid_argument(\"enum ap_exc_t: bad enum value\");\n\
+    caml_invalid_argument(\"enum ap_exc_t: bad enum value\");\n\
   }\n\
   return Val_int(n);\n\
 }\n\
@@ -179,14 +179,14 @@ void ap_funopt_make([ref,out]struct ap_funopt_t* x)
 quote(MLI,"(** Get the options sets for the function. The result is a copy of the internal structure and may be freely modified. [funid] should be different from [Funid_change_environment] and [Funid_rename_array] (no option associated to them). *)")
 struct ap_funopt_t ap_manager_get_funopt(ap_manager_ptr man, ap_funid_t funid)
   quote(call,"\
-  if (funid >= AP_FUNID_SIZE) invalid_argument(\"Manager.get.funopt <funid>: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
+  if (funid >= AP_FUNID_SIZE) caml_invalid_argument(\"Manager.get.funopt <funid>: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
   _res = ap_manager_get_funopt(man,funid);\n\
 ");
 
 quote(MLI,"(** Set the options for the function. [funid] should be different from [Funid_change_environment] and [Funid_rename_array] (no option associated to them). *)")
 void ap_manager_set_funopt(ap_manager_ptr man, ap_funid_t funid, [ref]struct ap_funopt_t* funopt)
   quote(call,"\
-  if (funid >= AP_FUNID_SIZE) invalid_argument(\"Manager.set.funopt <funid> ...: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
+  if (funid >= AP_FUNID_SIZE) caml_invalid_argument(\"Manager.set.funopt <funid> ...: <funid> should be different from Funid_change_environment and Funid_rename_array (no option for remaining identifiers)\");\n\
   ap_manager_set_funopt(man,funid,funopt);\n\
 ");
 
