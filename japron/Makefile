@@ -19,6 +19,8 @@ IFLAGS = $(ICFLAGS) \
 -I$(GMP_PREFIX)/include \
 -I$(MPFR_PREFIX)/include \
 -I$(PPL_PREFIX)/include \
+-I$(PPLITE_PREFIX)/include \
+-I$(FLINT_PREFIX)/include \
 -I${JAVA_HOME}/include \
 -I${JAVA_HOME}/include/linux \
 -I${JAVA_HOME}/include/darwin \
@@ -27,6 +29,7 @@ IFLAGS = $(ICFLAGS) \
 -I../newpolka \
 -I../octagons \
 -I../ppl \
+-I../pplite \
 -I../products \
 $(JNIINC) 
 
@@ -34,12 +37,15 @@ LFLAGS = $(LDFLAGS) \
 -L$(GMP_PREFIX)/lib \
 -L$(MPFR_PREFIX)/lib \
 -L$(PPL_PREFIX)/lib \
+-L$(PPLITE_PREFIX)/lib \
+-L$(FLINT_PREFIX)/lib \
 -L. \
 -L../apron \
 -L../box \
 -L../newpolka \
 -L../octagons \
 -L../ppl \
+-L../pplite \
 -L../products
 
 
@@ -69,6 +75,13 @@ APRONMODS := $(APRONMODS) PplPoly PplGrid PolkaGrid
 APRONLIBS := $(APRONLIBS) -lap_pkgrid -lap_ppl -lppl
 endif
 
+PPLITE_TEST :=
+ifneq ($(HAS_PPLITE),)
+APRONMODS := $(APRONMODS) Pplite
+APRONLIBS := $(APRONLIBS) -lap_pplite -lpplite -lflint -lgmpxx
+PPLITE_TEST := TestPplite
+endif
+
 # lone .java
 APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
             Linterm0 Dimension Texpr0Node Texpr0BinNode Texpr0UnNode \
@@ -77,7 +90,7 @@ APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
             Texpr1VarNode Texpr1CstNode Tcons1 Generator1 Abstract1 \
             ApronException NotImplementedException OutOfSpaceException \
             OverflowException TimeoutException \
-            Test
+            Test $(PPLITE_TEST)
 
 ############################
 #OBJECTS
@@ -116,8 +129,8 @@ all: $(JAVAINST) $(SOINST)
 ifneq ($(JAVAC_HAS_H),)
 
 gmp.jar: $(GMPJ)
-	$(JAVAC) -h gmp $+
-	$(JAR) cf $@ $+
+	$(JAVAC) -Xlint:deprecation -h gmp $+
+	$(JAR) cf $@ $(GMPCLASS)
 	$(JAR) i $@
 
 else
@@ -140,8 +153,8 @@ libjgmp.$(EXT_DLL): gmp/jgmp.o $(GMPO)
 ifneq ($(JAVAC_HAS_H),)
 
 apron.jar: $(APRONJ)
-	$(JAVAC) -h apron $+
-	$(JAR) cf $@ $+
+	$(JAVAC) -Xlint:deprecation -h apron $+
+	$(JAR) cf $@ $(APRONCLASS)
 	$(JAR) i $@
 
 else

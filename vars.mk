@@ -57,6 +57,17 @@ ifneq ($(PPL_PREFIX),)
   PPL_LIFLAGS += -L$(PPL_PREFIX)lib
 endif
 
+PPLITE_ICFLAGS =
+PPLITE_LIFLAGS =
+ifneq ($(FLINT_PREFIX),)
+  PPLITE_ICFLAGS += -I$(FLINT_PREFIX)/include
+  PPLITE_LIFLAGS += -L$(FLINT_PREFIX)lib
+endif
+ifneq ($(PPLITE_PREFIX),)
+  PPLITE_ICFLAGS += -I$(PPLITE_PREFIX)/include
+  PPLITE_LIFLAGS += -L$(PPLITE_PREFIX)lib
+endif
+
 # ---
 
 OCAMLOPT_TARGETS0 = $(addsuffix .cmxa, $(1)) $(addsuffix .a, $(1))

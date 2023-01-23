@@ -1,0 +1,5 @@
+package "pplite" (
+requires = "apron.apron"
+archive(byte) = "pplite.cma"
+archive(native) = "pplite.cmxa"
+)
