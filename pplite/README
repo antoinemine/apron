@@ -14,7 +14,7 @@ This package is a wrapper for the PPLite library
 Requirements:
 - APRON
 - ITV
-- PPLite library version 0.9 (to be installed from sources)
+- PPLite library version 0.10 (to be installed from sources)
 - Flint and GMPXX (the latter normally installed with GMP)
 - for apron_pplite_test: NewPolka APRON module
 
