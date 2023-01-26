@@ -59,9 +59,9 @@ public class Pplite
 
     /**
      * Sets the widening specification used by domains; legal values are:
-     *  - "safe": the Cousot&Cousot POPL77 specification, which does not
+     *  - "safe": the Cousot and Cousot POPL77 specification, which does not
      *     assume the inclusion between arguments;
-     *  - "risky": the Cousot&Cousot PLILP92 footnote 6 alternative
+     *  - "risky": the Cousot and Cousot PLILP92 footnote 6 alternative
      *     specification, assuming the inclusion between arguments.
      */
     public native void setWidenSpec(String name);

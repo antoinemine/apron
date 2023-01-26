@@ -61,21 +61,11 @@ type 'a t
 
 quote(MLI,"(** Allocate a PPLite manager for loose convex polyhedra. *)")
 ap_manager_ptr ap_pplite_manager_alloc_loose()
-quote(call,"{
-  _res = ap_pplite_manager_alloc(false);
-  ap_pplite_manager_set_kind(_res, \"Poly\");
-  ap_pplite_manager_set_widen_spec(_res, \"risky\");
-}");
+quote(call,"_res = ap_pplite_manager_alloc(false);");
 
 quote(MLI,"(** Allocate a PPLite manager for strict convex polyhedra. *)")
 ap_manager_ptr ap_pplite_manager_alloc_strict()
-quote(call,"{
-  _res = ap_pplite_manager_alloc(true);
-  ap_pplite_manager_set_kind(_res, \"Poly\");
-  ap_pplite_manager_set_widen_spec(_res, \"risky\");
-}");
-
-quote(MLI,"(** { 2 PPLite's manager ad-hoc functions } *)")
+quote(call,"_res = ap_pplite_manager_alloc(true);");
 
 quote(MLI,"(** Set the polyhedra kind for PPLite manager. *)")
 void ap_pplite_manager_set_kind(ap_manager_ptr man, [string]const char* kind)
