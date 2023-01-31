@@ -71,14 +71,26 @@ ap_pplite_abstract0_set_intdim(ap_manager_t* man,
 
 ap_abstract0_t*
 ap_pplite_abstract0_split(ap_manager_t* man, ap_abstract0_t* a,
-                          ap_lincons0_t* c, bool strict);
-  /* Splits abstract element [[a]] using the inequality constraint [[c]].
-     Parameter [[strict]] can be true only if [[man]] supports NNC polyhedra;
-     if [[strict]] is false then constraint [[c]] can only be a lose inequality.
-     Let [[neg_c]] be the negation of constraint [[c]] (which can be strict
-     only if [[c]] is lose and [[strict]] is true); then the function returns
-     a new abstract element obtained by adding constraint [[neg_c]] to [[a]],
-     while also updating [[a]] by adding constraint [[c]].
+                          ap_lincons0_t* c, bool integral, bool strict);
+  /* Splits abstract element [[a]] using the inequality constraint
+     [[c]].  Let [[pos_c]] and [[neg_c]] be the positive and negative
+     splitting components of constraint [[c]] (defined below); then
+     the function returns a new abstract element [[res]] obtained by
+     adding the negative component [[neg_c]] to input element [[a]];
+     at the same time, it updates element [[a]] by adding the positive
+     component [[pos_c]].
+
+     If parameter [[integral]] is true, then the constraint [[c]] is
+     assumed to evaluate to an integral value and [[pos_c]], [[neg_c]]
+     are refined accordingly; e.g., c := (x < 5) is refined into
+     pos_c := (x <= 4) and neg_c := (x >= 5).
+
+     If parameter [[integral]] is false, then a rational split is computed,
+     meaning that [[pos_c]] is equal to [[c]]; in this case, strict
+     constraints are supported only if parameter [[strict]] is true
+     and [[man]] supports NNC polyhedra; otherwise, both [[pos_c]] and
+     [[neg_c]] are non-strict.
+
      Note: interval constraints are NOT supported.
   */
 

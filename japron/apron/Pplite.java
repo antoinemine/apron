@@ -69,12 +69,18 @@ public class Pplite
 
     /**
      * Splits element a using (non-interval) linear inequality constraint c.
-     * The return value is computed by adding the negation of c to
+     * The return value is computed by adding the complement of c to
      * element a, whereas a itself is updated by adding constraint c.
-     * If parameter strict is false, the complement of a lose constraint
-     * is still lose; strict splits require a strict manager.
+     * If parameter integral is true, then the constraint c is
+     * assumed to evaluate to an integral value and refined accordingly;
+     * e.g., (x &lt; 5) is refined into (x &le; 4) and its complement is
+     * computed as (x &ge; 5).
+     * If parameter integral is false, a rational split is computed;
+     * in this case, if strict is false then the complement of a lose
+     * constraint is still lose; strict splits require a strict manager.
      */
-    public native Abstract0 split(Abstract0 a, Lincons0 c, boolean strict);
+    public native Abstract0 split(Abstract0 a, Lincons0 c,
+                                  boolean integral, boolean strict);
 
     /** Returns true if a is a disjunctive abstract element */
     public native boolean isDisjunctive(Abstract0 a);

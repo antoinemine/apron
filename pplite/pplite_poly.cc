@@ -1318,7 +1318,7 @@ namespace {
 
 pplite_poly*
 ap_pplite_poly_split(ap_manager_t* man, pplite_poly* a,
-                     ap_lincons0_t* c, bool strict) {
+                     ap_lincons0_t* c, bool integral, bool strict) {
   set_flags(man, (a->intdim == 0));
   try {
     auto intern = get_internal(man);
@@ -1330,23 +1330,26 @@ ap_pplite_poly_split(ap_manager_t* man, pplite_poly* a,
       throw std::invalid_argument("split with invalid constraint");
     Topol t = strict ? Topol::NNC : Topol::CLOSED;
     auto res = new pplite_poly(man, 0, 0, Spec_Elem::EMPTY);
-    res->p.reset(a->p->split(con, t));
+    if (integral)
+      res->p.reset(a->p->integral_split(con));
+    else
+      res->p.reset(a->p->split(con, t));
     res->intdim = a->intdim;
     return res;
   }
-  CATCH_WITH_POLY(AP_FUNID_COPY, a);
+  CATCH_WITH_POLY(AP_FUNID_MEET_LINCONS_ARRAY, a);
 }
 
 } // namespace
 
 extern "C" ap_abstract0_t*
 ap_pplite_abstract0_split(ap_manager_t* man, ap_abstract0_t* a,
-                          ap_lincons0_t* c, bool strict) {
+                          ap_lincons0_t* c, bool integral, bool strict) {
   arg_assert(man->library == a->man->library,
              return ap_pplite_invalid_abstract0(man, a);,
              AP_FUNID_COPY);
   auto ph = static_cast<pplite_poly*>(a->value);
-  auto res = ap_pplite_poly_split(man, ph, c, strict);
+  auto res = ap_pplite_poly_split(man, ph, c, integral, strict);
   return ap_pplite_make_abstract0(man, res);
 }
 

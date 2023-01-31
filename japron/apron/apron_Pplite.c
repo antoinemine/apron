@@ -98,10 +98,11 @@ JNIEXPORT jstring JNICALL Java_apron_Pplite_getWidenSpec
 /*
  * Class:     apron_Pplite
  * Method:    split
- * Signature: (Lapron/Abstract0;Lapron/Lincons0;Z)Lapron/Abstract0;
+ * Signature: (Lapron/Abstract0;Lapron/Lincons0;ZZ)Lapron/Abstract0;
  */
 JNIEXPORT jobject JNICALL Java_apron_Pplite_split
-  (JNIEnv *env, jobject m, jobject a, jobject c, jboolean strict)
+  (JNIEnv *env, jobject m, jobject a, jobject c,
+   jboolean integral, jboolean strict)
 {
   check_nonnull(m,NULL);
   check_nonnull(a,NULL);
@@ -110,7 +111,7 @@ JNIEXPORT jobject JNICALL Java_apron_Pplite_split
   ap_lincons0_t con;
   if (!japron_lincons0_init_set(env, &con, c)) return NULL;
   ap_abstract0_t* r = ap_pplite_abstract0_split(man, as_abstract0(a),
-                                                &con, strict);
+                                                &con, integral, strict);
   check_exc( { if (r) { ap_abstract0_free(man, r); ap_lincons0_clear(&con); } return NULL; } );
   japron_lincons0_clear(&con);
   return japron_abstract0_get(env, man, r);
