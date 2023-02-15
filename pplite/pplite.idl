@@ -90,6 +90,39 @@ quote(MLI,"(** Get the widening specification from PPLite manager. *)")
 [string]const char* ap_pplite_manager_get_widen_spec(ap_manager_ptr man)
   quote(dealloc,"I0_CHECK_EXC(man)");
 
+
+quote(MLI,"(** {2 PPLite's abstract0 ad-hoc functions} *)")
+
+quote(MLI,"(** Splits abstract element on linear constraint *)")
+ap_abstract0_ptr ap_pplite_abstract0_split(ap_manager_ptr man, ap_abstract0_ptr abs, [ref]ap_lincons0_t* c, boolean integral, boolean strict)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Returns true if abs is a powerset of polyhedra *)")
+boolean ap_pplite_abstract0_is_disjunctive(ap_manager_ptr man, ap_abstract0_ptr abs)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the number of disjuncts of a polyhedra powerset. *)")
+int ap_pplite_abstract0_num_disjuncts(ap_manager_ptr man, ap_abstract0_ptr abs)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the linear constraints of the n-th disjunct. *)")
+struct ap_lincons0_array_t ap_pplite_abstract0_disj_to_lincons_array(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+
+quote(MLI,"(** Get the tree constraints of the n-th disjunct. *)")
+struct ap_tcons0_array_t ap_pplite_abstract0_disj_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Returns true if abs1 is geometrically contained in abs2 *)")
+boolean ap_pplite_abstract0_geom_subseteq(ap_manager_ptr man, ap_abstract0_ptr abs1, ap_abstract0_ptr abs2)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Modify abstract element to have n disjunct at most. *)")
+void ap_pplite_abstract0_collapse(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+
 quote(MLI,"(** {2 Type conversions} *)
 
 val manager_is_pplite : 'a Apron.Manager.t -> bool
