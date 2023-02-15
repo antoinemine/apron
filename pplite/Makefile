@@ -54,9 +54,16 @@ mlexample.byte: mlexample.ml pplite.cma
 mlexample.opt: mlexample.ml pplite.cmxa
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -I ../apron -I . -o $@ bigarray.cmxa gmp.cmxa apron.cmxa pplite.cmxa $<
 
+mlexample_adhoc.byte: mlexample_adhoc.ml pplite.cma
+	$(OCAMLC) $(OCAMLFLAGS) $(OCAMLINC) -I ../apron -o $@ bigarray.cma gmp.cma apron.cma pplite.cma $<
+
+mlexample_adhoc.opt: mlexample_adhoc.ml pplite.cmxa
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLINC) -I ../apron -I . -o $@ bigarray.cmxa gmp.cmxa apron.cmxa pplite.cmxa $<
+
 clean:
 	/bin/rm -f *.[ao] *.$(EXT_DLL) ap_pplite_test ap_pplite_test_debug
 	/bin/rm -f mlexample.byte mlexample.opt
+	/bin/rm -f mlexample_adhoc.byte mlexample_adhoc.opt
 	/bin/rm -f *.annot *.cm[ioax] *.cmx[as]
 	/bin/rm -fr *~ \#*\# tmp
 	/bin/rm -f ap_pplite_caml.c pplite.ml pplite.mli
@@ -86,7 +93,7 @@ ifeq ($(OCAMLFIND),)
 	/bin/rm -f $(APRON_BIN)/*ap_pplite*
 endif
 
-dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) pplite.idl perlscript_c.pl perlscript_caml.pl ap_pplite_caml.c pplite.ml pplite.mli mlexample.ml
+dist: Makefile COPYING README $(CXXSOURCES) $(CSOURCES) $(CCINC) pplite.idl perlscript_c.pl perlscript_caml.pl ap_pplite_caml.c pplite.ml pplite.mli mlexample.ml mlexample_adhoc.ml
 	(cd ..; tar zcvf pplite.tgz $(^:%=pplite/%))
 
 #---------------------------------------
