@@ -251,9 +251,7 @@ extern "C" size_t
 ap_pplite_poly_size(ap_manager_t* man, pplite_poly* a) {
   set_flags(man, true);
   try {
-    auto num_cons = a->p->cons().size();
-    auto sd = a->p->space_dim();
-    return num_cons * (sd + 1);
+    return a->p->get_memory_in_bytes();
   }
   CATCH_WITH_VAL(AP_FUNID_ASIZE, 0);
 }
