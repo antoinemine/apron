@@ -24,7 +24,7 @@
 namespace pplite {
 namespace apron {
 
-static const char* PPLITE_VERSION = "0.10";
+static const char* PPLITE_VERSION = "0.10.1";
 
 /* Internal structure in managers */
 struct pplite_internal {
