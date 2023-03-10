@@ -18,6 +18,7 @@ include ../vars.mk
 OCAMLMKLIB := $(OCAMLMKLIB) -ocamlc "$(OCAMLC) -cc $(CXX)"
 OCAMLMKLIB := $(OCAMLMKLIB) -ocamlopt "$(OCAMLOPT) -cc $(CXX)"
 OCAMLMKLIB := $(OCAMLMKLIB) -dllpath $(PPLITE_PREFIX)/lib
+OCAMLMKLIB := $(OCAMLMKLIB) -ccopt -L$(PPLITE_PREFIX)/lib
 
 #---------------------------------------
 # Flags

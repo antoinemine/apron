@@ -422,7 +422,7 @@ then
         has_pplite=0;
     else
         if test "x$pplite_prefix" != "x"; then PPLITE_PREFIX="$pplite_prefix"; fi
-        checkprefix "$cxx $cxxflags" pplite/pplite.hh pplite "$PPLITE_PREFIX"
+        checkprefix "$cxx $cxxflags -std=c++17" pplite/globals.hh pplite "$PPLITE_PREFIX"
         if test $? -eq 0; then has_pplite=0; fi
         pplite_prefix="$prefix"
     fi

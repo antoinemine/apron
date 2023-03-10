@@ -19,8 +19,8 @@
 #include <time.h>
 #include <assert.h>
 
-#include <ap_global0.h>
-#include <pk.h>
+#include "ap_global0.h"
+#include "../newpolka/pk.h"
 #include "ap_pplite.h"
 
 ap_manager_t* eq_check_man;
