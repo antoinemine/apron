@@ -143,11 +143,11 @@ libpolkaGrid_caml_debug.a: polkaGrid_caml_debug.o libap_pkgrid_debug.a
 #---------------------------------------
 
 polkaGrid.cma: polkaGrid.cmo libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -o polkaGrid -oc polkaGrid_caml polkaGrid.cmo -lap_pkgrid $(LIBS)
+	$(OCAMLMKLIB) -o polkaGrid -oc polkaGrid_caml polkaGrid.cmo -lap_pkgrid $(LDFLAGS) $(LIBS)
 
 polkaGrid.cmxa: polkaGrid.a
 polkaGrid.a: polkaGrid.cmx libpolkaGrid_caml.a libap_pkgrid.a
-	$(OCAMLMKLIB) -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx -lap_pkgrid $(LIBS)
+	$(OCAMLMKLIB) -o polkaGrid -oc polkaGrid_caml polkaGrid.cmx -lap_pkgrid $(LDFLAGS) $(LIBS)
 
 #---------------------------------------
 # IDL rules
