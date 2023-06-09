@@ -422,7 +422,7 @@ then
         has_pplite=0;
     else
         if test "x$pplite_prefix" != "x"; then PPLITE_PREFIX="$pplite_prefix"; fi
-        checkprefix "$cxx $cxxflags -std=c++17" pplite/globals.hh pplite "$PPLITE_PREFIX"
+        checkprefix "$cxx $cxxflags -std=c++11" pplite/globals.hh pplite "$PPLITE_PREFIX"
         if test $? -eq 0; then has_pplite=0; fi
         pplite_prefix="$prefix"
     fi
@@ -652,9 +652,9 @@ CXX = $cxx
 CXXFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cxxflags
 CXXFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cxxflags
 
-# PPLite requires using the C++17 language standard
-PPLITE_CXXFLAGS = -std=c++17 -DNDEBUG -O3 $cxxflags
-PPLITE_CXXFLAGS_DEBUG = -std=c++17 -UNDEBUG -O0 -g $cxxflags
+# The PPLite wrapper requires using the C++11 language standard
+PPLITE_CXXFLAGS = -std=c++11 -DNDEBUG -O3 $cxxflags
+PPLITE_CXXFLAGS_DEBUG = -std=c++11 -UNDEBUG -O0 -g $cxxflags
 
 EXT_DLL = $ext_dll
 

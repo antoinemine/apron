@@ -171,9 +171,10 @@ CXXFLAGS_DEBUG = \
 -Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -fPIC -g -O0 -UNDEBUG
 
-# PPLite requires using the C++17 language standard
-PPLITE_CXXFLAGS = -std=c++17 $CXXFLAGS
-PPLITE_CXXFLAGS_DEBUG = -std=c++17 $CXXFLAGS_DEBUG
+# The PPLite wrapper requires using the C++11 language standard
+# (note: building PPLite from sources requires the C++17 language standard)
+PPLITE_CXXFLAGS = -std=c++11 $CXXFLAGS
+PPLITE_CXXFLAGS_DEBUG = -std=c++11 $CXXFLAGS_DEBUG
 
 
 AR = ar

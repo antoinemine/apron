@@ -24,8 +24,6 @@
 namespace pplite {
 namespace apron {
 
-static const char* PPLITE_VERSION = "0.10.1";
-
 /* Internal structure in managers */
 struct pplite_internal {
   using Abs_Poly = dynamic::Abs_Poly;
@@ -513,7 +511,9 @@ ap_pplite_poly_sat_lincons(ap_manager_t* man, pplite_poly* a,
       return false;
     }
     if (not itv_lincons_is_quasilinear(&lincons)) {
-      auto [empty, env] = to_itv_array(a);
+      auto p = to_itv_array(a);
+      bool empty = p.first;
+      const auto& env = p.second;
       if (empty) {
         assert(env == nullptr);
         // found empty after integral refinement
@@ -807,7 +807,9 @@ ap_pplite_poly_meet_lincons_array(ap_manager_t* man,
     bool exact = itv_lincons_array_set_ap_lincons0_array(intern->itv,
                                                          &array2, array);
     if (not itv_lincons_array_is_quasilinear(&array2)) {
-      auto [empty, env] = to_itv_array(a);
+      auto p = to_itv_array(a);
+      bool empty = p.first;
+      const auto& env = p.second;
       if (empty) {
         assert(env == nullptr);
         // found empty after refining integral bounds
@@ -1438,7 +1440,7 @@ ap_pplite_manager_alloc(bool strict) {
   const char* name = (strict ?
                       "PPLite polyhedra, strict mode" :
                       "PPLite polyhedra, loose mode");
-  ap_manager_t* man = ap_manager_alloc(name, PPLITE_VERSION,
+  ap_manager_t* man = ap_manager_alloc(name, PPLITE_PACKAGE_VERSION,
                                        intern, &ap_pplite_internal_free);
   assert(man);
 

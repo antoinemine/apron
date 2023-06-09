@@ -51,10 +51,12 @@ Compiling the built-in domains with the C interface requires:
 Compiling the PPL-based domains requires the [Parma Polyhedra Library](http://bugseng.com/products/ppl) (tested with version 1.2) and gcc (no clang).
 
 Compiling the PPLite-based domains requires the
-[PPLite library](https://github.com/ezaffanella/PPLite)
-(tested with version 0.10.1), which also depends on Flint.
-Note that the library and its wrapper require using a C++ compiler
-(g++ or clang++) supporting the c++17 language standard.
+[PPLite library](https://github.com/ezaffanella/PPLite),
+which also depends on Flint.
+Note that building the PPLite library from sources requires using a
+C++ compiler (g++ or clang++) that supports the c++17 language standard;
+however, starting from PPLite version 0.11, the Apron wrapper for PPLite
+can be compiled using a C++ compiler supporting the c++11 language standard.
 
 
 ### Additional language support

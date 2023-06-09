@@ -14,8 +14,8 @@ This package is a wrapper for the PPLite library
 Requirements:
 - APRON
 - ITV
-- PPLite library version 0.10 (to be installed from sources)
-- Flint and GMPXX (the latter normally installed with GMP)
+- PPLite library version 0.11 (to be installed from sources)
+- Flint, MPFR and GMPXX (the latter normally installed with GMP)
 - for apron_pplite_test: NewPolka APRON module
 
 If HAS_PPLITE is defined in ../Makefile.config, then the main APRON Makefile
@@ -33,7 +33,7 @@ What is provided:
 - flag_exact and flag_best are correcty sets
 - all the widenings are available through the algorithm parameter
 - some functions not availble in PPLite are emulated
-- a unit testing program apron_pplite_test for regression testing;
+- a unit testing program ap_pplite_test for regression testing;
   it works by comparing the result of PPLite and NewPolka
   on random polyhedra
 
