@@ -21,6 +21,10 @@ HAS_OCAMLOPT = 1
 
 # HAS_PPL = 1
 
+# If defined to non-empty value, enable domains from the PPLite library
+
+# HAS_PPLITE = 1
+
 # If defined to non-empty value, compiles the fppol domain
 # (The fppol domain requires GLPK)
 
@@ -67,6 +71,14 @@ MPFR_PREFIX = /usr
 # Where to find PPL ($(PPL_PREFIX)/include, $(PPL_PREFIX)/lib
 #
 PPL_PREFIX = /usr
+
+# Where to find FLINT ($(FLINT_PREFIX)/include, ($FLINT_PREFIX)/lib
+# (only required by PPLite)
+FLINT_PREFIX = /usr
+
+# Where to find PPLITE ($(PPLITE_PREFIX)/include, $(PPLITE_PREFIX)/lib
+#
+PPLITE_PREFIX = /usr
 
 # Where to find GLPK ($(GLPK_PREFIX)/include, $(GLPK_PREFIX)/lib
 #
@@ -158,6 +170,12 @@ CXXFLAGS_DEBUG = \
 -Wall -Wextra -Wundef -Wcast-align \
 -Wno-unused -Wno-unused-parameter -Wno-unused-function \
 -fPIC -g -O0 -UNDEBUG
+
+# The PPLite wrapper requires using the C++11 language standard
+# (note: building PPLite from sources requires the C++17 language standard)
+PPLITE_CXXFLAGS = -std=c++11 $CXXFLAGS
+PPLITE_CXXFLAGS_DEBUG = -std=c++11 $CXXFLAGS_DEBUG
+
 
 AR = ar
 RANLIB = ranlib

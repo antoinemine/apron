@@ -71,7 +71,7 @@ dist: $(H_FILES) $(C_FILES) $(CH_FILES_AUX) apron.texi Makefile COPYING README a
 	(cd ..; tar zcvf apron.tgz $(^:%=apron/%))
 
 clean:
-	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pkgrid.texi apron.info* depend ap_version.h
+	/bin/rm -f *.aux *.bbl *.blg *.dvi *.log *.toc *.ps *.pdf apron.cps apron.fns apron.info apron.fn apron.ky apron.pg apron.cp apron.tp apron.vr apron.kys apron.pgs apron.tps apron.vrs newpolka.texi box.texi ap_ppl.texi ap_pplite.texi ap_pkgrid.texi apron.info* depend ap_version.h
 	/bin/rm -f *.o *.a *.cmi *.cmo *.cmx *.cmx[as] *.cma *.$(EXT_DLL)
 	/bin/rm -fr html
 	/bin/rm -f apron.pdf rationale.pdf
@@ -101,19 +101,21 @@ ap_pkgrid.texi: ../products/ap_pkgrid.texi
 	ln -sf $< $@
 ap_ppl.texi: ../ppl/ap_ppl.texi
 	ln -sf $< $@
+ap_pplite.texi: ../pplite/ap_pplite.texi
+	ln -sf $< $@
 newpolka.texi: ../newpolka/newpolka.texi
 	ln -sf $< $@
 box.texi: ../box/box.texi
 	ln -sf $< $@
 
-apron.pdf: apron.texi rationale.texi ../products/ap_pkgrid.texi ../ppl/ap_ppl.texi ../newpolka/newpolka.texi ../box/box.texi 
+apron.pdf: apron.texi rationale.texi ../products/ap_pkgrid.texi ../ppl/ap_ppl.texi ../pplite/ap_pplite.texi ../newpolka/newpolka.texi ../box/box.texi 
 	$(TEXI2ANY) --pdf -o $@ $<
 
-apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi
+apron.info: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi ap_pplite.texi newpolka.texi box.texi
 	$(MAKEINFO) -o $@ $<
 
 
-html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi newpolka.texi box.texi 
+html: apron.texi rationale.texi ap_pkgrid.texi ap_ppl.texi ap_pplite.texi newpolka.texi box.texi 
 	$(TEXI2ANY) -o html --html --split=section --no-number-sections $<
 	cp -f ../octagons/oct_doc.html html
 	cp -f ../examples/*.c ../examples/*.ml html

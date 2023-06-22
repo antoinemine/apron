@@ -277,6 +277,22 @@ need to use @samp{g++} instead of @samp{gcc} for linking. You also
 need the C++ layer on top of GMP (@file{libgmpxx.a}). The
 @file{libap_ppl.a} library contains the layer on top of PPL which
 implements the APRON interface.
+
+@item
+If a C file @file{test.c} uses the PPLite library via APRON,
+the compilation command should look like @samp{g++ -I$ITV/include
+-I$MPFR/include -I$GMP/include -I$APRON/include -I$PPLITE/include
+-I$FLINT/include -L$ITV/lib -L$MPFR/lib -L$GMP/lib -L$APRON/lib
+-L$PPLITE/lib -L$FLINT/lib -o test test.c
+-lap_pplite -lpplite -lflint -lgmpxx -lapron -lmpfr -lgmp},
+assuming that PPLite resides in $PPLITE and PPLite APRON interface in
+@file{$APRON/include} and @file{$APRON/lib} directories.
+
+Notice that the PPLite library (@file{libpplite.a}) is a C++ library,
+you need to use @samp{g++} instead of @samp{gcc} for linking.
+You also need the C++ layer on top of GMP (@file{libgmpxx.a}).
+The @file{libap_pplite.a} library contains the layer on top of PPLite
+which implements the APRON interface.
 @end enumerate
 You should look at the specific documentation of the libraries for
 more details.
@@ -615,6 +631,7 @@ Managers are allocated by the underlying libraries/abstract domains, but are fre
 * NewPolka::
 * PPL::
 * pkgrid::
+* PPLite::
 @end menu
 
 @c ===================================================================
@@ -873,6 +890,13 @@ raised one.
 @c ===================================================================
 
 @include ap_pkgrid.texi
+
+@c ===================================================================
+@node PPLite, Managers and Abstract Domains
+@section PPLite (@file{ap_pplite.h}): convex polyhedra abstract domains
+@c ===================================================================
+
+@include ap_pplite.texi
 
 @c *******************************************************************
 @node Scalars & Intervals & Coefficients, Level 1 of the interface, Managers and Abstract Domains, Top

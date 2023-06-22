@@ -19,14 +19,17 @@ where options include:
   -gmp-prefix dir      where to find the GMP library
   -mpfr-prefix dir     where to find the MPFR library
   -ppl-prefix dir      where to find the PPL library
-  -glpk-prefix dir     where to find the GLPK library  
+  -pplite-prefix dir   where to find the PPLite library
+  -flint-prefix dir    where to find the Flint library (for PPLite only)
+  -glpk-prefix dir     where to find the GLPK library
   -java-prefix dir     where to find Java
   -no-cxx              disable C++ support
   -no-ocaml            disable OCaml support
   -no-ocamlfind        disable OCamlfind support
   -no-ocaml-plugins    disable OCaml native plugins
   -no-ppl              disable PPL support
-  -no-glpk             disable GLPK support  
+  -no-pplite           disable PPLite support
+  -no-glpk             disable GLPK support
   -no-java             disable Java support
   -absolute-dylibs     force absolute library names (OSX only)
 
@@ -39,8 +42,10 @@ Environment variables that affect configuration:
   LDFLAGS              extra link flags
   GMP_PREFIX           where to find the GMP library
   MPFR_PREFIX          where to find the MPFR library
-  PPL_PREFIX           where to find tye PPL library
-  GLPK_PREFIX          where to find tye GLPK library  
+  PPL_PREFIX           where to find the PPL library
+  PPLITE_PREFIX        where to find the PPLite library
+  FLINT_PREFIX         where to find the FLINT library
+  GLPK_PREFIX          where to find the GLPK library
   JAVA_HOME            where to find Java
 
 EOF
@@ -55,6 +60,7 @@ EOF
 apron_prefix=/usr/local
 has_cxx=1
 has_ppl=1
+has_pplite=1
 has_glpk=1
 has_ocaml=1
 has_ocamlfind=1
@@ -78,9 +84,15 @@ while : ; do
         -ppl-prefix|--ppl-prefix)
             ppl_prefix="$2"
             shift;;
+        -pplite-prefix|--pplite-prefix)
+            pplite_prefix="$2"
+            shift;;
+        -flint-prefix|--flint-prefix)
+            flint_prefix="$2"
+            shift;;
         -glpk-prefix|--glpk-prefix)
             glpk_prefix="$2"
-            shift;;            
+            shift;;
         -java-prefix|--java-prefix)
             java_prefix="$2"
             shift;;
@@ -92,8 +104,10 @@ while : ; do
             has_ppl=0;;
         -no-ppl|--no-ppl)
             has_ppl=0;;
+        -no-pplite|--no-pplite)
+            has_pplite=0;;
         -no-glpk|--no-glpk)
-            has_glpk=0;;            
+            has_glpk=0;;
         -no-ocaml|--no-ocaml)
             has_ocaml=0;;
         -no-ocamlfind|--no-ocamlfind)
@@ -397,6 +411,23 @@ then
     ppl_prefix="$prefix"
 fi
 
+if test $has_cxx -eq 1 -a $has_pplite -eq 1
+then
+    if test "x$flint_prefix" != "x"; then FLINT_PREFIX="$flint_prefix"; fi
+    checkprefix "$cc $cflags" flint/fmpz.h flint "$FLINT_PREFIX"
+    if test $? -eq 0; then has_flint=0; else has_flint=1; fi
+    flint_prefix="$prefix"
+    if test $has_flint -eq 0
+    then
+        has_pplite=0;
+    else
+        if test "x$pplite_prefix" != "x"; then PPLITE_PREFIX="$pplite_prefix"; fi
+        checkprefix "$cxx $cxxflags -std=c++11" pplite/globals.hh pplite "$PPLITE_PREFIX"
+        if test $? -eq 0; then has_pplite=0; fi
+        pplite_prefix="$prefix"
+    fi
+fi
+
 if test $has_glpk -eq 1
 then
     if test "x$glpk_prefix" != "x"; then GLPK_PREFIX="$glpk_prefix"; fi
@@ -553,6 +584,7 @@ detected configuration:
    optional C++ support         $has_cxx
    optional Java support        $has_java ($java_version)
    optional PPL support         $has_ppl
+   optional PPLite support      $has_pplite
    optional GLPK support        $has_glpk
    
    installation path            $apron_prefix
@@ -574,6 +606,7 @@ if test "$has_ocaml" -eq 0; then has_ocaml=; fi
 if test "$has_ocaml_plugins" -eq 0; then has_ocaml_plugins=; fi
 if test "$has_java" -eq 0; then has_java=; fi
 if test "$has_ppl" -eq 0; then has_ppl=; fi
+if test "$has_pplite" -eq 0; then has_pplite=; fi
 if test "$has_glpk" -eq 0; then has_glpk=; fi
 
 cat > Makefile.config <<EOF
@@ -584,6 +617,7 @@ HAS_OCAMLOPT = $has_ocaml
 HAS_NATIVE_PLUGINS = $has_ocaml_plugins
 HAS_MPFR = 1
 HAS_PPL = $has_ppl
+HAS_PPLITE = $has_pplite
 HAS_GLPK = $has_glpk
 HAS_CPP = $has_cxx
 HAS_LONG_DOUBLE = 1
@@ -594,6 +628,8 @@ APRON_PREFIX = $apron_prefix
 
 MLGMPIDL_PREFIX = $mlgmpidl_prefix
 PPL_PREFIX = $ppl_prefix
+PPLITE_PREFIX = $pplite_prefix
+FLINT_PREFIX = $flint_prefix
 GLPK_PREFIX = $glpk_prefix
 GMP_PREFIX = $gmp_prefix
 MPFR_PREFIX = $mpfr_prefix
@@ -615,6 +651,10 @@ CFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cflags
 CXX = $cxx
 CXXFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cxxflags
 CXXFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cxxflags
+
+# The PPLite wrapper requires using the C++11 language standard
+PPLITE_CXXFLAGS = -std=c++11 -DNDEBUG -O3 $cxxflags
+PPLITE_CXXFLAGS_DEBUG = -std=c++11 -UNDEBUG -O0 -g $cxxflags
 
 EXT_DLL = $ext_dll
 
