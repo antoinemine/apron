@@ -127,7 +127,7 @@ value camlidl_expr0_linexpr0_iter(value _v_closure, value _v_linexpr0)\n\
  ap_linexpr0_ForeachLinterm(linexpr0,i,dim,pcoeff){\n\
     _v_dim = Val_int(dim);\n\
     _v_coeff = camlidl_c2ml_coeff_struct_ap_coeff_t(pcoeff,NULL);\n \
-    callback2(_v_closure,_v_coeff,_v_dim);\n\
+    caml_callback2(_v_closure,_v_coeff,_v_dim);\n\
   }\n\
   CAMLreturn(Val_unit);\n\
 }\n\

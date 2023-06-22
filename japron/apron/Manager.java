@@ -47,6 +47,7 @@ public class Manager
 
     static { System.loadLibrary("japron"); class_init(); }
 
+    static final java.lang.ref.Cleaner cleaner = java.lang.ref.Cleaner.create();
 
     // Operation identifiers
     ////////////////////////

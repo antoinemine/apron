@@ -30,8 +30,16 @@ public class Mpq
 
     private native void init();
 
-    /** Deallocates the underlying mpq_t GMP object. */
-    protected native void finalize();
+    /** Deallocates the underlying mpq_t GMP object (deprecated). */
+    //protected native void finalize();
+
+    /** Cleaner interface that replaces finalize. */
+    private static native void clean(long ptr);
+    static class Clean implements Runnable {
+        private long ptr;
+        public Clean(long p) { ptr = p; }
+        public void run() { clean(ptr); }
+    }
 
     private static native void class_init();
 
@@ -64,12 +72,14 @@ public class Mpq
     public Mpq() 
     { 
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** Constructs a copy of op. */
     public Mpq(Mpq op) 
     {
         init();
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(op); 
     }
 
@@ -77,6 +87,7 @@ public class Mpq
     public Mpq(Mpz op) 
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(op); 
     }
 
@@ -84,6 +95,7 @@ public class Mpq
     public Mpq(BigInteger op) 
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(new Mpz(op)); 
     }
 
@@ -91,6 +103,7 @@ public class Mpq
     public Mpq(int op) 
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(op); 
     }
 
@@ -102,6 +115,7 @@ public class Mpq
     public Mpq(double d) 
     { 
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(d); 
     }
 
@@ -115,6 +129,7 @@ public class Mpq
     public Mpq(String s, int b) 
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(s, b); 
         if (denRef().sgn()!=0) canonicalize(); 
     }
@@ -129,6 +144,7 @@ public class Mpq
     public Mpq(String s) 
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(s); 
         if (denRef().sgn()!=0) canonicalize(); 
     }
@@ -141,6 +157,7 @@ public class Mpq
     public Mpq(Mpz num, Mpz den) 
      {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(num, den); 
         if (den.sgn()!=0) canonicalize(); 
     }
@@ -153,6 +170,7 @@ public class Mpq
     public Mpq(BigInteger num, BigInteger den)
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(new Mpz(num), new Mpz(den)); 
         if (den.signum()!=0) canonicalize(); 
     }
@@ -165,6 +183,7 @@ public class Mpq
     public Mpq(int num, int den)  
     {
         init();
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(num, den); 
         if (den!=0) canonicalize(); 
     }
@@ -544,6 +563,7 @@ public class Mpq
         Mpz num = (Mpz)(in.readObject());
         Mpz den = (Mpz)(in.readObject());
         init();
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(num, den);
     }
 
@@ -552,6 +572,7 @@ public class Mpq
         throws ObjectStreamException
     { 
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
 }

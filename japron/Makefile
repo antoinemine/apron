@@ -84,14 +84,14 @@ APRONJAVA = Scalar MpqScalar MpfrScalar DoubleScalar Interval Coeff StringVar \
 ########
 
 GMPJ       = $(addprefix gmp/,$(addsuffix .java,$(GMPMODS) $(GMPJAVA)))
-GMPCLASS   = $(subst .java,.class,$(GMPJ))
+GMPCLASS   = $(subst .java,.class,$(GMPJ)) gmp/Mpz\$$Clean.class gmp/Mpq\$$Clean.class gmp/Mpfr\$$Clean.class gmp/RandState\$$Clean.class
 GMPCNAME   = $(addprefix gmp.,$(GMPMODS))
 GMPC       = $(addprefix gmp/gmp_,$(addsuffix .c,$(GMPMODS)))
 GMPO       = $(addprefix gmp/gmp_,$(addsuffix .o,$(GMPMODS)))
 GMPH       = $(addprefix gmp/gmp_,$(addsuffix .h,$(GMPMODS)))
 
 APRONJ     = $(addprefix apron/,$(addsuffix .java,$(APRONMODS) $(APRONJAVA)))
-APRONCLASS = $(subst .java,.class,$(APRONJ))
+APRONCLASS = $(subst .java,.class,$(APRONJ)) apron/Abstract0\$$Clean.class
 APRONCNAME = $(addprefix apron.,$(APRONMODS))
 APRONC     = $(addprefix apron/apron_,$(addsuffix .c,$(APRONMODS)))
 APRONO     = $(addprefix apron/apron_,$(addsuffix .o,$(APRONMODS)))

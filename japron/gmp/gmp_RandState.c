@@ -93,6 +93,18 @@ JNIEXPORT void JNICALL Java_gmp_RandState_finalize
 
 /*
  * Class:     gmp_RandState
+ * Method:    clean
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_gmp_RandState_clean
+  (JNIEnv *env, jclass cls, jlong p)
+{
+  gmp_randstate_ptr ptr = (gmp_randstate_ptr)p;
+  gmp_randclear(ptr); free(ptr);
+}
+
+/*
+ * Class:     gmp_RandState
  * Method:    class_init
  * Signature: ()V
  */

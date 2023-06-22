@@ -72,7 +72,7 @@ value camlidl_apron_scalar_c2ml(struct ap_scalar_t* scalar)\n\
   default:\n\
     caml_failwith(\"unknown scalar discriminant in camlidl_apron_scalar_c2ml\");\n\
   }\n\
-  v = alloc_small(1,scalar->discr);\n\
+  v = caml_alloc_small(1,scalar->discr);\n\
   Field(v,0) = v2;\n\
   End_roots();\n\
   return v;\n\
@@ -157,8 +157,8 @@ let of_int x = Mpqf(Mpqf.of_int x)\n\
 let of_frac x y = Mpqf(Mpqf.of_frac x y)\n\
 let of_float x = Float(x)\n\
 let of_infty s = \n\
-  if s>0 then Float(Pervasives.infinity)\n\
-  else if s<0 then Float(Pervasives.neg_infinity)\n\
+  if s>0 then Float(infinity)\n\
+  else if s<0 then Float(neg_infinity)\n\
   else Float(0.0)\n\
 let is_infty scalar =\n\
   match scalar with\n\
@@ -175,8 +175,8 @@ let is_infty scalar =\n\
 	if Mpfrf.sgn x > 0 then 1 else -1\n\
       else 0\n\
   | Float x ->\n\
-      if x = Pervasives.infinity then 1\n\
-      else if x = Pervasives.neg_infinity then -1\n\
+      if x = infinity then 1\n\
+      else if x = neg_infinity then -1\n\
       else 0\n\
 let sgn scalar =\n\
   match scalar with\n\
@@ -216,7 +216,7 @@ let cmp_int scalar n =\n\
   match scalar with\n\
   | Mpqf x -> Mpqf.cmp_int x n\n\
   | Mpfrf x -> Mpfrf.cmp_int x n\n\
-  | Float x -> Pervasives.compare x (float_of_int n)\n\
+  | Float x -> compare x (float_of_int n)\n\
 let equal_int scalar n =\n\
   match scalar with\n\
   | Mpqf x -> (Mpqf.cmp_int x n)=0\n\
