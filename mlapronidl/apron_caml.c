@@ -90,6 +90,9 @@ struct custom_operations camlidl_apron_custom_linexpr0_ptr = {
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
 #endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -200,6 +203,9 @@ struct custom_operations camlidl_apron_custom_texpr0_ptr = {
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
 #endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -233,6 +239,9 @@ struct custom_operations camlidl_apron_custom_manager_ptr = {
   custom_deserialize_default,
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
+#endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
 #endif
 };
 
@@ -350,6 +359,9 @@ struct custom_operations camlidl_apron_custom_abstract0_ptr = {
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
 #endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -408,6 +420,9 @@ struct custom_operations camlidl_apron_custom_var_ptr = {
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
 #endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
+#endif
 };
 
 /* ********************************************************************** */
@@ -450,6 +465,9 @@ struct custom_operations camlidl_apron_custom_environment_ptr = {
   custom_deserialize_default,
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
+#endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
 #endif
 };
 
@@ -508,6 +526,9 @@ struct custom_operations camlidl_apron_custom_policy_manager_ptr = {
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
 #endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
+#endif
 };
 
 
@@ -553,5 +574,8 @@ struct custom_operations camlidl_apron_custom_policy_ptr = {
   custom_deserialize_default,
 #ifdef custom_compare_ext_default
   custom_compare_ext_default,
+#endif
+#ifdef custom_fixed_length_default
+  custom_fixed_length_default,
 #endif
 };

@@ -216,7 +216,7 @@ let cmp_int scalar n =\n\
   match scalar with\n\
   | Mpqf x -> Mpqf.cmp_int x n\n\
   | Mpfrf x -> Mpfrf.cmp_int x n\n\
-  | Float x -> compare x (float_of_int n)\n\
+  | Float x -> Stdlib.compare x (float_of_int n)\n\
 let equal_int scalar n =\n\
   match scalar with\n\
   | Mpqf x -> (Mpqf.cmp_int x n)=0\n\

@@ -102,7 +102,7 @@ typedef struct bsearch_man_t {
   size_t size;
 } bsearch_man_t;
 
-static bool bsearch2(bsearch_man_t* man, size_t low, size_t high)
+static int bsearch2(bsearch_man_t* man, size_t low, size_t high)
 {
   if (high - low <= 4){
     size_t i;
