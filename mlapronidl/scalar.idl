@@ -157,8 +157,8 @@ let of_int x = Mpqf(Mpqf.of_int x)\n\
 let of_frac x y = Mpqf(Mpqf.of_frac x y)\n\
 let of_float x = Float(x)\n\
 let of_infty s = \n\
-  if s>0 then Float(infinity)\n\
-  else if s<0 then Float(neg_infinity)\n\
+  if s>0 then Float(Stdlib.infinity)\n\
+  else if s<0 then Float(Stdlib.neg_infinity)\n\
   else Float(0.0)\n\
 let is_infty scalar =\n\
   match scalar with\n\
@@ -175,8 +175,8 @@ let is_infty scalar =\n\
 	if Mpfrf.sgn x > 0 then 1 else -1\n\
       else 0\n\
   | Float x ->\n\
-      if x = infinity then 1\n\
-      else if x = neg_infinity then -1\n\
+      if x = Stdlib.infinity then 1\n\
+      else if x = Stdlib.neg_infinity then -1\n\
       else 0\n\
 let sgn scalar =\n\
   match scalar with\n\
