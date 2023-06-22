@@ -162,11 +162,11 @@ libap_ppl_caml_debug.a: ap_ppl_caml_debug.o libap_ppl_debug.a
 	$(OCAMLMKLIB) -o ap_ppl_caml_debug $< -L. -lap_ppl_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 ppl.cma: ppl.cmo libap_ppl_caml.a libap_ppl.a
-	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmo -lap_ppl $(LIBS)
+	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmo -lap_ppl $(LDFLAGS) $(LIBS)
 
 ppl.cmxa: ppl.a
 ppl.a: ppl.cmx libap_ppl_caml.a libap_ppl.a
-	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmx -lap_ppl $(LIBS)
+	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmx -lap_ppl $(LDFLAGS) $(LIBS)
 
 
 #---------------------------------------

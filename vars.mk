@@ -56,6 +56,13 @@ ifneq ($(PPL_PREFIX),)
   PPL_ICFLAGS += -I$(PPL_PREFIX)/include
   PPL_LIFLAGS += -L$(PPL_PREFIX)lib
 endif
+ 
+GLPK_ICFLAGS =
+GLPK_LIFLAGS =
+ifneq ($(GLPK_PREFIX),)
+  GLPK_ICFLAGS += -I$(GLPK_PREFIX)/include
+  GLPK_LIFLAGS += -L$(GLPK_PREFIX)lib
+endif
 
 # ---
 

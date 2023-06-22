@@ -22,7 +22,7 @@ include ../vars.mk
 #---------------------------------------
 
 ICFLAGS += $(BASE_ICFLAGS) $(ML_ICFLAGS) $(GLPK_ICFLAGS)
-LDFLAGS += $(BASE_LIFLAGS) $(GLPK_ICFLAGS)
+LDFLAGS += $(BASE_LIFLAGS) $(GLPK_LIFLAGS)
 CMXSINC = $(APRON_CMXSINC) -I .
 
 #---------------------------------------
@@ -275,10 +275,10 @@ endif
 #	$(OCAMLC) -noautolink $(OCAMLFLAGS) $(OCAMLINC) -o $@ -make-runtime bigarray.cma gmp.cma apron.cma fpp.cma -ccopt "-L. -L../mlapronidl $(LDFLAGS)" -cclib "-lfpp_caml -lfpp$* -lapron_caml -lapron -lgmp_caml -lmpfr -lgmp -lglpk -lbigarray -lcamlidl"
 
 fpp%.cma: fpp.cmo libfpp%_caml.a libfpp%.a
-	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmo -lfpp$* $(LIBS)
+	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmo -lfpp$* $(LDFLAGS) $(LIBS)
 
 fpp%.cmxa fpp%.a: fpp.cmx libfpp%_caml.a libfpp%.a
-	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmx -lfpp$* $(LIBS)
+	$(OCAMLMKLIB) -o fpp$* -oc fpp$*_caml fpp.cmx -lfpp$* $(LDFLAGS) $(LIBS)
 
 dllfpp%_caml.$(EXT_DLL) libfpp%_caml.a: fpp_caml.o libfpp%.a
 	$(OCAMLMKLIB) -o fpp$*_caml $< -L. -lfpp$* $(LDFLAGS) $(LIBS)
