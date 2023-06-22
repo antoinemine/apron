@@ -46,6 +46,19 @@ JNIEXPORT void JNICALL Java_apron_Abstract0_finalize
 
 /*
  * Class:     apron_Abstract0
+ * Method:    clean
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_apron_Abstract0_clean
+  (JNIEnv *env, jclass cls, jlong ptr)
+{
+  ap_abstract0_t* a = (ap_abstract0_t*)ptr;
+  /* Note: we use the manager that was used at creation time. */
+  ap_abstract0_free(a->man, a);
+}
+
+/*
+ * Class:     apron_Abstract0
  * Method:    class_init
  * Signature: ()V
  */

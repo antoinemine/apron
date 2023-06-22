@@ -136,6 +136,18 @@ JNIEXPORT void JNICALL Java_gmp_Mpz_finalize
 
 /*
  * Class:     gmp_Mpz
+ * Method:    clean
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_gmp_Mpz_clean
+  (JNIEnv *env, jclass cls, jlong p)
+{
+  mpz_ptr ptr = (mpz_ptr)p;
+  mpz_clear(ptr); free(ptr);
+}
+
+/*
+ * Class:     gmp_Mpz
  * Method:    class_init
  * Signature: ()V
  */

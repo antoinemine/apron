@@ -54,9 +54,9 @@ public class MpzRef extends Mpz
     }
 
     /**
-     * Overrides {@link gmp.Mpz#finalize} to prevent deallocation. 
+     * Overrides {@link gmp.Mpz#finalize} to prevent deallocation (deprecated).
      */
-    protected void finalize() { }
+    //protected void finalize() { }
 
     private static native void class_init();
 
