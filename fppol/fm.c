@@ -675,8 +675,8 @@ void fm_elimination_combination(fpp_internal_t* pr, fpp_t *fpp,unsigned ncons1,f
 						}
 				 }
 			}
-			}
-			else{ /* a1i < -a2i */
+                   }
+                   else{ /* a1i < -a2i */
 			  t=(-a2i)/a1i;  /* no matter which rounding mode */
 			  tInt=trunc(t);
 			  if(tInt==t){ /* t is an integer */

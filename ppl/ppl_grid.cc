@@ -53,7 +53,7 @@ PPL_Grid::PPL_Grid(size_t intdim,size_t realdim,Degenerate_Element kind)
     p = new Grid(intdim+realdim,kind);
     if (kind!=EMPTY) reduce();
   }
-  catch (std::logic_error e) { intdim = 0; p = new Grid(1,kind); }
+  catch (std::logic_error& e) { intdim = 0; p = new Grid(1,kind); }
 }
 
 /* enforce integer constraints */
@@ -82,12 +82,12 @@ PPL_Grid::~PPL_Grid() { delete p; }
 
 /* returns a grid, of specified size if possible */
 #define CATCH_WITH_DIM(funid,intdim,realdim)				\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert& w) {						\
     /* bailing out, not an error */					\
     man->result.flag_exact = man->result.flag_best = false;		\
     return new PPL_Grid(intdim,realdim,UNIVERSE);			\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error& e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     return new PPL_Grid(intdim,realdim,UNIVERSE);			\
@@ -99,12 +99,12 @@ PPL_Grid::~PPL_Grid() { delete p; }
 
 /* returns v */
 #define CATCH_WITH_VAL(funid,v)						\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert& w) {						\
     /* bailing out, not an error */					\
     man->result.flag_exact = man->result.flag_best = false;		\
     return v;								\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error& e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     return v;								\
@@ -115,11 +115,11 @@ PPL_Grid::~PPL_Grid() { delete p; }
 
 /* prints message */
 #define CATCH_WITH_MSG(funid)						\
-  catch (cannot_convert w) {						\
+  catch (cannot_convert& w) {						\
     /* bailing out, not an error */					\
     fprintf(stream,"!exception!");					\
   }									\
-  catch (std::logic_error e) {						\
+  catch (std::logic_error& e) {						\
     /* actual error */							\
     ap_manager_raise_exception(man,AP_EXC_INVALID_ARGUMENT,funid,e.what()); \
     fprintf(stream,"!exception!");					\
@@ -488,6 +488,7 @@ bool ap_ppl_grid_sat_lincons(ap_manager_t* man, PPL_Grid* a,
 	  man->result.flag_exact = man->result.flag_best = false;
 	  return false;
 	}
+        // fall through
       case AP_CONS_SUPEQ:
       case AP_CONS_SUP:
 	itv_lincons_init(&lincons);
@@ -521,6 +522,7 @@ bool ap_ppl_grid_sat_lincons(ap_manager_t* man, PPL_Grid* a,
           break;
 	case AP_CONS_EQMOD:
 	  exact = exact && (num_sgn(lincons.num)==0);
+          // fall through
 	case AP_CONS_EQ:
 	  r = (l == 0);
 	  break;
@@ -895,7 +897,7 @@ PPL_Grid* ap_ppl_grid_assign_linexpr(ap_manager_t* man,
       r->p->affine_image(Variable(dim),e,den);
       r->reduce();
     }
-    catch (cannot_convert x) {
+    catch (cannot_convert& x) {
       /* defaults to forget */
       r->forget_dim(dim);
       if (dim<r->intdim)
@@ -931,7 +933,7 @@ PPL_Grid* ap_ppl_grid_substitute_linexpr(ap_manager_t* man,
       r->p->affine_preimage(Variable(dim),e,den);
       r->reduce();
     }
-    catch (cannot_convert x) {
+    catch (cannot_convert& x) {
       /* defaults to forget */
       r->forget_dim(dim);
       if (dim<r->intdim)

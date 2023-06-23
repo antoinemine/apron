@@ -1237,8 +1237,9 @@ ap_manager_t* ap_disjunction_manager_alloc(
   internal->manager = ap_manager_copy(underlying);
   internal->merge = merge;
 
-  internal->library = malloc(20+strlen(underlying->library));
-  sprintf(internal->library,"disjunction of %s",underlying->library);
+  size_t sz = 20+strlen(underlying->library);
+  internal->library = malloc(sz);
+  snprintf(internal->library,sz,"disjunction of %s",underlying->library);
 
   /* allocating managers */
   man = ap_manager_alloc(internal->library, underlying->version, internal,

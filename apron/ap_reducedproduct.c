@@ -84,8 +84,9 @@ void collect_results0(ap_manager_t* manager)
     if (result->exclog != NULL){
       ap_exclog_t* last = result->exclog;
       while (true){
-	char* buffer = malloc(strlen(man->library)+(last->msg ? strlen(last->msg) : 0)+3);
-	sprintf(buffer,"%s: %s",
+        size_t sz = strlen(man->library)+(last->msg ? strlen(last->msg) : 0)+3;
+	char* buffer = malloc(sz);
+	snprintf(buffer,sizeof(sz),"%s: %s",
 		man->library,(last->msg ? "" : last->msg));
 	if (last->msg) free(last->msg);
 	last->msg = buffer;
@@ -1190,11 +1191,11 @@ ap_manager_t* ap_reducedproduct_manager_alloc
   /* Creating libray name and version */
   length = 100 + 2 * size;
   for (i=0;i<size;i++) length += strlen(tab[i]->version);
-  version = malloc(length*sizeof(char));
-  index = sprintf(version,"%s, %s",
-		  tab[0]->version,tab[1]->version);
+  version = malloc(length);
+  index = snprintf(version,length,"%s, %s",
+                   tab[0]->version,tab[1]->version);
   for (i=2; i<size; i++){
-    index += sprintf(version+index,", %s",tab[i]->version);
+    index += snprintf(version+index,length-index,", %s",tab[i]->version);
   }
   /* creating internal */
   internal = malloc(sizeof(ap_reducedproduct_internal_t) +

@@ -441,7 +441,7 @@ numdbl_t rlp_get_rigorous_optimal_value_dual(glp_prob *lp, numdbl_t *bounds)
 	      tmp1=rdown_i*xdown_i;
 	      tmp2=rup_i*xdown_i;
 	      if(tmp1<=tmp2) tmpup=tmp2;
-        else  tmpup=tmp1;
+              else  tmpup=tmp1;
 	      if(tmpup>maxrTx_i)  maxrTx_i=tmpup;
      }
 

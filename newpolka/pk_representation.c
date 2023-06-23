@@ -186,7 +186,7 @@ void poly_chernikova(ap_manager_t* man,
   po->status = 0;
   {
     char str[160];
-    sprintf(str,"conversion from %s %s\n",
+    snprintf(str,sizeof(str),"conversion from %s %s\n",
 	    po->C ? "constraints to generators" : "generators to constraints",
 	    msg);
     ap_manager_raise_exception(man,pk->exn,pk->funid,str);
@@ -241,7 +241,7 @@ void poly_chernikova2(ap_manager_t* man,
   po->status = 0;
   {
     char str[160];
-    sprintf(str,"conversion from %s %s\n",
+    snprintf(str,sizeof(str),"conversion from %s %s\n",
 	    po->C ? "constraints to generators" : "generators to constraints",
 	    msg);
     ap_manager_raise_exception(man,pk->exn,pk->funid,str);  }
