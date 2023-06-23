@@ -101,7 +101,8 @@ while : ; do
 	    shift;;
         -no-cxx|--no-cxx)
             has_cxx=0
-            has_ppl=0;;
+            has_ppl=0
+            has_pplite=0;;
         -no-ppl|--no-ppl)
             has_ppl=0;;
         -no-pplite|--no-pplite)
