@@ -247,7 +247,7 @@ struct custom_operations camlidl_apron_custom_manager_ptr = {
 
 void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx)
 {
-  value* p = caml_named_value("apron exception");
+  const value* p = caml_named_value("apron exception");
   if(p==NULL){
     fprintf(stderr,"mlapronidl: error: line <let _ = Callback.register ...> of manager.ml has not been executed: this is not normal\n");
     abort();

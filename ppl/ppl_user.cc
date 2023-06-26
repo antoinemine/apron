@@ -510,7 +510,7 @@ bool ap_ppl_of_itv_lincons_array(Constraint_System& r, mpz_class& den, itv_linco
       exact = ap_ppl_of_itv_lincons(c,den,&a->p[i],allow_strict) && exact;
       r.insert(c);
     }
-    catch (cannot_convert w) { exact = false; }
+    catch (cannot_convert& w) { exact = false; }
   }
   return exact;
 }
@@ -541,7 +541,7 @@ bool ap_ppl_of_itv_lincons_array(Congruence_System& r, mpz_class& den, itv_linco
       exact = ap_ppl_of_itv_lincons(c,den,&a->p[i]) && exact;
       r.insert(c);
     }
-    catch (cannot_convert w) { exact = false; }
+    catch (cannot_convert& w) { exact = false; }
   }
   return exact;
 }

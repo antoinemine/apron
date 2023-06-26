@@ -113,7 +113,7 @@ bool poly_meet_matrix(bool meet,
   po->status = 0;
   {
     char str[160];
-    sprintf(str,"conversion from %s of the (intermediate) result\n",
+    snprintf(str,sizeof(str),"conversion from %s of the (intermediate) result\n",
 	    (meet ? po->C : po->F) ? "constraints to generators" : "generators to constraints");
     ap_manager_raise_exception(man,pk->exn,pk->funid,str);
   }
@@ -366,7 +366,7 @@ pk_t* poly_meet_array(bool meet,
     i = 0;
     while (i<size){
       char str[80];
-      sprintf(str,"of the %lu argument",(unsigned long)i);
+      snprintf(str,sizeof(str),"of the %lu argument",(unsigned long)i);
       if (lazy)
 	poly_obtain_C_dual(man,po[i],str,meet);
       else
@@ -475,7 +475,7 @@ pk_t* poly_meet_array(bool meet,
     poly->status = 0;
     {
       char str[160];
-      sprintf(str,"conversion from %s of the (intermediate) result\n",
+      snprintf(str,sizeof(str),"conversion from %s of the (intermediate) result\n",
 	      (meet ? poly->C : poly->F) ? "constraints to generators" : "generators to constraints");
       ap_manager_raise_exception(man,pk->exn,pk->funid,str);
     }

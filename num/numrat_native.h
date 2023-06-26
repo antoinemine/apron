@@ -41,19 +41,15 @@ typedef struct _rat_t {
 
 static inline void numrat_canonicalize(numrat_t r)
 {
-  if (r->d){
-    numint_t pgcd;
-    numint_gcd(pgcd,r->n,r->d);
-    if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMINT_MIN || *r->n==NUMINT_MIN))) {
-      fprintf(stderr,"overflow in numrat_canonicalize\n");
-      return; 
-    }
-    *r->n /= *pgcd;
-    *r->d /= *pgcd;
+  assert(r->d);
+  numint_t pgcd;
+  numint_gcd(pgcd,r->n,r->d);
+  if (*pgcd==0 || (*pgcd==-1 && (*r->d==NUMINT_MIN || *r->n==NUMINT_MIN))) {
+    fprintf(stderr,"overflow in numrat_canonicalize\n");
+    return;
   }
-  else {
-    numint_set_int(r->n,1);
-  }
+  *r->n /= *pgcd;
+  *r->d /= *pgcd;
 }
 #define numrat_numref(a) (a)->n
 #define numrat_denref(a) (a)->d

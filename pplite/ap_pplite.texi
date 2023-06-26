@@ -19,7 +19,7 @@ The wrapper offers (variants of) the convex polyhedra abstract domain.
 @c ===================================================================
 
 To use APRON PPLite you need to install PPLite and its dependencies
-Flint and GMP; currently, the APRON wrapper requires PPLite version 0.10.
+Flint and GMP; currently, the APRON wrapper requires PPLite version 0.11.
 You need to add
 @example
 #include "ap_pplite.h"

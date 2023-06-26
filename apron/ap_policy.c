@@ -76,7 +76,7 @@ The policy of type %s is not of the type %s expected by the policy manager \
   if (!res){
     ap_manager_raise_exception(pman->man,
 			       AP_EXC_INVALID_ARGUMENT,
-			       funid,
+			       (ap_funid_t)funid,
 			       str);
   }
   return res;
@@ -105,7 +105,7 @@ The policy of dimension %d cannot be applied to the abstract value of dimension 
     if (!res){
       ap_manager_raise_exception(pman->man,
 				 AP_EXC_INVALID_ARGUMENT,
-				 funid,
+				 (ap_funid_t)funid,
 				 str);
     }
   }

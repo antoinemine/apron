@@ -320,7 +320,8 @@ checkcmxs()
 
 # Flags common to c and c++ compilation
 c_cxx_flags="-Wcast-qual -Wswitch -Wall -Wextra -Wundef -Wcast-align \
-             -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC"
+             -Wno-unused -Wno-unused-parameter -Wno-unused-function -fPIC \
+             -Wno-stringop-overflow"
 
 
 # System-based selection of default compilers
@@ -354,7 +355,7 @@ done
 if test "$cc" = "none"; then echo "no C compiler found"; exit 1; fi
 
 acc=""
-for i in $c_cxx_flags -Werror-implicit-function-declaration -Wbad-function-cast -Wstrict-prototypes -std=c99 $CFLAGS $LDFLAGS
+for i in $c_cxx_flags -Werror-implicit-function-declaration -Wbad-function-cast -Wstrict-prototypes stringop-overflow -std=c99 $CFLAGS $LDFLAGS
 do
     checkcomp "$cc" "$i"
 done

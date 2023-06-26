@@ -1030,11 +1030,11 @@ void pk_test_gen(ap_manager_t* man, size_t intdim, size_t realdim,
 
   *pname_of_dim = malloc((intdim+realdim)*sizeof(char*));
   for (i=0; i<intdim; i++){
-    sprintf(buffer,"n%d",i);
+    snprintf(buffer,sizeof(buffer),"n%d",i);
     (*pname_of_dim)[i] = strdup(buffer);
   }
   for (i=0; i<realdim; i++){
-    sprintf(buffer,"r%d",i);
+    snprintf(buffer,sizeof(buffer),"r%d",i);
     (*pname_of_dim)[intdim+i] = strdup(buffer);
   }
   p1 = pk_random(man,intdim,realdim,nbcons,maxeq,maxcoeff,mag);

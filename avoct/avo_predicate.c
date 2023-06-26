@@ -167,14 +167,14 @@ bool avo_is_eq(ap_manager_t* man, avo_t* a1, avo_t* a2)
     	    	  continue;
     	  if(j > 2 * dim &&( bound_cmp_int(sy[avo_matpos2( j - 2 * dim  + 1, j - 2 * dim )],0)>= 0||bound_cmp_int(sy[avo_matpos2( j - 2 * dim  , j - 2 * dim + 1)],0)<= 0))
     	    	  continue;
-		  if (bound_cmp(*x,*y)||bound_cmp(*nx,*ny)!=0) {
+          if (bound_cmp(*x,*y)||bound_cmp(*nx,*ny)!=0) {
 			if (a1->closed) {
 			  /* not equal on Q */
 			  if (num_incomplete || a1->intdim)  { flag_incomplete; }
 			  return false;
 			}
 			else { flag_algo; return false; }
-		  }
+          }
       }
     /* definitively equal */
     return true;
@@ -578,8 +578,9 @@ ap_interval_t** avo_to_box(ap_manager_t* man, avo_t* a)
 /* not really implemented (returns either top or bottom) */
 ap_generator0_array_t avo_to_generator_array(ap_manager_t* man, avo_t* a)
 {
-	ap_generator0_array_t ar;
-	avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY,0);
-    ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,pr->funid, "not implemented");
-    return ar;
+  ap_generator0_array_t ar;
+  avo_internal_t* pr = avo_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY,0);
+  ap_manager_raise_exception(man,AP_EXC_NOT_IMPLEMENTED,pr->funid, "not implemented");
+  ar = ap_generator0_array_make(0);
+  return ar;
 }

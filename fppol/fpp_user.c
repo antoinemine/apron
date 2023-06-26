@@ -173,6 +173,7 @@ numdbl_t* fpp_vector_of_lincons0(ap_lincons0_t p, unsigned dimension,unsigned in
 		   return q;
 		}
 	/*else overapproximation to AP_CONS_SUPEQ */
+        // fall through
      case AP_CONS_SUPEQ:
        /* ap_lincons0_t: expr(\sum ai*vi + c) >= 0  while vector c >= \sum ai*vi */
        q=(numdbl_t *)malloc((dimension+1)*sizeof(numdbl_t));
