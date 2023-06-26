@@ -490,6 +490,7 @@ bool matrix_append_itv_lincons_array(pk_internal_t* pk,
   res = true;
   j = nbrows;
   for (i=0; i<array->size; i++){
+    if (bound_infty(array->p[i].linexpr.cst->sup)) continue;
     assert(itv_linexpr_is_scalar(&array->p[i].linexpr));
     switch (array->p[i].constyp){
     case AP_CONS_EQ:
