@@ -117,9 +117,7 @@ OCAMLFIND_FILES += \
 endif
 ifneq ($(HAS_PPLITE),)
 OCAMLFIND_FILES += \
-	$(patsubst %,pplite/%, pplite.idl pplite.mli pplite.cmi pplite.cma pplite.cmx $(call OCAMLOPT_TARGETS, pplite) libap_pplite_caml.a libap_pplite_caml_debug.a dllap_pplite_caml.$(EXT_DLL)) \
-	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
-	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
+	$(patsubst %,pplite/%, pplite.idl pplite.mli pplite.cmi pplite.cma pplite.cmx $(call OCAMLOPT_TARGETS, pplite) libap_pplite_caml.a libap_pplite_caml_debug.a dllap_pplite_caml.$(EXT_DLL))
 endif
 ifneq ($(HAS_GLPK),)
 OCAMLFIND_FILES += \
