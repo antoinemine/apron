@@ -2,9 +2,11 @@ package "ppl" (
 requires = "apron.apron"
 archive(byte) = "ppl.cma"
 archive(native) = "ppl.cmxa"
+archive(native,debug) = "ppl.d.cmxa"
 )
 package "polkaGrid" (
 requires = "apron.apron apron.ppl apron.polkaMPQ"
 archive(byte) = "polkaGrid.cma"
 archive(native) = "polkaGrid.cmxa"
+archive(native,debug) = "polkaGrid.d.cmxa"
 )
