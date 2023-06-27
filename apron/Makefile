@@ -53,12 +53,14 @@ LDFLAGS += $(MP_LIFLAGS) -lm -lmpfr -lgmp
 # Rules
 #---------------------------------------
 
-LIB_FILES = libapron.a libapron_debug.a
+LIB_FILES = libapron.a
+LIB_FILES_DEBUG = libapron_debug.a
 ifneq ($(HAS_SHARED),)
-LIB_FILES += libapron.$(EXT_DLL) libapron_debug.$(EXT_DLL)
+LIB_FILES += libapron.$(EXT_DLL)
+LIB_FILES_DEBUG += libapron_debug.$(EXT_DLL)
 endif
 
-all: $(LIB_FILES)
+all: $(LIB_FILES) $(LIB_FILES_DEBUG)
 
 #---------------------------------------
 # Misc rules
@@ -82,7 +84,10 @@ install: all
 	mkdir -p $(APRON_INCLUDE)
 	cp $(H_FILES) $(APRON_INCLUDE)
 	mkdir -p $(APRON_LIB)
-	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
+	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
+ifneq ($(HAS_DEBUG),)
+	for i in $(LIB_FILES_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
+endif
 
 uninstall:
 	/bin/rm -f $(H_FILES:%=$(APRON_INCLUDE)/%)
