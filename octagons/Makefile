@@ -40,6 +40,23 @@ CCINC = oct_internal.h oct_fun.h
 LIBS = -lapron -lmpfr -lgmp -lm
 LIBS_DEBUG = -lapron_debug -lmpfr -lgmp -lm
 
+CCLIB_TO_INSTALL = liboctIl.a liboctIll.a liboctMPZ.a liboctRl.a liboctRll.a  liboctMPQ.a liboctD.a  liboctDl.a  liboctMPFR.a
+CCLIB_TO_INSTALL_DEBUG = liboctIl_debug.a liboctIll_debug.a liboctMPZ_debug.a liboctRl_debug.a liboctRll_debug.a  liboctMPQ_debug.a liboctD_debug.a  liboctDl_debug.a  liboctMPFR_debug.a
+CAMLLIB_TO_INSTALL = liboctIl_caml.a liboctIll_caml.a liboctMPZ_caml.a liboctRl_caml.a liboctRll_caml.a liboctMPQ_caml.a liboctD_caml.a liboctDl_caml.a liboctMPFR_caml.a
+CAMLLIB_TO_INSTALL_DEBUG = liboctIl_caml_debug.a liboctIll_caml_debug.a liboctMPZ_caml_debug.a liboctRl_caml_debug.a liboctRll_caml_debug.a  liboctMPQ_caml_debug.a liboctD_caml_debug.a liboctDl_caml_debug.a liboctMPFR_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+CAMLLIB_TO_INSTALL += $(call OCAMLOPT_TARGETS, $(addprefix oct, Il Ill MPZ Rl Rll MPQ D Dl MPFR))
+CAMLLIB_TO_INSTALL_DEBUG += $(call OCAMLOPT_TARGETS, $(addprefix oct, Il.d Ill.d MPZ.d Rl.d Rll.d MPQ.d D.d Dl.d MPFR.d))
+endif
+
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += liboctIl.$(EXT_DLL) liboctIll.$(EXT_DLL) liboctMPZ.$(EXT_DLL) liboctRl.$(EXT_DLL) liboctRll.$(EXT_DLL)  liboctMPQ.$(EXT_DLL) liboctD.$(EXT_DLL)  liboctDl.$(EXT_DLL)  liboctMPFR.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG += liboctIl_debug.$(EXT_DLL) liboctIll_debug.$(EXT_DLL) liboctMPZ_debug.$(EXT_DLL) liboctRl_debug.$(EXT_DLL) liboctRll_debug.$(EXT_DLL)  liboctMPQ_debug.$(EXT_DLL) liboctD_debug.$(EXT_DLL)  liboctDl_debug.$(EXT_DLL)  liboctMPFR_debug.$(EXT_DLL)
+CAMLLIB_TO_INSTALL += dlloctIl_caml.$(EXT_DLL) dlloctIll_caml.$(EXT_DLL) dlloctMPZ_caml.$(EXT_DLL) dlloctRl_caml.$(EXT_DLL) dlloctRll_caml.$(EXT_DLL)  dlloctMPQ_caml.$(EXT_DLL) dlloctD_caml.$(EXT_DLL)  dlloctDl_caml.$(EXT_DLL)  dlloctMPFR_caml.$(EXT_DLL)
+CAMLLIB_TO_INSTALL_DEBUG += dlloctIl_caml_debug.$(EXT_DLL) dlloctIll_caml_debug.$(EXT_DLL) dlloctMPZ_caml_debug.$(EXT_DLL) dlloctRl_caml_debug.$(EXT_DLL) dlloctRll_caml_debug.$(EXT_DLL)  dlloctMPQ_caml_debug.$(EXT_DLL) dlloctD_caml_debug.$(EXT_DLL)  dlloctDl_caml_debug.$(EXT_DLL)  dlloctMPFR_caml_debug.$(EXT_DLL)
+endif
+
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -114,18 +131,28 @@ install:
 	$(INSTALL) oct.h $(APRON_INCLUDE)
 	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/oct
 	for i in octtest* octtop* octrun*; do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_BIN); fi; \
 	done
-	for i in liboct*.* liboct*_debug.*; do \
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+ifeq ($(OCAMLFIND),)
+	for i in $(CAMLLIB_TO_INSTAL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+endif
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in liboct*_caml.* dlloct*_caml.$(EXT_DLL); do \
+	for i in $(CAMLLIB_TO_INSTAL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
-	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
-	done
+endif
 endif
 
 uninstall:
@@ -241,15 +268,15 @@ mlD: ml octD.cma liboctD_caml.a liboctD_caml_debug.a
 mlDl: ml octDl.cma liboctDl_caml.a liboctDl_caml_debug.a
 mlMPFR: ml octMPFR.cma liboctMPFR_caml.a liboctMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-mlIl: $(call OCAMLOPT_TARGETS, octIl)
-mlIll: $(call OCAMLOPT_TARGETS, octIll)
-mlMPZ: $(call OCAMLOPT_TARGETS, octMPZ)
-mlRi: $(call OCAMLOPT_TARGETS, octRi)
-mlRll: $(call OCAMLOPT_TARGETS, octRll)
-mlMPQ: $(call OCAMLOPT_TARGETS, octMPQ)
-mlD: $(call OCAMLOPT_TARGETS, octD)
-mlDl: $(call OCAMLOPT_TARGETS, octDl)
-mlMPFR: $(call OCAMLOPT_TARGETS, octMPFR)
+mlIl: $(call OCAMLOPT_TARGETS, octIl octIl.d)
+mlIll: $(call OCAMLOPT_TARGETS, octIll octIll.d)
+mlMPZ: $(call OCAMLOPT_TARGETS, octMPZ octMPZ.d)
+mlRi: $(call OCAMLOPT_TARGETS, octRi octRi.d)
+mlRll: $(call OCAMLOPT_TARGETS, octRll octRll.d)
+mlMPQ: $(call OCAMLOPT_TARGETS, octMPQ octMPQ.d)
+mlD: $(call OCAMLOPT_TARGETS, octD octD.d)
+mlDl: $(call OCAMLOPT_TARGETS, octDl octDl.d)
+mlMPFR: $(call OCAMLOPT_TARGETS, octMPFR octMPFR.d)
 endif
 ifneq ($(HAS_SHARED),)
 mlIl: dlloctIl_caml.$(EXT_DLL) 
@@ -273,6 +300,9 @@ oct%.cma: oct.cmo liboct%_caml.a liboct%.a
 
 oct%.cmxa oct%.a: oct.cmx liboct%_caml.a liboct%.a
 	$(OCAMLMKLIB) -o oct$* -oc oct$*_caml oct.cmx -loct$* $(LIBS)
+
+oct%.d.cmxa oct%.d.a: oct.cmx liboct%_caml_debug.a liboct%_debug.a
+	$(OCAMLMKLIB) -o oct$*.d -oc oct$*_caml_debug oct.cmx -loct$*_debug $(LIBS_DEBUG)
 
 dlloct%_caml.$(EXT_DLL) liboct%_caml.a: oct_caml.o liboct%.a
 	$(OCAMLMKLIB) -o oct$*_caml $< -L. -loct$* $(LDFLAGS) $(LIBS)

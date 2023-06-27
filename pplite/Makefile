@@ -37,6 +37,24 @@ CXXSOURCES = pplite_user.cc pplite_poly.cc
 CSOURCES = ap_pplite_test.c
 CCINC = pplite_user.hh pplite_poly.hh ap_pplite.h
 
+CCLIB_TO_INSTALL = libap_pplite.a
+CCLIB_TO_INSTALL_DEBUG = libap_pplite_debug.a
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libap_pplite.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG += libap_pplite_debug.$(EXT_DLL)
+endif
+
+CAMLLIB_TO_INSTALL = libap_pplite_caml.a pplite.idl pplite.cmi pplite.cma
+CAMLLIB_TO_INSTALL_DEBUG = libap_pplite_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+CAMLLIB_TO_INSTALL += $(call OCAMLOPT_TARGETS, pplite)
+CAMLLIB_TO_INSTALL_DEBUG = $(call OCAMLOPT_TARGETS, pplite.d)
+endif
+ifneq ($(HAS_SHARED),)
+CAMLLIB_TO_INSTALL = dllap_pplite_caml.$(EXT_DLL)
+CAMLLIB_TO_INSTALL_DEBUG = dllap_pplite_caml_debug.$(EXT_DLL)
+endif
+
 LIBS = -lapron -lpplite -lflint -lgmpxx -lmpfr -lgmp -lm
 LIBS_DEBUG = -lapron_debug -lpplite -lflint -lgmpxx -lmpfr -lgmp -lm
 
@@ -74,16 +92,23 @@ distclean: clean
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB) $(APRON_BIN)
 	$(INSTALL) ap_pplite.h $(APRON_INCLUDE)
-	for i in libap_pplite.a libap_pplite_debug.a libap_pplite.$(EXT_DLL) libap_pplite_debug.$(EXT_DLL); do \
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+ifeq ($(OCAMLFIND),)
+	for i in $(CAMLLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+endif
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
-	for i in libap_pplite_caml*.a dllap_pplite_caml*.$(EXT_DLL) pplite.idl pplite.cmi pplite.cma pplite.cmxa pplite.a; do \
+	for i in $(CAMLLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
-	for i in ap_pplite_test ap_pplite_test_debug; do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
-	done
+endif
 endif
 
 uninstall:
@@ -150,7 +175,7 @@ ap_pplite_test_debug: libap_pplite_debug.a libap_pplite_debug.$(EXT_DLL) ap_ppli
 ml: pplite.cma libap_pplite_caml.a libap_pplite_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
-ml: $(call OCAMLOPT_TARGETS, pplite)
+ml: $(call OCAMLOPT_TARGETS, pplite pplite.d)
 endif
 
 ifneq ($(HAS_SHARED),)
@@ -171,6 +196,10 @@ pplite.cma: pplite.cmo libap_pplite_caml.a libap_pplite.a
 pplite.cmxa: pplite.a
 pplite.a: pplite.cmx libap_pplite_caml.a libap_pplite.a
 	$(OCAMLMKLIB) -o pplite -oc ap_pplite_caml pplite.cmx -lap_pplite $(LIBS)
+
+pplite.d.cmxa: pplite.d.a
+pplite.d.a: pplite.cmx libap_pplite_caml_debug.a libap_pplite_debug.a
+	$(OCAMLMKLIB) -o pplite.d -oc ap_pplite_caml_debug pplite.cmx -lap_pplite_debug $(LIBS_DEBUG)
 
 
 #---------------------------------------

@@ -78,8 +78,10 @@ apronglpktop:
 rebuild:
 	@echo "$(MAKE) rebuild is no longer necessary"
 
-OCAMLFIND_PROTO = xxx.cma $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a	\
-		  libxxx_caml_debug.a
+OCAMLFIND_PROTO = xxx.cma $(call OCAMLOPT_TARGETS, xxx) libxxx_caml.a
+ifneq ($(HAS_DEBUG),)
+OCAMLFIND_PROTO += $(call OCAMLOPT_TARGETS, xxx.d)  libxxx_caml_debug.a
+endif
 ifneq ($(HAS_SHARED),)
 OCAMLFIND_PROTO += dllxxx_caml.$(EXT_DLL)
 endif
@@ -111,13 +113,13 @@ disjunction) \
 
 ifneq ($(HAS_PPL),)
 OCAMLFIND_FILES += \
-	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a libap_ppl_caml_debug.a dllap_ppl_caml.$(EXT_DLL)) \
+	$(patsubst %,ppl/%, ppl.idl ppl.mli ppl.cmi ppl.cma ppl.cmx $(call OCAMLOPT_TARGETS, ppl) libap_ppl_caml.a dllap_ppl_caml.$(EXT_DLL)) \
 	$(patsubst %,products/%, polkaGrid.idl polkaGrid.mli polkaGrid.cmi polkaGrid.cmx) \
 	$(patsubst %,products/%, $(subst xxx,polkaGrid, $(OCAMLFIND_PROTO)))
 endif
 ifneq ($(HAS_PPLITE),)
 OCAMLFIND_FILES += \
-	$(patsubst %,pplite/%, pplite.idl pplite.mli pplite.cmi pplite.cma pplite.cmx $(call OCAMLOPT_TARGETS, pplite) libap_pplite_caml.a libap_pplite_caml_debug.a dllap_pplite_caml.$(EXT_DLL))
+	$(patsubst %,pplite/%, pplite.idl pplite.mli pplite.cmi pplite.cma pplite.cmx $(call OCAMLOPT_TARGETS, pplite) libap_pplite_caml.a dllap_pplite_caml.$(EXT_DLL))
 endif
 ifneq ($(HAS_GLPK),)
 OCAMLFIND_FILES += \
@@ -184,11 +186,7 @@ ifneq ($(HAS_GLPK),)
 endif
 else
 	$(OCAMLFIND) remove apron
-	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)	\
-		$(call OCAMLOPT_TARGETS, mlapronidl/apron.d		\
-					 newpolka/polkaMPQ.d		\
-					 newpolka/polkaRll.d		\
-					 taylor1plus/t1pMPQ.d taylor1plus/t1pD.d taylor1plus/t1pMPFR.d)
+	$(OCAMLFIND) install apron mlapronidl/META $(OCAMLFIND_FILES)
 endif
 endif
 ifneq ($(HAS_CPP),)
@@ -199,7 +197,7 @@ ifneq ($(HAS_JAVA),)
 endif
 
 ifneq ($(OCAMLFIND),)
-install: mlapronidl/META
+ml: mlapronidl/META
 mlapronidl/META: mlapronidl/META.in mlapronidl/META.ppl.in mlapronidl/META.pplite.in
 	$(SED) -e "s!@VERSION@!$(VERSION_STR)!g;" $< > $@;
   ifneq ($(HAS_PPL),)

@@ -36,24 +36,25 @@ CCSRC = $(CCINC) $(CCMODULES:%=%.c)
 
 CCINC_TO_INSTALL = pk.h pkeq.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libpolkaMPQ.a libpolkaMPQ_debug.a \
-libpolkaRll.a libpolkaRll_debug.a
+CCLIB_TO_INSTALL = libpolkaMPQ.a libpolkaRll.a
+CCLIB_TO_INSTALL_DEBUG = libpolkaMPQ_debug.a libpolkaRll_debug.a
 ifneq ($(HAS_SHARED),)
-CCLIB_TO_INSTALL += \
-libpolkaMPQ.$(EXT_DLL) libpolkaMPQ_debug.$(EXT_DLL) \
-libpolkaRll.$(EXT_DLL) libpolkaRll_debug.$(EXT_DLL)
+CCLIB_TO_INSTALL += libpolkaMPQ.$(EXT_DLL) libpolkaRll.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG += libpolkaMPQ_debug.$(EXT_DLL) libpolkaRll_debug.$(EXT_DLL)
 endif
 
 CAML_TO_INSTALL = \
 polka.idl polka.mli polka.ml polka.cmi \
 polkaMPQ.cma \
 polkaRll.cma \
-libpolkaMPQ_caml.a libpolkaMPQ_caml_debug.a \
-libpolkaRll_caml.a libpolkaRll_caml_debug.a
+libpolkaMPQ_caml.a \
+libpolkaRll_caml.a
+CAML_TO_INSTALL_DEBUG = \
+libpolkaMPQ_caml_debug.a \
+libpolkaRll_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-CAML_TO_INSTALL += 							\
-	$(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ Rll MPQ.d Rll.d))
+CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ Rll))
+CAML_TO_INSTALL_DEBUG += $(call OCAMLOPT_TARGETS, $(addprefix polka,MPQ.d Rll.d))
 endif
 ifneq ($(HAS_SHARED),)
 CAML_TO_INSTALL += dllpolkaMPQ_caml.$(EXT_DLL) dllpolkaRll_caml.$(EXT_DLL)
@@ -119,12 +120,22 @@ install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
 	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+	done
+endif
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
+ifeq ($(OCAMLFIND),)
+	for i in $(CAML_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+endif
 endif
 
 uninstall:

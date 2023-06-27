@@ -42,7 +42,8 @@ endif
 
 CCMODULES = apron_caml $(IDLMODULES:%=%_caml)
 CCSRC = apron_caml.h $(CCMODULES:%=%.c)
-CCLIB_TOINSTALL = libapron_caml.a libapron_caml_debug.a
+CCLIB_TOINSTALL = libapron_caml.a
+CCLIB_TOINSTALL_DEBUG = libapron_caml_debug.a
 ifneq ($(HAS_SHARED),)
 MLLIB_TOINSTALL += dllapron_caml.$(EXT_DLL)
 endif
@@ -102,9 +103,15 @@ install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 ifeq ($(OCAMLFIND),)
 	mkdir -p $(APRON_LIB)
 	mkdir -p $(APRON_INCLUDE)
-	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
+	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
 	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_INCLUDE)
-	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then cp -f $$i $(APRON_LIB); fi; done
+	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
+endif
+ifneq ($(HAS_DEBUG),)
+ifeq ($(OCAMLFIND),)
+	for i in $(CCLIB_TOINSTALL_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
+	for i in $(MLLIB_TOINSTALL_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
+endif
 endif
 
 #---------------------------------------

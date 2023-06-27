@@ -182,6 +182,7 @@ RANLIB = ranlib
 SED = sed
 PERL = perl
 INSTALL = install
+INSTALLSTRIP = install --strip
 INSTALLd = install -d
 
 OCAMLC = ocamlc.opt
