@@ -11,26 +11,31 @@ package "boxD" (
 requires = "apron.apron"
 archive(byte) = "boxD.cma"
 archive(native) = "boxD.cmxa"
+archive(native,debug) = "boxD.d.cmxa"
 )
 package "boxMPQ" (
 requires = "apron.apron"
 archive(byte) = "boxMPQ.cma"
 archive(native) = "boxMPQ.cmxa"
+archive(native,debug) = "boxMPQ.d.cmxa"
 )
 package "boxMPFR" (
 requires = "apron.apron"
 archive(byte) = "boxMPFR.cma"
 archive(native) = "boxMPFR.cmxa"
+archive(native,debug) = "boxMPFR.d.cmxa"
 )
 package "octD" (
 requires = "apron.apron"
 archive(byte) = "octD.cma"
 archive(native) = "octD.cmxa"
+archive(native,debug) = "octD.d.cmxa"
 )
 package "octMPQ" (
 requires = "apron.apron"
 archive(byte) = "octMPQ.cma"
 archive(native) = "octMPQ.cmxa"
+archive(native,debug) = "octMPQ.d.cmxa"
 )
 package "polkaMPQ" (
 requires = "apron.apron"
@@ -66,14 +71,17 @@ package "avoD" (
 requires = "apron.apron"
 archive(byte) = "avoD.cma"
 archive(native) = "avoD.cmxa"
+archive(native,debug) = "avoD.d.cmxa"
 )
 package "avoMPQ" (
 requires = "apron.apron"
 archive(byte) = "avoMPQ.cma"
 archive(native) = "avoMPQ.cmxa"
+archive(native,debug) = "avoMPQ.d.cmxa"
 )
 package "fppD" (
 requires = "apron.apron"
 archive(byte) = "fppD.cma"
 archive(native) = "fppD.cmxa"
+archive(native,debug) = "fppD.d.cmxa"
 )
