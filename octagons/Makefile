@@ -130,7 +130,7 @@ install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/oct $(APRON_LIB) $(APRON_BIN)
 	$(INSTALL) oct.h $(APRON_INCLUDE)
 	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/oct
-	for i in octtest* octtop* octrun*; do \
+	for i in octtop* octrun*; do \
 		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_BIN); fi; \
 	done
 	for i in $(CCLIB_TO_INSTALL); do \
