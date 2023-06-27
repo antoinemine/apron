@@ -401,28 +401,40 @@ if test $? -eq 0; then echo "GMP not found, set GMP_PREFIX"; exit 1; fi
 gmp_prefix="$prefix"
 
 if test "x$mpfr_prefix" != "x"; then MPFR_PREFIX="$mpfr_prefix"; fi
-checkprefix "$cc $cflags" mpfr.h mpfr "$MPFR_PREFIX"
+# the check for mpfr depends on gmp
+deps=""
+if test "x$gmp_prefix" != "x"; then deps="$deps -I$gmp_prefix/include"; fi
+checkprefix "$cc $cflags $deps" mpfr.h mpfr "$MPFR_PREFIX"
 if test $? -eq 0; then echo "MPFR not found, set MPFR_PREFIX"; exit 1; fi
 mpfr_prefix="$prefix"
 
 if test $has_cxx -eq 1 -a $has_ppl -eq 1
 then
+    # the check for ppl depends on gmp (and gmpxx)
+    deps=""
+    if test "x$gmp_prefix" != "x"; then deps="$deps -I$gmp_prefix/include"; fi
     if test "x$ppl_prefix" != "x"; then PPL_PREFIX="$ppl_prefix"; fi
-    checkprefix "$cxx $cxxflags" ppl.hh ppl "$PPL_PREFIX"
+    checkprefix "$cxx $cxxflags $deps" ppl.hh ppl "$PPL_PREFIX"
     if test $? -eq 0; then has_ppl=0; fi
     ppl_prefix="$prefix"
 fi
 
 if test $has_cxx -eq 1 -a $has_pplite -eq 1
 then
+    # check for flint
     if test "x$flint_prefix" != "x"; then FLINT_PREFIX="$flint_prefix"; fi
-    checkprefix "$cc $cflags" flint/fmpz.h flint "$FLINT_PREFIX"
+    # the check for flint depends on mpfr and gmp
+    deps=""
+    if test "x$gmp_prefix" != "x"; then deps="$deps -I$gmp_prefix/include"; fi
+    if test "x$mpfr_prefix" != "x"; then deps="$deps -I$mpfr_prefix/include"; fi
+    checkprefix "$cc $cflags $deps" flint/fmpz.h flint "$FLINT_PREFIX"
     if test $? -eq 0; then has_flint=0; else has_flint=1; fi
     flint_prefix="$prefix"
     if test $has_flint -eq 0
     then
         has_pplite=0;
     else
+        # check for pplite (the check does not depend on flint)
         if test "x$pplite_prefix" != "x"; then PPLITE_PREFIX="$pplite_prefix"; fi
         checkprefix "$cxx $cxxflags -std=c++11" pplite/globals.hh pplite "$PPLITE_PREFIX"
         if test $? -eq 0; then has_pplite=0; fi
