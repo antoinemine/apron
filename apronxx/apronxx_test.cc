@@ -20,7 +20,7 @@
 #include "apxx_polka.hh"
 #include "apxx_t1p.hh"
 
-#if HAS_PPL
+#ifdef HAS_PPL
 #include "apxx_ppl.hh"
 #include "apxx_ppl_product.hh"
 #endif
@@ -2825,7 +2825,7 @@ void test_t1p()
 }
 
 
-#if HAS_PPL
+#ifdef HAS_PPL
 void test_ppl()
 {
   cout << endl << "PPL (polyhedra, loose)" 
@@ -2887,7 +2887,7 @@ int main()
   test_box();
   test_polka();
   test_octagon();
-#if HAS_PPL
+#ifdef HAS_PPL
   test_ppl();
 #endif
   mpfr_clear(mpfr1);
