@@ -1544,24 +1544,24 @@ ITVFUN(itv_intlinearize_ap_tcons0)(itv_internal_t* intern,
   itv_init(bound);
   itv_intlinearize_texpr0_rec(intern,cons->texpr0,env,intdim,&res->linexpr,i);
 
-  /* checks that the contraint is satisfiable */
+  /* checks that the constraint is satisfiable */
   switch (cons->constyp){
   case AP_CONS_EQ:
     itv_set_int(bound,0);
-    itv_meet(intern,i,i,bound);
+    itv_meet(intern,bound,i,bound);
     break;
   case AP_CONS_SUPEQ:
   case AP_CONS_SUP:
     itv_set_top(bound);
     bound_set_int(bound->inf,0);
     bound_set_infty(bound->sup,1);
-    itv_meet(intern,i,i,bound);
+    itv_meet(intern,bound,i,bound);
     break;
   default:
     break;
   }
 
-  if (!itv_is_bottom(intern,i) && !itv_is_bottom(intern,res->linexpr.cst)) {
+  if (!itv_is_bottom(intern,bound) && !itv_is_bottom(intern,res->linexpr.cst)) {
     if (res->linexpr.size==0){
       itv_meet(intern,res->linexpr.cst,res->linexpr.cst,i);
       res->linexpr.equality = itv_is_point(intern,res->linexpr.cst);
@@ -1609,24 +1609,24 @@ ITVFUN(itv_intlinearize_ap_tcons0_array)(itv_internal_t* intern,
       num_set_int(res->p[i].num,0);
     }
 
-    /* checks that the contraint is satisfiable */
+    /* checks that the constraint is satisfiable */
     switch (array->p[i].constyp){
     case AP_CONS_EQ:
       itv_set_int(bound,0);
-      itv_meet(intern,itv,itv,bound);
+      itv_meet(intern,bound,itv,bound);
       break;
     case AP_CONS_SUPEQ:
     case AP_CONS_SUP:
       itv_set_top(bound);
       bound_set_int(bound->inf,0);
       bound_set_infty(bound->sup,1);
-      itv_meet(intern,itv,itv,bound);
+      itv_meet(intern,bound,itv,bound);
       break;
     default:
       break;
     }
 
-    if (itv_is_bottom(intern,itv) ||
+    if (itv_is_bottom(intern,bound) ||
 	itv_is_bottom(intern,res->p[i].linexpr.cst) ||
 	(res->p[i].linexpr.size==0 ?
 	 itv_eval_cstlincons(intern,&res->p[i])==tbool_false :
