@@ -21,6 +21,8 @@ build: [
     "--no-ocaml-plugins" {os = "freebsd"}
     "--absolute-dylibs" {os = "macos"}
     "--ext-dll" {os = "win32"} "dll" {os = "win32"}
+    "--debug"
+    "--no-strip"
   ]
   [make "-j%{jobs}%"]
 ]
