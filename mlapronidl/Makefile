@@ -103,12 +103,10 @@ install: $(MLLIB_TOINSTALL) $(CCLIB_TOINSTALL) $(CCINC_TOINSTALL)
 ifeq ($(OCAMLFIND),)
 	mkdir -p $(APRON_LIB)
 	mkdir -p $(APRON_INCLUDE)
-	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
+	for i in $(CCLIB_TOINSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 	$(INSTALL) $(CCINC_TOINSTALL) $(APRON_INCLUDE)
-	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
-endif
+	for i in $(MLLIB_TOINSTALL); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 ifneq ($(HAS_DEBUG),)
-ifeq ($(OCAMLFIND),)
 	for i in $(CCLIB_TOINSTALL_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 	for i in $(MLLIB_TOINSTALL_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 endif

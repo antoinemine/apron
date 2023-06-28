@@ -139,7 +139,7 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
 ifneq ($(HAS_DEBUG),)
