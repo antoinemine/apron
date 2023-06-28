@@ -83,22 +83,26 @@ install:
 	for i in $(CCLIB_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
 	done
+ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
 	for i in $(CAMLLIB_TO_INSTALL) ppl.idl ppl.cmi ppl.cma; do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
-	for i in ap_ppl_test pplrun ppltop; do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_BIN); fi; \
+	for i in pplrun ppltop; do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 	done
+endif
 endif
 ifneq ($(HAS_DEBUG),)
 	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
+ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
 	for i in $(CAMLLIB_TO_INSTALL_DEBUG); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
+endif
 endif
 endif
 

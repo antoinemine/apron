@@ -138,10 +138,10 @@ install:
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAMLLIB_TO_INSTAL); do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 	for i in oct.idl oct.mli oct.cmi oct.cmx oct*.cma oct*.cmxa oct*.a; do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
 ifneq ($(HAS_DEBUG),)

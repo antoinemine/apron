@@ -139,10 +139,10 @@ install:
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAMLLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 	for i in avo.idl avo.mli avo.cmi avo.cmx avo*.cma avo*.cmxa avo*.a; do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
 endif
 ifneq ($(HAS_DEBUG),)
