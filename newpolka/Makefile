@@ -18,7 +18,6 @@ CMXSINC = $(APRON_CMXSINC) -I .
 #---------------------------------------
 
 CCMODULES = \
-mf_qsort \
 pk_user pk_internal pk_bit pk_satmat pk_vector pk_matrix pk_cherni \
 pk_representation pk_approximate pk_constructor pk_test pk_extract \
 pk_meetjoin pk_assign pk_project pk_resize pk_expandfold \
@@ -27,7 +26,7 @@ pkeq
 
 CCINC = \
 pk_config.h pk.h pkeq.h \
-mf_qsort.h pk_internal.h \
+pk_qsort.h pk_internal.h \
 pk_user.h pk_bit.h pk_satmat.h pk_vector.h pk_matrix.h pk_cherni.h \
 pk_representation.h pk_constructor.h pk_test.h pk_extract.h \
 pk_meetjoin.h pk_assign.h pk_resize.h
