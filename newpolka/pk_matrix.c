@@ -12,7 +12,7 @@
 #include "pk_vector.h"
 #include "pk_satmat.h"
 #include "pk_matrix.h"
-#include "mf_qsort.h"
+#include "pk_qsort.h"
 
 /* ********************************************************************** */
 /* I. basic operations: creation, destruction, copying and printing */
@@ -304,6 +304,8 @@ static int qsort_rows_compar(void* qsort_man, void* pq1, void* pq2)
   return vector_compare(qm->pk,q1,q2,qm->size);
 }
 
+MAKE_SORT(qsort_rows, numint_t*, qsort_rows_compar)
+
 void matrix_sort_rows(pk_internal_t* pk,
 		      matrix_t* mat)
 {
@@ -312,9 +314,7 @@ void matrix_sort_rows(pk_internal_t* pk,
   if (!mat->_sorted){
     qsort_man.pk = pk;
     qsort_man.size = mat->nbcolumns;
-    qsort2(mat->p, mat->nbrows, sizeof(numint_t*),
-	   qsort_rows_compar,
-	   &qsort_man);
+    qsort_rows(mat->p, mat->nbrows, &qsort_man);
     mat->_sorted = true;
   }
 }
@@ -338,6 +338,8 @@ static int qsort_rows_with_sat_compar(void* qsort_man, void* q1, void* q2)
 			 qm->size );
 }
 
+MAKE_SORT(qsort_rows_with_sat, qsort_t, qsort_rows_with_sat_compar)
+
 void matrix_sort_rows_with_sat(pk_internal_t* pk,
 			       matrix_t* mat, satmat_t* sat)
 {
@@ -353,10 +355,7 @@ void matrix_sort_rows_with_sat(pk_internal_t* pk,
       qsort_tab[i].p = mat->p[i];
       qsort_tab[i].satp = sat->p[i];
     }
-    qsort2(qsort_tab,
-	   mat->nbrows, sizeof(qsort_t),
-	   qsort_rows_with_sat_compar,
-	   &qsort_man);
+    qsort_rows_with_sat(qsort_tab, mat->nbrows, &qsort_man);
     for (i=0; i<mat->nbrows; i++){
       mat->p[i] = qsort_tab[i].p;
       sat->p[i] = qsort_tab[i].satp;
