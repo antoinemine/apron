@@ -40,7 +40,7 @@
       }                                                                 \
                                                                         \
       /* partition */                                                   \
-      while (true) {                                                    \
+      while (1) {                                                       \
         while (CMP(param, beg, &pivot) < 0) beg++;                      \
         while (CMP(param, &pivot, end) < 0) end--;                      \
         if (beg >= end) break;                                          \
