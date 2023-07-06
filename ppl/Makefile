@@ -38,6 +38,22 @@ CCINC = ppl_user.hh ppl_poly.hh ppl_grid.hh ppl_grid.h ap_ppl.h
 LIBS = -lppl -lapron -lgmpxx -lmpfr -lgmp -lm
 LIBS_DEBUG = -lppl -lapron_debug -lgmpxx -lmpfr -lgmp -lm
 
+CCLIB_TO_INSTALL = libap_ppl.a
+CCLIB_TO_INSTALL_DEBUG = libap_ppl_debug.a
+CAMLLIB_TO_INSTALL = libap_ppl_caml.a
+CAMLLIB_TO_INSTALL_DEBUG = libap_ppl_caml_debug.a
+ifneq ($(HAS_OCAMLOPT),)
+CAMLLIB_TO_INSTALL += $(call OCAMLOPT_TARGETS, ppl)
+CAMLLIB_TO_INSTALL_DEBUG += $(call OCAMLOPT_TARGETS, ppl.d)
+endif
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libap_ppl.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG += libap_ppl_debug.$(EXT_DLL)
+CAMLLIB_TO_INSTALL += dllap_ppl_caml.$(EXT_DLL)
+CAMLLIB_TO_INSTALL_DEBUG += dllap_ppl_caml_debug.$(EXT_DLL)
+endif
+
+
 #---------------------------------------
 # Rules
 #---------------------------------------
@@ -64,16 +80,30 @@ distclean: clean
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB) $(APRON_BIN)
 	$(INSTALL) ap_ppl.h $(APRON_INCLUDE)
-	for i in libap_ppl.a libap_ppl_debug.a libap_ppl.$(EXT_DLL) libap_ppl_debug.$(EXT_DLL); do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
 	done
+ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
-	for i in libap_ppl_caml*.a dllap_ppl_caml*.$(EXT_DLL) ppl.idl ppl.cmi ppl.cma ppl.cmxa ppl.a; do \
+	for i in $(CAMLLIB_TO_INSTALL) ppl.idl ppl.cmi ppl.cma; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
-	for i in ap_ppl_test pplrun ppltop; do \
+	for i in pplrun ppltop; do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
 	done
+endif
+endif
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+ifneq ($(HAS_OCAML),)
+ifeq ($(OCAMLFIND),)
+	for i in $(CAMLLIB_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+endif
+endif
 endif
 
 uninstall:
@@ -136,7 +166,7 @@ ap_ppl_test: libap_ppl_debug.a libap_ppl_debug.$(EXT_DLL) ppl_test_debug.o
 ml: ppl.cma libap_ppl_caml.a libap_ppl_caml_debug.a
 
 ifneq ($(HAS_OCAMLOPT),)
-ml: $(call OCAMLOPT_TARGETS, ppl)
+ml: $(call OCAMLOPT_TARGETS, ppl ppl.d)
 endif
 
 ifneq ($(HAS_SHARED),)
@@ -167,6 +197,10 @@ ppl.cma: ppl.cmo libap_ppl_caml.a libap_ppl.a
 ppl.cmxa: ppl.a
 ppl.a: ppl.cmx libap_ppl_caml.a libap_ppl.a
 	$(OCAMLMKLIB) -o ppl -oc ap_ppl_caml ppl.cmx -lap_ppl $(LDFLAGS) $(LIBS)
+
+ppl.d.cmxa: ppl.d.a
+ppl.d.a: ppl.cmx libap_ppl_caml_debug.a libap_ppl_debug.a
+	$(OCAMLMKLIB) -o ppl.d -oc ap_ppl_caml_debug ppl.cmx -lap_ppl_debug $(LDFLAGS) $(LIBS_DEBUG)
 
 
 #---------------------------------------

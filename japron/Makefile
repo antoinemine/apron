@@ -181,7 +181,7 @@ doc:
 install:
 	$(INSTALLd) $(APRON_LIB); \
 	for i in $(SOINST); do \
-		$(INSTALL) $$i $(APRON_LIB); \
+		$(INSTALLSTRIP) $$i $(APRON_LIB); \
 	done; \
 	$(INSTALLd) $(JAVA_PREFIX); \
 	for i in $(JAVAINST); do \
