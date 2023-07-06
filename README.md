@@ -22,9 +22,9 @@ Apron includes the following numeric domains:
 * zonotopes (taylor1plus)
 
 Additional domains are made available through the optional PPL and PPLite third-party libraries:
-* alternate polyhedra implementation
-* grids
-* reduced products of polyhedra and grids
+* alternate polyhedra implementation (PPL, PPLite)
+* grids (PPL)
+* reduced products of polyhedra and grids (PPL)
 
 The domains are made available under a common interface, so that changing the abstract domain of interpretation in a static analysis should only take a one-line change.
 
@@ -103,6 +103,17 @@ In case some components fail to compile, it is possible to disable them through 
 
 See `./configure -help` for more options.
 
+
+### Debug versions
+
+By default, `make install` now only install non-debug versions of the C libraries.
+Moreover, these are striped of symbols.
+
+Use the `-debug` `./configure` option to also install debug (non-stripped) C versions, and `-no-strip` to avoid stripping the non-debug C versions.
+The C debug versions have a `_debug` suffix (such as `libapron_debug.so`).
+
+When installing with `opam`, debug versions are always available.
+OCaml debug libraries use the `.d` suffix (such as `apron.d.cmxa`).
 
 
 ### Installation on MacOS X
