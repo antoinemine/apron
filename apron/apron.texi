@@ -2,7 +2,7 @@
 @c -*-texinfo-*-
 @c %**start of header
 @setfilename apron.info
-@settitle APRON 0.9.13
+@settitle APRON 0.9.14
 @c @setcontentsaftertitlepage
 @c include version.texi
 @iftex
