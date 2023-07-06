@@ -19,8 +19,7 @@
 #include "pk_user.h"
 #include "pk_constructor.h"
 #include "pk_test.h"
-
-#include "mf_qsort.h"
+#include "pk_qsort.h"
 
 typedef struct satmat_row_t {
   bitstring_t* p; 
@@ -76,14 +75,14 @@ static int qsort_rows_compar(void* qsort_man, void* p1, void* p2)
 			 qm->size));
 }
 
+MAKE_SORT(qsort_rows, satmat_row_t, qsort_rows_compar)
+
 static void esatmat_sort_rows(satmat_row_t* tab, satmat_t* sat)
 {
   if (sat->nbrows>=6){
     qsort_man_t qsort_man;
     qsort_man.size = sat->nbcolumns;
-    qsort2(tab,
-	  (size_t)sat->nbrows, sizeof(satmat_row_t),
-	   qsort_rows_compar, &qsort_man);
+    qsort_rows(tab, (size_t)sat->nbrows, &qsort_man);
   }
   else {
     esatmat_isort_rows(tab,sat);
