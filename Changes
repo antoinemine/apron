@@ -18,7 +18,7 @@ Version 0.9.14
 
 - Apple M1 support (#68)
 
-- Fix some corner cases for boxes and polyehdra (#85, #83, #82, #81, #80, #63, #43, #35)
+- Fix some corner cases for boxes and polyhedra (#85, #83, #82, #81, #80, #63, #43, #35)
 
 
 Version 0.9.13
