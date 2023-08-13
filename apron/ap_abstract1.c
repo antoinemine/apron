@@ -1203,16 +1203,24 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
   /* Compute the permutation for "exchanging" dim and tdim[0] if necessary  */
   if (dim!=tdim[0]){
     size_t rank;
-    /* Due to reordering tdim, we have now folded the variables in tdim[0]
-       instead of dim.
+    /* Due to reordering of tdim, we have now folded the variables
+       into tdim[0] instead of dim.
 
-       We construct a permutation to exchange dim and tdim[0].
+       To fix this, we construct a permutation to exchange dim and tdim[0].
 
-       Due to folding, the oroginal position of dim has changed:
-       it is now dim-index, where index is the index of dim in
-       the (unsorted) original array.
+       Due to folding, the position of dim has changed in the result.
+       Then new position is dim-index, where index is the position of
+       dim in tdim, i.e., the number of variables that have been removed
+       before dim.
 
-       We thus rotate all indices between tdim[0] and dim-index left.
+       We then rotate all indices between tdim[0] and dim-index left.
+
+       Example:
+       We want to fold 1 into 4 (dim).
+       We first sort tdmin as [1;4].
+       Level 0 folding will actuall fold 4 (dim) into 1 (tdim[0]),
+       and remove 4.
+       We thus rotate left variables at positions 1, 2, 3 (after folding).
 
                 tdim[0]  dim
                     v     v
