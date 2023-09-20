@@ -20,6 +20,7 @@ Version 0.9.14
 
 - Fix some corner cases for boxes and polyhedra (#85, #83, #82, #81, #80, #63, #43, #35)
 
+- Fix level 1 fold (#90)
 
 Version 0.9.13
 
