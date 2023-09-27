@@ -86,7 +86,7 @@ public class Texpr1VarNode
 
     public boolean hasVar(Var v)
     {
-        return var==v;
+        return var.compareTo(v) == 0;
     }
 
     protected void fillVars(HashSet<Var> set)
