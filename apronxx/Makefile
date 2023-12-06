@@ -85,7 +85,9 @@ distclean: clean
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/apronxx $(APRON_LIB)
 	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/apronxx
-	$(INSTALLSTRIP) $(CCLIB_TO_INSTALL) $(APRON_LIB)
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
+	done
 ifneq ($(HAS_DEBUG),)
 	$(INSTALL) $(CCLIB_TO_INSTALL_DEBUG) $(APRON_LIB)
 endif
