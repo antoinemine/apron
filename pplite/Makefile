@@ -55,8 +55,8 @@ CAMLLIB_TO_INSTALL = dllap_pplite_caml.$(EXT_DLL)
 CAMLLIB_TO_INSTALL_DEBUG = dllap_pplite_caml_debug.$(EXT_DLL)
 endif
 
-LIBS = -lapron -lpplite -lflint -lgmpxx -lmpfr -lgmp -lm
-LIBS_DEBUG = -lapron_debug -lpplite -lflint -lgmpxx -lmpfr -lgmp -lm
+LIBS = -lapron -lpplite -lflint -lmpfr -lgmp -lm
+LIBS_DEBUG = -lapron_debug -lpplite -lflint -lmpfr -lgmp -lm
 
 #---------------------------------------
 # Rules

@@ -33,7 +33,7 @@ using @samp{g++} (instead of @samp{gcc})
 because @file{libpplite.a} is a C++ library,
 adding link options
 @samp{-L$(APRON_PREFIX)/lib -lap_pplite -L$(PPLITE_PREFIX)/lib -lpplite
--L$(FLINT_PREFIX)/lib -lflint -L$(GMP_PREFIX)/lib -lgmpxx}
+-L$(FLINT_PREFIX)/lib -lflint}
 (followed by the standard @samp{-lapron -litvmpq -litvdbl
 -L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp}).
 

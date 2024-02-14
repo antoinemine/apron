@@ -66,21 +66,23 @@ to_generator(const Gen& g, bool& exact) {
 Cons
 to_Cons(ap_interval_t** a, size_t intdim, size_t realdim, bool& exact) {
   exact = true;
-  mpq_class temp;
   size_t nb = intdim+realdim;
-  mpq_ptr mpq = temp.get_mpq_t();
+  mpq_t temp;
+  mpq_init(temp);
+  mpz_ptr temp_num = mpq_numref(temp);
+  mpz_ptr temp_den = mpq_denref(temp);
 
   Cons r;
   for (size_t i = 0; i < nb; ++i) {
     /* inf */
     switch (ap_scalar_infty(a[i]->inf)) {
     case 0:
-      exact = !ap_mpq_set_scalar(mpq,a[i]->inf, GMP_RNDD) && exact;
+      exact = !ap_mpq_set_scalar(temp, a[i]->inf, GMP_RNDD) && exact;
       if (i < intdim) {
-        mpz_fdiv_q(mpq_numref(mpq), mpq_numref(mpq), mpq_denref(mpq));
-        mpz_set_ui(mpq_denref(mpq), 1);
+        mpz_fdiv_q(temp_num, temp_num, temp_den);
+        mpz_set_ui(temp_den, 1);
       }
-      r.push_back(Integer(temp.get_den()) * Var(i) >= Integer(temp.get_num()));
+      r.push_back(Integer(temp_den) * Var(i) >= Integer(temp_num));
       break;
     case -1:
       break;
@@ -88,6 +90,7 @@ to_Cons(ap_interval_t** a, size_t intdim, size_t realdim, bool& exact) {
       r.clear();
       r.push_back(Con::zero_dim_false());
       exact = true;
+      mpq_clear(temp);
       return r;
     default:
       assert(false);
@@ -95,12 +98,12 @@ to_Cons(ap_interval_t** a, size_t intdim, size_t realdim, bool& exact) {
     /* sup */
     switch (ap_scalar_infty(a[i]->sup)) {
     case 0:
-      exact = !ap_mpq_set_scalar(mpq,a[i]->sup, GMP_RNDU) && exact;
+      exact = !ap_mpq_set_scalar(temp, a[i]->sup, GMP_RNDU) && exact;
       if (i<intdim){
-        mpz_fdiv_q(mpq_numref(mpq),mpq_numref(mpq),mpq_denref(mpq));
-        mpz_set_ui(mpq_denref(mpq),1);
+        mpz_fdiv_q(temp_num, temp_num, temp_den);
+        mpz_set_ui(temp_den, 1);
       }
-      r.push_back(Integer(temp.get_den()) * Var(i) <= Integer(temp.get_num()));
+      r.push_back(Integer(temp_den) * Var(i) <= Integer(temp_num));
       break;
     case 1:
       break;
@@ -108,11 +111,13 @@ to_Cons(ap_interval_t** a, size_t intdim, size_t realdim, bool& exact) {
       r.clear();
       r.push_back(Con::zero_dim_false());
       exact = true;
+      mpq_clear(temp);
       return r;
     default:
       assert(false);
     }
   }
+  mpq_clear(temp);
   return r;
 }
 
