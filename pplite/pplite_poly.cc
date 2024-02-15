@@ -111,14 +111,14 @@ to_itv_array(pplite_poly* a) {
     if (bbox.inf_ub(i))
       bound_set_infty(env[i]->sup, 1);
     else {
-      mpq_set(temp, bbox.ub(i));
+      bbox.ub(i).get_mpq(temp);
       bound_set_int(env[i]->sup, 0);
       numrat_set_mpq(env[i]->sup, temp);
     }
     if (bbox.inf_lb(i))
       bound_set_infty(env[i]->inf, -1);
     else {
-      mpq_set(temp, bbox.lb(i));
+      bbox.lb(i).get_mpq(temp);
       bound_set_int(env[i]->inf, 0);
       numrat_set_mpq(env[i]->inf, temp);
       numrat_neg(env[i]->inf, env[i]->inf);

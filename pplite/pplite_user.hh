@@ -47,7 +47,7 @@ class cannot_convert: public std::exception {};
 inline void
 to_scalar(ap_scalar_t* s, const Integer& i) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  mpz_set(mpq_numref(s->val.mpq), i);
+  i.get_mpz(mpq_numref(s->val.mpq));
   mpz_set_ui(mpq_denref(s->val.mpq), 1);
 }
 
@@ -56,8 +56,8 @@ inline void
 to_scalar(ap_scalar_t* s,
           const Integer& n, const Integer& d) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  mpz_set(mpq_numref(s->val.mpq), n);
-  mpz_set(mpq_denref(s->val.mpq), d);
+  n.get_mpz(mpq_numref(s->val.mpq));
+  d.get_mpz(mpq_denref(s->val.mpq));
   mpq_canonicalize(s->val.mpq);
 }
 
@@ -65,8 +65,7 @@ to_scalar(ap_scalar_t* s,
 inline void
 to_scalar(ap_scalar_t* s, const Rational& r) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  mpz_set(mpq_numref(s->val.mpq), r.get_num());
-  mpz_set(mpq_denref(s->val.mpq), r.get_den());
+  r.get_mpq(s->val.mpq);
   // No need to canonicalize
 }
 
