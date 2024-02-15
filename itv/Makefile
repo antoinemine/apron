@@ -87,10 +87,10 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
 	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
 	done
 #	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_BIN); fi; \
+#		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); $(STRIP) $(APRON_BIN)/$$i; fi; \
 #	done
 ifneq ($(HAS_DEBUG),)
 	for i in $(CCLIB_TO_INSTALL_DEBUG); do \

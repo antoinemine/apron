@@ -84,7 +84,7 @@ install: all
 	mkdir -p $(APRON_INCLUDE)
 	cp $(H_FILES) $(APRON_INCLUDE)
 	mkdir -p $(APRON_LIB)
-	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; done
+	for i in $(LIB_FILES); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i;  fi; done
 ifneq ($(HAS_DEBUG),)
 	for i in $(LIB_FILES_DEBUG); do if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; done
 endif
