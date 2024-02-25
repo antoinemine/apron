@@ -81,7 +81,7 @@ install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB) $(APRON_BIN)
 	$(INSTALL) ap_ppl.h $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALLSTRIP) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
 	done
 ifneq ($(HAS_OCAML),)
 ifeq ($(OCAMLFIND),)
