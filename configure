@@ -71,7 +71,7 @@ has_java=1
 force_absolute_dylib_install_names=0;
 ext_dll=so
 has_debug=0
-do_strip=--strip
+strip="strip --strip-unneeded"
 while : ; do
     case "$1" in
         "") 
@@ -126,7 +126,7 @@ while : ; do
         -debug|--debug)
             has_debug=1;;
         -no-strip|--no-strip)
-            do_strip=;;
+            strip=echo;;
         -help|--help)
             help;;
         *)
@@ -616,7 +616,8 @@ detected configuration:
    
    installation path            $apron_prefix
    dynamic libraries extension  $ext_dll
-   install (stripped) command   $install ($do_strip)
+   install command              $install
+   strip command                $strip
 
 EOF
 
@@ -694,7 +695,7 @@ RANLIB = $ranlib
 SED = $sed
 PERL = perl
 INSTALL = $install
-INSTALLSTRIP = $install $do_strip
+STRIP = $strip
 INSTALLd = $install -d
 
 CAML_PREFIX = $caml_prefix
