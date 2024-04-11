@@ -21,10 +21,10 @@
 
 /* Bounding the value of a dimension in a matrix of generators. */
 
-void matrix_bound_dimension(pk_internal_t* pk,
+void pk_matrix_bound_dimension(pk_internal_t* pk,
 			    itv_t itv,
 			    ap_dim_t dim,
-			    matrix_t* F)
+			    pk_matrix_t* F)
 {
   size_t i, index;
   int sgn;
@@ -74,8 +74,8 @@ void matrix_bound_dimension(pk_internal_t* pk,
   }
 }
 
-itv_t* matrix_to_box(pk_internal_t* pk,
-		     matrix_t* F)
+itv_t* pk_matrix_to_box(pk_internal_t* pk,
+		     pk_matrix_t* F)
 {
   size_t i,dim;
   itv_t* res;
@@ -85,7 +85,7 @@ itv_t* matrix_to_box(pk_internal_t* pk,
   dim = F->nbcolumns - pk->dec;
   res = itv_array_alloc(dim);
   for (i=0;i<dim;i++){
-    matrix_bound_dimension(pk,res[i],i,F);
+    pk_matrix_bound_dimension(pk,res[i],i,F);
   }
   return res;
 }
@@ -94,10 +94,10 @@ itv_t* matrix_to_box(pk_internal_t* pk,
    generators.  vec is supposed to be of size F->nbcolumns.
 */
 
-void matrix_bound_vector(pk_internal_t* pk,
+void pk_matrix_bound_vector(pk_internal_t* pk,
 			 itv_t itv,
 			 numint_t* vec,
-			 matrix_t* F)
+			 pk_matrix_t* F)
 {
   size_t i;
   int sgn;
@@ -201,10 +201,10 @@ void vector_bound_itv_linexpr(pk_internal_t* pk,
    matrix of generators.
 */
 static
-void matrix_bound_itv_linexpr(pk_internal_t* pk,
+void pk_matrix_bound_itv_linexpr(pk_internal_t* pk,
 			      itv_t itv,
 			      itv_linexpr_t* linexpr,
-			      matrix_t* F)
+			      pk_matrix_t* F)
 {
   size_t i;
   int sgn;
@@ -287,7 +287,7 @@ ap_interval_t* pk_bound_dimension(ap_manager_t* man,
   }
 
   itv_init(itv);
-  matrix_bound_dimension(pk,itv,dim,po->F);
+  pk_matrix_bound_dimension(pk,itv,dim,po->F);
   ap_interval_set_itv(pk->itv,interval, itv);
   itv_clear(itv);
   man->result.flag_exact = man->result.flag_best = 
@@ -334,7 +334,7 @@ ap_interval_t* pk_bound_linexpr(ap_manager_t* man,
 				      &pk->poly_itv_linexpr,
 				      expr);
   itv_init(itv);
-  matrix_bound_itv_linexpr(pk,itv,&pk->poly_itv_linexpr,po->F);
+  pk_matrix_bound_itv_linexpr(pk,itv,&pk->poly_itv_linexpr,po->F);
   ap_interval_set_itv(pk->itv,interval,itv);
   itv_clear(itv);
   
@@ -373,11 +373,11 @@ ap_interval_t* pk_bound_texpr(ap_manager_t* man,
     man->result.flag_exact = man->result.flag_best = true;
     return interval;
   }
-  env = matrix_to_box(pk,po->F);
+  env = pk_matrix_to_box(pk,po->F);
   itv_intlinearize_ap_texpr0(pk->itv,&pk->poly_itv_linexpr,
 			     expr,env,po->intdim);
   itv_init(itv1); itv_init(itv2);
-  matrix_bound_itv_linexpr(pk,itv1,&pk->poly_itv_linexpr,po->F);
+  pk_matrix_bound_itv_linexpr(pk,itv1,&pk->poly_itv_linexpr,po->F);
   itv_eval_ap_texpr0(pk->itv,itv2,expr,env);
   itv_meet(pk->itv,itv1,itv1,itv2);
   ap_interval_set_itv(pk->itv,interval,itv1);
@@ -397,7 +397,7 @@ ap_lincons0_array_t pk_to_lincons_array(ap_manager_t* man,
 					pk_t* po)
 {
   ap_lincons0_array_t array;
-  matrix_t* C;
+  pk_matrix_t* C;
   size_t i,k;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_LINCONS_ARRAY);
 
@@ -469,7 +469,7 @@ ap_interval_t** pk_to_box(ap_manager_t* man,
     }
   }
   else {
-    titv = matrix_to_box(pk,po->F);
+    titv = pk_matrix_to_box(pk,po->F);
     for (i=0; i<dim; i++){
       ap_interval_set_itv(pk->itv,interval[i],titv[i]);
     }
@@ -490,7 +490,7 @@ ap_generator0_array_t pk_to_generator_array(ap_manager_t* man,
 					    pk_t* po)
 {
   ap_generator0_array_t array;
-  matrix_t* F;
+  pk_matrix_t* F;
   size_t i,k;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_TO_GENERATOR_ARRAY);
 

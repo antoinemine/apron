@@ -68,7 +68,7 @@ struct pk_internal_t {
   ap_dim_t* poly_dimp;                /* of size maxdims */
   ap_dim_t* poly_dimp2;               /* of size maxdims */
   ap_dim_t* poly_fold_dimp;               /* of size maxdims */
-  struct matrix_t* poly_matspecial; 
+  struct pk_matrix_t* poly_matspecial; 
   numint_t poly_prod; 
 };
 

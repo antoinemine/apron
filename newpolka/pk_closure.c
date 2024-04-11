@@ -20,7 +20,7 @@
 
 pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
 {
-  matrix_t* C;
+  pk_matrix_t* C;
   bool change,positivity;
   size_t i;
   pk_t* po;
@@ -45,7 +45,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
     return po;
   }
   if (!destructive){
-    po->C = matrix_copy(pa->C);
+    po->C = pk_matrix_copy(pa->C);
   }
   
   C = po->C;
@@ -71,7 +71,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
       size_t nbrows;
       /* we should add it */
       nbrows = C->nbrows;
-      matrix_resize_rows_lazy(C,C->nbrows+1);
+      pk_matrix_resize_rows_lazy(C,C->nbrows+1);
       q = C->p[nbrows];
       numint_set_int(q[0],1);
       numint_set_int(q[polka_cst],1);
@@ -80,7 +80,7 @@ pk_t* pk_closure(ap_manager_t* man, bool destructive, pk_t* pa)
     }
     C->_sorted = false;
     if (destructive){
-      if (po->F) matrix_free(po->F);
+      if (po->F) pk_matrix_free(po->F);
       if (po->satC) satmat_free(po->satC);
       if (po->satF) satmat_free(po->satF);
       po->F = NULL;

@@ -27,8 +27,8 @@ void vector_remove_dimensions(pk_internal_t* pk,
 			      numint_t* q, size_t size,
 			      ap_dimchange_t* dimchange);
 
-matrix_t* matrix_add_dimensions(pk_internal_t* pk,
-				bool destructive, matrix_t* mat,
+pk_matrix_t* pk_matrix_add_dimensions(pk_internal_t* pk,
+				bool destructive, pk_matrix_t* mat,
 				ap_dimchange_t* dimchange);
 
 #ifdef __cplusplus

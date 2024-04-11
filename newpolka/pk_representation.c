@@ -76,8 +76,8 @@ pk_t* poly_alloc(size_t intdim, size_t realdim)
 /* Clearing a polyhedron */
 void poly_clear(pk_t* po)
 {
-  if (po->C) matrix_free(po->C);
-  if (po->F) matrix_free(po->F);
+  if (po->C) pk_matrix_free(po->C);
+  if (po->F) pk_matrix_free(po->F);
   if (po->satC) satmat_free(po->satC);
   if (po->satF) satmat_free(po->satF);
   po->C = NULL;
@@ -96,8 +96,8 @@ void poly_set(pk_t* pa, pk_t* pb)
     poly_clear(pa);
     pa->intdim = pb->intdim;
     pa->realdim = pb->realdim;
-    pa->C = pb->C ? matrix_copy(pb->C) : NULL;
-    pa->F = pb->F ? matrix_copy(pb->F) : NULL;
+    pa->C = pb->C ? pk_matrix_copy(pb->C) : NULL;
+    pa->F = pb->F ? pk_matrix_copy(pb->F) : NULL;
     pa->satC = pb->satC ? satmat_copy(pb->satC) : NULL;
     pa->satF = pb->satF ? satmat_copy(pb->satF) : NULL;
     pa->status = pb->status;
@@ -111,8 +111,8 @@ void poly_set(pk_t* pa, pk_t* pb)
 pk_t* pk_copy(ap_manager_t* man, pk_t* po)
 {
   pk_t* npo = poly_alloc(po->intdim,po->realdim);
-  npo->C = po->C ? matrix_copy(po->C) : 0;
-  npo->F = po->F ? matrix_copy(po->F) : 0;
+  npo->C = po->C ? pk_matrix_copy(po->C) : 0;
+  npo->F = po->F ? pk_matrix_copy(po->F) : 0;
   npo->satC = po->satC ? satmat_copy(po->satC) : 0;
   npo->satF = po->satF ? satmat_copy(po->satF) : 0;
   npo->nbeq = po->nbeq;
@@ -165,16 +165,16 @@ void poly_chernikova(ap_manager_t* man,
   else {
     if (po->C){
       if (!poly_is_conseps(pk,po) ){
-	matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
+	pk_matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
       }
-      matrix_sort_rows(pk,po->C);
+      pk_matrix_sort_rows(pk,po->C);
       cherni_minimize(pk,true,po);
       if (pk->exn) goto poly_chernikova_exit0;
       po->status = pk_status_consgauss;
     }
     else {
       po->C = po->F; po->F = NULL;
-      matrix_sort_rows(pk,po->C);
+      pk_matrix_sort_rows(pk,po->C);
       cherni_minimize(pk,false,po);
       poly_dual(po);
       if (pk->exn) goto poly_chernikova_exit0;
@@ -228,7 +228,7 @@ void poly_chernikova2(ap_manager_t* man,
     assert((po->status & pk_status_minimaleps) &&
 	   (po->status & pk_status_conseps));
     if (change){
-      matrix_sort_rows(pk,po->C);
+      pk_matrix_sort_rows(pk,po->C);
       cherni_minimize(pk, true, po);
       if (pk->exn) goto poly_chernikova2_exit0;
       assert(po->C && po->F);
@@ -285,8 +285,8 @@ void poly_chernikova3(ap_manager_t* man,
 	   (po->status | pk_status_consgauss) &&
 	   (po->status | pk_status_gengauss) &&
 	   (po->status | pk_status_minimaleps));
-    assert(matrix_check_gauss(po->C,po->nbeq));
-    assert(matrix_check_gauss(po->F,po->nbline));
+    assert(pk_matrix_check_gauss(po->C,po->nbeq));
+    assert(pk_matrix_check_gauss(po->F,po->nbline));
   }
 }
 
@@ -294,18 +294,18 @@ void poly_obtain_sorted_F(pk_internal_t* pk, pk_t* po)
 {
   assert (po->F);
 
-  if (!matrix_is_sorted(po->F)){
+  if (!pk_matrix_is_sorted(po->F)){
     if (po->satC){
       if (po->satF){ satmat_free(po->satF); po->satF = 0; }
-      matrix_sort_rows_with_sat(pk,po->F,po->satC);
+      pk_matrix_sort_rows_with_sat(pk,po->F,po->satC);
     }
     else if (po->satF){
       po->satC = satmat_transpose(po->satF,po->F->nbrows);
       satmat_free(po->satF); po->satF = 0;
-      matrix_sort_rows_with_sat(pk,po->F,po->satC);
+      pk_matrix_sort_rows_with_sat(pk,po->F,po->satC);
     }
     else {
-      matrix_sort_rows(pk,po->F);
+      pk_matrix_sort_rows(pk,po->F);
     }
   }
 }
@@ -314,18 +314,18 @@ void poly_obtain_sorted_C(pk_internal_t* pk, pk_t* po)
 {
   assert (po->C);
 
-  if (!matrix_is_sorted(po->C)){
+  if (!pk_matrix_is_sorted(po->C)){
     if (po->satF){
       if (po->satC){ satmat_free(po->satC); po->satC = 0; }
-      matrix_sort_rows_with_sat(pk,po->C,po->satF);
+      pk_matrix_sort_rows_with_sat(pk,po->C,po->satF);
     }
     else if (po->satC){
       po->satF = satmat_transpose(po->satC,po->C->nbrows);
       satmat_free(po->satC); po->satC = 0;
-      matrix_sort_rows_with_sat(pk,po->C,po->satF);
+      pk_matrix_sort_rows_with_sat(pk,po->C,po->satF);
     }
     else {
-      matrix_sort_rows(pk,po->C);
+      pk_matrix_sort_rows(pk,po->C);
     }
   }
 }
@@ -397,15 +397,15 @@ void pk_minimize(ap_manager_t* man, pk_t* po)
       if (po->satF) satmat_free(po->satF);
       po->satC = po->satF = NULL;
       if (po->C->nbrows > po->F->nbrows){
-	matrix_free(po->C);
+	pk_matrix_free(po->C);
 	po->C = NULL;
-	matrix_minimize(po->F);
+	pk_matrix_minimize(po->F);
 	po->status &= ~pk_status_consgauss;
       }
       else {
-	matrix_free(po->F);
+	pk_matrix_free(po->F);
 	po->F = NULL;
-	matrix_minimize(po->C);
+	pk_matrix_minimize(po->C);
 	po->status &= ~pk_status_gengauss;
       }
     }
@@ -446,8 +446,8 @@ bool pk_is_canonical(ap_manager_t* man, pk_t* po)
 	po->status & pk_status_consgauss &&
 	po->status & pk_status_gengauss &&
 	poly_is_minimaleps(pk,po)){
-      assert(matrix_check_gauss(po->C,po->nbeq));
-      assert(matrix_check_gauss(po->F,po->nbline));
+      assert(pk_matrix_check_gauss(po->C,po->nbeq));
+      assert(pk_matrix_check_gauss(po->F,po->nbline));
       res = true;
     }
     else
@@ -508,11 +508,11 @@ void pk_fdump(FILE* stream, ap_manager_t* man, pk_t* po)
 	    (unsigned long)po->intdim,(unsigned long)po->realdim);
     if (po->C){
       fprintf(stream,"Constraints: ");
-      matrix_fprint(stream, po->C);
+      pk_matrix_fprint(stream, po->C);
     }
     if (po->F){
       fprintf(stream,"Frames: ");
-      matrix_fprint(stream, po->F);
+      pk_matrix_fprint(stream, po->F);
     }
     if (po->satC){
       fprintf(stream,"satC: ");
@@ -551,7 +551,7 @@ pk_t* pk_deserialize_raw(ap_manager_t* man, void* ptr, size_t* size)
 
 /* Should be true
    If false, implies that there is no positivity constraint  */
-static bool matrix_check1cons(pk_internal_t* pk, matrix_t* mat)
+static bool pk_matrix_check1cons(pk_internal_t* pk, pk_matrix_t* mat)
 {
   size_t i;
   bool res;
@@ -565,7 +565,7 @@ static bool matrix_check1cons(pk_internal_t* pk, matrix_t* mat)
   return res;
 }
 /* true <=> \xi or \epsilon always positive */
-static bool matrix_check1ray(pk_internal_t* pk, matrix_t* mat)
+static bool pk_matrix_check1ray(pk_internal_t* pk, pk_matrix_t* mat)
 {
   size_t i;
   bool res;
@@ -580,7 +580,7 @@ static bool matrix_check1ray(pk_internal_t* pk, matrix_t* mat)
 }
 
 /* Return false if not normalized constraint */
-static bool matrix_check2(pk_internal_t* pk, matrix_t* mat)
+static bool pk_matrix_check2(pk_internal_t* pk, pk_matrix_t* mat)
 {
   size_t i;
   bool res;
@@ -600,7 +600,7 @@ static bool matrix_check2(pk_internal_t* pk, matrix_t* mat)
 }
 
 /* If false, _sorted is true without sorted rows */
-static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
+static bool pk_matrix_check3(pk_internal_t* pk, pk_matrix_t* mat)
 {
   size_t i;
   bool res;
@@ -610,7 +610,7 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
 
   res = true;
   for (i=0; i<mat->nbrows-1; i++){
-    if (matrix_compare_rows(pk,mat,i,i+1)>0){
+    if (pk_matrix_compare_rows(pk,mat,i,i+1)>0){
       res = false;
       break;
     }
@@ -618,7 +618,7 @@ static bool matrix_check3(pk_internal_t* pk, matrix_t* mat)
   return res;
 }
 
-bool matrix_check_gauss(matrix_t* mat, size_t nbeq)
+bool pk_matrix_check_gauss(pk_matrix_t* mat, size_t nbeq)
 {
   size_t i,j,k;
 
@@ -629,13 +629,13 @@ bool matrix_check_gauss(matrix_t* mat, size_t nbeq)
 	break;
     }
     if (j<=1){
-      fprintf(stderr,"matrix_check_gauss: equality with all std coefficients set to zero !\n");
+      fprintf(stderr,"pk_matrix_check_gauss: equality with all std coefficients set to zero !\n");
       return false;
     }
     /* Check that this coeff is zero on all other rows */
     for (i=0; i<mat->nbrows; i++){
       if (i != k && numint_sgn(mat->p[i][j])!=0){
-	fprintf(stderr,"matrix_check_gauss: row %llu col %llu should be zero !\n",(unsigned long long)i,(unsigned long long)j);
+	fprintf(stderr,"pk_matrix_check_gauss: row %llu col %llu should be zero !\n",(unsigned long long)i,(unsigned long long)j);
 	return false;
       }
     }
@@ -662,34 +662,34 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
     return false;
   }
   if (po->C){
-    res = matrix_check1cons(pk,po->C);
+    res = pk_matrix_check1cons(pk,po->C);
     if (!res){ /* should not arise */
       fprintf(stderr,"poly_check: unvalid constraint system, does not imply the positivity constraint\n");
       return false;
     }
-    res = matrix_check2(pk,po->C);
+    res = pk_matrix_check2(pk,po->C);
     if (!res){
       fprintf(stderr,"poly_check: C not normalized\n");
       return false;
     }
-    res = matrix_check3(pk,po->C);
+    res = pk_matrix_check3(pk,po->C);
     if (!res){
       fprintf(stderr,"poly_check: C not sorted although _sorted=true\n");
       return false;
     }
   }
   if (po->F){
-    res = matrix_check1ray(pk,po->F);
+    res = pk_matrix_check1ray(pk,po->F);
     if (!res){ /* should not arise */
       fprintf(stderr,"poly_check: unvalid generator system, does not imply the positivity constraint\n");
       return false;
     }
-    res = matrix_check2(pk,po->F);
+    res = pk_matrix_check2(pk,po->F);
     if (!res){
       fprintf(stderr,"poly_check: F not normalized\n");
       return false;
     }
-    res = matrix_check3(pk,po->F);
+    res = pk_matrix_check3(pk,po->F);
     if (!res){
       fprintf(stderr,"poly_check: F not sorted although _sorted=true\n");
       return false;
@@ -697,7 +697,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
     /* In strict mode, check that it satisfies \xi-\epsilon>=0 */
     if (pk->strict){
       numint_t* tab = pk->vector_numintp;
-      matrix_t* F = po->F;
+      pk_matrix_t* F = po->F;
       vector_clear(tab,F->nbcolumns);
       numint_set_int(tab[0],1);
       numint_set_int(tab[polka_cst],1);
@@ -733,8 +733,8 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
       return false;
     }
     if (po->status & pk_status_consgauss && po->status & pk_status_gengauss){
-      assert(matrix_check_gauss(po->C,po->nbeq));
-      assert(matrix_check_gauss(po->F,po->nbline));
+      assert(pk_matrix_check_gauss(po->C,po->nbeq));
+      assert(pk_matrix_check_gauss(po->F,po->nbline));
     }
   }
   else
@@ -785,7 +785,7 @@ bool poly_check(pk_internal_t* pk, pk_t* po)
   }
   /* Check status: conseps */
   if (pk->strict && (po->status & pk_status_conseps) && po->C){
-    matrix_t* mat = po->C;
+    pk_matrix_t* mat = po->C;
     size_t i;
     numint_t* vec = vector_alloc(mat->nbcolumns);
     res = true;

@@ -37,20 +37,20 @@
 
 /* Hypothesis:
 
-  - either nmat is a matrix allocated with _matrix_alloc_int,
+  - either nmat is a matrix allocated with _pk_matrix_alloc_int,
     and his coefficients are not initialized,
 
   - or nmat==mat
 */
 static
-matrix_t* matrix_assign_variable(pk_internal_t* pk,
+pk_matrix_t* pk_matrix_assign_variable(pk_internal_t* pk,
 				 bool destructive,
-				 matrix_t* mat,
+				 pk_matrix_t* mat,
 				 ap_dim_t dim, numint_t* tab)
 {
   size_t i,j,var;
   bool den;
-  matrix_t* nmat;
+  pk_matrix_t* nmat;
 
   var = pk->dec + dim;
   den = numint_cmp_int(tab[0],1)>0;
@@ -58,7 +58,7 @@ matrix_t* matrix_assign_variable(pk_internal_t* pk,
   nmat =
     destructive ?
     mat :
-    _matrix_alloc_int(mat->nbrows,mat->nbcolumns,false);
+    _pk_matrix_alloc_int(mat->nbrows,mat->nbcolumns,false);
 
   nmat->_sorted = false;
 
@@ -97,7 +97,7 @@ matrix_t* matrix_assign_variable(pk_internal_t* pk,
     else
       numint_set(nmat->p[i][var],pk->matrix_prod);
 
-    matrix_normalize_row(pk,nmat,i);
+    pk_matrix_normalize_row(pk,nmat,i);
   }
   return nmat;
 }
@@ -108,27 +108,27 @@ matrix_t* matrix_assign_variable(pk_internal_t* pk,
 
 /* Hypothesis:
 
-  - either nmat is a matrix allocated with _matrix_alloc_int,
+  - either nmat is a matrix allocated with _pk_matrix_alloc_int,
     and his coefficients are not initialized,
 
   - or nmat==mat
 */
 static
-matrix_t* matrix_substitute_variable(pk_internal_t* pk,
+pk_matrix_t* pk_matrix_substitute_variable(pk_internal_t* pk,
 				     bool destructive,
-				     matrix_t* mat,
+				     pk_matrix_t* mat,
 				     ap_dim_t dim, numint_t* tab)
 {
   size_t i,j,var;
   bool den;
-  matrix_t* nmat;
+  pk_matrix_t* nmat;
 
   var = pk->dec + dim;
   den = numint_cmp_int(tab[0],1)>0;
   nmat =
     destructive ?
     mat :
-    _matrix_alloc_int(mat->nbrows,mat->nbcolumns,false);
+    _pk_matrix_alloc_int(mat->nbrows,mat->nbcolumns,false);
 
   nmat->_sorted = false;
 
@@ -171,7 +171,7 @@ matrix_t* matrix_substitute_variable(pk_internal_t* pk,
 	/* var column */
 	numint_mul(nmat->p[i][var],nmat->p[i][var],tab[var]);
       }
-      matrix_normalize_row(pk,nmat,i);
+      pk_matrix_normalize_row(pk,nmat,i);
     }
     else {
       /* No substitution */
@@ -223,14 +223,14 @@ void pk_asssub_isort(ap_dim_t* tdim, numint_t** tvec, size_t size)
 /* Assignement by an array of equations */
 /* ---------------------------------------------------------------------- */
 static
-matrix_t* matrix_assign_variables(pk_internal_t* pk,
-				  matrix_t* mat,
+pk_matrix_t* pk_matrix_assign_variables(pk_internal_t* pk,
+				  pk_matrix_t* mat,
 				  ap_dim_t* tdim,
 				  numint_t** tvec,
 				  size_t size)
 {
   size_t i,j,eindex;
-  matrix_t* nmat = _matrix_alloc_int(mat->nbrows, mat->nbcolumns,false);
+  pk_matrix_t* nmat = _pk_matrix_alloc_int(mat->nbrows, mat->nbcolumns,false);
   numint_t den;
 
   /* Computing common denominator */
@@ -303,7 +303,7 @@ matrix_t* matrix_assign_variables(pk_internal_t* pk,
   }
   numint_clear(den);
   for (i=0; i<mat->nbrows; i++){
-    matrix_normalize_row(pk,nmat,i);
+    pk_matrix_normalize_row(pk,nmat,i);
   }
 
   return nmat;
@@ -314,14 +314,14 @@ matrix_t* matrix_assign_variables(pk_internal_t* pk,
 /* ---------------------------------------------------------------------- */
 
 static
-matrix_t* matrix_substitute_variables(pk_internal_t* pk,
-				      matrix_t* mat,
+pk_matrix_t* pk_matrix_substitute_variables(pk_internal_t* pk,
+				      pk_matrix_t* mat,
 				      ap_dim_t* tdim,
 				      numint_t** tvec,
 				      size_t size)
 {
   size_t i,j,eindex;
-  matrix_t* nmat = matrix_alloc(mat->nbrows, mat->nbcolumns,false);
+  pk_matrix_t* nmat = pk_matrix_alloc(mat->nbrows, mat->nbcolumns,false);
   numint_t den;
 
   /* Computing common denominator */
@@ -394,7 +394,7 @@ matrix_t* matrix_substitute_variables(pk_internal_t* pk,
   }
   numint_clear(den);
   for (i=0; i<mat->nbrows; i++){
-    matrix_normalize_row(pk,nmat,i);
+    pk_matrix_normalize_row(pk,nmat,i);
   }
 
   return nmat;
@@ -457,7 +457,7 @@ pk_t* poly_asssub_linexpr_array_det(bool assign,
   ap_dim_t* tdim2;
   numint_t** tvec;
   size_t nbcols;
-  matrix_t* mat;
+  pk_matrix_t* mat;
   pk_t* po;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
@@ -499,8 +499,8 @@ pk_t* poly_asssub_linexpr_array_det(bool assign,
   /* Perform the operation */
   mat =
     assign ?
-    matrix_assign_variables(pk, pa->F, tdim2, tvec, size) :
-    matrix_substitute_variables(pk, pa->F, tdim2, tvec, size);
+    pk_matrix_assign_variables(pk, pa->F, tdim2, tvec, size) :
+    pk_matrix_substitute_variables(pk, pa->F, tdim2, tvec, size);
   /* Free allocated stuff */
   for (i=0; i<size; i++){
     vector_free(tvec[i],nbcols);
@@ -792,15 +792,15 @@ pk_t* poly_asssub_linexpr_det(bool assign,
       /* If side-effect, free everything but generators */
       if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
       if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
-      if (po->C){ matrix_free(po->C); po->C = NULL; }
+      if (po->C){ pk_matrix_free(po->C); po->C = NULL; }
     }
   }
   if (pa->F){
     /* Perform assignements on generators */
     po->F =
       assign ?
-      matrix_assign_variable(pk, destructive, pa->F, dim, pk->poly_numintp) :
-      matrix_substitute_variable(pk, destructive, pa->F, dim, pk->poly_numintp);
+      pk_matrix_assign_variable(pk, destructive, pa->F, dim, pk->poly_numintp) :
+      pk_matrix_substitute_variable(pk, destructive, pa->F, dim, pk->poly_numintp);
   }
   if (sgn && pa->C){ /* Expression is invertible and we have constraints */
     /* Invert the expression in pk->poly_numintp2 */
@@ -811,8 +811,8 @@ pk_t* poly_asssub_linexpr_det(bool assign,
     /* Perform susbtitution on constraints */
     po->C =
       assign ?
-      matrix_substitute_variable(pk,destructive,pa->C, dim, pk->poly_numintp2) :
-      matrix_assign_variable(pk,destructive,pa->C, dim, pk->poly_numintp2);
+      pk_matrix_substitute_variable(pk,destructive,pa->C, dim, pk->poly_numintp2) :
+      pk_matrix_assign_variable(pk,destructive,pa->C, dim, pk->poly_numintp2);
   }
   if (po->C && po->F){
     po->nbeq = pa->nbeq;

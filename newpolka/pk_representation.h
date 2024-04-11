@@ -92,7 +92,7 @@ static inline void poly_obtain_F_dual(ap_manager_t* man,pk_t* po, char* msg, boo
 /* ********************************************************************** */
 
 /* Checks gauss elimination */
-bool matrix_check_gauss(matrix_t* mat, size_t nbeq);
+bool pk_matrix_check_gauss(pk_matrix_t* mat, size_t nbeq);
 
 /* Perform rather detailed and costly checks on a polyhedron, to detect
    inconsistencies */

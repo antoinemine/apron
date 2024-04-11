@@ -23,7 +23,7 @@ static
 void poly_set_save_C(pk_t* po, pk_t* pa)
 {
   if (po != pa){
-    po->F = pa->F ? matrix_copy(pa->F) : NULL;
+    po->F = pa->F ? pk_matrix_copy(pa->F) : NULL;
     po->satC = pa->satC ? satmat_copy(pa->satC) : NULL;
     po->satF = pa->satF ? satmat_copy(pa->satF) : NULL;
     po->status = pa->status;
@@ -49,18 +49,18 @@ bool poly_approximate_n1(ap_manager_t* man, pk_t* po, pk_t* pa, int algorithm)
       return false;
     }
     if (po!=pa){
-      po->C = matrix_copy(pa->C);
+      po->C = pk_matrix_copy(pa->C);
     }
-    change = matrix_normalize_constraint_int(pk,po->C,po->intdim,po->realdim);
+    change = pk_matrix_normalize_constraint_int(pk,po->C,po->intdim,po->realdim);
     if (change){
       {
 	/* Add positivity and strictness that may not be implied any more */
 	size_t nbrows = po->C->nbrows;
-	matrix_resize_rows_lazy(po->C,nbrows+pk->dec-1);
-	matrix_fill_constraint_top(pk,po->C,nbrows);
+	pk_matrix_resize_rows_lazy(po->C,nbrows+pk->dec-1);
+	pk_matrix_fill_constraint_top(pk,po->C,nbrows);
       }
       if (po==pa){
-	if (po->F){ matrix_free(po->F); po->F = NULL; }
+	if (po->F){ pk_matrix_free(po->F); po->F = NULL; }
 	if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
 	if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
       }
@@ -81,7 +81,7 @@ bool poly_approximate_n1(ap_manager_t* man, pk_t* po, pk_t* pa, int algorithm)
    pk->max_coeff_size, if pk->max_coeff_size > 0 */
 /* ---------------------------------------------------------------------- */
 static
-bool matrix_approximate_constraint_1(pk_internal_t* pk, matrix_t* C)
+bool pk_matrix_approximate_constraint_1(pk_internal_t* pk, pk_matrix_t* C)
 {
   size_t i,j;
   bool change,removed;
@@ -95,7 +95,7 @@ bool matrix_approximate_constraint_1(pk_internal_t* pk, matrix_t* C)
 	  change = true;
 	  removed = true;
 	  C->nbrows--;
-	  matrix_exch_rows(C,i,C->nbrows);
+	  pk_matrix_exch_rows(C,i,C->nbrows);
 	  break;
 	}
       }
@@ -105,8 +105,8 @@ bool matrix_approximate_constraint_1(pk_internal_t* pk, matrix_t* C)
   if (change){
     /* Add positivity and strictness that may not be implied any more */
     size_t nbrows = C->nbrows;
-    matrix_resize_rows_lazy(C,nbrows+pk->dec-1);
-    matrix_fill_constraint_top(pk,C,nbrows);
+    pk_matrix_resize_rows_lazy(C,nbrows+pk->dec-1);
+    pk_matrix_fill_constraint_top(pk,C,nbrows);
     C->_sorted = false;
   }
   return change;
@@ -123,12 +123,12 @@ bool poly_approximate_1(ap_manager_t* man, pk_t* po, pk_t* pa)
     return false;
   }
   if (po!=pa){
-    po->C = matrix_copy(pa->C);
+    po->C = pk_matrix_copy(pa->C);
   }
-  change = matrix_approximate_constraint_1(pk,po->C);
+  change = pk_matrix_approximate_constraint_1(pk,po->C);
    if (change){
      if (po==pa){
-       if (po->F){ matrix_free(po->F); po->F = NULL; }
+       if (po->F){ pk_matrix_free(po->F); po->F = NULL; }
        if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
        if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
      }
@@ -190,10 +190,10 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
     itv_init(itv);
     if (algorithm>=2){ /* Add interval constraints */
       nbrows2 = 2*dim;
-      matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
+      pk_matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
       pa->C->_sorted = false;
       for (i=0; i<dim;i++){
-	matrix_bound_dimension(pk,itv,i,po->F);
+	pk_matrix_bound_dimension(pk,itv,i,po->F);
 	if (!bound_infty(itv->inf)){
 	  vector_set_dim_bound(pk,
 			       pa->C->p[nbrows],
@@ -219,11 +219,11 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
       for (i=0; i<dim;i++){
 	numint_set_int(pk->poly_numintp[pk->dec+i],1);
 	nbrows2 = 4*(dim-i-1);
-	matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
+	pk_matrix_resize_rows_lazy(pa->C, nbrows + nbrows2);
 	for (j=i+1; j<dim;j++){
 	  for (sgny=-1; sgny<=1; sgny += 2){
 	    numint_set_int(pk->poly_numintp[pk->dec+j],sgny);
-	    matrix_bound_vector(pk,itv,pk->poly_numintp,po->F);
+	    pk_matrix_bound_vector(pk,itv,pk->poly_numintp,po->F);
 	    if (!bound_infty(itv->inf)){
 	      vector_set_linexpr_bound(pk,
 				       pa->C->p[nbrows], pk->poly_numintp,
@@ -258,7 +258,7 @@ void poly_approximate_123(ap_manager_t* man, pk_t* po, int algorithm)
 /* ---------------------------------------------------------------------- */
 
 static
-bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* F,
+bool pk_matrix_approximate_constraint_1x(pk_internal_t* pk, pk_matrix_t* C, pk_matrix_t* F,
 				      bool outerfallback, bool combine)
 {
   size_t i,j,size,nbrows,nbrows2;
@@ -304,7 +304,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	/* C. Compute new constant coefficient */
 	numint_set_int(vec[0],1);
 	numint_set_int(vec[polka_cst],0);
-	matrix_bound_vector(pk,itv,vec,F);
+	pk_matrix_bound_vector(pk,itv,vec,F);
 	finite = !bound_infty(itv->inf);
 	if (finite){
 	  /* D. We round the constant to an integer and keep the constraint */
@@ -319,8 +319,8 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	} else {
 	  /* we remove the vector */
 	  removed = true;
-	  matrix_exch_rows(C,i,nbrows-1);
-	  matrix_exch_rows(C,nbrows-1,nbrows2-1);
+	  pk_matrix_exch_rows(C,i,nbrows-1);
+	  pk_matrix_exch_rows(C,nbrows-1,nbrows2-1);
 	  nbrows--; nbrows2--;
 	}
 	if (combine || (!finite && outerfallback)){
@@ -336,7 +336,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	  /* G. Compute new constant coefficient */
 	  numint_set_int(vec[0],1);
 	  numint_set_int(vec[polka_cst],0);
-	  matrix_bound_vector(pk,itv,vec,F);
+	  pk_matrix_bound_vector(pk,itv,vec,F);
 	  finite = !bound_infty(itv->inf);
 	  if (finite){
 	    /* E. We round the constant to an integer and keep the constraint */
@@ -348,7 +348,7 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
 	    if (false){ printf("before norm 2: "); vector_print(vec,C->nbcolumns); }
 	    vector_normalize(pk,vec,C->nbcolumns);
 	    if (false){ printf("after norm 2: "); vector_print(vec,C->nbcolumns); }
-	    if (nbrows2>=C->_maxrows) matrix_resize_rows(C,(C->_maxrows*3+1)/2);
+	    if (nbrows2>=C->_maxrows) pk_matrix_resize_rows(C,(C->_maxrows*3+1)/2);
 	    vector_copy(C->p[nbrows2],vec,C->nbcolumns);
 	    nbrows2++;
 	  }
@@ -361,8 +361,8 @@ bool matrix_approximate_constraint_1x(pk_internal_t* pk, matrix_t* C, matrix_t* 
     C->nbrows = nbrows2;
     /* Add positivity and strictness that may not be implied any more */
     size_t nbrows = C->nbrows;
-    matrix_resize_rows_lazy(C,nbrows+pk->dec-1);
-    matrix_fill_constraint_top(pk,C,nbrows);
+    pk_matrix_resize_rows_lazy(C,nbrows+pk->dec-1);
+    pk_matrix_fill_constraint_top(pk,C,nbrows);
     C->_sorted = false;
   }
   itv_clear(itv);
@@ -385,9 +385,9 @@ void poly_approximate_1x(ap_manager_t* man, pk_t* po, bool outerfallback, bool c
     return;
   }
   assert(po->C && po->F);
-  change = matrix_approximate_constraint_1x(pk, po->C, po->F, outerfallback,combine);
+  change = pk_matrix_approximate_constraint_1x(pk, po->C, po->F, outerfallback,combine);
   if (change){
-    if (po->F) matrix_free(po->F);
+    if (po->F) pk_matrix_free(po->F);
     if (po->satC) satmat_free(po->satC);
     if (po->satF) satmat_free(po->satF);
     po->F = NULL;

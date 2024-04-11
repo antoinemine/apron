@@ -176,8 +176,8 @@ pk_t* pk_widening(ap_manager_t* man, pk_t* pa, pk_t* pb)
 
     po = poly_alloc(pa->intdim,pa->realdim);
 
-    po->C = matrix_alloc(pk->dec-1+pb->C->nbrows, pb->C->nbcolumns, false);
-    matrix_fill_constraint_top(pk,po->C,0);
+    po->C = pk_matrix_alloc(pk->dec-1+pb->C->nbrows, pb->C->nbcolumns, false);
+    pk_matrix_fill_constraint_top(pk,po->C,0);
     nbrows = pk->dec-1;
 
     /* Adding constraints of pb mutually redundant with some of pa, except if
@@ -230,7 +230,7 @@ pk_t* pk_widening_threshold(ap_manager_t* man,
   /* We assume that both pa and pb are minimized, and that po->F==NULL */
   nbcols = po->C->nbcolumns;
   nbrows = po->C->nbrows;
-  matrix_resize_rows_lazy(po->C, nbrows + array->size);
+  pk_matrix_resize_rows_lazy(po->C, nbrows + array->size);
   for (i=0; i<array->size; i++){
     switch(array->p[i].constyp){
     case AP_CONS_EQ:
@@ -260,7 +260,7 @@ pk_t* pk_widening_threshold(ap_manager_t* man,
     }
   }
   po->C->nbrows = nbrows;
-  matrix_minimize(po->C);
+  pk_matrix_minimize(po->C);
   assert(poly_check(pk,po));
   return po;
 }
