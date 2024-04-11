@@ -425,6 +425,8 @@ then
     checkprefix "$cxx $cxxflags $deps" ppl.hh ppl "$PPL_PREFIX"
     if test $? -eq 0; then has_ppl=0; fi
     ppl_prefix="$prefix"
+else
+    has_ppl=0
 fi
 
 if test $has_cxx -eq 1 -a $has_pplite -eq 1
@@ -448,6 +450,8 @@ then
         if test $? -eq 0; then has_pplite=0; fi
         pplite_prefix="$prefix"
     fi
+else
+    has_pplite=0
 fi
 
 if test $has_glpk -eq 1
