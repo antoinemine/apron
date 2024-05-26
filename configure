@@ -427,6 +427,35 @@ then
     ppl_prefix="$prefix"
 fi
 
+get_pplite_version()
+{
+    echo_n "getting PPLite version: "
+    rm -f tmp.cc tmp
+    echo "#include <iostream>" > tmp.cc
+    echo "#include <pplite/pplite-config.h>" >> tmp.cc
+    echo "int main() {" >> tmp.cc
+    echo "  std::cout << PPLITE_PACKAGE_VERSION << std::endl;" >> tmp.cc
+    echo "}" >> tmp.cc
+    r=1
+    if test "x$PPLITE_PREFIX" != "x"
+    then
+       $cxx -I$PPLITE_PREFIX/include -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
+    else
+       $cxx -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
+    fi
+    if test $r -eq 0 -o ! -f tmp
+    then
+        r=0
+        pplite_version="not found"
+    else
+        r=1
+        pplite_version=`./tmp`
+    fi
+    echo $pplite_version
+    rm -f tmp.cc tmp
+    return $r
+}
+
 if test $has_cxx -eq 1 -a $has_pplite -eq 1
 then
     # check for flint
@@ -451,7 +480,7 @@ then
     # check if pplite version is 0.11
     if test $has_pplite -eq 1
     then
-        pplite_version=`grep "define PPLITE_PACKAGE_VERSION" $pplite_prefix/include/pplite/pplite-config.h | cut -d'"' -f2`
+        get_pplite_version
         if test "x$pplite_version" != "x0.11"
         then
             have_pplite_0_11_cxxflags=
