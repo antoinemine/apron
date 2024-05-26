@@ -439,9 +439,9 @@ get_pplite_version()
     r=1
     if test "x$PPLITE_PREFIX" != "x"
     then
-       $cxx -I$PPLITE_PREFIX/include -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
+       $cxx $cxxflags $deps -I$PPLITE_PREFIX/include -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
     else
-       $cxx -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
+       $cxx $cxxflags $deps -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
     fi
     if test $r -eq 0 -o ! -f tmp
     then
