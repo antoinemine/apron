@@ -4,7 +4,7 @@
  * APRON Library / PPLite library wrapper
  *
  * Copyright (C) Antoine Mine' 2006
- * Copyright (C) 2018-2023 Enea Zaffanella <enea.zaffanella@unipr.it>
+ * Copyright (C) 2018-2024 Enea Zaffanella <enea.zaffanella@unipr.it>
  *
  */
 

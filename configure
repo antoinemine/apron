@@ -448,6 +448,17 @@ then
         if test $? -eq 0; then has_pplite=0; fi
         pplite_prefix="$prefix"
     fi
+    # check if pplite version is 0.11
+    if test $has_pplite -eq 1
+    then
+        pplite_version=`grep "define PPLITE_PACKAGE_VERSION" $pplite_prefix/include/pplite/pplite-config.h | cut -d'"' -f2`
+        if test "x$pplite_version" != "x0.11"
+        then
+            have_pplite_0_11_cxxflags=
+        else
+            have_pplite_0_11_cxxflags=-DHAVE_PPLITE_0_11
+        fi
+    fi
 fi
 
 if test $has_glpk -eq 1
@@ -606,7 +617,7 @@ detected configuration:
    optional C++ support         $has_cxx
    optional Java support        $has_java ($java_version)
    optional PPL support         $has_ppl
-   optional PPLite support      $has_pplite
+   optional PPLite support      $has_pplite ($pplite_version)
    optional GLPK support        $has_glpk
    optional debug libraries     $has_debug
    
@@ -681,8 +692,8 @@ CXXFLAGS = -U__STRICT_ANSI__ -DNDEBUG -O3 $cxxflags
 CXXFLAGS_DEBUG = -U__STRICT_ANSI__ -UNDEBUG -O0 -g $cxxflags
 
 # The PPLite wrapper requires using the C++11 language standard
-PPLITE_CXXFLAGS = -std=c++11 -DNDEBUG -O3 $cxxflags
-PPLITE_CXXFLAGS_DEBUG = -std=c++11 -UNDEBUG -O0 -g $cxxflags
+PPLITE_CXXFLAGS = -std=c++11 -DNDEBUG -O3 $have_pplite_0_11_cxxflags $cxxflags
+PPLITE_CXXFLAGS_DEBUG = -std=c++11 -UNDEBUG -O0 -g $have_pplite_0_11_cxxflags $cxxflags
 
 EXT_DLL = $ext_dll
 

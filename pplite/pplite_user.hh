@@ -6,7 +6,7 @@
  * Wrappers specific to the PPLite domains.
  *
  * Copyright (C) Antoine Mine' 2006
- * Copyright (C) 2018-2023 Enea Zaffanella <enea.zaffanella@unipr.it>
+ * Copyright (C) 2018-2024 Enea Zaffanella <enea.zaffanella@unipr.it>
  *
  */
 
@@ -39,6 +39,29 @@ namespace apron {
 */
 class cannot_convert: public std::exception {};
 
+
+/**********************************************/
+/* Conversions from PPLite to GMP mpz_t/mpq_t */
+/* (backward compatibility helpers)           */
+/**********************************************/
+
+inline void mpz_set_Integer(mpz_t z, const Integer& i) {
+#ifdef HAVE_PPLITE_0_11
+  mpz_set(z, i);
+#else
+  i.get_mpz(z);
+#endif
+}
+
+inline void mpq_set_Rational(mpq_t q, const Rational& r) {
+  // No need to canonicalize
+#ifdef HAVE_PPLITE_0_11
+  mpq_set(q, mpq_class(r).get_mpq_t());
+#else
+  r.get_mpq(q);
+#endif
+}
+
 /************************************/
 /* Conversions from PPLite to Apron */
 /************************************/
@@ -47,7 +70,7 @@ class cannot_convert: public std::exception {};
 inline void
 to_scalar(ap_scalar_t* s, const Integer& i) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  i.get_mpz(mpq_numref(s->val.mpq));
+  mpz_set_Integer(mpq_numref(s->val.mpq), i);
   mpz_set_ui(mpq_denref(s->val.mpq), 1);
 }
 
@@ -56,8 +79,8 @@ inline void
 to_scalar(ap_scalar_t* s,
           const Integer& n, const Integer& d) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  n.get_mpz(mpq_numref(s->val.mpq));
-  d.get_mpz(mpq_denref(s->val.mpq));
+  mpz_set_Integer(mpq_numref(s->val.mpq), n);
+  mpz_set_Integer(mpq_denref(s->val.mpq), d);
   mpq_canonicalize(s->val.mpq);
 }
 
@@ -65,8 +88,7 @@ to_scalar(ap_scalar_t* s,
 inline void
 to_scalar(ap_scalar_t* s, const Rational& r) {
   ap_scalar_reinit(s, AP_SCALAR_MPQ);
-  r.get_mpq(s->val.mpq);
-  // No need to canonicalize
+  mpq_set_Rational(s->val.mpq, r);
 }
 
 /* Con::Type => ap_constyp_t */
