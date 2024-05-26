@@ -425,6 +425,8 @@ then
     checkprefix "$cxx $cxxflags $deps" ppl.hh ppl "$PPL_PREFIX"
     if test $? -eq 0; then has_ppl=0; fi
     ppl_prefix="$prefix"
+else
+    has_ppl=0
 fi
 
 get_pplite_version()
@@ -488,6 +490,8 @@ then
             have_pplite_0_11_cxxflags=-DHAVE_PPLITE_0_11
         fi
     fi
+else
+    has_pplite=0
 fi
 
 if test $has_glpk -eq 1
