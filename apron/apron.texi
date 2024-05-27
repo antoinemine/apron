@@ -3666,9 +3666,10 @@ Equality test.
 @end deftypefun
 
 @deftypefun int ap_linexpr0_compare (ap_linexpr0_t* @var{e1}, ap_linexpr0_t* @var{e2})
-Lexicographic ordering, terminating by constant coefficients.
+Lexicographic partial ordering, terminating by constant coefficients.
+Returns a value between -3 and 3 (as ap_coeff_cmp).
 
-Use the (partial order) comparison function on coefficients
+Use the partial order comparison function on coefficients
 @code{coeff_cmp}.
 @end deftypefun
 

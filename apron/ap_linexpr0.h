@@ -292,7 +292,9 @@ long ap_linexpr0_hash(ap_linexpr0_t* expr);
 bool ap_linexpr0_equal(ap_linexpr0_t* expr1,
 		    ap_linexpr0_t* expr2);
 
-/* Lexicographic ordering, terminating by constant coefficients */
+/* Lexicographic partial ordering, terminating by constant coefficients.
+  Returns a value between -3 and 3 (as ap_coeff_cmp).
+*/
 int ap_linexpr0_compare(ap_linexpr0_t* expr1,
 		     ap_linexpr0_t* expr2);
 

@@ -24,6 +24,14 @@ typedef [abstract,
 	 c2ml(camlidl_apron_linexpr0_ptr_c2ml)]
 struct ap_linexpr0_ptr* ap_linexpr0_ptr;
 
+quote(MLI,"\n\
+(**\n\
+  NOTE: Linear expressions are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [equal] and [cmp] instead.\n\
+*)\n\n");
+
 quote(MLI,"(** Create a linear expression. Its representation is sparse if [None] is provided, dense of size [size] if [Some size] is provided. *)")
 ap_linexpr0_ptr ap_linexpr0_make([unique]int* size)
      quote(call,"\n\
@@ -48,8 +56,12 @@ void ap_linexpr0_minimize(ap_linexpr0_ptr a);
 quote(MLI,"(** Copy *)")
 ap_linexpr0_ptr ap_linexpr0_copy(const ap_linexpr0_ptr a);
 
-quote(MLI,"(** Comparison with lexicographic ordering using Coeff.cmp, terminating by constant *)")
-int ap_linexpr0_compare(const ap_linexpr0_ptr a, const ap_linexpr0_ptr b);
+quote(MLI,"(** Comparison with lexicographic ordering using [Coeff.cmp], terminating by constant. This is a partial ordrer; as [Coeff.cmp] it returns an integer between -3 and 3. It cannot be used when a total order is required (e.g., in [Set.Make]).*)")
+int ap_linexpr0_cmp(const ap_linexpr0_ptr a, const ap_linexpr0_ptr b)
+  quote(call, "_res = ap_linexpr0_compare(a, b);");
+
+quote(MLI,"(** Equality comparison *)")
+boolean ap_linexpr0_equal(const ap_linexpr0_ptr a, const ap_linexpr0_ptr b);
 
 quote(MLI,"(** Hashing function *)")
 int ap_linexpr0_hash(const ap_linexpr0_ptr a);

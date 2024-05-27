@@ -33,6 +33,14 @@ struct ap_environment_ptr ap_environment_ptr;
 
 quote(MLMLI,"(** APRON Environments binding dimensions to names *)")
 
+quote(MLI,"\n\
+(**\n\
+  NOTE: Environments are not totally ordered.
+  As of 0.9.15, environments do not implement the polymorphic [compare] function to avoid confusion.\n \
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [equal] and [cmp] to compare environments.\n\
+*)\n\n");
+
 quote(MLI,"\n(** Making an environment from a set of integer and real variables. Raise [Failure] in case of name conflict. *)")
 
 ap_environment_ptr ap_environment_make([size_is(intdim)]ap_var_t* name_of_intdim,
@@ -206,16 +214,17 @@ if (_res==NULL){\n\
 ")
 quote(dealloc,"ap_dimchange2_free(_res);")
 ;
-quote(MLI,"\n(** Test equality if two environments *)")
+quote(MLI,"\n(** Test the equality of two environments *)")
 boolean ap_environment_equal(ap_environment_ptr env1,
 			     ap_environment_ptr env2)
   quote(call,"\n\
 _res = ap_environment_is_eq(env1,env2);\n\
 ");
 
-quote(MLI,"\n(** Compare two environment. [compare env1 env2] return [-2] if the environments are not compatible (a variable has different types in the 2 environments), [-1] if [env1] is a subset of env2, [0] if equality,  [+1] if env1 is a superset of env2, and [+2] otherwise (the lce exists and is a strict superset of both) *)")
-int ap_environment_compare(ap_environment_ptr env1,
-			   ap_environment_ptr env2);
+quote(MLI,"\n(** Compare two environment. [cmp env1 env2] return [-2] if the environments are not compatible (a variable has different types in the 2 environments), [-1] if [env1] is a subset of env2, [0] if equality,  [+1] if env1 is a superset of env2, and [+2] otherwise (the lce exists and is a strict superset of both). This is not a total order, and cannot be used as comparison function when a total order is needed (e.g., in [Set.Make]). The function has been renamed from [compare] to avoid confusion. *)")
+int ap_environment_cmp(ap_environment_ptr env1,
+		       ap_environment_ptr env2)
+ quote(call, "_res = ap_environment_compare(env1, env2);");
 
 quote(MLI,"\n(** Hashing function for environments *)")
 int ap_environment_hash(ap_environment_ptr env);

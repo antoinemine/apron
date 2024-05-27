@@ -156,7 +156,15 @@ quote(MLMLI,"(** {3 Tests} *)\n")
 quote(MLMLI,"(* ============================================================ *)")
 
 quote(MLI,"\n\
-(** Emptiness test *)
+(**\n\
+  NOTE: Abstract elements are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [is_eq] and [is_leq] instead.\n\
+*)\n\n");
+
+quote(MLI,"\n\
+(** Emptiness test *)\n\
 val is_bottom : 'a Manager.t -> 'a t -> bool\n\
 \n\
 (** Universality test *)
@@ -167,11 +175,11 @@ let is_bottom man x = Abstract0.is_bottom man x.abstract0\n\
 let is_top man x = Abstract0.is_top man x.abstract0\n\
 ")
 
-quote(MLI,"\n(** Inclusion test. The 2 abstract values should be compatible. *)")
+quote(MLI,"\n(** Inclusion test. The two abstract values should be compatible. *)")
 boolean ap_abstract1_is_leq(ap_manager_ptr man, [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2)
     quote(dealloc,"I0_CHECK_EXC(man)");
 
-quote(MLI,"\n(** Equality test. The 2 abstract values should be compatible. *)")
+quote(MLI,"\n(** Equality test. The two abstract values should be compatible. *)")
 boolean ap_abstract1_is_eq(ap_manager_ptr man, [ref]struct ap_abstract1_t* a1, [ref]struct ap_abstract1_t* a2)
     quote(dealloc,"I0_CHECK_EXC(man)");
 
@@ -183,7 +191,7 @@ quote(MLI,"\n(** Does the abstract value satisfy the tree expression constraint 
 boolean ap_abstract1_sat_tcons(ap_manager_ptr man, [ref]struct ap_abstract1_t* a, [ref]struct ap_tcons1_t* v)
     quote(dealloc,"I0_CHECK_EXC(man)");
 
-quote(MLI,"\n(** Does the abstract value satisfy the constraint [dim in interval] ? *)")
+quote(MLI,"\n(** Does the abstract value satisfy the constraint [dim] in [interval]? *)")
 boolean ap_abstract1_sat_interval(ap_manager_ptr man, [ref]struct ap_abstract1_t* a,
 				  ap_var_t v1,
 				  [ref]struct ap_interval_t* v2)

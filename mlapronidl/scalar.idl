@@ -124,8 +124,8 @@ val sgn : t -> int\n\
 \n\
 val cmp : t -> t -> int\n\
   (** Compare two coefficients, possibly converting to [Mpqf.t].\n\
-    [compare x y] returns a negative number if [x] is less than [y], \n\
-    [0] if they ar equal, and a positive number if [x] is greater than [y].\n\
+    [cmp x y] returns a negative number if [x] is less than [y], \n\
+    [0] if they are equal, and a positive number if [x] is greater than [y].\n\
   *)\n\
 \n\
 val cmp_int : t -> int -> int\n\
