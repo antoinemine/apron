@@ -439,9 +439,9 @@ get_pplite_version()
     echo "  std::cout << PPLITE_PACKAGE_VERSION << std::endl;" >> tmp.cc
     echo "}" >> tmp.cc
     r=1
-    if test "x$PPLITE_PREFIX" != "x"
+    if test "x$pplite_prefix" != "x"
     then
-       $cxx $cxxflags $deps -I$PPLITE_PREFIX/include -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
+       $cxx $cxxflags $deps -I$pplite_prefix/include -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
     else
        $cxx $cxxflags $deps -o tmp tmp.cc >/dev/null 2>/dev/null || r=0
     fi
