@@ -31,15 +31,15 @@ extern "C" {
 /* ********************************************************************** */
 bool cherni_checksatmat(pk_internal_t* pk,
 			bool con_to_ray,
-			matrix_t* C, matrix_t* F,
+			pk_matrix_t* C, pk_matrix_t* F,
 			satmat_t* satC);
 /* Recompute the saturation matrix of C and F and checks the equality with
    satC. */
 
 bool cherni_checksat(pk_internal_t* pk,
 		     bool con_to_ray,
-		     matrix_t* C, size_t nbequations,
-		     matrix_t* F, size_t nblines,
+		     pk_matrix_t* C, size_t nbequations,
+		     pk_matrix_t* F, size_t nblines,
 		     satmat_t* satC);
 /* Check the saturation numbers of constraints and rays. */
 
@@ -48,8 +48,8 @@ bool cherni_checksat(pk_internal_t* pk,
 /* ********************************************************************** */
 
 size_t cherni_conversion(pk_internal_t* pk,
-			 matrix_t* con, size_t start,
-			 matrix_t* ray, satmat_t* satc, size_t nbline);
+			 pk_matrix_t* con, size_t start,
+			 pk_matrix_t* ray, satmat_t* satc, size_t nbline);
 /*
    Compute the dual form of con.
 
@@ -70,7 +70,7 @@ size_t cherni_conversion(pk_internal_t* pk,
    The result is given by ray, sat and the returned number of lines.
 */
 
-size_t cherni_gauss(pk_internal_t* pk, matrix_t* con, size_t nbeq);
+size_t cherni_gauss(pk_internal_t* pk, pk_matrix_t* con, size_t nbeq);
 /*
   The function finds a minimal system for equalities, and returns the rank *r*
   of this system, equations of which are numbered from 0 to *r-1*. Redundant
@@ -79,7 +79,7 @@ size_t cherni_gauss(pk_internal_t* pk, matrix_t* con, size_t nbeq);
   coefficent of an equation, in this case the left-most non-zero one.
 */
 
-void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank);
+void cherni_backsubstitute(pk_internal_t* pk, pk_matrix_t* con, size_t rank);
 /*
   This function backsubstitute the coefficients according to the system of
   equations and the array pk->cherni_intp properly set by
@@ -87,7 +87,7 @@ void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank);
  */
 
 int  cherni_simplify(pk_internal_t* pk,
-		     matrix_t* con, matrix_t* ray,
+		     pk_matrix_t* con, pk_matrix_t* ray,
 		     satmat_t* satf, const size_t nbline);
 /*
 We suppose that we just obtained ray and satc from con
@@ -109,7 +109,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 			     size_t start);
 /* Misc */
 void cherni_buildsatline(pk_internal_t* pk,
-			 matrix_t* con, numint_t* tab,
+			 pk_matrix_t* con, numint_t* tab,
 			 bitstring_t* satline);
 
 /* Library is supposed to be in strict mode (pk->strict==true), polyhedron is

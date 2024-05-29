@@ -33,7 +33,7 @@ void poly_projectforget_array(bool project,
 			      ap_dim_t* tdim, size_t size)
 {
   bool res;
-  matrix_t* mat;
+  pk_matrix_t* mat;
   size_t i,j;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
   pk_internal_realloc_lazy(pk,pa->intdim+pa->realdim);
@@ -65,19 +65,19 @@ void poly_projectforget_array(bool project,
     /* Project: assign the dimension to zero */
     if (po==pa){
       /* Forget the other matrices */
-      if (po->C){ matrix_free(po->C); po->C = NULL; }
+      if (po->C){ pk_matrix_free(po->C); po->C = NULL; }
       if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
       if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
     } else {
       /* Copy the old one */
-      po->F = matrix_copy(pa->F);
+      po->F = pk_matrix_copy(pa->F);
     }
     mat = po->F;
     for (i=0; i<mat->nbrows; i++){
       for (j=0; j<size; j++){
 	numint_set_int(mat->p[i][pk->dec+tdim[j]],0);
       }
-      matrix_normalize_row(pk,mat,(size_t)i);
+      pk_matrix_normalize_row(pk,mat,(size_t)i);
     }
     po->status = 0;
     if (!lazy){
@@ -86,18 +86,18 @@ void poly_projectforget_array(bool project,
   } 
   else {
     /* Forget */
-    mat = matrix_alloc(size,pa->F->nbcolumns,false);
+    mat = pk_matrix_alloc(size,pa->F->nbcolumns,false);
     for (i=0; i<size; i++){
       numint_set_int(mat->p[i][pk->dec+tdim[i]],1);
     }
-    matrix_sort_rows(pk,mat);
+    pk_matrix_sort_rows(pk,mat);
     poly_dual(pa);
     if (po!=pa) poly_dual(po);
     if (!lazy) poly_obtain_satC(pa);
     res = poly_meet_matrix(false,lazy,man,po,pa,mat);
     poly_dual(pa);
     if (po!=pa) poly_dual(po);
-    matrix_free(mat);
+    pk_matrix_free(mat);
   }
   if (res || pk->exn){
     pk->exn = AP_EXC_NONE;

@@ -4,7 +4,7 @@
  * APRON Library / PPLite library wrapper
  *
  * Copyright (C) Antoine Mine' 2006
- * Copyright (C) 2018-2023 Enea Zaffanella <enea.zaffanella@unipr.it>
+ * Copyright (C) 2018-2024 Enea Zaffanella <enea.zaffanella@unipr.it>
  *
  */
 
@@ -105,23 +105,26 @@ to_itv_array(pplite_poly* a) {
     return { true, nullptr };
   auto dim = bbox.space_dim();
   auto env = itv_array_alloc(dim);
+  mpq_t temp;
+  mpq_init(temp);
   for (auto i = 0; i != dim; ++i) {
     if (bbox.inf_ub(i))
       bound_set_infty(env[i]->sup, 1);
     else {
-      mpq_class ub_i = bbox.ub(i);
+      mpq_set_Rational(temp, bbox.ub(i));
       bound_set_int(env[i]->sup, 0);
-      numrat_set_mpq(env[i]->sup, ub_i.get_mpq_t());
+      numrat_set_mpq(env[i]->sup, temp);
     }
     if (bbox.inf_lb(i))
       bound_set_infty(env[i]->inf, -1);
     else {
-      mpq_class lb_i = bbox.lb(i);
+      mpq_set_Rational(temp, bbox.lb(i));
       bound_set_int(env[i]->inf, 0);
-      numrat_set_mpq(env[i]->inf, lb_i.get_mpq_t());
+      numrat_set_mpq(env[i]->inf, temp);
       numrat_neg(env[i]->inf, env[i]->inf);
     }
   }
+  mpq_clear(temp);
   return { false, env };
 }
 

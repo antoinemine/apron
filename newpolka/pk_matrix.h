@@ -32,7 +32,7 @@ used.
 extern "C" {
 #endif
 
-typedef struct matrix_t {
+typedef struct pk_matrix_t {
   /* public part */
   numint_t** p;     /* array of pointers to rows */
   size_t nbrows;      /* number of effective rows */
@@ -41,66 +41,66 @@ typedef struct matrix_t {
   /* private part */
   size_t  _maxrows;   /* number of rows allocated */
   bool _sorted;
-} matrix_t;
+} pk_matrix_t;
 
 /* Normal functions */
 
 /* information about private part */
-static inline size_t matrix_get_maxrows(matrix_t* mat)
+static inline size_t pk_matrix_get_maxrows(pk_matrix_t* mat)
 { return mat->_maxrows; }
-static inline bool matrix_is_sorted(matrix_t* mat)
+static inline bool pk_matrix_is_sorted(pk_matrix_t* mat)
 { return mat->_sorted; }
 
 /* Basic Operations */
-matrix_t* matrix_alloc(size_t nbrows, size_t nbcols, bool s);
-void      matrix_resize_rows(matrix_t* mat, size_t nbrows);
-void      matrix_resize_rows_lazy(matrix_t* mat, size_t nbrows);
-void      matrix_minimize(matrix_t* mat);
-void      matrix_free(matrix_t* mat);
-void      matrix_clear(matrix_t* mat);
-void      matrix_print(matrix_t* mat);
-void      matrix_fprint(FILE* stream, matrix_t* mat);
-matrix_t* matrix_copy(matrix_t* mat);
-bool      matrix_equal(matrix_t* mata, matrix_t* matb);
+pk_matrix_t* pk_matrix_alloc(size_t nbrows, size_t nbcols, bool s);
+void      pk_matrix_resize_rows(pk_matrix_t* mat, size_t nbrows);
+void      pk_matrix_resize_rows_lazy(pk_matrix_t* mat, size_t nbrows);
+void      pk_matrix_minimize(pk_matrix_t* mat);
+void      pk_matrix_free(pk_matrix_t* mat);
+void      pk_matrix_clear(pk_matrix_t* mat);
+void      pk_matrix_print(pk_matrix_t* mat);
+void      pk_matrix_fprint(FILE* stream, pk_matrix_t* mat);
+pk_matrix_t* pk_matrix_copy(pk_matrix_t* mat);
+bool      pk_matrix_equal(pk_matrix_t* mata, pk_matrix_t* matb);
 
 /* Operations on rows */
-void matrix_normalize_row(pk_internal_t* pk,
-			  matrix_t* mat, size_t l);
-void matrix_combine_rows(pk_internal_t* pk,
-			 matrix_t* mat, size_t l1, size_t l2, size_t l3, size_t k);
-int matrix_compare_rows(pk_internal_t* pk,
-			matrix_t* mat, size_t l1, size_t l2);
-void matrix_exch_rows(matrix_t* mat, size_t l1, size_t l2);
-void matrix_move_rows(matrix_t* mat, size_t destrow, size_t orgrow, size_t size);
+void pk_matrix_normalize_row(pk_internal_t* pk,
+			  pk_matrix_t* mat, size_t l);
+void pk_matrix_combine_rows(pk_internal_t* pk,
+			 pk_matrix_t* mat, size_t l1, size_t l2, size_t l3, size_t k);
+int pk_matrix_compare_rows(pk_internal_t* pk,
+			pk_matrix_t* mat, size_t l1, size_t l2);
+void pk_matrix_exch_rows(pk_matrix_t* mat, size_t l1, size_t l2);
+void pk_matrix_move_rows(pk_matrix_t* mat, size_t destrow, size_t orgrow, size_t size);
 
 /* Normalization of rows */
-bool matrix_normalize_constraint(pk_internal_t* pk,
-				   matrix_t* mat, 
+bool pk_matrix_normalize_constraint(pk_internal_t* pk,
+				   pk_matrix_t* mat, 
 				   size_t intdim, size_t realdim);
-bool matrix_normalize_constraint_int(pk_internal_t* pk,
-				       matrix_t* mat, 
+bool pk_matrix_normalize_constraint_int(pk_internal_t* pk,
+				       pk_matrix_t* mat, 
 				       size_t intdim, size_t realdim);
 
 /* Sorting & Merging */
-void matrix_sort_rows(pk_internal_t* pk,
-		      matrix_t* mat);
-void matrix_sort_rows_with_sat(pk_internal_t* pk,
-			       matrix_t* mat, satmat_t* sat);
+void pk_matrix_sort_rows(pk_internal_t* pk,
+		      pk_matrix_t* mat);
+void pk_matrix_sort_rows_with_sat(pk_internal_t* pk,
+			       pk_matrix_t* mat, satmat_t* sat);
 
-matrix_t* matrix_append(matrix_t* ma, matrix_t* mb);
-void matrix_append_with(matrix_t* ma, matrix_t* mb);
-void matrix_revappend_with(matrix_t* ma, matrix_t* mb);
+pk_matrix_t* pk_matrix_append(pk_matrix_t* ma, pk_matrix_t* mb);
+void pk_matrix_append_with(pk_matrix_t* ma, pk_matrix_t* mb);
+void pk_matrix_revappend_with(pk_matrix_t* ma, pk_matrix_t* mb);
 
-matrix_t* matrix_merge_sort(pk_internal_t* pk,
-			    matrix_t* ma, matrix_t* mb);
-void matrix_merge_sort_with(pk_internal_t* pk,
-			    matrix_t* mat, matrix_t* cmat);
+pk_matrix_t* pk_matrix_merge_sort(pk_internal_t* pk,
+			    pk_matrix_t* ma, pk_matrix_t* mb);
+void pk_matrix_merge_sort_with(pk_internal_t* pk,
+			    pk_matrix_t* mat, pk_matrix_t* cmat);
 
 
 /* Predicates that can be useful for users */
 static inline 
-bool matrix_is_row_dummy_constraint(pk_internal_t* pk,
-				    matrix_t* mat,
+bool pk_matrix_is_row_dummy_constraint(pk_internal_t* pk,
+				    pk_matrix_t* mat,
 				    size_t l)
 {
   return vector_is_dummy_constraint(pk,
@@ -109,7 +109,7 @@ bool matrix_is_row_dummy_constraint(pk_internal_t* pk,
 
 
 /* Functions meant to be internal */
-matrix_t* _matrix_alloc_int(size_t nr, size_t nc, bool s);
+pk_matrix_t* _pk_matrix_alloc_int(size_t nr, size_t nc, bool s);
 
 #ifdef __cplusplus
 }

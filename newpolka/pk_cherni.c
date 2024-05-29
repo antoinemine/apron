@@ -27,7 +27,7 @@
 
 bool cherni_checksatmat(pk_internal_t* pk,
 			bool con_to_ray,
-			matrix_t* C, matrix_t* F, satmat_t* satC)
+			pk_matrix_t* C, pk_matrix_t* F, satmat_t* satC)
 {
   int s1,s2;
   size_t i;
@@ -44,8 +44,8 @@ bool cherni_checksatmat(pk_internal_t* pk,
       if (s1<0 || (s1!=0 && s2==0) || (s1==0 && s2!=0)){
 	printf("cherni_checksatmat con_to_ray=%d: ray %lu, con %lu\n",
 	       con_to_ray,(unsigned long)i,(unsigned long)j.index);
-	printf("Constraints\n"); matrix_print(C);
-	printf("Frames\n"); matrix_print(F);
+	printf("Constraints\n"); pk_matrix_print(C);
+	printf("Frames\n"); pk_matrix_print(F);
 	satmat_print(satC);
 	return false;
       }
@@ -58,19 +58,19 @@ bool cherni_checksatmat(pk_internal_t* pk,
 
 bool cherni_checksat(pk_internal_t* pk,
 		       bool con_to_ray,
-		       matrix_t* C, size_t nbequations,
-		       matrix_t* F, size_t nblines,
+		       pk_matrix_t* C, size_t nbequations,
+		       pk_matrix_t* F, size_t nblines,
 		       satmat_t* satC)
 {
   size_t i,k,nb,rank;
   bitindex_t j;
-  matrix_t* mat;
+  pk_matrix_t* mat;
 
   bool res = true;
   const size_t nbcols = C->nbcolumns;
 
   /* saturation des rayons */
-  mat = matrix_alloc(C->nbrows,nbcols,false);
+  mat = pk_matrix_alloc(C->nbrows,nbcols,false);
   for (i=0; i<F->nbrows; i++){
     nb = 0;
     for (j = bitindex_init(0); j.index < C->nbrows; bitindex_inc(&j)){
@@ -90,10 +90,10 @@ bool cherni_checksat(pk_internal_t* pk,
       res = false;
     }
   }
-  matrix_free(mat);
+  pk_matrix_free(mat);
 
   /* saturation des contraintes */
-  mat = matrix_alloc(F->nbrows,nbcols,false);
+  mat = pk_matrix_alloc(F->nbrows,nbcols,false);
   for (j = bitindex_init(0); j.index < C->nbrows; bitindex_inc(&j)){
     nb = 0;
     for (i=0; i<F->nbrows; i++){
@@ -112,11 +112,11 @@ bool cherni_checksat(pk_internal_t* pk,
       res = false;
     }
   }
-  matrix_free(mat);
+  pk_matrix_free(mat);
 
   if (res==false){
-    printf("Constraints\n"); matrix_print(C);
-    printf("Frames\n"); matrix_print(F);
+    printf("Constraints\n"); pk_matrix_print(C);
+    printf("Frames\n"); pk_matrix_print(F);
     satmat_print(satC);
   }
   return res;
@@ -126,13 +126,13 @@ bool cherni_checksat(pk_internal_t* pk,
 /* II. Conversion algorithm */
 /* ********************************************************************** */
 
-void cherni_resize(matrix_t* mat, satmat_t* sat)
+void cherni_resize(pk_matrix_t* mat, satmat_t* sat)
 {
   assert(mat->nbrows==sat->nbrows);
   size_t nbrows = mat->nbrows;
   size_t currentsize = mat->_maxrows >= sat->_maxrows ? mat->_maxrows : sat->_maxrows;
   size_t addsize = currentsize < 20 ? 10 : currentsize / 2;
-  matrix_resize_rows(mat, currentsize+addsize);
+  pk_matrix_resize_rows(mat, currentsize+addsize);
   satmat_resize_rows(sat, currentsize+addsize);
   mat->nbrows = sat->nbrows = nbrows;
   return;
@@ -165,8 +165,8 @@ Throw exception.
 */
 
 size_t cherni_conversion(pk_internal_t* pk,
-			 matrix_t* con, size_t start,
-			 matrix_t* ray, satmat_t* satc, size_t nbline)
+			 pk_matrix_t* con, size_t start,
+			 pk_matrix_t* ray, satmat_t* satc, size_t nbline)
 {
   size_t i,j,l,w;
   int is_inequality;
@@ -217,11 +217,11 @@ size_t cherni_conversion(pk_internal_t* pk,
       /* remove it of lines and put it at index nbline */
       nbline--;
       if (index_non_zero != nbline)
-	matrix_exch_rows(ray,index_non_zero,nbline);
+	pk_matrix_exch_rows(ray,index_non_zero,nbline);
       /* compute new lineality space */
       for (i=index_non_zero; i<nbline; i++)
 	if (numint_sgn(ray->p[i][0]) != 0){
-	  matrix_combine_rows(pk,ray,i,nbline,i,0);
+	  pk_matrix_combine_rows(pk,ray,i,nbline,i,0);
 	  if (pk->exn) goto cherni_conversion_exit0;
 	}
 
@@ -233,7 +233,7 @@ size_t cherni_conversion(pk_internal_t* pk,
       /* compute the new pointed cone */
       for (i=nbline+1; i<nbrows; i++)
 	if (numint_sgn(ray->p[i][0])){
-	  matrix_combine_rows(pk,ray,i,nbline,i,0);
+	  pk_matrix_combine_rows(pk,ray,i,nbline,i,0);
 	  if (pk->exn) goto cherni_conversion_exit0;
 	}
       
@@ -245,7 +245,7 @@ size_t cherni_conversion(pk_internal_t* pk,
       } else {
 	/* one remove the ray */
 	nbrows --; ray->nbrows --; satc->nbrows--;
-	matrix_exch_rows(ray, nbline, nbrows);
+	pk_matrix_exch_rows(ray, nbline, nbrows);
 	satmat_exch_rows(satc, nbline, nbrows);
       }
 
@@ -271,13 +271,13 @@ size_t cherni_conversion(pk_internal_t* pk,
       while (inf_bound>sup_bound) {
 	int s = numint_sgn(ray->p[sup_bound][0]);
 	if (s==0){
-	  matrix_exch_rows(ray, sup_bound, equal_bound);
+	  pk_matrix_exch_rows(ray, sup_bound, equal_bound);
 	  satmat_exch_rows(satc, sup_bound, equal_bound);
 	  equal_bound++;
 	  sup_bound++;
 	} else if (s<0) {
 	  inf_bound--;
-	  matrix_exch_rows(ray, sup_bound, inf_bound);
+	  pk_matrix_exch_rows(ray, sup_bound, inf_bound);
 	  satmat_exch_rows(satc, sup_bound, inf_bound);
 	} else {
 	  sup_bound++;
@@ -286,7 +286,7 @@ size_t cherni_conversion(pk_internal_t* pk,
       if (is_inequality && sup_bound == nbrows){
 	/* all rays satisfy the constraint:redundancy */
 	con->nbrows--;
-	matrix_exch_rows(con, k.index, con->nbrows);
+	pk_matrix_exch_rows(con, k.index, con->nbrows);
       }
       else {
 	if (sup_bound==nbline){ /* no ray satisfies the constraint */
@@ -332,12 +332,12 @@ size_t cherni_conversion(pk_internal_t* pk,
 		    pk->exn = AP_EXC_OUT_OF_SPACE;
 		    goto cherni_conversion_exit0;
 		  }
-		  if (nbrows>=matrix_get_maxrows(ray) || nbrows>=satc->_maxrows){
+		  if (nbrows>=pk_matrix_get_maxrows(ray) || nbrows>=satc->_maxrows){
 		    /* resize output matrices */
 		    cherni_resize(ray,satc);
 		  }
 		  /* Compute the new ray and put it at end */
-		  matrix_combine_rows(pk,ray,j,i,nbrows,0);
+		  pk_matrix_combine_rows(pk,ray,j,i,nbrows,0);
 		  if (pk->exn) goto cherni_conversion_exit0;
 		  /* New row in saturation matrix */
 		  for (w=0; w<=k.word; w++){
@@ -365,7 +365,7 @@ size_t cherni_conversion(pk_internal_t* pk,
 	    i = nbrows;
 	    while ((j<bound)&&(i>bound)) {
 	      i--;
-	      matrix_exch_rows(ray,i,j);
+	      pk_matrix_exch_rows(ray,i,j);
 	      satmat_exch_rows(satc,i,j);
 	      j++;
 	    }
@@ -411,7 +411,7 @@ of an equation, in this case the left-most non-zero one.
 */
 
 size_t cherni_gauss(pk_internal_t* pk,
-		    matrix_t* con, size_t nbeq)
+		    pk_matrix_t* con, size_t nbeq)
 {
   size_t i,j,k;
   numint_t** p = con->p;
@@ -425,7 +425,7 @@ size_t cherni_gauss(pk_internal_t* pk,
     }
     if (i<nbeq) { /* was one found ? */
       if (i>rank) { /* put it in rank */
-	matrix_exch_rows(con,i,rank);
+	pk_matrix_exch_rows(con,i,rank);
       }
       if (s<0) {  /* normalize with positive coefficient */
 	for (k=1; k<con->nbcolumns; k++)
@@ -434,7 +434,7 @@ size_t cherni_gauss(pk_internal_t* pk,
       numint_set_int(p[rank][0],0);
       for (k=i+1; k<nbeq; k++) {
 	if (numint_sgn(p[k][j]))
-	  matrix_combine_rows(pk,con,k,rank,k,j);
+	  pk_matrix_combine_rows(pk,con,k,rank,k,j);
       }
       pk->cherni_intp[rank] = j;
       rank++;
@@ -452,7 +452,7 @@ size_t cherni_gauss(pk_internal_t* pk,
    gauss. */
 
 
-void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank)
+void cherni_backsubstitute(pk_internal_t* pk, pk_matrix_t* con, size_t rank)
 {
   size_t i,j;
   int k;
@@ -461,7 +461,7 @@ void cherni_backsubstitute(pk_internal_t* pk, matrix_t* con, size_t rank)
     j = pk->cherni_intp[k];
     for (i=0; i<con->nbrows; i++) {
       if (i != (size_t)k && numint_sgn(con->p[i][j]))
-	matrix_combine_rows(pk,con,i,(size_t)k,i,j);
+	pk_matrix_combine_rows(pk,con,i,(size_t)k,i,j);
     }
   }
 }
@@ -484,7 +484,7 @@ Throw exception.
 */
 
 int cherni_simplify(pk_internal_t* pk,
-		    matrix_t* con, matrix_t* ray, satmat_t* satf, size_t nbline)
+		    pk_matrix_t* con, pk_matrix_t* ray, satmat_t* satf, size_t nbline)
 {
   size_t i,j;
   long int nb,nbj;
@@ -522,7 +522,7 @@ int cherni_simplify(pk_internal_t* pk,
     if (is_equality){
       /* we have an equality */
       numint_set_int(con->p[i][0],0);
-      matrix_exch_rows(con, i,nbeq);
+      pk_matrix_exch_rows(con, i,nbeq);
       satmat_exch_rows(satf,i,nbeq);
       nbeq++;
     }
@@ -548,7 +548,7 @@ int cherni_simplify(pk_internal_t* pk,
     j = rank;
     while( j < nbeq && i > nbeq ) {
       i--;
-      matrix_exch_rows(con, j,i);
+      pk_matrix_exch_rows(con, j,i);
       satmat_exch_rows(satf,j,i);
       j++;
     }
@@ -561,7 +561,7 @@ int cherni_simplify(pk_internal_t* pk,
     int_set_numint(&nb, con->p[i][0]);
     if (nb < (long int)(nbcols-nbeq-2)){ /* redundant constraint */
       nbcons--;
-      matrix_exch_rows(con, i,nbcons);
+      pk_matrix_exch_rows(con, i,nbcons);
       satmat_exch_rows(satf,i,nbcons);
     }
     else
@@ -599,7 +599,7 @@ int cherni_simplify(pk_internal_t* pk,
 	  if (is_equality){
 	    /* yes: we can remove j */
 	    nbcons--;
-	    matrix_exch_rows(con, j,nbcons);
+	    pk_matrix_exch_rows(con, j,nbcons);
 	    satmat_exch_rows(satf,j,nbcons);
 	  }
 	  else
@@ -610,7 +610,7 @@ int cherni_simplify(pk_internal_t* pk,
     }
     if (redundant){
       nbcons--;
-      matrix_exch_rows(con, i,nbcons);
+      pk_matrix_exch_rows(con, i,nbcons);
       satmat_exch_rows(satf,i,nbcons);
     }
     else
@@ -663,17 +663,17 @@ void cherni_minimize(pk_internal_t* pk,
 {
   size_t i;
   bool special;
-  matrix_t* C;
-  matrix_t* F;
+  pk_matrix_t* C;
+  pk_matrix_t* F;
   satmat_t* satC;
 
   C = po->C;
 
-  assert(matrix_is_sorted(C) && 
+  assert(pk_matrix_is_sorted(C) && 
 	 po->F==NULL && po->satC==NULL && po->satF==NULL);
 
   /* initialization of F and sat */
-  F = matrix_alloc(CHERNI_FACTOR*uint_max(C->nbrows, C->nbcolumns-1),
+  F = pk_matrix_alloc(CHERNI_FACTOR*uint_max(C->nbrows, C->nbcolumns-1),
 		   C->nbcolumns,false);
   satC = satmat_alloc(F->nbrows, bitindex_size(C->nbrows));
   F->nbrows = satC->nbrows = C->nbcolumns-1;
@@ -686,7 +686,7 @@ void cherni_minimize(pk_internal_t* pk,
 
   if (pk->exn){
     /* out of space, overflow */
-    matrix_free(F);
+    pk_matrix_free(F);
     satmat_free(satC);
     po->nbeq = po->nbline = 0;
   }
@@ -708,8 +708,8 @@ void cherni_minimize(pk_internal_t* pk,
       }
       if (special){
 	/* this means we have an empty polyhedron */
-	matrix_free(C);
-	matrix_free(F);
+	pk_matrix_free(C);
+	pk_matrix_free(F);
 	satmat_free(satC);
 	po->C = 0;
 	po->nbeq = po->nbline = 0;
@@ -721,7 +721,7 @@ void cherni_minimize(pk_internal_t* pk,
     satmat_free(satC);      
     po->nbeq = cherni_simplify(pk,C,F,po->satF,po->nbline);
     if (F->_maxrows > 3*F->nbrows/2){
-      matrix_resize_rows(F,F->nbrows);
+      pk_matrix_resize_rows(F,F->nbrows);
       satmat_resize_cols(po->satF,bitindex_size(F->nbrows));
     }
   } 
@@ -743,8 +743,8 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 {
   size_t i;
   bool special;
-  matrix_t* C;
-  matrix_t* F;
+  pk_matrix_t* C;
+  pk_matrix_t* F;
   satmat_t* satC;
   size_t nbrows,nbcols;
 
@@ -772,7 +772,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 				 C,start,F,satC,po->nbline);
   if (pk->exn){
     /* out of space, overflow */
-    matrix_free(F);
+    pk_matrix_free(F);
     satmat_free(satC);
     po->F = 0;
     po->satC = po->satF = 0;
@@ -794,8 +794,8 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 	}
       }
       if (special){ /* this means we have an empty polyhedron */
-	matrix_free(C);
-	matrix_free(F);
+	pk_matrix_free(C);
+	pk_matrix_free(F);
 	satmat_free(satC);
 	po->C = po->F = 0;
 	po->satC = 0;
@@ -808,7 +808,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
     po->satC = NULL;
     po->nbeq = cherni_simplify(pk,C,F,po->satF,po->nbline);
     if (F->_maxrows > 3*F->nbrows/2){
-      matrix_resize_rows(F,F->nbrows);
+      pk_matrix_resize_rows(F,F->nbrows);
       satmat_resize_cols(po->satF,bitindex_size(F->nbrows));
     } 
   }
@@ -823,7 +823,7 @@ void cherni_add_and_minimize(pk_internal_t* pk,
 
 
 void cherni_buildsatline(pk_internal_t* pk,
-			 matrix_t* con, numint_t* tab,
+			 pk_matrix_t* con, numint_t* tab,
 			 bitstring_t* satline)
 {
   bitindex_t jx = bitindex_init(0);
@@ -849,8 +849,8 @@ void cherni_buildsatline(pk_internal_t* pk,
 bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
 {
   bool is_minimaleps,change,removed;
-  matrix_t* C;
-  matrix_t* F;
+  pk_matrix_t* C;
+  pk_matrix_t* F;
   satmat_t* satF;
   size_t i,j,w,Fnbrows,satFnbcols;
   bitindex_t k;
@@ -935,7 +935,7 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
       is_minimaleps = false;
       /* one remove the constraint */
       C->nbrows--; satF->nbrows--;
-      matrix_exch_rows(C, i, C->nbrows);
+      pk_matrix_exch_rows(C, i, C->nbrows);
       satmat_exch_rows(satF, i, C->nbrows);
     }
     else {
@@ -952,7 +952,7 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
   else {
     po->status &= pk_status_conseps | pk_status_consgauss;
     po->status |= pk_status_minimaleps;
-    matrix_free(po->F); po->F = NULL;
+    pk_matrix_free(po->F); po->F = NULL;
     satmat_free(po->satF); po->satF = NULL;
     if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
     /* Re-add positivity constraint (note: we are sure there is one free row */
@@ -965,9 +965,9 @@ bool cherni_minimizeeps(pk_internal_t* pk, pk_t* po)
     change = true;
   }
   if (!(po->status & pk_status_conseps)){
-    bool change2 = matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
+    bool change2 = pk_matrix_normalize_constraint(pk,po->C,po->intdim,po->realdim);
     if (change2){
-      if (po->F){ matrix_free(po->F); po->F = NULL; }
+      if (po->F){ pk_matrix_free(po->F); po->F = NULL; }
       if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
       if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
     }

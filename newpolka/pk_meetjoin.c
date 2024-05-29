@@ -56,7 +56,7 @@ bool poly_meet_matrix(bool meet,
 		      bool lazy,
 		      ap_manager_t* man,
 		      pk_t* po,
-		      pk_t* pa, matrix_t* mat)
+		      pk_t* pa, pk_matrix_t* mat)
 {
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
@@ -69,11 +69,11 @@ bool poly_meet_matrix(bool meet,
   if (lazy){
     poly_obtain_sorted_C(pk,pa);
     if (po != pa){
-      po->C = matrix_merge_sort(pk,pa->C,mat);
+      po->C = pk_matrix_merge_sort(pk,pa->C,mat);
     }
     else {
-       matrix_merge_sort_with(pk,pa->C,mat);
-       if (pa->F){ matrix_free(pa->F); pa->F=NULL; }
+       pk_matrix_merge_sort_with(pk,pa->C,mat);
+       if (pa->F){ pk_matrix_free(pa->F); pa->F=NULL; }
        if (pa->satC){ satmat_free(pa->satC); pa->satC=NULL; }
        if (pa->satF){ satmat_free(pa->satF); pa->satF=NULL; }
        pa->nbeq = pa->nbline = 0;
@@ -85,15 +85,15 @@ bool poly_meet_matrix(bool meet,
     size_t start = pa->C->nbrows;
     assert(pa->satC);
     if (po != pa){
-      po->C = matrix_append(pa->C,mat);
-      po->F = matrix_copy(pa->F);
+      po->C = pk_matrix_append(pa->C,mat);
+      po->F = pk_matrix_copy(pa->F);
       po->satC = satmat_copy_resize_cols(pa->satC,
 					 bitindex_size(po->C->nbrows));
       po->nbline = pa->nbline;
       po->nbeq = pa->nbeq;
     }
     else {
-      matrix_append_with(pa->C,mat);
+      pk_matrix_append_with(pa->C,mat);
       satmat_resize_cols(pa->satC,
 			 bitindex_size(pa->C->nbrows));
     }
@@ -354,7 +354,7 @@ pk_t* poly_meet_array(bool meet,
   }
   /* 2. General case */
   else {
-    matrix_t* C;
+    pk_matrix_t* C;
     size_t nbrows;
     size_t i,j;
 
@@ -419,13 +419,13 @@ pk_t* poly_meet_array(bool meet,
     }
     /* 2.1. lazy behaviour */
     if (lazy){
-      C = matrix_alloc(nbrows,pk->dec+intdim+realdim,true);
+      C = pk_matrix_alloc(nbrows,pk->dec+intdim+realdim,true);
       C->nbrows = 0;
       C->_sorted = true;
       for (i=0; i<size; i++){
 	if (po[i]->C){
 	  poly_obtain_sorted_C(pk,po[i]);
-	  matrix_merge_sort_with(pk,C,po[i]->C);
+	  pk_matrix_merge_sort_with(pk,C,po[i]->C);
 	}
       }
       poly->C = C;
@@ -444,19 +444,19 @@ pk_t* poly_meet_array(bool meet,
 	  j=i;
       }
       /* Add the other polyehdra to the polyhedra of index j */
-      C = matrix_alloc(nbrows, pk->dec+intdim+realdim,true);
+      C = pk_matrix_alloc(nbrows, pk->dec+intdim+realdim,true);
       C->nbrows = 0;
       C->_sorted = true;
       for (i=0; i<size; i++){
 	if (i!=j){
 	  poly_obtain_sorted_C(pk,po[i]);
-	  matrix_merge_sort_with(pk,C,po[i]->C);
+	  pk_matrix_merge_sort_with(pk,C,po[i]->C);
 	}
       }
-      matrix_revappend_with(C,po[j]->C);
+      pk_matrix_revappend_with(C,po[j]->C);
       C->_sorted = false;
       poly->C = C;
-      poly->F = matrix_copy(po[j]->F);
+      poly->F = pk_matrix_copy(po[j]->F);
       poly_obtain_satC(po[j]);
       poly->satC = satmat_copy_resize_cols(po[j]->satC,
 					   bitindex_size(C->nbrows));
@@ -524,7 +524,7 @@ void poly_meet_itv_lincons_array(bool lazy,
 				 pk_t* po, pk_t* pa,
 				 itv_lincons_array_t* array)
 {
-  matrix_t* mat;
+  pk_matrix_t* mat;
   bool quasilinear;
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
@@ -553,17 +553,17 @@ void poly_meet_itv_lincons_array(bool lazy,
 
   /* quasilinearize if needed */
   if (!quasilinear){
-    itv_t* env = matrix_to_box(pk,pa->F);
+    itv_t* env = pk_matrix_to_box(pk,pa->F);
     itv_quasilinearize_lincons_array(pk->itv,array,env,true);
     itv_array_free(env,pa->intdim+pa->realdim);
   }
   itv_linearize_lincons_array(pk->itv,array,true);
   itv_lincons_array_reduce_integer(pk->itv,array,po->intdim);
-  bool exact = matrix_set_itv_lincons_array(pk,&mat,array,po->intdim,po->realdim,true);
-  matrix_sort_rows(pk,mat);
+  bool exact = pk_matrix_set_itv_lincons_array(pk,&mat,array,po->intdim,po->realdim,true);
+  pk_matrix_sort_rows(pk,mat);
   if (!lazy) poly_obtain_satC(pa);
   poly_meet_matrix(true,lazy,man,po,pa,mat);
-  matrix_free(mat);
+  pk_matrix_free(mat);
   if (pk->exn){
     pk->exn = AP_EXC_NONE;
     man->result.flag_exact = man->result.flag_best = false;
@@ -687,7 +687,7 @@ void poly_add_ray_array(bool lazy,
 			pk_t* po, pk_t* pa, ap_generator0_array_t* array)
 {
   bool exact;
-  matrix_t* mat;
+  pk_matrix_t* mat;
 
   pk_internal_t* pk = (pk_internal_t*)man->internal;
 
@@ -712,8 +712,8 @@ void poly_add_ray_array(bool lazy,
     poly_set(po,pa);
     return;
   }
-  exact = matrix_set_ap_generator0_array(pk,&mat,array,pa->intdim,pa->realdim);
-  matrix_sort_rows(pk,mat);
+  exact = pk_matrix_set_ap_generator0_array(pk,&mat,array,pa->intdim,pa->realdim);
+  pk_matrix_sort_rows(pk,mat);
 
   if (!lazy) poly_obtain_satF(pa);
   poly_dual(po);
@@ -721,7 +721,7 @@ void poly_add_ray_array(bool lazy,
   poly_meet_matrix(false,lazy,man,po,pa,mat);
   poly_dual(po);
   if (po!=pa) poly_dual(pa);
-  matrix_free(mat);
+  pk_matrix_free(mat);
   man->result.flag_exact = exact;
 }
 

@@ -3,7 +3,7 @@
 # APRON Library / PPLite library
 #
 # Copyright (C) Antoine Mine' 2006-2009
-# Copyright (C) Enea Zaffanella 2023
+# Copyright (C) Enea Zaffanella 2023-2024
 
 # This file is part of the APRON Library, released under GPL license.
 # Please read the COPYING file packaged in the distribution
@@ -14,8 +14,8 @@ This package is a wrapper for the PPLite library
 Requirements:
 - APRON
 - ITV
-- PPLite library version 0.11 (to be installed from sources)
-- Flint, MPFR and GMPXX (the latter normally installed with GMP)
+- PPLite library version 0.12 (to be installed from sources)
+- Flint, MPFR, GMP
 - for apron_pplite_test: NewPolka APRON module
 
 If HAS_PPLITE is defined in ../Makefile.config, then the main APRON Makefile

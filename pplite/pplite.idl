@@ -292,7 +292,8 @@ ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myr
 {[ocamlopt -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -noautolink -o mlexample.opt \\
   bigarray.cmxa gmp.cmxa apron.cmxa pplite.cmxa mlexample.ml \\
   -cclib \"-L$MLGMPIDL_PREFIX/lib -L$APRON_PREFIX/lib -L$PPLITE_PREFIX/lib\\
-	  -lap_pplite_caml_debug -lap_pplite_debug -lpplite -lflint -lgmpxx \\
+	  -lap_pplite_caml_debug -lap_pplite_debug -lpplite \\
+          -L$FLINT_PREFIX/lib -lflint \\
 	  -lapron_caml_debug -lapron_debug \\
 	  -lgmp_caml -L$MPFR_PREFIX/lib -lmpfr -L$GMP_PREFIX/lib -lgmp \\
 	  -L$CAMLIDL_PREFIX/lib/ocaml -lcamlidl \\

@@ -94,7 +94,7 @@ This enables to test the satisfiability of a strict constraint in non-strict
 mode for the library.
 
 */
-bool do_generators_sat_vector(pk_internal_t* pk, matrix_t* F, numint_t* tab, bool is_strict)
+bool do_generators_sat_vector(pk_internal_t* pk, pk_matrix_t* F, numint_t* tab, bool is_strict)
 {
   size_t i;
 
@@ -231,7 +231,7 @@ bool pk_is_eq(ap_manager_t* man, pk_t* pa, pk_t* pb)
       (!pa->C && !pb->C) ||
       (pa->C && pb->C &&
        pa->C->nbrows == pb->C->nbrows && pa->F->nbrows == pb->F->nbrows &&
-       (pa->C->nbrows <= pa->F->nbrows ? matrix_equal(pa->C,pb->C) : matrix_equal(pa->F,pb->F)));
+       (pa->C->nbrows <= pa->F->nbrows ? pk_matrix_equal(pa->C,pb->C) : pk_matrix_equal(pa->F,pb->F)));
     assert(res == (pk_is_leq(man,pa,pb) && pk_is_leq(man,pb,pa)));
     return res;
   }
@@ -277,7 +277,7 @@ bool pk_sat_lincons(ap_manager_t* man, pk_t* po, ap_lincons0_t* lincons0)
   dim = po->intdim + po->realdim;
 
   if (!ap_linexpr0_is_quasilinear(lincons0->linexpr0)){
-    itv_t* env = matrix_to_box(pk,po->F);
+    itv_t* env = pk_matrix_to_box(pk,po->F);
     exact = itv_lincons_set_ap_lincons0(pk->itv,
 					&pk->poly_itv_lincons,
 					lincons0);
@@ -343,7 +343,7 @@ bool pk_sat_tcons(ap_manager_t* man, pk_t* po, ap_tcons0_t* cons)
   }
   dim = po->intdim + po->realdim;
 
-  itv_t* env = matrix_to_box(pk,po->F);
+  itv_t* env = pk_matrix_to_box(pk,po->F);
   itv_intlinearize_ap_tcons0(pk->itv,&pk->poly_itv_lincons,
 			     cons,env,po->intdim);
   itv_quasilinearize_lincons(pk->itv,&pk->poly_itv_lincons,env,false);
@@ -380,7 +380,7 @@ tests if:
 - dim >= -bound if sgn<0
 */
 
-bool do_generators_sat_bound(pk_internal_t* pk, matrix_t* F,
+bool do_generators_sat_bound(pk_internal_t* pk, pk_matrix_t* F,
 			     ap_dim_t dim, numrat_t bound,
 			     int sgn)
 {
@@ -472,8 +472,8 @@ bool pk_is_dimension_unconstrained(ap_manager_t* man, pk_t* po,
 {
   size_t i,j;
   bool res;
-  matrix_t* F;
-  matrix_t* C;
+  pk_matrix_t* F;
+  pk_matrix_t* C;
   pk_internal_t* pk = pk_init_from_manager(man,AP_FUNID_SAT_INTERVAL);
 
   poly_chernikova3(man,po,NULL);
