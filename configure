@@ -233,7 +233,7 @@ checkprefix()
         fi
     fi
     # check with a prefix
-    for prefix in $testprefix /usr/local /opt/homebrew "$HOME"
+    for prefix in $testprefix /usr/local /opt/homebrew /usr "$HOME"
     do
         echo "looking for $testlib in prefix $prefix"
         checkinc "$testcc -I$prefix/include" "$testinc"
