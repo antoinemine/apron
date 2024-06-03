@@ -33,7 +33,6 @@ struct ap_abstract0_ptr ap_abstract0_ptr;
 quote(MLMLI,"(** APRON Abstract value of level 0 *)")
 quote(MLMLI,"(** The type parameter ['a] allows to distinguish abstract values with different underlying abstract domains. *)\n")
 
-quote(MLI,"\n(** TO BE DOCUMENTED *)")
 void ap_abstract0_set_gc(int size)
      quote(call,"camlidl_apron_heap = size;");
 
@@ -131,6 +130,14 @@ ap_manager_ptr ap_abstract0_manager(ap_abstract0_ptr a)
 quote(MLMLI,"(* ============================================================ *)")
 quote(MLMLI,"(** {3 Tests} *)")
 quote(MLMLI,"(* ============================================================ *)")
+
+quote(MLI,"\n\
+(**\n\
+  NOTE: Abstract elements are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [is_eq] and [is_leq] instead.\n\
+*)\n\n");
 
 quote(MLI,"\n(** Emptiness test *)")
 boolean ap_abstract0_is_bottom(ap_manager_ptr man, ap_abstract0_ptr a)

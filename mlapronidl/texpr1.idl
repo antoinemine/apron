@@ -19,6 +19,15 @@ struct ap_texpr1_t {
   [mlname(mutable_texpr0)] ap_texpr0_ptr texpr0;
   [mlname(mutable_env)] ap_environment_ptr env;
 };
+
+quote(MLI,"\n\
+(**\n\
+  NOTE: Expressions are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [Texpr0.equal] on the [texpr0] field instead.\n\
+*)\n\n");
+
 quote(MLMLI,"\n\
 (** Unary operators *) \n\
 type unop = Texpr0.unop = \n\

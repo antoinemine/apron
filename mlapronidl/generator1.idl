@@ -31,6 +31,13 @@ struct ap_generator1_array_t {
 };
 quote(MLMLI,"(** APRON Generators and array of generators of level 1 *)")
 
+quote(MLI,"\n\
+(**\n\
+  NOTE: Generators are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+*)\n\n");
+
 quote(MLMLI,"\n\
 type typ = Generator0.typ = \n\
   | LINE\n\

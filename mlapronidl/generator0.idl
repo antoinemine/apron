@@ -43,6 +43,13 @@ struct ap_generator0_array_t {
 };
 
 quote(MLI,"\n\
+(**\n\
+  NOTE: Generators are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+*)\n\n");
+
+quote(MLI,"\n\
 (** Making a generator. The constant coefficient of the linear expression is\n\
   ignored. Modifying later the linear expression modifies correspondingly the\n\
   generator and conversely. *)\n\
