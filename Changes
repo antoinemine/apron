@@ -4,9 +4,9 @@ Version 0.9.15
 
 - Autodetect library in configure for Mac ARM with Homebrew (#107)
 
-- Support for PPLite 0.12 [Michele Spotti, Enea Zaffanella]] (#105)
+- Support for PPLite 0.12 [Michele Spotti, Enea Zaffanella] (#105)
 
-- Disable PPL and PPLite when no C++ compielr is detected (#104)
+- Disable PPL and PPLite when no C++ compiler is detected (#104)
 
 - Various fixes (#101, #97, #90)
 
