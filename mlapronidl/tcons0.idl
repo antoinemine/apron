@@ -73,7 +73,7 @@ value camlidl_apron_tcons0_c2ml(ap_tcons0_t* cons)\n\
 {\n\
   value vres;\n\
   value _v[3];\n\
-  _v[0] = _v[1] = _v[2] = 0;\n\
+  _v[0] = _v[1] = _v[2] = Val_unit;\n\
 \n\
   Begin_roots_block(_v, 3)\n\
     _v[0] = camlidl_apron_texpr0_ptr_c2ml(&cons->texpr0);\n\

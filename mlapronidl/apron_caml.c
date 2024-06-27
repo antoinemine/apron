@@ -149,7 +149,7 @@ value camlidl_apron_lincons0_c2ml(ap_lincons0_t* cons)
 {
   value vres;
   value _v[3];
-  _v[0] = _v[1] = _v[2] = 0;
+  _v[0] = _v[1] = _v[2] = Val_unit;
 
   Begin_roots_block(_v, 3)
     _v[0] = camlidl_apron_linexpr0_ptr_c2ml(&cons->linexpr0);
@@ -519,7 +519,7 @@ value camlidl_apron_policy_optr_c2ml(ap_policy_optr* p)
   if (p==NULL){
     return Val_int(0);
   } else {
-    value v,v2=0;
+    value v,v2 = Val_unit;
     Begin_roots1(v2);
     v2 = camlidl_apron_policy_ptr_c2ml(p);
     v = caml_alloc_small(1,0);
