@@ -1203,30 +1203,32 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
   /* Compute the permutation for "exchanging" dim and tdim[0] if necessary  */
   if (dim!=tdim[0]){
     size_t rank;
-    /* We have the following situation
+    /* Due to reordering of tdim, we have now folded the variables
+       into tdim[0] instead of dim.
 
-    Initially:
-    env: A B C D E F G
-    dim: 0 1 2 3 4 5 6
-    gen: a b c d e f g
-    We fold with F,B,D, translated to [5,1,3] and reordered to [1,3,5]
-    env: A C E F G
-    dim: 0 1 2 3 4
-    gen: a b c e g
-	 a d c e g
-	 a f c e g
-    We need now to apply the permutation
-    rank: 0 1 2 3 4
-    perm: 0 2 3 1 4
+       To fix this, we construct a permutation to exchange dim and tdim[0].
 
-    var: Y Z Q
-    dim: 0 1 2
-    gen: b a e
-	 b c e
-	 b d e
+       Due to folding, the position of dim has changed in the result.
+       Then new position is dim-index, where index is the position of
+       dim in tdim, i.e., the number of variables that have been removed
+       before dim.
 
-    So we have to perform a to the right between dim[0] and dim-(rank of dim in
-    tdim)
+       We then rotate all indices between tdim[0] and dim-index left.
+
+       Example:
+       We want to fold 1 into 4 (dim).
+       We first sort tdmin as [1;4].
+       Level 0 folding will actuall fold 4 (dim) into 1 (tdim[0]),
+       and remove 4.
+       We thus rotate left variables at positions 1, 2, 3 (after folding).
+
+                tdim[0]  dim
+                    v     v
+       original:  0 1 2 3 4 5
+       folded:    0 f 2 3 5     (where f = 1 U 4)
+       permuted:  0 2 3 f 5
+
+       The permutation is: 0->0, 1->3, 2->1, 3->2, 5->5
     */
     /* look for the position of dim in tdim array */
     void* p = bsearch(&dim,&tdim[1],size-1,sizeof(ap_dim_t),compar_dim);
@@ -1235,10 +1237,10 @@ ap_abstract1_t ap_abstract1_fold(ap_manager_t* man,
     /* compute permutation */
     ap_dimperm_init(&perm, nenv->intdim+nenv->realdim);
     ap_dimperm_set_id(&perm);
-    for (rank=tdim[0]; rank<dim-index; rank++){
-      perm.dim[rank] = rank+1;
+    for (rank=tdim[0]+1; rank<=dim-index; rank++){
+      perm.dim[rank] = rank-1;
     }
-    perm.dim[dim-index] = tdim[0];
+    perm.dim[tdim[0]] = dim-index;
   }
 
   /* Perform the operation */

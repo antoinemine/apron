@@ -32,8 +32,8 @@
 
 void poly_set_bottom(pk_internal_t* pk, pk_t* po)
 {
-  if (po->C) matrix_free(po->C);
-  if (po->F) matrix_free(po->F);
+  if (po->C) pk_matrix_free(po->C);
+  if (po->F) pk_matrix_free(po->F);
   if (po->satC) satmat_free(po->satC);
   if (po->satF) satmat_free(po->satF);
   po->C = po->F = NULL;
@@ -61,7 +61,7 @@ pk_t* pk_bottom(ap_manager_t* man, size_t intdim, size_t realdim)
 /* Universe polyhedron */
 /* ====================================================================== */
 
-void matrix_fill_constraint_top(pk_internal_t* pk, matrix_t* C, size_t start)
+void pk_matrix_fill_constraint_top(pk_internal_t* pk, pk_matrix_t* C, size_t start)
 {
   if (pk->strict){
     /* constraints epsilon and xi-epsilon*/
@@ -86,8 +86,8 @@ void poly_set_top(pk_internal_t* pk, pk_t* po)
   size_t i;
   size_t dim;
 
-  if (po->C) matrix_free(po->C);
-  if (po->F) matrix_free(po->F);
+  if (po->C) pk_matrix_free(po->C);
+  if (po->F) pk_matrix_free(po->F);
   if (po->satC) satmat_free(po->satC);
   if (po->satF) satmat_free(po->satF);
 
@@ -100,8 +100,8 @@ void poly_set_top(pk_internal_t* pk, pk_t* po)
 
   dim = po->intdim + po->realdim;
 
-  po->C = matrix_alloc(pk->dec-1, pk->dec+dim,true);
-  po->F = matrix_alloc(pk->dec+dim-1,pk->dec+dim,true);
+  po->C = pk_matrix_alloc(pk->dec-1, pk->dec+dim,true);
+  po->F = pk_matrix_alloc(pk->dec+dim-1,pk->dec+dim,true);
   /* We have to ensure that the matrices are really sorted */
   po->satC = satmat_alloc(pk->dec+dim-1,bitindex_size(pk->dec-1));
   po->satF = 0;
@@ -109,7 +109,7 @@ void poly_set_top(pk_internal_t* pk, pk_t* po)
   po->nbline = dim;
 
   /* constraints */
-  matrix_fill_constraint_top(pk,po->C,0);
+  pk_matrix_fill_constraint_top(pk,po->C,0);
 
   /* generators */
   /* lines $x_i$ */
@@ -156,8 +156,8 @@ pk_t* pk_top(ap_manager_t* man, size_t intdim, size_t realdim)
 
 /* The matrix is supposed to be big enough */
 static 
-int matrix_fill_constraint_box(pk_internal_t* pk,
-				matrix_t* C, size_t start,
+int pk_matrix_fill_constraint_box(pk_internal_t* pk,
+				pk_matrix_t* C, size_t start,
 				ap_interval_t** box,
 				size_t intdim, size_t realdim,
 				bool integer)
@@ -224,13 +224,13 @@ pk_t* pk_of_box(ap_manager_t* man,
   po->status = pk_status_conseps;
 
   dim = intdim + realdim;
-  po->C = matrix_alloc(pk->dec-1 + 2*dim, pk->dec + dim, false);
+  po->C = pk_matrix_alloc(pk->dec-1 + 2*dim, pk->dec + dim, false);
 
   /* constraints */
-  matrix_fill_constraint_top(pk,po->C,0);
-  k = matrix_fill_constraint_box(pk,po->C,pk->dec-1,array,intdim,realdim,true);
+  pk_matrix_fill_constraint_top(pk,po->C,0);
+  k = pk_matrix_fill_constraint_box(pk,po->C,pk->dec-1,array,intdim,realdim,true);
   if (k==-1){
-    matrix_free(po->C);
+    pk_matrix_free(po->C);
     po->C = NULL;
     return po;
   }

@@ -69,10 +69,10 @@ bool equality_check(pk_internal_t* pk, pkeq_t* po)
 
 
 static
-void matrix_reduce(matrix_t* mat)
+void pk_matrix_reduce(pk_matrix_t* mat)
 {
   if (mat->nbrows + 4 <= mat->_maxrows){
-    matrix_minimize(mat);
+    pk_matrix_minimize(mat);
   }
 }
 
@@ -85,9 +85,9 @@ void equality_reduce(ap_manager_t* man, pkeq_t* po)
       pk_internal_t* pk = (pk_internal_t*)man->internal;
 
       po->C->nbrows = po->nbeq + 1;
-      matrix_fill_constraint_top(pk,po->C,po->nbeq);
-      matrix_reduce(po->C);
-      matrix_free(po->F); po->F = NULL;
+      pk_matrix_fill_constraint_top(pk,po->C,po->nbeq);
+      pk_matrix_reduce(po->C);
+      pk_matrix_free(po->F); po->F = NULL;
       if (po->satC){
 	satmat_free(po->satC);
 	po->satC = NULL;
@@ -164,7 +164,7 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
     pk_status_conseps;
 
   dim = intdim + realdim;
-  po->C = matrix_alloc(pk->dec-1 + dim, pk->dec + dim, false);
+  po->C = pk_matrix_alloc(pk->dec-1 + dim, pk->dec + dim, false);
 
   /* constraints */
   row = 0;
@@ -178,7 +178,7 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
 				 intdim,realdim,
 				 true);
       if (!ok){
-	matrix_free(po->C);
+	pk_matrix_free(po->C);
 	po->C = NULL;
 	return po;
       }
@@ -186,9 +186,9 @@ pkeq_t* pkeq_of_box(ap_manager_t* man,
     }
   }
   itv_clear(itv);
-  matrix_fill_constraint_top(pk,po->C,row);
+  pk_matrix_fill_constraint_top(pk,po->C,row);
   po->C->nbrows = pk->dec - 1 + row;
-  matrix_reduce(po->C);
+  pk_matrix_reduce(po->C);
   pk_canonicalize(man,po);
   man->result.flag_exact = man->result.flag_best = true;
   return po;
@@ -214,8 +214,8 @@ bool pkeq_is_eq(ap_manager_t* man, pkeq_t* pa, pkeq_t* pb)
       else {
 	size_t i,j;
 
-	matrix_t* mata = pa->C;
-	matrix_t* matb = pb->C;
+	pk_matrix_t* mata = pa->C;
+	pk_matrix_t* matb = pb->C;
 	bool res = true;
 	for (i=0; i<mata->nbrows; i++){
 	  for (j=0; j<matb->nbcolumns; j++){

@@ -1,0 +1,302 @@
+/* -*- mode: c -*- */
+
+/*
+ * pplite.idl
+ *
+ * OCaml interface specification for camlidl
+ *
+ * APRON Library / PPLite library wrapper
+ *
+ * Copyright (C) Antoine Mine' 2006
+ * Copyright (C) Enea Zaffanella 2023
+ *
+ */
+
+/* This file is part of the APRON Library, released under GPL license.
+   Please read the COPYING file packaged in the distribution.
+*/
+
+quote(C,"/*
+ This file is part of the APRON Library, released under GPL license.
+ Please read the COPYING file packaged in the distribution.
+*/
+")
+quote(MLMLI,"(*
+ This file is part of the APRON Library, released under GPL license.
+ Please read the COPYING file packaged in the distribution.
+*)
+")
+
+quote(C,"#include \"ap_pplite.h\"")
+quote(C,"#include \"apron_caml.h\"")
+
+quote(C,"#define I0_CHECK_EXC(man) if (man->result.exn!=AP_EXC_NONE){ value v = camlidl_c2ml_manager_struct_ap_exclog_t(man->result.exclog,_ctx); caml_raise_with_arg(*caml_named_value(\"apron exception\"),v); } ")
+
+import "abstract0.idl";
+import "manager.idl";
+
+quote(MLMLI,"(** Polyhedra abstract domains (PPLite wrapper) *)")
+
+quote(MLMLI,"
+type loose
+type strict
+  (** Two flavors for convex polyhedra: loose or strict.
+
+      Loose polyhedra cannot have strict inequality constraints like [x>0].
+      Convex polyhedra are defined by the conjunction of a set of linear
+      constraints of the form
+      [a_0*x_0 + ... + a_n*x_n + b >= 0] or
+      [a_0*x_0 + ... + a_n*x_n + b > 0]
+      where [a_0, ..., a_n, b, c] are constants and [x_0, ..., x_n] variables.
+  *)
+
+type 'a t
+(** Type of convex polyhedra, where ['a] is [loose] or [strict].
+
+    Abstract values which are convex polyhedra have the type
+    [loose t Apron.AbstractX.t] or [strict t Apron.AbstractX.t].
+    Managers allocated by PPLite have the type ['a t Apron.Manager.t].
+*)
+")
+
+quote(MLI,"(** Allocate a PPLite manager for loose convex polyhedra. *)")
+ap_manager_ptr ap_pplite_manager_alloc_loose()
+quote(call,"_res = ap_pplite_manager_alloc(false);");
+
+quote(MLI,"(** Allocate a PPLite manager for strict convex polyhedra. *)")
+ap_manager_ptr ap_pplite_manager_alloc_strict()
+quote(call,"_res = ap_pplite_manager_alloc(true);");
+
+quote(MLI,"(** Set the polyhedra kind for PPLite manager. *)")
+void ap_pplite_manager_set_kind(ap_manager_ptr man, [string]const char* kind)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the polyhedra kind from PPLite manager. *)")
+[string]const char* ap_pplite_manager_get_kind(ap_manager_ptr man)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Set the widening specification for PPLite manager.
+   legal values are:
+     - \"safe\": the Cousot&Cousot POPL77 specification, which does not
+        assume the inclusion between arguments;
+     - \"risky\": the Cousot&Cousot PLILP92 footnote 6 alternative
+        specification, assuming the inclusion between arguments.
+*)")
+void ap_pplite_manager_set_widen_spec(ap_manager_ptr man,
+                                      [string]const char* spec)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the widening specification from PPLite manager. *)")
+[string]const char* ap_pplite_manager_get_widen_spec(ap_manager_ptr man)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+
+quote(MLI,"(** {2 PPLite's abstract0 ad-hoc functions} *)")
+
+quote(MLI,"(** Splits abstract element on linear constraint *)")
+ap_abstract0_ptr ap_pplite_abstract0_split(ap_manager_ptr man, ap_abstract0_ptr abs, [ref]ap_lincons0_t* c, boolean integral, boolean strict)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Returns true if abs is a powerset of polyhedra *)")
+boolean ap_pplite_abstract0_is_disjunctive(ap_manager_ptr man, ap_abstract0_ptr abs)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the number of disjuncts of a polyhedra powerset. *)")
+int ap_pplite_abstract0_num_disjuncts(ap_manager_ptr man, ap_abstract0_ptr abs)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Get the linear constraints of the n-th disjunct. *)")
+struct ap_lincons0_array_t ap_pplite_abstract0_disj_to_lincons_array(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+
+quote(MLI,"(** Get the tree constraints of the n-th disjunct. *)")
+struct ap_tcons0_array_t ap_pplite_abstract0_disj_to_tcons_array(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Returns true if abs1 is geometrically contained in abs2 *)")
+boolean ap_pplite_abstract0_geom_subseteq(ap_manager_ptr man, ap_abstract0_ptr abs1, ap_abstract0_ptr abs2)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+quote(MLI,"(** Modify abstract element to have n disjunct at most. *)")
+void ap_pplite_abstract0_collapse(ap_manager_ptr man, ap_abstract0_ptr a, int n)
+  quote(dealloc,"I0_CHECK_EXC(man)");
+
+
+quote(MLI,"(** {2 Type conversions} *)
+
+val manager_is_pplite : 'a Apron.Manager.t -> bool
+val manager_is_pplite_loose : 'a Apron.Manager.t -> bool
+val manager_is_pplite_strict : 'a Apron.Manager.t -> bool
+  (** Return [true] iff the argument manager is a PPLite manager *)
+val manager_of_pplite : 'a t Apron.Manager.t -> 'b Apron.Manager.t
+val manager_of_pplite_loose : loose t Apron.Manager.t -> 'a Apron.Manager.t
+val manager_of_pplite_strict : strict t Apron.Manager.t -> 'a Apron.Manager.t
+  (** Make a PPLite manager generic *)
+val manager_to_pplite : 'a Apron.Manager.t -> 'b t Apron.Manager.t
+val manager_to_pplite_loose : 'a Apron.Manager.t -> loose t Apron.Manager.t
+val manager_to_pplite_strict : 'a Apron.Manager.t -> strict t Apron.Manager.t
+  (** Instantiate the type of a PPLite manager.
+      Raises [Failure] if the argument manager is not a PPLite manager *)
+
+module Abstract0 : sig
+  val is_pplite : 'a Apron.Abstract0.t -> bool
+  val is_pplite_loose : 'a Apron.Abstract0.t -> bool
+  val is_pplite_strict : 'a Apron.Abstract0.t -> bool
+    (** Return [true] iff the argument manager is a PPLite value *)
+  val of_pplite : 'a t Apron.Abstract0.t -> 'b Apron.Abstract0.t
+  val of_pplite_loose : loose t Apron.Abstract0.t -> 'a Apron.Abstract0.t
+  val of_pplite_strict : strict t Apron.Abstract0.t -> 'a Apron.Abstract0.t
+    (** Make a PPLite value generic *)
+  val to_pplite : 'a Apron.Abstract0.t -> 'b t Apron.Abstract0.t
+  val to_pplite_loose : 'a Apron.Abstract0.t -> loose t Apron.Abstract0.t
+  val to_pplite_strict : 'a Apron.Abstract0.t -> strict t Apron.Abstract0.t
+    (** Instantiate the type of a PPLite value.
+	Raises [Failure] if the argument manager is not a PPLite manager *)
+end
+
+module Abstract1 : sig
+  val is_pplite : 'a Apron.Abstract1.t -> bool
+  val is_pplite_loose : 'a Apron.Abstract1.t -> bool
+  val is_pplite_strict : 'a Apron.Abstract1.t -> bool
+    (** Return [true] iff the argument manager is a PPLite value *)
+  val of_pplite : 'a t Apron.Abstract1.t -> 'b Apron.Abstract1.t
+  val of_pplite_loose : loose t Apron.Abstract1.t -> 'a Apron.Abstract1.t
+  val of_pplite_strict : strict t Apron.Abstract1.t -> 'a Apron.Abstract1.t
+    (** Make a PPLite value generic *)
+  val to_pplite : 'a Apron.Abstract1.t -> 'b t Apron.Abstract1.t
+  val to_pplite_loose : 'a Apron.Abstract1.t -> loose t Apron.Abstract1.t
+  val to_pplite_strict : 'a Apron.Abstract1.t -> strict t Apron.Abstract1.t
+    (** Instantiate the type of a PPLite value.
+	Raises [Failure] if the argument manager is not a PPLite manager *)
+end
+")
+
+quote(ML,"
+let manager_is_pplite man =
+  let str = Apron.Manager.get_library man in
+  let str =
+    try String.sub str 0 6
+    with Invalid_argument _ -> \"\"
+  in
+  (String.compare str \"PPLite\")==0
+let manager_of_pplite (man:'a t Apron.Manager.t) : 'b Apron.Manager.t = Obj.magic man
+let manager_to_pplite (man:'a Apron.Manager.t) : 'b t Apron.Manager.t =
+  if manager_is_pplite man then
+    Obj.magic man
+  else
+    failwith \"Pplite.to_pplite: the argument manager is not a PPLite manager\"
+
+let manager_is_pplite_loose man =
+  let str = Apron.Manager.get_library man in
+  (String.compare str \"PPLite polyhedra, loose mode\")==0
+let manager_of_pplite_loose (man:loose t Apron.Manager.t) : 'a Apron.Manager.t = Obj.magic man
+let manager_to_pplite_loose (man:'a Apron.Manager.t) : loose t Apron.Manager.t =
+  if manager_is_pplite_loose man then
+    Obj.magic man
+  else
+    failwith \"Pplite.to_pplite_loose: the argument manager is not a loose PPLite manager\"
+
+let manager_is_pplite_strict man =
+  let str = Apron.Manager.get_library man in
+  (String.compare str \"PPLite polyhedra, strict mode\")==0
+let manager_of_pplite_strict (man:strict t Apron.Manager.t) : 'a Apron.Manager.t = Obj.magic man
+let manager_to_pplite_strict (man:'a Apron.Manager.t) : strict t Apron.Manager.t =
+  if manager_is_pplite_strict man then
+    Obj.magic man
+  else
+    failwith \"Pplite.to_pplite_strict: the argument manager is not a strict PPLite manager\"
+
+module Abstract0 = struct
+  let is_pplite abs =
+    manager_is_pplite (Apron.Abstract0.manager abs)
+  let is_pplite_loose abs =
+    manager_is_pplite_loose (Apron.Abstract0.manager abs)
+  let is_pplite_strict abs =
+    manager_is_pplite (Apron.Abstract0.manager abs)
+  let of_pplite (abs: 'a t Apron.Abstract0.t) : 'b Apron.Abstract0.t = Obj.magic abs
+  let of_pplite_loose (abs: loose t Apron.Abstract0.t) : 'a Apron.Abstract0.t = Obj.magic abs
+  let of_pplite_strict (abs: strict t Apron.Abstract0.t) : 'a Apron.Abstract0.t = Obj.magic abs
+  let to_pplite (abs:'a Apron.Abstract0.t) : 'b t Apron.Abstract0.t =
+    if is_pplite abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract0.to_pplite: the argument value is not a PPLite value\"
+  let to_pplite_loose (abs:'a Apron.Abstract0.t) : loose t Apron.Abstract0.t =
+    if is_pplite_loose abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract0.to_pplite_loose: the argument value is not a loose pplite value\"
+  let to_pplite_strict (abs:'a Apron.Abstract0.t) : strict t Apron.Abstract0.t =
+    if is_pplite_strict abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract0.to_pplite_strict: the argument value is not a strict pplite value\"
+end
+
+module Abstract1 = struct
+  let is_pplite abs =
+    manager_is_pplite (Apron.Abstract1.manager abs)
+  let is_pplite_loose abs =
+    manager_is_pplite_loose (Apron.Abstract1.manager abs)
+  let is_pplite_strict abs =
+    manager_is_pplite (Apron.Abstract1.manager abs)
+  let of_pplite (abs: 'a t Apron.Abstract1.t) : 'b Apron.Abstract1.t = Obj.magic abs
+  let of_pplite_loose (abs: loose t Apron.Abstract1.t) : 'a Apron.Abstract1.t = Obj.magic abs
+  let of_pplite_strict (abs: strict t Apron.Abstract1.t) : 'a Apron.Abstract1.t = Obj.magic abs
+  let to_pplite (abs:'a Apron.Abstract1.t) : 'b t Apron.Abstract1.t =
+    if is_pplite abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract1.to_pplite: the argument value is not a pplite value\"
+  let to_pplite_loose (abs:'a Apron.Abstract1.t) : loose t Apron.Abstract1.t =
+    if is_pplite_loose abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract1.to_pplite_loose: the argument value is not a loose pplite value\"
+  let to_pplite_strict (abs:'a Apron.Abstract1.t) : strict t Apron.Abstract1.t =
+    if is_pplite_strict abs then
+      Obj.magic abs
+    else
+      failwith \"Pplite.Abstract1.to_pplite_strict: the argument value is not a strict pplite value\"
+end
+")
+
+quote(MLI,"\n(**
+{2 Compilation information}
+
+See {!Introduction.compilation} for complete explanations.
+We just show examples with the file [mlexample.ml].
+
+Do not forget the [-cc \"g++\"] option: PPLite is a C++ library which requires
+a C++ linker.
+
+{3 Bytecode compilation}
+
+{[ocamlc -cc \"g++\"-I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma pplite.cma mlexample.ml]}
+
+{[ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -make-runtime -o myrun \\
+  bigarray.cma gmp.cma apron.cma pplite.cma
+
+ocamlc -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -use-runtime myrun -o mlexample.byte \\
+  bigarray.cma gmp.cma apron.cma pplite.cma mlexample.ml ]}
+
+{3 Native-code compilation}
+
+{[ocamlopt -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa pplite.cmxa mlexample.ml ]}
+
+{3 Without auto-linking feature}
+
+{[ocamlopt -cc \"g++\" -I $MLGMPIDL_PREFIX/lib -I $APRON_PREFIX/lib -noautolink -o mlexample.opt \\
+  bigarray.cmxa gmp.cmxa apron.cmxa pplite.cmxa mlexample.ml \\
+  -cclib \"-L$MLGMPIDL_PREFIX/lib -L$APRON_PREFIX/lib -L$PPLITE_PREFIX/lib\\
+	  -lap_pplite_caml_debug -lap_pplite_debug -lpplite \\
+          -L$FLINT_PREFIX/lib -lflint \\
+	  -lapron_caml_debug -lapron_debug \\
+	  -lgmp_caml -L$MPFR_PREFIX/lib -lmpfr -L$GMP_PREFIX/lib -lgmp \\
+	  -L$CAMLIDL_PREFIX/lib/ocaml -lcamlidl \\
+	  -lbigarray\" ]}
+
+*)")

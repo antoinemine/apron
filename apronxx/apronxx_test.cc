@@ -20,7 +20,7 @@
 #include "apxx_polka.hh"
 #include "apxx_t1p.hh"
 
-#if HAS_PPL
+#ifdef HAS_PPL
 #include "apxx_ppl.hh"
 #include "apxx_ppl_product.hh"
 #endif
@@ -291,11 +291,11 @@ void test_coeff()
   coeff x = scalar(2);
   assert(x.get_discr()==AP_COEFF_SCALAR);
   x.get_scalar() = 3; cout << "get_scalar 3: " << x << endl;
-  try { x.get_interval(); assert(0); } catch (bad_discriminant b) {}
+  try { x.get_interval(); assert(0); } catch (bad_discriminant& b) {}
   x = interval(1,2);
   assert(x.get_discr()==AP_COEFF_INTERVAL);
   x.get_interval().get_inf() = 0; cout << "get_interval [0,2]: " << x << endl;
-  try { x.get_scalar(); assert(0); } catch (bad_discriminant b) {}
+  try { x.get_scalar(); assert(0); } catch (bad_discriminant& b) {}
 
   // tests
   assert(coeff(0).is_zero()); assert(!(coeff(1).is_zero()));
@@ -1264,13 +1264,15 @@ void test_environment()
   ve[1] = environment(ah,2,ag,2);
   cout << "n-ary vector lce:" << endl << lce(ve) << endl;
   cout << "n-ary vector lce w/ dimchange:" << endl << lce(ve,vd); 
-  for (size_t i=0;i<2;i++) cout << vd[i]; cout << endl;
+  for (size_t i=0;i<2;i++) cout << vd[i];
+  cout << endl;
 
   environment ae[2] = { environment(ai,3,af,3), environment(ah,2,ag,2) };
   dimchange ad[2];
   cout << "n-ary array lce:" << endl << lce(ae,2) << endl;
   cout << "n-ary array lce w/ dimchange:" << endl << lce(ae,ad,2); 
-  for (size_t i=0;i<2;i++) cout << ad[i]; cout << endl;
+  for (size_t i=0;i<2;i++) cout << ad[i];
+  cout << endl;
 
   e = environment(ai,3,af,2);
   assert(e.intdim()==3 && e.realdim()==2);
@@ -1284,7 +1286,8 @@ void test_environment()
   try { e.get_var(5); assert(0); } catch (out_of_range &c) {};
   vector<var> vv = e.get_vars();
   cout << "iterator: ";
-  for (size_t i=0;i<vv.size();i++) cout << vv[i] << " "; cout << endl << endl;
+  for (size_t i=0;i<vv.size();i++) cout << vv[i] << " ";
+  cout << endl << endl;
 
   e = environment(ai,3,af,2);
   f = environment(ai,3,af,3);
@@ -1823,7 +1826,7 @@ void test_tcons1_array()
   cout << "construct:    " << t << endl;
   cout << "get(1):       " << t.get(1) << endl;
   try { t.get(2); assert(0); } catch (out_of_range& c) {}
-  try { t.set(3,t.get(1)); assert(0); } catch (out_of_range c) {}
+  try { t.set(3,t.get(1)); assert(0); } catch (out_of_range& c) {}
   tcons1_array u = t;
   cout << "copy:         " << t << endl; 
   tcons1_array v = tcons1_array(u,env2);
@@ -1950,16 +1953,16 @@ void test_abstract0(manager& m, manager& mm)
   // representation
 
   cout << "minimize:           "; 
-  try { a0.minimize(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.minimize(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "canonicalize:       "; 
-  try { a0.canonicalize(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.canonicalize(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "approximate:        "; 
-  try { a0.approximate(m,0); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.approximate(m,0); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "closure:            "; 
-  try { a0.closure(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.closure(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
 
   a0.set(mm,ca,2,3); a1.set(mm,ia,2,3);
   printf( "print:\n"); a0.print(m); printf("\n");
@@ -2254,7 +2257,7 @@ void test_abstract0(manager& m, manager& mm)
   assert(a1==abstract0(m,2,3,ia));
   ap_dim_t dpa2[] = {0,1,2};
   try { a1.permute_dimensions(m,dimperm(3,dpa2)); assert(0); }
-  catch (invalid_argument&c) {}
+  catch (invalid_argument& c) {}
     
   // expand fold
 
@@ -2390,16 +2393,16 @@ void test_abstract1(manager& m, manager& mm)
   // representation
 
   cout << "minimize:           "; 
-  try { a0.minimize(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.minimize(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "canonicalize:       "; 
-  try { a0.canonicalize(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.canonicalize(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "approximate:        "; 
-  try { a0.approximate(m,0); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.approximate(m,0); cout << a0; } catch (not_implemented& c) {} cout << endl;
   
   cout << "closure:            "; 
-  try { a0.closure(m); cout << a0; } catch (not_implemented&c) {} cout << endl;
+  try { a0.closure(m); cout << a0; } catch (not_implemented& c) {} cout << endl;
 
   a0.set(mm,ca); a1.set(mm,env,va,ia);
   printf( "print:\n"); a0.print(m); printf("\n");
@@ -2822,7 +2825,7 @@ void test_t1p()
 }
 
 
-#if HAS_PPL
+#ifdef HAS_PPL
 void test_ppl()
 {
   cout << endl << "PPL (polyhedra, loose)" 
@@ -2884,7 +2887,7 @@ int main()
   test_box();
   test_polka();
   test_octagon();
-#if HAS_PPL
+#ifdef HAS_PPL
   test_ppl();
 #endif
   mpfr_clear(mpfr1);

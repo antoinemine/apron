@@ -39,7 +39,7 @@ void ITVFUN(itv_linexpr_set)(itv_linexpr_t* res, itv_linexpr_t* expr)
   for  (i=expr->size; i<res->size; i++){
     itv_linterm_clear(&res->linterm[i]);
   }
-  res->linterm = realloc(res->linterm,expr->size*sizeof(itv_linterm_t));
+  res->linterm = realloc(res->linterm, expr->size ? expr->size*sizeof(itv_linterm_t) : 1);
   size = res->size < expr->size ? res->size : expr->size;
   for (i=0;i<size;i++){
     itv_linterm_set(&res->linterm[i],&expr->linterm[i]);
@@ -57,7 +57,7 @@ void ITVFUN(itv_linexpr_reinit)(itv_linexpr_t* expr, size_t size)
   for  (i=size; i<expr->size; i++){
     itv_linterm_clear(&expr->linterm[i]);
   }
-  expr->linterm = realloc(expr->linterm,size*sizeof(itv_linterm_t));
+  expr->linterm = realloc(expr->linterm, size ? size*sizeof(itv_linterm_t) : 1);
   for (i=expr->size;i<size;i++){
     itv_linterm_init(&expr->linterm[i]);
   }
@@ -145,10 +145,10 @@ void ITVFUN(itv_lincons_array_reinit)(itv_lincons_array_t* array, size_t size)
     for (i=size; i<array->size; i++){
       itv_lincons_clear(&array->p[i]);
     }
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
+    array->p = realloc(array->p, size ? size*sizeof(itv_lincons_t) : 1);
   }
   else { /* size > array->size */
-    array->p = realloc(array->p,size*sizeof(itv_lincons_t));
+    array->p = realloc(array->p, size ? size*sizeof(itv_lincons_t) : 1);
     for (i=array->size; i<size; i++){
       itv_lincons_init(&array->p[i]);
     }

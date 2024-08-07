@@ -23,7 +23,7 @@ extern "C" {
 
 /* Fill the first (pk->dec-1) rows of the matrix with the constraints of the
    universe polyhedron */
-void matrix_fill_constraint_top(pk_internal_t* pk, matrix_t* C, size_t start);
+void pk_matrix_fill_constraint_top(pk_internal_t* pk, pk_matrix_t* C, size_t start);
 
 /* Assign with GMP semantics the given polyhedron with the empty
    (resp. universe) polyhedron, of same dimensions */

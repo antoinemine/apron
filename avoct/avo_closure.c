@@ -671,7 +671,7 @@ bool avo_hmat_close_weak_1sign(bound_t* m, bound_t* nsc, size_t dim)
 	}
 
     for( i = 0 ; i < 4 * dim ; i++)
-    for( j = 0 ; j <=(i|1) ; j++){
+      for( j = 0 ; j <=(i|1) ; j++){
 	    bound_add(temp,m[avo_matpos2(i,i^1)],m[avo_matpos2(j^1,j)]);
 	    bound_min(nsc_temp,nsc[avo_matpos2(i,i^1)],nsc[avo_matpos2(j^1,j)]);
 	    bound_div_2(temp,temp);
@@ -680,9 +680,9 @@ bool avo_hmat_close_weak_1sign(bound_t* m, bound_t* nsc, size_t dim)
 
 	tighten_nsc(m,nsc,dim);
 
-    for (i=0;i<4*dim;i++)
-	for (j=0;j<=(i|1);j++)
-	for (k=0;k<4*dim;k++) {
+        for (i=0;i<4*dim;i++)
+          for (j=0;j<=(i|1);j++)
+            for (k=0;k<4*dim;k++) {
 		bound_add(temp,m[avo_matpos2(i,k)],m[avo_matpos2(k,j)]);
 		bound_min(nsc_temp,nsc[avo_matpos2(i,k)],nsc[avo_matpos2(k,j)]);
 		bound_bmin_nsc(m+avo_matpos2(i,j),nsc+avo_matpos2(i,j),temp,nsc_temp);
@@ -715,9 +715,9 @@ bool avo_hmat_close_weak_3signs(bound_t* m, bound_t* nsc,size_t dim)
 		if(res==true) return true; // infeasiable
    }
    else{
-	   for(k = 0 ; k < dim ; k++)
-	   for(i = 0 ; i < dim ; i++)
-	   for(j = 0 ; j < dim ; j++)
+     for(k = 0 ; k < dim ; k++)
+       for(i = 0 ; i < dim ; i++)
+         for(j = 0 ; j < dim ; j++)
 	   {
 			if(i==j || i==k || j==k) continue;
 			hash[0] = i;	hash[1] = j;	hash[2] = k;
@@ -768,7 +768,7 @@ bool avo_hmat_close_strong_all_signs(bound_t* m, bound_t* nsc,size_t dim)
 	}
 
     if(ti_time>1){
-		for(i = 0 ; i < 4 * dim ;i++)
+      for(i = 0 ; i < 4 * dim ;i++)
 		for(j = 0 ; j <= (i|1) ;j++){
 			 // using avond to tighten avo(m,nsc)
 			bound_bmin_nsc(m+avo_matpos2(i,j),nsc+avo_matpos2(i,j),avond[avo_matpos2(i,j)],avond_nsc[avo_matpos2(i,j)]);
@@ -820,7 +820,7 @@ bool avo_hmat_close_incremental_weak_3signs(bound_t* m, bound_t* nsc,size_t dim,
 		if(res==true) return true; // infeasiable
    }
    else{
-		for(i = 0 ; i < dim ; i++)
+     for(i = 0 ; i < dim ; i++)
 		for(j = i ; j < dim ; j++)
 		{
 			if(i==j || i==v || j==v) continue;

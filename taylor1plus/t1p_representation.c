@@ -237,8 +237,8 @@ void t1p_fprint(FILE* stream,
     char** name_of_ns = (char**)malloc(size*sizeof(char*));
     ap_dim_t dim = 0;
     for (i=0; i<size; i++) {
-	name_of_ns[i] = (char*)malloc(10*sizeof(char));
-	pr->epsilon[a->nsymcons[i]]->type == IN ? sprintf(name_of_ns[i], "eps%d", a->nsymcons[i]) : sprintf(name_of_ns[i], "eta%d", a->nsymcons[i]);
+	name_of_ns[i] = (char*)malloc(10);
+	pr->epsilon[a->nsymcons[i]]->type == IN ? snprintf(name_of_ns[i], 10, "eps%d", a->nsymcons[i]) : snprintf(name_of_ns[i], 10, "eta%d", a->nsymcons[i]);
     }
     ap_abstract0_fprint(stream, pr->manNS, a->abs, name_of_ns);
     for (i=0; i<size; i++) free(name_of_ns[i]);

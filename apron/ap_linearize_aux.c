@@ -29,7 +29,8 @@ bool intlinearize_alloc(ap_manager_t* man, ap_abstract0_t* abs,
   ap_interval_t** tinterval = ap_abstract0_to_box(man,abs);
   bool exact = man->result.flag_exact;
 
-  assert(!ap_abstract0_is_bottom(man,abs));
+  // might not be true if bottom checking is lazy (algo < 0)
+  // assert(!ap_abstract0_is_bottom(man,abs));
     
   *pdim = ap_abstract0_dimension(man,abs);
   size = pdim->intdim+pdim->realdim;

@@ -828,9 +828,8 @@ t1p_t* t1p_join_faux(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2)
 		    if (res->g[j][0] && res->g[i][0]) itv_div(pr->itv,tmp,res->g[j][0],res->g[i][0]);
 		    else break;
 		    for (k=1;k<intdim+realdim;) {
-			if (res->g[j][k] && res->g[i][k]) itv_div(pr->itv,tmp1,res->g[j][k],res->g[i][k]);
-			else break;
-			if (itv_is_eq(tmp,tmp1)) k++;
+			itv_div(pr->itv,tmp1,res->g[j][k],res->g[i][k]);
+                        if (itv_is_eq(tmp,tmp1)) k++;
 			else break;
 		    }
 		    if (k == intdim+realdim) {
@@ -1341,9 +1340,8 @@ t1p_t* t1p_join_global(ap_manager_t* man, bool destructive, t1p_t* a1, t1p_t* a2
 		    if (res->g[j][0] && res->g[i][0]) itv_div(pr->itv,tmp,res->g[j][0],res->g[i][0]);
 		    else break;
 		    for (k=1;k<intdim+realdim;) {
-			if (res->g[j][k] && res->g[i][k]) itv_div(pr->itv,tmp1,res->g[j][k],res->g[i][k]);
-			else break;
-			if (itv_is_eq(tmp,tmp1)) k++;
+			itv_div(pr->itv,tmp1,res->g[j][k],res->g[i][k]);
+                        if (itv_is_eq(tmp,tmp1)) k++;
 			else break;
 		    }
 		    if (k == intdim+realdim) {

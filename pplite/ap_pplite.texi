@@ -1,0 +1,111 @@
+@c This file is part of the APRON Library, released under GPL
+@c license. Please read the COPYING file packaged in the distribution
+
+@c to be included from apron.texi
+
+The @sc{APRON PPLite} library is an APRON wrapper around the
+@uref{https://github.com/ezaffanella/PPLite, PPLite library}.
+The wrapper offers (variants of) the convex polyhedra abstract domain.
+
+@menu
+* Use of APRON PPLite::
+* Allocating APRON PPLite managers::
+* APRON PPLite standard options::
+@end menu
+
+@c ===================================================================
+@node Use of APRON PPLite, Allocating APRON PPLite managers,,PPLite
+@subsection Use of APRON PPLite
+@c ===================================================================
+
+To use APRON PPLite you need to install PPLite and its dependencies
+Flint and GMP; currently, the APRON wrapper requires PPLite version 0.12.
+You need to add
+@example
+#include "ap_pplite.h"
+@end example
+@noindent in your C source file(s)
+and add @samp{-I$(APRON_PREFIX)/include} in the command line
+specified in your Majefile to compile C code.
+
+Your object files should be linked with the APRON PPLite library
+using @samp{g++} (instead of @samp{gcc})
+because @file{libpplite.a} is a C++ library,
+adding link options
+@samp{-L$(APRON_PREFIX)/lib -lap_pplite -L$(PPLITE_PREFIX)/lib -lpplite
+-L$(FLINT_PREFIX)/lib -lflint}
+(followed by the standard @samp{-lapron -litvmpq -litvdbl
+-L$(MPFR_PREFIX)/lib -lmpfr -L$(GMP_PREFIX)/lib -lgmp}).
+
+The wrapper library is also available in debug mode
+(@samp{libap_pplite_debug.a}).
+
+@c ===================================================================
+@node Allocating APRON PPLite managers, APRON PPLite standard options, Use of APRON PPLite, PPLite
+@subsection Allocating APRON PPLite managers
+@c ===================================================================
+
+@deftypefun ap_manager_t* ap_pplite_manager_alloc (bool @var{strict})
+Allocate an APRON manager for convex polyhedra linked to the PPLite
+library.
+
+The @var{strict} option, when true, enables strict constraints in polyhedra
+(like @code{x>0}). Managers in strict mode or in loose mode
+(strict constraints disabled) are not compatible, and so are
+corresponding abstract values.
+@end deftypefun
+
+@deftypefun void ap_pplite_manager_set_kind (ap_manager_t* @var{man}, const char* @var{name})
+Set the abstract domain polyhedron kind (i.e., variant implementation)
+to @var{name}. The default kind is @code{"Poly"}; other legal values are
+@code{"F_Poly"} (applies Cartesian factoring),
+@code{"U_Poly"} (avoids wasting space for unconstrained dimensions),
+@code{"P_Set"} (uses finite powerset of polyhedra),
+@code{"FP_Set"} (uses finite powerset of Cartesian factored polyhedra).
+Note that objects of different kinds are incompatible and should not be
+mixed in computations: hence, the kind should be set (if ever)
+at the beginning of the computation and then never changed;
+also note that powerset domains are experimental.
+@end deftypefun
+
+@deftypefun const char* ap_pplite_manager_get_kind (ap_manager_t* @var{man})
+Returns the currently set value for the polyhedron kind.
+@end deftypefun
+
+@deftypefun void ap_pplite_manager_set_widen_spec (ap_manager_t* @var{man}, const char* @var{name})
+Sets the specification for the widening operator to value @var{name},
+which should be either @code{"safe"} (default value) or @code{"risky"}.
+
+The @code{"risky"} specification is the alternative one
+(see footnote 6 in Cousot-Cousot PLILP 1992 paper),
+which assumes that the second argument of the widening contains the
+first one; hence, when using this specification the user is usually
+required to compute the join before the widening (otherwise, an undefined
+behavior may result).
+Note: this assumption is done by other APRON's domains, including
+the polyhedra domains in NewPolka and PPL.
+
+The @code{"safe"} specification is the classical one
+(see Cousot-Cousot POPL 1977 paper), without the assumption;
+hence, the user can directly apply the widening without computing a join.
+@end deftypefun
+
+@deftypefun const char* ap_pplite_manager_get_widen_spec (ap_manager_t* @var{man})
+Returns the widening specification currently in use.
+@end deftypefun
+
+@c ===================================================================
+@node APRON PPLite standard options,  , Allocating APRON PPLite managers, PPLite
+@subsection APRON PPLite standard options
+@c ===================================================================
+
+Currently, the choice of the specific variant of widening operator
+(both with and without thresholds) is controlled by option @code{algorithm}.
+Possible values are:
+@itemize
+@item @code{0} for standard widening (Cousot & Halbwachs POPL 1978);
+@item @code{1} for BHRZ03 widening (Bagnara et al., SAS 2003);
+@item @code{2} for the boxed standard widening (combining the intervals
+and polyhedra widenings).
+@end itemize
+

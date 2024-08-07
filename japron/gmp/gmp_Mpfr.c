@@ -839,7 +839,11 @@ JNIEXPORT jint JNICALL Java_gmp_Mpfr_root
   check_nonnull(o1,0);
   check_nonnull(o2,0);
   check_positive(i,0);
+#if MPFR_VERSION_MAJOR >= 4
+  return mpfr_rootn_ui(as_mpfr(o1), as_mpfr(o2), i, p);
+#else
   return mpfr_root(as_mpfr(o1), as_mpfr(o2), i, p);
+#endif
 }
 
 /*

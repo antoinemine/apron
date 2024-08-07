@@ -52,6 +52,14 @@ CCINC = \
 LIBS = $(LDFLAGS) -lapron  -lmpfr -lgmpxx -lgmp -lm
 LIBS_DEBUG = $(LDFLAGS) -lapron_debug -lmpfr -lgmpxx -lgmp -lm
 
+CCLIB_TO_INSTALL = libapronxx.a
+CCLIB_TO_INSTALL_DEBUG = libapronxx_debug.a
+
+ifneq ($(HAS_SHARED),)
+CCLIB_TO_INSTALL += libapronxx.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG += libapronxx_debug.$(EXT_DLL)
+endif
+
 ifneq ($(HAS_PPL),)
   DEFS := $(DEFS) -DHAS_PPL
   LIBS := $(LIBS) $(PPL_LIFLAGS) -L../ppl -L../products -lap_pkgrid -lap_ppl -lppl
@@ -77,7 +85,12 @@ distclean: clean
 install:
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_INCLUDE)/apronxx $(APRON_LIB)
 	$(INSTALL) $(CCINC) $(APRON_INCLUDE)/apronxx
-	$(INSTALL) libapronxx.* libapronxx_debug.* $(APRON_LIB)
+	for i in $(CCLIB_TO_INSTALL); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
+	done
+ifneq ($(HAS_DEBUG),)
+	$(INSTALL) $(CCLIB_TO_INSTALL_DEBUG) $(APRON_LIB)
+endif
 
 uninstall:
 	/bin/rm -rf $(APRON_INCLUDE)/apronxx

@@ -242,10 +242,10 @@ value camlidl_apron_abstract0_ptr_c2ml(ap_abstract0_ptr* p)
 /* ********************************************************************** */
 
 static inline
-apron_var_ptr ap_var_of_string(char* name)
+apron_var_ptr ap_var_of_string(const char* name)
 {
   apron_var_ptr p = (apron_var_ptr)malloc(sizeof(apron_var_t));
-  p->name = (char*)malloc((1+strlen(name))*sizeof(char));
+  p->name = (char*)malloc((1+strlen(name)));
   strcpy(p->name,name);
   p->count=1;
   return p;

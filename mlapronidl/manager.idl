@@ -163,7 +163,12 @@ quote(MLMLI,"(** Concerning the other types,\n\n\
 - [exclog] defines the exceptions raised by APRON functions.\n\n\
 *)\n")
 
-
+quote(MLI,"\n\
+(**\n\
+  NOTE: Managers are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+*)\n\n");
 
 quote(MLI,"(** Get the name of the effective library which allocated the manager *)")
 [string]const char* ap_manager_get_library(ap_manager_ptr man);

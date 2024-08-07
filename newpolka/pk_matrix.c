@@ -12,7 +12,7 @@
 #include "pk_vector.h"
 #include "pk_satmat.h"
 #include "pk_matrix.h"
-#include "mf_qsort.h"
+#include "pk_qsort.h"
 
 /* ********************************************************************** */
 /* I. basic operations: creation, destruction, copying and printing */
@@ -21,13 +21,13 @@
 /* Internal allocation function: the elements are not initialized.
    mr is the maximum number of rows, and nc the number of
    columns. By default, nbrows is initialized to mr . */
-matrix_t* _matrix_alloc_int(size_t nbrows, size_t nbcols, bool s)
+pk_matrix_t* _pk_matrix_alloc_int(size_t nbrows, size_t nbcols, bool s)
 {
   size_t i;
 
   assert(nbcols>0 || nbrows==0);
 
-  matrix_t* mat = (matrix_t*)malloc(sizeof(matrix_t));
+  pk_matrix_t* mat = (pk_matrix_t*)malloc(sizeof(pk_matrix_t));
   mat->nbrows = mat->_maxrows = nbrows;
   mat->nbcolumns = nbcols;
   mat->_sorted = s;
@@ -39,13 +39,13 @@ matrix_t* _matrix_alloc_int(size_t nbrows, size_t nbcols, bool s)
 }
 
 /* Standard allocation function, with initialization of the elements. */
-matrix_t* matrix_alloc(size_t nbrows, size_t nbcols, bool s)
+pk_matrix_t* pk_matrix_alloc(size_t nbrows, size_t nbcols, bool s)
 {
   size_t i;
 
   assert(nbcols>0 || nbrows==0);
 
-  matrix_t* mat = (matrix_t*)malloc(sizeof(matrix_t));
+  pk_matrix_t* mat = (pk_matrix_t*)malloc(sizeof(pk_matrix_t));
   mat->nbrows = mat->_maxrows = nbrows;
   mat->nbcolumns = nbcols;
   mat->_sorted = s;
@@ -57,7 +57,7 @@ matrix_t* matrix_alloc(size_t nbrows, size_t nbcols, bool s)
 }
 
 /* Reallocation function, to scale up or to downsize a matrix */
-void matrix_resize_rows(matrix_t* mat, size_t nbrows)
+void pk_matrix_resize_rows(pk_matrix_t* mat, size_t nbrows)
 {
   size_t i;
 
@@ -81,10 +81,10 @@ void matrix_resize_rows(matrix_t* mat, size_t nbrows)
 }
 
 /* Ensures a minimum size */
-void matrix_resize_rows_lazy(matrix_t* mat, size_t nbrows)
+void pk_matrix_resize_rows_lazy(pk_matrix_t* mat, size_t nbrows)
 {
   if (nbrows>mat->_maxrows)
-    matrix_resize_rows(mat,nbrows);
+    pk_matrix_resize_rows(mat,nbrows);
   else {
     mat->_sorted = mat->_sorted && nbrows<mat->nbrows;
     mat->nbrows = nbrows;
@@ -92,13 +92,13 @@ void matrix_resize_rows_lazy(matrix_t* mat, size_t nbrows)
 }
 
 /* Minimization */
-void matrix_minimize(matrix_t* mat)
+void pk_matrix_minimize(pk_matrix_t* mat)
 {
-  matrix_resize_rows(mat,mat->nbrows);
+  pk_matrix_resize_rows(mat,mat->nbrows);
 }
 
 /* Deallocation function. */
-void matrix_free(matrix_t* mat)
+void pk_matrix_free(pk_matrix_t* mat)
 {
   size_t i;
 
@@ -110,7 +110,7 @@ void matrix_free(matrix_t* mat)
 }
 
 /* Set all elements to zero. */
-void matrix_clear(matrix_t* mat)
+void pk_matrix_clear(pk_matrix_t* mat)
 {
   size_t i,j;
   for (i=0; i<mat->nbrows; i++){
@@ -122,10 +122,10 @@ void matrix_clear(matrix_t* mat)
 
 /* Create a copy of the matrix of size nbrows (and not
    _maxrows). Only ``used'' rows are copied. */
-matrix_t* matrix_copy(matrix_t* mat)
+pk_matrix_t* pk_matrix_copy(pk_matrix_t* mat)
 {
   size_t i,j;
-  matrix_t* nmat = _matrix_alloc_int(mat->nbrows,mat->nbcolumns,mat->_sorted);
+  pk_matrix_t* nmat = _pk_matrix_alloc_int(mat->nbrows,mat->nbcolumns,mat->_sorted);
   for (i=0;i<mat->nbrows;i++){
     for (j=0; j<mat->nbcolumns; j++){
       numint_init_set(nmat->p[i][j],mat->p[i][j]);
@@ -135,7 +135,7 @@ matrix_t* matrix_copy(matrix_t* mat)
 }
 
 /* Return true iff the matrices are equal, coeff by coeff */
-bool matrix_equal(matrix_t* mata, matrix_t* matb)
+bool pk_matrix_equal(pk_matrix_t* mata, pk_matrix_t* matb)
 {
   int i;
   size_t j;
@@ -153,7 +153,7 @@ bool matrix_equal(matrix_t* mata, matrix_t* matb)
 }
 
 /* Raw printing function. */
-void matrix_fprint(FILE* stream, matrix_t* mat)
+void pk_matrix_fprint(FILE* stream, pk_matrix_t* mat)
 {
   size_t i,j;
   fprintf(stream,"%lu %lu\n", 
@@ -166,9 +166,9 @@ void matrix_fprint(FILE* stream, matrix_t* mat)
     fprintf(stream,"\n");
   }
 }
-void matrix_print(matrix_t* mat)
+void pk_matrix_print(pk_matrix_t* mat)
 {
-  matrix_fprint(stdout,mat);
+  pk_matrix_fprint(stdout,mat);
 }
 
 
@@ -182,34 +182,34 @@ void matrix_print(matrix_t* mat)
    l1 and l2 and puts the result in l3 such that
    l3[k] is zero. */
 
-int matrix_compare_rows(pk_internal_t* pk,
-			matrix_t* mat, size_t l1, size_t l2)
+int pk_matrix_compare_rows(pk_internal_t* pk,
+			pk_matrix_t* mat, size_t l1, size_t l2)
 {
   return vector_compare(pk, 
 			mat->p[l1],
 			mat->p[l2],mat->nbcolumns);
 }
-void matrix_normalize_row(pk_internal_t* pk,
-			  matrix_t* mat, size_t l)
+void pk_matrix_normalize_row(pk_internal_t* pk,
+			  pk_matrix_t* mat, size_t l)
 {
   vector_normalize(pk, mat->p[l],mat->nbcolumns);
 }
-void matrix_combine_rows(pk_internal_t* pk,
-			 matrix_t* mat, size_t l1, size_t l2, size_t l3, size_t k)
+void pk_matrix_combine_rows(pk_internal_t* pk,
+			 pk_matrix_t* mat, size_t l1, size_t l2, size_t l3, size_t k)
 {
   vector_combine(pk, 
 		 mat->p[l1],
 		 mat->p[l2],
 		 mat->p[l3],k,mat->nbcolumns);
 }
-void matrix_exch_rows(matrix_t* mat, size_t l1, size_t l2)
+void pk_matrix_exch_rows(pk_matrix_t* mat, size_t l1, size_t l2)
 {
   numint_t* aux=mat->p[l1];
   mat->p[l1]=mat->p[l2];
   mat->p[l2]=aux;
 }
 
-void matrix_move_rows(matrix_t* mat, size_t destrow, size_t orgrow, size_t size)
+void pk_matrix_move_rows(pk_matrix_t* mat, size_t destrow, size_t orgrow, size_t size)
 {
   int offset;
   int i;
@@ -218,12 +218,12 @@ void matrix_move_rows(matrix_t* mat, size_t destrow, size_t orgrow, size_t size)
   if (offset>0){
     assert(destrow+size<=mat->_maxrows);
     for (i=(int)(destrow+size)-1; i>=(int)destrow; i--){
-      matrix_exch_rows(mat,(size_t)i,(size_t)(i-offset));
+      pk_matrix_exch_rows(mat,(size_t)i,(size_t)(i-offset));
     }
   } else {
     assert(orgrow+size<=mat->_maxrows);
     for(i=(int)destrow; i<(int)(destrow+size); i++){
-      matrix_exch_rows(mat,(size_t)i,(size_t)(i-offset));
+      pk_matrix_exch_rows(mat,(size_t)i,(size_t)(i-offset));
     }
   }
 }
@@ -232,8 +232,8 @@ void matrix_move_rows(matrix_t* mat, size_t destrow, size_t orgrow, size_t size)
 /* */
 /* ********************************************************************** */
 
-bool matrix_normalize_constraint(pk_internal_t* pk,
-				 matrix_t* mat, 
+bool pk_matrix_normalize_constraint(pk_internal_t* pk,
+				 pk_matrix_t* mat, 
 				 size_t intdim, size_t realdim)
 {
   bool change1, change2;
@@ -249,7 +249,7 @@ bool matrix_normalize_constraint(pk_internal_t* pk,
       mat->_sorted = false;
       /* Add again \xi-\epsilon<=1 */
       size_t nbrows= mat->nbrows;
-      matrix_resize_rows_lazy(mat,nbrows+1);
+      pk_matrix_resize_rows_lazy(mat,nbrows+1);
       vector_clear(mat->p[nbrows],mat->nbcolumns);
       numint_set_int(mat->p[nbrows][0],1);
       numint_set_int(mat->p[nbrows][polka_cst],1);
@@ -260,8 +260,8 @@ bool matrix_normalize_constraint(pk_internal_t* pk,
   else 
     return false;
 }
-bool matrix_normalize_constraint_int(pk_internal_t* pk,
-				     matrix_t* mat, 
+bool pk_matrix_normalize_constraint_int(pk_internal_t* pk,
+				     pk_matrix_t* mat, 
 				     size_t intdim, size_t realdim)
 {
   bool change1, change2;
@@ -304,17 +304,17 @@ static int qsort_rows_compar(void* qsort_man, void* pq1, void* pq2)
   return vector_compare(qm->pk,q1,q2,qm->size);
 }
 
-void matrix_sort_rows(pk_internal_t* pk,
-		      matrix_t* mat)
+MAKE_SORT(qsort_rows, numint_t*, qsort_rows_compar)
+
+void pk_matrix_sort_rows(pk_internal_t* pk,
+		      pk_matrix_t* mat)
 {
   qsort_man_t qsort_man;
 
   if (!mat->_sorted){
     qsort_man.pk = pk;
     qsort_man.size = mat->nbcolumns;
-    qsort2(mat->p, mat->nbrows, sizeof(numint_t*),
-	   qsort_rows_compar,
-	   &qsort_man);
+    qsort_rows(mat->p, mat->nbrows, &qsort_man);
     mat->_sorted = true;
   }
 }
@@ -338,8 +338,10 @@ static int qsort_rows_with_sat_compar(void* qsort_man, void* q1, void* q2)
 			 qm->size );
 }
 
-void matrix_sort_rows_with_sat(pk_internal_t* pk,
-			       matrix_t* mat, satmat_t* sat)
+MAKE_SORT(qsort_rows_with_sat, qsort_t, qsort_rows_with_sat_compar)
+
+void pk_matrix_sort_rows_with_sat(pk_internal_t* pk,
+			       pk_matrix_t* mat, satmat_t* sat)
 {
   size_t i;
   qsort_t* qsort_tab;
@@ -353,10 +355,7 @@ void matrix_sort_rows_with_sat(pk_internal_t* pk,
       qsort_tab[i].p = mat->p[i];
       qsort_tab[i].satp = sat->p[i];
     }
-    qsort2(qsort_tab,
-	   mat->nbrows, sizeof(qsort_t),
-	   qsort_rows_with_sat_compar,
-	   &qsort_man);
+    qsort_rows_with_sat(qsort_tab, mat->nbrows, &qsort_man);
     for (i=0; i<mat->nbrows; i++){
       mat->p[i] = qsort_tab[i].p;
       sat->p[i] = qsort_tab[i].satp;
@@ -371,13 +370,13 @@ void matrix_sort_rows_with_sat(pk_internal_t* pk,
 /* ====================================================================== */
 
 /* Appending matrices */
-matrix_t* matrix_append(matrix_t* mata, matrix_t* matb)
+pk_matrix_t* pk_matrix_append(pk_matrix_t* mata, pk_matrix_t* matb)
 {
-  matrix_t* mat;
+  pk_matrix_t* mat;
   size_t i,l;
 
   assert (mata->nbcolumns == matb->nbcolumns);
-  mat = _matrix_alloc_int(mata->nbrows+matb->nbrows,mata->nbcolumns,false);
+  mat = _pk_matrix_alloc_int(mata->nbrows+matb->nbrows,mata->nbcolumns,false);
   for (i=0;i<mata->nbrows; i++){
     for (l=0; l<mata->nbcolumns; l++)
       numint_init_set(mat->p[i][l],mata->p[i][l]);
@@ -389,7 +388,7 @@ matrix_t* matrix_append(matrix_t* mata, matrix_t* matb)
   return mat;
 }
 
-void matrix_append_with(matrix_t* mat, matrix_t* cmat)
+void pk_matrix_append_with(pk_matrix_t* mat, pk_matrix_t* cmat)
 {
   size_t i,l;
   size_t nbrows;
@@ -397,7 +396,7 @@ void matrix_append_with(matrix_t* mat, matrix_t* cmat)
   assert (mat->nbcolumns == cmat->nbcolumns);
   
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
+  pk_matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
   for (i=0;i<cmat->nbrows; i++){
     for (l=0; l<cmat->nbcolumns; l++)
       numint_set(mat->p[nbrows+i][l],cmat->p[i][l]);
@@ -408,7 +407,7 @@ void matrix_append_with(matrix_t* mat, matrix_t* cmat)
 /* Given matrices with rows p1,p2,... and q1,q2,...., fills the initial matrix
    with rows q1,q2,...,p1,p2,.... */
 
-void matrix_revappend_with(matrix_t* mat, matrix_t* cmat)
+void pk_matrix_revappend_with(pk_matrix_t* mat, pk_matrix_t* cmat)
 {
   int i;
   size_t l;
@@ -416,7 +415,7 @@ void matrix_revappend_with(matrix_t* mat, matrix_t* cmat)
 
   assert(mat->nbcolumns == cmat->nbcolumns);
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
+  pk_matrix_resize_rows_lazy(mat,nbrows+cmat->nbrows);
   for (i=nbrows-1; i>=0; i--){
     /* exchanging rows i and i+cmat->nbrows */
     numint_t* q = mat->p[i+cmat->nbrows];
@@ -437,19 +436,19 @@ void matrix_revappend_with(matrix_t* mat, matrix_t* cmat)
 
 /* Merging with sorting */
 
-matrix_t* matrix_merge_sort(pk_internal_t* pk,
-			    matrix_t* mata, matrix_t* matb)
+pk_matrix_t* pk_matrix_merge_sort(pk_internal_t* pk,
+			    pk_matrix_t* mata, pk_matrix_t* matb)
 {
   size_t i,ia,ib,l;
-  matrix_t* mat;
+  pk_matrix_t* mat;
   size_t nbrows;
   assert (mata->nbcolumns == matb->nbcolumns);
   if (!mata->_sorted || !matb->_sorted){
-    mat = matrix_append(mata,matb);
-    matrix_sort_rows(pk,mat);
+    mat = pk_matrix_append(mata,matb);
+    pk_matrix_sort_rows(pk,mat);
   }
   else {
-    mat = _matrix_alloc_int(mata->nbrows+matb->nbrows,mata->nbcolumns,true);
+    mat = _pk_matrix_alloc_int(mata->nbrows+matb->nbrows,mata->nbcolumns,true);
     i = 0;
     ia = 0;
     ib = 0;
@@ -502,8 +501,8 @@ matrix_t* matrix_merge_sort(pk_internal_t* pk,
    and leaves the resulting matrix sorted. Identical rows are eliminated. The
    modified matrix is supposed to be big enough to store the new rows. */
 
-void matrix_merge_sort_with(pk_internal_t* pk,
-			    matrix_t* mata, matrix_t* matb)
+void pk_matrix_merge_sort_with(pk_internal_t* pk,
+			    pk_matrix_t* mata, pk_matrix_t* matb)
 {
   size_t i,ia,ib,j,k,nbrows,nbrowsa, nbcols;
   numint_t** numintpp;
@@ -513,7 +512,7 @@ void matrix_merge_sort_with(pk_internal_t* pk,
 
   nbrowsa = mata->nbrows;
   nbcols = mata->nbcolumns;
-  matrix_resize_rows_lazy(mata, nbrowsa + matb->nbrows);
+  pk_matrix_resize_rows_lazy(mata, nbrowsa + matb->nbrows);
   
   /* one adds the coefficients of matb to mata */
   for (i=0; i<matb->nbrows; i++){

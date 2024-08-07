@@ -21,10 +21,10 @@ Apron includes the following numeric domains:
 * octagons
 * zonotopes (taylor1plus)
 
-Additional domains are made available through the optional PPL third-party library:
-* alternate polyhedra implementation
-* grids
-* reduced products of polyhedra and grids
+Additional domains are made available through the optional PPL and PPLite third-party libraries:
+* alternate polyhedra implementation (PPL, PPLite)
+* grids (PPL)
+* reduced products of polyhedra and grids (PPL)
 
 The domains are made available under a common interface, so that changing the abstract domain of interpretation in a static analysis should only take a one-line change.
 
@@ -49,6 +49,14 @@ Compiling the built-in domains with the C interface requires:
 ### Additional domains
 
 Compiling the PPL-based domains requires the [Parma Polyhedra Library](http://bugseng.com/products/ppl) (tested with version 1.2) and gcc (no clang).
+
+Compiling the PPLite-based domains requires the
+[PPLite library](https://github.com/ezaffanella/PPLite),
+which also depends on Flint.
+Note that building the PPLite library from sources requires using a
+C++ compiler (g++ or clang++) that supports the c++17 language standard;
+however, starting from PPLite version 0.11, the Apron wrapper for PPLite
+can be compiled using a C++ compiler supporting the c++11 language standard.
 
 
 ### Additional language support
@@ -91,9 +99,21 @@ In case some components fail to compile, it is possible to disable them through 
 * `-no-java` to disable the Java API (there are known problems where the compilation fails to find `jni.h` )
 * `-no-ocaml` to disable the OCaml API
 * `-no-ppl` to disable the PPL domains
+* `-no-pplite` to disable the PPLite domains
 
 See `./configure -help` for more options.
 
+
+### Debug versions
+
+By default, `make install` now only install non-debug versions of the C libraries.
+Moreover, these are striped of symbols.
+
+Use the `-debug` `./configure` option to also install debug (non-stripped) C versions, and `-no-strip` to avoid stripping the non-debug C versions.
+The C debug versions have a `_debug` suffix (such as `libapron_debug.so`).
+
+When installing with `opam`, debug versions are always available.
+OCaml debug libraries use the `.d` suffix (such as `apron.d.cmxa`).
 
 
 ### Installation on MacOS X

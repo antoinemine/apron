@@ -19,6 +19,14 @@ struct ap_linexpr1_t {
   [mlname(mutable_env)] ap_environment_ptr env;
 };
 
+quote(MLI,"\n\
+(**\n\
+  NOTE: Linear expressions are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [Linexpr0.equal] and [Linexpr0.cmp] on the [linexpr0] field instead.\n\
+*)\n\n");
+
 quote(MLI,"\n\n\
 (** Build a linear expression defined on the given argument, which is sparse by\n\
   default. *)\n\

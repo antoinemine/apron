@@ -8,6 +8,14 @@
 
 quote(MLI,"(** APRON tree expressions of level 0 *)\n")
 
+quote(MLI,"\n\
+(**\n\
+  NOTE: Expressions are not totally ordered.\n\
+  As of 0.9.15, they do not implement the polymorphic [compare] function to avoid confusion.\n\
+  As a consequence, the polymorphic [=], [<=], etc. operators cannot be used.\n\
+  Use [equal] instead.\n\
+*)\n\n");
+
 quote(C, "\n\
 #include <limits.h>\n\
 #include \"ap_texpr0.h\"\n\
@@ -262,6 +270,12 @@ boolean ap_texpr0_is_interval_linear(ap_texpr0_ptr a);
 boolean ap_texpr0_is_interval_polynomial(ap_texpr0_ptr a);
 boolean ap_texpr0_is_interval_polyfrac(ap_texpr0_ptr a);
 boolean ap_texpr0_is_scalar(ap_texpr0_ptr a);
+
+quote(MLI,"(** Equality test *)")
+boolean ap_texpr0_equal(ap_texpr0_ptr a, ap_texpr0_ptr b);
+
+quote(MLI,"(** Hashing function *)")
+int ap_texpr0_hash(ap_texpr0_ptr a);
 
 quote(MLMLI,"\n(** {2 Printing} *)\n")
 

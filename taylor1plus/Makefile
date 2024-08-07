@@ -30,12 +30,12 @@ CCSRC = t1p.h t1p_macro_def.h t1p_test.c t1p_test_eval_texp.c $(CCMODULES:%=%.h)
 
 CCINC_TO_INSTALL = t1p.h
 CCBIN_TO_INSTALL =
-CCLIB_TO_INSTALL = \
-libt1pMPQ.a libt1pD.a libt1pMPFR.a \
-libt1pMPQ_debug.a libt1pD_debug.a libt1pMPFR_debug.a
+CCLIB_TO_INSTALL = libt1pMPQ.a libt1pD.a libt1pMPFR.a
+CCLIB_TO_INSTALL_DEBUG = libt1pMPQ_debug.a libt1pD_debug.a libt1pMPFR_debug.a
 ifneq ($(HAS_SHARED),)
 CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) \
-libt1pMPQ.$(EXT_DLL) libt1pD.$(EXT_DLL) libt1pMPFR.$(EXT_DLL) \
+libt1pMPQ.$(EXT_DLL) libt1pD.$(EXT_DLL) libt1pMPFR.$(EXT_DLL)
+CCLIB_TO_INSTALL_DEBUG := $(CCLIB_TO_INSTALL_DEBUG) \
 libt1pMPQ_debug.$(EXT_DLL) libt1pD_debug.$(EXT_DLL) libt1pMPFR_debug.$(EXT_DLL)
 endif
 
@@ -45,13 +45,16 @@ t1p.idl t1p.ml t1p.mli t1p.cmi \
 t1pMPQ.cma \
 t1pD.cma \
 t1pMPFR.cma \
-libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a \
+libt1pMPQ_caml.a libt1pD_caml.a libt1pMPFR_caml.a
+CAML_TO_INSTALL_DEBUG = \
 libt1pMPQ_caml_debug.a libt1pD_caml_debug.a libt1pMPFR_caml_debug.a
 ifneq ($(HAS_OCAMLOPT),)
-  CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR t1pMPQ.d t1pD.d t1pMPFR.d)
+  CAML_TO_INSTALL += $(call OCAMLOPT_TARGETS, t1pMPQ t1pD t1pMPFR)
+  CAML_TO_INSTALL_DEBUG += $(call OCAMLOPT_TARGETS, t1pMPQ.d t1pD.d t1pMPFR.d)
 endif
 ifneq ($(HAS_SHARED),)
-CAML_TO_INSTALL += dllt1pMPQ_caml.$(EXT_DLL) dllt1pD_caml.$(EXT_DLL) dllt1pMPFR_caml.$(EXT_DLL) dllt1pMPQ_caml_debug.$(EXT_DLL) dllt1pD_caml_debug.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
+CAML_TO_INSTALL += dllt1pMPQ_caml.$(EXT_DLL) dllt1pD_caml.$(EXT_DLL) dllt1pMPFR_caml.$(EXT_DLL)
+CAML_TO_INSTALL_DEBUG += dllt1pMPQ_caml_debug.$(EXT_DLL) dllt1pD_caml_debug.$(EXT_DLL) dllt1pMPFR_caml_debug.$(EXT_DLL)
 endif
 endif
 
@@ -132,12 +135,22 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
 	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
 	done
 ifeq ($(OCAMLFIND),)
 	for i in $(CAML_TO_INSTALL); do \
 		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
 	done
+endif
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+ifeq ($(OCAMLFIND),)
+	for i in $(CAML_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+endif
 endif
 
 uninstall:

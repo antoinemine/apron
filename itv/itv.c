@@ -519,13 +519,15 @@ void itv_divn(itv_internal_t* intern,
   else {
     /* 0 is in the middle of b: one cross-divide b by c->sup */
     if (a!=b) {
-      bound_div(a->inf,b->sup,c->sup);
-      bound_div(a->sup,b->inf,c->sup);
+      bound_neg(intern->mul_bound,c->sup);
+      bound_div(a->inf,b->sup,intern->mul_bound);
+      bound_div(a->sup,b->inf,intern->mul_bound);
     }
     else {
-      bound_div(intern->mul_bound,b->sup,c->sup);
-      bound_div(a->sup,b->inf,c->sup);
-      bound_set(a->inf,intern->mul_bound);
+      bound_neg(intern->mul_bound,c->sup);
+      bound_div(intern->sqrt_bound,b->sup,intern->mul_bound);
+      bound_div(a->sup,b->inf,intern->mul_bound);
+      bound_set(a->inf,intern->sqrt_bound);
     }
   }
 }

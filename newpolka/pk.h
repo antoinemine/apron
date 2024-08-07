@@ -33,8 +33,8 @@ typedef enum pk_status_t {
 
 struct pk_t {
   /* private data: do not use directly ! */
-  struct matrix_t* C;
-  struct matrix_t* F;
+  struct pk_matrix_t* C;
+  struct pk_matrix_t* F;
   struct satmat_t* satC;
   struct satmat_t* satF;
   size_t intdim;

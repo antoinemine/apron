@@ -81,19 +81,19 @@ bool vector_set_ap_generator0(pk_internal_t* pk,
 			      numint_t* vec,
 			      ap_generator0_t* gen,
 			      size_t intdim, size_t realdim);
-bool matrix_set_ap_generator0_array(pk_internal_t* pk,
-				    matrix_t** matrix,
+bool pk_matrix_set_ap_generator0_array(pk_internal_t* pk,
+				    pk_matrix_t** matrix,
 				    ap_generator0_array_t* array,
 				    size_t intdim, size_t realdim);
 /*
-bool matrix_set_ap_lincons0_array(pk_internal_t* pk,
-				  matrix_t** mat,
+bool pk_matrix_set_ap_lincons0_array(pk_internal_t* pk,
+				  pk_matrix_t** mat,
 				  size_t** tabindex, size_t* size,
 				  ap_lincons0_array_t* array,
 				  size_t intdim, size_t realdim,
 				  bool integer);
-bool matrix_set_ap_intlincons0_array(pk_internal_t* pk,
-				     matrix_t** mat,
+bool pk_matrix_set_ap_intlincons0_array(pk_internal_t* pk,
+				     pk_matrix_t** mat,
 				     itv_t* titv,
 				     ap_lincons0_array_t* array,
 				     size_t* tab, size_t size,
@@ -101,8 +101,8 @@ bool matrix_set_ap_intlincons0_array(pk_internal_t* pk,
 				     bool integer);
 */
 /* From ITV to PK */
-bool matrix_set_itv_lincons_array(pk_internal_t* pk,
-				  matrix_t** mat,
+bool pk_matrix_set_itv_lincons_array(pk_internal_t* pk,
+				  pk_matrix_t** mat,
 				  itv_lincons_array_t* array,
 				  size_t intdim, size_t realdim,
 				  bool integer);

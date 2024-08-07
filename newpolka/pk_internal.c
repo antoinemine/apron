@@ -56,7 +56,7 @@ void pk_internal_init(pk_internal_t* pk, size_t maxdims)
   pk->poly_dimp2 = malloc(pk->maxdims*sizeof(ap_dim_t));
   pk->poly_fold_dimp = malloc(pk->maxdims*sizeof(ap_dim_t));
   /* pk->poly_bitstringp = bitstring_alloc(bitindex_size(pk->maxrows)); */
-  pk->poly_matspecial = matrix_alloc(1,pk->maxcols,true);
+  pk->poly_matspecial = pk_matrix_alloc(1,pk->maxcols,true);
   numint_init(pk->poly_prod);
 }
 
@@ -130,7 +130,7 @@ void pk_internal_clear(pk_internal_t* pk)
   /* if (pk->poly_bitstringp) bitstring_free(pk->poly_bitstringp);
   pk->poly_bitstringp = 0; 
   */
-  if (pk->poly_matspecial) matrix_free(pk->poly_matspecial);
+  if (pk->poly_matspecial) pk_matrix_free(pk->poly_matspecial);
   pk->poly_matspecial = 0;
 
   numint_clear(pk->poly_prod);

@@ -14,18 +14,30 @@ CCSRC = itv_config.h itv_fun.h $(CCMODULES:%=%.h) $(CCMODULES:%=%.c)
 CCINC_TO_INSTALL = itv.h itv_fun.h itv_config.h itv_linexpr.h itv_linearize.h
 CCBIN_TO_INSTALL = 
 CCLIB_TO_INSTALL = \
-libitvIl.a libitvIl_debug.a \
-libitvIll.a libitvIll_debug.a \
-libitvRl.a libitvRl_debug.a \
-libitvRll.a libitvRll_debug.a \
-libitvMPZ.a libitvMPZ_debug.a \
-libitvMPQ.a libitvMPQ_debug.a \
-libitvD.a libitvD_debug.a \
-libitvMPFR.a libitvMPFR_debug.a \
-libitv.a libitv_debug.a
+libitvIl.a \
+libitvIll.a \
+libitvRl.a \
+libitvRll.a \
+libitvMPZ.a \
+libitvMPQ.a \
+libitvD.a \
+libitvMPFR.a \
+libitv.a
+
+CCLIB_TO_INSTALL_DEBUG = \
+libitvIl_debug.a \
+libitvIll_debug.a \
+libitvRl_debug.a \
+libitvRll_debug.a \
+libitvMPZ_debug.a \
+libitvMPQ_debug.a \
+libitvD_debug.a \
+libitvMPFR_debug.a \
+libitv_debug.a
 
 ifneq ($(HAS_LONG_DOUBLE),)
-CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libitvDl.a libitvDl_debug.a
+CCLIB_TO_INSTALL := $(CCLIB_TO_INSTALL) libitvDl.a
+CCLIB_TO_INSTALL_DEBUG := $(CCLIB_TO_INSTALL_DEBUG) libitvDl_debug.a
 endif
 
 OFILES = $(CCMODULES:%=%Il.o) $(CCMODULES:%=%Ill.o) $(CCMODULES:%=%Rl.o) $(CCMODULES:%=%Rll.o) $(CCMODULES:%=%MPZ.o) $(CCMODULES:%=%MPQ.o) $(CCMODULES:%=%D.o) $(CCMODULES:%=%MPFR.o)
@@ -43,13 +55,23 @@ endif
 # depend doc install
 # and the following one
 
-all: allMPQ allRll allD allMPFR libitv.a libitv_debug.a
+all: allIl allIll allRl allMPZ allDl allMPQ allRll allD allMPFR libitv.a libitv_debug.a
+
+allIl: libitvIl.a libitvIl_debug.a
+
+allIll: libitvIll.a libitvIll_debug.a
+
+allRl: libitvRl.a libitvRl_debug.a
+
+allMPZ: libitvMPZ.a libitvMPZ_debug.a
 
 allMPQ: libitvMPQ.a libitvMPQ_debug.a
 
 allRll: libitvRll.a libitvRll_debug.a
 
 allD: libitvD.a libitvD_debug.a
+
+allDl: libitvDl.a libitvDl_debug.a
 
 allMPFR: libitvMPFR.a libitvMPFR_debug.a
 
@@ -65,15 +87,20 @@ install: $(CCINC_TO_INSTALL) $(CCLIB_TO_INSTALL)
 	$(INSTALLd) $(APRON_INCLUDE) $(APRON_LIB)
 	$(INSTALL) $(CCINC_TO_INSTALL) $(APRON_INCLUDE)
 	for i in $(CCLIB_TO_INSTALL); do \
-		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); $(STRIP) $(APRON_LIB)/$$i; fi; \
 	done
 #	for i in $(CCBIN_TO_INSTALL); do \
-#		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); fi; \
+#		if test -f $$i; then $(INSTALL) $$i $(APRON_BIN); $(STRIP) $(APRON_BIN)/$$i; fi; \
 #	done
+ifneq ($(HAS_DEBUG),)
+	for i in $(CCLIB_TO_INSTALL_DEBUG); do \
+		if test -f $$i; then $(INSTALL) $$i $(APRON_LIB); fi; \
+	done
+endif
 
 uninstall:
 	for i in $(CCINC_TO_INSTALL); do /bin/rm -f $(APRON_INCLUDE)/$$i; done
-	for i in $(CCLIB_TO_INSTALL); do /bin/rm -f $(APRON_LIB)/$$i; done
+	for i in $(CCLIB_TO_INSTALL) $(CCLIB_TO_INSTALL_DEBUG); do /bin/rm -f $(APRON_LIB)/$$i; done
 	for i in $(CCBIN_TO_INSTALL); do /bin/rm -f $(APRON_BIN)/$$i; done
 	/bin/rm -f Makefile.depend
 

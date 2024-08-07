@@ -1,0 +1,52 @@
+# README
+#
+# APRON Library / PPLite library
+#
+# Copyright (C) Antoine Mine' 2006-2009
+# Copyright (C) Enea Zaffanella 2023-2024
+
+# This file is part of the APRON Library, released under GPL license.
+# Please read the COPYING file packaged in the distribution
+
+This package is a wrapper for the PPLite library
+(https://github.com/ezaffanella/PPLite)
+
+Requirements:
+- APRON
+- ITV
+- PPLite library version 0.12 (to be installed from sources)
+- Flint, MPFR, GMP
+- for apron_pplite_test: NewPolka APRON module
+
+If HAS_PPLITE is defined in ../Makefile.config, then the main APRON Makefile
+will automatically build and install this module.
+
+What is provided:
+- a manager to access the polyhedra domains provided by PPLite, including:
+    Poly: standard (C or NNC) convex polyhedra domain
+    F_Poly: Poly domain enhanced with Cartesian factoring
+    U_Poly: Poly domain optimized for unconstrained dimensions
+    UF_Poly: Poly domain combining F_Poly and U_Poly
+    P_Set: powerset of convex polyhedra
+    FP_Set: powerset of convex polyhedra with Cartesian factoring
+- C++ exceptions are mapped back to APRON exceptions
+- flag_exact and flag_best are correcty sets
+- all the widenings are available through the algorithm parameter
+- some functions not availble in PPLite are emulated
+- a unit testing program ap_pplite_test for regression testing;
+  it works by comparing the result of PPLite and NewPolka
+  on random polyhedra
+
+Limitations:
+- all domains are experimental but tested
+- partial support for PPLite's powerset of polyhedra (use of functions
+  that are not in Apron's generic interface require explicit casts)
+- some functions are not implemented: fprintfdiff, (de)serialize_raw
+
+How to install:
+- setup in ../Makefile.config (PPLITE_PREFIX, FLINT_PREFIX)
+- compile and optionally install APRON with NewPolka
+- make         => C library
+- make ml      => OCaml library
+- make java    => Java library
+- make install => install C and (if compiled) OCaml and Java libraries

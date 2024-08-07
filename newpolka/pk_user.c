@@ -315,8 +315,8 @@ bool vector_set_ap_generator0(pk_internal_t* pk,
 }
 
 static
-bool matrix_append_ap_generator0_array(pk_internal_t* pk,
-				       matrix_t* mat,
+bool pk_matrix_append_ap_generator0_array(pk_internal_t* pk,
+				       pk_matrix_t* mat,
 				       ap_generator0_array_t* array,
 				       size_t intdim, size_t realdim)
 {
@@ -324,7 +324,7 @@ bool matrix_append_ap_generator0_array(pk_internal_t* pk,
   size_t i,nbrows;
 
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+array->size);
+  pk_matrix_resize_rows_lazy(mat,nbrows+array->size);
   res = true;
   for (i=0; i<array->size; i++){
     exact = vector_set_ap_generator0(pk,mat->p[nbrows+i],&array->p[i],intdim,realdim);
@@ -332,19 +332,19 @@ bool matrix_append_ap_generator0_array(pk_internal_t* pk,
   }
   return res;
 }
-bool matrix_set_ap_generator0_array(pk_internal_t* pk,
-				    matrix_t** matrix,
+bool pk_matrix_set_ap_generator0_array(pk_internal_t* pk,
+				    pk_matrix_t** matrix,
 				    ap_generator0_array_t* array,
 				    size_t intdim, size_t realdim)
 {
-  *matrix = matrix_alloc(array->size,pk->dec+intdim+realdim,false);
+  *matrix = pk_matrix_alloc(array->size,pk->dec+intdim+realdim,false);
   (*matrix)->nbrows = 0;
-  return matrix_append_ap_generator0_array(pk,*matrix,array,intdim,realdim);
+  return pk_matrix_append_ap_generator0_array(pk,*matrix,array,intdim,realdim);
 }
 /*
 static
-bool matrix_append_ap_lincons0_array(pk_internal_t* pk,
-				     matrix_t* mat,
+bool pk_matrix_append_ap_lincons0_array(pk_internal_t* pk,
+				     pk_matrix_t* mat,
 				     size_t** tabindex, size_t* size,
 				     ap_lincons0_array_t* array,
 				     size_t intdim, size_t realdim,
@@ -355,7 +355,7 @@ bool matrix_append_ap_lincons0_array(pk_internal_t* pk,
   size_t* tab;
 
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+2*array->size);
+  pk_matrix_resize_rows_lazy(mat,nbrows+2*array->size);
 
   res = true;
   tab = NULL;
@@ -409,24 +409,24 @@ bool matrix_append_ap_lincons0_array(pk_internal_t* pk,
   return res;
 }
 
-bool matrix_set_ap_lincons0_array(pk_internal_t* pk,
-				  matrix_t** mat,
+bool pk_matrix_set_ap_lincons0_array(pk_internal_t* pk,
+				  pk_matrix_t** mat,
 				  size_t** tabindex, size_t* size,
 				  ap_lincons0_array_t* array,
 				  size_t intdim, size_t realdim,
 				  bool integer)
 {
-  *mat = matrix_alloc(2*array->size,pk->dec+intdim+realdim,false);
+  *mat = pk_matrix_alloc(2*array->size,pk->dec+intdim+realdim,false);
   (*mat)->nbrows = 0;
-  return matrix_append_ap_lincons0_array(pk,
+  return pk_matrix_append_ap_lincons0_array(pk,
 					 *mat,
 					 tabindex,size,
 					 array,
 					 intdim,realdim,integer);
 }
 static
-bool matrix_append_ap_intlincons0_array(pk_internal_t* pk,
-					matrix_t* mat,
+bool pk_matrix_append_ap_intlincons0_array(pk_internal_t* pk,
+					pk_matrix_t* mat,
 					itv_t* titv,
 					ap_lincons0_array_t* array,
 					size_t* tab, size_t size,
@@ -437,7 +437,7 @@ bool matrix_append_ap_intlincons0_array(pk_internal_t* pk,
   size_t nbrows,i,j;
 
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+2*array->size);
+  pk_matrix_resize_rows_lazy(mat,nbrows+2*array->size);
   exact = true;
   j = nbrows;
   for (i=0; i<size; i++){
@@ -456,17 +456,17 @@ bool matrix_append_ap_intlincons0_array(pk_internal_t* pk,
   return exact;
 }
 
-bool matrix_set_ap_intlincons0_array(pk_internal_t* pk,
-				     matrix_t** mat,
+bool pk_matrix_set_ap_intlincons0_array(pk_internal_t* pk,
+				     pk_matrix_t** mat,
 				     itv_t* titv,
 				     ap_lincons0_array_t* array,
 				     size_t* tab, size_t size,
 				     size_t intdim, size_t realdim,
 				     bool integer)
 {
-  *mat = matrix_alloc(2*array->size,pk->dec+intdim+realdim,false);
+  *mat = pk_matrix_alloc(2*array->size,pk->dec+intdim+realdim,false);
   (*mat)->nbrows = 0;
-  return matrix_append_ap_intlincons0_array(pk,
+  return pk_matrix_append_ap_intlincons0_array(pk,
 					    *mat,
 					    titv,
 					    array,tab,size,
@@ -474,8 +474,8 @@ bool matrix_set_ap_intlincons0_array(pk_internal_t* pk,
 }
 */
 static
-bool matrix_append_itv_lincons_array(pk_internal_t* pk,
-				     matrix_t* mat,
+bool pk_matrix_append_itv_lincons_array(pk_internal_t* pk,
+				     pk_matrix_t* mat,
 				     itv_lincons_array_t* array,
 				     size_t intdim, size_t realdim,
 				     bool integer)
@@ -485,11 +485,12 @@ bool matrix_append_itv_lincons_array(pk_internal_t* pk,
   size_t* tab;
 
   nbrows = mat->nbrows;
-  matrix_resize_rows_lazy(mat,nbrows+array->size);
+  pk_matrix_resize_rows_lazy(mat,nbrows+array->size);
 
   res = true;
   j = nbrows;
   for (i=0; i<array->size; i++){
+    if (bound_infty(array->p[i].linexpr.cst->sup)) continue;
     assert(itv_linexpr_is_scalar(&array->p[i].linexpr));
     switch (array->p[i].constyp){
     case AP_CONS_EQ:
@@ -508,17 +509,17 @@ bool matrix_append_itv_lincons_array(pk_internal_t* pk,
   mat->nbrows = j;
   return res;
 }
-bool matrix_set_itv_lincons_array(pk_internal_t* pk,
-				  matrix_t** mat,
+bool pk_matrix_set_itv_lincons_array(pk_internal_t* pk,
+				  pk_matrix_t** mat,
 				  itv_lincons_array_t* array,
 				  size_t intdim, size_t realdim,
 				  bool integer)
 {
 
 
-  *mat = matrix_alloc(array->size,pk->dec+intdim+realdim,false);
+  *mat = pk_matrix_alloc(array->size,pk->dec+intdim+realdim,false);
   (*mat)->nbrows = 0;
-  return matrix_append_itv_lincons_array(pk,
+  return pk_matrix_append_itv_lincons_array(pk,
 					 *mat,array,
 					 intdim,realdim,integer);
 }

@@ -1,9 +1,52 @@
+Version 0.9.15
+
+- BREAKING CHANGE FOR OCAML: remove polymorphic compare functions and renamed compare functions that do not implement a total order, documentation clarification (#108)
+
+- Autodetect library in configure for Mac ARM with Homebrew (#107)
+
+- Support for PPLite 0.12 [Michele Spotti, Enea Zaffanella] (#105)
+
+- Disable PPL and PPLite when no C++ compiler is detected (#104)
+
+- Various fixes (#101, #97, #90)
+
+
+Version 0.9.14
+
+- Add support for PPLite 0.11 polyhedra library [Enea Zaffanella] (#71)
+
+- Add Fppol domain (floating-point polyhedra) [Liqian Chen] (#33)
+
+- Add Avoct domain (absolute value octagons) [Liqian Chen] (#33)
+
+- Add OCaml 5.0.0 support
+
+- Replace quicksort implementation with a new, LGPL one (#87)
+
+- make install installs non-debug version only, unless -debug is used (#86)
+
+- Non-debug C libraries are stripped (#86)
+
+- Compilation and installation fixes (#80, #75, #65, #62, #61, #60, #59, #54, #52, #49, #48, #45, #34)
+
+- Apple M1 support (#68)
+
+- Fix some corner cases for boxes and polyhedra (#85, #83, #82, #81, #80, #63, #43, #35)
+
+- Fix level 1 fold (#90)
+
 Version 0.9.13
+
 - Fix Java version detection & compilation (#30)
+
 - Minor grammar and spelling fixes (#22), (#26)
+
 - Use texi2any instead of (dead) texi2html (#23)
+
 - Fix best and exact flags in octagons (#25)
+
 - Fix linking under MaxOS X (#28)
+
 - Taylor1+ fixes
 
 

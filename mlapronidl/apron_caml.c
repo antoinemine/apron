@@ -72,6 +72,14 @@ long camlidl_apron_linexpr0_ptr_hash(value v)
   ap_linexpr0_t* p = *(ap_linexpr0_ptr *) Data_custom_val(v);
   return ap_linexpr0_hash(p);
 }
+
+/* We no longer implement the polymorphic comparison function as
+   we do not have a natural total order, which is assumed by
+   its semantic. The previous implementation led to inconsistent
+   behavior and was confusing.
+ */
+
+/*
 static
 int camlidl_apron_linexpr0_ptr_compare(value v1, value v2)
 {
@@ -79,11 +87,12 @@ int camlidl_apron_linexpr0_ptr_compare(value v1, value v2)
   ap_linexpr0_t* p2 = *(ap_linexpr0_ptr *) Data_custom_val(v2);
   return ap_linexpr0_compare(p1,p2);
 }
+*/
 
 struct custom_operations camlidl_apron_custom_linexpr0_ptr = {
   "apl0",
   camlidl_apron_linexpr0_ptr_finalize,
-  camlidl_apron_linexpr0_ptr_compare,
+  custom_compare_default /*camlidl_apron_linexpr0_ptr_compare*/,
   camlidl_apron_linexpr0_ptr_hash,
   custom_serialize_default,
   custom_deserialize_default,
@@ -185,6 +194,8 @@ long camlidl_apron_texpr0_ptr_hash(value v)
   ap_texpr0_t* p = *(ap_texpr0_ptr *) Data_custom_val(v);
   return ap_texpr0_hash(p);
 }
+
+/*
 static
 int camlidl_apron_texpr0_ptr_compare(value v1, value v2)
 {
@@ -192,11 +203,12 @@ int camlidl_apron_texpr0_ptr_compare(value v1, value v2)
   ap_texpr0_t* p2 = *(ap_texpr0_ptr *) Data_custom_val(v2);
   return ap_texpr0_equal(p1,p2) ? 0 : (p1<p2 ? (-1) : 1);
 }
+*/
 
 struct custom_operations camlidl_apron_custom_texpr0_ptr = {
   "apl0",
   camlidl_apron_texpr0_ptr_finalize,
-  camlidl_apron_texpr0_ptr_compare,
+  custom_compare_default /*camlidl_apron_texpr0_ptr_compare*/,
   camlidl_apron_texpr0_ptr_hash,
   custom_serialize_default,
   custom_deserialize_default,
@@ -219,6 +231,7 @@ void camlidl_apron_manager_ptr_finalize(value v)
   ap_manager_free(p);
 }
 
+/*
 static
 int camlidl_apron_manager_ptr_compare(value v1, value v2)
 {
@@ -229,11 +242,12 @@ int camlidl_apron_manager_ptr_compare(value v1, value v2)
   res = (p1==p2 || p1->library==p2->library) ? 0 : ((p1<p2) ? (-1) : 1);
   CAMLreturn(res);
 }
+*/
 
 struct custom_operations camlidl_apron_custom_manager_ptr = {
   "apman",
   camlidl_apron_manager_ptr_finalize,
-  camlidl_apron_manager_ptr_compare,
+  custom_compare_default /*camlidl_apron_manager_ptr_compare*/,
   custom_hash_default,
   custom_serialize_default,
   custom_deserialize_default,
@@ -247,7 +261,7 @@ struct custom_operations camlidl_apron_custom_manager_ptr = {
 
 void camlidl_apron_manager_check_exception(struct ap_manager_t* man, void* _ctx)
 {
-  value* p = caml_named_value("apron exception");
+  const value* p = caml_named_value("apron exception");
   if(p==NULL){
     fprintf(stderr,"mlapronidl: error: line <let _ = Callback.register ...> of manager.ml has not been executed: this is not normal\n");
     abort();
@@ -278,6 +292,8 @@ long camlidl_apron_abstract0_ptr_hash(value v)
   if (a->man->result.exn!=AP_EXC_NONE) camlidl_apron_manager_check_exception(a->man,NULL);
   return res;
 }
+
+/*
 static
 int camlidl_apron_abstract0_ptr_compare(value v1, value v2)
 {
@@ -306,6 +322,7 @@ int camlidl_apron_abstract0_ptr_compare(value v1, value v2)
   }
   return res;
 }
+*/
 
 /* global manager used for deserialization */
 static ap_manager_ptr deserialize_man = NULL;
@@ -352,7 +369,7 @@ unsigned long camlidl_apron_abstract0_deserialize(void * dst)
 struct custom_operations camlidl_apron_custom_abstract0_ptr = {
   "apa0",
   camlidl_apron_abstract0_ptr_finalize,
-  camlidl_apron_abstract0_ptr_compare,
+  custom_compare_default /*camlidl_apron_abstract0_ptr_compare*/,
   camlidl_apron_abstract0_ptr_hash,
   camlidl_apron_abstract0_serialize,
   camlidl_apron_abstract0_deserialize,
@@ -445,6 +462,8 @@ long camlidl_apron_environment_ptr_hash(value v)
   int res = ap_environment_hash(e);
   CAMLreturn(res);
 }
+
+/*
 static
 int camlidl_apron_environment_ptr_compare(value v1, value v2)
 {
@@ -455,11 +474,12 @@ int camlidl_apron_environment_ptr_compare(value v1, value v2)
   res = ap_environment_compare(env1,env2);
   CAMLreturn(res);
 }
+*/
 
 struct custom_operations camlidl_apron_custom_environment_ptr = {
   "ape",
   camlidl_apron_environment_ptr_finalize,
-  camlidl_apron_environment_ptr_compare,
+  custom_compare_default /*camlidl_apron_environment_ptr_compare*/,
   camlidl_apron_environment_ptr_hash,
   custom_serialize_default,
   custom_deserialize_default,
@@ -540,6 +560,7 @@ void camlidl_apron_policy_ptr_finalize(value v)
   ap_policy_free(a->pman,a);
 }
 
+/*
 static
 int camlidl_apron_policy_ptr_compare(value v1, value v2)
 {
@@ -554,6 +575,8 @@ int camlidl_apron_policy_ptr_compare(value v1, value v2)
     res = (int)(a1-a2);
   return res;
 }
+*/
+
 static
 long camlidl_apron_policy_ptr_hash(value v)
 {
@@ -568,7 +591,7 @@ long camlidl_apron_policy_ptr_hash(value v)
 struct custom_operations camlidl_apron_custom_policy_ptr = {
   "appolicy",
   camlidl_apron_policy_ptr_finalize,
-  camlidl_apron_policy_ptr_compare,
+  custom_compare_default /*camlidl_apron_policy_ptr_compare*/,
   camlidl_apron_policy_ptr_hash,
   custom_serialize_default,
   custom_deserialize_default,

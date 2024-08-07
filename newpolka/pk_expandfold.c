@@ -33,9 +33,9 @@
    dimensions, with dimsup new dimensions inserted just before
    offset. */
 static
-matrix_t* matrix_expand(pk_internal_t* pk,
+pk_matrix_t* pk_matrix_expand(pk_internal_t* pk,
 			bool destructive,
-			matrix_t* C,
+			pk_matrix_t* C,
 			ap_dim_t dim,
 			size_t offset,
 			size_t dimsup)
@@ -44,10 +44,10 @@ matrix_t* matrix_expand(pk_internal_t* pk,
   size_t i,j,row,col,nb;
   size_t nbrows, nbcols;
   numint_t** p;
-  matrix_t* nC;
+  pk_matrix_t* nC;
 
   if (dimsup==0){
-    return destructive ? C : matrix_copy(C);
+    return destructive ? C : pk_matrix_copy(C);
   }
   nbrows = C->nbrows;
   nbcols = C->nbcolumns;
@@ -64,9 +64,9 @@ matrix_t* matrix_expand(pk_internal_t* pk,
   for (i=0;i<dimsup;i++){
     dimchange->dim[i]=offset;
   }
-  nC = matrix_add_dimensions(pk,destructive,C,dimchange);
+  nC = pk_matrix_add_dimensions(pk,destructive,C,dimchange);
   ap_dimchange_free(dimchange);
-  matrix_resize_rows(nC,nbrows+nb*dimsup);
+  pk_matrix_resize_rows(nC,nbrows+nb*dimsup);
   if (nb==0)
     return nC;
 
@@ -153,13 +153,13 @@ pk_t* pk_expand(ap_manager_t* man,
   }
   /* Prepare resulting matrix */
   if (destructive){
-    if (po->F){ matrix_free(po->F); po->F = NULL; }
+    if (po->F){ pk_matrix_free(po->F); po->F = NULL; }
     if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
     if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
     po->nbeq = po->nbline = 0;
     po->status &= ~pk_status_consgauss & ~pk_status_gengauss & ~pk_status_minimaleps;
   }
-  po->C = matrix_expand(pk, destructive, pa->C, 
+  po->C = pk_matrix_expand(pk, destructive, pa->C, 
 			dim, 
 			(dim + dimsup < po->intdim ?
 			 po->intdim-dimsup :
@@ -194,25 +194,25 @@ pk_t* pk_expand(ap_manager_t* man,
 
 /* the array tdim is assumed to be sorted */
 static
-matrix_t* matrix_fold(pk_internal_t* pk,
+pk_matrix_t* pk_matrix_fold(pk_internal_t* pk,
 		      bool destructive,
-		      matrix_t* F,
+		      pk_matrix_t* F,
 		      ap_dim_t* tdim, size_t size)
 {
-  matrix_t* nF;
+  pk_matrix_t* nF;
   size_t i,j,row,col;
   size_t nbrows, nbcols, dimsup;
   ap_dimchange_t* dimchange;
 
   dimsup = size-1;
   if (dimsup==0){
-    return destructive ? F : matrix_copy(F);
+    return destructive ? F : pk_matrix_copy(F);
   }
   nbrows = F->nbrows;
   nbcols = F->nbcolumns;
   col = pk->dec + tdim[0];
 
-  nF = matrix_alloc( size*nbrows,
+  nF = pk_matrix_alloc( size*nbrows,
 		     nbcols - dimsup,
 		     false );
   dimchange = ap_dimchange_alloc(0,dimsup);
@@ -240,7 +240,7 @@ matrix_t* matrix_fold(pk_internal_t* pk,
   nF->nbrows = row;
   nF->_sorted = false;
   if (destructive){
-    matrix_free(F);
+    pk_matrix_free(F);
   }
   ap_dimchange_free(dimchange);
   return nF;
@@ -294,14 +294,14 @@ pk_t* pk_fold(ap_manager_t* man,
 
   /* Prepare resulting matrix */
   if (destructive){
-    if (po->C){ matrix_free(po->C); po->C = NULL; }
+    if (po->C){ pk_matrix_free(po->C); po->C = NULL; }
     if (po->satF){ satmat_free(po->satF); po->satF = NULL; }
     if (po->satC){ satmat_free(po->satC); po->satC = NULL; }
     po->nbeq = po->nbline = 0;
     po->status &= ~pk_status_consgauss & ~pk_status_gengauss & ~pk_status_minimaleps;
   }
   
-  po->F = matrix_fold(pk, destructive, pa->F, 
+  po->F = pk_matrix_fold(pk, destructive, pa->F, 
 		      tdim, size);
   /* Minimize the result */
   if (pk->funopt->algorithm>0){
