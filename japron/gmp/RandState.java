@@ -36,7 +36,15 @@ public class RandState
     private native void init(RandState op);
 
     /** Deallocates the GMP gmp_randstate_t object. */
-    protected native void finalize();
+    //protected native void finalize();
+
+    /** Cleaner interface that replaces finalize. */
+    private static native void clean(long ptr);
+    static class Clean implements Runnable {
+        private long ptr;
+        public Clean(long p) { ptr = p; }
+        public void run() { clean(ptr); }
+    }
 
     private static native void class_init();
 
@@ -47,21 +55,34 @@ public class RandState
     ///////////////
 
     /** Creates a random state with the default algorithm. */
-    public RandState() { init(); }
+    public RandState()
+    {
+        init();
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
     /** Creates a random state for a Mersenne Twister algorithm.
      *
      * <p>The boolean argument is not actually used. It is used
      * to differentiate from the default algorithm constructor.
      */
-    public RandState(boolean b) { init_mt(); }
+    public RandState(boolean b)
+    {
+        init_mt();
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
+
 
     /** 
      * Creates a random state for a congruential algorithm.
      *
      * <p>X=(aX+c) mod 2^m2exp. 
      */
-    public RandState(Mpz a, int c, int m2exp) { init_lc_2exp(a, c, m2exp); }
+    public RandState(Mpz a, int c, int m2exp)
+    {
+        init_lc_2exp(a, c, m2exp);
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
     /** 
      * Creates a random state for a congruential algorithm.
@@ -70,10 +91,18 @@ public class RandState
      * at least size bits of each value is used.
      * <p> The maximum size currently supported is 128.
     */
-    public RandState(int size) { init_lc_2exp_size(size); }
+    public RandState(int size)
+    {
+        init_lc_2exp_size(size);
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
     /** Creates a copy of the random state op. */
-    public RandState(RandState op) { init(op); }
+    public RandState(RandState op)
+    {
+        init(op);
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
 
     // Seeding

@@ -45,8 +45,16 @@ public class Abstract0
     private native void init(Manager man, int intdim, int realdim, boolean empty) throws ApronException;
     private native void init(Manager man, int intdim, int realdim, Interval[] box) throws ApronException;
 
-    /** Deallocates the Apron ap_abstract0_t object. */
-    protected native void finalize();
+    /** Deallocates the Apron ap_abstract0_t object (deprecated). */
+    //protected native void finalize();
+
+    /** Cleaner interface that replaces finalize. */
+    private static native void clean(long ptr);
+    static class Clean implements Runnable {
+        private long ptr;
+        public Clean(long p) { ptr = p; }
+        public void run() { Abstract0.clean(ptr); }
+    }
 
     private static native void class_init();
 
@@ -58,12 +66,16 @@ public class Abstract0
     // Constructors
     ///////////////
 
+
     /**
      * Creates a copy of the abstract element a. 
      */
     public Abstract0(Manager man, Abstract0 a)
         throws ApronException
-    { init(man, a); }
+    {
+        init(man, a);
+        Manager.cleaner.register(this, new Clean(ptr));
+    }
 
     /**
      * Creates a new universal abstract element.
@@ -74,7 +86,10 @@ public class Abstract0
      */
     public Abstract0(Manager man, int intdim, int realdim)
         throws ApronException
-    { init(man, intdim, realdim, false); }
+    {
+        init(man, intdim, realdim, false);
+        Manager.cleaner.register(this, new Clean(ptr));
+    }
 
     /**
      * Creates a new universal or empty abstract element.
@@ -86,7 +101,10 @@ public class Abstract0
      */
     public Abstract0(Manager man, int intdim, int realdim, boolean empty)
         throws ApronException
-    { init(man, intdim, realdim, empty); }
+    {
+        init(man, intdim, realdim, empty);
+        Manager.cleaner.register(this, new Clean(ptr));
+    }
     
     /**
      * Creates a new abstract element from a box.
@@ -98,7 +116,10 @@ public class Abstract0
      */
     public Abstract0(Manager man, int intdim, int realdim, Interval[] box)
         throws ApronException
-    { init(man, intdim, realdim, box); }
+    {
+        init(man, intdim, realdim, box);
+        Manager.cleaner.register(this, new Clean(ptr));
+    }
 
 
    /**
@@ -111,7 +132,11 @@ public class Abstract0
      */
     public Abstract0(Manager man, int intdim, int realdim, Lincons0[] c)
         throws ApronException
-    { init(man, intdim, realdim, false); meet(man, c); }
+    {
+        init(man, intdim, realdim, false);
+        Manager.cleaner.register(this, new Clean(ptr));
+        meet(man, c);
+    }
 
    /**
      * Creates a new abstract element from a set of constraints.
@@ -123,7 +148,11 @@ public class Abstract0
      */
     public Abstract0(Manager man, int intdim, int realdim, Tcons0[] c)
         throws ApronException
-    { init(man, intdim, realdim, false); meet(man, c); }
+    {
+        init(man, intdim, realdim, false);
+        Manager.cleaner.register(this, new Clean(ptr));
+        meet(man, c);
+    }
 
 
     // Access

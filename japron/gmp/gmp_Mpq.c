@@ -39,6 +39,18 @@ JNIEXPORT void JNICALL Java_gmp_Mpq_finalize
 
 /*
  * Class:     gmp_Mpq
+ * Method:    clean
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_gmp_Mpq_clean
+  (JNIEnv *env, jclass cls, jlong p)
+{
+  mpq_ptr ptr = (mpq_ptr)p;
+  mpq_clear(ptr); free(ptr);
+}
+
+/*
+ * Class:     gmp_Mpq
  * Method:    class_init
  * Signature: ()V
  */

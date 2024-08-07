@@ -54,8 +54,16 @@ public class Mpfr
     private native void init_set(Mpq v, int round);
     private native void init_set(String s, int b, int round);
 
-    /** Deallocates the underlying mpfr_t MPFR object. */
-    protected native void finalize();
+    /** Deallocates the underlying mpfr_t MPFR object (deprecated). */
+    //protected native void finalize();
+
+    /** Cleaner interface that replaces finalize. */
+    private static native void clean(long ptr);
+    static class Clean implements Runnable {
+        private long ptr;
+        public Clean(long p) { ptr = p; }
+        public void run() { clean(ptr); }
+    }
 
     private static native void class_init();
 
@@ -73,6 +81,7 @@ public class Mpfr
     public Mpfr() 
     {
         init();
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -83,18 +92,21 @@ public class Mpfr
     public Mpfr(int prec) 
     {
         init(prec); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** Constructs a copy of v, with the same precision as v. */
     public Mpfr(Mpfr v) 
     {
         init(v.getPrec()); set(v, RNDN); 
-    }
+         Mpz.cleaner.register(this, new Clean(ptr));
+   }
 
     /** Constructs a copy of v, rounded to the default precision. */
     public Mpfr(Mpfr v, int round) 
     {
         init_set(v,round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -104,6 +116,7 @@ public class Mpfr
     public Mpfr(int v, int round) 
     { 
         init_set(v, round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** 
@@ -113,6 +126,7 @@ public class Mpfr
     public Mpfr(BigInteger v, int round) 
     {
         init_set(new Mpz(v), round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -122,6 +136,7 @@ public class Mpfr
     public Mpfr(Mpz v, int round) 
     {
         init_set(v, round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -131,6 +146,7 @@ public class Mpfr
     public Mpfr(double v, int round) 
     { 
         init_set(v, round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -140,19 +156,28 @@ public class Mpfr
     public Mpfr(Mpq v, int round) 
     {
         init_set(v, round); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
      * Constructs a float with the default precision equal to the number 
      * represented in the String s in base b (with rounding). 
      */
-    public Mpfr(String s, int b, int round) { init_set(s, b, round); }
+    public Mpfr(String s, int b, int round)
+    {
+        init_set(s, b, round);
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
     /**
      * Constructs a float with the default precision equal to the number 
      * represented in the decimal String s (with rounding). 
      */
-    public Mpfr(String s, int round) { init_set(s, 10, round); }
+    public Mpfr(String s, int round)
+    {
+        init_set(s, 10, round);
+        Mpz.cleaner.register(this, new Clean(ptr));
+    }
 
 
     /**
@@ -1276,6 +1301,7 @@ public class Mpfr
         throws IOException, ClassNotFoundException
     { 
         init(in.readInt());
+        Mpz.cleaner.register(this, new Clean(ptr));
         set((String)(in.readObject()), 16, RNDN);
     }
 
@@ -1287,6 +1313,7 @@ public class Mpfr
         throws ObjectStreamException
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
 }
