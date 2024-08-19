@@ -2,7 +2,7 @@
 #
 # APRON Library / Java Binding
 #
-# Copyright (C) Antoine Mine' 2010
+# Copyright (C) Antoine Mine' 2010-
 
 # This file is part of the APRON Library, released under LGPL license
 # with an exception allowing the redistribution of statically linked
@@ -17,14 +17,11 @@ Apron distribution.
 Also included is a Java binding for the GMP and MPFR libraries used by Apron.
 
 
-STATUS
-######
 
-Status: Beta
-All functions have been implemented but few have been tested so far.
+REQUIREMENTS
+############
 
-Requirements: 
-Tested on Sun/Oracle's Java 1.6 to 1.8 on x86_64 Linux
+Java 9 or above.
 
 
 INSTALLATION
