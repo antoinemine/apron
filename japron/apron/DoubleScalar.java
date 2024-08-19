@@ -140,7 +140,7 @@ public class DoubleScalar
     /** Returns a hash of the value of this. */
     public int hashCode() 
     {
-        return (Double.valueOf(val)).hashCode();
+        return Double.valueOf(val).hashCode();
     }
 
 

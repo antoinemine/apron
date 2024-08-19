@@ -52,8 +52,18 @@ public class Mpz
      */
     public native byte[] byteArrayValue();
 
-    /** Deallocates the underlying mpz_t GMP object. */
-    protected native void finalize();
+    /** Deallocates the underlying mpz_t GMP object (deprecated). */
+    //protected native void finalize();
+
+    /** Cleaner interface that replaces finalize. */
+    private static native void clean(long ptr);
+    static class Clean implements Runnable {
+        private long ptr;
+        public Clean(long p) { ptr = p; }
+        public void run() { clean(ptr); }
+    }
+
+    static final java.lang.ref.Cleaner cleaner = java.lang.ref.Cleaner.create();
 
     private static native void class_init();
     
@@ -67,18 +77,21 @@ public class Mpz
     public Mpz()
     {
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
     
     /** Constructs a copy of its argument. */
     public Mpz(Mpz v)
     {
         init_set(v); 
-    }
+        Mpz.cleaner.register(this, new Clean(ptr));
+   }
 
     /** Constructs a number initialized with an integer. */
     public Mpz(int i) 
     { 
         init_set(i); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** 
@@ -89,12 +102,14 @@ public class Mpz
     public Mpz(double d) 
     {
         init_set(d); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** Constructs a number initialized from a Java big integer. */
     public Mpz(BigInteger b)
     { 
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(b.signum(), b.abs().toByteArray()); 
     }
 
@@ -109,6 +124,7 @@ public class Mpz
     public Mpz(String s, int b) 
     {
         init_set(s, b); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /** Constructs a number initialized from a string representation. 
@@ -120,6 +136,7 @@ public class Mpz
     public Mpz(String s) 
     { 
         init_set(s, 0); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
     /**
@@ -129,6 +146,7 @@ public class Mpz
     public Mpz(int sign, byte[] mag) 
     { 
         init(); 
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(sign, mag); 
     }
 
@@ -1177,6 +1195,7 @@ public class Mpz
         byte[] v = new byte[len];
         in.readFully(v);
         init();
+        Mpz.cleaner.register(this, new Clean(ptr));
         set(sign, v);
     }
 
@@ -1185,6 +1204,7 @@ public class Mpz
         throws ObjectStreamException
     {
         init_set(0); 
+        Mpz.cleaner.register(this, new Clean(ptr));
     }
 
 

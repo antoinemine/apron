@@ -143,6 +143,18 @@ JNIEXPORT void JNICALL Java_gmp_Mpfr_finalize
 
 /*
  * Class:     gmp_Mpfr
+ * Method:    clean
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_gmp_Mpfr_clean
+  (JNIEnv *env, jclass cls, jlong p)
+{
+  mpfr_ptr ptr = (mpfr_ptr)p;
+  mpfr_clear(ptr); free(ptr);
+}
+
+/*
+ * Class:     gmp_Mpfr
  * Method:    class_init
  * Signature: ()V
  */
