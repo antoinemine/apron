@@ -70,6 +70,23 @@ set_flags(ap_manager_t* man, bool flag) {
   man->result.flag_best = flag;
 }
 
+/* helper to force use of mpq scalars */
+inline ap_interval_t*
+ap_MPQ_interval_alloc() {
+  ap_interval_t* r = ap_interval_alloc();
+  ap_interval_reinit(r, AP_SCALAR_MPQ);
+  return r;
+}
+
+/* helper to force use of mpq scalars */
+inline ap_interval_t**
+ap_MPQ_interval_array_alloc(dim_type dim) {
+  ap_interval_t** r = ap_interval_array_alloc(dim);
+  for (int i = 0; i < dim; ++i)
+    ap_interval_reinit(r[i], AP_SCALAR_MPQ);
+  return r;
+}
+
 inline void
 to_ap_interval(ap_interval_t* r, const Itv& itv) {
   if (itv.is_empty()) {
@@ -148,7 +165,7 @@ generator_universe(dim_type dim) {
 /* Helper to be used in catch clauses: whole universe as a box */
 ap_interval_t**
 box_universe(dim_type dim) {
-  auto res = ap_interval_array_alloc(dim);
+  auto res = ap_MPQ_interval_array_alloc(dim);
   for (auto i = 0; i < dim; ++i)
     ap_interval_set_top(res[i]);
   return res;
@@ -560,21 +577,23 @@ ap_pplite_poly_sat_tcons(ap_manager_t* man, pplite_poly* a,
 extern "C" bool
 ap_pplite_poly_sat_interval(ap_manager_t* man, pplite_poly* a,
                             ap_dim_t dim, ap_interval_t* i) {
-  set_flags(man, false); // FIXME: Why?
-  auto p_i = ap_interval_alloc();
-  bool res;
   try {
     if (a->p->is_empty()) {
       set_flags(man, true);
-      res = true;
-    } else {
-      compute_ap_interval(p_i, a, dim);
-      res = ap_interval_is_leq(p_i, i);
+      return true;
     }
+  }
+  CATCH_WITH_VAL(AP_FUNID_SAT_INTERVAL, false);
+  set_flags(man, false);
+  bool res;
+  auto p_i = ap_MPQ_interval_alloc();
+  try {
+    compute_ap_interval(p_i, a, dim);
+    res = ap_interval_is_leq(p_i, i);
     ap_interval_free(p_i);
-    return res;
   }
   CATCH_WITH_VAL(AP_FUNID_SAT_INTERVAL, (ap_interval_free(p_i), false));
+  return res;
 }
 
 extern "C" bool
@@ -593,8 +612,9 @@ ap_pplite_poly_bound_linexpr(ap_manager_t* man,
                              pplite_poly* a,
                              ap_linexpr0_t* expr) {
   set_flags(man, (a->intdim == 0));
-  ap_interval_t* r = ap_interval_alloc();
+  ap_interval_t* r = ap_MPQ_interval_alloc();
   try {
+    /* check for empty case */
     if (a->p->is_empty()) {
       ap_interval_set_bottom(r);
       set_flags(man, true);
@@ -673,7 +693,7 @@ extern "C" ap_interval_t*
 ap_pplite_poly_bound_dimension(ap_manager_t* man,
                                pplite_poly* a, ap_dim_t dim) {
   set_flags(man, (a->intdim == 0));
-  ap_interval_t* r = ap_interval_alloc();
+  ap_interval_t* r = ap_MPQ_interval_alloc();
   try {
     compute_ap_interval(r, a, dim);
     if (ap_interval_is_bottom(r))
@@ -706,7 +726,7 @@ ap_pplite_poly_to_box(ap_manager_t* man, pplite_poly* a) {
   set_flags(man, (a->intdim == 0));
   auto dim = a->p->space_dim();
   try {
-    auto res = ap_interval_array_alloc(dim);
+    auto res = ap_MPQ_interval_array_alloc(dim);
     BBox bbox = a->p->get_bounding_box();
     bbox.refine_as_integral(0, a->intdim);
     if (bbox.is_empty()) {
