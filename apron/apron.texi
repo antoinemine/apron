@@ -3015,7 +3015,7 @@ octagons.
 @c -------------------------------------------------------------------
 
 @deftypefun ap_abstract1_t ap_abstract1_forget_array (ap_manager_t* @var{man}, bool @var{destructive}, ap_abstract1_t* @var{a}, ap_var_t* @var{tvar}, size_t @var{size}, bool @var{project})
-Forget (@code{project=false}) or Project (@code{project=true}) the
+Forget (@code{project==false}) or Project (@code{project==true}) the
 array of variables @var{tvar} of size @var{size} in the abstract
 value @var{a}.
 @end deftypefun
@@ -3029,7 +3029,7 @@ value @var{a}.
 Change the environment of the abstract values.  Variables that are
 removed are first existentially quantified, and variables that are
 introduced are either unconstrained (@code{project==false}) or
-initialized to 0 (@code{project==false}).
+initialized to 0 (@code{project==true}).
 @end deftypefun
 
 @deftypefun ap_abstract1_t ap_abstract1_minimize_environment (ap_manager_t* @var{man}, bool @var{destructive}, ap_abstract1_t* @var{a})
@@ -4276,7 +4276,7 @@ octagons.
 @c -------------------------------------------------------------------
 
 @deftypefun ap_abstract0_t* ap_abstract0_forget_array (ap_manager_t* @var{man}, bool @var{destructive}, ap_abstract0_t* @var{a}, ap_dim_t* @var{tdim}, size_t @var{size}, bool @var{project})
-Forget (@code{project=false}) or Project (@code{project=true}) the
+Forget (@code{project==false}) or Project (@code{project==true}) the
 array of dimensions @var{tdim} of size @var{size} in the abstract
 value @var{a}.
 @end deftypefun
