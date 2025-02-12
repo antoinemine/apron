@@ -3029,7 +3029,7 @@ value @var{a}.
 Change the environment of the abstract values.  Variables that are
 removed are first existentially quantified, and variables that are
 introduced are either unconstrained (@code{project==false}) or
-initialized to 0 (@code{project==false}).
+initialized to 0 (@code{project==true}).
 @end deftypefun
 
 @deftypefun ap_abstract1_t ap_abstract1_minimize_environment (ap_manager_t* @var{man}, bool @var{destructive}, ap_abstract1_t* @var{a})
