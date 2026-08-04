@@ -78,6 +78,7 @@ void poly_projectforget_array(bool project,
 	numint_set_int(mat->p[i][pk->dec+tdim[j]],0);
       }
       pk_matrix_normalize_row(pk,mat,(size_t)i);
+      mat->_sorted = false;
     }
     po->status = 0;
     if (!lazy){
