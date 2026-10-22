@@ -71,8 +71,11 @@ int ap_linexpr0_get_size(ap_linexpr0_ptr a)
      quote(call,"_res = a->size;");
 
 quote(MLI,"(** Get the constant *)")
-[ref]struct ap_coeff_t* ap_linexpr0_get_cst(ap_linexpr0_ptr a)
-     quote(call,"_res = &a->cst;");
+struct ap_coeff_t ap_linexpr0_get_cst(ap_linexpr0_ptr a)
+     quote(call,"\n\
+   ap_coeff_init(&_res, a->cst.discr); \n\
+   ap_coeff_set(&_res, &a->cst); \n\
+");
 
 quote(MLI,"(** Get the coefficient corresponding to the dimension *)")
 struct ap_coeff_t ap_linexpr0_get_coeff(ap_linexpr0_ptr a, int dim)
