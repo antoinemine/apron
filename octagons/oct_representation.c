@@ -232,7 +232,7 @@ void oct_cache_closure(oct_internal_t* pr, oct_t* a)
 {
   if (a->closed || !a->m) return;
   a->closed = hmat_copy(pr,a->m,a->dim);
-  if (hmat_close(a->closed,a->dim)) {
+  if (hmat_close(a->closed,a->dim,oct_tight_intdim(pr,a->intdim))) {
     /* empty! */
     hmat_free(pr,a->m,a->dim);
     hmat_free(pr,a->closed,a->dim);
@@ -255,7 +255,7 @@ void oct_close(oct_internal_t* pr, oct_t* a)
   }
   a->closed = a->m;
   a->m = NULL;
-  if (hmat_close(a->closed,a->dim)) {
+  if (hmat_close(a->closed,a->dim,oct_tight_intdim(pr,a->intdim))) {
     hmat_free(pr,a->closed,a->dim);
     a->closed = NULL;
   }
@@ -334,6 +334,18 @@ void oct_internal_free(oct_internal_t* pr)
   free(pr);
 }
 
+void oct_set_tight_closure(ap_manager_t* man, bool b)
+{
+  oct_internal_t* pr = (oct_internal_t*)man->internal;
+  pr->tight = b;
+}
+
+bool oct_get_tight_closure(ap_manager_t* man)
+{
+  oct_internal_t* pr = (oct_internal_t*)man->internal;
+  return pr->tight;
+}
+
 ap_manager_t* oct_manager_alloc(void)
 {
   size_t i;
@@ -357,6 +369,7 @@ ap_manager_t* oct_manager_alloc(void)
 			 (void (*)(void*))oct_internal_free);
 
   pr->man = man;
+  pr->tight = false;
 
   man->funptr[AP_FUNID_COPY] = &oct_copy;
   man->funptr[AP_FUNID_FREE] = &oct_free;

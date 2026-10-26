@@ -344,6 +344,20 @@ static inline void bound_ceil(bound_t a, bound_t b)
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
   else { num_ceil(bound_numref(a),bound_numref(b)); _bound_inf(a); }
 }
+/* a = floor(b/2); bound_div_2 rounds upwards on integer nums */
+static inline void bound_fdiv_2(bound_t a, bound_t b)
+{
+  if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));
+  else {
+#if defined(NUM_NUMINT)
+    numint_fdiv_q_2exp(bound_numref(a),bound_numref(b),1);
+#else
+    num_div_2(bound_numref(a),bound_numref(b));
+    num_floor(bound_numref(a),bound_numref(a));
+#endif
+    _bound_inf(a);
+  }
+}
 static inline void bound_trunc(bound_t a, bound_t b)
 {
   if (bound_infty(b)) bound_set_infty(a,bound_sgn(b));

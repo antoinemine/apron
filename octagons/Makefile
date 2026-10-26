@@ -22,6 +22,13 @@ include ../vars.mk
 #---------------------------------------
 
 ICFLAGS += $(BASE_ICFLAGS) $(ML_ICFLAGS)
+
+ifeq ($(TIGHT),1)
+ICFLAGS += -DTEST_TIGHT=1
+else
+ICFLAGS += -DTEST_TIGHT=0
+endif
+
 LDFLAGS += $(BASE_LIFLAGS)
 CMXSINC = $(APRON_CMXSINC) -I .
 
@@ -198,6 +205,11 @@ endif
 	$(CC) -o $@ oct_test$*.o \
 		-L. -loct$*_debug -L../newpolka -lpolkaMPQ_debug \
 		$(LDFLAGS) $(LIBS_DEBUG) $(CFLAGS_DEBUG)
+
+octtight%: oct_tight_closure_test%.o liboct%_debug.a
+	$(CC) -o $@ oct_tight_closure_test$*.o liboct$*_debug.a \
+		$(LDFLAGS) $(LIBS_DEBUG) $(CFLAGS_DEBUG)
+
 
 %_caml.o: %_caml.c $(CCINC) $(DEPS)
 	$(CC) $(CFLAGS) $(ICFLAGS) -c -o $@ $<

@@ -21,6 +21,9 @@
 #include <time.h>
 #include <assert.h>
 
+#ifndef TEST_TIGHT
+#define TEST_TIGHT 0
+#endif
 #if (defined __CYGWIN__ || defined __MINGW32__)
 inline long int lrand48(void){ return rand(); }
 inline void srand48(long int seedval){ srand(seedval); }
@@ -89,16 +92,22 @@ char check(oct_t* o)
   if (o->closed) {
     bound_t* cl;
     size_t i;
-    if (num_incomplete || o->intdim) return '.'; /* incomplete */
+    size_t intdim = oct_tight_intdim(pr,o->intdim);
+    if (num_incomplete) return '.'; /* incomplete */
     /* check that o->closed is really closed */
     if (!hmat_check_closed(o->closed,o->dim)) {
       ERROR("invalid closure");
       return '!';
     }
+    /* check that o->closed is tight on integer dimensions */
+    if (!hmat_check_tight(o->closed,intdim)) {
+      ERROR("invalid tight closure");
+      return '!';
+    }
     if (!o->m) return 'c'; /* ok */
     /* now check that closure(o->m) = o->closed */
     cl = hmat_copy(pr,o->m,o->dim);
-    hmat_close(cl,o->dim);
+    hmat_close(cl,o->dim,intdim);
     for (i=0;i<matsize(o->dim);i++)
       if (bound_cmp(cl[i],o->closed[i])) {
 	hmat_free(pr,cl,o->dim);
@@ -119,9 +128,9 @@ void random_bound(bound_t b)
   num_clear(n);
 }
 
-oct_t* random_oct(int dim,float frac)
+oct_t* random_oct_int(int dim, int intdim, float frac)
 {
-  oct_t* o = oct_alloc_internal(pr,dim,0);
+  oct_t* o = oct_alloc_internal(pr,dim,intdim);
   bound_t* b;
   int i,j,x,y;
   num_t n;
@@ -132,13 +141,32 @@ oct_t* random_oct(int dim,float frac)
     for (j=0;j<=(i|1);j++,b++) {
       if (i==j) continue;
       if (lrand48()%100>frac*100) continue;
-      y = lrand48()%4+1;
-      x = lrand48()%20-2;      
-      num_set_int2(n,x,y);
+      /* integer bounds between integer variables */
+      if (i<2*intdim && j<2*intdim) {
+	x = lrand48()%20-2;
+	num_set_int(n,x);
+      }
+      else {
+	y = lrand48()%4+1;
+	x = lrand48()%20-2;
+	num_set_int2(n,x,y);
+      }
       bound_set_num(*b,n);
     }
   num_clear(n);
   return o;
+}
+
+/* all dimensions are integer when tight closure is enabled
+   (tight closure requires an integer matrix) */
+size_t rand_intdim(size_t dim)
+{
+  return oct_tight_intdim(pr,dim);
+}
+
+oct_t* random_oct(int dim, float frac)
+{
+  return random_oct_int(dim,rand_intdim(dim),frac);
 }
 
 /* build polyhedron & octagon at the same time, from same constraints */
@@ -217,7 +245,9 @@ ap_linexpr0_t* random_linexpr(exprmode mode, int dim)
     }
   }
   if (mode<=expr_lin) {
-    ap_coeff_set_scalar_frac(&l->cst,lrand48()%20-10,lrand48()%4+1);
+    /* integer constant when tight closure is enabled */
+    if (pr->tight) ap_coeff_set_scalar_int(&l->cst,lrand48()%20-10);
+    else ap_coeff_set_scalar_frac(&l->cst,lrand48()%20-10,lrand48()%4+1);
   }
   else {
     int n1 = lrand48()%20-10;
@@ -411,17 +441,19 @@ void info(void)
 void test_misc(void)
 {
   size_t D = 5;
+  /* same integer dimensions as random_oct */
+  size_t I = rand_intdim(D);
   int i;
-  oct_t* bot = oct_bottom(mo,0,D);
-  oct_t* top = oct_top(mo,0,D);
+  oct_t* bot = oct_bottom(mo,I,D-I);
+  oct_t* top = oct_top(mo,I,D-I);
   ap_abstract0_t* bot2 = poly_of_oct(bot);
   ap_abstract0_t* top2 = poly_of_oct(top);
   ap_dimension_t d1 = oct_dimension(mo,bot);
   ap_dimension_t d2 = oct_dimension(mo,top);  
   printf("\nperforming various tests\n");
   check(bot); check(top);
-  if (d1.intdim || d1.realdim!=D) printf("oct_dimension failed #1\n");
-  if (d2.intdim || d2.realdim!=D) printf("oct_dimension failed #2\n");
+  if (d1.intdim!=I || d1.realdim!=D-I) printf("oct_dimension failed #1\n");
+  if (d2.intdim!=I || d2.realdim!=D-I) printf("oct_dimension failed #2\n");
   if (!oct_is_bottom(mo,bot))  printf("oct_is_bottom failed #3\n");
   if (oct_is_bottom(mo,top))   printf("oct_is_bottom failed #4\n");
   if (oct_is_top(mo,bot))      printf("oct_is_top failed #5\n");
@@ -442,7 +474,7 @@ void test_misc(void)
     oct_t* c = oct_copy(mo,o);
     oct_t* l = oct_closure(mo,false,o);
     ap_dimension_t d = oct_dimension(mo,o);
-    if (d.intdim || d.realdim!=D) printf("oct_dimension failed #14\n");
+    if (d.intdim!=I || d.realdim!=D-I) printf("oct_dimension failed #14\n");
     if (!oct_is_leq(mo,bot,o))  printf("oct_is_leq failed #15\n");
     if (!oct_is_leq(mo,o,top))  printf("oct_is_leq failed #16\n");
     if (!oct_is_eq(mo,o,c))     printf("oct_is_eq failed #17\n");
@@ -493,7 +525,7 @@ void test_incremental_closure(void)
 	if (lrand48()%10>8) random_bound(o->closed[matpos2(i,2*v+1)]);
       }
       o->m = hmat_copy(pr,o->closed,dim);
-      if (hmat_close_incremental(o->closed,dim,v)) RESULT('o');
+      if (hmat_close_incremental(o->closed,dim,oct_tight_intdim(pr,o->intdim),v)) RESULT('o');
       else RESULT(check(o));
     }
     else  RESULT('o');
@@ -524,15 +556,16 @@ void test_polyhedra_conversion(void)
       print_poly("p",p); 
       print_oct("o2",o2); 
     }
-    if (!ap_abstract0_is_leq(mp,p,p2)) {
+    /* polyhedra are not tight on Z: p may be larger than p2 */
+    if (!pr->tight && !ap_abstract0_is_leq(mp,p,p2)) {
       ERROR("poly not included in");
-      print_oct("o",o); 
-      print_poly("p",p); 
-      print_oct("o2",o2); 
+      print_oct("o",o);
+      print_poly("p",p);
+      print_oct("o2",o2);
       print_poly("p2",p2);
     }
     if (oct_is_eq(mo,o,o2) && ap_abstract0_is_eq(mp,p,p2)) RESULT('*');
-    if (flag>=best && (oct_is_neq(mo,o,o2) || !ap_abstract0_is_eq(mp,p,p2))) ERROR("best flag");
+    if (!pr->tight && flag>=best && (oct_is_neq(mo,o,o2) || !ap_abstract0_is_eq(mp,p,p2))) ERROR("best flag");
     oct_free(mo,o); oct_free(mo,o2); ap_abstract0_free(mp,p); ap_abstract0_free(mp,p2);
   } ENDLOOP;
   {
@@ -598,6 +631,7 @@ void test_polyhedra_conversion2(void)
   }
 }
 
+
 void test_lincons_conversion(exprmode mode)
 {
   printf("\nconversion from %slincons %s\n",exprname[mode],
@@ -648,7 +682,8 @@ void test_generator_conversion(void)
     ap_generator0_array_t t;
     o  = random_oct(dim,.1);
     t  = oct_to_generator_array(mo,o); FLAG(mo);
-    o2 = oct_of_generator_array(mo,0,dim,&t); FLAG(mo);
+    /* keep the integer dimensions of o */
+    o2 = oct_of_generator_array(mo,o->intdim,dim-o->intdim,&t); FLAG(mo);
     RESULT(check(o2));
     if (oct_is_nleq(mo,o,o2)) {
       ERROR("not included in"); 
@@ -664,7 +699,10 @@ void test_generator_conversion(void)
 
 void test_box_conversion(void)
 {
+  int algo = mo->option.funopt[AP_FUNID_TO_BOX].algorithm;
   printf("\nconversion to box %s\n",num_incomplete?"":"(* expected)");
+  /* force the closure in oct_to_box to get an integer box when tight */
+  if (pr->tight) mo->option.funopt[AP_FUNID_TO_BOX].algorithm = 0;
   LOOP {
     size_t dim = 6;
     int i;
@@ -672,9 +710,10 @@ void test_box_conversion(void)
     ap_interval_t **b,**b2;
     o = random_oct(dim,.1);
     b = oct_to_box(mo,o); FLAG(mo);
-    o2 = oct_of_box(mo,0,dim,b); FLAG(mo);
+    /* keep the integer dimensions of o */
+    o2 = oct_of_box(mo,o->intdim,dim-o->intdim,b); FLAG(mo);
     b2 = oct_to_box(mo,o2); FLAG(mo);
-    o3 = oct_of_box(mo,0,dim,b2); FLAG(mo);
+    o3 = oct_of_box(mo,o->intdim,dim-o->intdim,b2); FLAG(mo);
     RESULT(check(o)); check(o2);
     if (oct_is_nleq(mo,o,o2) || oct_is_nleq(mo,o2,o3)) {
       ERROR("not included in"); 
@@ -688,6 +727,8 @@ void test_box_conversion(void)
     ap_interval_array_free(b2,dim);
     oct_free(mo,o); oct_free(mo,o2); oct_free(mo,o3);
   } ENDLOOP;
+  /* restore the algorithm for the next tests */
+  mo->option.funopt[AP_FUNID_TO_BOX].algorithm = algo;
 }
 
 
@@ -847,7 +888,8 @@ void test_meet(void)
     int dim = 8;
     oct_t *o1, *o2, *o, *oo;
     o1 = random_oct(dim,.2);
-    o2 = oct_top(mo,0,dim);
+    /* same integer dimensions as o1 */
+    o2 = oct_top(mo,o1->intdim,dim-o1->intdim);
     o  = oct_meet(mo,false,o1,o2);
     oo = oct_meet(mo,false,o,o1);
     check(o1); check(o2); check(o);
@@ -867,7 +909,8 @@ void test_meet(void)
     int dim = 8;
     oct_t *o1, *o2, *o;
     o1 = random_oct(dim,.2);
-    o2 = oct_bottom(mo,0,dim);
+    /* same integer dimensions as o1 */
+    o2 = oct_bottom(mo,o1->intdim,dim-o1->intdim);
     o  = oct_meet(mo,false,o1,o2);
     check(o1); check(o2); check(o);
     if (!oct_is_bottom(mo,o)) {
@@ -1042,7 +1085,8 @@ void test_join(void)
     int dim = 8;
     oct_t *o1, *o2, *o, *oo;
     o1 = random_oct(dim,.2);
-    o2 = oct_bottom(mo,0,dim);
+    /* same integer dimensions as o1 */
+    o2 = oct_bottom(mo,o1->intdim,dim-o1->intdim);
     o  = oct_join(mo,false,o1,o2);
     oo = oct_join(mo,false,o,o1);
     RESULT(check(o1)); check(o2); check(o);
@@ -1062,7 +1106,8 @@ void test_join(void)
     int dim = 8;
     oct_t *o1, *o2, *o;
     o1 = random_oct(dim,.2);
-    o2 = oct_top(mo,0,dim);
+    /* same integer dimensions as o1 */
+    o2 = oct_top(mo,o1->intdim,dim-o1->intdim);
     o  = oct_join(mo,false,o1,o2);
     RESULT(check(o1)); check(o2); check(o);
     if (!oct_is_top(mo,o)) {
@@ -1164,11 +1209,12 @@ void test_dimadd(void)
   LOOP {
     size_t i, dim = 15;
     oct_t *o1, *o2, *o3;
-    ap_dimchange_t* a = ap_dimchange_alloc(0,3);
-    ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
+    /* add and remove integer dimensions when tight */
+    ap_dimchange_t* a = ap_dimchange_alloc(rand_intdim(3),3-rand_intdim(3));
+    ap_dimchange_t* r = ap_dimchange_alloc(a->intdim,a->realdim);
     o1 = random_oct(dim,.1);
     if (lrand48()%10>=8) oct_close(pr,o1);
-    for (i=0;i<a->realdim;i++) {
+    for (i=0;i<a->intdim+a->realdim;i++) {
       a->dim[i] = lrand48()%3;
       if (i) a->dim[i] += a->dim[i-1];
       r->dim[i] = a->dim[i]+i;
@@ -1192,18 +1238,19 @@ void test_dimrem(void)
   LOOP {
     size_t i, dim = 15;
     oct_t *o1, *o2, *o3 ,*o4;
-    ap_dimchange_t* a = ap_dimchange_alloc(0,3);
-    ap_dimchange_t* r = ap_dimchange_alloc(0,a->realdim);
+    /* add and remove integer dimensions when tight */
+    ap_dimchange_t* a = ap_dimchange_alloc(rand_intdim(3),3-rand_intdim(3));
+    ap_dimchange_t* r = ap_dimchange_alloc(a->intdim,a->realdim);
     o1 = random_oct(dim,.01);
     if (lrand48()%10>=8) oct_close(pr,o1);
-    for (i=0;i<r->realdim;i++) {
+    for (i=0;i<r->intdim+r->realdim;i++) {
       r->dim[i] = lrand48()%3 + 1;
       if (i) r->dim[i] += r->dim[i-1];
       a->dim[i] = r->dim[i]-i;
     }
     o2 = oct_remove_dimensions(mo,false,o1,r);
     o3 = oct_add_dimensions(mo,false,o2,a,false);
-    o4 = oct_forget_array(mo,false,o1,r->dim,r->realdim,false);
+    o4 = oct_forget_array(mo,false,o1,r->dim,r->intdim+r->realdim,false);
     RESULT(check(o1)); check(o2); check(o3); check(o4);
     if (oct_is_neq(mo,o3,o4)) {
       ERROR("not eq");
@@ -1719,7 +1766,13 @@ int main(int argc, const char** argv)
 
   tests(0);
   tests(-1);
-
+  /* run all the tests again with tight closure */
+  #if TEST_TIGHT
+  printf("\n Activate TIGHT CLOSURE \n");
+  oct_set_tight_closure(mo,true);
+  tests(0);
+  tests(-1);
+  #endif
   /* quit */
   ap_manager_free(mo);
   ap_manager_free(mp);

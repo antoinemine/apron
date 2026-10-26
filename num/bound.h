@@ -84,6 +84,7 @@ static inline void bound_mul_2(bound_t a, bound_t b);
 static inline void bound_div(bound_t a, bound_t b, bound_t c);
 static inline void bound_div_num(bound_t a, bound_t b, num_t c);
 static inline void bound_div_2(bound_t a, bound_t b);
+static inline void bound_fdiv_2(bound_t a, bound_t b);
 static inline void bound_min(bound_t a, bound_t b, bound_t c);
 static inline void bound_max(bound_t a, bound_t b, bound_t c);
 static inline void bound_mul_2exp(bound_t a, bound_t b, int c);

@@ -44,6 +44,9 @@ struct _oct_internal_t {
   void* tmp2;
   size_t tmp_size;
 
+  /* tight closure flag */ 
+  bool tight;
+
   /* raised when a conversion from/to a user type resulted in an
      overapproximation
   */
@@ -74,6 +77,12 @@ oct_init_from_manager(ap_manager_t* man, ap_funid_t id, size_t size)
   return pr;
 }
 
+/* number of integer dimensions to tighten in closures:
+   intdim if tight closure is enabled, 0 otherwise */
+static inline size_t oct_tight_intdim(oct_internal_t* pr, size_t intdim)
+{
+  return pr->tight ? intdim : 0;
+}
 
 
 /* loss of precision can be due to one of the following
@@ -177,9 +186,10 @@ static inline size_t matpos2(size_t i, size_t j)
 /* see oct_closure.c */
 
 bool hmat_s_step(bound_t* m, size_t dim);
-bool hmat_close(bound_t* m, size_t dim);
-bool hmat_close_incremental(bound_t* m, size_t dim, size_t v);
+bool hmat_close(bound_t* m, size_t dim, size_t intdim);
+bool hmat_close_incremental(bound_t* m, size_t dim, size_t intdim, size_t v);
 bool hmat_check_closed(bound_t* m, size_t dim);
+bool hmat_check_tight(bound_t* m, size_t intdim);
 
 
 /* ============================================================ */

@@ -59,23 +59,77 @@ bool hmat_s_step(bound_t* m, size_t dim)
   return false;
 }
 
+/* Tightening step to get complete closure on Z. 
+    cf. R. Bagnara, P. M. Hill, E. Zaffanella, "An Improved Tight Closure
+   Algorithm for Integer Octagonal Constraints"
+   
+   A unary constraint x <= c is encoded as x+ - x- = 2x <= w with w = 2c,
+   stored in m[2k+1][2k] (and -x <= c in m[2k][2k+1]).
+   When x is an integer, 2x is even, so 2x <= w is equivalent on Z to
+   2x <= 2*floor(w/2), the largest even integer not greater than w.
+   Only the first intdim (integer) variables are tightened.
+  
+   Then hmat_s_step performs the strengthening, which also detects
+   Z-inconsistency (Theorem 3).
+*/
+bool hmat_tightening(bound_t* m, size_t dim, size_t intdim)
+{
+  size_t i;
+  bound_t *c, t;
+
+  bound_init(t);
+  
+  for (i=0;i<2*intdim;i++) {
+    c = m+matpos(i,i^1);
+    bound_fdiv_2(t,*c);
+    bound_mul_2(*c,t);      /* w[i,i^1] := 2*floor(w[i,i^1]/2) */
+  }
+  
+  bound_clear(t);
+
+  return hmat_s_step(m,dim);
+}
+
+
+/* Rounds down all bounds between integer variables, which is sound on Z.
+   This yields an integer octagonal graph, as required
+   by the tight closure.
+
+   Quadratic time. Constant space.
+*/
+void hmat_floor_int(bound_t* m, size_t intdim)
+{
+  size_t i,j;
+  
+  for (i=0;i<2*intdim;i++)
+    for (j=0;j<=(i|1);j++)
+      bound_floor(m[matpos(i,j)],m[matpos(i,j)]);
+}
+
 /* We use a variant of Floyd-Warshall shortest-path closure algorithm, with
    some extra constraint propagation step.
-   
+
+   When intdim > 0 (tight closure enabled), bounds between integer
+   variables are first rounded down (hmat_floor_int), then Floyd-Warshall
+   is followed by the tightening of unary constraints and a single
+   strengthening step (hmat_tightening).
+   The result is the tight closure when all variables are integer and the
+   arithmetic is exact (e.g., MPQ, MPZ). With mixed integer/real variables,
+   or inexact arithmetic, it is sound but may not be the most precise.
 
    Returns true if the resulting matrix is empty, false otherwise
    (does not free the matrix)
 
    Cubic time. Constant space.
- */
-
-bool hmat_close(bound_t* m, size_t dim)
+*/
+bool hmat_close(bound_t* m, size_t dim, size_t intdim)
 {
   size_t i,j,k;
   bound_t *c,ik,ik2,ij;
 
   bound_init(ik); bound_init(ik2); bound_init(ij);
-
+  hmat_floor_int(m,intdim);
+  
   /* Floyd-Warshall */
   for (k=0;k<2*dim;k++) {
     size_t k2 = k^1;
@@ -103,7 +157,7 @@ bool hmat_close(bound_t* m, size_t dim)
   
   bound_clear(ik); bound_clear(ik2); bound_clear(ij);
 
-  return hmat_s_step(m,dim);
+  return hmat_tightening(m,dim,intdim);
 }
 
 
@@ -117,13 +171,14 @@ bool hmat_close(bound_t* m, size_t dim)
    Quadratic time. Constant space.
 */
 
-bool hmat_close_incremental(bound_t* m, size_t dim, size_t v)
+bool hmat_close_incremental(bound_t* m, size_t dim, size_t intdim, size_t v)
 {
   size_t i,j,k;
   bound_t *c;
   bound_t ij,ik,ik2;
 
   bound_init(ik); bound_init(ik2); bound_init(ij);
+  hmat_floor_int(m,intdim);
 
   /* incremental Floyd-Warshall : v in end-point position */
   for (k=0;k<2*dim;k++) {
@@ -190,10 +245,10 @@ bool hmat_close_incremental(bound_t* m, size_t dim, size_t v)
       }
     } 
   }
-  
+
   bound_clear(ik); bound_clear(ik2); bound_clear(ij);
 
-  return hmat_s_step(m,dim);
+  return hmat_tightening(m,dim,intdim);
 }
 
 
@@ -231,5 +286,27 @@ bool hmat_check_closed(bound_t* m, size_t dim)
   bound_clear(w);
 
   return closed;
+}
+
+/* checks that bounds between integer variables are integer,
+   and unary bounds on integer variables are even */
+bool hmat_check_tight(bound_t* m, size_t intdim)
+{
+  bool tight = true;
+  size_t i,j;
+  bound_t t;
+  bound_init(t);
+  for (i=0;i<2*intdim;i++)
+    for (j=0;j<2*intdim;j++) {
+      bound_floor(t,m[matpos2(i,j)]);
+      if (bound_cmp(t,m[matpos2(i,j)])) tight = false;
+    }
+  for (i=0;i<2*intdim;i++) {
+    bound_fdiv_2(t,m[matpos2(i,i^1)]);
+    bound_mul_2(t,t);
+    if (bound_cmp(t,m[matpos2(i,i^1)])) tight = false;
+  }
+  bound_clear(t);
+  return tight;
 }
 

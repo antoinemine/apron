@@ -92,6 +92,7 @@ octagons/oct.ml
 octagons/oct.mli
 octagons/oct_caml.c
 octagons/oct*
+!octagons/oct_tight_closure_test.c
 ppl/ap_ppl_caml.c
 ppl/ap_ppl_test
 ppl/ppl.ml

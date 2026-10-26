@@ -41,6 +41,17 @@ extern "C" {
 ap_manager_t* oct_manager_alloc(void);
 /* Creates a new manager for the octagon library. */
 
+void oct_set_tight_closure(ap_manager_t* man, bool b);
+/* Enables/disables the tight closure on integer dimensions
+   (R. Bagnara, P. M. Hill, E. Zaffanella, "An Improved Tight Closure
+   Algorithm for Integer Octagonal Constraints"). Disabled by default.
+   It is the exact tight closure when all variables are integer and the
+   arithmetic is exact; otherwise it is sound but may be less precise.
+   Note: with integer numbers (Il, Ill, MPZ), non-integer constraint
+   bounds are rounded upwards when converted, which may lose precision
+   before the closure is applied. */
+ 
+bool oct_get_tight_closure(ap_manager_t* man);
 
 /* ============================================================ */
 /* Supplementary functions & options */

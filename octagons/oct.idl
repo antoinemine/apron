@@ -55,6 +55,17 @@ quote(MLI,"(** No internal parameters for now... *)")
 internal_ptr manager_get_internal(ap_manager_ptr man)
   quote(call,"_res = (internal_ptr)man->internal;");
 
+quote(MLI,"(** Enable/disable the tight closure on integer dimensions
+    (Bagnara, Hill, Zaffanella). Disabled by default.
+    It is the exact tight closure when all variables are integer and the
+    arithmetic is exact; otherwise it is sound but may be less precise.
+    With integer numbers (Il, Ill, MPZ), non-integer constraint bounds are
+    rounded upwards when converted, which may lose precision. *)")
+void oct_set_tight_closure(ap_manager_ptr man, boolean b);
+
+quote(MLI,"(** Return [true] iff the tight closure is enabled. *)")
+boolean oct_get_tight_closure(ap_manager_ptr man);
+
 quote(MLI,"(** Approximate a set of generators to an abstract value, with best precision. *)")
 ap_abstract0_ptr ap_abstract0_oct_of_generator_array(ap_manager_ptr man, int v1, int v2, [ref]struct ap_generator0_array_t* v3)
      quote(dealloc,"I0_CHECK_EXC(man)");
