@@ -48,7 +48,7 @@ Compiling the built-in domains with the C interface requires:
 
 ### Additional domains
 
-Compiling the PPL-based domains requires the [Parma Polyhedra Library](http://bugseng.com/ppl) (tested with version 1.2) and gcc (no clang).
+Compiling the PPL-based domains requires the [Parma Polyhedra Library](https://bugseng.com/ppl) (tested with version 1.2) and gcc (no clang).
 
 Compiling the PPLite-based domains requires the
 [PPLite library](https://github.com/ezaffanella/PPLite),
